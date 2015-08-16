@@ -18,6 +18,9 @@ require_once ('sql.php');
 require_once (NS_PHP_PATH . '/core/strings.php');
 require_once (NS_PHP_PATH . '/core/arrays.php');
 
+/**
+ * SQL structure definition schema version
+ */
 class StructureVersion
 {
 
@@ -217,7 +220,7 @@ class StructureElement implements ArrayAccess, Iterator
 /**
  * Table field properties
  */
-class TableFieldStructure extends StructureElement
+class SQLTableFieldStructure extends StructureElement
 {
 
 	public function __construct(SQLTableStructure $a_tableStructure, $a_name)
@@ -275,7 +278,7 @@ class SQLTableStructure extends StructureElement
 		return $this->root()->getTablePrefix() . parent::getName();
 	}
 
-	public final function addFieldStructure(TableFieldStructure $a_fieldStructure)
+	public final function addFieldStructure(SQLTableFieldStructure $a_fieldStructure)
 	{
 		$this->addChild($a_fieldStructure);
 	}
@@ -409,35 +412,15 @@ class SQLDatasourceStructure extends StructureElement
 			{
 				$ts = new SQLTableStructure($dbs, $tnode->getAttribute('name'));
 				
-				$fnodes = $xpath->query('sql:field', $tnode);
+				$fnodes = $xpath->query('sql:column', $tnode);
 				foreach ($fnodes as $fnode)
 				{
-					$fs = new TableFieldStructure($ts, $fnode->getAttribute('name'));
+					$fs = new SQLTableFieldStructure($ts, $fnode->getAttribute('name'));
 					$child = $fnode->getElementsByTagNameNS(self::XMLNAMESPACE, 'datatype');
 					
 					if ($child && $child->length)
 					{
-						if ($this->getStructureVersion()->major < 2 || $this->getStructureVersion()->minor == 0) // 1.x, 2.0
-						{
-							$subchild = $child->item(0)->getElementsByTagNameNS(self::XMLNAMESPACE, 'affinity');
-							if ($subchild && $subchild->length)
-							{
-								$affinity = $subchild->item(0)->nodeValue;
-								$fs->setProperty(kStructureDatatype, SQLDatasourceStructure::xmlAffinityToDatatype($affinity));
-							}
-							$subchild = $child->item(0)->getElementsByTagNameNS(self::XMLNAMESPACE, 'length');
-							if ($subchild && $subchild->length)
-							{
-								$fs->setProperty(kStructureDataSize, floatval($subchild->item(0)->nodeValue));
-							}
-							
-							$subchild = $child->item(0)->getElementsByTagNameNS(self::XMLNAMESPACE, 'decimal');
-							if ($subchild && $subchild->length)
-							{
-								$fs->setProperty(kStructureDecimalCount, floatval($subchild->item(0)->nodeValue));
-							}
-						}
-						elseif ($this->getStructureVersion()->major == 2)
+						if ($this->getStructureVersion()->major == 1)
 						{
 							$dataTypeNode = $child->item(0);
 							$a = array (

@@ -541,7 +541,7 @@ class MySQLDatasource extends Datasource implements ITransactionBlock
 			{
 				$typedef = parseDataTypeDefinition($row ['Type'], true);
 			}
-			$f = new TableFieldStructure($ts, $name);
+			$f = new SQLTableFieldStructure($ts, $name);
 			
 			$f->setProperty(kStructurePrimaryKey, preg_match('/pri/i', $row ['Key']));
 			$f->setProperty(kStructureAutoincrement, preg_match('/auto_increment/i', $row ['Extra']));

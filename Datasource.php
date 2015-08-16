@@ -388,7 +388,7 @@ abstract class Datasource extends SQLObject implements IDatabaseProvider
 	/**
 	 *
 	 * @param mixed $mixed
-	 *        	SQL data type, TableField or TableFieldStructure
+	 *        	SQL data type, TableField or SQLTableFieldStructure
 	 */
 	public function createData($dataType)
 	{
@@ -403,7 +403,7 @@ abstract class Datasource extends SQLObject implements IDatabaseProvider
 		{
 			$structure = $dataType->structure;
 		}
-		elseif ($dataType instanceof TableFieldStructure)
+		elseif ($dataType instanceof SQLTableFieldStructure)
 		{
 			$structure = $dataType;
 		}
@@ -472,7 +472,7 @@ abstract class Datasource extends SQLObject implements IDatabaseProvider
 				return $this->m_dataTypeNames [$dataType];
 			}
 		}
-		elseif ($dataType instanceof TableFieldStructure)
+		elseif ($dataType instanceof SQLTableFieldStructure)
 		{
 			return $dataType->getProperty(self::kStructureDatatype);
 		}

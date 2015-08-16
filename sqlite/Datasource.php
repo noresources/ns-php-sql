@@ -608,7 +608,7 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 			$name = $row ['name'];
 			$typedef = parseDataTypeDefinition($row ['type'], true);
 			
-			$f = new TableFieldStructure($ts, $name);
+			$f = new SQLTableFieldStructure($ts, $name);
 			$f->setProperty(kStructurePrimaryKey, ($row ['pk'] == '1'));
 			$f->setPdroperty(kStructureFieldTypename, $typedef ['type']);
 			$f->setProperty(kStructureAcceptNull, intval($row ['notnull']) == 0);

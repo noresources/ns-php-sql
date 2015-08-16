@@ -337,10 +337,10 @@ function parseDataTypeDefinition($definition, $typeUpperCase = false)
  * Assumes similar string for all Datasources
  *
  * @param ISQLDataType $a_datatype        	
- * @param TableFieldStructure $a_structure        	
+ * @param SQLTableFieldStructure $a_structure        	
  * @return string
  */
-function datatypeSizeString(ISQLDataType $a_datatype, TableFieldStructure $a_structure = null)
+function datatypeSizeString(ISQLDataType $a_datatype, SQLTableFieldStructure $a_structure = null)
 {
 	$str = '';
 	

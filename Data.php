@@ -238,9 +238,9 @@ class StringData extends Data
 	/**
 	 *
 	 * @param Datasource $datasource        	
-	 * @param TableFieldStructure $structure        	
+	 * @param SQLTableFieldStructure $structure        	
 	 */
-	public function __construct(Datasource $datasource, /*TableFieldStructure*/ $structure)
+	public function __construct(Datasource $datasource, /*SQLTableFieldStructure*/ $structure)
 	{
 		parent::__construct(DATATYPE_STRING);
 		$this->m_datasource = $datasource;
@@ -328,9 +328,9 @@ class NumberData extends Data
 	/**
 	 *
 	 * @param Datasource $datasource        	
-	 * @param TableFieldStructure $structure        	
+	 * @param SQLTableFieldStructure $structure        	
 	 */
-	public function __construct(Datasource $datasource, /*TableFieldStructure*/ $structure)
+	public function __construct(Datasource $datasource, /*SQLTableFieldStructure*/ $structure)
 	{
 		parent::__construct(DATATYPE_NUMBER);
 		$this->m_value = null;
@@ -422,9 +422,9 @@ class TimestampData extends Data
 	/**
 	 *
 	 * @param Datasource $datasource        	
-	 * @param TableFieldStructure $structure        	
+	 * @param SQLTableFieldStructure $structure        	
 	 */
-	public function __construct(Datasource $datasource, /*TableFieldStructure*/ $structure)
+	public function __construct(Datasource $datasource, /*SQLTableFieldStructure*/ $structure)
 	{
 		parent::__construct(DATATYPE_TIMESTAMP);
 		$this->setFlags($this->flags | self::kValid);
@@ -506,7 +506,7 @@ class TimestampData extends Data
 class BinaryData extends Data
 {
 
-	public function __construct(Datasource $datasource, TableFieldStructure $structure)
+	public function __construct(Datasource $datasource, SQLTableFieldStructure $structure)
 	{
 		parent::__construct(DATATYPE_BINARY);
 		$this->setFlags($this->flags | self::kAcceptNull);
