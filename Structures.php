@@ -434,7 +434,7 @@ class SQLDatasourceStructure extends StructureElement
 			{
 				$ts = new SQLTableStructure($dbs, $tnode->getAttribute('name'));
 				
-				$columnNodes = $xpath->query('sql:column', $tnode);
+				$columnNodes = $xpath->query('sql:column|sql:field', $tnode);
 				foreach ($columnNodes as $columnNode)
 				{
 					$fs = new SQLTableFieldStructure($ts, $columnNode->getAttribute('name'));
