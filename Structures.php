@@ -310,8 +310,15 @@ class SQLDatabaseStructure extends StructureElement
  */
 class SQLDatasourceStructure extends StructureElement
 {
+	/**
+	 * @var string ns-xml SQL schema namespace
+	 */
 	const XMLNAMESPACE = 'http://xsd.nore.fr/sql';
 
+	/**
+	 * @param string $a_name Datasource class name
+	 * @param number $flags
+	 */
 	public function __construct($a_name = 'Datasource', $flags = 0)
 	{
 		parent::__construct($a_name);
@@ -319,16 +326,26 @@ class SQLDatasourceStructure extends StructureElement
 		$this->m_version = new StructureVersion('0.0.0');
 	}
 
+	/**
+	 * @see \NoreSources\SQL\StructureElement::getStructureVersion()
+	 * @return StructureVersion
+	 */
 	public function getStructureVersion()
 	{
 		return $this->m_version;
 	}
 
+	/**
+	 * @return string
+	 */
 	public function getTablePrefix()
 	{
 		return $this->m_tablePrefix;
 	}
 
+	/**
+	 * @param string $prefix
+	 */
 	public function setTablePrefix($prefix)
 	{
 		$this->m_tablePrefix = $prefix;
@@ -505,6 +522,9 @@ class SQLDatasourceStructure extends StructureElement
 		return true;
 	}
 
+	/**
+	 * @param SQLDatabaseStructure $a_database
+	 */
 	public final function addDatabaseStructure(SQLDatabaseStructure $a_database)
 	{
 		$this->addChild($a_database);
@@ -512,7 +532,14 @@ class SQLDatasourceStructure extends StructureElement
 
 	protected $m_flags;
 
+	/**
+	 * @var StructureVersion
+	 */
 	private $m_version;
+	
+	/**
+	 * @var string
+	 */
 	private $m_tablePrefix;
 }
 
@@ -521,6 +548,10 @@ class SQLDatasourceStructure extends StructureElement
  */
 class SQLObject
 {
+	/**
+	 * @param StructureElement $a_structure
+	 * @param string $a_structureClassType
+	 */
 	protected function __construct($a_structure = null, $a_structureClassType = null)
 	{
 		if ($a_structureClassType === null)
@@ -548,11 +579,17 @@ class SQLObject
 		throw new \InvalidArgumentException(get_class($this) . '::' . $member);
 	}
 	
+	/**
+	 * @return StructureElement
+	 */
 	public final function getStructure()
 	{
 		return $this->m_structure;
 	}
 
+	/**
+	 * @var StructureElement
+	 */
 	protected $m_structure;
 }
 
