@@ -161,20 +161,20 @@ class MySQLDatasource extends Datasource implements ITransactionBlock
 		);
 		foreach ($types as $name)
 		{
-			$this->addDataTypeName($name, DATATYPE_STRING);
+			$this->addDataTypeName($name, kDataTypeString);
 		}
 		
-		$this->addDataTypeName('TEXT', DATATYPE_STRING, true);
+		$this->addDataTypeName('TEXT', kDataTypeString, true);
 		
-		$this->addDataTypeName('BINARY', DATATYPE_BINARY, true);
-		$this->addDataTypeName('VARBINARY', DATATYPE_BINARY);
+		$this->addDataTypeName('BINARY', kDataTypeBinary, true);
+		$this->addDataTypeName('VARBINARY', kDataTypeBinary);
 		
-		$this->addDataTypeName('BOOL', DATATYPE_BOOLEAN, true);
+		$this->addDataTypeName('BOOL', kDataTypeBoolean, true);
 		
-		$this->addDataTypeName('TIMESTAMP', DATATYPE_TIMESTAMP, true);
-		$this->addDataTypeName('DATE', DATATYPE_TIMESTAMP, false);
-		$this->addDataTypeName('TIME', DATATYPE_TIMESTAMP, false);
-		$this->addDataTypeName('DATETIME', DATATYPE_TIMESTAMP, false);
+		$this->addDataTypeName('TIMESTAMP', kDataTypeTimestamp, true);
+		$this->addDataTypeName('DATE', kDataTypeTimestamp, false);
+		$this->addDataTypeName('TIME', kDataTypeTimestamp, false);
+		$this->addDataTypeName('DATETIME', kDataTypeTimestamp, false);
 		
 		// number types
 		$types = array (
@@ -189,10 +189,10 @@ class MySQLDatasource extends Datasource implements ITransactionBlock
 		);
 		foreach ($types as $name)
 		{
-			$this->addDataTypeName($name, DATATYPE_NUMBER);
+			$this->addDataTypeName($name, kDataTypeNumber);
 		}
 		
-		$this->addDataTypeName('INT', DATATYPE_NUMBER, true);
+		$this->addDataTypeName('INT', kDataTypeNumber, true);
 	}
 
 	/**

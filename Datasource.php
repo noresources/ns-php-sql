@@ -408,27 +408,27 @@ abstract class Datasource extends SQLObject implements IDatabaseProvider
 			$structure = $dataType;
 		}
 		
-		if ($type == DATATYPE_NULL)
+		if ($type == kDataTypeNull)
 		{
 			return (new NullData($this));
 		}
-		elseif ($type == DATATYPE_STRING)
+		elseif ($type == kDataTypeString)
 		{
 			return (new StringData($this, $structure));
 		}
-		elseif ($type == DATATYPE_NUMBER)
+		elseif ($type == kDataTypeNumber)
 		{
 			return (new NumberData($this, $structure));
 		}
-		elseif ($type == DATATYPE_TIMESTAMP)
+		elseif ($type == kDataTypeTimestamp)
 		{
 			return (new TimestampData($this, $structure));
 		}
-		elseif ($type == DATATYPE_BOOLEAN)
+		elseif ($type == kDataTypeBoolean)
 		{
 			return (new BooleanData($this));
 		}
-		elseif ($type == DATATYPE_BINARY)
+		elseif ($type == kDataTypeBinary)
 		{
 			return (new StringData($this));
 		}

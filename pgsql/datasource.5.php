@@ -135,11 +135,11 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 			$this->addDataTypeName(new SQLDecimalNumberDataType(get_class($this), $name, 0, 1000, 15));
 		}
 		
-		$this->setDefaultTypeName(DATATYPE_BINARY, "bytes");
-		$this->setDefaultTypeName(DATATYPE_BOOLEAN, "boolean");
-		$this->setDefaultTypeName(DATATYPE_TIMESTAMP, "timestamp");
-		$this->setDefaultTypeName(DATATYPE_NUMBER, "integer");
-		$this->setDefaultTypeName(DATATYPE_STRING, "text");
+		$this->setDefaultTypeName(kDataTypeBinary, "bytes");
+		$this->setDefaultTypeName(kDataTypeBoolean, "boolean");
+		$this->setDefaultTypeName(kDataTypeTimestamp, "timestamp");
+		$this->setDefaultTypeName(kDataTypeNumber, "integer");
+		$this->setDefaultTypeName(kDataTypeString, "text");
 		$this->setDefaultTypeName(DATATYPE_TIME, "time");
 	}
 

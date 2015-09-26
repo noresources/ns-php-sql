@@ -87,32 +87,32 @@ const kJoinRight = 0x10;
 /**
  * null element
  */
-const DATATYPE_NULL = 1;
+const kDataTypeNull = 1;
 
 /**
  * Manage all kind of string based element
  */
-const DATATYPE_STRING = 2;
+const kDataTypeString = 2;
 
 /**
  * Manage all kind of number element
  */
-const DATATYPE_NUMBER = 4;
+const kDataTypeNumber = 4;
 
 /**
  * All kind of date (date, datetime, time)
  */
-const DATATYPE_TIMESTAMP = 8;
+const kDataTypeTimestamp = 8;
 
 /**
  * Boolean (true / false)
  */
-const DATATYPE_BOOLEAN = 16;
+const kDataTypeBoolean = 16;
 
 /**
  * Binary data
  */
-const DATATYPE_BINARY = 32;
+const kDataTypeBinary = 32;
 
 /**
  * @}
@@ -281,27 +281,27 @@ function guessDataType($a_value)
 {
 	if ($a_value instanceof \DateTime)
 	{
-		return DATATYPE_TIMESTAMP;
+		return kDataTypeTimestamp;
 	}
 	if ($a_value === null)
 	{
-		return DATATYPE_NULL;
+		return kDataTypeNull;
 	}
 	elseif (is_bool($a_value))
 	{
 		$a_value = ($a_value) ? 1 : 0;
-		return DATATYPE_BOOLEAN;
+		return kDataTypeBoolean;
 	}
 	elseif (is_string($a_value))
 	{
-		return DATATYPE_STRING;
+		return kDataTypeString;
 	}
 	elseif (is_numeric($a_value))
 	{
-		return DATATYPE_NUMBER;
+		return kDataTypeNumber;
 	}
 	
-	return DATATYPE_BINARY;
+	return kDataTypeBinary;
 }
 
 /**

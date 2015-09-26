@@ -355,26 +355,26 @@ class SQLDatasourceStructure extends StructureElement
 	{
 		if ($v == 'integer')
 		{
-			return DATATYPE_NUMBER;
+			return kDataTypeNumber;
 		}
 		else if ($v == 'boolean')
 		{
-			return DATATYPE_BOOLEAN;
+			return kDataTypeBoolean;
 		}
 		else if ($v == 'decimal')
 		{
-			return DATATYPE_NUMBER;
+			return kDataTypeNumber;
 		}
 		else if ($v == 'datetime')
 		{
-			return DATATYPE_TIMESTAMP;
+			return kDataTypeTimestamp;
 		}
 		else if ($v == 'string')
 		{
-			return DATATYPE_STRING;
+			return kDataTypeString;
 		}
 		
-		return DATATYPE_BINARY;
+		return kDataTypeBinary;
 	}
 
 	/**
@@ -416,6 +416,11 @@ class SQLDatasourceStructure extends StructureElement
 		
 		$this->m_version = new StructureVersion($version);
 		
+		if ($this->getStructureVersion()->major != 1)
+		{
+			return ns\Reporter::fatalError($this, __METHOD__ . ': Unsupported structure schema version');
+		}
+		
 		$xpath = new \DOMXPath($doc);
 		$xpath->registerNamespace('sql', self::XMLNAMESPACE);
 		$dbnodes = $xpath->query('//sql:database');
@@ -429,11 +434,11 @@ class SQLDatasourceStructure extends StructureElement
 			{
 				$ts = new SQLTableStructure($dbs, $tnode->getAttribute('name'));
 				
-				$fnodes = $xpath->query('sql:column', $tnode);
-				foreach ($fnodes as $fnode)
+				$columnNodes = $xpath->query('sql:column', $tnode);
+				foreach ($columnNodes as $columnNode)
 				{
-					$fs = new SQLTableFieldStructure($ts, $fnode->getAttribute('name'));
-					$child = $fnode->getElementsByTagNameNS(self::XMLNAMESPACE, 'datatype');
+					$fs = new SQLTableFieldStructure($ts, $columnNode->getAttribute('name'));
+					$child = $columnNode->getElementsByTagNameNS(self::XMLNAMESPACE, 'datatype');
 					
 					if ($child && $child->length)
 					{
@@ -441,11 +446,11 @@ class SQLDatasourceStructure extends StructureElement
 						{
 							$dataTypeNode = $child->item(0);
 							$a = array (
-									'binary' => DATATYPE_BINARY,
-									'boolean' => DATATYPE_BOOLEAN,
-									'numeric' => DATATYPE_NUMBER,
-									'timestamp' => DATATYPE_TIMESTAMP,
-									'string' => DATATYPE_STRING 
+									'binary' => kDataTypeBinary,
+									'boolean' => kDataTypeBoolean,
+									'numeric' => kDataTypeNumber,
+									'timestamp' => kDataTypeTimestamp,
+									'string' => kDataTypeString 
 							);
 							$typeNode = null;
 							$type = null;
@@ -461,7 +466,7 @@ class SQLDatasourceStructure extends StructureElement
 								}
 							}
 							
-							if ($type == DATATYPE_NUMBER)
+							if ($type == kDataTypeNumber)
 							{
 								if ($typeNode->hasAttribute('autoincrement'))
 								{
@@ -479,13 +484,13 @@ class SQLDatasourceStructure extends StructureElement
 						}
 					}
 					
-					$child = $fnode->getElementsByTagNameNS(self::XMLNAMESPACE, 'notnull');
+					$child = $columnNode->getElementsByTagNameNS(self::XMLNAMESPACE, 'notnull');
 					if ($child && $child->length)
 					{
 						$fs->setProperty(kStructureAcceptNull, false);
 					}
 					
-					$child = $fnode->getElementsByTagNameNS(self::XMLNAMESPACE, 'default');
+					$child = $columnNode->getElementsByTagNameNS(self::XMLNAMESPACE, 'default');
 					if ($child && $child->length)
 					{
 						$fs->setProperty(kStructureDefaultValue, $child->item(0)->nodeValue);
@@ -496,7 +501,7 @@ class SQLDatasourceStructure extends StructureElement
 					{
 						call_user_func($postProcessElementCallback, $fs);
 					}
-				} // foreach field nodes
+				} // foreach column nodes
 				
 				$dbs->addChild($ts);
 				if (is_callable($postProcessElementCallback))

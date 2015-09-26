@@ -143,7 +143,7 @@ class NullData extends Data
 
 	public function __construct(Datasource $datasource)
 	{
-		parent::__construct(DATATYPE_NULL);
+		parent::__construct(kDataTypeNull);
 		$this->setFlags($this->flags | self::kValid);
 		$this->m_nullKeyword = $datasource->getDatasourceString(Datasource::kStringKeywordNull);
 	}
@@ -174,7 +174,7 @@ class BooleanData extends Data
 
 	public function __construct(Datasource $datasource)
 	{
-		parent::__construct(DATATYPE_BOOLEAN);
+		parent::__construct(kDataTypeBoolean);
 		$this->m_datasource = $datasource;
 	}
 
@@ -205,7 +205,7 @@ class FormattedData extends Data
 
 	public function __construct($data = null)
 	{
-		parent::__construct(DATATYPE_STRING);
+		parent::__construct(kDataTypeString);
 		$this->m_value = $data;
 		$this->importResult(true);
 	}
@@ -242,7 +242,7 @@ class StringData extends Data
 	 */
 	public function __construct(Datasource $datasource, /*SQLTableFieldStructure*/ $structure)
 	{
-		parent::__construct(DATATYPE_STRING);
+		parent::__construct(kDataTypeString);
 		$this->m_datasource = $datasource;
 	}
 
@@ -332,7 +332,7 @@ class NumberData extends Data
 	 */
 	public function __construct(Datasource $datasource, /*SQLTableFieldStructure*/ $structure)
 	{
-		parent::__construct(DATATYPE_NUMBER);
+		parent::__construct(kDataTypeNumber);
 		$this->m_value = null;
 		$this->m_datasource = $datasource;
 		$this->setFlags($this->flags | self::kAcceptNull);
@@ -426,7 +426,7 @@ class TimestampData extends Data
 	 */
 	public function __construct(Datasource $datasource, /*SQLTableFieldStructure*/ $structure)
 	{
-		parent::__construct(DATATYPE_TIMESTAMP);
+		parent::__construct(kDataTypeTimestamp);
 		$this->setFlags($this->flags | self::kValid);
 		$this->m_dateTime = new DateTime();
 	}
@@ -508,7 +508,7 @@ class BinaryData extends Data
 
 	public function __construct(Datasource $datasource, SQLTableFieldStructure $structure)
 	{
-		parent::__construct(DATATYPE_BINARY);
+		parent::__construct(kDataTypeBinary);
 		$this->setFlags($this->flags | self::kAcceptNull);
 		$this->m_datasource = $datasource;
 	}

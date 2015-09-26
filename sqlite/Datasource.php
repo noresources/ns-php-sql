@@ -116,15 +116,15 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 		
 		$this->m_databaseName = null;
 		
-		$this->addDataTypeName('VARCHAR', DATATYPE_STRING);
-		$this->addDataTypeName('TEXT', DATATYPE_STRING, true);
+		$this->addDataTypeName('VARCHAR', kDataTypeString);
+		$this->addDataTypeName('TEXT', kDataTypeString, true);
 		
-		$this->setDefaultTypeName(DATATYPE_BOOLEAN, 'INTEGER');
+		$this->setDefaultTypeName(kDataTypeBoolean, 'INTEGER');
 		
-		$this->addDataTypeName('INTEGER', DATATYPE_NUMBER);
-		$this->addDataTypeName('REAL', DATATYPE_NUMBER);
-		$this->addDataTypeName('NUMERIC', DATATYPE_NUMBER, true);
-		$this->addDataTypeName('BLOB', DATATYPE_BINARY, true);
+		$this->addDataTypeName('INTEGER', kDataTypeNumber);
+		$this->addDataTypeName('REAL', kDataTypeNumber);
+		$this->addDataTypeName('NUMERIC', kDataTypeNumber, true);
+		$this->addDataTypeName('BLOB', kDataTypeBinary, true);
 	}
 	
 	public function __destruct()
@@ -555,7 +555,7 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 
 	public function getDatabaseStructure(SQLObject $a_containerObject, $recursive = false)
 	{
-		$v = $this->createData(DATATYPE_STRING);
+		$v = $this->createData(kDataTypeString);
 		$v->import('table');
 		$queryStr = 'SELECT * ' . 'FROM ' . $this->encloseElement('sqlite_master') . ' WHERE ' . $this->encloseElement('type') . '=' . $v->expressionString() . ' ORDER BY ' . $this->encloseElement('name') . ';';
 		$query = new FormattedQuery($this, $queryStr);
