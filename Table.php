@@ -197,35 +197,18 @@ class Table extends SQLObject implements IExpression, IAliasedClone, ITableField
 	 */
 	public function fieldIterator()
 	{
-		if (NS_SQL_DISABLE_PROPERTYARRAY)
-		{
-			$f = false;
-			return $f;
-		}
-		
 		/**
 		 *
 		 * @todo
-		 *
-		 *
-		 *
 		 */
 		return null;
 	}
 
 	/**
-	 * @note If NS_SQL_DISABLE_PROPERTYARRAY is set to 1, the method
-	 * always return <code>false</code>
-	 *
 	 * @see sources/sql/ITableFieldProvider#fieldExists($a_name)
 	 */
 	public function fieldExists($a_name)
 	{
-		if (NS_SQL_DISABLE_PROPERTYARRAY)
-		{
-			return false;
-		}
-		
 		if (!$this->m_fieldProperties)
 		{
 			$this->m_fieldProperties = new TableFieldArray($this->getDatasource(), $this);
@@ -430,5 +413,3 @@ class Table extends SQLObject implements IExpression, IAliasedClone, ITableField
 	 */
 	protected $m_fieldProperties;
 }
-
-?>

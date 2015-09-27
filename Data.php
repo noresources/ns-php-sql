@@ -550,5 +550,3 @@ class BinaryData extends Data
 
 	private $m_value;
 }
-
-?>

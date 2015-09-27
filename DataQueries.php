@@ -1138,5 +1138,3 @@ class TruncateQuery extends TableQuery implements ns\IExpression
 		return 'TRUNCATE TABLE ' . $this->table->expressionString(kExpressionElementName);
 	}
 }
-
-?>
