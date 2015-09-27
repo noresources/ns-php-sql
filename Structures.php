@@ -24,6 +24,10 @@ require_once (NS_PHP_PATH . '/core/arrays.php');
 class StructureVersion
 {
 
+	/**
+	 *
+	 * @param string $version
+	 */
 	public function __construct($version)
 	{
 		if (is_string($version))
@@ -39,6 +43,11 @@ class StructureVersion
 		}
 	}
 
+	/**
+	 *
+	 * @param unknown $member
+	 * @return number
+	 */
 	public function __get($member)
 	{
 		if ($member == 'major')
@@ -73,17 +82,30 @@ class StructureVersion
 		throw new \InvalidArgumentException(get_class($this) . '::' . $member);
 	}
 
+	/**
+	 *
+	 * @return string
+	 */
 	public function __toString()
 	{
 		return implode('.', $this->m_versionArray);
 	}
 
+	/**
+	 *
+	 * @var array
+	 */
 	private $m_versionArray;
 }
 
 class StructureElement implements ArrayAccess, Iterator
 {
 
+	/**
+	 *
+	 * @param string $a_name StructureElement
+	 * @param StructureElement $a_parent
+	 */
 	protected function __construct($a_name, $a_parent = null)
 	{
 		$this->m_name = $a_name;
@@ -150,16 +172,28 @@ class StructureElement implements ArrayAccess, Iterator
 		$this->m_iteratorCurrent = each($this->m_children);
 	}
 
+	/**
+	 *
+	 * @return string
+	 */
 	public function elementKey()
 	{
 		return $this->m_name;
 	}
 
+	/**
+	 *
+	 * @return string
+	 */
 	public function getName()
 	{
 		return $this->m_name;
 	}
 
+	/**
+	 *
+	 * @return StructureElement
+	 */
 	public function parent()
 	{
 		return $this->m_parent;
@@ -183,6 +217,10 @@ class StructureElement implements ArrayAccess, Iterator
 		$this->m_iteratorCurrent = false;
 	}
 
+	/**
+	 *
+	 * @return StructureElement
+	 */
 	protected function root()
 	{
 		$res = $this;
@@ -208,12 +246,28 @@ class StructureElement implements ArrayAccess, Iterator
 
 	private $m_iteratorCurrent;
 
+	/**
+	 *
+	 * @var string
+	 */
 	private $m_name;
 
+	/**
+	 *
+	 * @var StructureElement
+	 */
 	private $m_parent;
 
+	/**
+	 *
+	 * @var array
+	 */
 	private $m_children;
 
+	/**
+	 *
+	 * @var StructureVersion
+	 */
 	private $m_version;
 }
 
@@ -239,6 +293,9 @@ class SQLTableFieldStructure extends StructureElement
 		);
 	}
 
+	/**
+	 * @return array
+	 */
 	public function getProperties()
 	{
 		return $this->m_fieldProperties;
@@ -311,11 +368,13 @@ class SQLDatabaseStructure extends StructureElement
 class SQLDatasourceStructure extends StructureElement
 {
 	/**
+	 *
 	 * @var string ns-xml SQL schema namespace
 	 */
 	const XMLNAMESPACE = 'http://xsd.nore.fr/sql';
 
 	/**
+	 *
 	 * @param string $a_name Datasource class name
 	 * @param number $flags
 	 */
@@ -327,6 +386,7 @@ class SQLDatasourceStructure extends StructureElement
 	}
 
 	/**
+	 *
 	 * @see \NoreSources\SQL\StructureElement::getStructureVersion()
 	 * @return StructureVersion
 	 */
@@ -336,6 +396,7 @@ class SQLDatasourceStructure extends StructureElement
 	}
 
 	/**
+	 *
 	 * @return string
 	 */
 	public function getTablePrefix()
@@ -344,6 +405,7 @@ class SQLDatasourceStructure extends StructureElement
 	}
 
 	/**
+	 *
 	 * @param string $prefix
 	 */
 	public function setTablePrefix($prefix)
@@ -351,6 +413,10 @@ class SQLDatasourceStructure extends StructureElement
 		$this->m_tablePrefix = $prefix;
 	}
 
+	/**
+	 * @param string $v Type affinity name
+	 * @return integer
+	 */
 	public static function xmlAffinityToDatatype($v)
 	{
 		if ($v == 'integer')
@@ -379,10 +445,9 @@ class SQLDatasourceStructure extends StructureElement
 
 	/**
 	 *
-	 * @param string $a_filename
-	 *        	XML SQL structure to load
-	 * @param mixed $postProcessElementCallback
-	 *        	A delegate called for each node. The currently processed node is passed as the first argument
+	 * @param string $a_filename XML SQL structure to load
+	 * @param mixed $postProcessElementCallback A delegate called for each node. The currently processed node is passed as the
+	 *        	first argument
 	 * @return boolean
 	 */
 	public final function loadStructureFromXml($a_filename, $postProcessElementCallback = null)

@@ -64,7 +64,7 @@ class Table extends SQLObject implements IExpression, IAliasedClone, ITableField
 	public function expressionString($a_options = null)
 	{
 		$direct = ($this->m_owner instanceof Datasource) ? true : false;
-		$Datasource = (($direct) ? $this->m_owner : $this->m_owner->datasource);
+		$Datasource = (($direct) ? $this->m_owner : $this->m_owner->getDatasource());
 		$db = ($direct) ? '' : $this->m_owner->expressionString(kExpressionElementAlias) . '.';
 		if (($a_options & kExpressionElementDeclaration) == kExpressionElementDeclaration)
 		{
@@ -97,7 +97,7 @@ class Table extends SQLObject implements IExpression, IAliasedClone, ITableField
 	{
 		if (($this->m_owner instanceof Database))
 		{
-			return $this->m_owner->datasource;
+			return $this->m_owner->getDatasource();
 		}
 		
 		return $this->m_owner;
@@ -228,7 +228,7 @@ class Table extends SQLObject implements IExpression, IAliasedClone, ITableField
 		
 		if (!$this->m_fieldProperties)
 		{
-			$this->m_fieldProperties = new TableFieldArray($this->datasource, $this);
+			$this->m_fieldProperties = new TableFieldArray($this->getDatasource(), $this);
 		}
 		
 		return $this->m_fieldProperties->offsetExists($a_name);

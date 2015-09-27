@@ -110,6 +110,9 @@ interface ITableFieldValueValidatorProvider
 abstract class ITableField extends SQLObject implements IExpression, IAliasable
 {
 
+	/**
+	 * @param SQLTableFieldStructure $a_structure
+	 */
 	public function __construct(SQLTableFieldStructure $a_structure = null)
 	{
 		parent::__construct($a_structure);
@@ -119,7 +122,7 @@ abstract class ITableField extends SQLObject implements IExpression, IAliasable
 	{
 		if ($member == 'datasource')
 		{
-			return $this->getTable()->datasource;
+			return $this->getTable()->getDatasource();
 		}
 		if ($member == 'table')
 		{
@@ -158,6 +161,9 @@ class StarColumn extends ITableField
 	}
 	
 	// ns\IExpression implementation
+	/**
+	 * @return string
+	 */
 	public function expressionString($a_options = null)
 	{
 		/**
@@ -174,7 +180,7 @@ class StarColumn extends ITableField
 	{
 		if ($this->m_table)
 		{
-			return $this->m_table->datasource;
+			return $this->m_table->getDatasource();
 		}
 	}
 	
@@ -182,11 +188,17 @@ class StarColumn extends ITableField
 	
 
 	// ISQLAliased
+	/**
+	 * @return boolean
+	 */
 	public function hasAlias()
 	{
 		return false;
 	}
 
+	/**
+	 * @return SQLAlias
+	 */
 	public function alias(SQLAlias $alias = null)
 	{
 		return null;
@@ -198,6 +210,9 @@ class StarColumn extends ITableField
 		return $this->m_table;
 	}
 
+	/**
+	 * @return string
+	 */
 	public function getName()
 	{
 		return '*';
@@ -236,7 +251,7 @@ class TableField extends ITableField implements IAliasedClone, ITableFieldValueV
 		$this->m_fieldName = $a_strName;
 		if (is_string($a_strAlias))
 		{
-			$this->m_alias = new SQLAlias($this->datasource, $a_strAlias);
+			$this->m_alias = new SQLAlias($this->getDatasource(), $a_strAlias);
 		}
 		$this->m_valueValidator = null;
 		
@@ -300,7 +315,7 @@ class TableField extends ITableField implements IAliasedClone, ITableFieldValueV
 	 */
 	public function expressionString($a_options = null)
 	{
-		$connection = $this->table->datasource;
+		$connection = $this->getDatasource();
 		
 		if (($a_options & kExpressionElementDeclaration) == kExpressionElementDeclaration)
 		{
@@ -330,7 +345,7 @@ class TableField extends ITableField implements IAliasedClone, ITableFieldValueV
 		$ds = null;
 		if ($this->m_table)
 		{
-			$ds = $this->m_table->datasource;
+			$ds = $this->m_table->getDatasource();
 		}
 		
 		return $ds;
@@ -352,11 +367,19 @@ class TableField extends ITableField implements IAliasedClone, ITableFieldValueV
 	// IAliasedClone implementation
 	
 	// ISQLAliased
+	/**
+	 * @see \NoreSources\SQL\IAliasable::hasAlias()
+	 * @return boolean
+	 */
 	public function hasAlias()
 	{
 		return is_a($this->m_alias, __NAMESPACE__ . '\\SQLAlias');
 	}
 
+	/**
+	 * @see \NoreSources\SQL\IAliasable::alias()
+	 * @return SQLAlias
+	 */
 	function alias(SQLAlias $alias = null)
 	{
 		if ($alias)
@@ -425,21 +448,33 @@ class TableField extends ITableField implements IAliasedClone, ITableFieldValueV
 		return ($this->structure && $this->structure->getProperty(kStructurePrimaryKey));
 	}
 
+	/**
+	 * @return boolean
+	 */
 	public function indexed()
 	{
 		return ($this->structure && $this->structure->getProperty(kStructureIndexed));
 	}
 
+	/**
+	 * @return boolean
+	 */
 	public function autoIncrement()
 	{
 		return ($this->structure && $this->structure->getProperty(kStructureAutoincrement));
 	}
 
+	/**
+	 * @return integer
+	 */
 	public function size()
 	{
 		return $this->structure ? $this->structure->getProperty(kStructureDataSize) : null;
 	}
 
+	/**
+	 * @return integer
+	 */
 	public function decimalSize()
 	{
 		return $this->structure ? $this->structure->getProperty(kStructureDecimalCount) : null;
@@ -471,7 +506,7 @@ class TableField extends ITableField implements IAliasedClone, ITableFieldValueV
 			return ns\Reporter::error($this, __METHOD__ . '(): Value validation failed', __FILE__, __LINE__);
 		}
 		
-		$v = $this->datasource->createData($this->type);
+		$v = $this->getDatasource()->createData(($this->type) ? $this->type : $a_value);
 		$v->import($a_value);
 		return $v;
 	}
