@@ -1,26 +1,16 @@
 <?php
-/////////////////////////////////////////////////////////////////////////////////////////////////////
-// NoreSources::php
-// <tpl name="license" prepend="// "/>
-// 
-/////////////////////////////////////////////////////////////////////////////////////////////////////
-
 /**
- * PostgreSQL data types
- * @package PostgreSQL
+ * Copyright © 2012-2015 by Renaud Guillard (dev@nore.fr)
+ * Distributed under the terms of the MIT License, see LICENSE
  */
 
-if (!defined("NS_FILE_NS"))
-{ die("ns.php must be included first"); }
+/**
+ *
+ * @package SQL
+ */
+namespace NoreSources\SQL;
 
-if (NS_USE_NS_INCLUDE)
-{
-	ns::xinclude("sql/datatypes");
-}
-else
-{
-	require_once(NS_PHP_PATH."/sql/datatypes.5.php");
-}
+require_once(__DIR__ . '/../Data.php');
 
 /*
  * @see http://www.postgresql.org/docs/9.1/interactive/datatype.html
@@ -28,13 +18,12 @@ else
 
 /**
  * Use mysql_real_escape_string()
- * @author renaud
  */
-class PostgreSQLVarCharDataType extends SQLVarcharDataType
+class PostgreSQLVarCharData extends StringData
 {
 	public function __construct(PostgreSQLDatasource $a_datasource, $a_strName, $a_min, $a_max)
 	{
-		parent::__construct(get_class($a_datasource), $a_strName, $a_min, $a_max);
+		parent::__construct($a_datasource, $a_strName, $a_min, $a_max);
 		$this->m_datasource = $a_datasource;
 	}
 
@@ -53,11 +42,11 @@ class PostgreSQLVarCharDataType extends SQLVarcharDataType
 /**
  * @author renaud
  */
-class PostgreSQLStringDataType extends SQLStringDataType
+class PostgreSQLStringData extends StringData
 {
 	public function __construct(PostgreSQLDatasource $a_datasource, $a_strName)
 	{
-		parent::__construct(get_class($a_datasource), $a_strName);
+		parent::__construct($a_datasource, $a_strName);
 		$this->m_datasource = $a_datasource;
 	}
 
@@ -76,7 +65,7 @@ class PostgreSQLStringDataType extends SQLStringDataType
 /**
  * @author renaud
  */
-class PostgreSQLBinaryDataType extends SQLBinaryDataType
+class PostgreSQLBinaryData extends BinaryData
 {
 	public function __construct(PostgreSQLDatasource $a_datasource, $a_strName)
 	{

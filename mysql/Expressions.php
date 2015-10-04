@@ -53,7 +53,6 @@ class MySQLBinaryData extends BinaryData
 
 /**
  *
- * @author renaud
  */
 class MySQLCastType implements ns\IExpression
 {

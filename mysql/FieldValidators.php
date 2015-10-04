@@ -60,7 +60,6 @@ class MySQLEnumFieldValueValidator extends ListedElementTableFieldValueValidator
 
 /**
  * A set is a list of enum stored as a 64bit flags
- * @author renaud
  *
  */
 class MySQLSetFieldValueValidator extends MultipleListedElementTableFieldValueValidator

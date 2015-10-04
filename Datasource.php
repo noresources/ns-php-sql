@@ -10,8 +10,8 @@
  * @package SQL
  */
 namespace NoreSources\SQL;
-use NoreSources as ns;
 
+use NoreSources as ns;
 use \InvalidArgumentException;
 
 require_once ('Structures.php');
@@ -72,7 +72,7 @@ abstract class Datasource extends SQLObject implements IDatabaseProvider
 	const kStringKeywordTrue = 'true';
 	
 	/**
-	 * Keyword or value for boolean FALSE 
+	 * Keyword or value for boolean FALSE
 	 * @var string
 	 */
 	const kStringKeywordFalse = 'false';
@@ -83,7 +83,6 @@ abstract class Datasource extends SQLObject implements IDatabaseProvider
 	 * @var string
 	 */
 	const kStringKeywordAutoincrement = 'autoinc';
-	
 	const kStringKeywordJoinNatural = 'sql.string.join.natural';
 	const kStringKeywordJoinCross = 'sql.string.join.croos';
 	const kStringKeywordJoinOuter = 'sql.string.join.outer';
@@ -128,8 +127,7 @@ abstract class Datasource extends SQLObject implements IDatabaseProvider
 
 	/**
 	 *
-	 * @param SQLDatasourceStructure $a_structure
-	 *        	Datasource structure
+	 * @param SQLDatasourceStructure $a_structure Datasource structure
 	 */
 	protected function __construct(SQLDatasourceStructure $a_structure = null)
 	{
@@ -190,11 +188,12 @@ abstract class Datasource extends SQLObject implements IDatabaseProvider
 	
 	// IDatabaseProvider
 	
+
 	/**
 	 * Provide a database object
 	 *
-	 * @param string $a_name        	
-	 * @param string $a_className        	
+	 * @param string $a_name
+	 * @param string $a_className
 	 * @return Database
 	 */
 	public function getDatabase($a_name, $a_className = null)
@@ -237,7 +236,7 @@ abstract class Datasource extends SQLObject implements IDatabaseProvider
 	 *
 	 * @tono check in structure and/or source
 	 *
-	 * @param string $a_strDatabaseName        	
+	 * @param string $a_strDatabaseName
 	 * @return bool
 	 */
 	public function databaseExists($a_strDatabaseName)
@@ -490,7 +489,7 @@ abstract class Datasource extends SQLObject implements IDatabaseProvider
 	/**
 	 *
 	 * @param string $a_typeName
-	 *        	Type name
+	 *        	Datasource type name
 	 * @param integer $sqlType
 	 *        	SQL type index
 	 * @param boolean $isDefault        	
@@ -505,7 +504,7 @@ abstract class Datasource extends SQLObject implements IDatabaseProvider
 		
 		$this->m_dataTypeNames [$a_typeName] = $sqlType;
 		
-		if ($isDefault)
+		if ($isDefault || !\NoreSources\array_key_exists($sqlType, $this->m_defaultTypeNames))
 		{
 			$this->m_defaultTypeNames [$sqlType] = $a_typeName;
 		}

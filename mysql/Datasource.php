@@ -12,7 +12,7 @@
 namespace NoreSources\SQL;
 use NoreSources as ns;
 
-require_once ('FieldValidators.php');
+require_once (__DIR__ . '/FieldValidators.php');
 require_once (__DIR__ . '/../Providers.php');
 require_once (__DIR__ . '/../Manipulators.php');
 require_once (__DIR__ . '/../QueryResults.php');
@@ -23,6 +23,9 @@ require_once (__DIR__ . '/../sql.php');
 class MySQLTableManipulator extends TableManipulator
 {
 
+	/**
+	 * @param ITableProvider $a_oProvider
+	 */
 	public function __construct(ITableProvider $a_oProvider = null)
 	{
 		parent::__construct($a_oProvider);
@@ -105,8 +108,6 @@ class MySQLTableManipulator extends TableManipulator
 
 /**
  *
- * @author renaud
- *        
  */
 class MySQLDatasource extends Datasource implements ITransactionBlock
 {
