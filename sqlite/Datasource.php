@@ -185,8 +185,6 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 			{
 				return $s;
 			}
-			
-			return $$this->structure->offsetGet($a_name);
 		}
 		
 		return null;

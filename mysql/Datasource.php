@@ -334,6 +334,15 @@ class MySQLDatasource extends Datasource implements ITransactionBlock
 		return @$this->apiCall('close', $this->resource);
 	}
 
+	public function createData($dataType)
+	{
+		/**
+		 * @todo MySql types
+		 */
+		
+		return parent::createData($dataType);
+	}
+	
 	/**
 	 *
 	 * @see sources/sql/Datasource#executeQuery()

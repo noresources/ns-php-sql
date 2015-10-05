@@ -387,7 +387,7 @@ abstract class Datasource extends SQLObject implements IDatabaseProvider
 	/**
 	 *
 	 * @param mixed $mixed
-	 *        	SQL data type, TableField or SQLTableFieldStructure
+	 *        	SQL data type (number), Datasource-specific type name, TableField or SQLTableFieldStructure
 	 */
 	public function createData($dataType)
 	{

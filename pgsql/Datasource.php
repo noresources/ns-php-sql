@@ -69,7 +69,7 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 				'timestamp without timezone',
 				'date',
 				'time',
-				'time without timezone'
+				'time without timezone' 
 		);
 		foreach ($type as $name)
 		{
@@ -127,6 +127,7 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 	}
 	
 	// ITransactionBlock implementation
+	
 
 	/**
 	 *
@@ -189,13 +190,19 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 		return $res;
 	}
 
+	/**
+	 *
+	 * @see \NoreSources\SQL\ITableProvider::tableIterator()
+	 */
 	public function tableIterator()
 	{
 		$subStructure = null;
 		if ($this->structure)
 		{
-			// Use the 'main' database if exists
-		// This is a totally arbitrary decision and should be fixed
+			/* 
+			* Use the 'main' database if exists
+			* This is a totally arbitrary decision and should be fixed
+			*/
 			return $this->structure->offsetGet($this->structureTableProviderDatabaseName);
 		}
 		
@@ -216,20 +223,20 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 		
 		return $result;
 	}
-	
+
 	public function getDatasource()
 	{
 		return $this;
 	}
-	
+
 	public function getDatabaseStructure(SQLObject $a_containerObject, $recursive = false)
 	{
 		return Reporter::fatalError($this, __METHOD__ . ' not imp');
 	}
-	
+
 	public function getTableStructure(Table $a_table)
 	{
-		return Reporter::fatalError($this, __METHOD__ . ' not imp');	
+		return Reporter::fatalError($this, __METHOD__ . ' not imp');
 	}
 	
 	// Datasource implementation
@@ -278,6 +285,8 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 		{
 			return ns\Reporter::instance()->addError($this, __METHOD__ . "(): Unable to connect to Database " . $a_aParameters [kConnectionParameterHostname], __FILE__, __LINE__);
 		}
+		
+		$this->setStructureTableProviderDatabaseName(pg_dbname($this->m_datasourceResource));
 		
 		return true;
 	}
