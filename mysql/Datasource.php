@@ -10,8 +10,10 @@
  * @package SQL
  */
 namespace NoreSources\SQL;
+
 use NoreSources as ns;
 
+require_once (__DIR__ . '/Expressions.php');
 require_once (__DIR__ . '/FieldValidators.php');
 require_once (__DIR__ . '/../Providers.php');
 require_once (__DIR__ . '/../Manipulators.php');
@@ -24,6 +26,7 @@ class MySQLTableManipulator extends TableManipulator
 {
 
 	/**
+	 *
 	 * @param ITableProvider $a_oProvider
 	 */
 	public function __construct(ITableProvider $a_oProvider = null)
@@ -33,7 +36,7 @@ class MySQLTableManipulator extends TableManipulator
 
 	/**
 	 *
-	 * @param TableStructure $a_structure        	
+	 * @param TableStructure $a_structure
 	 */
 	public function create(TableStructure $a_structure)
 	{
@@ -107,7 +110,6 @@ class MySQLTableManipulator extends TableManipulator
 }
 
 /**
- *
  */
 class MySQLDatasource extends Datasource implements ITransactionBlock
 {
@@ -116,21 +118,21 @@ class MySQLDatasource extends Datasource implements ITransactionBlock
 
 	/**
 	 * MySQL implementation using 'mysql' PHP extension
-	 * 
+	 *
 	 * @var integer
 	 */
 	const kMySQExtension_mysql = 1;
 	
 	/**
 	 * MySQL implementation using 'mysqli' PHP extension
-	 * 
+	 *
 	 * @var integer
 	 */
 	const kMySQExtension_mysqli = 2;
 
 	/**
 	 *
-	 * @param DatasourceStructure $a_structure        	
+	 * @param DatasourceStructure $a_structure
 	 */
 	public function __construct(DatasourceStructure $a_structure = null)
 	{
@@ -148,6 +150,7 @@ class MySQLDatasource extends Datasource implements ITransactionBlock
 		}
 		
 		// text types
+		$this->addDataType('TEXT', kDataTypeString);
 		$types = array (
 				'CHAR',
 				'VARCHAR',
@@ -162,38 +165,35 @@ class MySQLDatasource extends Datasource implements ITransactionBlock
 		);
 		foreach ($types as $name)
 		{
-			$this->addDataTypeName($name, kDataTypeString);
+			$this->addDataType($name, kDataTypeString);
 		}
 		
-		$this->addDataTypeName('TEXT', kDataTypeString, true);
+		$this->addDataType('BINARY', kDataTypeBinary);
+		$this->addDataType('VARBINARY', kDataTypeBinary);
 		
-		$this->addDataTypeName('BINARY', kDataTypeBinary, true);
-		$this->addDataTypeName('VARBINARY', kDataTypeBinary);
+		$this->addDataType('BOOL', kDataTypeBoolean);
 		
-		$this->addDataTypeName('BOOL', kDataTypeBoolean, true);
-		
-		$this->addDataTypeName('TIMESTAMP', kDataTypeTimestamp, true);
-		$this->addDataTypeName('DATE', kDataTypeTimestamp, false);
-		$this->addDataTypeName('TIME', kDataTypeTimestamp, false);
-		$this->addDataTypeName('DATETIME', kDataTypeTimestamp, false);
+		$this->addDataType('TIMESTAMP', kDataTypeTimestamp);
+		$this->addDataType('DATE', kDataTypeTimestamp);
+		$this->addDataType('TIME', kDataTypeTimestamp);
+		$this->addDataType('DATETIME', kDataTypeTimestamp);
 		
 		// number types
 		$types = array (
-				'TINYINT',
-				'SMALLINT',
-				'MEDIUMINT',
-				//'INT',
+				'INT',
 				'BIGINT',
+				'MEDIUMINT',
+				'SMALLINT',
+				'TINYINT',
+				//'INT',
 				'FLOAT',
 				'DOUBLE',
 				'DECIMAL' 
 		);
 		foreach ($types as $name)
 		{
-			$this->addDataTypeName($name, kDataTypeNumber);
+			$this->addDataType($name, kDataTypeNumber);
 		}
-		
-		$this->addDataTypeName('INT', kDataTypeNumber, true);
 	}
 
 	/**
@@ -246,8 +246,7 @@ class MySQLDatasource extends Datasource implements ITransactionBlock
 	/**
 	 * Connection
 	 *
-	 * @param array $a_aParameters
-	 *        	parameters
+	 * @param array $a_aParameters parameters
 	 * @return boolean
 	 */
 	public function connect($a_aParameters)
@@ -336,13 +335,36 @@ class MySQLDatasource extends Datasource implements ITransactionBlock
 
 	public function createData($dataType)
 	{
-		/**
-		 * @todo MySql types
-		 */
+		if (array_key_exists($dataType, $this->m_dataTypeNames))
+		{
+			$a = $this->m_dataTypeNames [$dataType];
+			$sqlType = $a ['type'];
+			$structure = guessStructureElement($sqlType);
+			
+			$d = null;
+			if ($a ['class'])
+			{
+				$cls = $a ['class'];
+				return (new $cls($this, $structure));
+			}
+		}
+		
+		if ($sqlType = $this->guessDataType($dataType))
+		{
+			$structure = guessStructureElement($sqlType);
+			if ($sqlType == kDataTypeString)
+			{
+				return (new MySQLStringData($this, $structure));
+			}
+			elseif ($sqlType == kDataTypeBinary)
+			{
+				return (new MySQLBinaryData($this, $structure));
+			}
+		}
 		
 		return parent::createData($dataType);
 	}
-	
+
 	/**
 	 *
 	 * @see sources/sql/Datasource#executeQuery()
@@ -461,13 +483,14 @@ class MySQLDatasource extends Datasource implements ITransactionBlock
 	
 	// Database relative
 	
+
 	// default behavior
 	// public function getDatabaseIterator()
 	// public function databaseExists($a_strDatabaseName)
-	
 	public function getDatabaseStructure(SQLObject $a_containerObject, $recursive = false)
 	{
 		/**
+		 *
 		 * @todo support Datasource as argument if a db is selected
 		 */
 		if (!($a_containerObject instanceof Database))
@@ -489,9 +512,9 @@ class MySQLDatasource extends Datasource implements ITransactionBlock
 			$ts = null;
 			if ($recursive)
 			{
-				$ts = $this->getTableStructure($this->tableObject($row[0]));
+				$ts = $this->getTableStructure($this->tableObject($row [0]));
 			}
-			else 
+			else
 			{
 				$ts = new TableStructure($structure, $row [0]);
 			}
@@ -559,7 +582,6 @@ class MySQLDatasource extends Datasource implements ITransactionBlock
 			$f->setProperty(kStructureFieldTypename, $typedef ['type']);
 			$f->setProperty(kStructureValidatorClassname, ns\array_keyvalue($typedef, kStructureValidatorClassname, false));
 			$f->setProperty(kStructureAcceptMultipleValues, $typedef [kStructureAcceptMultipleValues]);
-			
 			
 			if ($elements)
 			{
@@ -662,5 +684,3 @@ class MySQLDatasource extends Datasource implements ITransactionBlock
 
 	protected $m_implementation;
 }
-
-?>

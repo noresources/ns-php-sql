@@ -246,11 +246,11 @@ abstract class Datasource extends SQLObject implements IDatabaseProvider
 	
 	// Datasource API
 	
+
 	/**
 	 * Set the Datasource structure
 	 *
-	 * @param DatasourceStructure $a_structure
-	 *        	Datasource structure
+	 * @param DatasourceStructure $a_structure Datasource structure
 	 */
 	public final function setStructure(DatasourceStructure $a_structure)
 	{
@@ -260,8 +260,7 @@ abstract class Datasource extends SQLObject implements IDatabaseProvider
 	/**
 	 * Open a connection
 	 *
-	 * @param array $a_aParameters
-	 *        	connection parameters (depend on connection type)
+	 * @param array $a_aParameters connection parameters (depend on connection type)
 	 * @return bool
 	 */
 	public abstract function connect($a_aParameters);
@@ -274,8 +273,7 @@ abstract class Datasource extends SQLObject implements IDatabaseProvider
 	/**
 	 * Execute a query with the given parameters
 	 *
-	 * @param string $a_queryString
-	 *        	Query string
+	 * @param string $a_queryString Query string
 	 * @return QueryResult
 	 */
 	public abstract function executeQuery($a_queryString);
@@ -283,8 +281,7 @@ abstract class Datasource extends SQLObject implements IDatabaseProvider
 	/**
 	 * Fetch query result
 	 *
-	 * @param mixed $a_queryResult
-	 *        	query result ressource
+	 * @param mixed $a_queryResult query result ressource
 	 * @return array
 	 */
 	public abstract function fetchResult(QueryResult $a_queryResult);
@@ -292,14 +289,14 @@ abstract class Datasource extends SQLObject implements IDatabaseProvider
 	/**
 	 * Reset the result cursor before the first record
 	 *
-	 * @param QueryResult $a_queryResult        	
+	 * @param QueryResult $a_queryResult
 	 */
 	public abstract function resetResult(QueryResult $a_queryResult);
 
 	/**
 	 * Free resource associated to a query result
 	 *
-	 * @param QueryResult $a_queryResult        	
+	 * @param QueryResult $a_queryResult
 	 */
 	public abstract function freeResult(QueryResult $a_queryResult);
 
@@ -312,7 +309,7 @@ abstract class Datasource extends SQLObject implements IDatabaseProvider
 	/**
 	 * Number of row returned by query
 	 *
-	 * @param QueryResult $a_queryResult        	
+	 * @param QueryResult $a_queryResult
 	 * @return integer
 	 */
 	public abstract function resultRowCount(QueryResult $a_queryResult);
@@ -321,8 +318,7 @@ abstract class Datasource extends SQLObject implements IDatabaseProvider
 	 * Provide an ArrayObject containing all column names in a
 	 * recordset
 	 *
-	 * @param mixed $a_queryResult
-	 *        	A resource representing the recordset
+	 * @param mixed $a_queryResult A resource representing the recordset
 	 * @return array
 	 */
 	public abstract function recordsetColumnArray(QueryResult $a_queryResult);
@@ -330,8 +326,7 @@ abstract class Datasource extends SQLObject implements IDatabaseProvider
 	/**
 	 * Number of affected row by query
 	 *
-	 * @param mixed $a_queryResult
-	 *        	query result ressource
+	 * @param mixed $a_queryResult query result ressource
 	 * @return integer
 	 */
 	public abstract function affectedRowCount(QueryResult $a_queryResult);
@@ -339,19 +334,19 @@ abstract class Datasource extends SQLObject implements IDatabaseProvider
 	/**
 	 * Protect SQL element following Database management system requirements
 	 *
-	 * @param string $a_strElement        	
+	 * @param string $a_strElement
 	 */
 	public abstract function encloseElement($a_strElement);
 
 	/**
-	 * Get the structures contained in the given table container element 
+	 * Get the structures contained in the given table container element
 	 *
 	 * @p $a_containerObject can be a Datasource ($this) or a
 	 * IDatabase, depending of Datasource model
 	 *
-	 * @param SQLObject $a_containerObject        	
+	 * @param SQLObject $a_containerObject
 	 * @param boolean $recursive Fill sub elements
-	 * 
+	 *       
 	 * @return DatabaseStructure
 	 */
 	public abstract function getDatabaseStructure(SQLObject $a_containerObject, $recursive = false);
@@ -365,8 +360,7 @@ abstract class Datasource extends SQLObject implements IDatabaseProvider
 	/**
 	 * Get datasource-specific strings
 	 *
-	 * @param string $a_key
-	 *        	String identifier
+	 * @param string $a_key String identifier
 	 * @return string String value
 	 */
 	public final function getDatasourceString($a_key)
@@ -386,48 +380,39 @@ abstract class Datasource extends SQLObject implements IDatabaseProvider
 
 	/**
 	 *
-	 * @param mixed $mixed
-	 *        	SQL data type (number), Datasource-specific type name, TableField or TableFieldStructure
+	 * @param mixed $mixed SQL data type (number), Datasource-specific type name, TableField or TableFieldStructure
 	 */
 	public function createData($dataType)
 	{
-		$type = self::guessDataType($dataType);
-		if ($type === false)
+		$sqlType = self::guessDataType($dataType);
+		if ($sqlType === false)
 		{
 			return ns\Reporter::error($this, __METHOD__ . '(): Unable to find type', __FILE__, __LINE__);
 		}
 		
-		$structure = null;
-		if ($dataType instanceof TableField)
-		{
-			$structure = $dataType->structure;
-		}
-		elseif ($dataType instanceof TableFieldStructure)
-		{
-			$structure = $dataType;
-		}
+		$structure = guessStructureElement($dataType);
 		
-		if ($type == kDataTypeNull)
+		if ($sqlType == kDataTypeNull)
 		{
 			return (new NullData($this));
 		}
-		elseif ($type == kDataTypeString)
+		elseif ($sqlType == kDataTypeString)
 		{
 			return (new StringData($this, $structure));
 		}
-		elseif ($type == kDataTypeNumber)
+		elseif ($sqlType == kDataTypeNumber)
 		{
 			return (new NumberData($this, $structure));
 		}
-		elseif ($type == kDataTypeTimestamp)
+		elseif ($sqlType == kDataTypeTimestamp)
 		{
 			return (new TimestampData($this, $structure));
 		}
-		elseif ($type == kDataTypeBoolean)
+		elseif ($sqlType == kDataTypeBoolean)
 		{
 			return (new BooleanData($this));
 		}
-		elseif ($type == kDataTypeBinary)
+		elseif ($sqlType == kDataTypeBinary)
 		{
 			return (new StringData($this));
 		}
@@ -438,8 +423,7 @@ abstract class Datasource extends SQLObject implements IDatabaseProvider
 	/**
 	 * Get the default type name for a standard type
 	 *
-	 * @param enum $a_sqlType
-	 *        	one of the DATATYPE_*
+	 * @param enum $a_sqlType one of the kDataType*
 	 * @return string
 	 */
 	public final function getDefaultTypeName($a_sqlType)
@@ -454,7 +438,7 @@ abstract class Datasource extends SQLObject implements IDatabaseProvider
 
 	/**
 	 *
-	 * @param mixed $dataType        	
+	 * @param mixed $dataType
 	 * @return integer SQL type index or <code>false</code> if type can't be found
 	 */
 	protected function guessDataType($dataType)
@@ -468,7 +452,7 @@ abstract class Datasource extends SQLObject implements IDatabaseProvider
 			$dataType = strtolower($dataType);
 			if (array_key_exists($dataType, $this->m_dataTypeNames))
 			{
-				return $this->m_dataTypeNames [$dataType];
+				return $this->m_dataTypeNames [$dataType] ['type'];
 			}
 		}
 		elseif ($dataType instanceof TableFieldStructure)
@@ -488,13 +472,10 @@ abstract class Datasource extends SQLObject implements IDatabaseProvider
 
 	/**
 	 *
-	 * @param string $a_typeName
-	 *        	Datasource type name
-	 * @param integer $sqlType
-	 *        	SQL type index
-	 * @param boolean $isDefault        	
+	 * @param string $a_typeName Datasource type name
+	 * @param integer $sqlType SQL type index
 	 */
-	protected function addDataTypeName($a_typeName, $sqlType, $isDefault = false)
+	protected function addDataType($a_typeName, $sqlType, $className = null)
 	{
 		$a_typeName = strtolower($a_typeName);
 		if (array_key_exists($a_typeName, $this->m_dataTypeNames))
@@ -502,14 +483,17 @@ abstract class Datasource extends SQLObject implements IDatabaseProvider
 			ns\Reporter::fatalError($this, __METHOD__ . '(): ' . $a_typeName . ' already exists', __FILE__, __LINE__);
 		}
 		
-		$this->m_dataTypeNames [$a_typeName] = $sqlType;
+		$this->m_dataTypeNames [$a_typeName] = array (
+				'type' => $sqlType,
+				'class' => $className 
+		);
 		
-		if ($isDefault || !\NoreSources\array_key_exists($sqlType, $this->m_defaultTypeNames))
+		if (!array_key_exists($sqlType, $this->m_defaultTypeNames))
 		{
 			$this->m_defaultTypeNames [$sqlType] = $a_typeName;
 		}
 	}
-	
+
 	protected function setDefaultTypeName($sqlType, $a_typeName)
 	{
 		$this->m_defaultTypeNames [$sqlType] = $a_typeName;
@@ -517,11 +501,9 @@ abstract class Datasource extends SQLObject implements IDatabaseProvider
 
 	/**
 	 * Set datasource-dependant string or keyword
-	 * 
-	 * @param integer $a_key
-	 *        	string/keyword index
-	 * @param string $a_value
-	 *        	value
+	 *
+	 * @param integer $a_key string/keyword index
+	 * @param string $a_value value
 	 */
 	protected function setDatasourceString($a_key, $a_value)
 	{
@@ -530,9 +512,9 @@ abstract class Datasource extends SQLObject implements IDatabaseProvider
 
 	/**
 	 * Generally used in connect() method
-	 * 
+	 *
 	 * @todo remove from API
-	 * @param bool $a_aParameters        	
+	 * @param bool $a_aParameters
 	 */
 	protected function setPersistenceFromParameterArray($a_aParameters)
 	{
@@ -547,7 +529,7 @@ abstract class Datasource extends SQLObject implements IDatabaseProvider
 		
 		return ($this->m_datasourceFlags & self::kPersistentConnection);
 	}
-	
+
 	/**
 	 * Connection resource
 	 *
@@ -583,5 +565,3 @@ abstract class Datasource extends SQLObject implements IDatabaseProvider
 	 */
 	private $m_datasourceStrings;
 }
-
-?>

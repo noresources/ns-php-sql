@@ -10,6 +10,7 @@
  * @package SQL
  */
 namespace NoreSources\SQL;
+
 use NoreSources as ns;
 
 require_once ('base.php');
@@ -26,26 +27,26 @@ abstract class Data implements ns\IExpression
 {
 	/**
 	 * The data is valid and can be recorded to daatasource
-	 * 
+	 *
 	 * @var integer
 	 */
 	const kValid = 0x1;
 	/**
 	 * The data accept NULL as a valid value
-	 * 
+	 *
 	 * @var integer
 	 */
 	const kAcceptNull = 0x2;
 	/**
 	 * The data has a minimal value (number data)
-	 * 
+	 *
 	 * @var integer
 	 */
 	const kBoundaryMin = 0x4;
 	
 	/**
 	 * The data has a maximal value (number data)
-	 * 
+	 *
 	 * @var integer
 	 */
 	const kBoundaryMax = 0x8;
@@ -58,9 +59,8 @@ abstract class Data implements ns\IExpression
 
 	/**
 	 * Read only access to some private members
-	 * 
-	 * @param string $member
-	 *        	Member name (flags, type or value)
+	 *
+	 * @param string $member Member name (flags, type or value)
 	 * @throws InvalidArgumentException
 	 */
 	public function __get($member)
@@ -87,8 +87,8 @@ abstract class Data implements ns\IExpression
 
 	/**
 	 * Load arbitrary data to be written in a SQL record
-	 * 
-	 * @param mixed $value        	
+	 *
+	 * @param mixed $value
 	 * @return <code>true</code> if the value can be imported
 	 */
 	abstract function import($value);
@@ -273,7 +273,12 @@ class StringData extends Data
 		
 		if ($this->m_value === null)
 		{
-			return $this->m_datasource->getDatasourceString(Datasource::kStringKeywordNull);
+			if ($this->m_datasource)
+			{
+				return $this->m_datasource->getDatasourceString(Datasource::kStringKeywordNull);
+			}
+			
+			return 'NULL';
 		}
 		
 		return protectString($this->m_value);

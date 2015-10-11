@@ -45,7 +45,7 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 		);
 		foreach ($type as $name)
 		{
-			$this->addDataTypeName($name, kDataTypeString);
+			$this->addDataType($name, kDataTypeString);
 		}
 		
 		$type = array (
@@ -53,7 +53,7 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 		);
 		foreach ($type as $name)
 		{
-			$this->addDataTypeName($name, kDataTypeString);
+			$this->addDataType($name, kDataTypeString);
 		}
 		
 		$type = array (
@@ -61,7 +61,7 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 		);
 		foreach ($type as $name)
 		{
-			$this->addDataTypeName($name, kDataTypeBinary);
+			$this->addDataType($name, kDataTypeBinary);
 		}
 		
 		$type = array (
@@ -73,10 +73,10 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 		);
 		foreach ($type as $name)
 		{
-			$this->addDataTypeName($name, kDataTypeTimestamp);
+			$this->addDataType($name, kDataTypeTimestamp);
 		}
 		
-		$this->addDataTypeName("boolean", kDataTypeBoolean);
+		$this->addDataType("boolean", kDataTypeBoolean);
 		
 		// number types
 		$type = array (
@@ -91,7 +91,7 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 		);
 		foreach ($type as $name)
 		{
-			$this->addDataTypeName($name, kDataTypeNumber);
+			$this->addDataType($name, kDataTypeNumber);
 		}
 		
 		$type = array (
@@ -102,7 +102,7 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 		);
 		foreach ($type as $name)
 		{
-			$this->addDataTypeName($name, kDataTypeNumber);
+			$this->addDataType($name, kDataTypeNumber);
 		}
 		
 		$this->setDefaultTypeName(kDataTypeBinary, 'bytes');

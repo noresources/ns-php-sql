@@ -662,5 +662,3 @@ class SQLObject
 	 */
 	protected $m_structure;
 }
-
-?>

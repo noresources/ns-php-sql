@@ -12,6 +12,7 @@
 namespace NoreSources\SQL;
 
 use NoreSources as ns;
+use NoreSources\Reporter;
 
 /**
  * @defgroup elemdisplay 'Element expression display options'
@@ -139,6 +140,7 @@ const kConnectionParameterCreate = 'sql.source.create';
  */
 // group 'params'
 
+
 /**
  * @defgroup Datasourcequeries 'Datasource elements queries'
  * @{
@@ -168,9 +170,9 @@ const kObjectQueryBoth = 0x3;
 /**
  * Protect a string with the standard protection character (simple quote)
  *
- * @param string $a_strString        	
- * @param string $start        	
- * @param string $end        	
+ * @param string $a_strString
+ * @param string $start
+ * @param string $end
  * @return string
  *
  */
@@ -180,43 +182,38 @@ function protectString($a_strString, $start = '\'', $end = '\'')
 }
 
 /**
- *
- * @param
- *        	$a_value
- * @param
- *        	$a_source
- * @return SQLData
- *
+ * @param mixed $a_value Value to import
+ * @param Datasource $a_source Datasource
+ * @return SQLData or null 
  */
 function bestEffortImport($a_value, Datasource $a_source = null)
 {
-	$t = guessDataType($a_value);
-	if ($t !== null)
+	if ($a_source)
 	{
+		$t = $a_source->guessDataType($$a_value);
 		$v = $a_source->createData($t);
 		$v->import($a_value);
+		return $v;
 	}
-	else
+	
+	$t = guessDataType($a_value);
+	$v = null;
+	if ($t !== null)
 	{
-	/**
-	 *
-	 * @todo
-	 *
-	 *
-	 *
-	 *
-	 */
+		/**
+		 * @todo
+		 */
+		Reporter::fatalError(null, __METHOD__ . '() without datasource not supported yet');
 	}
+	
 	return $v;
 }
 
 /**
  * Convert a variable in a TableField if possible
  *
- * @param
- *        	$a_mixedValue
- * @param
- *        	$a_provider
+ * @param $a_mixedValue
+ * @param $a_provider
  * @return TableField
  *
  */
@@ -247,10 +244,10 @@ function mixedToTableField($a_mixedValue, ITableFieldProvider $a_provider)
 /**
  * A generic method for ITableProvider::tableObject
  *
- * @param ITableProvider $a_provider        	
- * @param string $a_name        	
- * @param string $a_aliasName        	
- * @param string $a_className        	
+ * @param ITableProvider $a_provider
+ * @param string $a_name
+ * @param string $a_aliasName
+ * @param string $a_className
  * @return Table
  */
 function tableProviderGenericTableObjectMethod(ITableProvider $a_provider, $a_structure, $a_name, $a_aliasName = null, $a_className = null, $useAliasAsName = false)
@@ -271,15 +268,30 @@ function tableProviderGenericTableObjectMethod(ITableProvider $a_provider, $a_st
 	return $result;
 }
 
+function guessStructureElement ($object)
+{
+	$structure = null;
+	if ($object instanceof TableField)
+	{
+		$structure = $object->getStructure();
+	}
+	elseif ($object instanceof StructureElement)
+	{
+		$structure = $object;
+	}
+	
+	return $structure;
+}
+
 /**
  * Guess data type
  *
- * @param mixed $a_value        	
- * @return enum-like int from DATATYPE_*
+ * @param mixed $a_value
+ * @return enum-like int from kDataType*
  */
 function guessDataType($a_value)
 {
-	if ($a_value instanceof \DateTime)
+	if (is_object($a_value) && ($a_value instanceof \DateTime))
 	{
 		return kDataTypeTimestamp;
 	}
@@ -336,8 +348,8 @@ function parseDataTypeDefinition($definition, $typeUpperCase = false)
  *
  * Assumes similar string for all Datasources
  *
- * @param ISQLDataType $a_datatype        	
- * @param TableFieldStructure $a_structure        	
+ * @param ISQLDataType $a_datatype
+ * @param TableFieldStructure $a_structure
  * @return string
  */
 function datatypeSizeString(ISQLDataType $a_datatype, TableFieldStructure $a_structure = null)
@@ -426,5 +438,3 @@ interface IAliasedClone
 	 */
 	function cloneWithOtherAlias($a_aliasNameName);
 }
-
-?>

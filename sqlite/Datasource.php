@@ -116,15 +116,13 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 		
 		$this->m_databaseName = null;
 		
-		$this->addDataTypeName('VARCHAR', kDataTypeString);
-		$this->addDataTypeName('TEXT', kDataTypeString, true);
-		
-		$this->setDefaultTypeName(kDataTypeBoolean, 'INTEGER');
-		
-		$this->addDataTypeName('INTEGER', kDataTypeNumber);
-		$this->addDataTypeName('REAL', kDataTypeNumber);
-		$this->addDataTypeName('NUMERIC', kDataTypeNumber, true);
-		$this->addDataTypeName('BLOB', kDataTypeBinary, true);
+		$this->addDataType('TEXT', kDataTypeString);
+		$this->addDataType('VARCHAR', kDataTypeString);
+				
+		$this->addDataType('INTEGER', kDataTypeNumber);
+		$this->addDataType('REAL', kDataTypeNumber);
+		$this->addDataType('NUMERIC', kDataTypeNumber);
+		$this->addDataType('BLOB', kDataTypeBinary);
 	}
 	
 	public function __destruct()
