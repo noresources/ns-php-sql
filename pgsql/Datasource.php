@@ -199,10 +199,10 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 		$subStructure = null;
 		if ($this->structure)
 		{
-			/* 
-			* Use the 'main' database if exists
-			* This is a totally arbitrary decision and should be fixed
-			*/
+			/*
+			 * Use the 'main' database if exists
+			 * This is a totally arbitrary decision and should be fixed
+			 */
 			return $this->structure->offsetGet($this->structureTableProviderDatabaseName);
 		}
 		
@@ -299,6 +299,38 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 	protected function disconnect()
 	{
 		return @pg_close($this->resource());
+	}
+
+	public function createData($dataType)
+	{
+		if (array_key_exists($dataType, $this->m_dataTypeNames))
+		{
+			$a = $this->m_dataTypeNames [$dataType];
+			$sqlType = $a ['type'];
+			$structure = guessStructureElement($sqlType);
+			
+			$d = null;
+			if ($a ['class'])
+			{
+				$cls = $a ['class'];
+				return (new $cls($this, $structure));
+			}
+		}
+		
+		if ($sqlType = $this->guessDataType($dataType))
+		{
+			$structure = guessStructureElement($sqlType);
+			if ($sqlType == kDataTypeString)
+			{
+				return (new PostgreSQLStringData($this, $structure));
+			}
+			elseif ($sqlType == kDataTypeBinary)
+			{
+				return (new PostgreSQLBinaryData($this, $structure));
+			}
+		}
+		
+		return parent::createData($dataType);
 	}
 
 	/**
@@ -429,7 +461,7 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 		
 		return $a_strElement;
 	}
-	
+
 	/**
 	 *
 	 * @return bool
@@ -441,5 +473,3 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 
 	protected $structureTableProviderDatabaseName;
 }
-
-?>

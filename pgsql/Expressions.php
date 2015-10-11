@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright © 2012-2015 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
@@ -10,80 +11,43 @@
  */
 namespace NoreSources\SQL;
 
-require_once(__DIR__ . '/../Data.php');
+require_once (__DIR__ . '/../Data.php');
 
 /*
  * @see http://www.postgresql.org/docs/9.1/interactive/datatype.html
  */
 
-/**
- * Use mysql_real_escape_string()
- */
-class PostgreSQLVarCharData extends StringData
-{
-	public function __construct(PostgreSQLDatasource $a_datasource, $a_strName, $a_min, $a_max)
-	{
-		parent::__construct($a_datasource, $a_strName, $a_min, $a_max);
-		$this->m_datasource = $a_datasource;
-	}
-
-	public function import($a_value, TableFieldStructure $a_properties = null)
-	{
-		if (is_string($a_value))
-		{
-			$a_value = pg_escape_string($this->m_datasource->resource(), $a_value);
-		}
-		return parent::import($a_value, $a_properties);
-	}
-
-	protected $m_datasource;
-}
-
-/**
- * @author renaud
- */
 class PostgreSQLStringData extends StringData
 {
-	public function __construct(PostgreSQLDatasource $a_datasource, $a_strName)
+
+	public function __construct(Datasource $datasource, TableFieldStructure $structure = null)
 	{
-		parent::__construct($a_datasource, $a_strName);
-		$this->m_datasource = $a_datasource;
+		parent::__construct($a_datasource, $structure);
 	}
 
-	public function import($a_value, TableFieldStructure $a_properties = null)
+	protected function getDatasourceStringExpression()
 	{
-		if (is_string($a_value))
-		{
-			$a_value = pg_escape_string($this->m_datasource->resource(), $a_value);
-		}
-		return parent::import($a_value, $a_properties);
+		return protect(pg_escape_string($this->datasource->resource(), $this->value));
 	}
-
-	protected $m_datasource;
 }
 
-/**
- * @author renaud
- */
 class PostgreSQLBinaryData extends BinaryData
 {
-	public function __construct(PostgreSQLDatasource $a_datasource, $a_strName)
+
+	public function __construct(Datasource $datasource, TableFieldStructure $structure = null)
 	{
-		parent::__construct(get_class($a_datasource), $a_strName);
-		$this->m_datasource = $a_datasource;
+		parent::__construct($datasource, $structure);
 	}
-	
-	public function import($a_value, TableFieldStructure $a_properties = null)
+
+	protected function getDatasourceBinaryExpression()
 	{
-		$a_value = pg_escape_bytea($this->m_datasource->resource(), $a_value);
-		return parent::import($a_value, $a_properties);
+		return protect(pg_escape_bytea($this->m_datasource->resource(), $this->value));
 	}
-	
-	public function export($a_value, TableFieldStructure $a_properties = null)
+		
+	/*
+	public function export($a_value)
 	{
 		return pg_unescape_bytea($this->m_datasource->resource(), $a_value);
 	}
+	*/
 }
-
-
-?>
