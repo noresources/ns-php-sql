@@ -19,7 +19,7 @@ require_once (__DIR__ . "/../Data.php");
 class SQLiteStringData extends StringData
 {
 
-	public function __construct(Datasource $datasource, SQLTableFieldStructure $structure)
+	public function __construct(Datasource $datasource, TableFieldStructure $structure)
 	{
 		parent::__construct($datasource, $structure);
 	}
@@ -43,7 +43,7 @@ class SQLiteStringData extends StringData
 class SQLiteBinaryData extends BinaryData
 {
 
-	public function __construct(Datasource $datasource, SQLTableFieldStructure $structure)
+	public function __construct(Datasource $datasource, TableFieldStructure $structure)
 	{
 		parent::__construct($datasource, $structure);
 	}

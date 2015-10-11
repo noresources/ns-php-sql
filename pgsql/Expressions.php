@@ -27,7 +27,7 @@ class PostgreSQLVarCharData extends StringData
 		$this->m_datasource = $a_datasource;
 	}
 
-	public function import($a_value, SQLTableFieldStructure $a_properties = null)
+	public function import($a_value, TableFieldStructure $a_properties = null)
 	{
 		if (is_string($a_value))
 		{
@@ -50,7 +50,7 @@ class PostgreSQLStringData extends StringData
 		$this->m_datasource = $a_datasource;
 	}
 
-	public function import($a_value, SQLTableFieldStructure $a_properties = null)
+	public function import($a_value, TableFieldStructure $a_properties = null)
 	{
 		if (is_string($a_value))
 		{
@@ -73,13 +73,13 @@ class PostgreSQLBinaryData extends BinaryData
 		$this->m_datasource = $a_datasource;
 	}
 	
-	public function import($a_value, SQLTableFieldStructure $a_properties = null)
+	public function import($a_value, TableFieldStructure $a_properties = null)
 	{
 		$a_value = pg_escape_bytea($this->m_datasource->resource(), $a_value);
 		return parent::import($a_value, $a_properties);
 	}
 	
-	public function export($a_value, SQLTableFieldStructure $a_properties = null)
+	public function export($a_value, TableFieldStructure $a_properties = null)
 	{
 		return pg_unescape_bytea($this->m_datasource->resource(), $a_value);
 	}

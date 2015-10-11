@@ -111,9 +111,9 @@ abstract class ITableField extends SQLObject implements IExpression, IAliasable
 {
 
 	/**
-	 * @param SQLTableFieldStructure $a_structure
+	 * @param TableFieldStructure $a_structure
 	 */
-	public function __construct(SQLTableFieldStructure $a_structure = null)
+	public function __construct(TableFieldStructure $a_structure = null)
 	{
 		parent::__construct($a_structure);
 	}
@@ -242,9 +242,9 @@ class TableField extends ITableField implements IAliasedClone, ITableFieldValueV
 	 * @param string $a_strAlias
 	 *        	Alias (optional)
 	 * @param array $a_structure
-	 *        	SQLTableFieldStructure
+	 *        	TableFieldStructure
 	 */
-	public function __construct(Table $a_table, $a_strName, $a_strAlias = null, SQLTableFieldStructure $a_structure = null)
+	public function __construct(Table $a_table, $a_strName, $a_strAlias = null, TableFieldStructure $a_structure = null)
 	{
 		parent::__construct($a_structure);
 		$this->m_table = $a_table;

@@ -95,41 +95,41 @@ abstract class Datasource extends SQLObject implements IDatabaseProvider
 	 *
 	 * @var string
 	 */
-	const kStringTimestampFormat = 'timestamp';
+	const kStringTimestampFormat = 'sql.string.timestamp';
 	
 	/**
 	 * Database implementation to use
 	 *
 	 * @var string
 	 */
-	const kStringClassNameDatabase = 'clsdb';
+	const kStringClassNameDatabase = 'sql.string.clsdb';
 	
 	/**
 	 * SQLDatabaseManipulator implementation to use
 	 *
 	 * @var string
 	 */
-	const kStringClassNameDatabaseManipulator = 'clsdbm';
+	const kStringClassNameDatabaseManipulator = 'sql.string.clsdbm';
 	
 	/**
 	 * Table implementation to use
 	 *
 	 * @var string
 	 */
-	const kStringClassNameTable = 'clst';
+	const kStringClassNameTable = 'sql.string.clst';
 	
 	/**
 	 * TableManipulator implementation to use
 	 *
 	 * @var string
 	 */
-	const kStringClassNameTableManipulator = 'clstm';
+	const kStringClassNameTableManipulator = 'sql.string.clstm';
 
 	/**
 	 *
-	 * @param SQLDatasourceStructure $a_structure Datasource structure
+	 * @param DatasourceStructure $a_structure Datasource structure
 	 */
-	protected function __construct(SQLDatasourceStructure $a_structure = null)
+	protected function __construct(DatasourceStructure $a_structure = null)
 	{
 		parent::__construct($a_structure);
 		$this->m_datasourceResource = null;
@@ -249,10 +249,10 @@ abstract class Datasource extends SQLObject implements IDatabaseProvider
 	/**
 	 * Set the Datasource structure
 	 *
-	 * @param SQLDatasourceStructure $a_structure
+	 * @param DatasourceStructure $a_structure
 	 *        	Datasource structure
 	 */
-	public final function setStructure(SQLDatasourceStructure $a_structure)
+	public final function setStructure(DatasourceStructure $a_structure)
 	{
 		$this->m_structure = $a_structure;
 	}
@@ -352,7 +352,7 @@ abstract class Datasource extends SQLObject implements IDatabaseProvider
 	 * @param SQLObject $a_containerObject        	
 	 * @param boolean $recursive Fill sub elements
 	 * 
-	 * @return SQLDatabaseStructure
+	 * @return DatabaseStructure
 	 */
 	public abstract function getDatabaseStructure(SQLObject $a_containerObject, $recursive = false);
 
@@ -387,7 +387,7 @@ abstract class Datasource extends SQLObject implements IDatabaseProvider
 	/**
 	 *
 	 * @param mixed $mixed
-	 *        	SQL data type (number), Datasource-specific type name, TableField or SQLTableFieldStructure
+	 *        	SQL data type (number), Datasource-specific type name, TableField or TableFieldStructure
 	 */
 	public function createData($dataType)
 	{
@@ -402,7 +402,7 @@ abstract class Datasource extends SQLObject implements IDatabaseProvider
 		{
 			$structure = $dataType->structure;
 		}
-		elseif ($dataType instanceof SQLTableFieldStructure)
+		elseif ($dataType instanceof TableFieldStructure)
 		{
 			$structure = $dataType;
 		}
@@ -471,7 +471,7 @@ abstract class Datasource extends SQLObject implements IDatabaseProvider
 				return $this->m_dataTypeNames [$dataType];
 			}
 		}
-		elseif ($dataType instanceof SQLTableFieldStructure)
+		elseif ($dataType instanceof TableFieldStructure)
 		{
 			return $dataType->getProperty(self::kStructureDatatype);
 		}

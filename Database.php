@@ -27,7 +27,7 @@ require_once ('Providers.php');
 class Database extends SQLObject implements IExpression, ITableProvider
 {
 
-	public function __construct(Datasource $Datasource, $a_name, SQLDatabaseStructure & $structure = null)
+	public function __construct(Datasource $Datasource, $a_name, DatabaseStructure & $structure = null)
 	{
 		parent::__construct($structure);
 		$this->m_datasource = $Datasource;
@@ -130,7 +130,7 @@ class Database extends SQLObject implements IExpression, ITableProvider
 		if ($a_mode & kObjectQueryDatasource)
 		{
 			$a = $this->m_datasource->getDatabaseStructure($this, false);
-			return (($a instanceof SQLDatabaseStructure) && $a->offsetExists($a_name) && ($a [$a_name] instanceof SQLTableStructure));
+			return (($a instanceof DatabaseStructure) && $a->offsetExists($a_name) && ($a [$a_name] instanceof TableStructure));
 		}
 		
 		return $result;

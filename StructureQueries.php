@@ -70,9 +70,9 @@ class CreateTableQuery extends IQuery
 {
 	/**
 	 * @param SQLObject $a_parent
-	 * @param SQLTableStructure $a_structure
+	 * @param TableStructure $a_structure
 	 */
-	public function __construct(SQLObject $a_parent, SQLTableStructure $a_structure)
+	public function __construct(SQLObject $a_parent, TableStructure $a_structure)
 	{
 		parent::__construct($a_parent->datasource);
 		$this->m_structure;

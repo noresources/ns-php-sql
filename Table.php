@@ -26,9 +26,9 @@ require_once (NS_PHP_PATH . '/core/arrays.php');
 class Table extends SQLObject implements IExpression, IAliasedClone, ITableFieldProvider
 {
 	// construction / destruction
-	public function __construct(ITableProvider $a_owner, $a_name, $a_aliasName = '', SQLTableStructure $a_structure = null)
+	public function __construct(ITableProvider $a_owner, $a_name, $a_aliasName = '', TableStructure $a_structure = null)
 	{
-		parent::__construct($a_structure, __NAMESPACE__ . '\\SQLTableStructure');
+		parent::__construct($a_structure, __NAMESPACE__ . '\\TableStructure');
 		if (!(($a_owner instanceof Datasource) || ($a_owner instanceof Database)))
 		{
 			return ns\Reporter::fatalError($this, __METHOD__ . '(): Invalid owner class "' . get_class($a_owner) . '"');

@@ -33,9 +33,9 @@ class MySQLTableManipulator extends TableManipulator
 
 	/**
 	 *
-	 * @param SQLTableStructure $a_structure        	
+	 * @param TableStructure $a_structure        	
 	 */
-	public function create(SQLTableStructure $a_structure)
+	public function create(TableStructure $a_structure)
 	{
 		if (!$this->postCreation($a_structure))
 		{
@@ -130,9 +130,9 @@ class MySQLDatasource extends Datasource implements ITransactionBlock
 
 	/**
 	 *
-	 * @param SQLDatasourceStructure $a_structure        	
+	 * @param DatasourceStructure $a_structure        	
 	 */
-	public function __construct(SQLDatasourceStructure $a_structure = null)
+	public function __construct(DatasourceStructure $a_structure = null)
 	{
 		parent::__construct($a_structure);
 		$this->setDatasourceString(self::kStringClassNameTableManipulator, __NAMESPACE__ . '\\MySQLTableManipulator');
@@ -483,7 +483,7 @@ class MySQLDatasource extends Datasource implements ITransactionBlock
 		}
 		
 		$p = $a_containerObject->structure ? $a_containerObject->structure->parent() : null;
-		$structure = new SQLDatabaseStructure($p, $a_containerObject->getName());
+		$structure = new DatabaseStructure($p, $a_containerObject->getName());
 		foreach ($queryRes as $row)
 		{
 			$ts = null;
@@ -493,7 +493,7 @@ class MySQLDatasource extends Datasource implements ITransactionBlock
 			}
 			else 
 			{
-				$ts = new SQLTableStructure($structure, $row [0]);
+				$ts = new TableStructure($structure, $row [0]);
 			}
 			
 			if ($ts)
@@ -521,7 +521,7 @@ class MySQLDatasource extends Datasource implements ITransactionBlock
 		}
 		
 		$s = $a_table->structure;
-		$ts = new SQLTableStructure(($s ? $s->parent() : null), $a_table->getName());
+		$ts = new TableStructure(($s ? $s->parent() : null), $a_table->getName());
 		
 		foreach ($queryRes as $row)
 		{
@@ -551,7 +551,7 @@ class MySQLDatasource extends Datasource implements ITransactionBlock
 			{
 				$typedef = parseDataTypeDefinition($row ['Type'], true);
 			}
-			$f = new SQLTableFieldStructure($ts, $name);
+			$f = new TableFieldStructure($ts, $name);
 			
 			$f->setProperty(kStructurePrimaryKey, preg_match('/pri/i', $row ['Key']));
 			$f->setProperty(kStructureAutoincrement, preg_match('/auto_increment/i', $row ['Extra']));

@@ -38,9 +38,9 @@ abstract class TableManipulator
 
 	/**
 	 * Create a new table
-	 * @param SQLTableStructure $a_structure Table properties
+	 * @param TableStructure $a_structure Table properties
 	 */
-	abstract public function create(SQLTableStructure $a_structure);
+	abstract public function create(TableStructure $a_structure);
 
 	/**
 	 * Rename a table
@@ -84,7 +84,7 @@ abstract class TableManipulator
 		return $q->execute();
 	}
 
-	protected function postCreation(SQLTableStructure $a_structure)
+	protected function postCreation(TableStructure $a_structure)
 	{
 		if ($this->m_provider->tableExists($a_structure->getName(), kObjectQueryDatasource))
 		{

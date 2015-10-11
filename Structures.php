@@ -274,10 +274,10 @@ class StructureElement implements ArrayAccess, Iterator
 /**
  * Table field properties
  */
-class SQLTableFieldStructure extends StructureElement
+class TableFieldStructure extends StructureElement
 {
 
-	public function __construct(SQLTableStructure $a_tableStructure, $a_name)
+	public function __construct(TableStructure $a_tableStructure, $a_name)
 	{
 		parent::__construct($a_name, $a_tableStructure);
 		$this->m_fieldProperties = array (
@@ -322,10 +322,10 @@ class SQLTableFieldStructure extends StructureElement
  *
  * @todo table constraints (primary keys etc. & index)
  */
-class SQLTableStructure extends StructureElement
+class TableStructure extends StructureElement
 {
 
-	public function __construct(SQLDatabaseStructure $a_databaseStructure, $a_name)
+	public function __construct(DatabaseStructure $a_databaseStructure, $a_name)
 	{
 		parent::__construct($a_name, $a_databaseStructure);
 	}
@@ -335,7 +335,7 @@ class SQLTableStructure extends StructureElement
 		return $this->root()->getTablePrefix() . parent::getName();
 	}
 
-	public final function addFieldStructure(SQLTableFieldStructure $a_fieldStructure)
+	public final function addFieldStructure(TableFieldStructure $a_fieldStructure)
 	{
 		$this->addChild($a_fieldStructure);
 	}
@@ -346,15 +346,15 @@ class SQLTableStructure extends StructureElement
  *
  * @author renaud
  */
-class SQLDatabaseStructure extends StructureElement
+class DatabaseStructure extends StructureElement
 {
 
-	public function __construct(SQLDatasourceStructure $a_datasourceStructure, $a_name)
+	public function __construct(DatasourceStructure $a_datasourceStructure, $a_name)
 	{
 		parent::__construct($a_name, $a_datasourceStructure);
 	}
 
-	public final function addTableStructure(SQLTableStructure $a_table)
+	public final function addTableStructure(TableStructure $a_table)
 	{
 		$this->addChild($a_table);
 	}
@@ -365,7 +365,7 @@ class SQLDatabaseStructure extends StructureElement
  *
  * @author renaud
  */
-class SQLDatasourceStructure extends StructureElement
+class DatasourceStructure extends StructureElement
 {
 	/**
 	 *
@@ -492,17 +492,17 @@ class SQLDatasourceStructure extends StructureElement
 		
 		foreach ($dbnodes as $dbnode)
 		{
-			$dbs = new SQLDatabaseStructure($this, $dbnode->getAttribute('name'));
+			$dbs = new DatabaseStructure($this, $dbnode->getAttribute('name'));
 			
 			$tnodes = $xpath->query('sql:table', $dbnode);
 			foreach ($tnodes as $tnode)
 			{
-				$ts = new SQLTableStructure($dbs, $tnode->getAttribute('name'));
+				$ts = new TableStructure($dbs, $tnode->getAttribute('name'));
 				
 				$columnNodes = $xpath->query('sql:column|sql:field', $tnode);
 				foreach ($columnNodes as $columnNode)
 				{
-					$fs = new SQLTableFieldStructure($ts, $columnNode->getAttribute('name'));
+					$fs = new TableFieldStructure($ts, $columnNode->getAttribute('name'));
 					$child = $columnNode->getElementsByTagNameNS(self::XMLNAMESPACE, 'datatype');
 					
 					if ($child && $child->length)
@@ -593,9 +593,9 @@ class SQLDatasourceStructure extends StructureElement
 	}
 
 	/**
-	 * @param SQLDatabaseStructure $a_database
+	 * @param DatabaseStructure $a_database
 	 */
-	public final function addDatabaseStructure(SQLDatabaseStructure $a_database)
+	public final function addDatabaseStructure(DatabaseStructure $a_database)
 	{
 		$this->addChild($a_database);
 	}

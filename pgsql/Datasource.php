@@ -32,9 +32,9 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 	// construction - destruction
 	/**
 	 *
-	 * @param SQLDatasourceStructure $a_structure
+	 * @param DatasourceStructure $a_structure
 	 */
-	public function __construct(SQLDatasourceStructure $a_structure = null)
+	public function __construct(DatasourceStructure $a_structure = null)
 	{
 		parent::__construct($a_structure);
 		$this->structureTableProviderDatabaseName = 'main';

@@ -41,7 +41,7 @@ class SQLiteTableManipulator extends TableManipulator
 	 *
 	 * @see NoreSources.TableManipulator::create()
 	 */
-	public function create(SQLTableStructure $a_structure)
+	public function create(TableStructure $a_structure)
 	{
 		if (!$this->postCreation($a_structure))
 		{
@@ -214,7 +214,7 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 		if ($a_mode & kObjectQueryDatasource)
 		{
 			$a = $this->getDatabaseStructure($this, false);
-			return (($a instanceof SQLDatabaseStructure) && $a->offsetExists($a_name) && ($a [$a_name] instanceof SQLTableStructure));
+			return (($a instanceof DatabaseStructure) && $a->offsetExists($a_name) && ($a [$a_name] instanceof TableStructure));
 		}
 		
 		return $result;
@@ -565,7 +565,7 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 
 		$name = ($a_containerObject == $this) ? $this->m_databaseName : $a_containerObject->getName();
 		
-		$structure = new SQLDatabaseStructure($this->structure, $name);
+		$structure = new DatabaseStructure($this->structure, $name);
 		
 		foreach ($queryRes as $row)
 		{
@@ -576,7 +576,7 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 			}
 			else 
 			{
-				$ts = new SQLTableStructure($structure, $row ['name']);
+				$ts = new TableStructure($structure, $row ['name']);
 			}
 			
 			if ($ts)
@@ -599,14 +599,14 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 		}
 
 		$s = $a_table->structure;
-		$ts = new SQLTableStructure(($s ? $s->parent() : null), $a_table->getName());
+		$ts = new TableStructure(($s ? $s->parent() : null), $a_table->getName());
 		
 		foreach ($queryRes as $row)
 		{
 			$name = $row ['name'];
 			$typedef = parseDataTypeDefinition($row ['type'], true);
 			
-			$f = new SQLTableFieldStructure($ts, $name);
+			$f = new TableFieldStructure($ts, $name);
 			$f->setProperty(kStructurePrimaryKey, ($row ['pk'] == '1'));
 			$f->setPdroperty(kStructureFieldTypename, $typedef ['type']);
 			$f->setProperty(kStructureAcceptNull, intval($row ['notnull']) == 0);

@@ -25,7 +25,7 @@ const MYSQL_TYPE_UNSIGNED = "UNSIGNED";
 class MySQLStringData extends StringData
 {
 
-	public function __construct(Datasource $datasource, SQLTableFieldStructure $structure)
+	public function __construct(Datasource $datasource, TableFieldStructure $structure)
 	{
 		parent::__construct($datasource, $structure);
 	}
@@ -39,7 +39,7 @@ class MySQLStringData extends StringData
 class MySQLBinaryData extends BinaryData
 {
 
-	public function __construct(Datasource $datasource, SQLTableFieldStructure $structure)
+	public function __construct(Datasource $datasource, TableFieldStructure $structure)
 	{
 		parent::__construct($datasource, $structure);
 	}
