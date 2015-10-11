@@ -45,7 +45,7 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 		);
 		foreach ($type as $name)
 		{
-			$this->addDataType($name, kDataTypeString);
+			$this->addDataType($name, kDataTypeString, 'PostgreSQLStringData');
 		}
 		
 		$type = array (
@@ -53,7 +53,7 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 		);
 		foreach ($type as $name)
 		{
-			$this->addDataType($name, kDataTypeString);
+			$this->addDataType($name, kDataTypeString, 'PostgreSQLStringData');
 		}
 		
 		$type = array (
@@ -61,7 +61,7 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 		);
 		foreach ($type as $name)
 		{
-			$this->addDataType($name, kDataTypeBinary);
+			$this->addDataType($name, kDataTypeBinary, 'PostgreSQLBinaryData');
 		}
 		
 		$type = array (
@@ -105,7 +105,7 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 			$this->addDataType($name, kDataTypeNumber);
 		}
 		
-		$this->setDefaultTypeName(kDataTypeBinary, 'bytes');
+		$this->setDefaultTypeName(kDataTypeBinary, 'bytes', 'PostgreSQLBinaryData');
 		$this->setDefaultTypeName(kDataTypeBoolean, 'boolean');
 		$this->setDefaultTypeName(kDataTypeTimestamp, 'timestamp');
 		$this->setDefaultTypeName(kDataTypeNumber, 'integer');

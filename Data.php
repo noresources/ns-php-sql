@@ -281,7 +281,7 @@ class StringData extends Data
 			return 'NULL';
 		}
 		
-		return protectString($this->m_value);
+		return protectString($this->getDatasourceStringExpression($this->getValue()));
 	}
 
 	public function getValue()
@@ -293,9 +293,9 @@ class StringData extends Data
 	 *
 	 * @return The string value as it should appear in SQL statement
 	 */
-	protected function getDatasourceStringExpression()
+	protected function getDatasourceStringExpression($value)
 	{
-		return protect($this->m_value);
+		return $value;
 	}
 
 	private $m_datasource;
@@ -538,7 +538,7 @@ class BinaryData extends Data
 			return $this->m_datasource->getDatasourceString(Datasource::kStringKeywordNull);
 		}
 		
-		return $this->getDatasourceBinaryExpression();
+		return $this->getDatasourceBinaryExpression($this->getValue());
 	}
 
 	public function getValue()
@@ -546,9 +546,9 @@ class BinaryData extends Data
 		return $this->m_value;
 	}
 
-	protected function getDatasourceBinaryExpression()
+	protected function getDatasourceBinaryExpression($value)
 	{
-		return protect($this->m_value);
+		return $value;
 	}	
 
 	private $m_datasource;

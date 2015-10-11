@@ -506,8 +506,15 @@ class TableField extends ITableField implements IAliasedClone, ITableFieldValueV
 			return ns\Reporter::error($this, __METHOD__ . '(): Value validation failed', __FILE__, __LINE__);
 		}
 		
-		$v = $this->getDatasource()->createData(($this->type) ? $this->type : $a_value);
+		$sqlType = $this->type();
+		if ($sqlType === false)
+		{
+			$sqlType = guessDataType($a_value);
+		}
+		
+		$v = $this->getDatasource()->createData($sqlType);
 		$v->import($a_value);
+		
 		return $v;
 	}
 

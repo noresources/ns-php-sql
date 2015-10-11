@@ -16,7 +16,6 @@ require_once (__DIR__ . '/../Data.php');
 /*
  * @see http://www.postgresql.org/docs/9.1/interactive/datatype.html
  */
-
 class PostgreSQLStringData extends StringData
 {
 
@@ -25,9 +24,9 @@ class PostgreSQLStringData extends StringData
 		parent::__construct($a_datasource, $structure);
 	}
 
-	protected function getDatasourceStringExpression()
+	protected function getDatasourceStringExpression($value)
 	{
-		return protect(pg_escape_string($this->datasource->resource(), $this->value));
+		return (pg_escape_string($this->datasource->resource(), $value));
 	}
 }
 
@@ -39,15 +38,15 @@ class PostgreSQLBinaryData extends BinaryData
 		parent::__construct($datasource, $structure);
 	}
 
-	protected function getDatasourceBinaryExpression()
+	protected function getDatasourceBinaryExpression($value)
 	{
-		return protect(pg_escape_bytea($this->m_datasource->resource(), $this->value));
+		return pg_escape_bytea($this->m_datasource->resource(), $value);
 	}
-		
+	
 	/*
-	public function export($a_value)
-	{
-		return pg_unescape_bytea($this->m_datasource->resource(), $a_value);
-	}
-	*/
+	 * public function export($a_value)
+	 * {
+	 * return pg_unescape_bytea($this->m_datasource->resource(), $a_value);
+	 * }
+	 */
 }

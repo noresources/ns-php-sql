@@ -10,8 +10,8 @@
  * @package SQL
  */
 namespace NoreSources\SQL;
-use NoreSources as ns;
 
+use NoreSources as ns;
 use \SQLite3;
 
 require_once (__DIR__ . "/../Data.php");
@@ -24,9 +24,8 @@ class SQLiteStringData extends StringData
 		parent::__construct($datasource, $structure);
 	}
 
-	protected function getDatasourceStringExpression()
+	protected function getDatasourceStringExpression($value)
 	{
-		$value = $this->value;
 		if (method_exists("\\SQLite3", "escapeString"))
 		{
 			$value = SQLite3::escapeString($a_value);
@@ -36,7 +35,7 @@ class SQLiteStringData extends StringData
 			$value = sqlite_escape_string($a_value);
 		}
 		
-		return protect($value);
+		return $value;
 	}
 }
 
@@ -48,9 +47,8 @@ class SQLiteBinaryData extends BinaryData
 		parent::__construct($datasource, $structure);
 	}
 
-	protected function getDatasourceBinaryExpression()
+	protected function getDatasourceBinaryExpression($value)
 	{
-		$value = $this->value;
 		if (method_exists("\\SQLite3", "escapeString"))
 		{
 			$value = SQLite3::escapeString($a_value);
@@ -60,8 +58,6 @@ class SQLiteBinaryData extends BinaryData
 			$value = sqlite_escape_string($a_value);
 		}
 		
-		return protect($value);
+		return $value;
 	}
 }
-
-?>

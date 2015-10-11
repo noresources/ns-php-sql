@@ -24,9 +24,9 @@ class MySQLStringData extends StringData
 		parent::__construct($datasource, $structure);
 	}
 
-	protected function getDatasourceStringExpression()
+	protected function getDatasourceStringExpression($value)
 	{
-		return protect($this->datasource->apiCall("real_escape_string", $this->value, $this->datasource->resource()));
+		return ($this->datasource->apiCall("real_escape_string", $value, $this->datasource->resource()));
 	}
 }
 
@@ -38,8 +38,8 @@ class MySQLBinaryData extends BinaryData
 		parent::__construct($datasource, $structure);
 	}
 
-	protected function getDatasourceBinaryExpression()
+	protected function getDatasourceBinaryExpression($value)
 	{
-		return protect($this->datasource->apiCall("real_escape_string", $this->value, $this->datasource->resource()));
+		return ($this->datasource->apiCall("real_escape_string", $value, $this->datasource->resource()));
 	}
 }

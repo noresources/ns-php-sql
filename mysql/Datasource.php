@@ -165,11 +165,11 @@ class MySQLDatasource extends Datasource implements ITransactionBlock
 		);
 		foreach ($types as $name)
 		{
-			$this->addDataType($name, kDataTypeString);
+			$this->addDataType($name, kDataTypeString, 'MySQLStringData');
 		}
 		
-		$this->addDataType('BINARY', kDataTypeBinary);
-		$this->addDataType('VARBINARY', kDataTypeBinary);
+		$this->addDataType('BINARY', kDataTypeBinary, 'MySQLBinaryData');
+		$this->addDataType('VARBINARY', kDataTypeBinary, 'MySQLBinaryData');
 		
 		$this->addDataType('BOOL', kDataTypeBoolean);
 		
