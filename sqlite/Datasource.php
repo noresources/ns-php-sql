@@ -10,8 +10,8 @@
  * @package SQL
  */
 namespace NoreSources\SQL;
-use NoreSources as ns;
 
+use NoreSources as ns;
 use \SQLite3;
 use Exception;
 
@@ -109,13 +109,13 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 		
 		$this->m_databaseName = null;
 		
-		$this->addDataType('TEXT', kDataTypeString);
-		$this->addDataType('VARCHAR', kDataTypeString);
+		$this->addDataType('TEXT', kDataTypeString, __NAMESPACE__ . '\\SQLiteStringData');
+		$this->addDataType('VARCHAR', kDataTypeString, __NAMESPACE__ . '\\SQLiteStringData');
 				
 		$this->addDataType('INTEGER', kDataTypeNumber);
 		$this->addDataType('REAL', kDataTypeNumber);
 		$this->addDataType('NUMERIC', kDataTypeNumber);
-		$this->addDataType('BLOB', kDataTypeBinary);
+		$this->addDataType('BLOB', kDataTypeBinary, __NAMESPACE__ . '\\SQLiteBinaryData');
 	}
 	
 	public function __destruct()
@@ -336,6 +336,38 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 		return true;
 	}
 
+	public function createData($dataType)
+	{
+		if (array_key_exists($dataType, $this->m_dataTypeNames))
+		{
+			$a = $this->m_dataTypeNames [$dataType];
+			$sqlType = $a ['type'];
+			$structure = guessStructureElement($sqlType);
+
+			$d = null;
+			if ($a ['class'])
+			{
+				$cls = $a ['class'];
+				return (new $cls($this, $structure));
+			}
+		}
+		
+		if ($sqlType = $this->guessDataType($dataType))
+		{
+			$structure = guessStructureElement($sqlType);
+			if ($sqlType == kDataTypeString)
+			{
+				return (new SQLiteStringData($this, $structure));
+			}
+			elseif ($sqlType == kDataTypeBinary)
+			{
+				return (new SQLiteBinaryData($this, $structure));
+			}
+		}
+		
+		return parent::createData($dataType);
+	}
+	
 	public function executeQuery($a_strQuery)
 	{
 		$errorMessage = '';
@@ -668,5 +700,3 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 	 */
 	protected $m_implementation;
 }
-
-?>

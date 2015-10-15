@@ -17,18 +17,18 @@ use \SQLite3;
 class SQLiteStringData extends StringData
 {
 
-	public function __construct(Datasource $datasource, TableFieldStructure $structure)
+	public function __construct(Datasource $datasource, TableFieldStructure $structure = null)
 	{
 		parent::__construct($datasource, $structure);
 	}
 
-	protected function getDatasourceStringExpression($value)
+	protected function getDatasourceStringExpression($a_value)
 	{
-		if (method_exists("\\SQLite3", "escapeString"))
+		if (method_exists('\\SQLite3', 'escapeString'))
 		{
 			$value = SQLite3::escapeString($a_value);
 		}
-		elseif (function_exists("sqlite_escape_string"))
+		elseif (function_exists('sqlite_escape_string'))
 		{
 			$value = sqlite_escape_string($a_value);
 		}
@@ -40,18 +40,18 @@ class SQLiteStringData extends StringData
 class SQLiteBinaryData extends BinaryData
 {
 
-	public function __construct(Datasource $datasource, TableFieldStructure $structure)
+	public function __construct(Datasource $datasource, TableFieldStructure $structure = null)
 	{
 		parent::__construct($datasource, $structure);
 	}
 
-	protected function getDatasourceBinaryExpression($value)
+	protected function getDatasourceBinaryExpression($a_value)
 	{
-		if (method_exists("\\SQLite3", "escapeString"))
+		if (method_exists('\\SQLite3', 'escapeString'))
 		{
 			$value = SQLite3::escapeString($a_value);
 		}
-		elseif (function_exists("sqlite_escape_string"))
+		elseif (function_exists('sqlite_escape_string'))
 		{
 			$value = sqlite_escape_string($a_value);
 		}
