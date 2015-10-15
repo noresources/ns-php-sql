@@ -52,8 +52,7 @@ class Table extends SQLObject implements IExpression, IAliasedClone, ITableField
 	/**
 	 * Enter description here...
 	 *
-	 * @param int $a_options
-	 *        	ELEMENT_*
+	 * @param int $a_options ELEMENT_*
 	 * @return string
 	 */
 	public function expressionString($a_options = null)
@@ -99,7 +98,7 @@ class Table extends SQLObject implements IExpression, IAliasedClone, ITableField
 	}
 	
 	// IAliasedClone implementation
-	public function &cloneWithOtherAlias($a_aliasName)
+	public function cloneWithOtherAlias($a_aliasName)
 	{
 		if ($a_aliasName == $this->alias())
 		{
@@ -137,10 +136,10 @@ class Table extends SQLObject implements IExpression, IAliasedClone, ITableField
 	/**
 	 * Create a StarColumn
 	 *
-	 * @param $a_className optional        	
+	 * @param $a_className optional
 	 * @return StarColumn
 	 */
-	public function &starFieldObject($a_className = null)
+	public function starFieldObject($a_className = null)
 	{
 		if (!class_exists($a_className))
 		{
@@ -156,7 +155,7 @@ class Table extends SQLObject implements IExpression, IAliasedClone, ITableField
 	 * @see include/ns/php/lib/sources/sql/ITableFieldProvider#fieldObject($a_name, $a_aliasName, $a_className)
 	 * @return TableField
 	 */
-	public function &fieldObject($a_name, $a_aliasName = null, $a_className = null)
+	public function fieldObject($a_name, $a_aliasName = null, $a_className = null)
 	{
 		if ($a_name == '*')
 		{
@@ -192,24 +191,29 @@ class Table extends SQLObject implements IExpression, IAliasedClone, ITableField
 	 */
 	public function fieldIterator()
 	{
-		/**
-		 *
-		 * @todo
-		 */
+		if ($this->m_structure)
+		{
+			return $this->m_structure;
+		}
+		
 		return null;
 	}
 
 	/**
+	 *
 	 * @see sources/sql/ITableFieldProvider#fieldExists($a_name)
 	 */
 	public function fieldExists($a_name)
 	{
-		if (!$this->m_fieldProperties)
+		if ($a_name == '*'){
+			return true;
+		}
+		if ($this->structure)
 		{
-			$this->m_fieldProperties = new TableFieldArray($this->getDatasource(), $this);
+			return $this->structure->offsetExists($a_name);
 		}
 		
-		return $this->m_fieldProperties->offsetExists($a_name);
+		return true;
 	}
 
 	/**
@@ -225,9 +229,8 @@ class Table extends SQLObject implements IExpression, IAliasedClone, ITableField
 	/**
 	 * Number of row in the table
 	 *
-	 * @param $a_oWhereCondition ns\IExpression
-	 *        	to filter results
-	 * @param $a_oJoins SelectQueryJoin        	
+	 * @param $a_oWhereCondition ns\IExpression to filter results
+	 * @param $a_oJoins SelectQueryJoin
 	 * @return numeric
 	 */
 	public final function rowCount(ns\IExpression $a_oWhereCondition = null, $a_oJoins = null)
@@ -272,8 +275,7 @@ class Table extends SQLObject implements IExpression, IAliasedClone, ITableField
 	/**
 	 * Insert a new row
 	 *
-	 * @param $a_fieldsAndValues Associative
-	 *        	array of field/value pair
+	 * @param $a_fieldsAndValues Associative array of field/value pair
 	 * @return InsertQueryResult
 	 */
 	public function insert($a_fieldsAndValues)
@@ -291,10 +293,8 @@ class Table extends SQLObject implements IExpression, IAliasedClone, ITableField
 
 	/**
 	 *
-	 * @param
-	 *        	$a_fieldAndValues
-	 * @param
-	 *        	$a_conditions
+	 * @param $a_fieldAndValues
+	 * @param $a_conditions
 	 * @return UpdateQueryResult
 	 */
 	public function update($a_fieldAndValues, ns\IExpression $a_conditions = null)
@@ -319,7 +319,7 @@ class Table extends SQLObject implements IExpression, IAliasedClone, ITableField
 	/**
 	 * Delete a set of rows, depending of conditions
 	 *
-	 * @param ns\IExpression $a_conditions        	
+	 * @param ns\IExpression $a_conditions
 	 * @return DeleteQueryResult
 	 */
 	public function delete(ns\IExpression $a_conditions = null)
@@ -361,7 +361,7 @@ class Table extends SQLObject implements IExpression, IAliasedClone, ITableField
 	 *
 	 * @return SQLObject
 	 */
-	public function &owner()
+	public function owner()
 	{
 		return $this->m_owner;
 	}
@@ -370,7 +370,7 @@ class Table extends SQLObject implements IExpression, IAliasedClone, ITableField
 	 *
 	 * @return ISQLDatabase
 	 */
-	public function &database()
+	public function database()
 	{
 		$v = null;
 		if (($this->m_owner instanceof Database))
@@ -400,11 +400,4 @@ class Table extends SQLObject implements IExpression, IAliasedClone, ITableField
 	 * @var SQLObject
 	 */
 	protected $m_owner;
-
-	/**
-	 * Properties for each table field
-	 *
-	 * @var TableFieldArray
-	 */
-	protected $m_fieldProperties;
 }

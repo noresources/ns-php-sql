@@ -163,7 +163,7 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 	 *
 	 * @todo Check behavior
 	 */
-	public function &tableObject($a_strName, $a_strAlias = null, $a_strClassName = null, $useAliasAsName = false)
+	public function tableObject($a_strName, $a_strAlias = null, $a_strClassName = null, $useAliasAsName = false)
 	{
 		$subStructure = null;
 		if ($this->structure)
