@@ -15,13 +15,6 @@ use NoreSources as ns;
 use \SQLite3;
 use Exception;
 
-require_once ('Expressions.php');
-require_once (__DIR__ . '/../QueryResults.php');
-require_once (__DIR__ . '/../Providers.php');
-require_once (__DIR__ . '/../Manipulators.php');
-require_once (__DIR__ . '/../Datasource.php');
-require_once (NS_PHP_CORE_PATH . '/Reporter.php');
-
 /**
  *
  * @todo Update to use SQL*Structure

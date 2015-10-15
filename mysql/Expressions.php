@@ -13,9 +13,6 @@ namespace NoreSources\SQL;
 
 use NoreSources as ns;
 
-require_once (__DIR__ . "/../Expressions.php");
-require_once (__DIR__ . '/../Data.php');
-
 class MySQLStringData extends StringData
 {
 

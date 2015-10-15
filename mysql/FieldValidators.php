@@ -12,10 +12,6 @@
 namespace NoreSources\SQL;
 use NoreSources as ns;
 
-require_once (__DIR__ . "/../TableField.php");
-require_once (__DIR__ . "/../base.php");
-require_once (__DIR__ . '/../sql.php');
-
 class MySQLEnumFieldValueValidator extends ListedElementTableFieldValueValidator
 {
 

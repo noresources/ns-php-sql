@@ -13,15 +13,6 @@ namespace NoreSources\SQL;
 
 use NoreSources as ns;
 
-require_once (__DIR__ . '/Expressions.php');
-require_once (__DIR__ . '/FieldValidators.php');
-require_once (__DIR__ . '/../Providers.php');
-require_once (__DIR__ . '/../Manipulators.php');
-require_once (__DIR__ . '/../QueryResults.php');
-require_once (__DIR__ . '/../Datasource.php');
-require_once (__DIR__ . '/../Structures.php');
-require_once (__DIR__ . '/../sql.php');
-
 class MySQLTableManipulator extends TableManipulator
 {
 

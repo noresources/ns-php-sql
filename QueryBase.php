@@ -13,9 +13,6 @@
 namespace NoreSources\SQL;
 use NoreSources as ns;
 
-require_once ('QueryResults.php');
-require_once ('BasicExpressions.php');
-
 /**
  * Database-type dependant SQL Query interface
  *

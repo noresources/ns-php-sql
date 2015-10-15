@@ -14,9 +14,6 @@ namespace NoreSources\SQL;
 use NoreSources as ns;
 use \InvalidArgumentException;
 
-require_once ('Structures.php');
-require_once ('Data.php');
-require_once ('Database.php');
 require_once ('base.php');
 
 /**

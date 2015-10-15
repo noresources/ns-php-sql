@@ -11,8 +11,6 @@
  */
 namespace NoreSources\SQL;
 
-require_once (__DIR__ . '/../Data.php');
-
 /*
  * @see http://www.postgresql.org/docs/9.1/interactive/datatype.html
  */

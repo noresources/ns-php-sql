@@ -13,10 +13,6 @@ namespace NoreSources\SQL;
 
 use NoreSources as ns;
 
-require_once ('Structures.php');
-require_once ('BasicExpressions.php');
-require_once ('Providers.php');
-
 /**
  * Represents one of the Database
  * of a Database Datasource

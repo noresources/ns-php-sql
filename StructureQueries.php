@@ -13,9 +13,6 @@ namespace NoreSources\SQL;
 
 use NoreSources as ns;
 
-require_once ('QueryBase.php');
-require_once ('TableField.php');
-require_once (NS_PHP_PATH . '/core/MathExpressions.php');
 require_once (NS_PHP_PATH . '/core/arrays.php');
 
 /**

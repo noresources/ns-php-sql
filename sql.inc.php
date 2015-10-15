@@ -103,5 +103,4 @@ const kStructureValidatorClassname = 'validator_classname';
  */
 // group 'structure'
 
-
-?>
+include_once (NS_PHP_SQL_PATH . '/sql.autoload.inc.php');

@@ -14,8 +14,6 @@ namespace NoreSources\SQL;
 use NoreSources as ns;
 use \SQLite3;
 
-require_once (__DIR__ . "/../Data.php");
-
 class SQLiteStringData extends StringData
 {
 

@@ -14,7 +14,6 @@ namespace NoreSources\SQL;
 use NoreSources as ns;
 use \ArrayAccess, Iterator;
 
-require_once ('sql.php');
 require_once (NS_PHP_PATH . '/core/strings.php');
 require_once (NS_PHP_PATH . '/core/arrays.php');
 

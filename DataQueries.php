@@ -10,8 +10,6 @@ namespace NoreSources\SQL;
 
 use NoreSources as ns;
 
-require_once ('QueryBase.php');
-
 /**
  * Insert query builder
  * A InsertQuery works only on one set of values

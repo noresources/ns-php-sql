@@ -14,14 +14,6 @@ namespace NoreSources\SQL;
 use NoreSources as ns;
 use NoreSources\Reporter;
 
-require_once (__DIR__ . "/Expressions.php");
-require_once (__DIR__ . '/../Providers.php');
-require_once (__DIR__ . '/../Manipulators.php');
-require_once (__DIR__ . '/../QueryResults.php');
-require_once (__DIR__ . '/../Datasource.php');
-require_once (__DIR__ . '/../Structures.php');
-require_once (__DIR__ . '/../sql.php');
-
 /**
  * Notes:
  * - The term "Database" here, refers to PostgreSQL Structure

@@ -12,9 +12,6 @@
 namespace NoreSources\SQL;
 use NoreSources as ns;
 
-require_once ('StructureQueries.php');
-require_once ('Providers.php');
-require_once ('Table.php');
 require_once ('base.php');
 
 abstract class TableManipulator

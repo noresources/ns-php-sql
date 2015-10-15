@@ -11,8 +11,6 @@
 namespace NoreSources\SQL;
 use NoreSources as ns;
 
-require_once ('BasicExpressions.php');
-
 /**
  * IS null expression
  */
