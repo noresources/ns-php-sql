@@ -261,10 +261,10 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 					__FILE__, __LINE__);
 		}
 		
-		$this->m_databaseName = ns\array_keyvalue($a_aParameters, kConnectionParameterDatabasename, 'main');
+		$this->m_databaseName = ns\array_keyvalue($a_aParameters, kConnectionParameterDatabasename, self::DEFAULT_DATABASENAME);
 		$fileName = ns\array_keyvalue($a_aParameters, kConnectionParameterFilename, 
 				ns\array_keyvalue($a_aParameters, kConnectionParameterHostname, null));
-		
+				
 		if ($fileName != self::MEMORY_DATABASENAME)
 		{
 			if (file_exists($fileName))
@@ -333,8 +333,9 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 		// Use attach rather than open
 		if ($this->m_databaseName != self::DEFAULT_DATABASENAME)
 		{
-			$str = 'attach database \'' . $fileName . '\' as ' . $this->encloseElement($this->m_databaseName) . ';';
-			// echo_line($str);
+			$v = new SQLiteStringData($this);
+			$v->import(realpath($fileName));
+			$str = 'ATTACH DATABASE ' . $v->expressionString() . ' AS ' . $this->encloseElement($this->m_databaseName) . ';';
 			$res = $this->executeQuery($str);
 			return ($res != false);
 		}
