@@ -30,11 +30,10 @@ interface IDatabaseProvider
 	 * The method should construct a database object even if the given name
 	 * does not exists.
 	 *
-	 * @param string $a_name        	
-	 * @param string $a_className        	
+	 * @param string $a_name        	      	
 	 * @return Database
 	 */
-	function getDatabase($a_name, $a_className = null);
+	function getDatabase($a_name);
 
 	/**
 	 * Provides an iterator on all the database names of the Datasource

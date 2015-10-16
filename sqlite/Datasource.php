@@ -10,7 +10,6 @@
  * @package SQL
  */
 namespace NoreSources\SQL;
-
 use NoreSources as ns;
 use \SQLite3;
 use Exception;
@@ -24,7 +23,7 @@ use Exception;
 class SQLiteTableManipulator extends TableManipulator
 {
 
-	public function __construct(ITableProvider $a_oProvider = null)
+	public function __construct (ITableProvider $a_oProvider = null)
 	{
 		parent::__construct($a_oProvider);
 	}
@@ -34,7 +33,7 @@ class SQLiteTableManipulator extends TableManipulator
 	 *
 	 * @see NoreSources.TableManipulator::create()
 	 */
-	public function create(TableStructure $a_structure)
+	public function create (TableStructure $a_structure)
 	{
 		if (!$this->postCreation($a_structure))
 		{
@@ -81,15 +80,30 @@ class SQLiteTableManipulator extends TableManipulator
 	}
 }
 
+class SQLiteDatabase extends Database
+{
+
+	public function __construct (SQLiteDatasource $datasource, $name)
+	{
+		parent::__construct($datasource, $name, $datasource->getStructure()[$name]);
+	}
+}
+
+/**
+ * SQLite datasource implementation
+ */
 class SQLiteDatasource extends Datasource implements ITransactionBlock, ITableProvider
 {
 	// construction - destruction
 	const MEMORY_DATABASENAME = ':memory:';
+
 	const DEFAULT_DATABASENAME = 'main';
+
 	const IMPLEMENTATION_sqlite = 1;
+
 	const IMPLEMENTATION_sqlite3 = 2;
 
-	public function __construct()
+	public function __construct ()
 	{
 		parent::__construct();
 		$this->setDatasourceString(self::kStringClassNameTableManipulator, __NAMESPACE__ . '\\SQLiteTableManipulator');
@@ -111,43 +125,48 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 		
 		$this->addDataType('TEXT', kDataTypeString, __NAMESPACE__ . '\\SQLiteStringData');
 		$this->addDataType('VARCHAR', kDataTypeString, __NAMESPACE__ . '\\SQLiteStringData');
-				
+		
 		$this->addDataType('INTEGER', kDataTypeNumber);
 		$this->addDataType('REAL', kDataTypeNumber);
 		$this->addDataType('NUMERIC', kDataTypeNumber);
 		$this->addDataType('BLOB', kDataTypeBinary, __NAMESPACE__ . '\\SQLiteBinaryData');
 	}
-	
-	public function __destruct()
+
+	public function __destruct ()
 	{
 		parent::__destruct();
 	}
 	
 	// ITransactionBlock implementation
-	function startTransaction()
+	function startTransaction ()
 	{
 		$oQuery = new FormattedQuery($this, 'BEGIN TRANSACTION;');
 		$oQuery->execute();
 	}
 
-	function commitTransaction()
+	function commitTransaction ()
 	{
 		$oQuery = new FormattedQuery($this, 'COMMIT TRANSACTION;');
 		$oQuery->execute();
 	}
 
-	function rollbackTransaction()
+	function rollbackTransaction ()
 	{
 		$oQuery = new FormattedQuery($this, 'ROLLBACK TRANSACTION;');
 		$oQuery->execute();
 	}
 
-	public function getDatasource()
+	public function getDatasource ()
 	{
 		return $this;
 	}
 
-	public function tableObject($a_name, $a_strAlias = null, $a_className = null, $useAliasAsName = false)
+	/**
+	 * Get a table from the main database
+	 * 
+	 * @see \NoreSources\SQL\ITableProvider::tableObject()
+	 */
+	public function tableObject ($a_name, $a_strAlias = null, $a_className = null, $useAliasAsName = false)
 	{
 		$subStructure = null;
 		if ($this->structure)
@@ -167,7 +186,14 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 		return $res;
 	}
 
-	public function tableIterator()
+	/**
+	 * List of main database tables
+	 * 
+	 * @see \NoreSources\SQL\ITableProvider::tableIterator()
+	 *
+	 * @return \Iterator
+	 */
+	public function tableIterator ()
 	{
 		if ($this->structure)
 		{
@@ -186,7 +212,7 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 	 *
 	 * @see NoreSources.ITableProvider::tableExists()
 	 */
-	public function tableExists($a_name, $a_mode = kObjectQuerySchema)
+	public function tableExists ($a_name, $a_mode = kObjectQuerySchema)
 	{
 		$result = true;
 		if ($a_mode & kObjectQuerySchema)
@@ -205,7 +231,7 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 		if ($a_mode & kObjectQueryDatasource)
 		{
 			$a = $this->getDatabaseStructure($this, false);
-			return (($a instanceof DatabaseStructure) && $a->offsetExists($a_name) && ($a [$a_name] instanceof TableStructure));
+			return (($a instanceof DatabaseStructure) && $a->offsetExists($a_name) && ($a[$a_name] instanceof TableStructure));
 		}
 		
 		return $result;
@@ -213,7 +239,6 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 	
 	// Datasource implementation
 	
-
 	/**
 	 * Connect to a SQLite source
 	 *
@@ -221,7 +246,7 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 	 *        	Datasource parameters
 	 * @return bool
 	 */
-	public function connect($a_aParameters)
+	public function connect ($a_aParameters)
 	{
 		if ($this->resource())
 		{
@@ -229,16 +254,16 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 		}
 		
 		// Min requirements
-		if (!array_key_exists(kConnectionParameterHostname, $a_aParameters) && !array_key_exists(kConnectionParameterFilename, $a_aParameters))
+		if (!array_key_exists(kConnectionParameterHostname, $a_aParameters) &&
+				 !array_key_exists(kConnectionParameterFilename, $a_aParameters))
 		{
-			return ns\Reporter::error($this, __METHOD__ . '(): Parameters are missing. "host" or "filename"] must be provided.', __FILE__, __LINE__);
+			return ns\Reporter::error($this, __METHOD__ . '(): Parameters are missing. "host" or "filename"] must be provided.', 
+					__FILE__, __LINE__);
 		}
 		
 		$this->m_databaseName = ns\array_keyvalue($a_aParameters, kConnectionParameterDatabasename, 'main');
-		$fileName = ns\array_keyvalue($a_aParameters, kConnectionParameterFilename, ns\array_keyvalue($a_aParameters, kConnectionParameterHostname, null));
-		
-		// echo_line('db: ' . $this->m_databaseName);
-		// echo_line('file: ' . $fileName);
+		$fileName = ns\array_keyvalue($a_aParameters, kConnectionParameterFilename, 
+				ns\array_keyvalue($a_aParameters, kConnectionParameterHostname, null));
 		
 		if ($fileName != self::MEMORY_DATABASENAME)
 		{
@@ -279,7 +304,8 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 			}
 			catch (Exception $e)
 			{
-				return ns\Reporter::error($this, __METHOD__ . '(): Unable to open database "' . $fileName . '" :' . $e->getMessage(), __FILE__, __LINE__);
+				return ns\Reporter::error($this, 
+						__METHOD__ . '(): Unable to open database "' . $fileName . '" :' . $e->getMessage(), __FILE__, __LINE__);
 			}
 		}
 		elseif ($this->m_implementation == self::IMPLEMENTATION_sqlite)
@@ -296,25 +322,27 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 		{
 			$errorMessage = 'No implementation found';
 		}
-
+		
 		if (strlen($errorMessage))
 		{
-			return ns\Reporter::error($this, __METHOD__ . '(): Unable to connect to database ' . basename($fileName) . ': ' . $errorMessage, __FILE__, __LINE__);
+			return ns\Reporter::error($this, 
+					__METHOD__ . '(): Unable to connect to database ' . basename($fileName) . ': ' . $errorMessage, __FILE__, 
+					__LINE__);
 		}
-
+		
 		// Use attach rather than open
 		if ($this->m_databaseName != self::DEFAULT_DATABASENAME)
 		{
 			$str = 'attach database \'' . $fileName . '\' as ' . $this->encloseElement($this->m_databaseName) . ';';
-			//echo_line($str);
+			// echo_line($str);
 			$res = $this->executeQuery($str);
 			return ($res != false);
 		}
-
+		
 		return true;
 	}
 
-	protected function disconnect()
+	protected function disconnect ()
 	{
 		if ($this->m_implementation == self::IMPLEMENTATION_sqlite3)
 		{
@@ -322,7 +350,7 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 			{
 				return false;
 			}
-
+			
 			$this->resource()->close();
 		}
 		elseif ($this->m_implementation == self::IMPLEMENTATION_sqlite)
@@ -336,19 +364,19 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 		return true;
 	}
 
-	public function createData($dataType)
+	public function createData ($dataType)
 	{
 		if (array_key_exists($dataType, $this->m_dataTypeNames))
 		{
-			$a = $this->m_dataTypeNames [$dataType];
-			$sqlType = $a ['type'];
+			$a = $this->m_dataTypeNames[$dataType];
+			$sqlType = $a['type'];
 			$structure = guessStructureElement($sqlType);
-
+			
 			$d = null;
-			if ($a ['class'])
+			if ($a['class'])
 			{
-				$cls = $a ['class'];
-				return (new $cls($this, $structure));
+				$cls = $a['class'];
+				return new $cls($this, $structure);
 			}
 		}
 		
@@ -357,18 +385,18 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 			$structure = guessStructureElement($sqlType);
 			if ($sqlType == kDataTypeString)
 			{
-				return (new SQLiteStringData($this, $structure));
+				return new SQLiteStringData($this, $structure);
 			}
 			elseif ($sqlType == kDataTypeBinary)
 			{
-				return (new SQLiteBinaryData($this, $structure));
+				return new SQLiteBinaryData($this, $structure);
 			}
 		}
 		
 		return parent::createData($dataType);
 	}
-	
-	public function executeQuery($a_strQuery)
+
+	public function executeQuery ($a_strQuery)
 	{
 		$errorMessage = '';
 		$result = null;
@@ -378,7 +406,7 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 			{
 				return ns\Reporter::error($this, __METHOD__ . '(): No Datasource');
 			}
-
+			
 			$result = $this->resource()->query($a_strQuery);
 		}
 		elseif ($this->m_implementation == self::IMPLEMENTATION_sqlite)
@@ -387,19 +415,19 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 			{
 				return ns\Reporter::error($this, __METHOD__ . '(): No Datasource');
 			}
-
+			
 			$result = sqlite_query($this->resource(), $a_strQuery, SQLITE_BOTH, $errorMessage);
 		}
-
+		
 		if (!$result)
 		{
 			return ns\Reporter::error($this, __METHOD__ . '(): Query error: ' . $a_strQuery . ' / ' . $errorMessage);
 		}
-
+		
 		return $result;
 	}
 
-	public function lastInsertId()
+	public function lastInsertId ()
 	{
 		if ($this->m_implementation == self::IMPLEMENTATION_sqlite3)
 		{
@@ -409,11 +437,11 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 		{
 			return sqlite_last_insert_rowid($this->resource());
 		}
-
+		
 		return 0;
 	}
 
-	public function fetchResult(QueryResult $a_queryResult)
+	public function fetchResult (QueryResult $a_queryResult)
 	{
 		$r = $a_queryResult->resultResource;
 		if ($this->m_implementation == self::IMPLEMENTATION_sqlite3)
@@ -424,11 +452,11 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 		{
 			return sqlite_fetch_array($r);
 		}
-
+		
 		return null;
 	}
 
-	public function resetResult(QueryResult $a_queryResult)
+	public function resetResult (QueryResult $a_queryResult)
 	{
 		$r = $a_queryResult->resultResource;
 		if ($this->m_implementation == self::IMPLEMENTATION_sqlite3)
@@ -439,11 +467,11 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 		{
 			return sqlite_rewind($r);
 		}
-
+		
 		return false;
 	}
 
-	public function freeResult(QueryResult $a_queryResult)
+	public function freeResult (QueryResult $a_queryResult)
 	{
 		$r = $a_queryResult->resultResource;
 		if ($this->m_implementation == self::IMPLEMENTATION_sqlite3)
@@ -454,28 +482,28 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 		{
 			/* ... */
 		}
-
+		
 		return true;
 	}
 
-	public function resultRowCount(QueryResult $a_queryResult)
+	public function resultRowCount (QueryResult $a_queryResult)
 	{
 		$index = $a_queryResult->currentRowIndex();
-
+		
 		// Urk, ugly
 		if (!$this->resetResult($a_queryResult))
 		{
 			return 0;
 		}
-
+		
 		$c = 0;
 		while ($this->fetchResult($a_queryResult))
 		{
 			$c++;
 		}
-
+		
 		$this->resetResult($a_queryResult);
-
+		
 		if ($index >= 0)
 		{
 			while ($index > 0)
@@ -484,13 +512,13 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 				$index--;
 			}
 		}
-
+		
 		return $c;
 	}
 
-	public function recordsetColumnArray(QueryResult $a_queryResult)
+	public function recordsetColumnArray (QueryResult $a_queryResult)
 	{
-		$res = array ();
+		$res = array();
 		$r = $a_queryResult->resultResource;
 		if ($this->m_implementation == self::IMPLEMENTATION_sqlite3)
 		{
@@ -502,29 +530,29 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 				 */
 				return ns\Reporter::error($this, __METHOD__ . '(): Invalid result object');
 			}
-
+			
 			$n = $r->numColumns();
-			for($i = 0; $i < $n; $i++)
+			for ($i = 0; $i < $n; $i++)
 			{
-				$res [] = $r->columnName($i);
+				$res[] = $r->columnName($i);
 			}
 			return $res;
 		}
 		elseif ($this->m_implementation == self::IMPLEMENTATION_sqlite)
 		{
 			$n = sqlite_num_fields($r);
-			for($i = 0; $i < $n; $i++)
+			for ($i = 0; $i < $n; $i++)
 			{
-				$res [] = sqlite_field_name($r, $i);
+				$res[] = sqlite_field_name($r, $i);
 			}
-
+			
 			return $res;
 		}
-
+		
 		return null;
 	}
 
-	public function affectedRowCount(QueryResult $a_queryResult)
+	public function affectedRowCount (QueryResult $a_queryResult)
 	{
 		/**
 		 * @bug unsafe if called after another query
@@ -537,55 +565,51 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 		{
 			return sqlite_changes($this->resource());
 		}
-
+		
 		return 0;
 	}
 
-	public function encloseElement($a_strElement)
+	public function encloseElement ($a_strElement)
 	{
-		return $a_strElement;
+		if ($a_strElement == '*'){
+			return $a_strElement;
+		}
+		return '[' . $a_strElement . ']';
 	}
 
-	// IDatabaseProvider implementation
+	public function getDatabase ($name)
+	{
+		if ($name == $this->m_databaseName)
+		{
+			$db = new SQLiteDatabase($this, $name);
+			return $db;
+		}
+		
+		/**
+		 *
+		 * @todo attached databases
+		 */
+		
+		return \Reporter::error($this, __METHOD__ . ' SQLite only provides a signle database named ' . $this->m_databaseName, 
+				__FILE__, __LINE__);
+	}
 	
-	public function getDatabase($a_name, $a_className = null)
-	{
-		if (!is_string($a_name))
-		{
-			$a_name = 'main';
-		}
-
-		if (!is_string($a_className))
-		{
-			$a_className = $this->getDatasourceString(self::kStringClassNameDatabase);
-		}
-
-		$subStructure = null;
-		if ($this->structure)
-		{
-			$subStructure = $this->structure->offsetGet($a_name);
-		}
-
-		$result = new $a_className($this, $a_name, $subStructure);
-		return $result;
-	}
-
 	// default behavior
 	// public abstract function getDatabaseIterator()
 	// public function databaseExists($a_strDatabaseName)
-
-	public function getDatabaseStructure(SQLObject $a_containerObject, $recursive = false)
+	public function getDatabaseStructure (SQLObject $a_containerObject, $recursive = false)
 	{
 		$v = $this->createData(kDataTypeString);
 		$v->import('table');
-		$queryStr = 'SELECT * ' . 'FROM ' . $this->encloseElement('sqlite_master') . ' WHERE ' . $this->encloseElement('type') . '=' . $v->expressionString() . ' ORDER BY ' . $this->encloseElement('name') . ';';
+		$queryStr = 'SELECT * ' . 'FROM ' . $this->encloseElement('sqlite_master') . ' WHERE ' . $this->encloseElement('type') .
+				 '=' . $v->expressionString() . ' ORDER BY ' . $this->encloseElement('name') . ';';
 		$query = new FormattedQuery($this, $queryStr);
 		$queryRes = $query->execute();
 		if ($queryRes === false)
 		{
 			return false;
 		}
-
+		
 		$name = ($a_containerObject == $this) ? $this->m_databaseName : $a_containerObject->getName();
 		
 		$structure = new DatabaseStructure($this->structure, $name);
@@ -597,9 +621,9 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 			{
 				$ts = $this->getTableStructure($this->tableObject($row['name']));
 			}
-			else 
+			else
 			{
-				$ts = new TableStructure($structure, $row ['name']);
+				$ts = new TableStructure($structure, $row['name']);
 			}
 			
 			if ($ts)
@@ -611,7 +635,7 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 		return $structure;
 	}
 
-	public function getTableStructure(Table $a_table)
+	public function getTableStructure (Table $a_table)
 	{
 		// echo_line($queryStr);
 		$queryStr = 'PRAGMA table_info(\'' . $a_table->getName() . '\')';
@@ -620,45 +644,45 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 		{
 			return false;
 		}
-
+		
 		$s = $a_table->structure;
 		$ts = new TableStructure(($s ? $s->parent() : null), $a_table->getName());
 		
 		foreach ($queryRes as $row)
 		{
-			$name = $row ['name'];
-			$typedef = parseDataTypeDefinition($row ['type'], true);
+			$name = $row['name'];
+			$typedef = parseDataTypeDefinition($row['type'], true);
 			
 			$f = new TableFieldStructure($ts, $name);
-			$f->setProperty(kStructurePrimaryKey, ($row ['pk'] == '1'));
-			$f->setPdroperty(kStructureFieldTypename, $typedef ['type']);
-			$f->setProperty(kStructureAcceptNull, intval($row ['notnull']) == 0);
+			$f->setProperty(kStructurePrimaryKey, ($row['pk'] == '1'));
+			$f->setPdroperty(kStructureFieldTypename, $typedef['type']);
+			$f->setProperty(kStructureAcceptNull, intval($row['notnull']) == 0);
 			
-			if ($typedef ['size'] !== false)
+			if ($typedef['size'] !== false)
 			{
-				$f->setProperty(kStructureDataSize, $typedef ['size']);
+				$f->setProperty(kStructureDataSize, $typedef['size']);
 			}
 			
-			if ($typedef ['dec_size'] !== false)
+			if ($typedef['dec_size'] !== false)
 			{
-				$f->setProperty(kStructureDecimalCount, $typedef ['dec_size']);
+				$f->setProperty(kStructureDecimalCount, $typedef['dec_size']);
 			}
 			
 			$ts->addFieldStructure($f);
 		}
-
+		
 		return $ts;
 	}
-
+	
 	// Methods
-
+	
 	/**
 	 * Execute a query wich does not return a result
 	 *
-	 * @param string $a_strQuery
+	 * @param string $a_strQuery        	
 	 * @return bool
 	 */
-	public function resultlessQuery($a_strQuery)
+	public function resultlessQuery ($a_strQuery)
 	{
 		$errorMessage = '';
 		$result = null;
@@ -668,7 +692,7 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 			{
 				return ns\Reporter::error($this, __METHOD__ . '(): No Datasource', __FILE__, __LINE__);
 			}
-				
+			
 			$result = $this->resource()->exec($a_strQuery);
 		}
 		elseif ($this->m_implementation == self::IMPLEMENTATION_sqlite)
@@ -679,23 +703,26 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 			}
 			$result = sqlite_query($this->resource(), $a_strQuery, SQLITE_BOTH, $errorMessage);
 		}
-
+		
 		if (!$result)
 		{
-			return ns\Reporter::error($this, __METHOD__ . '(): Query error: ' . $a_strQuery . ' / ' . $errorMessage, __FILE__, __LINE__);
+			return ns\Reporter::error($this, __METHOD__ . '(): Query error: ' . $a_strQuery . ' / ' . $errorMessage, __FILE__, 
+					__LINE__);
 		}
-
+		
 		return $result;
 	}
 
 	/**
-	 * Main database name 
+	 * Main database name
+	 *
 	 * @var string
 	 */
 	protected $m_databaseName;
 
 	/**
 	 * SQLite extension to use
+	 *
 	 * @var integer
 	 */
 	protected $m_implementation;

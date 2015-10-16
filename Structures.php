@@ -10,10 +10,8 @@
  * @package SQL
  */
 namespace NoreSources\SQL;
-
 use NoreSources as ns;
 use \ArrayAccess, Iterator;
-
 require_once (NS_PHP_PATH . '/core/strings.php');
 require_once (NS_PHP_PATH . '/core/arrays.php');
 
@@ -25,9 +23,9 @@ class StructureVersion
 
 	/**
 	 *
-	 * @param string $version
+	 * @param string $version        	
 	 */
-	public function __construct($version)
+	public function __construct ($version)
 	{
 		if (is_string($version))
 		{
@@ -35,31 +33,31 @@ class StructureVersion
 		}
 		else
 		{
-			$this->m_versionArray = array (
+			$this->m_versionArray = array(
 					0,
-					0 
+					0
 			);
 		}
 	}
 
 	/**
 	 *
-	 * @param unknown $member
+	 * @param unknown $member        	
 	 * @return number
 	 */
-	public function __get($member)
+	public function __get ($member)
 	{
 		if ($member == 'major')
 		{
-			return array_key_exists(0, $this->m_versionArray) ? $this->m_versionArray [0] : 0;
+			return array_key_exists(0, $this->m_versionArray) ? $this->m_versionArray[0] : 0;
 		}
 		elseif ($member == 'minor')
 		{
-			return array_key_exists(1, $this->m_versionArray) ? $this->m_versionArray [1] : 0;
+			return array_key_exists(1, $this->m_versionArray) ? $this->m_versionArray[1] : 0;
 		}
 		elseif ($member == 'patch')
 		{
-			return array_key_exists(2, $this->m_versionArray) ? $this->m_versionArray [2] : 0;
+			return array_key_exists(2, $this->m_versionArray) ? $this->m_versionArray[2] : 0;
 		}
 		elseif ($member == 'version' || $member == 'versionString')
 		{
@@ -85,7 +83,7 @@ class StructureVersion
 	 *
 	 * @return string
 	 */
-	public function __toString()
+	public function __toString ()
 	{
 		return implode('.', $this->m_versionArray);
 	}
@@ -102,35 +100,36 @@ class StructureElement implements ArrayAccess, Iterator
 
 	/**
 	 *
-	 * @param string $a_name StructureElement
-	 * @param StructureElement $a_parent
+	 * @param string $a_name
+	 *        	StructureElement
+	 * @param StructureElement $a_parent        	
 	 */
-	protected function __construct($a_name, $a_parent = null)
+	protected function __construct ($a_name, $a_parent = null)
 	{
 		$this->m_name = $a_name;
 		$this->m_parent = $a_parent;
 		
-		$this->m_children = array ();
+		$this->m_children = array();
 		$this->m_iteratorCurrent = null;
 	}
 	
 	// ArrayAccess
-	public function offsetExists($a_key)
+	public function offsetExists ($a_key)
 	{
 		return array_key_exists($a_key, $this->m_children);
 	}
 
-	public function offsetSet($a_iKey, $a_value)
+	public function offsetSet ($a_iKey, $a_value)
 	{
 		ns\Reporter::error($this, __METHOD__ . '(): Read only access', __FILE__, __LINE__);
 	}
 
-	public function offsetUnset($a_iKey)
+	public function offsetUnset ($a_iKey)
 	{
 		ns\Reporter::error($this, __METHOD__ . '(): Read only access', __FILE__, __LINE__);
 	}
 
-	public function offsetGet($a_iKey)
+	public function offsetGet ($a_iKey)
 	{
 		$v = ns\array_keyvalue($this->m_children, $a_iKey, null);
 		if (!$v)
@@ -142,12 +141,12 @@ class StructureElement implements ArrayAccess, Iterator
 	}
 	
 	// Iterator
-	public function current()
+	public function current ()
 	{
-		return $this->m_iteratorCurrent [1];
+		return $this->m_iteratorCurrent[1];
 	}
 
-	public function next()
+	public function next ()
 	{
 		if ($this->m_iteratorCurrent)
 		{
@@ -155,17 +154,17 @@ class StructureElement implements ArrayAccess, Iterator
 		}
 	}
 
-	public function key()
+	public function key ()
 	{
-		return $this->m_iteratorCurrent [0];
+		return $this->m_iteratorCurrent[0];
 	}
 
-	public function valid()
+	public function valid ()
 	{
 		return ($this->m_iteratorCurrent !== false);
 	}
 
-	public function rewind()
+	public function rewind ()
 	{
 		reset($this->m_children);
 		$this->m_iteratorCurrent = each($this->m_children);
@@ -175,7 +174,7 @@ class StructureElement implements ArrayAccess, Iterator
 	 *
 	 * @return string
 	 */
-	public function elementKey()
+	public function elementKey ()
 	{
 		return $this->m_name;
 	}
@@ -184,7 +183,7 @@ class StructureElement implements ArrayAccess, Iterator
 	 *
 	 * @return string
 	 */
-	public function getName()
+	public function getName ()
 	{
 		return $this->m_name;
 	}
@@ -193,26 +192,26 @@ class StructureElement implements ArrayAccess, Iterator
 	 *
 	 * @return StructureElement
 	 */
-	public function parent()
+	public function parent ()
 	{
 		return $this->m_parent;
 	}
 
-	public function children()
+	public function children ()
 	{
 		return $this->m_children;
 	}
 
-	protected function addChild(StructureElement $a_child)
+	protected function addChild (StructureElement $a_child)
 	{
 		$parent = $this->parent();
 		$key = $a_child->elementKey();
-		$this->m_children [$key] = $a_child;
+		$this->m_children[$key] = $a_child;
 	}
 
-	protected function clear()
+	protected function clear ()
 	{
-		$this->m_children = array ();
+		$this->m_children = array();
 		$this->m_iteratorCurrent = false;
 	}
 
@@ -220,7 +219,7 @@ class StructureElement implements ArrayAccess, Iterator
 	 *
 	 * @return StructureElement
 	 */
-	protected function root()
+	protected function root ()
 	{
 		$res = $this;
 		while ($res->parent())
@@ -235,7 +234,7 @@ class StructureElement implements ArrayAccess, Iterator
 	 *
 	 * @return StructureVersion
 	 */
-	public function getStructureVersion()
+	public function getStructureVersion ()
 	{
 		if ($this->parent())
 		{
@@ -276,10 +275,10 @@ class StructureElement implements ArrayAccess, Iterator
 class TableFieldStructure extends StructureElement
 {
 
-	public function __construct(TableStructure $a_tableStructure, $a_name)
+	public function __construct (TableStructure $a_tableStructure, $a_name)
 	{
 		parent::__construct($a_name, $a_tableStructure);
-		$this->m_fieldProperties = array (
+		$this->m_fieldProperties = array(
 				kStructureAcceptNull => true,
 				kStructureAutoincrement => false,
 				kStructureDecimalCount => 0,
@@ -288,28 +287,29 @@ class TableFieldStructure extends StructureElement
 				kStructureIndexed => false,
 				kStructureDatatype => null,
 				kStructureEnumeration => null,
-				kStructureValidatorClassname => null 
+				kStructureValidatorClassname => null
 		);
 	}
 
 	/**
+	 *
 	 * @return array
 	 */
-	public function getProperties()
+	public function getProperties ()
 	{
 		return $this->m_fieldProperties;
 	}
 
-	public function getProperty($a_strName)
+	public function getProperty ($a_strName)
 	{
-		return $this->m_fieldProperties [$a_strName];
+		return $this->m_fieldProperties[$a_strName];
 	}
 
-	public function setProperty($a_strName, $a_value)
+	public function setProperty ($a_strName, $a_value)
 	{
 		if (array_key_exists($a_strName, $this->m_fieldProperties))
 		{
-			$this->m_fieldProperties [$a_strName] = $a_value;
+			$this->m_fieldProperties[$a_strName] = $a_value;
 		}
 	}
 
@@ -324,17 +324,17 @@ class TableFieldStructure extends StructureElement
 class TableStructure extends StructureElement
 {
 
-	public function __construct(DatabaseStructure $a_databaseStructure, $a_name)
+	public function __construct (DatabaseStructure $a_databaseStructure, $a_name)
 	{
 		parent::__construct($a_name, $a_databaseStructure);
 	}
 
-	public function getName()
+	public function getName ()
 	{
 		return $this->root()->getTablePrefix() . parent::getName();
 	}
 
-	public final function addFieldStructure(TableFieldStructure $a_fieldStructure)
+	public final function addFieldStructure (TableFieldStructure $a_fieldStructure)
 	{
 		$this->addChild($a_fieldStructure);
 	}
@@ -348,12 +348,12 @@ class TableStructure extends StructureElement
 class DatabaseStructure extends StructureElement
 {
 
-	public function __construct(DatasourceStructure $a_datasourceStructure, $a_name)
+	public function __construct (DatasourceStructure $a_datasourceStructure, $a_name)
 	{
 		parent::__construct($a_name, $a_datasourceStructure);
 	}
 
-	public final function addTableStructure(TableStructure $a_table)
+	public final function addTableStructure (TableStructure $a_table)
 	{
 		$this->addChild($a_table);
 	}
@@ -366,6 +366,7 @@ class DatabaseStructure extends StructureElement
  */
 class DatasourceStructure extends StructureElement
 {
+
 	/**
 	 *
 	 * @var string ns-xml SQL schema namespace
@@ -374,10 +375,11 @@ class DatasourceStructure extends StructureElement
 
 	/**
 	 *
-	 * @param string $a_name Datasource class name
-	 * @param number $flags
+	 * @param string $a_name
+	 *        	Datasource class name
+	 * @param number $flags        	
 	 */
-	public function __construct($a_name = 'Datasource', $flags = 0)
+	public function __construct ($a_name = 'Datasource', $flags = 0)
 	{
 		parent::__construct($a_name);
 		$this->m_flags = $flags;
@@ -389,7 +391,7 @@ class DatasourceStructure extends StructureElement
 	 * @see \NoreSources\SQL\StructureElement::getStructureVersion()
 	 * @return StructureVersion
 	 */
-	public function getStructureVersion()
+	public function getStructureVersion ()
 	{
 		return $this->m_version;
 	}
@@ -398,58 +400,67 @@ class DatasourceStructure extends StructureElement
 	 *
 	 * @return string
 	 */
-	public function getTablePrefix()
+	public function getTablePrefix ()
 	{
 		return $this->m_tablePrefix;
 	}
 
 	/**
 	 *
-	 * @param string $prefix
+	 * @param string $prefix        	
 	 */
-	public function setTablePrefix($prefix)
+	public function setTablePrefix ($prefix)
 	{
 		$this->m_tablePrefix = $prefix;
 	}
 
 	/**
-	 * @param string $v Type affinity name
+	 *
+	 * @param string $v
+	 *        	Type affinity name
 	 * @return integer
 	 */
-	public static function xmlAffinityToDatatype($v)
+	public static function xmlAffinityToDatatype ($v)
 	{
 		if ($v == 'integer')
 		{
 			return kDataTypeNumber;
 		}
-		else if ($v == 'boolean')
-		{
-			return kDataTypeBoolean;
-		}
-		else if ($v == 'decimal')
-		{
-			return kDataTypeNumber;
-		}
-		else if ($v == 'datetime')
-		{
-			return kDataTypeTimestamp;
-		}
-		else if ($v == 'string')
-		{
-			return kDataTypeString;
-		}
+		else 
+			if ($v == 'boolean')
+			{
+				return kDataTypeBoolean;
+			}
+			else 
+				if ($v == 'decimal')
+				{
+					return kDataTypeNumber;
+				}
+				else 
+					if ($v == 'datetime')
+					{
+						return kDataTypeTimestamp;
+					}
+					else 
+						if ($v == 'string')
+						{
+							return kDataTypeString;
+						}
 		
 		return kDataTypeBinary;
 	}
 
 	/**
 	 *
-	 * @param string $a_filename XML SQL structure to load
-	 * @param mixed $postProcessElementCallback A delegate called for each node. The currently processed node is passed as the
+	 * @param string $a_filename
+	 *        	XML SQL structure to load
+	 * @param mixed $postProcessElementCallback
+	 *        	A delegate called for each node. The currently processed node
+	 *        	is passed as the
 	 *        	first argument
 	 * @return boolean
 	 */
-	public final function loadStructureFromXml($a_filename, $postProcessElementCallback = null)
+	public final function loadStructureFromXml ($a_filename, $postProcessElementCallback = null)
 	{
 		$this->clear();
 		
@@ -509,12 +520,12 @@ class DatasourceStructure extends StructureElement
 						if ($this->getStructureVersion()->major == 1)
 						{
 							$dataTypeNode = $child->item(0);
-							$a = array (
+							$a = array(
 									'binary' => kDataTypeBinary,
 									'boolean' => kDataTypeBoolean,
 									'numeric' => kDataTypeNumber,
 									'timestamp' => kDataTypeTimestamp,
-									'string' => kDataTypeString 
+									'string' => kDataTypeString
 							);
 							$typeNode = null;
 							$type = null;
@@ -572,7 +583,6 @@ class DatasourceStructure extends StructureElement
 				{
 					call_user_func($postProcessElementCallback, $ts);
 				}
-				
 			} // foreach table nodes
 			
 			$this->addChild($dbs);
@@ -580,7 +590,6 @@ class DatasourceStructure extends StructureElement
 			{
 				call_user_func($postProcessElementCallback, $dbs);
 			}
-			
 		} // foreach database nodes
 		
 		if (is_callable($postProcessElementCallback))
@@ -592,9 +601,10 @@ class DatasourceStructure extends StructureElement
 	}
 
 	/**
-	 * @param DatabaseStructure $a_database
+	 *
+	 * @param DatabaseStructure $a_database        	
 	 */
-	public final function addDatabaseStructure(DatabaseStructure $a_database)
+	public final function addDatabaseStructure (DatabaseStructure $a_database)
 	{
 		$this->addChild($a_database);
 	}
@@ -602,11 +612,13 @@ class DatasourceStructure extends StructureElement
 	protected $m_flags;
 
 	/**
+	 *
 	 * @var StructureVersion
 	 */
 	private $m_version;
-	
+
 	/**
+	 *
 	 * @var string
 	 */
 	private $m_tablePrefix;
@@ -617,20 +629,32 @@ class DatasourceStructure extends StructureElement
  */
 class SQLObject
 {
+
 	/**
-	 * @param StructureElement $a_structure
+	 *
+	 * @param StructureElement $a_structure        	
 	 * @param string $a_structureClassType
+	 *        	The expected StructureElement class type
 	 */
-	protected function __construct($a_structure = null, $a_structureClassType = null)
+	protected function __construct (StructureElement $a_structure = null, $a_structureClassType = null)
 	{
 		if ($a_structureClassType === null)
 		{
 			$a_structureClassType = __NAMESPACE__ . '\\StructureElement';
 		}
-
-		if (is_object($a_structure) && is_a($a_structure, $a_structureClassType))
+		
+		if (is_object($a_structure))
 		{
-			$this->m_structure = $a_structure;
+			if (is_a($a_structure, $a_structureClassType))
+			{
+				$this->m_structure = $a_structure;
+			}
+			else
+			{
+				\Reporter::fatalError($this, 
+						'Invalid structure object ' . get_class($a_structure) . ', ' . $a_structureClassType . ' expected', 
+						__FILE__, __LINE__);
+			}
 		}
 		else
 		{
@@ -638,7 +662,7 @@ class SQLObject
 		}
 	}
 
-	public function __get($member)
+	public function __get ($member)
 	{
 		if ($member == 'structure')
 		{
@@ -647,16 +671,18 @@ class SQLObject
 		
 		throw new \InvalidArgumentException(get_class($this) . '::' . $member);
 	}
-	
+
 	/**
+	 *
 	 * @return StructureElement
 	 */
-	public final function getStructure()
+	public final function getStructure ()
 	{
 		return $this->m_structure;
 	}
 
 	/**
+	 *
 	 * @var StructureElement
 	 */
 	protected $m_structure;

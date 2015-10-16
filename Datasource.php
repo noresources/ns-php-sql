@@ -190,23 +190,19 @@ abstract class Datasource extends SQLObject implements IDatabaseProvider
 	 * Provide a database object
 	 *
 	 * @param string $a_name
-	 * @param string $a_className
 	 * @return Database
 	 */
-	public function getDatabase($a_name, $a_className = null)
+	public function getDatabase($a_name)
 	{
-		if (!is_string($a_className))
-		{
-			$a_className = $this->getDatasourceString(self::kStringClassNameDatabase);
-		}
-		
+		$className = $this->getDatasourceString();
+				
 		$subStructure = null;
 		if ($this->structure)
 		{
 			$subStructure = $this->structure->offsetGet($a_name);
 		}
 		
-		$result = new $a_className($this, $a_name, $subStructure);
+		$result = new $className($this, $a_name, $subStructure);
 		
 		return $result;
 	}

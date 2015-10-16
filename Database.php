@@ -23,7 +23,7 @@ use NoreSources as ns;
 class Database extends SQLObject implements IExpression, ITableProvider
 {
 
-	public function __construct(Datasource $Datasource, $a_name, DatabaseStructure & $structure = null)
+	public function __construct(Datasource $Datasource, $a_name, DatabaseStructure $structure = null)
 	{
 		parent::__construct($structure);
 		$this->m_datasource = $Datasource;
