@@ -15,6 +15,8 @@ use \SQLite3;
 use Exception;
 use NoreSources\echo_line;
 
+require_once (__DIR__ . '/../base.php');
+
 /**
  *
  * @todo Update to use SQL*Structure

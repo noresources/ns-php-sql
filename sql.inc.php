@@ -10,6 +10,7 @@
  * @package SQL
  */
 namespace NoreSources\SQL;
+
 use NoreSources as ns;
 
 if (!defined('NS_PHP_SQL_PATH'))
@@ -23,7 +24,7 @@ const SQL_VERSION_PATCH = 0;
 /**
  * Version string of NoreSources XSLT module.
  * The version string can be used with the PHP function version_compare()
- * 
+ *
  * @return XSLT module version
  */
 function sql_version_string()
@@ -51,7 +52,7 @@ const kStructureDatatype = 'Datasourcetype';
  */
 const kStructurePrimaryKey = 'primary';
 /**
- * The field value is auto-incremented (integer field type) 
+ * The field value is auto-incremented (integer field type)
  */
 const kStructureAutoincrement = 'auto';
 /**
@@ -79,7 +80,6 @@ const kStructureEnumeration = 'valid_values';
  */
 const kStructureDefaultValue = 'default_value';
 
-
 /**
  * The field accepts tuple values
  * @var unknown
@@ -88,8 +88,9 @@ const kStructureAcceptMultipleValues = 'accept_multivalues';
 
 // Datasource-relative / Application-relative properties
 
+
 /**
- * The field typename (datasource dependant) 
+ * The field typename (datasource dependant)
  */
 const kStructureFieldTypename = 'typename';
 
@@ -102,5 +103,159 @@ const kStructureValidatorClassname = 'validator_classname';
  * @}
  */
 // group 'structure'
+
+
+/**
+ * @defgroup elemdisplay 'Element expression display options'
+ * @{
+ */
+
+/**
+ * Display element using its full real name
+ */
+const kExpressionElementName = 0x1;
+
+/**
+ * Display element using its alias if available
+ */
+const kExpressionElementAlias = 0x2;
+
+/**
+ * Display element with its real name and declare its alias
+ */
+const kExpressionElementDeclaration = 0x3;
+
+/**
+ * @} // group 'elemdisplay'
+ */
+
+/**
+ * @defgroup jointypes 'Join types'
+ * @{
+ */
+
+/**
+ * Natural join
+ * Does not require any link field
+ */
+const kJoinNatural = 0x0;
+/**
+ * Cross join
+ * Cartesian product
+ */
+const kJoinCross = 0x1;
+/**
+ * (Full) Outer join
+ * Merge two tables.
+ */
+const kJoinOuter = 0x2;
+/**
+ * Inner join
+ * Merge obly lines which linkfields match in then two tables
+ */
+const kJoinInner = 0x4;
+/**
+ * Left (outer) join
+ * Take all elements of left table
+ * and merge those which match link fields at the right
+ */
+const kJoinLeft = 0x8;
+/**
+ * Right (outer) join
+ * Take all elements of right table
+ * and merge those which match link fields at the left
+ */
+const kJoinRight = 0x10;
+
+/**
+ * @} // group jointypes
+ */
+
+/**
+ * @defgroup datatypes 'Data types'
+ * @{
+ */
+
+/**
+ * null element
+ */
+const kDataTypeNull = 1;
+
+/**
+ * Manage all kind of string based element
+ */
+const kDataTypeString = 2;
+
+/**
+ * Manage all kind of number element
+ */
+const kDataTypeNumber = 4;
+
+/**
+ * All kind of date (date, datetime, time)
+ */
+const kDataTypeTimestamp = 8;
+
+/**
+ * Boolean (true / false)
+ */
+const kDataTypeBoolean = 16;
+
+/**
+ * Binary data
+ */
+const kDataTypeBinary = 32;
+
+/**
+ * @}
+ */
+// group 'datatype'
+
+
+/**
+ * @defgroup params 'A series of standard parameters for database connection''
+ * @{
+ */
+const kConnectionParameterClassname = 'sql.source.classname';
+const kConnectionParameterUsername = 'sql.source.user';
+const kConnectionParameterPassword = 'sql.source.password';
+const kConnectionParameterHostname = 'sql.source.host';
+const kConnectionParameterFilename = 'sql.source.file';
+const kConnectionParameterDatabasename = 'sql.source.database';
+const kConnectionParameterPersistent = 'sql.source.persistent';
+const kConnectionParameterReadOnly = 'sql.source.readonly';
+const kConnectionParameterCreate = 'sql.source.create';
+
+/**
+ * @}
+ */
+// group 'params'
+
+
+/**
+ * @defgroup Datasourcequeries 'Datasource elements queries'
+ * @{
+ */
+/**
+ *
+ * @var integer Query object in SQL structure
+ */
+const kObjectQuerySchema = 0x1;
+/**
+ *
+ * @var integer Query object in 'physical' Datasource
+ */
+const kObjectQueryDatasource = 0x2;
+/**
+ *
+ * @var integer Query object in both modes
+ */
+const kObjectQueryBoth = 0x3;
+
+/**
+ * @}
+ */
+// group 'Datasourcequeries'
+
 
 include_once (NS_PHP_SQL_PATH . '/sql.autoload.inc.php');

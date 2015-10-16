@@ -13,6 +13,8 @@ namespace NoreSources\SQL;
 
 use NoreSources as ns;
 
+require_once (__DIR__ . '/../base.php');
+
 class MySQLTableManipulator extends TableManipulator
 {
 

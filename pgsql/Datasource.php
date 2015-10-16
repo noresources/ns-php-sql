@@ -14,6 +14,8 @@ namespace NoreSources\SQL;
 use NoreSources as ns;
 use NoreSources\Reporter;
 
+require_once (__DIR__ . '/../base.php');
+
 /**
  * Notes:
  * - The term "Database" here, refers to PostgreSQL Structure

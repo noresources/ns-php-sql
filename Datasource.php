@@ -14,7 +14,7 @@ namespace NoreSources\SQL;
 use NoreSources as ns;
 use \InvalidArgumentException;
 
-require_once ('base.php');
+require_once (__DIR__ . '/base.php');
 
 /**
  * Interface for Database system that support
@@ -194,15 +194,13 @@ abstract class Datasource extends SQLObject implements IDatabaseProvider
 	 */
 	public function getDatabase($a_name)
 	{
-		$className = $this->getDatasourceString();
-				
 		$subStructure = null;
 		if ($this->structure)
 		{
 			$subStructure = $this->structure->offsetGet($a_name);
 		}
 		
-		$result = new $className($this, $a_name, $subStructure);
+		$result = new Database($this, $a_name, $subStructure);
 		
 		return $result;
 	}
