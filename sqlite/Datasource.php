@@ -13,6 +13,7 @@ namespace NoreSources\SQL;
 use NoreSources as ns;
 use \SQLite3;
 use Exception;
+use NoreSources\echo_line;
 
 /**
  *
@@ -264,7 +265,7 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 		$this->m_databaseName = ns\array_keyvalue($a_aParameters, kConnectionParameterDatabasename, self::DEFAULT_DATABASENAME);
 		$fileName = ns\array_keyvalue($a_aParameters, kConnectionParameterFilename, 
 				ns\array_keyvalue($a_aParameters, kConnectionParameterHostname, null));
-				
+
 		if ($fileName != self::MEMORY_DATABASENAME)
 		{
 			if (file_exists($fileName))
@@ -278,6 +279,12 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 			}
 		}
 		
+		$mainDatabase = $fileName;
+		if ($this->m_databaseName != self::DEFAULT_DATABASENAME)
+		{
+			$mainDatabase = self::MEMORY_DATABASENAME;
+		}
+				
 		$errorMessage = '';
 		if ($this->m_implementation == self::IMPLEMENTATION_sqlite3)
 		{
@@ -300,7 +307,7 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 			
 			try
 			{
-				$this->m_datasourceResource = new SQLite3($fileName, $flags, $ekey);
+				$this->m_datasourceResource = new SQLite3($mainDatabase, $flags, $ekey);
 			}
 			catch (Exception $e)
 			{
@@ -316,7 +323,7 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 				$mode = 0444;
 			}
 			
-			$this->m_datasourceResource = sqlite_open($fileName, $mode, $errorMessage);
+			$this->m_datasourceResource = sqlite_open($mainDatabase, $mode, $errorMessage);
 		}
 		else
 		{
