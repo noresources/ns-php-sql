@@ -132,8 +132,14 @@ abstract class ITableField extends SQLObject implements IExpression, IAliasable
 		return parent::__get($member);
 	}
 
+	/**
+	 * @return Table
+	 */
 	abstract function getTable();
 
+	/**
+	 * @return string
+	 */
 	abstract function getName();
 }
 
@@ -391,7 +397,7 @@ class TableField extends ITableField implements IAliasedClone, ITableFieldValueV
 	/**
 	 * (non-PHPdoc)
 	 *
-	 * @see include/ns/php/lib/sources/sql/ITableField#table
+	 * @return Table
 	 */
 	public function getTable()
 	{

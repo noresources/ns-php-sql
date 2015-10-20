@@ -740,6 +740,9 @@ class SelectQuery extends TableQuery implements ns\IExpression
 		$this->m_randomOrder = false;
 	}
 
+	/**
+	 * @return SelectQuery
+	 */
 	public function __clone()
 	{
 		// $this->m_columns = clone $this->m_columns;
@@ -775,6 +778,9 @@ class SelectQuery extends TableQuery implements ns\IExpression
 		$this->m_table = clone $this->m_table;
 	}
 	
+	/**
+	 * @return mixed
+	 */
 	public function __get($key)
 	{
 		if ($key == 'columns')
@@ -896,6 +902,9 @@ class SelectQuery extends TableQuery implements ns\IExpression
 		return $qs;
 	}
 
+	/**
+	 * @return string
+	 */
 	public function __toString()
 	{
 		return $this->expressionString();
@@ -979,6 +988,9 @@ class SelectQuery extends TableQuery implements ns\IExpression
 		return $res;
 	}
 
+	/**
+	 * @param SelectQueryJoin $a_oJoin
+	 */
 	public function addJoin(SelectQueryJoin $a_oJoin)
 	{
 		/**
@@ -1007,7 +1019,8 @@ class SelectQuery extends TableQuery implements ns\IExpression
 	}
 
 	/**
-	 *
+	 * Set or get limit constraint
+	 * 
 	 * @param
 	 *        	$offset
 	 * @param
@@ -1028,6 +1041,11 @@ class SelectQuery extends TableQuery implements ns\IExpression
 		return $this->m_limit;
 	}
 
+	/**
+	 * Set random orger constraint
+	 * @param string $a_value
+	 * @return boolean
+	 */
 	final function randomOrder($a_value = null)
 	{
 		if ($a_value !== null && $this->m_randomOrder != $a_value)
@@ -1039,13 +1057,19 @@ class SelectQuery extends TableQuery implements ns\IExpression
 		return $this->m_randomOrder;
 	}
 
-	
-
+	/**
+	 * @param SelectQuery $a_query
+	 */
 	final function addUnionQuery(SelectQuery $a_query)
 	{
 		$this->m_unionQueries [] = $a_query;
 	}
 
+	/**
+	 * Set or get DISTINCT constraint
+	 * @param string $a_distinct
+	 * @return boolean
+	 */
 	function distinct($a_distinct = null)
 	{
 		if ($a_distinct !== null)
