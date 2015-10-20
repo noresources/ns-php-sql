@@ -612,7 +612,7 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 	{
 		$v = $this->createData(kDataTypeString);
 		$v->import('table');
-		$queryStr = 'SELECT * ' . 'FROM ' . $this->encloseElement('sqlite_master') . ' WHERE ' . $this->encloseElement('type') . '=' . $v->expressionString() . ' ORDER BY ' . $this->encloseElement('name') . ';';
+		$queryStr = 'SELECT * FROM ' . $this->encloseElement($this->m_databaseName) . '.' . $this->encloseElement('sqlite_master') . ' WHERE ' . $this->encloseElement('type') . '=' . $v->expressionString() . ' ORDER BY ' . $this->encloseElement('name') . ';';
 		$query = new FormattedQuery($this, $queryStr);
 		$queryRes = $query->execute();
 		if ($queryRes === false)
@@ -717,8 +717,7 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 		
 		if (!$result)
 		{
-			return ns\Reporter::error($this, __METHOD__ . '(): Query error: ' . $a_strQuery . ' / ' . $errorMessage, __FILE__, 
-					__LINE__);
+			return ns\Reporter::error($this, __METHOD__ . '(): Query error: ' . $a_strQuery . ' / ' . $errorMessage, __FILE__, __LINE__);
 		}
 		
 		return $result;
