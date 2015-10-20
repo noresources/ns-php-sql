@@ -281,6 +281,7 @@ abstract class Datasource extends SQLObject implements IDatabaseProvider
 	 * Reset the result cursor before the first record
 	 *
 	 * @param QueryResult $a_queryResult
+	 * @return @c true on success and if recordset contains at least one element
 	 */
 	public abstract function resetResult(QueryResult $a_queryResult);
 

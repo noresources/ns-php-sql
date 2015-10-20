@@ -472,7 +472,14 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 		$r = $a_queryResult->resultResource;
 		if ($this->m_implementation == self::IMPLEMENTATION_sqlite3)
 		{
-			return $r->reset();
+			$result = $r->reset();
+			if ($result)
+			{
+				$result = $r->fetchArray();
+				$r->reset();
+			}
+			
+			return $result;
 		}
 		elseif ($this->m_implementation == self::IMPLEMENTATION_sqlite)
 		{
