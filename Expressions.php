@@ -87,7 +87,7 @@ class SQLSmartEquality extends ns\BinaryOperatorExpression
 		$strOperator = '=';
 		
 		// force to construct a FormattedData object
-		if (!($a_value instanceof SQLData) && !($a_value instanceof SelectQuery) && !($a_value instanceof SQLFunction))
+		if (!($a_value instanceof Data) && !($a_value instanceof SelectQuery) && !($a_value instanceof SQLFunction))
 		{
 			if ($a_column instanceof TableField)
 			{

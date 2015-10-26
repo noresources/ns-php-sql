@@ -497,9 +497,9 @@ class TableField extends ITableField implements IAliasedClone, ITableFieldValueV
 	}
 
 	/**
-	 * Create a new SQLData base on field type and import the given value
+	 * Create a new DATA base on field type and import the given value
 	 * @param mixed $a_value Value to import
-	 * @return SQLData
+	 * @return DATA
 	 */
 	public function importData($a_value)
 	{

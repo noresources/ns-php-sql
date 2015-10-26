@@ -31,7 +31,7 @@ function protectString($a_strString, $start = '\'', $end = '\'')
 /**
  * @param mixed $a_value Value to import
  * @param Datasource $a_source Datasource
- * @return SQLData or null 
+ * @return Data or null 
  */
 function bestEffortImport($a_value, Datasource $a_source = null)
 {
