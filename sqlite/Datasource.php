@@ -89,7 +89,7 @@ class SQLiteDatabase extends Database
 
 	public function __construct(SQLiteDatasource $datasource, $name)
 	{
-		parent::__construct($datasource, $name, $datasource->getStructure()[$name]);
+		parent::__construct($datasource, $name, $datasource->getStructure()->offsetGet($name));
 	}
 }
 
