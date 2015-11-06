@@ -509,6 +509,8 @@ class DatasourceStructure extends StructureElement
 			{
 				$ts = new TableStructure($dbs, $tnode->getAttribute('name'));
 				
+				$primaryKeyColumnNodes = $xpath->query('sql:primarykey/sql:column', $tnode); 
+								
 				$columnNodes = $xpath->query('sql:column|sql:field', $tnode);
 				foreach ($columnNodes as $columnNode)
 				{
@@ -557,7 +559,7 @@ class DatasourceStructure extends StructureElement
 								}
 							}
 						}
-					}
+					} // datatypes
 					
 					$child = $columnNode->getElementsByTagNameNS(self::XMLNAMESPACE, 'notnull');
 					if ($child && $child->length)
@@ -569,6 +571,15 @@ class DatasourceStructure extends StructureElement
 					if ($child && $child->length)
 					{
 						$fs->setProperty(kStructureDefaultValue, $child->item(0)->nodeValue);
+					}
+
+					// Check if column is part of the primary key
+					foreach ($primaryKeyColumnNodes as $primaryKeyColumnNode)
+					{
+						if ($primaryKeyColumnNode->getAttribute ("name") == $fs->getName())
+						{
+							$fs->setProperty(kStructurePrimaryKey, true);
+						}
 					}
 					
 					$ts->addChild($fs);
