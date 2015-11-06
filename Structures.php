@@ -285,7 +285,7 @@ class TableFieldStructure extends StructureElement
 				kStructureDataSize => 0,
 				kStructurePrimaryKey => false,
 				kStructureIndexed => false,
-				kStructureDatatype => null,
+				kStructureDatatype => kDataTypeString,
 				kStructureEnumeration => null,
 				kStructureValidatorClassname => null
 		);
