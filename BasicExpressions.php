@@ -29,6 +29,8 @@ interface IExpression extends ns\IExpression
 	 * Return the database connection linked to object.
 	 *
 	 * Object can contains its own reference or use one of its member reference.
+	 * 
+	 * @return Datasource
 	 */
 	function getDatasource();
 }
@@ -74,11 +76,17 @@ class SQLAlias implements IExpression
 		$this->m_aliasName = $aliasName;
 	}
 
+	/**
+	 * @return string
+	 */
 	public function __toString()
 	{
 		return $this->expressionString();
 	}
 
+	/**
+	 * @return string
+	 */
 	public function expressionString($a_options = null)
 	{
 		if ($this->m_datasource)
@@ -89,6 +97,9 @@ class SQLAlias implements IExpression
 		return $this->m_aliasName;
 	}
 
+	/**
+	 * @return string
+	 */
 	public function getAliasName()
 	{
 		return $this->m_aliasName;
@@ -149,6 +160,9 @@ class SQLFunction extends ns\UnaryOperatorExpression implements IAliasable
 		$this->m_parameterListOptions = kExpressionElementAlias;
 	}
 
+	/**
+	 * @return string
+	 */
 	public function __toString()
 	{
 		return $this->expressionString();
@@ -176,6 +190,9 @@ class SQLFunction extends ns\UnaryOperatorExpression implements IAliasable
 		return $this->m_expression;
 	}
 
+	/**
+	 * @return string
+	 */
 	public function expressionString($a_options = null)
 	{
 		if ($this->m_expression === null)
@@ -216,6 +233,9 @@ class SQLFunction extends ns\UnaryOperatorExpression implements IAliasable
 		return $this->m_alias;
 	}
 
+	/**
+	 * @return bool
+	 */
 	public function hasAlias()
 	{
 		return ($this->m_alias instanceof SQLAlias);
