@@ -12,7 +12,6 @@
 namespace NoreSources\SQL;
 
 use NoreSources as ns;
-use \InvalidArgumentException;
 
 require_once (__DIR__ . '/base.php');
 
@@ -121,6 +120,37 @@ abstract class Datasource extends SQLObject implements IDatabaseProvider
 	 * @var string
 	 */
 	const kStringClassNameTableManipulator = 'sql.string.clstm';
+
+	/**
+	 * Create an instance of a Datasource object
+	 * @param arrat|ArrayAccess $settings Table of settings with at least the sql.source.classname key
+	 * @param bool$connect If @c true, Attempt to connect to datasource with the settings given in @param $settings
+	 *       
+	 * @return Datasource
+	 */
+	public static function create($settings, $connect = false)
+	{
+		$cls = ns\array_keyvalue($settings, kConnectionParameterClassname, null);
+		if (!is_string($cls))
+		{
+			return ns\Reporter::error(__CLASS__, __METHOD__ . ' Unable to create Datasource without ' . kConnectionParameterClassname . ' parameter', __FILE__, __LINE__);
+			return false;
+		}
+		
+		if (!(class_exists($cls) && is_a($cls, __CLASS__, true)))
+		{
+			return ns\Reporter::error(__CLASS__, __METHOD__ . ': Invalid class name "' . $cls . '"', __FILE__, __LINE__);
+		}
+		
+		$o = new $cls();
+		if ($connect)
+		{
+			$result = $o->connect($settings);
+			ns\Reporter::warning(__CLASS__, __METHOD__ . ': Failed to connect', __FILE__, __LINE__);
+		}
+		
+		return $o;
+	}
 
 	/**
 	 *
