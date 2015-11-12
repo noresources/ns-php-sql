@@ -608,8 +608,7 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 		 *
 		 * @todo attached databases
 		 */
-		
-		return \Reporter::error($this, __METHOD__ . ' SQLite only provides a signle database named ' . $this->m_databaseName, __FILE__, __LINE__);
+		return ns\Reporter::error($this, __METHOD__ . ' SQLite only provides a signle database named ' . $this->m_databaseName, __FILE__, __LINE__);
 	}
 	
 	// default behavior
