@@ -138,34 +138,34 @@ const kExpressionElementDeclaration = 0x3;
  * Natural join
  * Does not require any link field
  */
-const kJoinNatural = 0x0;
+const kJoinNatural = 'sql.join.natural';
 /**
  * Cross join
  * Cartesian product
  */
-const kJoinCross = 0x1;
+const kJoinCross = 'sql.join.cross';
 /**
  * (Full) Outer join
  * Merge two tables.
  */
-const kJoinOuter = 0x2;
+const kJoinOuter = 'sql.join.outer';
 /**
  * Inner join
  * Merge obly lines which linkfields match in then two tables
  */
-const kJoinInner = 0x4;
+const kJoinInner = 'sql.join.inner';
 /**
  * Left (outer) join
  * Take all elements of left table
  * and merge those which match link fields at the right
  */
-const kJoinLeft = 0x8;
+const kJoinLeft = 'sql.join.left';
 /**
  * Right (outer) join
  * Take all elements of right table
  * and merge those which match link fields at the left
  */
-const kJoinRight = 0x10;
+const kJoinRight = 'sql.join.right';
 
 /**
  * @} // group jointypes

@@ -13,8 +13,6 @@ namespace NoreSources\SQL;
 
 use NoreSources as ns;
 use \SQLite3;
-use Exception;
-use NoreSources\echo_line;
 
 require_once (__DIR__ . '/../base.php');
 
@@ -315,7 +313,7 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 			{
 				$this->m_datasourceResource = new SQLite3($mainDatabase, $flags, $ekey);
 			}
-			catch (Exception $e)
+			catch (\Exception $e)
 			{
 				return ns\Reporter::error($this, __METHOD__ . '(): Unable to open database "' . $fileName . '" :' . $e->getMessage(), __FILE__, __LINE__);
 			}
@@ -657,7 +655,7 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 
 	public function getTableStructure(Table $a_table)
 	{
-		// echo_line($queryStr);
+		// ns\echo_line($queryStr);
 		$queryStr = 'PRAGMA table_info(\'' . $a_table->getName() . '\')';
 		$queryRes = new Recordset($this, $this->executeQuery($queryStr));
 		if ($queryRes === false)

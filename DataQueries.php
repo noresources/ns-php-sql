@@ -7,7 +7,6 @@
  * @package SQL
  */
 namespace NoreSources\SQL;
-
 use NoreSources as ns;
 
 /**
@@ -17,13 +16,13 @@ use NoreSources as ns;
 class InsertQuery extends TableQuery implements ns\IExpression
 {
 
-	public function __construct(Table $a_table)
+	public function __construct (Table $a_table)
 	{
 		parent::__construct($a_table);
-		$this->m_fieldValues = array ();
+		$this->m_fieldValues = array();
 	}
 
-	public function execute()
+	public function execute ()
 	{
 		$qs = $this->expressionString();
 		if (!$qs)
@@ -39,7 +38,7 @@ class InsertQuery extends TableQuery implements ns\IExpression
 		return false;
 	}
 
-	public function expressionString($a_options = null)
+	public function expressionString ($a_options = null)
 	{
 		if (count($this->m_fieldValues) == 0)
 		{
@@ -61,7 +60,7 @@ class InsertQuery extends TableQuery implements ns\IExpression
 	 *        	string (name) or TableField
 	 * @param ns\IExpression $a_value        	
 	 */
-	public function addFieldValue($a_field, ns\IExpression $a_value)
+	public function addFieldValue ($a_field, ns\IExpression $a_value)
 	{
 		$a_field = mixedToTableField($a_field, $this->table);
 		if (!$a_field)
@@ -71,7 +70,7 @@ class InsertQuery extends TableQuery implements ns\IExpression
 		
 		$f = $this->datasource->encloseElement($a_field->name);
 		
-		$this->m_fieldValues [$f] = $a_value->expressionString();
+		$this->m_fieldValues[$f] = $a_value->expressionString();
 	}
 
 	/**
@@ -82,7 +81,7 @@ class InsertQuery extends TableQuery implements ns\IExpression
 	 *        	
 	 *        	Values are formatted using TableField::importData()
 	 */
-	public function addFieldValues($a_fieldAndValues)
+	public function addFieldValues ($a_fieldAndValues)
 	{
 		foreach ($a_fieldAndValues as $k => $v)
 		{
@@ -97,9 +96,9 @@ class InsertQuery extends TableQuery implements ns\IExpression
 		}
 	}
 
-	public function clear()
+	public function clear ()
 	{
-		$this->m_fieldValues = array ();
+		$this->m_fieldValues = array();
 	}
 
 	/**
@@ -116,13 +115,13 @@ class InsertQuery extends TableQuery implements ns\IExpression
 class UpdateQuery extends TableQuery implements ns\IExpression
 {
 
-	public function __construct(Table $a_table)
+	public function __construct (Table $a_table)
 	{
 		parent::__construct($a_table);
-		$this->m_fieldValues = array ();
+		$this->m_fieldValues = array();
 	}
 
-	public function execute()
+	public function execute ()
 	{
 		$qs = $this->expressionString();
 		if (!$qs)
@@ -138,21 +137,23 @@ class UpdateQuery extends TableQuery implements ns\IExpression
 		return false;
 	}
 
-	public static function glueSetStatements($k, $v)
+	public static function glueSetStatements ($k, $v)
 	{
 		return ' ' . $k . '=' . $v;
 	}
 
-	public function expressionString($a_options = null)
+	public function expressionString ($a_options = null)
 	{
 		/*
-		 * if (count($this->m_fieldValues) == 0) { return ns\Reporter::error($this, __METHOD__.': No field set.'); }
+		 * if (count($this->m_fieldValues) == 0) { return
+		 * ns\Reporter::error($this, __METHOD__.': No field set.'); }
 		 */
 		$qs = 'UPDATE ' . $this->table->expressionString(kExpressionElementName) . ' SET ';
-		$qs .= ' ' . ns\array_implode_cb(', ', $this->m_fieldValues, array (
-				get_class($this),
-				'glueSetStatements' 
-		));
+		$qs .= ' ' . ns\array_implode_cb(', ', $this->m_fieldValues, 
+				array(
+						get_class($this),
+						'glueSetStatements'
+				));
 		
 		if ($this->m_condition)
 		{
@@ -169,7 +170,7 @@ class UpdateQuery extends TableQuery implements ns\IExpression
 	 *        	string (name) or TableField
 	 * @param ns\IExpression $a_value        	
 	 */
-	public function addFieldValue($a_field, ns\IExpression $a_value)
+	public function addFieldValue ($a_field, ns\IExpression $a_value)
 	{
 		$a_field = mixedToTableField($a_field, $this->table);
 		if (!$a_field)
@@ -179,7 +180,7 @@ class UpdateQuery extends TableQuery implements ns\IExpression
 		
 		$f = $this->datasource->encloseElement($a_field->name);
 		
-		$this->m_fieldValues [$f] = $a_value->expressionString();
+		$this->m_fieldValues[$f] = $a_value->expressionString();
 	}
 
 	/**
@@ -190,7 +191,7 @@ class UpdateQuery extends TableQuery implements ns\IExpression
 	 *        	
 	 *        	Values are formatted using TableField::importData()
 	 */
-	public function addFieldValues($a_fieldAndValues)
+	public function addFieldValues ($a_fieldAndValues)
 	{
 		foreach ($a_fieldAndValues as $k => $v)
 		{
@@ -209,7 +210,7 @@ class UpdateQuery extends TableQuery implements ns\IExpression
 	 * @param $a_cond ns\IExpression        	
 	 * @return WhereQueryConditionStatement
 	 */
-	public function where(ns\IExpression $a_cond = null)
+	public function where (ns\IExpression $a_cond = null)
 	{
 		if ($a_cond)
 		{
@@ -237,14 +238,14 @@ class UpdateQuery extends TableQuery implements ns\IExpression
 class SelectQueryStaticValueColumn implements ns\IExpression
 {
 
-	public function __construct(SelectQuery $a_query, $a_value, $a_strAlias)
+	public function __construct (SelectQuery $a_query, $a_value, $a_strAlias)
 	{
 		$this->m_oQuery = $a_query;
 		$this->m_oValue = (($a_value instanceof ns\IExpression) ? $a_value : new FormattedData($a_value));
 		$this->m_alias = (is_string($a_strAlias) && strlen($a_strAlias)) ? new SQLAlias($a_query->datasource, $a_strAlias) : null;
 	}
 
-	public function expressionString($a_options = null)
+	public function expressionString ($a_options = null)
 	{
 		if ($this->m_alias)
 		{
@@ -282,7 +283,7 @@ abstract class QueryConditionStatement extends ns\UnaryOperatorExpression
 	 * @param ns\IExpression $a_oExpression
 	 *        	Expression representing the condition(s)
 	 */
-	public function __construct($a_strOperator, ns\IExpression $a_oExpression = null)
+	public function __construct ($a_strOperator, ns\IExpression $a_oExpression = null)
 	{
 		parent::__construct($a_strOperator, $a_oExpression, false);
 	}
@@ -293,7 +294,7 @@ abstract class QueryConditionStatement extends ns\UnaryOperatorExpression
 	 * @param ns\IExpression $a_oExpression        	
 	 * @return ns\IExpression condition(s)
 	 */
-	public function addAndExpression(ns\IExpression $a_oExpression)
+	public function addAndExpression (ns\IExpression $a_oExpression)
 	{
 		if (!($this->m_expression instanceof ns\IExpression))
 		{
@@ -314,7 +315,7 @@ abstract class QueryConditionStatement extends ns\UnaryOperatorExpression
 	 * @param ns\IExpression $a_oExpression        	
 	 * @return ns\IExpression condition(s)
 	 */
-	public function addOrExpression(ns\IExpression $a_oExpression)
+	public function addOrExpression (ns\IExpression $a_oExpression)
 	{
 		if (($this->m_expression instanceof ns\IExpression))
 		{
@@ -335,7 +336,7 @@ abstract class QueryConditionStatement extends ns\UnaryOperatorExpression
 class WhereQueryConditionStatement extends QueryConditionStatement
 {
 
-	public function __construct()
+	public function __construct ()
 	{
 		parent::__construct('WHERE');
 		$this->protect(false);
@@ -348,7 +349,7 @@ class WhereQueryConditionStatement extends QueryConditionStatement
 class HavingQueryConditionStatement extends QueryConditionStatement
 {
 
-	public function __construct()
+	public function __construct ()
 	{
 		parent::__construct('HAVING');
 		$this->protect(false);
@@ -358,13 +359,13 @@ class HavingQueryConditionStatement extends QueryConditionStatement
 class DeleteQuery extends TableQuery
 {
 
-	public function __construct(Table $a_table)
+	public function __construct (Table $a_table)
 	{
 		parent::__construct($a_table);
 		$this->m_condition = new WhereQueryConditionStatement();
 	}
 
-	public function execute()
+	public function execute ()
 	{
 		$qs = $this->expressionString();
 		if (!$qs)
@@ -380,7 +381,7 @@ class DeleteQuery extends TableQuery
 		return false;
 	}
 
-	public function __get($key)
+	public function __get ($key)
 	{
 		if ($key == 'where')
 		{
@@ -394,8 +395,8 @@ class DeleteQuery extends TableQuery
 		
 		return parent::__get($key);
 	}
-	
-	public function expressionString($a_options = null)
+
+	public function expressionString ($a_options = null)
 	{
 		$qs = 'DELETE FROM ' . $this->table->expressionString(kExpressionElementDeclaration);
 		
@@ -416,7 +417,7 @@ class DeleteQuery extends TableQuery
 class SelectQueryLimitStatement implements ns\IExpression
 {
 
-	public function __construct($offset, $limit)
+	public function __construct ($offset, $limit)
 	{
 		$this->m_iOffset = round($offset);
 		$this->m_iLimit = round($limit);
@@ -425,7 +426,7 @@ class SelectQueryLimitStatement implements ns\IExpression
 	/**
 	 * Implementation of ns\IExpression method
 	 */
-	public function expressionString($a_options = null)
+	public function expressionString ($a_options = null)
 	{
 		if ($this->m_iOffset == 0)
 		{
@@ -436,21 +437,22 @@ class SelectQueryLimitStatement implements ns\IExpression
 	}
 	
 	/*
-	 * Call self::expressionString() method with default parameter @return string
+	 * Call self::expressionString() method with default parameter @return
+	 * string
 	 */
-	public function __tostring()
+	public function __tostring ()
 	{
 		return strval($this->expressionString());
 	}
 
-	public function add($value)
+	public function add ($value)
 	{
 		$value = round($value);
 		$this->m_iOffset += $value;
 		$this->m_iLimit += $value;
 	}
 
-	public function next()
+	public function next ()
 	{
 		$value = ($this->m_iLimit - $this->m_iOffset) + 1;
 		$this->m_iOffset += $value;
@@ -468,13 +470,13 @@ class SelectQueryLimitStatement implements ns\IExpression
 class SelectQueryGroupByStatement implements ns\IExpression
 {
 
-	public function __construct(Datasource $a_datasource)
+	public function __construct (Datasource $a_datasource)
 	{
-		$this->m_columns = array ();
+		$this->m_columns = array();
 		$this->m_datasource = $a_datasource;
 	}
 
-	public static function glueGroupByStatement($k, $v, $selectColumns = null)
+	public static function glueGroupByStatement ($k, $v, $selectColumns = null)
 	{
 		if (is_array($selectColumns))
 		{
@@ -484,22 +486,28 @@ class SelectQueryGroupByStatement implements ns\IExpression
 				return $alias;
 			}
 		}
-	
+		
 		return $v->expressionString(kExpressionElementName);
 	}
-	
+
 	/**
 	 * Implementation of ns\IExpression method
-	 * @param mixed $a_options Array of preformatted SELECT column names (or alias if any) 
+	 *
+	 * @param mixed $a_options
+	 *        	Array of preformatted SELECT column names (or alias if any)
 	 * @return string
 	 */
-	public function expressionString($a_options = null)
+	public function expressionString ($a_options = null)
 	{
 		if (count($this->m_columns))
 		{
-			return 'GROUP BY ' . ns\array_implode_cb(', ', $this->m_columns, array (get_class($this),'glueGroupByStatement'), $a_options);
+			return 'GROUP BY ' . ns\array_implode_cb(', ', $this->m_columns, 
+					array(
+							get_class($this),
+							'glueGroupByStatement'
+					), $a_options);
 		}
-	
+		
 		return '';
 	}
 
@@ -509,26 +517,26 @@ class SelectQueryGroupByStatement implements ns\IExpression
 	public function addColumn(/* ... */)
 	{
 		$n = func_num_args();
-		for($i = 0; $i < $n; $i++)
+		for ($i = 0; $i < $n; $i++)
 		{
 			$c = func_get_arg($i);
 			if (($c instanceof SQLAlias) || ($c instanceof ITableField))
 			{
-				$this->m_columns [] = $c;
+				$this->m_columns[] = $c;
 			}
 			elseif (($c instanceof IAliasable) && $c->hasAlias())
 			{
-				$this->m_columns [] = $c->alias();
+				$this->m_columns[] = $c->alias();
 			}
 			elseif (is_string($c))
 			{
-				$this->m_columns [] = new SQLAlias($this->m_datasource, $c);
+				$this->m_columns[] = new SQLAlias($this->m_datasource, $c);
 			}
 		}
 		return $n;
 	}
-	
-	public function clear()
+
+	public function clear ()
 	{
 		$this->m_columns = array();
 	}
@@ -550,11 +558,10 @@ interface ISelectQueryOrderByStatement extends ns\IExpression
 class SelectQueryRandomOrderByStatement implements ISelectQueryOrderByStatement
 {
 
-	public function __construct()
-	{
-	}
+	public function __construct ()
+	{}
 
-	public function expressionString($a_options = null)
+	public function expressionString ($a_options = null)
 	{
 		return 'ORDER BY RAND()';
 	}
@@ -563,56 +570,60 @@ class SelectQueryRandomOrderByStatement implements ISelectQueryOrderByStatement
 class SelectQueryOrderByStatement implements ISelectQueryOrderByStatement
 {
 
-	public function __construct()
+	public function __construct ()
 	{
-		$this->m_columns = array ();
+		$this->m_columns = array();
 	}
 
-	public static function glueOrderByStatement($k, $v, $selectColumns = null)
+	public static function glueOrderByStatement ($k, $v, $selectColumns = null)
 	{
 		if (is_array($selectColumns))
 		{
-			$alias = $v [0]->expressionString(kExpressionElementAlias);
+			$alias = $v[0]->expressionString(kExpressionElementAlias);
 			if (in_array($alias, $selectColumns))
 			{
-				return $alias . ' ' . (($v [1]) ? 'ASC' : 'DESC');
+				return $alias . ' ' . (($v[1]) ? 'ASC' : 'DESC');
 			}
 		}
 		
-		return $v [0]->expressionString(kExpressionElementName) . ' ' . (($v [1]) ? 'ASC' : 'DESC');
+		return $v[0]->expressionString(kExpressionElementName) . ' ' . (($v[1]) ? 'ASC' : 'DESC');
 	}
 
 	/**
 	 * Implementation of ns\IExpression method
 	 */
-	public function expressionString($a_options = null)
+	public function expressionString ($a_options = null)
 	{
 		if (count($this->m_columns))
 		{
-			return 'ORDER BY ' . ns\array_implode_cb(', ', $this->m_columns, array (get_class($this),'glueOrderByStatement'), $a_options);
+			return 'ORDER BY ' . ns\array_implode_cb(', ', $this->m_columns, 
+					array(
+							get_class($this),
+							'glueOrderByStatement'
+					), $a_options);
 		}
 		
-		return ''; 
+		return '';
 	}
 
-	public function clear()
+	public function clear ()
 	{
 		$this->m_columns = array();
 	}
-	
-	public function addColumn(ns\IExpression $a_column, $a_bAsc = true)
+
+	public function addColumn (ns\IExpression $a_column, $a_bAsc = true)
 	{
 		$this->addOrder($a_column, $a_bAsc);
 	}
-	
+
 	/**
 	 * Add a column in the field list
 	 */
-	public function addOrder(ns\IExpression $a_column, $a_bAsc = true)
+	public function addOrder (ns\IExpression $a_column, $a_bAsc = true)
 	{
-		$this->m_columns [] = array (
+		$this->m_columns[] = array(
 				$a_column,
-				$a_bAsc 
+				$a_bAsc
 		);
 	}
 
@@ -621,7 +632,8 @@ class SelectQueryOrderByStatement implements ISelectQueryOrderByStatement
 
 abstract class ISelectQueryJoin extends ns\UnaryOperatorExpression
 {
-	public function __construct($a_joinType, Table $a_leftTable, Table $a_rightTable)
+
+	public function __construct ($a_joinType, Table $a_leftTable, Table $a_rightTable)
 	{
 		parent::__construct($a_leftTable->datasource->getDatasourceString($a_joinType), $a_rightTable);
 		$this->m_leftTable = $a_leftTable;
@@ -629,17 +641,17 @@ abstract class ISelectQueryJoin extends ns\UnaryOperatorExpression
 		$this->m_joinType = $a_joinType;
 		$this->protect(false);
 	}
-	
-	public function __get($key)
+
+	public function __get ($key)
 	{
 		if ($key == 'datasource')
 		{
 			$this->m_leftTable->datasource;
 		}
-		if ($key == 'joinType') 
+		if ($key == 'joinType')
 		{
 			return $this->m_joinType;
-		} 
+		}
 		elseif ($key == "leftTable")
 		{
 			return $this->m_leftTable;
@@ -651,23 +663,35 @@ abstract class ISelectQueryJoin extends ns\UnaryOperatorExpression
 		
 		throw new \InvalidArgumentException(get_class($this) . '::' . $member);
 	}
-	
-	public function expressionString($a_options = null)
+
+	public function expressionString ($a_options = null)
 	{
 		return parent::expressionString(kExpressionElementDeclaration);
 	}
 
+	/**
+	 *
+	 * @var integer
+	 */
 	protected $m_joinType;
 
+	/**
+	 *
+	 * @var Table
+	 */
 	protected $m_leftTable;
 
+	/**
+	 *
+	 * @var Table
+	 */
 	protected $m_rightTable;
 }
 
 class SelectQueryNaturalJoin extends ISelectQueryJoin
 {
 
-	public function __construct(Table $a_leftTable, Table $a_rightTable)
+	public function __construct (Table $a_leftTable, Table $a_rightTable)
 	{
 		parent::__construct(kJoinNatural, $a_leftTable, $a_rightTable);
 	}
@@ -676,22 +700,24 @@ class SelectQueryNaturalJoin extends ISelectQueryJoin
 class SelectQueryJoin extends ISelectQueryJoin
 {
 
-	public function __construct($a_joinType, Table $a_leftTable, Table $a_rightTable)
+	public function __construct ($a_joinType, Table $a_leftTable, Table $a_rightTable)
 	{
 		parent::__construct($a_joinType, $a_leftTable, $a_rightTable);
 		$this->m_joinLink = null;
 	}
 
-	public function expressionString($a_options = null)
+	public function expressionString ($a_options = null)
 	{
-		return parent::expressionString() . ($this->m_joinLink ? ' ' . $this->m_joinLink->expressionString(kExpressionElementName) : '');
+		return parent::expressionString() .
+				 ($this->m_joinLink ? ' ' . $this->m_joinLink->expressionString(kExpressionElementName) : '');
 	}
 
-	public function addLink(TableField $a_leftField, TableField $a_rightField)
+	public function addLink (TableField $a_leftField, TableField $a_rightField)
 	{
 		if ($a_leftField->table != $this->leftTable || $a_rightField->table != $this->rightTable)
 		{
-			return ns\Reporter::error($this, __METHOD__ . '(): Field(s) (is/are) not from the left/right table', __FILE__, __LINE__);
+			return ns\Reporter::error($this, __METHOD__ . '(): Field(s) (is/are) not from the left/right table', __FILE__, 
+					__LINE__);
 		}
 		
 		$e = new ns\BinaryOperatorExpression('=', $a_leftField, $a_rightField);
@@ -728,22 +754,23 @@ class SelectQuery extends TableQuery implements ns\IExpression
 	 * @param Table $a_table
 	 *        	Main table of the SELECT query
 	 */
-	public function __construct(Table $a_table)
+	public function __construct (Table $a_table)
 	{
 		parent::__construct($a_table);
 		$this->m_distinct = false;
 		$this->m_having = new HavingQueryConditionStatement();
 		$this->m_where = new WhereQueryConditionStatement();
-		$this->m_unionQueries = array ();
-		$this->m_joins = array ();
-		$this->m_columns = array ();
+		$this->m_unionQueries = array();
+		$this->m_joins = array();
+		$this->m_columns = array();
 		$this->m_randomOrder = false;
 	}
 
 	/**
+	 *
 	 * @return SelectQuery
 	 */
-	public function __clone()
+	public function __clone ()
 	{
 		// $this->m_columns = clone $this->m_columns;
 		// $this->m_unionQueries = clone $this->m_unionQueries;
@@ -777,62 +804,64 @@ class SelectQuery extends TableQuery implements ns\IExpression
 		
 		$this->m_table = clone $this->m_table;
 	}
-	
+
 	/**
+	 *
 	 * @return mixed
 	 */
-	public function __get($key)
+	public function __get ($key)
 	{
 		if ($key == 'columns')
 		{
 			return $this->m_columns;
 		}
-		else if ($key == 'columnCount')
-		{
-			return count($this->m_columns);
-		}
-		elseif ($key == 'groupBy')
-		{
-			if (!$this->m_group)
+		else 
+			if ($key == 'columnCount')
 			{
-				$this->m_group = new SelectQueryGroupByStatement($this->datasource);
+				return count($this->m_columns);
 			}
-			
-			return $this->m_group;
-		}
-		elseif ($key == 'orderBy')
-		{
-			if (!$this->m_order)
+			elseif ($key == 'groupBy')
 			{
-				$this->m_order = new SelectQueryOrderByStatement();
-			}
-			
-			return $this->m_order;
-		}
-		elseif ($key == 'where')
-		{
-			if (!$this->m_where)
-			{
-				$this->m_where = new WhereQueryConditionStatement();
-			}
-			
-			return $this->m_where;
-		}
-		elseif ($key == 'having')
-		{
-			if (!$this->m_having)
-			{
-				$this->m_having = new HavingQueryConditionStatement();
-			}
-			
-			return $this->m_having;
-		}
+				if (!$this->m_group)
+				{
+					$this->m_group = new SelectQueryGroupByStatement($this->datasource);
+				}
 				
+				return $this->m_group;
+			}
+			elseif ($key == 'orderBy')
+			{
+				if (!$this->m_order)
+				{
+					$this->m_order = new SelectQueryOrderByStatement();
+				}
+				
+				return $this->m_order;
+			}
+			elseif ($key == 'where')
+			{
+				if (!$this->m_where)
+				{
+					$this->m_where = new WhereQueryConditionStatement();
+				}
+				
+				return $this->m_where;
+			}
+			elseif ($key == 'having')
+			{
+				if (!$this->m_having)
+				{
+					$this->m_having = new HavingQueryConditionStatement();
+				}
+				
+				return $this->m_having;
+			}
+		
 		return parent::__get($key);
 	}
 	
 	// Inherited methods
-	public function expressionString($a_options = null)
+	public function expressionString ($a_options = null)
 	{
 		$qs = 'SELECT ' . ($this->m_distinct ? 'DISTINCT ' : '');
 		
@@ -903,9 +932,10 @@ class SelectQuery extends TableQuery implements ns\IExpression
 	}
 
 	/**
+	 *
 	 * @return string
 	 */
-	public function __toString()
+	public function __toString ()
 	{
 		return $this->expressionString();
 	}
@@ -915,7 +945,7 @@ class SelectQuery extends TableQuery implements ns\IExpression
 	 * @see common/ns/sources/sql/IQuery#execute()
 	 * @return RecordSet
 	 */
-	public function execute()
+	public function execute ()
 	{
 		$qs = $this->expressionString();
 		if (!$qs)
@@ -939,12 +969,12 @@ class SelectQuery extends TableQuery implements ns\IExpression
 	public function addColumn(/* ... */)
 	{
 		$n = func_num_args();
-		for($i = 0; $i < $n; $i++)
+		for ($i = 0; $i < $n; $i++)
 		{
 			$c = func_get_arg($i);
 			if (($c instanceof ns\IExpression))
 			{
-				$this->m_columns [] = $c;
+				$this->m_columns[] = $c;
 			}
 			elseif (is_string($c))
 			{
@@ -952,11 +982,12 @@ class SelectQuery extends TableQuery implements ns\IExpression
 				{
 					return ns\Reporter::error($this, __METHOD__ . '(): Invalid field name', __FILE__, __LINE__);
 				}
-				$this->m_columns [] = $c;
+				$this->m_columns[] = $c;
 			}
 			else
 			{
-				return ns\Reporter::error($this, __METHOD__ . '(): Invalid parameter (ns\IExpression or table field name expected)', __FILE__, __LINE__);
+				return ns\Reporter::error($this, 
+						__METHOD__ . '(): Invalid parameter (ns\IExpression or table field name expected)', __FILE__, __LINE__);
 			}
 		}
 		return $n;
@@ -965,18 +996,19 @@ class SelectQuery extends TableQuery implements ns\IExpression
 	/**
 	 *
 	 * @param Table $a_table        	
-	 * @param int $a_joinType        	
+	 * @param string $a_joinType        	
 	 * @return ISelectQueryJoin
 	 */
-	public function createJoin(Table $a_table, $a_joinType = Datasource::kStringKeywordJoinNatural)
+	public function createJoin (Table $a_table, $a_joinType = kJoinNatural)
 	{
 		$kw = $a_table->datasource->getDatasourceString($a_joinType);
 		if (!(is_string($kw) && strlen($kw) > 0))
 		{
-			return ns\Reporter::error($this, __METHOD__ . '(): Invalid join type ' . strval($a_joinType), __FILE__, __LINE__);
+			return ns\Reporter::error($this, __METHOD__ . '(): Invalid join type ' . strval($a_joinType), __FILE__, 
+					__LINE__);
 		}
 		
-		if ($a_joinType == Datasource::kStringJoinNatural)
+		if ($a_joinType == kJoinNatural)
 		{
 			$res = new SelectQueryNaturalJoin($this->table, $a_table);
 		}
@@ -989,20 +1021,22 @@ class SelectQuery extends TableQuery implements ns\IExpression
 	}
 
 	/**
-	 * @param SelectQueryJoin $a_oJoin
+	 *
+	 * @param SelectQueryJoin $a_oJoin        	
 	 */
-	public function addJoin(SelectQueryJoin $a_oJoin)
+	public function addJoin (ISelectQueryJoin $a_oJoin)
 	{
 		/**
 		 * @note joins could be from 2 other joined tables
 		 *
-		 * if ($a_oJoin->leftTable != $this->table || $a_oJoin->rightTable == $this->table)
+		 * if ($a_oJoin->leftTable != $this->table || $a_oJoin->rightTable ==
+		 * $this->table)
 		 * {
-		 * ns\Reporter::fatalError($this, __METHOD__.'(): Invalid tables', __FILE__, __LINE__);
+		 * ns\Reporter::fatalError($this, __METHOD__.'(): Invalid tables',
+		 * __FILE__, __LINE__);
 		 * }
 		 */
-		
-		$this->m_joins [] = $a_oJoin;
+		$this->m_joins[] = $a_oJoin;
 	}
 
 	/**
@@ -1012,7 +1046,7 @@ class SelectQuery extends TableQuery implements ns\IExpression
 	 * @param integer $limit        	
 	 * @return SelectQueryLimitStatement
 	 */
-	protected function createLimitStatement($offset, $limit)
+	protected function createLimitStatement ($offset, $limit)
 	{
 		$v = new SelectQueryLimitStatement($offset, $limit);
 		return $v;
@@ -1020,14 +1054,14 @@ class SelectQuery extends TableQuery implements ns\IExpression
 
 	/**
 	 * Set or get limit constraint
-	 * 
+	 *
 	 * @param
 	 *        	$offset
 	 * @param
 	 *        	$limit
 	 * @return SelectQueryLimitStatement
 	 */
-	final function limit($offset = null, $limit = null)
+	final function limit ($offset = null, $limit = null)
 	{
 		if (($offset instanceof SelectQueryLimitStatement))
 		{
@@ -1043,10 +1077,11 @@ class SelectQuery extends TableQuery implements ns\IExpression
 
 	/**
 	 * Set random orger constraint
-	 * @param string $a_value
+	 * 
+	 * @param string $a_value        	
 	 * @return boolean
 	 */
-	final function randomOrder($a_value = null)
+	final function randomOrder ($a_value = null)
 	{
 		if ($a_value !== null && $this->m_randomOrder != $a_value)
 		{
@@ -1058,19 +1093,21 @@ class SelectQuery extends TableQuery implements ns\IExpression
 	}
 
 	/**
-	 * @param SelectQuery $a_query
+	 *
+	 * @param SelectQuery $a_query        	
 	 */
-	final function addUnionQuery(SelectQuery $a_query)
+	final function addUnionQuery (SelectQuery $a_query)
 	{
-		$this->m_unionQueries [] = $a_query;
+		$this->m_unionQueries[] = $a_query;
 	}
 
 	/**
 	 * Set or get DISTINCT constraint
-	 * @param string $a_distinct
+	 * 
+	 * @param string $a_distinct        	
 	 * @return boolean
 	 */
-	function distinct($a_distinct = null)
+	function distinct ($a_distinct = null)
 	{
 		if ($a_distinct !== null)
 		{
@@ -1134,12 +1171,12 @@ class SelectQuery extends TableQuery implements ns\IExpression
 class TruncateQuery extends TableQuery implements ns\IExpression
 {
 
-	public function __construct(Table $a_table)
+	public function __construct (Table $a_table)
 	{
 		parent::__construct($a_table);
 	}
 
-	public function execute()
+	public function execute ()
 	{
 		$qs = $this->expressionString();
 		if (!$qs)
@@ -1155,7 +1192,7 @@ class TruncateQuery extends TableQuery implements ns\IExpression
 		return false;
 	}
 
-	public function expressionString($a_options = null)
+	public function expressionString ($a_options = null)
 	{
 		return 'TRUNCATE TABLE ' . $this->table->expressionString(kExpressionElementName);
 	}
