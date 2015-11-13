@@ -145,8 +145,11 @@ abstract class Datasource extends SQLObject implements IDatabaseProvider
 		$o = new $cls();
 		if ($connect)
 		{
-			$result = $o->connect($settings);
-			ns\Reporter::warning(__CLASS__, __METHOD__ . ': Failed to connect', __FILE__, __LINE__);
+			$connected = $o->connect($settings);
+			if (!$connected)
+			{
+				return ns\Reporter::error(__CLASS__, __METHOD__ . ': Failed to connect', __FILE__, __LINE__);
+			}
 		}
 		
 		return $o;
