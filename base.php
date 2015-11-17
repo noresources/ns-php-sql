@@ -142,7 +142,7 @@ function guessDataType($a_value)
 	{
 		return kDataTypeTimestamp;
 	}
-	if ($a_value === null)
+	if (is_null($a_value))
 	{
 		return kDataTypeNull;
 	}

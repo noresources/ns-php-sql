@@ -509,7 +509,15 @@ class TableField extends ITableField implements IAliasedClone, ITableFieldValueV
 		}
 		
 		$sqlType = $this->type();
-		if ($sqlType === false)
+		if (is_null($a_value))
+		{
+			$s = $this->getStructure();
+			if ($s && ($s->getProperty(kStructureAcceptNull)))
+			{
+				$sqlType = kDataTypeNull;
+			}
+		}
+		else if ($sqlType === false)
 		{
 			$sqlType = guessDataType($a_value);
 		}

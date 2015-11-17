@@ -110,7 +110,7 @@ class SQLSmartEquality extends ns\BinaryOperatorExpression
 			}
 		}
 		
-		if (($a_value instanceof SQLDataArray) || ($a_value instanceof SelectQuery))
+		if ($a_value instanceof SelectQuery)
 		{
 			if ($a_bEqual)
 			{
@@ -123,7 +123,7 @@ class SQLSmartEquality extends ns\BinaryOperatorExpression
 				parent::__construct('NOT', $a_column, $in);
 			}
 		}
-		elseif ($a_value instanceof SQLNull)
+		elseif ($a_value instanceof NullData)
 		{
 			if ($a_bEqual)
 			{
