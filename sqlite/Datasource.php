@@ -15,6 +15,7 @@ use NoreSources as ns;
 use \SQLite3;
 
 require_once (__DIR__ . '/../base.php');
+require_once (NS_PHP_CORE_PATH . '/arrays.php');
 
 /**
  *
@@ -253,9 +254,10 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 		}
 		
 		// Min requirements
-		if (!array_key_exists(kConnectionParameterHostname, $a_aParameters) && !array_key_exists(kConnectionParameterFilename, $a_aParameters))
+		if (!ns\array_key_exists(kConnectionParameterHostname, $a_aParameters) 
+				&& !ns\array_key_exists(kConnectionParameterFilename, $a_aParameters))
 		{
-			return ns\Reporter::error($this, __METHOD__ . '(): Parameters are missing. "host" or "filename"] must be provided.', __FILE__, __LINE__);
+			return ns\Reporter::error($this, __METHOD__ . '(): Parameters are missing. "'.kConnectionParameterHostname.'" or "'.kConnectionParameterFilename.'"] must be provided.', __FILE__, __LINE__);
 		}
 		
 		$this->m_databaseName = ns\array_keyvalue($a_aParameters, kConnectionParameterDatabasename, self::DEFAULT_DATABASENAME);

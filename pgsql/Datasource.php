@@ -15,6 +15,7 @@ use NoreSources as ns;
 use NoreSources\Reporter;
 
 require_once (__DIR__ . '/../base.php');
+require_once (NS_PHP_CORE_PATH . '/arrays.php');
 
 /**
  * Notes:
