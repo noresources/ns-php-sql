@@ -53,11 +53,11 @@ class StructureVersion
 		}
 		elseif ($member == 'minor')
 		{
-			return array_key_exists(1, $this->m_versionArray) ? $this->m_versionArray[1] : 0;
+			return \array_key_exists(1, $this->m_versionArray) ? $this->m_versionArray[1] : 0;
 		}
 		elseif ($member == 'patch')
 		{
-			return array_key_exists(2, $this->m_versionArray) ? $this->m_versionArray[2] : 0;
+			return \array_key_exists(2, $this->m_versionArray) ? $this->m_versionArray[2] : 0;
 		}
 		elseif ($member == 'version' || $member == 'versionString')
 		{

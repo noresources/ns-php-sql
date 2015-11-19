@@ -145,6 +145,7 @@ abstract class Datasource extends SQLObject implements IDatabaseProvider
 		$cls = ns\array_keyvalue($settings, kConnectionParameterClassname, null);
 		if (!is_string($cls))
 		{
+			var_dump($settings);
 			return ns\Reporter::error(__CLASS__, 
 					__METHOD__ . ' Unable to create Datasource without ' . kConnectionParameterClassname . ' parameter', 
 					__FILE__, __LINE__);
@@ -412,7 +413,7 @@ abstract class Datasource extends SQLObject implements IDatabaseProvider
 	 */
 	public final function getDatasourceString ($a_key)
 	{
-		return array_key_exists($a_key, $this->m_datasourceStrings) ? $this->m_datasourceStrings[$a_key] : null;
+		return \array_key_exists($a_key, $this->m_datasourceStrings) ? $this->m_datasourceStrings[$a_key] : null;
 	}
 
 	/**
@@ -478,7 +479,7 @@ abstract class Datasource extends SQLObject implements IDatabaseProvider
 	 */
 	public final function getDefaultTypeName ($a_sqlType)
 	{
-		if (array_key_exists($a_sqlType, $this->m_defaultTypeNames))
+		if (\array_key_exists($a_sqlType, $this->m_defaultTypeNames))
 		{
 			return $this->m_defaultTypeNames[$a_sqlType];
 		}
@@ -501,7 +502,7 @@ abstract class Datasource extends SQLObject implements IDatabaseProvider
 		elseif (is_string($dataType))
 		{
 			$dataType = strtolower($dataType);
-			if (array_key_exists($dataType, $this->m_dataTypeNames))
+			if (\array_key_exists($dataType, $this->m_dataTypeNames))
 			{
 				return $this->m_dataTypeNames[$dataType]['type'];
 			}
@@ -531,7 +532,7 @@ abstract class Datasource extends SQLObject implements IDatabaseProvider
 	protected function addDataType ($a_typeName, $sqlType, $className = null)
 	{
 		$a_typeName = strtolower($a_typeName);
-		if (array_key_exists($a_typeName, $this->m_dataTypeNames))
+		if (\array_key_exists($a_typeName, $this->m_dataTypeNames))
 		{
 			ns\Reporter::fatalError($this, __METHOD__ . '(): ' . $a_typeName . ' already exists', __FILE__, __LINE__);
 		}
@@ -541,7 +542,7 @@ abstract class Datasource extends SQLObject implements IDatabaseProvider
 				'class' => $className
 		);
 		
-		if (!array_key_exists($sqlType, $this->m_defaultTypeNames))
+		if (!\array_key_exists($sqlType, $this->m_defaultTypeNames))
 		{
 			$this->m_defaultTypeNames[$sqlType] = $a_typeName;
 		}
@@ -573,7 +574,7 @@ abstract class Datasource extends SQLObject implements IDatabaseProvider
 	 */
 	protected function setPersistenceFromParameterArray ($a_aParameters)
 	{
-		if (array_key_exists(kConnectionParameterPersistent, $a_aParameters) && $a_aParameters[kConnectionParameterPersistent])
+		if (\array_key_exists(kConnectionParameterPersistent, $a_aParameters) && $a_aParameters[kConnectionParameterPersistent])
 		{
 			$this->m_datasourceFlags |= self::kPersistentConnection;
 		}

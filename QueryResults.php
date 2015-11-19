@@ -269,7 +269,7 @@ class Recordset extends QueryResult implements Iterator, Countable
 		$data = array ();
 		foreach ($this as $row)
 		{
-			if (array_key_exists($row [$a_columnKey], $data))
+			if (\array_key_exists($row [$a_columnKey], $data))
 			{
 				ns\Reporter::warning($this, __METHOD__ . '(): Duplicated key "' . $row [$a_columnKey] . '"');
 				continue;
