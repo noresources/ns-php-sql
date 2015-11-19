@@ -92,7 +92,7 @@ class SQLSmartEquality extends ns\BinaryOperatorExpression
 			if ($a_column instanceof TableField)
 			{
 				$t = $a_column->type();
-				if ($t !== null)
+				if (!is_null($t))
 				{
 					$data = $a_column->datasource->createData($t);
 					$data->import($a_value);
@@ -269,5 +269,3 @@ class AutoInterval extends ns\BinaryOperatorExpression
 		}
 	}
 }
-
-?>

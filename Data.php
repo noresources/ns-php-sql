@@ -272,7 +272,7 @@ class StringData extends Data
 	{
 		$this->check();
 		
-		if ($this->m_value === null)
+		if (is_null($this->m_value))
 		{
 			if ($this->m_datasource)
 			{
@@ -353,7 +353,7 @@ class NumberData extends Data
 		
 		$data = $this->m_value;
 		
-		if ($this->m_value === null)
+		if (is_null($this->m_value))
 		{
 			return $this->m_datasource->getDatasourceString(Datasource::kStringKeywordNull);
 		}
@@ -382,7 +382,7 @@ class NumberData extends Data
 
 	public function import($data)
 	{
-		if ($data === null)
+		if (is_null($data))
 		{
 			if ($this->flags & self::kAcceptNull)
 			{
@@ -521,7 +521,7 @@ class BinaryData extends Data
 
 	public function import($data)
 	{
-		if (($data === null) && !($this->flags & self::kAcceptNull))
+		if (is_null($data) && !($this->flags & self::kAcceptNull))
 		{
 			return $this->importResult(false);
 		}
@@ -534,7 +534,7 @@ class BinaryData extends Data
 	{
 		$this->check();
 		
-		if ($this->m_value === null)
+		if (is_null($this->m_value))
 		{
 			return $this->m_datasource->getDatasourceString(Datasource::kStringKeywordNull);
 		}

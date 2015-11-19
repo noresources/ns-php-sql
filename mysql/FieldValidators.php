@@ -23,7 +23,7 @@ class MySQLEnumFieldValueValidator extends ListedElementTableFieldValueValidator
 
 	public function validate($a_value)
 	{
-		if ($a_value === null && $this->m_bAcceptNull)
+		if (is_null($a_value) && $this->m_bAcceptNull)
 		{
 			return true;
 		}
@@ -75,8 +75,8 @@ class MySQLSetFieldValueValidator extends MultipleListedElementTableFieldValueVa
 
 	public function validate($a_value)
 	{
-		if ($a_value === null
-		&& $this->m_bAcceptNull)
+		if (is_null($a_value)
+			&& $this->m_bAcceptNull)
 		{
 			return true;
 		}
@@ -131,5 +131,3 @@ class MySQLSetFieldValueValidator extends MultipleListedElementTableFieldValueVa
 	protected $m_bAcceptNull;
 
 }
-
-?>

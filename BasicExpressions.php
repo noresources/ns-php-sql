@@ -170,7 +170,7 @@ class SQLFunction extends ns\UnaryOperatorExpression implements IAliasable
 
 	public function parameterListOptions($options = null)
 	{
-		if ($options !== null)
+		if (!is_null($options))
 		{
 			$this->m_parameterListOptions = $options;
 		}
@@ -183,7 +183,7 @@ class SQLFunction extends ns\UnaryOperatorExpression implements IAliasable
 	 */
 	public function expression(ns\IExpression &$a_expression = null)
 	{
-		if ($a_expression !== null)
+		if (!is_null($a_expression))
 		{
 			ns\Reporter::addWarning($this, __METHOD__ . ': Read only property');
 		}
@@ -195,7 +195,7 @@ class SQLFunction extends ns\UnaryOperatorExpression implements IAliasable
 	 */
 	public function expressionString($a_options = null)
 	{
-		if ($this->m_expression === null)
+		if (is_null($this->m_expression))
 		{
 			ns\Reporter::fatalError($this, __METHOD__ . '(): Invalid expression given', __FILE__, __LINE__);
 		}
@@ -225,7 +225,7 @@ class SQLFunction extends ns\UnaryOperatorExpression implements IAliasable
 	 */
 	public function alias(SQLAlias $alias = null)
 	{
-		if ($alias !== null)
+		if (!is_null($alias))
 		{
 			$this->m_alias = $alias;
 		}
@@ -318,5 +318,3 @@ class SQLAs extends ns\BinaryOperatorExpression
 		return $this->expressionString();
 	}
 }
-
-?>

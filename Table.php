@@ -304,7 +304,7 @@ class Table extends SQLObject implements IExpression, IAliasedClone, ITableField
 			return ns\Reporter::error($this, __METHOD__ . '(): Invalid parameter. Array expected', __FILE__, __LINE__);
 		}
 		
-		if ($a_conditions == null)
+		if (is_null($a_conditions))
 		{
 			ns\Reporter::notice($this, __METHOD__ . '(): Null condition will update all table rows', __FILE__, __LINE__);
 		}
@@ -324,7 +324,7 @@ class Table extends SQLObject implements IExpression, IAliasedClone, ITableField
 	 */
 	public function delete(ns\IExpression $a_conditions = null)
 	{
-		if ($a_conditions == null)
+		if (is_null($a_conditions))
 		{
 			ns\Reporter::notice($this, __METHOD__ . '(): Null condition will update all table rows', __FILE__, __LINE__);
 		}

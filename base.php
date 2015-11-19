@@ -45,7 +45,7 @@ function bestEffortImport($a_value, Datasource $a_source = null)
 	
 	$t = guessDataType($a_value);
 	$v = null;
-	if ($t !== null)
+	if (!is_null($t))
 	{
 		/**
 		 * @todo

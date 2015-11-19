@@ -216,15 +216,59 @@ const kDataTypeBinary = 32;
  * @defgroup params 'A series of standard parameters for database connection''
  * @{
  */
+
+/**
+ * A Datasource child class name.
+ * Used in Datasource::create
+ * @var string
+ */
 const kConnectionParameterClassname = 'sql.source.classname';
+/**
+ * Datasource connection user
+ * @var string
+ */
 const kConnectionParameterUsername = 'sql.source.user';
+/**
+ * Datasource conneciion user password
+ * @var string
+ */
 const kConnectionParameterPassword = 'sql.source.password';
+/**
+ * Datasource host (for network-based datasource)
+ * @var string
+ */
 const kConnectionParameterHostname = 'sql.source.host';
+/**
+ * Datasource source file
+ * @var string
+ */
 const kConnectionParameterFilename = 'sql.source.file';
+/**
+ * Database to connect to
+ * @var string
+ */
 const kConnectionParameterDatabasename = 'sql.source.database';
+/**
+ * Use persistent connection
+ * @var bool
+ */
 const kConnectionParameterPersistent = 'sql.source.persistent';
+/**
+ * Read only connection
+ * @var bool
+ */
 const kConnectionParameterReadOnly = 'sql.source.readonly';
+/**
+ * Create datasource if possible (for file-based datasource)
+ * @var bool
+ */
 const kConnectionParameterCreate = 'sql.source.create';
+/**
+ * A XML structure file 
+ * Used in Datasource::create()
+ * @var string
+ */
+const kConnectionParameterStructureFile = 'sql.source.structure';
 
 /**
  * @}

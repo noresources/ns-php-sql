@@ -59,7 +59,7 @@ class SQLiteTableManipulator extends TableManipulator
 			$type = $field->getProperty(kStructureDatatype);
 			$auto = $field->getProperty(kStructureAutoincrement);
 			$acceptNull = $field->getProperty(kStructureAcceptNull);
-			if ($type !== null)
+			if (!is_null($type))
 			{
 				$strQuery .= ' ' . $this->m_datasource->getDefaultTypeName($type);
 			}
