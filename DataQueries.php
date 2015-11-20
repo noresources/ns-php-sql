@@ -170,7 +170,7 @@ class UpdateQuery extends TableQuery implements ns\IExpression
 	public function addFieldValue($a_field, ns\IExpression $a_value)
 	{
 		$a_field = mixedToTableField($a_field, $this->table);
-		if (!$a_field)
+		if (!(is_object($a_field) && ($a_field instanceof TableField)))
 		{
 			return ns\Reporter::error($this, __METHOD__ . '(): Unable to get TableField object', __FILE__, __LINE__);
 		}
@@ -205,13 +205,15 @@ class UpdateQuery extends TableQuery implements ns\IExpression
 	{
 		if ($member == 'where')
 		{
-			if (!s_null($this->m_condition))
+			if (is_null($this->m_condition))
 			{
 				$this->m_condition = new WhereQueryConditionStatement();
 			}
 			
 			return $this->m_condition;
 		}
+		
+		return parent::__get($member);
 	}
 	
 	/**
