@@ -89,7 +89,7 @@ function mixedToTableField($a_mixedValue, ITableFieldProvider $a_provider)
 }
 
 /**
- * A generic method for ITableProvider::tableObject
+ * A generic method for ITableProvider::getTable
  *
  * @param ITableProvider $a_provider
  * @param string $a_name

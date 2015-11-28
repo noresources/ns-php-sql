@@ -506,7 +506,7 @@ class MySQLDatasource extends Datasource implements ITransactionBlock
 			$ts = null;
 			if ($recursive)
 			{
-				$ts = $this->getTableStructure($this->tableObject($row [0]));
+				$ts = $this->getTableStructure($this->getTable($row [0]));
 			}
 			else
 			{

@@ -72,7 +72,7 @@ interface ITableProvider
 	 *        	a 'new' table name @param $a_alias using the same structure as @param $a_name
 	 * @return Table
 	 */
-	function tableObject($a_name, $a_alias = null, $a_className = null, $a_useAliasAsName = false);
+	function getTable($a_name, $a_alias = null, $a_className = null, $a_useAliasAsName = false);
 
 	/**
 	 * Get an iterator on all table names

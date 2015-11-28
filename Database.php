@@ -80,9 +80,9 @@ class Database extends SQLObject implements IExpression, ITableProvider
 	 *        	with key: name, alias (optional) & class (optional)
 	 * @return Table
 	 */
-	public function tableObject($a_name, $alias = null, $className = null, $useAliasAsName = false)
+	public function getTable($a_name, $alias = null, $className = null, $useAliasAsName = false)
 	{
-		// ns\Reporter::debug($this, __METHOD__.'(): tableObject ' . $a_name, __FILE__, __LINE__);
+		// ns\Reporter::debug($this, __METHOD__.'(): getTable ' . $a_name, __FILE__, __LINE__);
 		$subStructure = null;
 		if ($this->structure)
 		{

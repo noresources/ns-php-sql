@@ -164,9 +164,9 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 	/**
 	 * Get a table from the main database
 	 *
-	 * @see \NoreSources\SQL\ITableProvider::tableObject()
+	 * @see \NoreSources\SQL\ITableProvider::getTable()
 	 */
-	public function tableObject($a_name, $a_strAlias = null, $a_className = null, $useAliasAsName = false)
+	public function getTable($a_name, $a_strAlias = null, $a_className = null, $useAliasAsName = false)
 	{
 		$subStructure = null;
 		if ($this->structure)
@@ -639,7 +639,7 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 			$ts = null;
 			if ($recursive)
 			{
-				$ts = $this->getTableStructure($this->tableObject($row ['name']));
+				$ts = $this->getTableStructure($this->getTable($row ['name']));
 			}
 			else
 			{
