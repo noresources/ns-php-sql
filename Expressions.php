@@ -47,7 +47,7 @@ class SQLIn extends ns\UnaryOperatorExpression
 			{
 				ns\Reporter::warning($this, __METHOD__ . '(): SelectQuery does not have exacty one column', __FILE__, __LINE__);
 			}
-			$a_value = new SurroundingElementExpression($a_value);
+			$a_value = new ns\SurroundingElementExpression($a_value);
 		}
 		elseif ($a_value instanceof SQLDataArray)
 		{
@@ -114,7 +114,7 @@ class SQLSmartEquality extends ns\BinaryOperatorExpression
 		{
 			if ($a_bEqual)
 			{
-				parent::__construct('IN', $a_column, new SurroundingElementExpression($a_value));
+				parent::__construct('IN', $a_column, new ns\SurroundingElementExpression($a_value));
 			}
 			else
 			{
