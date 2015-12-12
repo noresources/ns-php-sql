@@ -266,18 +266,16 @@ class MySQLDatasource extends Datasource implements ITransactionBlock
 			return ns\Reporter::error($this, __METHOD__ . '(): Missing parameters "host"', __FILE__, __LINE__);
 		}
 		
-		$connectionFunction = 'connect';
-		if (array_key_exists(kConnectionParameterPersistent, $a_aParameters) && $a_aParameters [kConnectionParameterPersistent])
-		{
-			$this->setDatasourceFlags($this->flags | kConnectionPersistent);
-		}
+		
 		
 		$host = $a_aParameters [kConnectionParameterHostname];
 		$user = ns\array_keyvalue($a_aParameters, kConnectionParameterUsername, null);
 		$pass = ns\array_keyvalue($a_aParameters, kConnectionParameterPassword, null);
 		
-		if ($this->flags & kConnectionPersistent)
+		$connectionFunction = 'connect';
+		if (ns\array_keyvalue($a_aParameters, kConnectionParameterPersistent, false))
 		{
+			$this->setDatasourceFlags($this->flags | kConnectionPersistent);
 			if ($this->m_implementation == self::kMySQExtension_mysqli)
 			{
 				$host = 'p:' . $host;

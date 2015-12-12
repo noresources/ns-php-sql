@@ -254,10 +254,14 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 		}
 		
 		// Min requirements
-		if (!ns\array_key_exists(kConnectionParameterHostname, $a_aParameters) 
-				&& !ns\array_key_exists(kConnectionParameterFilename, $a_aParameters))
+		if (!ns\array_key_exists(kConnectionParameterHostname, $a_aParameters) && !ns\array_key_exists(kConnectionParameterFilename, $a_aParameters))
 		{
-			return ns\Reporter::error($this, __METHOD__ . '(): Parameters are missing. "'.kConnectionParameterHostname.'" or "'.kConnectionParameterFilename.'"] must be provided.', __FILE__, __LINE__);
+			return ns\Reporter::error($this, __METHOD__ . '(): Parameters are missing. "' . kConnectionParameterHostname . '" or "' . kConnectionParameterFilename . '"] must be provided.', __FILE__, __LINE__);
+		}
+		
+		if (ns\array_keyvalue($a_aParameters, kConnectionParameterPersistent, false))
+		{
+			$this->setDatasourceFlags($this->flags | kConnectionPersistent);
 		}
 		
 		$this->m_databaseName = ns\array_keyvalue($a_aParameters, kConnectionParameterDatabasename, self::DEFAULT_DATABASENAME);
@@ -294,6 +298,11 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 		$errorMessage = '';
 		if ($this->m_implementation == self::IMPLEMENTATION_sqlite3)
 		{
+			if ($this->flags & kConnectionPersistent)
+			{
+				ns\Reporter::warning($this, __METHOD__ . ': Persistent connection is not supported by SQLite3 implementation');
+			}
+			
 			$flags = 0;
 			$ekey = '';
 			
@@ -328,7 +337,13 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 				$mode = 0444;
 			}
 			
-			$this->m_datasourceResource = sqlite_open($mainDatabase, $mode, $errorMessage);
+			$connectionFunction = 'sqlite_open';
+			if ($this->flags & kConnectionPersistent)
+			{
+				$connectionFunction = 'sqlite_popen';
+			}
+			
+			$this->m_datasourceResource = $connectionFunction($mainDatabase, $mode, $errorMessage);
 		}
 		else
 		{
