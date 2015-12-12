@@ -195,7 +195,7 @@ class MySQLDatasource extends Datasource implements ITransactionBlock
 	public function __destruct()
 	{
 		parent::__destruct();
-		if (is_resource($this->resource) && !($this->flags & self::kPersistentConnection))
+		if (is_resource($this->resource) && !($this->flags & kConnectionPersistent))
 		{
 			$this->apiCall('close', $this->resource);
 		}
@@ -267,14 +267,26 @@ class MySQLDatasource extends Datasource implements ITransactionBlock
 		}
 		
 		$connectionFunction = 'connect';
-		if ($this->setPersistenceFromParameterArray($a_aParameters))
+		if (array_key_exists(kConnectionParameterPersistent, $a_aParameters) && $a_aParameters [kConnectionParameterPersistent])
 		{
-			$connectionFunction = 'pconnect';
+			$this->setDatasourceFlags($this->flags | kConnectionPersistent);
 		}
 		
 		$host = $a_aParameters [kConnectionParameterHostname];
 		$user = ns\array_keyvalue($a_aParameters, kConnectionParameterUsername, null);
 		$pass = ns\array_keyvalue($a_aParameters, kConnectionParameterPassword, null);
+		
+		if ($this->flags & kConnectionPersistent)
+		{
+			if ($this->m_implementation == self::kMySQExtension_mysqli)
+			{
+				$host = 'p:' . $host;
+			}
+			else
+			{
+				$connectionFunction = 'pconnect';
+			}
+		}
 		
 		$this->m_datasourceResource = $this->apiCall($connectionFunction, $host, $user, $pass);
 		

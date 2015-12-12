@@ -277,6 +277,18 @@ const kConnectionParameterStructureFile = 'sql.source.structure';
 
 
 /**
+ * @defgroup cnxflags 'Datasource connection flags'
+ * @{
+ */
+
+const kConnectionPersistent = 0x01;
+
+/**
+ * @}
+ */
+// group 'cnxflags'
+
+/**
  * @defgroup Datasourcequeries 'Datasource elements queries'
  * @{
  */

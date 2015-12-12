@@ -50,13 +50,6 @@ abstract class Datasource extends SQLObject implements IDatabaseProvider
 {
 	
 	/**
-	 * Use persitent connection
-	 *
-	 * @var integer
-	 */
-	const kPersistentConnection = 0x01;
-	
-	/**
 	 * null keyword
 	 *
 	 * @var string
@@ -207,7 +200,7 @@ abstract class Datasource extends SQLObject implements IDatabaseProvider
 	 */
 	public function __destruct()
 	{
-		if (!($this->m_datasourceFlags & self::kPersistentConnection))
+		if (!($this->m_datasourceFlags & kConnectionPersistent))
 		{
 			$this->disconnect();
 		}
@@ -537,6 +530,11 @@ abstract class Datasource extends SQLObject implements IDatabaseProvider
 		}
 	}
 
+	protected function setDatasourceFlags($flags)
+	{
+		$this->m_datasourceFlags = $flags;
+	}
+
 	protected function setDefaultTypeName($sqlType, $a_typeName)
 	{
 		$this->m_defaultTypeNames [$sqlType] = $a_typeName;
@@ -551,26 +549,6 @@ abstract class Datasource extends SQLObject implements IDatabaseProvider
 	protected function setDatasourceString($a_key, $a_value)
 	{
 		$this->m_datasourceStrings [$a_key] = $a_value;
-	}
-
-	/**
-	 * Generally used in connect() method
-	 *
-	 * @todo remove from API
-	 * @param bool $a_aParameters
-	 */
-	protected function setPersistenceFromParameterArray($a_aParameters)
-	{
-		if (\array_key_exists(kConnectionParameterPersistent, $a_aParameters) && $a_aParameters [kConnectionParameterPersistent])
-		{
-			$this->m_datasourceFlags |= self::kPersistentConnection;
-		}
-		else
-		{
-			$this->m_datasourceFlags &= ~self::kPersistentConnection;
-		}
-		
-		return ($this->m_datasourceFlags & self::kPersistentConnection);
 	}
 
 	/**
