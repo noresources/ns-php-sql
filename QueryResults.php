@@ -93,8 +93,7 @@ class QueryResult
 }
 
 /**
- *
- * @author renaud
+ * Result of a SELECT query
  */
 class Recordset extends QueryResult implements Iterator, Countable
 {

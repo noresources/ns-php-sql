@@ -18,10 +18,7 @@ require_once (__DIR__ . '/../base.php');
 require_once (NS_PHP_CORE_PATH . '/arrays.php');
 
 /**
- *
  * @todo Update to use SQL*Structure
- * @author renaud
- *        
  */
 class SQLiteTableManipulator extends TableManipulator
 {

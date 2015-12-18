@@ -517,8 +517,6 @@ class TableStructure extends StructureElement
 
 /**
  * Database structure definition
- *
- * @author renaud
  */
 class DatabaseStructure extends StructureElement
 {
@@ -548,8 +546,6 @@ class DatabaseStructure extends StructureElement
 
 /**
  * Data source structure definition
- *
- * @author renaud
  */
 class DatasourceStructure extends StructureElement
 {
