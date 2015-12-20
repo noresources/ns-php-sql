@@ -1,5 +1,5 @@
 <?php
-function autoload_NTYxZmY0YjNhOTJkYw($className)
+function autoload_NTY2ZjFmNzJjYmQ4NQ($className)
 {
 	if ($className == 'NoreSources\SQL\Database')
 	{
@@ -261,6 +261,10 @@ function autoload_NTYxZmY0YjNhOTJkYw($className)
 	{
 		require_once(__DIR__ . '/sqlite/Datasource.php');
 	}
+ 	elseif ($className == 'NoreSources\SQL\SQLiteDatabase')
+	{
+		require_once(__DIR__ . '/sqlite/Datasource.php');
+	}
  	elseif ($className == 'NoreSources\SQL\SQLiteDatasource')
 	{
 		require_once(__DIR__ . '/sqlite/Datasource.php');
@@ -329,6 +333,10 @@ function autoload_NTYxZmY0YjNhOTJkYw($className)
 	{
 		require_once(__DIR__ . '/QueryBase.php');
 	}
+ 	elseif ($className == 'NoreSources\SQL\RecordManipulator')
+	{
+		require_once(__DIR__ . '/CRUD.php');
+	}
  	elseif ($className == 'NoreSources\SQL\IDatabaseProvider')
 	{
 		require_once(__DIR__ . '/Providers.php');
@@ -341,13 +349,9 @@ function autoload_NTYxZmY0YjNhOTJkYw($className)
 	{
 		require_once(__DIR__ . '/Providers.php');
 	}
- 	elseif ($className == 'NoreSources\SQL\PersitentObject')
-	{
-		require_once(__DIR__ . '/PersistentObject.php');
-	}
  	elseif ($className == 'NoreSources\SQL\TableManipulator')
 	{
 		require_once(__DIR__ . '/Manipulators.php');
 	}
  }
-spl_autoload_register('autoload_NTYxZmY0YjNhOTJkYw');
+spl_autoload_register('autoload_NTY2ZjFmNzJjYmQ4NQ');
