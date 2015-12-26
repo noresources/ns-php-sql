@@ -425,7 +425,7 @@ class TableFieldStructure extends StructureElement
 	{
 		$child = $node->getElementsByTagNameNS(self::XMLNAMESPACE, 'datatype');
 		
-		if (!$child && $child->length)
+		if (!($child && $child->length))
 		{
 			return;
 		}
