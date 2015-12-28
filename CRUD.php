@@ -14,6 +14,18 @@ const kRecordExists = 0x2;
 abstract class Record implements \ArrayAccess
 {
 
+	/**
+	 * @param Table $table Database table
+	 * @param mixed $keyValues Array of key-value pairs
+	 * 	If @param $table contains a single-column primary key, a singie value is accepted
+	 * 	as the value of the primary key column
+	 * @param boolean $multiple If @c true, always return result as an array of Record
+	 * @param mixed
+	 * - @c null if no record can be found with the given criteria
+	 * - @c false if @param $multiple is @c false ans query returns more than one element
+	 * - a @c Record if @param $multiple is @c false
+	 * - an array of @c Record if @param $multiple is @c true
+	 */
 	public static function get (Table $table, $keyValues, $multiple = false, $className = null)
 	{
 		$structure = $table->getStructure();
@@ -43,7 +55,7 @@ abstract class Record implements \ArrayAccess
 					return static::get ($table, array ($primaryKeyColumn => $keyValues, $multiple, $className));
 				}
 			}
-				
+
 			return ns\Reporter::error(__CLASS__, __METHOD__ . ': $keyValues. Array expected');
 		}
 
@@ -95,6 +107,16 @@ abstract class Record implements \ArrayAccess
 		return null;
 	}
 
+	/**
+	 * Insert or update record
+	 * @param Table $table
+	 * @param array $keyValues array of key-value pairs
+	 * @param boolean $returnRecord If @c true, return the inserted or updated @c Record
+	 * @return mixed
+	 * 	- boolean if $returnRecord is @c false
+	 *  - Record if $returnRecord is @c true and operation succeeded
+	 *  - @ca false otherwise
+	 */
 	public static function upsert (Table $table, $keyValues, $returnRecord = true)
 	{
 		$structure = $table->getStructure();
@@ -127,7 +149,12 @@ abstract class Record implements \ArrayAccess
 			$result = $record->insert();
 		}
 
-		return (($result) ? $record : false);
+		if ($returnRecord)
+		{
+			return (($result) ? $record : false);
+		}
+
+		return $result;
 	}
 
 	/**
@@ -170,7 +197,7 @@ abstract class Record implements \ArrayAccess
 	{
 		return $this->offsetGet($member);
 	}
-	
+
 	public function offsetGet($member)
 	{
 		$structure = $this->m_table->getStructure();
@@ -191,13 +218,13 @@ abstract class Record implements \ArrayAccess
 	{
 		return $this->m_table->getStructure()->offsetExists($offset);
 	}
-	
+
 	public function offsetUnset($offset)
 	{
 		unset ($this->m_values[$offset]);
 		$this->m_flags |= kRecordModified;
 	}
-	
+
 	public function __set($member, $value)
 	{
 		return $this->offsetSet($member, $value);
@@ -299,6 +326,43 @@ abstract class Record implements \ArrayAccess
 		{
 			$this->m_flags &= ~kRecordModified;
 			return true;
+		}
+		
+		return false;
+	}
+	
+	/**
+	 * @param boolean $multiple Accept to delete more than one record
+	 * @return boolean
+	 */
+	public function delete ($multiple = false)
+	{
+		if (!$multiple)
+		{
+			$record = static::get ($table, $this->m_values, true);
+			if (count ($record) > 0)
+			{
+				return ns\Reporter::error($this, __METHOD__ . ': Multiple record deletion');
+			}
+		}
+		
+		$structure = $this->m_table->getStructure();
+		$d = new DeleteQuery($this->m_table);
+		foreach ($structure as $n => $c)
+		{
+			if (array_key_exists($n, $this->m_values))
+			{
+				$column = $this->m_table->fieldObject($n);
+				$data = $column->importData($this->m_values[$n]);		
+				$d->where->addAndExpression($column->equalityExpression($data));
+			}
+		}
+		
+		$result = $d->execute();
+		$result = (is_object($result) && ($result instanceof DeleteQueryResult));
+		if ($result)
+		{
+			$this->m_flags &= ~kRecordExists;
 		}
 		
 		return false;
