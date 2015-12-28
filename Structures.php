@@ -496,7 +496,7 @@ class TableStructure extends StructureElement
 		$xpath = new \DOMXPath($node->ownerDocument);
 		$xpath->registerNamespace('sql', self::XMLNAMESPACE);
 		
-		$primaryKeyColumnNodes = $xpath->query('sql:primarykey/sql:column');
+		$primaryKeyColumnNodes = $xpath->query('sql:primarykey/sql:column', $node);
 		$columnNodes = $xpath->query('sql:column|sql:field', $node);
 		foreach ($columnNodes as $columnNode)
 		{
