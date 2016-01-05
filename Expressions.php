@@ -17,7 +17,7 @@ use NoreSources as ns;
 class SQLIsNull extends ns\UnaryOperatorExpression
 {
 
-	public function __construct(Datasource $a_datasource, $a_bPositive = true)
+	public function __construct (Datasource $a_datasource, $a_bPositive = true)
 	{
 		$expValue = $a_datasource->createSQLNull();
 		if (!$a_bPositive)
@@ -34,12 +34,16 @@ class SQLIsNull extends ns\UnaryOperatorExpression
 /**
  * IN (value1, value2, .
  *
+ *
+ *
+ *
+ *
  * .) expression
  */
 class SQLIn extends ns\UnaryOperatorExpression
 {
 
-	public function __construct(Datasource $a_datasource, $a_value, $a_bPositive = true)
+	public function __construct (Datasource $a_datasource, $a_value, $a_bPositive = true)
 	{
 		if ($a_value instanceof SelectQuery)
 		{
@@ -82,17 +86,22 @@ class SQLIn extends ns\UnaryOperatorExpression
 class SQLSmartEquality extends ns\BinaryOperatorExpression
 {
 
-	public function __construct(ns\IExpression $a_column, $a_value, $a_bEqual = true)
+	public function __construct (ns\IExpression $a_column, $a_value, $a_bEqual = true)
 	{
 		$strOperator = '=';
 		
 		// force to construct a FormattedData object
-		if (!($a_value instanceof Data) && !($a_value instanceof SelectQuery) && !($a_value instanceof SQLFunction))
+		if (!(($a_value instanceof Data) || ($a_value instanceof SelectQuery) || ($a_value instanceof DataList) ||
+				 ($a_value instanceof SQLFunction)))
 		{
 			if ($a_column instanceof TableField)
 			{
 				$t = $a_column->type();
-				if (!is_null($t))
+				if (is_array($a_value))
+				{
+					$a_value = DataList::fromList($a_value, $a_column);
+				}
+				elseif (!is_null($t))
 				{
 					$data = $a_column->datasource->createData($t);
 					$data->import($a_value);
@@ -105,12 +114,14 @@ class SQLSmartEquality extends ns\BinaryOperatorExpression
 			}
 			else
 			{
-				ns\Reporter::addWarning($this, __METHOD__ . '(): Argument 1 is not a TableField and argument 2 is not a SQLValue. ' . 'The method will not be able to precisely determine data type.', __FILE__, __LINE__);
+				ns\Reporter::addWarning($this, 
+						__METHOD__ . '(): Argument 1 is not a TableField and argument 2 is not a SQLValue. ' .
+								 'The method will not be able to precisely determine data type.', __FILE__, __LINE__);
 				$a_value = bestEffortImport($a_value);
 			}
 		}
 		
-		if ($a_value instanceof SelectQuery)
+		if (($a_value instanceof SelectQuery) || ($a_value instanceof DataList))
 		{
 			if ($a_bEqual)
 			{
@@ -166,7 +177,7 @@ class SQLBetween extends ns\BinaryOperatorExpression
 	 * @param mixed $a_max
 	 *        	basic type Function or SQLValue
 	 */
-	public function __construct(ns\IExpression $a_leftExpression, $a_min, $a_max)
+	public function __construct (ns\IExpression $a_leftExpression, $a_min, $a_max)
 	{
 		parent::__construct('BETWEEN', $a_leftExpression);
 		$this->protect(false);
@@ -212,7 +223,7 @@ class SQLBetween extends ns\BinaryOperatorExpression
 class AutoInterval extends ns\BinaryOperatorExpression
 {
 
-	public function __construct(ns\IExpression $a_leftExpression, $a_min, $a_max)
+	public function __construct (ns\IExpression $a_leftExpression, $a_min, $a_max)
 	{
 		parent::__construct(($a_min && $a_max) ? 'BETWEEN' : (($a_min) ? '>= ' : '<='), $a_leftExpression);
 		$this->protect(false);
@@ -259,7 +270,7 @@ class AutoInterval extends ns\BinaryOperatorExpression
 		{
 			$this->rightExpression(new ns\BinaryOperatorExpression('AND', $a_min, $a_max));
 		}
-		else if ($a_min)
+		elseif ($a_min)
 		{
 			$this->rightExpression($a_min);
 		}
