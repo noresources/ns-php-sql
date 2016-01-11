@@ -119,8 +119,13 @@ abstract class Record implements \ArrayAccess
 	 *         - Record if $returnRecord is @c true and operation succeeded
 	 *         - @ca false otherwise
 	 */
-	public static function upsert(Table $table, $keyValues, $returnRecord = true)
+	public static function upsert(Table $table, $keyValues, $returnRecord = true, $className = null)
 	{
+		if (!(is_string($className) && class_exists($className)))
+		{
+			$className = static::getRecordClassName();
+		}
+		
 		$structure = $table->getStructure();
 		$primaryKevValues = array ();
 		foreach ($structure as $n => $c)
@@ -131,7 +136,7 @@ abstract class Record implements \ArrayAccess
 			}
 		}
 		
-		$record = get($table, $primaryKevValues, false, static::getRecordClassName());
+		$record = self::get($table, $primaryKevValues, false, static::getRecordClassName());
 		$result = false;
 		if ($record)
 		{
@@ -268,7 +273,9 @@ abstract class Record implements \ArrayAccess
 			
 			if (array_key_exists($n, $this->m_values) && ($autoIncrementColumn != $n))
 			{
-				$i->addFieldValue($n, $this->m_values [$n]);
+				$f = $this->m_table->fieldObject($n);
+				$d = $f->importData($this->m_values [$n]);
+				$i->addFieldValue($f, $d);
 			}
 		}
 		
