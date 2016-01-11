@@ -10,6 +10,7 @@
  * @package SQL
  */
 namespace NoreSources\SQL;
+
 use NoreSources as ns;
 
 /**
@@ -20,7 +21,8 @@ use NoreSources as ns;
  * @deprecated Now parts of Datasource interface
  */
 interface IDatabaseProvider
-{	
+{
+
 	/**
 	 * Provide a database object
 	 *
@@ -30,7 +32,7 @@ interface IDatabaseProvider
 	 * The method should construct a database object even if the given name
 	 * does not exists.
 	 *
-	 * @param string $a_name        	      	
+	 * @param string $a_name
 	 * @return Database
 	 */
 	function getDatabase($a_name);
@@ -45,7 +47,7 @@ interface IDatabaseProvider
 	/**
 	 * Check existence of a database name
 	 *
-	 * @param string $a_databaseName        	
+	 * @param string $a_databaseName
 	 * @return bool
 	 */
 	function databaseExists($a_databaseName);
@@ -57,26 +59,26 @@ interface IDatabaseProvider
 interface ITableProvider
 {
 
+	/**
+	 *
+	 * @return Datasource
+	 */
 	function getDatasource();
-	
+
 	/**
 	 * Create a Table
-	 * 
-	 * @param
-	 *        	$a_name
-	 * @param $a_alias Set
-	 *        	table alias
-	 * @param
-	 *        	$a_className
-	 * @param $a_useAliasAsName Create
-	 *        	a 'new' table name @param $a_alias using the same structure as @param $a_name
+	 *
+	 * @param $a_name
+	 * @param $a_alias Set table alias
+	 * @param $a_className
+	 * @param $a_useAliasAsName Create a 'new' table name @param $a_alias using the same structure as @param $a_name
 	 * @return Table
 	 */
 	function getTable($a_name, $a_alias = null, $a_className = null, $a_useAliasAsName = false);
 
 	/**
 	 * Get an iterator on all table names
-	 * 
+	 *
 	 * @return Iterator
 	 */
 	function tableIterator();
@@ -87,12 +89,10 @@ interface ITableProvider
 	 *        	Table name
 	 * @param integer $a_mode
 	 *        	Query mode
+	 *        
+	 * @return boolean
 	 */
 	function tableExists($a_name, $a_mode = kObjectQuerySchema);
-
-/**
- * @todo function onDtructureUpdate();
- */
 }
 
 /**

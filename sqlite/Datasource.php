@@ -362,12 +362,7 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 			return ns\Reporter::error($this, __METHOD__ . '(): Unable to connect to database ' . basename($fileName) . ': ' . $errorMessage, __FILE__, __LINE__);
 		}
 		
-		$fkState = 'ON';
-		if (array_key_exists(kConnectionParameterForeignKeySupport, $a_aParameters) && !$a_aParameters [kConnectionParameterForeignKeySupport])
-		{
-			$fkState = 'OFF';
-		}
-		
+		$fkState = ns\array_keyvalue($a_aParameters, kConnectionParameterForeignKeySupport, true) ? 'ON' : 'OFF';
 		$this->resultlessQuery('PRAGMA foreign_keys = ' . $fkState . ';');
 		
 		// Use attach rather than open

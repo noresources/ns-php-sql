@@ -182,7 +182,6 @@ abstract class StructureElement implements ArrayAccess, Iterator
 			}
 		}
 		
-		
 		$o->constructFromXmlNode($node);
 		
 		if (is_callable($postProcessElementCallback))
@@ -512,6 +511,20 @@ class TableStructure extends StructureElement
 			
 			$this->appendChild($fs);
 		}
+	}
+
+	public function getPrimaryKeyColumns()
+	{
+		$result = array ();
+		foreach ($this as $n => $c)
+		{
+			if ($c->getProperty(kStructurePrimaryKey))
+			{
+				$result [$n] = $c;
+			}
+		}
+		
+		return $result;
 	}
 }
 
