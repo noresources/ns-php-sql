@@ -10,7 +10,9 @@
  * @package SQL
  */
 namespace NoreSources\SQL;
+
 use NoreSources as ns;
+
 require_once ('base.php');
 require_once (NS_PHP_CORE_PATH . '/Expressions.php');
 require_once (NS_PHP_CORE_PATH . '/arrays.php');
@@ -24,28 +26,28 @@ use \DateTime;
  */
 abstract class Data implements ns\IExpression
 {
-
+	
 	/**
 	 * The data is valid and can be recorded to daatasource
 	 *
 	 * @var integer
 	 */
 	const kValid = 0x1;
-
+	
 	/**
 	 * The data accept NULL as a valid value
 	 *
 	 * @var integer
 	 */
 	const kAcceptNull = 0x2;
-
+	
 	/**
 	 * The data has a minimal value (number data)
 	 *
 	 * @var integer
 	 */
 	const kBoundaryMin = 0x4;
-
+	
 	/**
 	 * The data has a maximal value (number data)
 	 *
@@ -53,7 +55,7 @@ abstract class Data implements ns\IExpression
 	 */
 	const kBoundaryMax = 0x8;
 
-	protected function __construct ($type)
+	protected function __construct($type)
 	{
 		$this->m_type = $type;
 		$this->m_flags = 0;
@@ -62,11 +64,10 @@ abstract class Data implements ns\IExpression
 	/**
 	 * Read only access to some private members
 	 *
-	 * @param string $member
-	 *        	Member name (flags, type or value)
+	 * @param string $member Member name (flags, type or value)
 	 * @throws InvalidArgumentException
 	 */
-	public function __get ($member)
+	public function __get($member)
 	{
 		if ($member == 'flags')
 		{
@@ -91,18 +92,18 @@ abstract class Data implements ns\IExpression
 	/**
 	 * Load arbitrary data to be written in a SQL record
 	 *
-	 * @param mixed $value        	
+	 * @param mixed $value
 	 * @return <code>true</code> if the value can be imported
 	 */
-	abstract function import ($value);
+	abstract function import($value);
 
 	/**
 	 *
 	 * @return mixed The current value
 	 */
-	abstract function getValue ();
+	abstract function getValue();
 
-	protected function check ()
+	protected function check()
 	{
 		if (!($this->m_flags & self::kValid))
 		{
@@ -112,7 +113,7 @@ abstract class Data implements ns\IExpression
 		return true;
 	}
 
-	protected function importResult ($value)
+	protected function importResult($value)
 	{
 		if ($value)
 		{
@@ -126,7 +127,7 @@ abstract class Data implements ns\IExpression
 		return (($value) ? true : false);
 	}
 
-	protected function setFlags ($flags)
+	protected function setFlags($flags)
 	{
 		$this->m_flags = $flags;
 	}
@@ -144,24 +145,24 @@ abstract class Data implements ns\IExpression
 class NullData extends Data
 {
 
-	public function __construct (Datasource $datasource)
+	public function __construct(Datasource $datasource)
 	{
 		parent::__construct(kDataTypeNull);
 		$this->setFlags($this->flags | self::kValid);
 		$this->m_nullKeyword = $datasource->getDatasourceString(Datasource::kStringKeywordNull);
 	}
 
-	public function import ($data)
+	public function import($data)
 	{
 		return $this->importResult(true);
 	}
 
-	public function getValue ()
+	public function getValue()
 	{
 		return null;
 	}
 
-	public function expressionString ($options = null)
+	public function expressionString($options = null)
 	{
 		return $this->m_nullKeyword;
 	}
@@ -175,28 +176,27 @@ class NullData extends Data
 class BooleanData extends Data
 {
 
-	public function __construct (Datasource $datasource)
+	public function __construct(Datasource $datasource)
 	{
 		parent::__construct(kDataTypeBoolean);
 		$this->m_datasource = $datasource;
 	}
 
-	public function import ($data)
+	public function import($data)
 	{
 		$this->m_value = $data;
 		return $this->importResult(true);
 	}
 
-	public function getValue ()
+	public function getValue()
 	{
 		return $this->m_value;
 	}
 
-	public function expressionString ($options = null)
+	public function expressionString($options = null)
 	{
 		$this->check();
-		return $this->m_datasource->getDatasourceString(
-				(($this->m_value) ? Datasource::kStringKeywordTrue : Datasource::kStringKeywordFalse));
+		return $this->m_datasource->getDatasourceString((($this->m_value) ? Datasource::kStringKeywordTrue : Datasource::kStringKeywordFalse));
 	}
 
 	private $m_value;
@@ -207,25 +207,25 @@ class BooleanData extends Data
 class FormattedData extends Data
 {
 
-	public function __construct ($data = null)
+	public function __construct($data = null)
 	{
 		parent::__construct(kDataTypeString);
 		$this->m_value = $data;
 		$this->importResult(true);
 	}
 
-	public function import ($data)
+	public function import($data)
 	{
 		$this->m_value = $data;
 		return $this->importResult(true);
 	}
 
-	public function getValue ()
+	public function getValue()
 	{
 		return $this->m_value;
 	}
 
-	public function expressionString ($options = null)
+	public function expressionString($options = null)
 	{
 		return $this->m_value;
 	}
@@ -241,16 +241,16 @@ class StringData extends Data
 
 	/**
 	 *
-	 * @param Datasource $datasource        	
-	 * @param TableFieldStructure $structure        	
+	 * @param Datasource $datasource
+	 * @param TableFieldStructure $structure
 	 */
-	public function __construct (Datasource $datasource, /*TableFieldStructure*/ $structure)
+	public function __construct(Datasource $datasource, /*TableFieldStructure*/ $structure)
 	{
 		parent::__construct(kDataTypeString);
 		$this->m_datasource = $datasource;
 	}
 
-	public function __get ($member)
+	public function __get($member)
 	{
 		if ($member == 'datasource')
 		{
@@ -260,7 +260,7 @@ class StringData extends Data
 		return parent::__get($member);
 	}
 
-	public function import ($data)
+	public function import($data)
 	{
 		if (is_string($data))
 		{
@@ -271,7 +271,7 @@ class StringData extends Data
 		return $this->importResult(false);
 	}
 
-	public function expressionString ($options = null)
+	public function expressionString($options = null)
 	{
 		$this->check();
 		
@@ -288,7 +288,7 @@ class StringData extends Data
 		return protectString($this->getDatasourceStringExpression($this->getValue()));
 	}
 
-	public function getValue ()
+	public function getValue()
 	{
 		return $this->m_value;
 	}
@@ -297,7 +297,7 @@ class StringData extends Data
 	 *
 	 * @return The string value as it should appear in SQL statement
 	 */
-	protected function getDatasourceStringExpression ($value)
+	protected function getDatasourceStringExpression($value)
 	{
 		return $value;
 	}
@@ -336,10 +336,10 @@ class NumberData extends Data
 
 	/**
 	 *
-	 * @param Datasource $datasource        	
-	 * @param TableFieldStructure $structure        	
+	 * @param Datasource $datasource
+	 * @param TableFieldStructure $structure
 	 */
-	public function __construct (Datasource $datasource, /*TableFieldStructure*/ $structure)
+	public function __construct(Datasource $datasource, /*TableFieldStructure*/ $structure)
 	{
 		parent::__construct(kDataTypeNumber);
 		$this->m_value = null;
@@ -436,6 +436,7 @@ class TimestampData extends Data
 	public function __construct (Datasource $datasource, /*TableFieldStructure*/ $structure)
 	{
 		parent::__construct(kDataTypeTimestamp);
+		$this->m_datasource = $datasource;
 		$this->setFlags($this->flags | self::kValid);
 		$this->m_dateTime = new DateTime();
 	}
@@ -450,7 +451,7 @@ class TimestampData extends Data
 	 */
 	public function import ($data)
 	{
-		if ($data instanceof DateTime)
+		if (is_object($data) && ($data instanceof DateTime))
 		{
 			$this->m_dateTime = clone $data;
 		}
@@ -483,7 +484,7 @@ class TimestampData extends Data
 		{
 			return $this->importResult(false);
 		}
-		
+
 		return $this->importResult(true);
 	}
 
