@@ -258,6 +258,15 @@ const kConnectionParameterPersistent = 'sql.source.persistent';
  * @var bool
  */
 const kConnectionParameterReadOnly = 'sql.source.readonly';
+
+/**
+ * Set foreign key support
+ * 
+ * For SQLite. Default behavior is to enable foreign keys
+ * @var integer
+ */
+const kConnectionParameterForeignKeySupport = 'sql.source.foreignkey';
+
 /**
  * Create datasource if possible (for file-based datasource)
  * @var bool
