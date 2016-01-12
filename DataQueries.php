@@ -47,7 +47,7 @@ class InsertQuery extends TableQuery implements ns\IExpression
 		
 		$qs = 'INSERT INTO ' . $this->table->expressionString(kExpressionElementName);
 		
-		$qs .= '(' . ns\array_implode_keys(', ', $this->m_fieldValues);
+		$qs .= ' (' . ns\array_implode_keys(', ', $this->m_fieldValues);
 		$qs .= ') VALUES(' . ns\array_implode_values(', ', $this->m_fieldValues) . ')';
 		
 		return $qs;
