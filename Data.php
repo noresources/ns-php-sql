@@ -497,8 +497,7 @@ class TimestampData extends Data
 	{
 		$this->check();
 		$fmtString = $this->m_datasource->getDatasourceString(Datasource::kStringTimestampFormat);
-		$fmt = $this->m_datasource->getDatasourceString($fmtString);
-		return protectString($this->m_dateTime->format($fmt));
+		return protectString($this->m_dateTime->format($fmtString));
 	}
 
 	/**
