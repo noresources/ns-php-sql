@@ -184,7 +184,7 @@ abstract class Record implements \ArrayAccess
 			{
 				if (is_string($key) && $structure->offsetExists($key))
 				{
-					$this->m_values [$key] = $value;
+					$this->setValue($structure->offsetGet($key), $value);
 				}
 			}
 		}
@@ -194,7 +194,7 @@ abstract class Record implements \ArrayAccess
 			{
 				if ($structure->offsetExists($key))
 				{
-					$this->m_values [$key] = $value;
+					$this->setValue($structure->offsetGet($key), $value);
 				}
 			}
 		}
@@ -246,7 +246,9 @@ abstract class Record implements \ArrayAccess
 		$structure = $this->m_table->getStructure();
 		if ($structure->offsetExists($member))
 		{
-			$this->m_values [$member] = $value;
+			$c = $structure->offsetGet($member);
+			$this->setValue($c, $value);
+			
 			$this->m_flags |= kRecordModified;
 			return;
 		}
@@ -254,6 +256,11 @@ abstract class Record implements \ArrayAccess
 		throw new \InvalidArgumentException('Invalid member ' . $member);
 	}
 
+	public function toArray ()
+	{
+		return $this->m_values;
+	}
+	
 	/**
 	 *
 	 * @return boolean
@@ -268,10 +275,11 @@ abstract class Record implements \ArrayAccess
 		{
 			if ($c->getProperty(kStructureAutoincrement))
 			{
-				$autoIncrementColumn = $n;
+				$autoIncrementColumn = $c;
 			}
 			
-			if (array_key_exists($n, $this->m_values) && ($autoIncrementColumn != $n))
+			if (\array_key_exists($n, $this->m_values)
+				&& (is_null($autoIncrementColumn) || ($autoIncrementColumn->getName() != $n)))
 			{
 				$f = $this->m_table->fieldObject($n);
 				$d = $f->importData($this->m_values [$n]);
@@ -284,7 +292,7 @@ abstract class Record implements \ArrayAccess
 		{
 			if (!is_null($autoIncrementColumn))
 			{
-				$this->m_values [$autoIncrementColumn] = $result->lastInsertId();
+				$this->setValue($autoIncrementColumn, $result->lastInsertId());
 			}
 			
 			$this->m_flags |= kRecordExists;
@@ -380,11 +388,28 @@ abstract class Record implements \ArrayAccess
 		return false;
 	}
 
-	protected function getRecordClassName()
+	protected static function getRecordClassName()
 	{
 		return (__CLASS__);
 	}
 
+	private function setValue (TableFieldStructure $f, $value)
+	{
+		if (is_numeric($value) && ($f->getProperty(kStructureDatatype) == kDataTypeNumber))
+		{
+			if ($f->getProperty(kStructureDecimalCount) > 0)
+			{
+				$value = floatval ($value);
+			}
+			else
+			{
+				$value = intval($value);
+			}
+		}
+		
+		$this->m_values[$f->getName()] = $value;
+	}
+	
 	/**
 	 *
 	 * @var Table
