@@ -43,46 +43,57 @@ function sql_version_number()
  */
 
 /**
- * The name of the Datasource field type
+ * The type of Datasource column.
+ * Value type: integer
  */
-const kStructureDatatype = 'Datasourcetype';
+const kStructureDatatype = 'datasourcetype';
 /**
- * The field is part of a primary key
- * @var unknown
+ * The column is part of a primary key.
+ * Value type: boolean
  */
 const kStructurePrimaryKey = 'primary';
 /**
- * The field value is auto-incremented (integer field type)
+ * The column value is auto-incremented (integer column type only).
+ * Value type: boolean
  */
 const kStructureAutoincrement = 'auto';
+
 /**
- * The field is indexed
+ * The column is indexed.
+ * Value type: boolean
  */
 const kStructureIndexed = 'index';
 /**
- * The field accepts null values
+ * The column accepts null values.
+ * Value type: boolean
  */
 const kStructureAcceptNull = 'null';
 /**
- * Data size
+ * Data size. 
+ * Value type: integer
  */
 const kStructureDataSize = 'size';
+
 /**
- * Number of decimals (numeric field types)
+ * Number of decimals (numeric field types).
+ * Value type: integer
  */
 const kStructureDecimalCount = 'decimalsize';
+
 /**
- * List of valid values
+ * List of valid values.
+ * Value type: array
  */
 const kStructureEnumeration = 'valid_values';
 /**
- * Default value
+ * Default value.
+ * Value type: mixed
  */
 const kStructureDefaultValue = 'default_value';
 
 /**
- * The field accepts tuple values
- * @var unknown
+ * The column accepts tuple values.
+ * Value type: boolean
  */
 const kStructureAcceptMultipleValues = 'accept_multivalues';
 

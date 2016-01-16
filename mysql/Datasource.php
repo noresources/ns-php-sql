@@ -266,8 +266,6 @@ class MySQLDatasource extends Datasource implements ITransactionBlock
 			return ns\Reporter::error($this, __METHOD__ . '(): Missing parameters "host"', __FILE__, __LINE__);
 		}
 		
-		
-		
 		$host = $a_aParameters [kConnectionParameterHostname];
 		$user = ns\array_keyvalue($a_aParameters, kConnectionParameterUsername, null);
 		$pass = ns\array_keyvalue($a_aParameters, kConnectionParameterPassword, null);
