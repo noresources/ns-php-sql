@@ -120,12 +120,29 @@ abstract class StructureElement implements ArrayAccess, Iterator
 		return ns\Reporter::error(__CLASS__, __METHOD__ . ': Invalid call');
 	}
 
-	public static function createFromXmlFile($filename, $postProcessElementCallback = null)
+	/**
+	 *
+	 * @param unknown $filename XML SQL structure to load
+	 * @param unknown $postProcessElementCallback A delegate called for each node. The currently processed node
+	 * @param string $xincludeSupport Resolve XInclude instructions
+	 */
+	public static function createFromXmlFile($filename, $postProcessElementCallback = null, $xincludeSupport = true)
 	{
 		$doc = new \DOMDocument();
 		if (!$doc->load($filename))
 		{
 			return ns\Reporter::error(__CLASS__, __METHOD__ . ': failed to load structure', __FILE__, __LINE__);
+		}
+		
+		if ($xincludeSupport)
+		{
+			$xpath = new \DOMXPath($doc);
+			$xpath->registerNamespace('xinclude', 'http://www.w3.org/2001/XInclude');
+			$nodes = $xpath->query('//xinclude:include');
+			if ($nodes->length)
+			{
+				$doc->xinclude();
+			}
 		}
 		
 		$p = null;
@@ -635,14 +652,14 @@ class DatasourceStructure extends StructureElement
 	}
 
 	/**
-	 *
+	 * @deprecated use createFromXmlFile
 	 * @param string $a_filename XML SQL structure to load
 	 * @param mixed $postProcessElementCallback A delegate called for each node. The currently processed node
 	 *        is passed as the
 	 *        first argument
 	 * @return boolean
 	 */
-	public final function loadStructureFromXml($a_filename, $postProcessElementCallback = null)
+	public final function loadStructureFromXml($a_filename, $postProcessElementCallback = null, $xincludeSupport = true)
 	{
 		$this->clear();
 		
@@ -655,6 +672,17 @@ class DatasourceStructure extends StructureElement
 		if (!$doc->load($a_filename))
 		{
 			return ns\Reporter::error($this, __METHOD__ . ': failed to load structure', __FILE__, __LINE__);
+		}
+		
+		if ($xincludeSupport)
+		{
+			$xpath = new \DOMXPath($doc);
+			$xpath->registerNamespace('xinclude', 'http://www.w3.org/2001/XInclude');
+			$nodes = $xpath->query('//xinclude:include');
+			if ($nodes->length)
+			{
+				$doc->xinclude();
+			}
 		}
 		
 		$node = $doc->documentElement;
