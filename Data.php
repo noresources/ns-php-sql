@@ -107,7 +107,7 @@ abstract class Data implements ns\IExpression
 	{
 		if (!($this->m_flags & self::kValid))
 		{
-			throw new Exception('Invalid Data ' . var_export($this->value, true));
+			throw new Exception('Invalid Data ' . gettype($this->value) . ' for ' . get_class($this));
 		}
 		
 		return true;
@@ -214,18 +214,18 @@ class FormattedData extends Data
 		$this->importResult(true);
 	}
 
-	public function import($data)
+	public function import ($data)
 	{
 		$this->m_value = $data;
 		return $this->importResult(true);
 	}
 
-	public function getValue()
+	public function getValue ()
 	{
 		return $this->m_value;
 	}
 
-	public function expressionString($options = null)
+	public function expressionString ($options = null)
 	{
 		return $this->m_value;
 	}
@@ -241,16 +241,16 @@ class StringData extends Data
 
 	/**
 	 *
-	 * @param Datasource $datasource
-	 * @param TableFieldStructure $structure
+	 * @param Datasource $datasource        	
+	 * @param TableFieldStructure $structure        	
 	 */
-	public function __construct(Datasource $datasource, /*TableFieldStructure*/ $structure)
+	public function __construct (Datasource $datasource, /*TableFieldStructure*/ $structure)
 	{
 		parent::__construct(kDataTypeString);
 		$this->m_datasource = $datasource;
 	}
 
-	public function __get($member)
+	public function __get ($member)
 	{
 		if ($member == 'datasource')
 		{
@@ -260,18 +260,18 @@ class StringData extends Data
 		return parent::__get($member);
 	}
 
-	public function import($data)
+	public function import ($data)
 	{
-		if (is_string($data))
+		$this->m_value = $data;
+		if (is_string($data) || is_null($data))
 		{
-			$this->m_value = $data;
 			return $this->importResult(true);
 		}
 		
 		return $this->importResult(false);
 	}
 
-	public function expressionString($options = null)
+	public function expressionString ($options = null)
 	{
 		$this->check();
 		
@@ -288,7 +288,7 @@ class StringData extends Data
 		return protectString($this->getDatasourceStringExpression($this->getValue()));
 	}
 
-	public function getValue()
+	public function getValue ()
 	{
 		return $this->m_value;
 	}
@@ -297,7 +297,7 @@ class StringData extends Data
 	 *
 	 * @return The string value as it should appear in SQL statement
 	 */
-	protected function getDatasourceStringExpression($value)
+	protected function getDatasourceStringExpression ($value)
 	{
 		return $value;
 	}
@@ -336,10 +336,10 @@ class NumberData extends Data
 
 	/**
 	 *
-	 * @param Datasource $datasource
-	 * @param TableFieldStructure $structure
+	 * @param Datasource $datasource        	
+	 * @param TableFieldStructure $structure        	
 	 */
-	public function __construct(Datasource $datasource, /*TableFieldStructure*/ $structure)
+	public function __construct (Datasource $datasource, /*TableFieldStructure*/ $structure)
 	{
 		parent::__construct(kDataTypeNumber);
 		$this->m_value = null;
@@ -385,18 +385,10 @@ class NumberData extends Data
 
 	public function import ($data)
 	{
-		if (is_null($data))
+		if (is_null($data) || (is_string($data) && (strlen($data) == 0)))
 		{
-			if ($this->flags & self::kAcceptNull)
-			{
-				$this->m_value = $data;
-			}
-			else // convert to empty string
-			{
-				$this->m_value = '';
-			}
-			
-			return $this->importResult(true);
+			$this->m_value = null;
+			return $this->importResult(($this->flags & self::kAcceptNull) == self::kAcceptNull);
 		}
 		
 		if (is_bool($data))
@@ -484,7 +476,7 @@ class TimestampData extends Data
 		{
 			return $this->importResult(false);
 		}
-
+		
 		return $this->importResult(true);
 	}
 
@@ -563,13 +555,15 @@ class BinaryData extends Data
 
 class DataList implements ns\IExpression
 {
+
 	/**
-	 * @param array $list
-	 * @param TableField $column
+	 *
+	 * @param array $list        	
+	 * @param TableField $column        	
 	 */
 	public static function fromList ($list, TableField $column = null)
 	{
-		$o = new DataList;
+		$o = new DataList();
 		if (!ns\is_array($list))
 		{
 			return ns\Reporter::error(__CLASS__, __METHOD__ . ': Array expected');
@@ -579,7 +573,7 @@ class DataList implements ns\IExpression
 		{
 			if (!(is_object($element) && ($element instanceof Data)))
 			{
-				if (! (is_object($column) && ($column instanceof TableField)))
+				if (!(is_object($column) && ($column instanceof TableField)))
 				{
 					return ns\Reporter::fatalError(__CLASS__, __METHOD__ . ': TableField must be specified to import raw data');
 				}
@@ -592,27 +586,30 @@ class DataList implements ns\IExpression
 		
 		return $o;
 	}
-	
+
 	public function __construct ()
 	{
 		$this->m_values;
 	}
-	
+
 	public function addData ($data)
 	{
 		$this->m_values[] = $data;
 	}
-	
-	public function expressionString($options = null)
+
+	public function expressionString ($options = null)
 	{
-		$s = ns\array_implode_cb($this->m_values, ', ', array ($this, 'glueData'), $options);
+		$s = ns\array_implode_cb($this->m_values, ', ', array(
+				$this,
+				'glueData'
+		), $options);
 		return $s;
 	}
-	
+
 	public static function glueData ($k, $v, $options)
 	{
 		return $v->expressionString($options);
 	}
-	
+
 	private $m_values;
 }
