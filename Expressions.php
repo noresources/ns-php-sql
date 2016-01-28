@@ -9,6 +9,7 @@
  * @package SQL
  */
 namespace NoreSources\SQL;
+
 use NoreSources as ns;
 
 /**
@@ -17,9 +18,9 @@ use NoreSources as ns;
 class SQLIsNull extends ns\UnaryOperatorExpression
 {
 
-	public function __construct (Datasource $a_datasource, $a_bPositive = true)
+	public function __construct(Datasource $a_datasource, $a_bPositive = true)
 	{
-		$expValue = $a_datasource->createSQLNull();
+		$expValue = $a_datasource->createData(kDataTypeNull);
 		if (!$a_bPositive)
 		{
 			$expValue = new ns\UnaryOperatorExpression('NOT ', $expValue);
@@ -38,12 +39,13 @@ class SQLIsNull extends ns\UnaryOperatorExpression
  *
  *
  *
+ *
  * .) expression
  */
 class SQLIn extends ns\UnaryOperatorExpression
 {
 
-	public function __construct (Datasource $a_datasource, $a_value, $a_bPositive = true)
+	public function __construct(Datasource $a_datasource, $a_value, $a_bPositive = true)
 	{
 		if ($a_value instanceof SelectQuery)
 		{
@@ -136,16 +138,7 @@ class SQLSmartEquality extends ns\BinaryOperatorExpression
 		}
 		elseif ($a_value instanceof NullData)
 		{
-			if ($a_bEqual)
-			{
-				parent::__construct('IS', $a_column, $a_value);
-			}
-			else
-			{
-				$is = new SQLIsNull($a_column->datasource, $a_value, true);
-				parent::__construct('NOT', $a_column, $is);
-				$this->protect(false);
-			}
+			parent::__construct('IS' . ($a_bEqual ? '' : ' NOT'), $a_column, $a_value);
 		}
 		else
 		{

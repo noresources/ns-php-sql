@@ -262,13 +262,28 @@ class StringData extends Data
 
 	public function import ($data)
 	{
-		$this->m_value = $data;
+		$valid = false;
 		if (is_string($data) || is_null($data))
 		{
-			return $this->importResult(true);
+			$valid = true;
+		}
+		elseif (is_numeric($data))
+		{
+			$data = strval($data);
+			$valid = true;
+		}
+		elseif (is_object($data))
+		{
+			if ($data instanceof \DateTime)
+			{
+				$fmt = $this->datasource->getDatasourceString(Datasource::kStringTimestampFormat);
+				$data = $data->format($fmt);
+				$valid = true;
+			}
 		}
 		
-		return $this->importResult(false);
+		$this->m_value = $data;
+		return $this->importResult($valid);
 	}
 
 	public function expressionString ($options = null)
