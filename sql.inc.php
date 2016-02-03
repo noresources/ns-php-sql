@@ -18,7 +18,7 @@ if (!defined('NS_PHP_SQL_PATH'))
 	define('NS_PHP_SQL_PATH', realpath(__DIR__));
 }
 const SQL_VERSION_MAJOR = 0;
-const SQL_VERSION_MINOR = 1;
+const SQL_VERSION_MINOR = 2;
 const SQL_VERSION_PATCH = 0;
 
 /**
@@ -71,7 +71,8 @@ const kStructureIndexed = 'index';
  */
 const kStructureAcceptNull = 'null';
 /**
- * Data size. 
+ * Data size.
+ *
  * Value type: integer
  */
 const kStructureDataSize = 'size';
@@ -257,10 +258,18 @@ const kConnectionParameterHostname = 'sql.source.host';
  */
 const kConnectionParameterFilename = 'sql.source.file';
 /**
- * Database to connect to
+ * PostgresSQL: Postgres database to connect to
+ * SQLite: defines the name of the main SQLite database
+ * MySQL: If @c kConnectionParameterActiveTableSet is not set. Set the active MySQL database
  * @var string
  */
 const kConnectionParameterDatabasename = 'sql.source.database';
+
+/**
+ * Set the default/active table set of the ITableSetProvider
+ */
+const kConnectionParameterActiveTableSet = 'sql.source.tableset.default';
+
 /**
  * Use persistent connection
  * @var bool
@@ -274,7 +283,7 @@ const kConnectionParameterReadOnly = 'sql.source.readonly';
 
 /**
  * Set foreign key support
- * 
+ *
  * For SQLite. Default behavior is to enable foreign keys
  * @var integer
  */
@@ -286,7 +295,7 @@ const kConnectionParameterForeignKeySupport = 'sql.source.foreignkey';
  */
 const kConnectionParameterCreate = 'sql.source.create';
 /**
- * A XML structure file 
+ * A XML structure file
  * Used in Datasource::create()
  * @var string
  */
@@ -302,13 +311,13 @@ const kConnectionParameterStructureFile = 'sql.source.structure';
  * @defgroup cnxflags 'Datasource connection flags'
  * @{
  */
-
 const kConnectionPersistent = 0x01;
 
 /**
  * @}
  */
 // group 'cnxflags'
+
 
 /**
  * @defgroup Datasourcequeries 'Datasource elements queries'

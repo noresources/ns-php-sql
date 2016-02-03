@@ -238,10 +238,22 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 		if ($a_mode & kObjectQueryDatasource)
 		{
 			$a = $this->getDatabaseStructure($this, false);
-			return (($a instanceof DatabaseStructure) && $a->offsetExists($a_name) && ($a [$a_name] instanceof TableStructure));
+			$result = ($result && (($a instanceof DatabaseStructure) && $a->offsetExists($a_name) && ($a [$a_name] instanceof TableStructure)));
 		}
 		
 		return $result;
+	}
+	
+	// ITableSetProvider
+	
+	public function setActiveTableSet ($name)
+	{
+		if ($this->m_databaseName != $name)
+		{
+			return ns\Reporter::error ($this, __METHOD__ . ' Set active TableSet is not allowed', __FILE__, __LINE__);
+		}
+		
+		return true;
 	}
 	
 	// Datasource implementation
@@ -641,8 +653,9 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 	}
 	
 	// default behavior
-			// public abstract function getDatabaseIterator()
-			// public function databaseExists($a_strDatabaseName)
+	// public abstract function getDatabaseIterator()
+	// public function databaseExists($a_strDatabaseName)
+	
 	public function getDatabaseStructure(SQLObject $a_containerObject, $recursive = false)
 	{
 		$v = $this->createData(kDataTypeString);

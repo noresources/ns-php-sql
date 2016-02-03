@@ -46,7 +46,7 @@ interface ITransactionBlock
  *
  * Implements a default behavior to access tables
  */
-abstract class Datasource extends SQLObject implements IDatabaseProvider
+abstract class Datasource extends SQLObject implements ITableSetProvider
 {
 	
 	/**
@@ -229,7 +229,7 @@ abstract class Datasource extends SQLObject implements IDatabaseProvider
 		return parent::__get($member);
 	}
 	
-	// IDatabaseProvider
+	// ITableSetProvider
 	
 
 	/**

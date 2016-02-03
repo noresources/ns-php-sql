@@ -20,7 +20,7 @@ use NoreSources as ns;
  *
  * @deprecated Now parts of Datasource interface
  */
-interface IDatabaseProvider
+interface ITableSetProvider
 {
 
 	/**
@@ -51,6 +51,13 @@ interface IDatabaseProvider
 	 * @return bool
 	 */
 	function databaseExists($a_databaseName);
+
+	/**
+	 * Set the active/default table set
+	 * @param string $name
+	 * @return boolean
+	 */
+	function setActiveTableSet ($name);
 }
 
 /**

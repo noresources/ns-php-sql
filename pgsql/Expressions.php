@@ -19,7 +19,7 @@ class PostgreSQLStringData extends StringData
 
 	public function __construct(Datasource $datasource, TableFieldStructure $structure = null)
 	{
-		parent::__construct($a_datasource, $structure);
+		parent::__construct($datasource, $structure);
 	}
 
 	protected function getDatasourceStringExpression($value)

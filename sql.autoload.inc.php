@@ -217,7 +217,7 @@ function autoload_NTY3ZmVlMDM2Y2VlOA($className)
 	{
 		require_once(__DIR__ . '/pgsql/Expressions.php');
 	}
- 	elseif ($className == 'NoreSources\SQL\IDatabaseProvider')
+ 	elseif ($className == 'NoreSources\SQL\ITableSetProvider')
 	{
 		require_once(__DIR__ . '/Providers.php');
 	}

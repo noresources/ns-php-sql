@@ -24,6 +24,8 @@ require_once (NS_PHP_CORE_PATH . '/arrays.php');
  */
 class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransactionBlock
 {
+	const kDefaultTableSetName = 'public';
+	
 	// construction - destruction
 	/**
 	 *
@@ -32,7 +34,7 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 	public function __construct(DatasourceStructure $a_structure = null)
 	{
 		parent::__construct($a_structure);
-		$this->structureTableProviderDatabaseName = 'main';
+		$this->activeTableSetName = self::kDefaultTableSetName;
 		
 		$type = array (
 				'character varying',
@@ -115,11 +117,6 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 			pg_close($this->m_datasourceResource);
 		}
 	}
-
-	public function setStructureTableProviderDatabaseName($name)
-	{
-		$this->structureTableProviderDatabaseName = $name;
-	}
 	
 	// ITransactionBlock implementation
 	
@@ -159,6 +156,29 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 		 */
 	}
 	
+	// ITableSetProvider implementation
+	public function setActiveTableSet($name)
+	{
+		if ($name != $this->activeTableSetName)
+		{
+			$n = new PostgreSQLStringData($this);
+			$n->import($name);
+			$result = $this->executeQuery('SELECT count (*) FROM "pg_catalog"."pg_namespace" WHERE "nspname"=' . $n->expressionString());
+			if (($result instanceof Recordset) && ($result->rowCount()))
+			{
+				$c = $result->current();
+				if (intval($c[0]) == 0)
+				{
+					$this->executeQuery('CREATE SCHEMA ' . $n->expressionString());
+				}
+			}
+		}
+		
+		$this->activeTableSetName = $name;
+		
+		return true;
+	}
+	
 	// ITableProvider implementation
 	
 
@@ -168,20 +188,8 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 	 */
 	public function getTable($a_strName, $a_strAlias = null, $a_strClassName = null, $useAliasAsName = false)
 	{
-		$subStructure = null;
-		if ($this->structure)
-		{
-			// Use the 'main' database if exists
-		// This is a totally arbitrary decision and should be fixed
-			$subStructure = $this->structure->offsetGet($this->structureTableProviderDatabaseName);
-		}
-		
-		if ($subStructure)
-		{
-			$subStructure = $subStructure->offsetGet($a_strName);
-		}
-		
-		$res = tableProviderGenericTableObjectMethod($this, $subStructure, $a_strName, $a_strAlias, $a_strClassName, $useAliasAsName);
+		$schema = $this->getDatabase ($this->activeTableSetName);
+		$res = tableProviderGenericTableObjectMethod($schema, $schema->structure->offsetGet ($a_strName), $a_strName, $a_strAlias, $a_strClassName, $useAliasAsName);
 		return $res;
 	}
 
@@ -194,11 +202,7 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 		$subStructure = null;
 		if ($this->structure)
 		{
-			/*
-			 * Use the 'main' database if exists
-			 * This is a totally arbitrary decision and should be fixed
-			 */
-			return $this->structure->offsetGet($this->structureTableProviderDatabaseName);
+			return $this->structure->offsetGet($this->activeTableSetName);
 		}
 		
 		return null;
@@ -212,8 +216,18 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 			$result = false;
 			if ($this->structure)
 			{
-				$result = $this->structure->offsetExists($a_strName);
+				$schema = $this->structure->offsetGet($this->activeTableSetName);
+				if ($schema)
+				{
+					$result = $schema->offsetExists($a_strName);
+				}
 			}
+		}
+		
+		if ($a_mode & kObjectQueryDatasource)
+		{
+			$a = $this->getDatabaseStructure($this, false);
+			$result = ($result && (($a instanceof DatabaseStructure) && $a->offsetExists($a_strName) && ($a[$a_strName] instanceof TableStructure)));
 		}
 		
 		return $result;
@@ -226,12 +240,48 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 
 	public function getDatabaseStructure(SQLObject $a_containerObject, $recursive = false)
 	{
-		return Reporter::fatalError($this, __METHOD__ . ' not imp');
+		$schemaName = $this->activeTableSetName;
+		if (is_object($a_containerObject) && ($a_containerObject instanceof Database))
+		{
+			$schemaName = $a_containerObject->getName();
+		}
+		
+		$n = new PostgreSQLStringData($this);
+		$n->import($schemaName);
+		$s = 'SELECT table_name FROM "information_schema"."tables" where "table_schema"=' . $n->expressionString();
+		$s = new FormattedQuery($this, $s);
+		$records = $s->execute();
+		if (!(is_object($records) && ($records instanceof Recordset)))
+		{
+			return false;
+		}
+		
+		$structure = new DatabaseStructure($this->structure, $schemaName);
+		
+		foreach ($records as $row)
+		{
+			$ts = null;
+			if ($recursive)
+			{
+				$ts = $this->getTableStructure($this->getTable($row['table_name']));
+			}
+			else
+			{
+				$ts = new TableStructure($structure, $row['table_name']);
+			}
+			
+			if ($ts)
+			{
+				$structure->addTableStructure($ts);
+			}
+		}
+		
+		return $structure;
 	}
 
 	public function getTableStructure(Table $a_table)
 	{
-		return Reporter::fatalError($this, __METHOD__ . ' not imp');
+		return Reporter::fatalError($this, __METHOD__ . ' not imp', __FILE__, __LINE__);
 	}
 	
 	// Datasource implementation
@@ -240,31 +290,31 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 	/**
 	 * Connection
 	 *
-	 * @param array $a_aParameters parameters
+	 * @param array $parameters parameters
 	 * @return boolean
 	 */
-	public function connect($a_aParameters)
+	public function connect($parameters)
 	{
 		if ($this->resource())
 		{
 			$this->disconnect();
 		}
 		
-		if (!(array_key_exists(kConnectionParameterHostname, $a_aParameters) && array_key_exists(kConnectionParameterUsername, $a_aParameters)))
+		if (!(array_key_exists(kConnectionParameterHostname, $parameters) && array_key_exists(kConnectionParameterUsername, $parameters)))
 		{
 			return ns\Reporter::instance()->addError($this, __METHOD__ . "(): Parameters are missing. 'host', 'user', ['password' and 'Database'] must be provided.", __FILE__, __LINE__);
 		}
 		
-		$connectionString = "host = '" . $a_aParameters [kConnectionParameterHostname] . "'";
-		$connectionString .= " user = '" . $a_aParameters [kConnectionParameterUsername] . "'";
-		if (array_key_exists(kConnectionParameterPassword, $a_aParameters))
+		$connectionString = "host = '" . $parameters[kConnectionParameterHostname] . "'";
+		$connectionString .= " user = '" . $parameters[kConnectionParameterUsername] . "'";
+		if (array_key_exists(kConnectionParameterPassword, $parameters))
 		{
-			$connectionString .= " password = '" . $a_aParameters [kConnectionParameterPassword] . "'";
+			$connectionString .= " password = '" . $parameters[kConnectionParameterPassword] . "'";
 		}
 		
-		if (array_key_exists(kConnectionParameterDatabasename, $a_aParameters))
+		if (array_key_exists(kConnectionParameterDatabasename, $parameters))
 		{
-			$connectionString .= " dbname = '" . $a_aParameters [kConnectionParameterDatabasename] . "'";
+			$connectionString .= " dbname = '" . $parameters[kConnectionParameterDatabasename] . "'";
 		}
 		
 		if (function_exists("pg_connect"))
@@ -278,10 +328,13 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 		
 		if (!$this->m_datasourceResource)
 		{
-			return ns\Reporter::instance()->addError($this, __METHOD__ . "(): Unable to connect to Database " . $a_aParameters [kConnectionParameterHostname], __FILE__, __LINE__);
+			return ns\Reporter::instance()->addError($this, __METHOD__ . "(): Unable to connect to Database " . $parameters[kConnectionParameterHostname], __FILE__, __LINE__);
 		}
 		
-		$this->setStructureTableProviderDatabaseName(pg_dbname($this->m_datasourceResource));
+		if (array_key_exists(kConnectionParameterActiveTableSet, $parameters))
+		{
+			$this->setActiveTableSet($parameters[kConnectionParameterActiveTableSet]);
+		}
 		
 		return true;
 	}
@@ -300,14 +353,14 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 	{
 		if (array_key_exists($dataType, $this->m_dataTypeNames))
 		{
-			$a = $this->m_dataTypeNames [$dataType];
-			$sqlType = $a ['type'];
+			$a = $this->m_dataTypeNames[$dataType];
+			$sqlType = $a['type'];
 			$structure = guessStructureElement($sqlType);
 			
 			$d = null;
-			if ($a ['class'])
+			if ($a['class'])
 			{
-				$cls = $a ['class'];
+				$cls = $a['class'];
 				return (new $cls($this, $structure));
 			}
 		}
@@ -338,7 +391,7 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 		$result = @pg_query($this->resource(), $a_strQuery);
 		if ($result === false)
 		{
-			return ns\Reporter::instance()->addError($this, __METHOD__ . "(): Query error: " . $a_strQuery . " / " . pg_last_error($this->resource()));
+			return ns\Reporter::error($this, __METHOD__ . "(): Query error: " . $a_strQuery . " / " . pg_last_error($this->resource()), __FILE__, __LINE__);
 		}
 		
 		return $result;
@@ -364,7 +417,7 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 		}
 		
 		$firstRow = $queryRes->current();
-		return $firstRow [0];
+		return $firstRow[0];
 	}
 
 	/**
@@ -416,9 +469,9 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 	{
 		$res = array ();
 		$n = pg_num_fields($a_queryResult->resultResource);
-		for($i = 0; $i < $n; $i++)
+		for ($i = 0; $i < $n; $i++)
 		{
-			$res [] = pg_field_name($a_queryResult->resultResource, $i);
+			$res[] = pg_field_name($a_queryResult->resultResource, $i);
 		}
 		return $res;
 	}
@@ -461,5 +514,5 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 		return true;
 	}
 
-	protected $structureTableProviderDatabaseName;
+	protected $activeTableSetName;
 }

@@ -85,7 +85,7 @@ class MySQLTableManipulator extends TableManipulator
 			
 			if ($field->getProperty(FIELD_PRIMARYKEY))
 			{
-				$primaryKeyFields [] = $this->m_datasource->encloseElement($field->getName());
+				$primaryKeyFields[] = $this->m_datasource->encloseElement($field->getName());
 				;
 			}
 		}
@@ -109,7 +109,6 @@ class MySQLDatasource extends Datasource implements ITransactionBlock
 {
 	// construction - destruction
 	
-
 	/**
 	 * MySQL implementation using 'mysql' PHP extension
 	 *
@@ -234,9 +233,24 @@ class MySQLDatasource extends Datasource implements ITransactionBlock
 		$oQuery->execute();
 	}
 	
+	// ITableSetProvider
+	public function setActiveTableSet ($name)
+	{
+		$res = null;
+		if ($this->m_implementation == self::kMySQExtension_mysqli)
+		{
+			$res = $this->apiCall('select_db', $this->resource, $name);
+		}
+		elseif ($this->m_implementation == self::kMySQExtension_mysql)
+		{
+			$res = $this->apiCall('select_db', $name, $this->resource);
+		}
+		
+		return ($res != false);
+	}
+	
 	// Datasource implementation
 	
-
 	/**
 	 * Connection
 	 *
@@ -252,21 +266,15 @@ class MySQLDatasource extends Datasource implements ITransactionBlock
 		
 		if (!array_key_exists(kConnectionParameterPassword, $a_aParameters))
 		{
-			$a_aParameters [kConnectionParameterPassword] = '';
+			$a_aParameters[kConnectionParameterPassword] = '';
 		}
 		
-		if (!(array_key_exists(kConnectionParameterHostname, $a_aParameters) && array_key_exists(kConnectionParameterUsername, $a_aParameters)
-						/* already tested */
-						/* && array_key_exists(kConnectionParameterPassword, $a_aParameters) */
-						/* not required */
-						/* && array_key_exists(kConnectionParameterDatabasename, $a_aParameters) */
-				))
+		if (!(array_key_exists(kConnectionParameterHostname, $a_aParameters) && array_key_exists(kConnectionParameterUsername, $a_aParameters)))
 		{
-			
 			return ns\Reporter::error($this, __METHOD__ . '(): Missing parameters "host"', __FILE__, __LINE__);
 		}
 		
-		$host = $a_aParameters [kConnectionParameterHostname];
+		$host = $a_aParameters[kConnectionParameterHostname];
 		$user = ns\array_keyvalue($a_aParameters, kConnectionParameterUsername, null);
 		$pass = ns\array_keyvalue($a_aParameters, kConnectionParameterPassword, null);
 		
@@ -304,17 +312,22 @@ class MySQLDatasource extends Datasource implements ITransactionBlock
 			return ns\Reporter::error($this, __METHOD__ . '(): ' . $message, __FILE__, __LINE__);
 		}
 		
+		$activeTableSet = null;
+		
+		// Legacy behavior
 		if (array_key_exists(kConnectionParameterDatabasename, $a_aParameters))
 		{
-			$res = null;
-			if ($this->m_implementation == self::kMySQExtension_mysqli)
-			{
-				$res = $this->apiCall('select_db', $this->resource, $a_aParameters [kConnectionParameterDatabasename]);
-			}
-			elseif ($this->m_implementation == self::kMySQExtension_mysql)
-			{
-				$res = $this->apiCall('select_db', $a_aParameters [kConnectionParameterDatabasename], $this->resource);
-			}
+			$activeTableSet = $a_aParameters[kConnectionParameterDatabasename];
+		}
+		
+		if (array_key_exists(kConnectionParameterActiveTableSet, $a_aParameters))
+		{
+			$activeTableSet = $a_aParameters[kConnectionParameterActiveTableSet];
+		}
+		
+		if (is_string($activeTableSet))
+		{
+			$res = $this->setActiveTableSet($activeTableSet);
 			
 			if (!$res)
 			{
@@ -339,14 +352,14 @@ class MySQLDatasource extends Datasource implements ITransactionBlock
 	{
 		if (array_key_exists($dataType, $this->m_dataTypeNames))
 		{
-			$a = $this->m_dataTypeNames [$dataType];
-			$sqlType = $a ['type'];
+			$a = $this->m_dataTypeNames[$dataType];
+			$sqlType = $a['type'];
 			$structure = guessStructureElement($sqlType);
 			
 			$d = null;
-			if ($a ['class'])
+			if ($a['class'])
 			{
-				$cls = $a ['class'];
+				$cls = $a['class'];
 				return (new $cls($this, $structure));
 			}
 		}
@@ -456,9 +469,9 @@ class MySQLDatasource extends Datasource implements ITransactionBlock
 	{
 		$res = array ();
 		$n = $this->apiCall('num_fields', $a_queryResult->resultResource);
-		for($i = 0; $i < $n; $i++)
+		for ($i = 0; $i < $n; $i++)
 		{
-			$res [] = $this->apiCall('field_name', $a_queryResult->resultResource, $i);
+			$res[] = $this->apiCall('field_name', $a_queryResult->resultResource, $i);
 		}
 		return $res;
 	}
@@ -497,7 +510,7 @@ class MySQLDatasource extends Datasource implements ITransactionBlock
 		 */
 		if (!($a_containerObject instanceof Database))
 		{
-			return $mm->fatalError($this, __METHOD__ . '(): Database class required');
+			return ns\Reporter::fatalError($this, __METHOD__ . '(): Database class required');
 		}
 		
 		$query = new FormattedQuery($this, 'SHOW TABLES FROM ' . $a_containerObject->expressionString(kExpressionElementName));
