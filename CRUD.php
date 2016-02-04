@@ -6,8 +6,31 @@ use NoreSources\Reporter;
 use NoreSources as ns;
 
 require_once (NS_PHP_CORE_PATH . '/arrays.php');
-const kRecordModified = 0x1;
-const kRecordExists = 0x2;
+
+/**
+ * The record values differs from the entry stored in the datasource
+ * @var integer
+ */
+const kRecordStateModified = 0x01;
+
+/**
+ * A record with the same primary key values exists in the datasource
+ * @var integer
+ */
+const kRecordStateExists = 0x02;
+
+/**
+ * Return or affect multiple records
+ * @var integer
+ */
+const kRecordQueryMultiple = 0x04;
+
+/**
+ * When using getter methods,
+ * create a new record if none can be found
+ * @var integer
+ */
+const kRecordQueryCreate = 0x08;
 
 abstract class Record implements \ArrayAccess
 {
@@ -15,22 +38,29 @@ abstract class Record implements \ArrayAccess
 	/**
 	 *
 	 * @param Table $table Database table
-	 * @param mixed $keyValues Array of key-value pairs
+	 * @param mixed $filter Array of key-value pairs
 	 *        If @param $table contains a single-column primary key, a singie value is accepted
 	 *        as the value of the primary key column
-	 * @param boolean $multiple If @c true, always return result as an array of Record
+	 * @param $flags
 	 * @param mixed
+	 *        If @c kRecordQueryMultiple is not set
+	 *        - @c a Record if a single record is found
 	 *        - @c null if no record can be found with the given criteria
-	 *        - @c false if @param $multiple is @c false ans query returns more than one element
-	 *        - a @c Record if @param $multiple is @c false
-	 *        - an array of @c Record if @param $multiple is @c true
+	 *        - @c false if more than one record is found
+	 *        otherwise
+	 *        - an array of Record
 	 */
-	public static function get(Table $table, $keyValues, $multiple = false, $className = null)
+	public static function get(Table $table, $filter, $flags = 0x00, $className = null)
 	{
-		$structure = $table->getStructure();
-		if (!\is_array($keyValues))
+		if (!(is_string($className) && class_exists($className)))
 		{
-			if (!is_null($keyValues))
+			$className = get_called_class();
+		}
+		
+		$structure = $table->getStructure();
+		if (!\is_array($filter))
+		{
+			if (!is_null($filter))
 			{
 				$primaryKeyColumn = null;
 				foreach ($structure as $n => $c)
@@ -52,31 +82,29 @@ abstract class Record implements \ArrayAccess
 				if (!is_null($primaryKeyColumn))
 				{
 					return self::get($table, array (
-							$primaryKeyColumn => $keyValues 
-					), $multiple, $className);
+							$primaryKeyColumn => $filter 
+					), $flags, $className);
 				}
 			}
-			elseif (!$multiple)
+			elseif (!($flags & kRecordQueryMultiple))
 			{
-				return ns\Reporter::error(__CLASS__, __METHOD__ . ': $keyValues. Array expected');
+				return ns\Reporter::error(__CLASS__, __METHOD__ . ': $filter. Array expected');
 			}
 		}
-		
-		if (!(is_string($className) && class_exists($className)))
-		{
-			$className = static::getRecordClassName();
-		}
-		
+				
 		$s = new SelectQuery($table);
 		
-		if (\is_array($keyValues))
+		/**
+		 * @todo Accept IExpression or array of IExpression
+		 */
+		if (\is_array($filter))
 		{
 			foreach ($structure as $name => $column)
 			{
-				if (\array_key_exists($name, $keyValues))
+				if (\array_key_exists($name, $filter))
 				{
 					$f = $table->fieldObject($name);
-					$d = $f->importData($keyValues [$name]);
+					$d = $f->importData($filter[$name]);
 					$s->where->addAndExpression($f->equalityExpression($d));
 				}
 			}
@@ -85,12 +113,12 @@ abstract class Record implements \ArrayAccess
 		$recordset = $s->execute();
 		if (is_object($recordset) && ($recordset instanceof Recordset) && ($recordset->rowCount()))
 		{
-			if ($multiple)
+			if ($flags & kRecordQueryMultiple)
 			{
 				$result = array ();
 				foreach ($recordset as $record)
 				{
-					$result [] = new $className($table, $record, kRecordExists);
+					$result[] = new $className($table, $record, kRecordStateExists);
 				}
 				
 				return $result;
@@ -99,7 +127,7 @@ abstract class Record implements \ArrayAccess
 			{
 				if ($recordset->rowCount() == 1)
 				{
-					$result = new $className($table, $recordset, kRecordExists);
+					$result = new $className($table, $recordset, kRecordStateExists);
 					return $result;
 				}
 				
@@ -107,7 +135,7 @@ abstract class Record implements \ArrayAccess
 			}
 		}
 		
-		return null;
+		return (($flags & kRecordQueryMultiple) ? array () : null);
 	}
 
 	/**
@@ -123,7 +151,7 @@ abstract class Record implements \ArrayAccess
 	{
 		if (!(is_string($className) && class_exists($className)))
 		{
-			$className = static::getRecordClassName();
+			$className = get_called_class();
 		}
 		
 		$structure = $table->getStructure();
@@ -132,11 +160,11 @@ abstract class Record implements \ArrayAccess
 		{
 			if (array_key_exists($n, $keyValues))
 			{
-				$primaryKevValues [$n] = $keyValues [$n];
+				$primaryKevValues[$n] = $keyValues[$n];
 			}
 		}
 		
-		$record = self::get($table, $primaryKevValues, false, static::getRecordClassName());
+		$record = self::get($table, $primaryKevValues, 0x0, $className);
 		$result = false;
 		if ($record)
 		{
@@ -144,7 +172,7 @@ abstract class Record implements \ArrayAccess
 			{
 				if (array_key_exists($n, $keyValues))
 				{
-					$record->$n = $keyValues [$n];
+					$record->$n = $keyValues[$n];
 				}
 			}
 			
@@ -178,7 +206,7 @@ abstract class Record implements \ArrayAccess
 		
 		if (\is_object($values) && ($values instanceof Recordset))
 		{
-			$this->m_flags |= kRecordExists;
+			$this->m_flags |= kRecordStateExists;
 			$values = $values->current();
 			foreach ($values as $key => $value)
 			{
@@ -212,7 +240,7 @@ abstract class Record implements \ArrayAccess
 		{
 			if (array_key_exists($member, $this->m_values))
 			{
-				return $this->m_values [$member];
+				return $this->m_values[$member];
 			}
 			
 			return null;
@@ -228,8 +256,8 @@ abstract class Record implements \ArrayAccess
 
 	public function offsetUnset($offset)
 	{
-		unset($this->m_values [$offset]);
-		$this->m_flags |= kRecordModified;
+		unset($this->m_values[$offset]);
+		$this->m_flags |= kRecordStateModified;
 	}
 
 	public function __set($member, $value)
@@ -249,18 +277,18 @@ abstract class Record implements \ArrayAccess
 			$c = $structure->offsetGet($member);
 			$this->setValue($c, $value);
 			
-			$this->m_flags |= kRecordModified;
+			$this->m_flags |= kRecordStateModified;
 			return;
 		}
 		
 		throw new \InvalidArgumentException('Invalid member ' . $member);
 	}
 
-	public function toArray ()
+	public function toArray()
 	{
 		return $this->m_values;
 	}
-	
+
 	/**
 	 *
 	 * @return boolean
@@ -278,11 +306,10 @@ abstract class Record implements \ArrayAccess
 				$autoIncrementColumn = $c;
 			}
 			
-			if (\array_key_exists($n, $this->m_values)
-				&& (is_null($autoIncrementColumn) || ($autoIncrementColumn->getName() != $n)))
+			if (\array_key_exists($n, $this->m_values) && (is_null($autoIncrementColumn) || ($autoIncrementColumn->getName() != $n)))
 			{
 				$f = $this->m_table->fieldObject($n);
-				$d = $f->importData($this->m_values [$n]);
+				$d = $f->importData($this->m_values[$n]);
 				$i->addFieldValue($f, $d);
 			}
 		}
@@ -295,8 +322,8 @@ abstract class Record implements \ArrayAccess
 				$this->setValue($autoIncrementColumn, $result->lastInsertId());
 			}
 			
-			$this->m_flags |= kRecordExists;
-			$this->m_flags &= ~kRecordModified;
+			$this->m_flags |= kRecordStateExists;
+			$this->m_flags &= ~kRecordStateModified;
 			return true;
 		}
 		
@@ -309,7 +336,7 @@ abstract class Record implements \ArrayAccess
 	 */
 	public function update()
 	{
-		if (!($this->m_flags & kRecordExists))
+		if (!($this->m_flags & kRecordStateExists))
 		{
 			return $this->inserrt();
 		}
@@ -325,12 +352,12 @@ abstract class Record implements \ArrayAccess
 				if ($primary)
 				{
 					$f = $this->m_table->fieldObject($n);
-					$d = $f->importData($this->m_values [$n]);
+					$d = $f->importData($this->m_values[$n]);
 					$u->where->addAndExpression($f->equalityExpression($d));
 				}
 				else
 				{
-					$u->addFieldValue($c, $this->m_values [$n]);
+					$u->addFieldValue($c, $this->m_values[$n]);
 				}
 			}
 			elseif ($primary)
@@ -343,7 +370,7 @@ abstract class Record implements \ArrayAccess
 		
 		if (is_object($result) && ($result instanceof UpdateQueryResult))
 		{
-			$this->m_flags &= ~kRecordModified;
+			$this->m_flags &= ~kRecordStateModified;
 			return true;
 		}
 		
@@ -351,11 +378,10 @@ abstract class Record implements \ArrayAccess
 	}
 
 	/**
-	 *
-	 * @param boolean $multiple Accept to delete more than one record
-	 * @return boolean
+	 * @param integer $flags if kRecordQueryMultiple is set. The method may delete more than one record
+	 * @return Number of deleted records or @c false if an error occurs
 	 */
-	public function delete($multiple = false)
+	public function delete($flags = 0x00)
 	{
 		if (!$multiple)
 		{
@@ -373,7 +399,7 @@ abstract class Record implements \ArrayAccess
 			if (array_key_exists($n, $this->m_values))
 			{
 				$column = $this->m_table->fieldObject($n);
-				$data = $column->importData($this->m_values [$n]);
+				$data = $column->importData($this->m_values[$n]);
 				$d->where->addAndExpression($column->equalityExpression($data));
 			}
 		}
@@ -382,24 +408,20 @@ abstract class Record implements \ArrayAccess
 		$result = (is_object($result) && ($result instanceof DeleteQueryResult));
 		if ($result)
 		{
-			$this->m_flags &= ~kRecordExists;
+			$this->m_flags &= ~kRecordStateExists;
+			return $result->affectedRowCount();
 		}
 		
 		return false;
 	}
 
-	protected static function getRecordClassName()
-	{
-		return (__CLASS__);
-	}
-
-	private function setValue (TableFieldStructure $f, $value)
+	private function setValue(TableFieldStructure $f, $value)
 	{
 		if (is_numeric($value) && ($f->getProperty(kStructureDatatype) == kDataTypeNumber))
 		{
 			if ($f->getProperty(kStructureDecimalCount) > 0)
 			{
-				$value = floatval ($value);
+				$value = floatval($value);
 			}
 			else
 			{
@@ -409,7 +431,7 @@ abstract class Record implements \ArrayAccess
 		
 		$this->m_values[$f->getName()] = $value;
 	}
-	
+
 	/**
 	 *
 	 * @var Table
