@@ -130,7 +130,7 @@ interface ITableFieldProvider
 	 *        	$a_className
 	 * @return TableField
 	 */
-	function fieldObject($a_name, $a_alias = null, $a_className = null);
+	function getColumn($a_name, $a_alias = null, $a_className = null);
 
 	/**
 	 *
@@ -144,7 +144,7 @@ interface ITableFieldProvider
 	 *        	$a_name
 	 * @return bool
 	 */
-	function fieldExists($a_name);
+	function columnExists($a_name);
 }
 
 ?>

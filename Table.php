@@ -152,10 +152,10 @@ class Table extends SQLObject implements IExpression, IAliasedClone, ITableField
 
 	/**
 	 *
-	 * @see include/ns/php/lib/sources/sql/ITableFieldProvider#fieldObject($a_name, $a_aliasName, $a_className)
+	 * @see include/ns/php/lib/sources/sql/ITableFieldProvider#getColumn($a_name, $a_aliasName, $a_className)
 	 * @return TableField
 	 */
-	public function fieldObject($a_name, $a_aliasName = null, $a_className = null)
+	public function getColumn($a_name, $a_aliasName = null, $a_className = null)
 	{
 		if ($a_name == '*')
 		{
@@ -201,9 +201,9 @@ class Table extends SQLObject implements IExpression, IAliasedClone, ITableField
 
 	/**
 	 *
-	 * @see sources/sql/ITableFieldProvider#fieldExists($a_name)
+	 * @see sources/sql/ITableFieldProvider#columnExists($a_name)
 	 */
-	public function fieldExists($a_name)
+	public function columnExists($a_name)
 	{
 		if ($a_name == '*'){
 			return true;

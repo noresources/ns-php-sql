@@ -60,6 +60,11 @@ class ColumnFilter
 	 */
 	public $positive;
 
+	/**
+	 * @param string $o Operator
+	 * @param mixed $v Value
+	 * @param boolean $p
+	 */
 	public function __construct($o, $v, $p = true)
 	{
 		$this->positive = $p;
@@ -67,38 +72,47 @@ class ColumnFilter
 		$this->value = $v;
 	}
 
-	public function createExpression($className, TableField $f)
+	/**
+	 * @param string $className Record object classname
+	 * @param TableField $f
+	 */
+	public function toExpression($className, TableField $f)
 	{
-		switch ($this->operator)
+		return self::createExpression($className, $f, $this->operator, $this->value, $this->positive);
+	}
+
+	public function createExpression($className, TableField $f, $operator, $value, $positive = true)
+	{
+		switch ($operator)
 		{
 			case '=':
 			case 'in':
 				return new SQLSmartEquality($f, call_user_func(array (
 						$className,
 						'serializeValue' 
-				),$f->getName(), $this->value), !$this->positive);
+				), $f->getName(), $value), !$positive);
 				break;
 			case 'between':
-				if (!\is_array($this->value))
+				if (!\is_array($value))
 				{
 					break;
 				}
-				if (count($this->value) != 2)
+				if (count($value) != 2)
 				{
-					ns\Reporter::fatalError($this, __METHOD__ . ': Invalid between filter', __FILE__, __LINE__);
+					ns\Reporter::fatalError(__CLASS__, __METHOD__ . ': Invalid between filter', __FILE__, __LINE__);
 				}
 				
 				$min = call_user_func(array (
 						$className,
 						'unserializeValue' 
-				), $this->value[0]);
+				), $value[0]);
 				$max = call_user_func(array (
 						$className,
 						'unserializeValue' 
-				), $this->value[1]);
+				), $value[1]);
 				
 				$e = new SQLBetween($f, $a_min, $a_max);
-				if (!$this->positive)
+				if (!$positive)
 				{
 					$e = new SQLNot($between);
 				}
@@ -114,12 +128,18 @@ class ColumnFilter
 				$v = call_user_func(array (
 						$className,
 						'serializeValue' 
-				),$f->getName(), $this->value);
-				return new ns\BinaryOperatorExpression(strtoupper($this->operator), $f, $f->importData($v));
+				), $f->getName(), $value);
+				$e = new ns\BinaryOperatorExpression(strtoupper($operator), $f, $f->importData($v));
+				if (!$positive)
+				{
+					$e = new SQLNot($between);
+				}
+				
+				return $e;
 				break;
 		}
 		
-		return ns\Reporter::fatalError($this, __METHOD__ . ': Failed to create filter expression');
+		return ns\Reporter::fatalError(__CLASS__, __METHOD__ . ': Failed to create filter expression');
 	}
 }
 
@@ -195,11 +215,11 @@ class Record implements \ArrayAccess
 			{
 				if (\array_key_exists($name, $filter))
 				{
-					$f = $table->fieldObject($name);
+					$f = $table->getColumn($name);
 					$v = $filter[$name];
 					if ($v instanceof ColumnFilter)
 					{
-						$e = $v->createExpression($className, $f);
+						$e = $v->toExpression($f, $className);
 						$s->where->addAndExpression($e);
 					}
 					else
@@ -364,7 +384,7 @@ class Record implements \ArrayAccess
 			
 			if (\array_key_exists($n, $this->m_values) && (is_null($autoIncrementColumn) || ($autoIncrementColumn->getName() != $n)))
 			{
-				$f = $this->m_table->fieldObject($n);
+				$f = $this->m_table->getColumn($n);
 				$d = $f->importData(static::serializeValue($n, $this->m_values[$n]));
 				$i->addFieldValue($f, $d);
 			}
@@ -405,7 +425,7 @@ class Record implements \ArrayAccess
 			$primary = $c->getProperty(kStructurePrimaryKey);
 			if (array_key_exists($n, $this->m_values))
 			{
-				$f = $this->m_table->fieldObject($n);
+				$f = $this->m_table->getColumn($n);
 				$d = $f->importData(static::serializeValue($n, $this->m_values[$n]));
 				if ($primary)
 				{
@@ -463,7 +483,7 @@ class Record implements \ArrayAccess
 		{
 			if (array_key_exists($n, $this->m_values))
 			{
-				$column = $this->m_table->fieldObject($n);
+				$column = $this->m_table->getColumn($n);
 				$data = $column->importData(static::serializeValue($n, $this->m_values[$n]));
 				$d->where->addAndExpression($column->equalityExpression($data));
 			}

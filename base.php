@@ -79,7 +79,7 @@ function mixedToTableField($a_mixedValue, ITableFieldProvider $a_provider)
 	}
 	
 	$name = $a_mixedValue;
-	if (!($a_provider instanceof ITableFieldProvider) || !($a_mixedValue = $a_provider->fieldObject($a_mixedValue)))
+	if (!($a_provider instanceof ITableFieldProvider) || !($a_mixedValue = $a_provider->getColumn($a_mixedValue)))
 	{
 		$a_mixedValue = null;
 		ns\Reporter::error(null, __METHOD__ . '(' . $name . ',' . get_class($a_provider) . '): Unable to retrieve field', __FILE__, __LINE__);

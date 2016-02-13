@@ -998,7 +998,7 @@ class SelectQuery extends TableQuery implements ns\IExpression
 			}
 			elseif (is_string($c))
 			{
-				if (!($c = $this->table->fieldObject($c)))
+				if (!($c = $this->table->getColumn($c)))
 				{
 					return ns\Reporter::error($this, __METHOD__ . '(): Invalid field name', __FILE__, __LINE__);
 				}
