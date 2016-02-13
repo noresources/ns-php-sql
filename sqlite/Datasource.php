@@ -455,7 +455,7 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 				return ns\Reporter::error($this, __METHOD__ . '(): No Datasource');
 			}
 			
-			$result = $this->resource()->query($a_strQuery);
+			$result = @$this->resource()->query($a_strQuery);			
 		}
 		elseif ($this->m_implementation == self::kImplementationLegacy)
 		{
@@ -469,6 +469,15 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 		
 		if (!$result)
 		{
+			if ($this->m_implementation == self::kImplementationSQLite3)
+			{
+				$errorMessage = $this->resource()->lastErrorMsg();
+			}
+			elseif ($this->m_implementation == self::kImplementationLegacy)
+			{
+				$errorMessage = sqlite_error_string(sqlite_last_error($this->resource()));
+			}
+			
 			return ns\Reporter::error($this, __METHOD__ . '(): Query error: ' . $a_strQuery . ' / ' . $errorMessage);
 		}
 		
