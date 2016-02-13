@@ -74,7 +74,7 @@ function mixedToTableField($a_mixedValue, ITableFieldProvider $a_provider)
 	if (!is_string($a_mixedValue))
 	{
 		$a_mixedValue = null;
-		ns\Reporter::addError(null, __METHOD__ . '(): Invalid argument 1. string expected, got "' . gettype($a_mixedValue) . '"', __FILE__, __LINE__);
+		ns\Reporter::error(null, __METHOD__ . '(): Invalid argument 1. string expected, got "' . gettype($a_mixedValue) . '"', __FILE__, __LINE__);
 		return $a_mixedValue;
 	}
 	
@@ -82,7 +82,7 @@ function mixedToTableField($a_mixedValue, ITableFieldProvider $a_provider)
 	if (!($a_provider instanceof ITableFieldProvider) || !($a_mixedValue = $a_provider->fieldObject($a_mixedValue)))
 	{
 		$a_mixedValue = null;
-		ns\Reporter::addError(null, __METHOD__ . '(' . $name . ',' . get_class($a_provider) . '): Unable to retrieve field', __FILE__, __LINE__);
+		ns\Reporter::error(null, __METHOD__ . '(' . $name . ',' . get_class($a_provider) . '): Unable to retrieve field', __FILE__, __LINE__);
 	}
 	
 	return $a_mixedValue;
@@ -190,42 +190,11 @@ function parseDataTypeDefinition($definition, $typeUpperCase = false)
 	);
 }
 
-/**
- * Format field size declaration
- *
- * Assumes similar string for all Datasources
- *
- * @param ISQLDataType $a_datatype
- * @param TableFieldStructure $a_structure
- * @return string
- */
-function datatypeSizeString(ISQLDataType $a_datatype, TableFieldStructure $a_structure = null)
-{
-	$str = '';
-	
-	if ($a_datatype instanceof ISQLSizeableDecimalDataType)
-	{
-		$str .= '(';
-		$ts = $a_structure->getProperty(kStructureDataSize);
-		$ds = $a_structure->getProperty(kStructureDecimalCount);
-		$str .= $ts . ',' . $ds;
-		$str .= ')';
-	}
-	if ($a_datatype instanceof ISQLSizeableDataType)
-	{
-		$str .= '(';
-		$str .= ns\array_keyvalue($a_propertes, kStructureDataSize, $a_datatype->maxSize(), false);
-		$str .= ')';
-	}
-	
-	return $str;
-}
-
 function glueElementDeclarations($k, $element)
 {
 	if (!($element instanceof ns\IExpression))
 	{
-		ns\Reporter::addError($element, 'glueElementDeclaration(): Invalid ns\IExpression');
+		ns\Reporter::error($element, 'glueElementDeclaration(): Invalid ns\IExpression');
 	}
 	
 	return $element->expressionString(kExpressionElementDeclaration);
@@ -235,7 +204,7 @@ function glueElementAliases($k, $element)
 {
 	if (!($element instanceof ns\IExpression))
 	{
-		ns\Reporter::addError($element, 'glueElementDeclaration(): Invalid ns\IExpression');
+		ns\Reporter::error($element, 'glueElementDeclaration(): Invalid ns\IExpression');
 	}
 	
 	return $element->expressionString(kExpressionElementAlias);

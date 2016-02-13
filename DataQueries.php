@@ -181,6 +181,8 @@ class UpdateQuery extends TableQuery implements ns\IExpression
 		$f = $this->datasource->encloseElement($a_field->name);
 		
 		$this->m_fieldValues[$f] = $a_value->expressionString();
+		
+		return true;
 	}
 
 	/**

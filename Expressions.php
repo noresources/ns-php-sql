@@ -175,22 +175,15 @@ class SQLBetween extends ns\BinaryOperatorExpression
 		parent::__construct('BETWEEN', $a_leftExpression);
 		$this->protect(false);
 		
-		$t = null;
-		if ($a_leftExpression instanceof TableField)
-		{
-			$t = $a_leftExpression->type();
-		}
-		
 		if (!($a_min instanceof ns\IExpression))
 		{
-			if (is_object($t) && $t instanceof ISQLDataType)
+			if (is_object($t) && $t instanceof TableField)
 			{
-				$a_min = createValue($t, $a_min, $a_leftExpression->datasource);
+				$a_min = $a_leftExpression->importData($a_min);
 			}
 			else
 			{
-				var_dump($t);
-				ns\Reporter::fatalError($this, 'Invalid min expression (' . var_export($a_min, true) . ')', __FILE__, __LINE__);
+				ns\Reporter::fatalError($this, __METHOD__ . ': Unable to create MIN expression', __FILE__, __LINE__);
 			}
 		}
 		
@@ -198,11 +191,11 @@ class SQLBetween extends ns\BinaryOperatorExpression
 		{
 			if ($t)
 			{
-				$a_max = createValue($t, $a_max, $a_leftExpression->datasource);
+				$a_max = $a_leftExpression->importData($a_max);
 			}
 			else
 			{
-				ns\Reporter::fatalError($this, 'Invalid max expression', __FILE__, __LINE__);
+				ns\Reporter::fatalError($this, __METHOD__ . ': Unable to create MAX expression', __FILE__, __LINE__);
 			}
 		}
 		
