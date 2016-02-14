@@ -61,6 +61,7 @@ class ColumnFilter
 	public $positive;
 
 	/**
+	 *
 	 * @param string $o Operator
 	 * @param mixed $v Value
 	 * @param boolean $p
@@ -73,6 +74,7 @@ class ColumnFilter
 	}
 
 	/**
+	 *
 	 * @param string $className Record object classname
 	 * @param TableField $f
 	 */
@@ -90,7 +92,7 @@ class ColumnFilter
 				return new SQLSmartEquality($f, call_user_func(array (
 						$className,
 						'serializeValue' 
-				), $f->getName(), $value), !$positive);
+				), $f->getName(), $value), $positive);
 				break;
 			case 'between':
 				if (!\is_array($value))
@@ -295,11 +297,6 @@ class Record implements \ArrayAccess
 		}
 	}
 
-	public function __get($member)
-	{
-		return $this->offsetGet($member);
-	}
-
 	public function offsetGet($member)
 	{
 		$structure = $this->m_table->getStructure();
@@ -346,6 +343,11 @@ class Record implements \ArrayAccess
 		throw new \InvalidArgumentException('Invalid member ' . $member);
 	}
 
+	public function __get($member)
+	{
+		return $this->offsetGet($member);
+	}
+	
 	/**
 	 * Set a column value
 	 * @param string $member
@@ -468,10 +470,10 @@ class Record implements \ArrayAccess
 	 */
 	public function delete($flags = 0x00)
 	{
-		if (!$multiple)
+		if (!($flags & kRecordQueryMultiple))
 		{
-			$record = static::get($table, $this->m_values, true);
-			if (count($record) > 0)
+			$record = self::get($this->m_table, $this->getKey(), kRecordQueryMultiple, get_called_class());
+			if (count($record) > 1)
 			{
 				return ns\Reporter::error($this, __METHOD__ . ': Multiple record deletion');
 			}
@@ -490,8 +492,7 @@ class Record implements \ArrayAccess
 		}
 		
 		$result = $d->execute();
-		$result = (is_object($result) && ($result instanceof DeleteQueryResult));
-		if ($result)
+		if (is_object($result) && ($result instanceof DeleteQueryResult))
 		{
 			$this->m_flags &= ~kRecordStateExists;
 			return $result->affectedRowCount();
@@ -509,6 +510,29 @@ class Record implements \ArrayAccess
 		return $this->m_table;
 	}
 
+	public function getKey ($glue = null)
+	{
+		$key = array ();
+		foreach ($this->m_table->getStructure() as $n => $c)
+		{
+			if ($c->getProperty (kStructurePrimaryKey))
+			{
+				if (!array_key_exists($n, $this->m_values)){
+					return ns\Reporter::fatalError($this, __METHOD__ . ': Incomplete key');
+				}
+				
+				$key[$n] = $this->m_values[$n];
+			}
+		}
+		
+		if (is_string($glue))
+		{
+			$key = implode($glue, $key);
+		}
+		
+		return $key;
+	}
+	
 	public static function serializeValue($column, $value)
 	{
 		return $value;
@@ -519,6 +543,28 @@ class Record implements \ArrayAccess
 		return $value;
 	}
 
+	public static function recordsetToArray (Recordset $records)
+	{
+		$result = array ();
+		foreach ($records as $record)
+		{
+			$table = array ();
+			foreach ($record as $column => $value)
+			{
+				if (is_numeric($column))
+				{
+					continue;
+				}
+		
+				$table[$column] = static::unserializeValue($column, $value);
+			}
+				
+			$result[] = $table;
+		}
+		
+		return $result;
+	}
+	
 	private function setValue(TableFieldStructure $f, $value, $unserialize = false)
 	{
 		if ($unserialize)
