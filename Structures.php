@@ -337,7 +337,6 @@ abstract class StructureElement implements \ArrayAccess, \IteratorAggregate, \Co
 		}
 		
 		$this->m_index = array_merge($this->m_index, $a_child->m_index);
-		
 		$a_child->m_version = null;
 		$a_child->m_index = null;
 		

@@ -1,5 +1,5 @@
 <?php
-function autoload_NTZiZjUwODRiMjRkYg($className)
+function autoload_NTZjMGM0YTg5NWQ4Yg($className)
 {
 	if ($className == 'NoreSources\SQL\Database')
 	{
@@ -249,6 +249,14 @@ function autoload_NTZiZjUwODRiMjRkYg($className)
 	{
 		require_once(__DIR__ . '/Datasource.php');
 	}
+ 	elseif ($className == 'NoreSources\SQL\ColumnFilter')
+	{
+		require_once(__DIR__ . '/Record.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\Record')
+	{
+		require_once(__DIR__ . '/Record.php');
+	}
  	elseif ($className == 'NoreSources\SQL\DropTableQuery')
 	{
 		require_once(__DIR__ . '/StructureQueries.php');
@@ -337,14 +345,6 @@ function autoload_NTZiZjUwODRiMjRkYg($className)
 	{
 		require_once(__DIR__ . '/QueryBase.php');
 	}
- 	elseif ($className == 'NoreSources\SQL\ColumnFilter')
-	{
-		require_once(__DIR__ . '/CRUD.php');
-	}
- 	elseif ($className == 'NoreSources\SQL\Record')
-	{
-		require_once(__DIR__ . '/CRUD.php');
-	}
  	elseif ($className == 'NoreSources\SQL\ITableSetProvider')
 	{
 		require_once(__DIR__ . '/Providers.php');
@@ -362,4 +362,4 @@ function autoload_NTZiZjUwODRiMjRkYg($className)
 		require_once(__DIR__ . '/Manipulators.php');
 	}
  }
-spl_autoload_register('autoload_NTZiZjUwODRiMjRkYg');
+spl_autoload_register('autoload_NTZjMGM0YTg5NWQ4Yg');
