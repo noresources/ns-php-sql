@@ -58,6 +58,8 @@ const kStructurePrimaryKey = 'primary';
  */
 const kStructureAutoincrement = 'auto';
 
+const kStructureForeignKey = 'foreign';
+
 /**
  * The column is indexed.
  * Value type: boolean

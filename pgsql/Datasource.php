@@ -334,12 +334,7 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 	 * @return QueryResult
 	 */
 	public function executeQuery($a_strQuery)
-	{
-		if ($DEBUG_SQL)
-		{
-			ns\Reporter::instance()->addDebug($this, $a_strQuery);
-		}
-		
+	{		
 		$result = @pg_query($this->resource(), $a_strQuery);
 		if ($result === false)
 		{

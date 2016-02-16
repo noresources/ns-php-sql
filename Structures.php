@@ -12,8 +12,6 @@
 namespace NoreSources\SQL;
 
 use NoreSources as ns;
-use \ArrayAccess, Iterator;
-use NoreSources\DOM\Element;
 
 require_once (NS_PHP_PATH . '/core/strings.php');
 require_once (NS_PHP_PATH . '/core/arrays.php');
@@ -33,10 +31,15 @@ class StructureVersion
 		if (is_string($version))
 		{
 			$this->m_versionArray = explode('.', $version);
+			while (count($this->m_versionArray) < 3)
+			{
+				$this->m_versionArray[] = '0';
+			}
 		}
 		else
 		{
 			$this->m_versionArray = array (
+					0,
 					0,
 					0 
 			);
@@ -52,15 +55,15 @@ class StructureVersion
 	{
 		if ($member == 'major')
 		{
-			return array_key_exists(0, $this->m_versionArray) ? $this->m_versionArray [0] : 0;
+			return array_key_exists(0, $this->m_versionArray) ? $this->m_versionArray[0] : 0;
 		}
 		elseif ($member == 'minor')
 		{
-			return \array_key_exists(1, $this->m_versionArray) ? $this->m_versionArray [1] : 0;
+			return \array_key_exists(1, $this->m_versionArray) ? $this->m_versionArray[1] : 0;
 		}
 		elseif ($member == 'patch')
 		{
-			return \array_key_exists(2, $this->m_versionArray) ? $this->m_versionArray [2] : 0;
+			return \array_key_exists(2, $this->m_versionArray) ? $this->m_versionArray[2] : 0;
 		}
 		elseif ($member == 'version' || $member == 'versionString')
 		{
@@ -98,7 +101,7 @@ class StructureVersion
 	private $m_versionArray;
 }
 
-abstract class StructureElement implements ArrayAccess, Iterator
+abstract class StructureElement implements \ArrayAccess, \Iterator, \Countable
 {
 	/**
 	 *
@@ -106,7 +109,7 @@ abstract class StructureElement implements ArrayAccess, Iterator
 	 */
 	const XMLNAMESPACE = 'http://xsd.nore.fr/sql';
 
-	public static function create($input, StructureElement $parent, $postProcessElementCallback = null)
+	public static function create($input, StructureElement $parent = null, $postProcessElementCallback = null)
 	{
 		if (is_string($input) && is_file($input))
 		{
@@ -191,15 +194,26 @@ abstract class StructureElement implements ArrayAccess, Iterator
 		
 		if (is_null($parent))
 		{
-			$versionNS = ($node->hasAttribute('version')) ? $node->getAttributeNS(self::XMLNAMESPACE, 'version') : null;
-			if ($versionNS)
+			if ($node->hasAttribute('version'))
 			{
-				$version = $node->getAttribute('version');
-				$o->m_version = new StructureVersion($version);
+				$o->m_version = new StructureVersion($node->getAttribute('version'));
 			}
 		}
 		
+		$id = $node->hasAttribute('id') ? $node->getAttribute('id') : null;
+		if (!$id)
+		{
+			$id = $node->hasAttributeNS(self::XMLNAMESPACE, 'id') ? $node->getAttributeNS(self::XMLNAMESPACE, 'id') : null;
+		}
+		
+		$o->setIndex($id, $o);
+		
 		$o->constructFromXmlNode($node);
+		
+		if ($parent == null)
+		{
+			$o->postprocess();
+		}
 		
 		if (is_callable($postProcessElementCallback))
 		{
@@ -221,10 +235,17 @@ abstract class StructureElement implements ArrayAccess, Iterator
 		$this->m_name = $a_name;
 		$this->m_parent = $a_parent;
 		
+		$this->m_version = null;
 		$this->m_children = array ();
 		$this->m_iteratorCurrent = null;
+		$this->m_index = array ();
 	}
 	
+	// Countable
+	public function count()
+	{
+		return count($this->m_children);
+	}
 	// ArrayAccess
 	public function offsetExists($a_key)
 	{
@@ -255,7 +276,7 @@ abstract class StructureElement implements ArrayAccess, Iterator
 	// Iterator
 	public function current()
 	{
-		return $this->m_iteratorCurrent [1];
+		return $this->m_iteratorCurrent[1];
 	}
 
 	public function next()
@@ -268,7 +289,7 @@ abstract class StructureElement implements ArrayAccess, Iterator
 
 	public function key()
 	{
-		return $this->m_iteratorCurrent [0];
+		return $this->m_iteratorCurrent[0];
 	}
 
 	public function valid()
@@ -327,7 +348,17 @@ abstract class StructureElement implements ArrayAccess, Iterator
 	{
 		$parent = $this->parent();
 		$key = $a_child->elementKey();
-		$this->m_children [$key] = $a_child;
+		$this->m_children[$key] = $a_child;
+		if (!($this->m_version instanceof StructureVersion))
+		{
+			$this->m_version = $a_child->m_version;
+		}
+		
+		$this->m_index = array_merge($this->m_index, $a_child->m_index);
+		
+		$a_child->m_version = null;
+		$a_child->m_index = null;
+		
 		return $a_child;
 	}
 
@@ -366,6 +397,38 @@ abstract class StructureElement implements ArrayAccess, Iterator
 		return $this->m_version;
 	}
 
+	public function setIndex($name, $object)
+	{
+		if ($this->parent())
+		{
+			$this->parent()->setIndex($name, $object);
+			return;
+		}
+		
+		$this->m_index[$name] = $object;
+	}
+
+	public function getStructureElementIndex()
+	{
+		if ($this->parent())
+		{
+			return $this->parent()->getStructureElementIndex();
+		}
+		
+		return $this->m_index;
+	}
+
+	/**
+	 * Post process construction
+	 */
+	protected function postprocess()
+	{
+		foreach ($this->m_children as $n => $e)
+		{
+			$e->postprocess();
+		}
+	}
+
 	private $m_iteratorCurrent;
 
 	/**
@@ -391,6 +454,12 @@ abstract class StructureElement implements ArrayAccess, Iterator
 	 * @var StructureVersion
 	 */
 	private $m_version;
+
+	/**
+	 *
+	 * @var array
+	 */
+	private $m_index;
 }
 
 /**
@@ -411,7 +480,8 @@ class TableFieldStructure extends StructureElement
 				kStructureIndexed => false,
 				kStructureDatatype => kDataTypeString,
 				kStructureEnumeration => null,
-				kStructureValidatorClassname => null 
+				kStructureValidatorClassname => null,
+				kStructureForeignKey => null 
 		);
 	}
 
@@ -426,14 +496,14 @@ class TableFieldStructure extends StructureElement
 
 	public function getProperty($a_strName)
 	{
-		return $this->m_fieldProperties [$a_strName];
+		return $this->m_fieldProperties[$a_strName];
 	}
 
 	public function setProperty($a_strName, $a_value)
 	{
 		if (array_key_exists($a_strName, $this->m_fieldProperties))
 		{
-			$this->m_fieldProperties [$a_strName] = $a_value;
+			$this->m_fieldProperties[$a_strName] = $a_value;
 		}
 	}
 
@@ -486,6 +556,51 @@ class TableFieldStructure extends StructureElement
 		}
 	}
 
+	protected function postprocess()
+	{
+		$fk = $this->getProperty(kStructureForeignKey);
+		if ($fk)
+		{
+			$tr = $fk['tableReference'];
+			$table = null;
+			if (array_key_exists('id', $tr))
+			{
+				$idx = $this->getStructureElementIndex();
+				if (array_key_exists($tr['id'], $idx))
+				{
+					$table = $idx[$tr['id']];
+				}
+			}
+			elseif (array_key_exists('name', $tr))
+			{
+				if ($p = $this->parent())
+				{
+					// parent table
+					if ($p = $p->parent())
+					{
+						// parent db
+						$table = $p->offsetGet($tr['name']);
+					}
+				}
+			}
+			
+			if ($table)
+			{
+				$fk['column'] = $table->offsetGet($fk['columnName']);
+				$fk['table'] = $table;
+			}
+			else
+			{
+				$fk = null;
+				ns\Reporter::error($this, __METHOD__ . ': Failed to find table for foreign key on ' . $fk['columnName']);
+			}
+			
+			$this->setProperty(kStructureForeignKey, $fk);
+		}
+		
+		parent::postprocess();
+	}
+
 	private $m_fieldProperties;
 }
 
@@ -520,13 +635,36 @@ class TableStructure extends StructureElement
 			
 			foreach ($primaryKeyColumnNodes as $primaryKeyColumnNode)
 			{
-				if ($primaryKeyColumnNode->getAttribute("name") == $fs->getName())
+				if ($primaryKeyColumnNode->getAttribute('name') == $fs->getName())
 				{
 					$fs->setProperty(kStructurePrimaryKey, true);
 				}
 			}
 			
 			$this->appendChild($fs);
+		}
+		
+		$foreignKeyNodes = $xpath->query('sql:foreignkey', $node);
+		foreach ($foreignKeyNodes as $foreignKey)
+		{
+			$columnNode = $foreignKey->getElementsByTagNameNS(self::XMLNAMESPACE, 'column')->item(0);
+			$columnName = $columnNode->getAttribute('name');
+			$column = $this->offsetGet($columnName);
+			
+			$referenceNode = $foreignKey->getElementsByTagNameNS(self::XMLNAMESPACE, 'reference')->item(0);
+			$referenceColumnNode = $referenceNode->getElementsByTagNameNS(self::XMLNAMESPACE, 'column')->item(0);
+			$referenceTableNode = $referenceNode->getElementsByTagNameNS(self::XMLNAMESPACE, 'tableref')->item(0);
+			
+			$property = array (
+					'columnName' => $referenceColumnNode->getAttribute('name'),
+					'tableReference' => ($referenceTableNode->hasAttribute('id') ? array (
+							'id' => $referenceTableNode->getAttribute('id') 
+					) : array (
+							'name' => $referenceTableNode->getAttribute('name') 
+					)) 
+			);
+			
+			$column->setProperty(kStructureForeignKey, $property);
 		}
 	}
 
@@ -537,7 +675,7 @@ class TableStructure extends StructureElement
 		{
 			if ($c->getProperty(kStructurePrimaryKey))
 			{
-				$result [$n] = $c;
+				$result[$n] = $c;
 			}
 		}
 		
@@ -589,17 +727,6 @@ class DatasourceStructure extends StructureElement
 	{
 		parent::__construct($a_name);
 		$this->m_flags = $flags;
-		$this->m_version = new StructureVersion('0.0.0');
-	}
-
-	/**
-	 *
-	 * @see \NoreSources\SQL\StructureElement::getStructureVersion()
-	 * @return StructureVersion
-	 */
-	public function getStructureVersion()
-	{
-		return $this->m_version;
 	}
 
 	/**
@@ -651,180 +778,6 @@ class DatasourceStructure extends StructureElement
 		return kDataTypeBinary;
 	}
 
-	/**
-	 * @deprecated use createFromXmlFile
-	 * @param string $a_filename XML SQL structure to load
-	 * @param mixed $postProcessElementCallback A delegate called for each node. The currently processed node
-	 *        is passed as the
-	 *        first argument
-	 * @return boolean
-	 */
-	public final function loadStructureFromXml($a_filename, $postProcessElementCallback = null, $xincludeSupport = true)
-	{
-		$this->clear();
-		
-		if (!file_exists($a_filename))
-		{
-			return ns\Reporter::error($this, __METHOD__ . ': structure file not found', __FILE__, __LINE__);
-		}
-		
-		$doc = new \DOMDocument();
-		if (!$doc->load($a_filename))
-		{
-			return ns\Reporter::error($this, __METHOD__ . ': failed to load structure', __FILE__, __LINE__);
-		}
-		
-		if ($xincludeSupport)
-		{
-			$xpath = new \DOMXPath($doc);
-			$xpath->registerNamespace('xinclude', 'http://www.w3.org/2001/XInclude');
-			$nodes = $xpath->query('//xinclude:include');
-			if ($nodes->length)
-			{
-				$doc->xinclude();
-			}
-		}
-		
-		$node = $doc->documentElement;
-		if (!($node && $node->namespaceURI == self::XMLNAMESPACE))
-		{
-			return ns\Reporter::error($this, __METHOD__ . ': invalid namespace', __FILE__, __LINE__);
-		}
-		
-		$versionNS = $node->getAttributeNS(self::XMLNAMESPACE, 'version');
-		$version = $node->getAttribute('version');
-		
-		if (!$version)
-		{
-			$version = $versionNS;
-		}
-		
-		$this->m_version = new StructureVersion($version);
-		
-		if ($this->getStructureVersion()->major != 1)
-		{
-			return ns\Reporter::fatalError($this, __METHOD__ . ': Unsupported structure schema version');
-		}
-		
-		$xpath = new \DOMXPath($doc);
-		$xpath->registerNamespace('sql', self::XMLNAMESPACE);
-		$dbnodes = $xpath->query('//sql:database');
-		
-		foreach ($dbnodes as $dbnode)
-		{
-			$dbs = new DatabaseStructure($this, $dbnode->getAttribute('name'));
-			
-			$tnodes = $xpath->query('sql:table', $dbnode);
-			foreach ($tnodes as $tnode)
-			{
-				$ts = new TableStructure($dbs, $tnode->getAttribute('name'));
-				
-				$primaryKeyColumnNodes = $xpath->query('sql:primarykey/sql:column', $tnode);
-				
-				$columnNodes = $xpath->query('sql:column|sql:field', $tnode);
-				foreach ($columnNodes as $columnNode)
-				{
-					$fs = new TableFieldStructure($ts, $columnNode->getAttribute('name'));
-					$child = $columnNode->getElementsByTagNameNS(self::XMLNAMESPACE, 'datatype');
-					
-					if ($child && $child->length)
-					{
-						if ($this->getStructureVersion()->major == 1)
-						{
-							$dataTypeNode = $child->item(0);
-							$a = array (
-									'binary' => kDataTypeBinary,
-									'boolean' => kDataTypeBoolean,
-									'numeric' => kDataTypeNumber,
-									'timestamp' => kDataTypeTimestamp,
-									'string' => kDataTypeString 
-							);
-							$typeNode = null;
-							$type = null;
-							foreach ($a as $k => $v)
-							{
-								$typeNode = $dataTypeNode->getElementsByTagNameNS(self::XMLNAMESPACE, $k);
-								if ($typeNode && $typeNode->length)
-								{
-									$typeNode = $typeNode->item(0);
-									$fs->setProperty(kStructureDatatype, $v);
-									$type = $v;
-									break;
-								}
-							}
-							
-							if ($type == kDataTypeNumber)
-							{
-								if ($typeNode->hasAttribute('autoincrement'))
-								{
-									$fs->setProperty(kStructureAutoincrement, true);
-								}
-								if ($typeNode->hasAttribute('length'))
-								{
-									$fs->setProperty(kStructureDataSize, intval($typeNode->getAttribute('length')));
-								}
-								if ($typeNode->hasAttribute('decimals'))
-								{
-									$fs->setProperty(kStructureDecimalCount, intval($typeNode->getAttribute('decimals')));
-								}
-							}
-						}
-					} // datatypes
-					
-
-					$child = $columnNode->getElementsByTagNameNS(self::XMLNAMESPACE, 'notnull');
-					if ($child && $child->length)
-					{
-						$fs->setProperty(kStructureAcceptNull, false);
-					}
-					
-					$child = $columnNode->getElementsByTagNameNS(self::XMLNAMESPACE, 'default');
-					if ($child && $child->length)
-					{
-						$fs->setProperty(kStructureDefaultValue, $child->item(0)->nodeValue);
-					}
-					
-					// Check if column is part of the primary key
-					foreach ($primaryKeyColumnNodes as $primaryKeyColumnNode)
-					{
-						if ($primaryKeyColumnNode->getAttribute("name") == $fs->getName())
-						{
-							$fs->setProperty(kStructurePrimaryKey, true);
-						}
-					}
-					
-					$ts->appendChild($fs);
-					if (is_callable($postProcessElementCallback))
-					{
-						call_user_func($postProcessElementCallback, $fs);
-					}
-				} // foreach column nodes
-				
-
-				$dbs->appendChild($ts);
-				if (is_callable($postProcessElementCallback))
-				{
-					call_user_func($postProcessElementCallback, $ts);
-				}
-			} // foreach table nodes
-			
-
-			$this->appendChild($dbs);
-			if (is_callable($postProcessElementCallback))
-			{
-				call_user_func($postProcessElementCallback, $dbs);
-			}
-		} // foreach database nodes
-		
-
-		if (is_callable($postProcessElementCallback))
-		{
-			call_user_func($postProcessElementCallback, $this);
-		}
-		
-		return true;
-	}
-
 	protected function constructFromXmlNode(\DOMNode $node)
 	{
 		$xpath = new \DOMXPath($node->ownerDocument);
@@ -850,12 +803,6 @@ class DatasourceStructure extends StructureElement
 	 * @var integer
 	 */
 	protected $m_flags;
-
-	/**
-	 *
-	 * @var StructureVersion
-	 */
-	private $m_version;
 
 	/**
 	 *
