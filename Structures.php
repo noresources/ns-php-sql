@@ -101,7 +101,7 @@ class StructureVersion
 	private $m_versionArray;
 }
 
-abstract class StructureElement implements \ArrayAccess, \Iterator, \Countable
+abstract class StructureElement implements \ArrayAccess, \IteratorAggregate, \Countable
 {
 	/**
 	 *
@@ -236,20 +236,26 @@ abstract class StructureElement implements \ArrayAccess, \Iterator, \Countable
 		$this->m_parent = $a_parent;
 		
 		$this->m_version = null;
-		$this->m_children = array ();
-		$this->m_iteratorCurrent = null;
+		$this->m_children = new \ArrayObject(array ());
 		$this->m_index = array ();
 	}
 	
 	// Countable
 	public function count()
 	{
-		return count($this->m_children);
+		return $this->m_children->count();
 	}
+	
+	// IteratorAggregate
+	public function getIterator()
+	{
+		return $this->m_children->getIterator();
+	}
+	
 	// ArrayAccess
 	public function offsetExists($a_key)
 	{
-		return array_key_exists($a_key, $this->m_children);
+		return $this->m_children->offsetExists($a_key);
 	}
 
 	public function offsetSet($a_iKey, $a_value)
@@ -257,52 +263,27 @@ abstract class StructureElement implements \ArrayAccess, \Iterator, \Countable
 		ns\Reporter::error($this, __METHOD__ . '(): Read only access', __FILE__, __LINE__);
 	}
 
-	public function offsetUnset($a_iKey)
+	public function offsetUnset($key)
 	{
 		ns\Reporter::error($this, __METHOD__ . '(): Read only access', __FILE__, __LINE__);
 	}
 
-	public function offsetGet($a_iKey)
+	public function offsetGet($key)
 	{
-		$v = ns\array_keyvalue($this->m_children, $a_iKey, null);
-		if (!$v)
+		if ($this->m_children->offsetExists($key))
 		{
-			$v = ns\array_keyvalue($this->m_children, strtolower($a_iKey), null);
+			return $this->m_children->offsetGet($key);
 		}
 		
-		return $v;
+		$key = strtolower($key);
+		if ($this->m_children->offsetExists($key))
+		{
+			return $this->m_children->offsetGet($key);
+		}
+		
+		return null;
 	}
 	
-	// Iterator
-	public function current()
-	{
-		return $this->m_iteratorCurrent[1];
-	}
-
-	public function next()
-	{
-		if ($this->m_iteratorCurrent)
-		{
-			$this->m_iteratorCurrent = each($this->m_children);
-		}
-	}
-
-	public function key()
-	{
-		return $this->m_iteratorCurrent[0];
-	}
-
-	public function valid()
-	{
-		return ($this->m_iteratorCurrent !== false);
-	}
-
-	public function rewind()
-	{
-		reset($this->m_children);
-		$this->m_iteratorCurrent = each($this->m_children);
-	}
-
 	/**
 	 *
 	 * @return string
@@ -336,7 +317,7 @@ abstract class StructureElement implements \ArrayAccess, \Iterator, \Countable
 	 */
 	public function children()
 	{
-		return $this->m_children;
+		return $this->m_children->getArrayCopy();
 	}
 
 	/**
@@ -348,7 +329,7 @@ abstract class StructureElement implements \ArrayAccess, \Iterator, \Countable
 	{
 		$parent = $this->parent();
 		$key = $a_child->elementKey();
-		$this->m_children[$key] = $a_child;
+		$this->m_children->offsetSet ($key, $a_child);
 		if (!($this->m_version instanceof StructureVersion))
 		{
 			$this->m_version = $a_child->m_version;
@@ -364,8 +345,7 @@ abstract class StructureElement implements \ArrayAccess, \Iterator, \Countable
 
 	protected function clear()
 	{
-		$this->m_children = array ();
-		$this->m_iteratorCurrent = false;
+		$this->m_children->exchangeArray(array ());
 	}
 
 	/**
@@ -429,8 +409,6 @@ abstract class StructureElement implements \ArrayAccess, \Iterator, \Countable
 		}
 	}
 
-	private $m_iteratorCurrent;
-
 	/**
 	 *
 	 * @var string
@@ -445,7 +423,7 @@ abstract class StructureElement implements \ArrayAccess, \Iterator, \Countable
 
 	/**
 	 *
-	 * @var array
+	 * @var \ArrayObject
 	 */
 	private $m_children;
 
