@@ -659,6 +659,11 @@ class TableStructure extends StructureElement
 		
 		return $result;
 	}
+
+	public function addFieldStructure (TableFieldStructure $f)
+	{
+		$this->appendChild($f);
+	}
 }
 
 /**
