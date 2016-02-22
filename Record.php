@@ -42,6 +42,8 @@ const kRecordDataSerialized = 0x10;
 class ColumnFilter
 {
 
+	public $columnName;
+
 	/**
 	 *
 	 * @var string
@@ -66,8 +68,9 @@ class ColumnFilter
 	 * @param mixed $v Value
 	 * @param boolean $p
 	 */
-	public function __construct($o, $v, $p = true)
+	public function __construct($c, $o, $v, $p = true)
 	{
+		$this->columnName = $c;
 		$this->positive = $p;
 		$this->operator = $o;
 		$this->value = $v;
@@ -76,23 +79,33 @@ class ColumnFilter
 	/**
 	 *
 	 * @param string $className Record object classname
-	 * @param TableField $f
+	 * @param Table $table
 	 */
-	public function toExpression($className, TableField $f)
+	public function toExpression($className, Table $table)
 	{
-		return self::createExpression($className, $f, $this->operator, $this->value, $this->positive);
+		return self::createExpression($className, $table, $this->operator, $this->value, $this->positive);
 	}
 
-	public function createExpression($className, TableField $f, $operator, $value, $positive = true)
+	/**
+	 *
+	 * @param string $className
+	 * @param Table $table
+	 * @param string $operator
+	 * @param mixed $value
+	 * @param string $positive
+	 * @return IExpression
+	 */
+	public function createExpression($className, Table $table, $operator, $value, $positive = true)
 	{
+		$column = $table->getColumn($this->columnName);
 		switch ($operator)
 		{
 			case '=':
 			case 'in':
-				return new SQLSmartEquality($f, call_user_func(array (
+				return new SQLSmartEquality($column, call_user_func(array (
 						$className,
 						'serializeValue' 
-				), $f->getName(), $value), $positive);
+				), $column->getName(), $value), $positive);
 				break;
 			case 'between':
 				if (!\is_array($value))
@@ -113,7 +126,7 @@ class ColumnFilter
 						'unserializeValue' 
 				), $value[1]);
 				
-				$e = new SQLBetween($f, $a_min, $a_max);
+				$e = new SQLBetween($column, $a_min, $a_max);
 				if (!$positive)
 				{
 					$e = new SQLNot($between);
@@ -130,8 +143,8 @@ class ColumnFilter
 				$v = call_user_func(array (
 						$className,
 						'serializeValue' 
-				), $f->getName(), $value);
-				$e = new ns\BinaryOperatorExpression(strtoupper($operator), $f, $f->importData($v));
+				), $column->getName(), $value);
+				$e = new ns\BinaryOperatorExpression(strtoupper($operator), $column, $column->importData($v));
 				if (!$positive)
 				{
 					$e = new SQLNot($between);
@@ -145,13 +158,119 @@ class ColumnFilter
 	}
 }
 
+class LimitFilter
+{
+
+	public $limit;
+
+	public $offset;
+
+	public function __construct($l, $o = 0)
+	{
+		$this->limit = $l;
+		$this->offset = $o;
+	}
+}
+
+class OrderFilter
+{
+
+	public $columnName;
+
+	public $ascending;
+
+	public function __construct($c, $asc = true)
+	{
+		$this->columnName = $c;
+		$this->ascending = $asc;
+	}
+}
+
 class Record implements \ArrayAccess
 {
 
 	/**
+	 * Get or create a single record
+	 * @param Table $table Table
+	 * @param mixed $keys Primary key value. If the table primary key is composed of multiple keys, @param $key must be an array
+	 * @param integer $flags Accepts kRecordQueryCreate
+	 * @param string $className
+	 */
+	public static function get(Table $table, $keys, $flags, $className = null)
+	{
+		if (!(is_string($className) && class_exists($className)))
+		{
+			$className = get_called_class();
+		}
+		
+		$flags = ($flags & (kRecordQueryCreate));
+		$structure = $table->getStructure();
+		
+		if (is_null($keys))
+		{
+			return ns\Reporter::error(__CLASS__, __METHOD__ . ': Invalid key (null)');
+		}
+		
+		if (!\is_array($keys))
+		{
+			$primaryKeyColumn = null;
+			$primaryKeyColumns = $structure->getPrimaryKeyColumns();
+			$c = count($primaryKeyColumns);
+			if ($c == 0)
+			{
+				return ns\Reporter::error(__CLASS__, __METHOD__ . ': Table does not have primary key');
+			}
+			if ($c > 1)
+			{
+				return ns\Reporter::error(__CLASS__, __METHOD__ . ': Composite primary key can not accept non-array parameter');
+			}
+			
+			list ( $pk, $_ ) = each($primaryKeyColumns);
+			$keys = array (
+					$pk => $keys 
+			);
+		}
+		
+		$s = new SelectQuery($table);
+		foreach ($keys as $k => $v)
+		{
+			$c = $table->getColumn($k);
+			$s->where->addAndExpression($c->equalityExpression($c->importData($v)));
+		}
+		
+		$recordset = $s->execute();
+		
+		if (is_object($recordset) && ($recordset instanceof Recordset))
+		{
+			$c = $recordset->rowCount();
+			if ($c == 1)
+			{
+				$result = new $className($table, $recordset, kRecordStateExists);
+				return $result;
+			}
+			
+			if ($c > 1)
+			{
+				return ns\Reporter::error(__CLASS__, __METHOD__ . ': Multiple record found');
+			}
+			
+			if ($flags & kRecordQueryCreate)
+			{
+				$o = new $className($table, $keys);
+				$o->insert();
+				return $o;
+			}
+			
+			return null;
+		}
+		
+		return ns\Reporter::error(__CLASS__, __METHOD__ . ': Invalid query result');
+	}
+
+	/**
 	 *
 	 * @param Table $table Database table
-	 * @param mixed $filter Array of key-value pairs
+	 * @param mixed $filters Array of key-value pairs
 	 *        If @param $table contains a single-column primary key, a singie value is accepted
 	 *        as the value of the primary key column
 	 * @param $flags
@@ -163,7 +282,7 @@ class Record implements \ArrayAccess
 	 *        otherwise
 	 *        - an array of Record
 	 */
-	public static function get(Table $table, $filter, $flags = 0x00, $className = null)
+	public static function query(Table $table, $filters, $flags = kRecordQueryMultiple, $className = null)
 	{
 		if (!(is_string($className) && class_exists($className)))
 		{
@@ -171,9 +290,9 @@ class Record implements \ArrayAccess
 		}
 		
 		$structure = $table->getStructure();
-		if (!\is_array($filter))
+		if (!\is_array($filters))
 		{
-			if (!is_null($filter))
+			if (!is_null($filters))
 			{
 				$primaryKeyColumn = null;
 				foreach ($structure as $n => $c)
@@ -194,8 +313,8 @@ class Record implements \ArrayAccess
 				
 				if (!is_null($primaryKeyColumn))
 				{
-					return self::get($table, array (
-							$primaryKeyColumn => $filter 
+					return self::query($table, array (
+							$primaryKeyColumn => $filters 
 					), $flags, $className);
 				}
 			}
@@ -211,24 +330,42 @@ class Record implements \ArrayAccess
 		 *
 		 * @todo Accept IExpression or array of IExpression
 		 */
-		if (\is_array($filter))
+		if (\is_array($filters))
 		{
-			foreach ($structure as $name => $column)
+			foreach ($filters as $name => $filter)
 			{
-				if (\array_key_exists($name, $filter))
+				if ($filter instanceof ColumnFilter)
 				{
-					$f = $table->getColumn($name);
-					$v = $filter[$name];
-					if ($v instanceof ColumnFilter)
+					if (!$structure->offsetExists($filter->columnName))
 					{
-						$e = $v->toExpression($f, $className);
-						$s->where->addAndExpression($e);
+						continue;
 					}
-					else
+					
+					$e = $v->toExpression($className, $table);
+					$s->where->addAndExpression($e);
+				}
+				elseif ($filter instanceof LimitFilter)
+				{
+					$s->limit($filter->limit, $filter->offset);
+				}
+				elseif ($filter instanceof OrderFilter)
+				{
+					if (!$structure->offsetExists($filter->columnName))
 					{
-						$d = $f->importData(static::serializeValue($name, $v));
-						$s->where->addAndExpression($f->equalityExpression($d));
+						continue;
 					}
+					$column = $table->getColumn($filter->columnName);
+					$s->orderBy->addColumn($column, $filter->ascending);
+				}
+				else
+				{
+					if (!$structure->offsetExists($name))
+					{
+						continue;
+					}
+					
+					$column = $table->getColumn($name);
+					$s->where->addAndExpression($column->equalityExpression($column->importData($v)));
 				}
 			}
 		}
@@ -347,7 +484,7 @@ class Record implements \ArrayAccess
 	{
 		return $this->offsetGet($member);
 	}
-	
+
 	/**
 	 * Set a column value
 	 * @param string $member
@@ -472,7 +609,7 @@ class Record implements \ArrayAccess
 	{
 		if (!($flags & kRecordQueryMultiple))
 		{
-			$record = self::get($this->m_table, $this->getKey(), kRecordQueryMultiple, get_called_class());
+			$record = self::query($this->m_table, $this->getKey(), kRecordQueryMultiple, get_called_class());
 			if (count($record) > 1)
 			{
 				return ns\Reporter::error($this, __METHOD__ . ': Multiple record deletion');
@@ -510,14 +647,15 @@ class Record implements \ArrayAccess
 		return $this->m_table;
 	}
 
-	public function getKey ($glue = null)
+	public function getKey($glue = null)
 	{
 		$key = array ();
 		foreach ($this->m_table->getStructure() as $n => $c)
 		{
-			if ($c->getProperty (kStructurePrimaryKey))
+			if ($c->getProperty(kStructurePrimaryKey))
 			{
-				if (!array_key_exists($n, $this->m_values)){
+				if (!array_key_exists($n, $this->m_values))
+				{
 					return ns\Reporter::fatalError($this, __METHOD__ . ': Incomplete key');
 				}
 				
@@ -532,7 +670,7 @@ class Record implements \ArrayAccess
 		
 		return $key;
 	}
-	
+
 	public static function serializeValue($column, $value)
 	{
 		return $value;
@@ -543,7 +681,7 @@ class Record implements \ArrayAccess
 		return $value;
 	}
 
-	public static function recordsetToArray (Recordset $records)
+	public static function recordsetToArray(Recordset $records)
 	{
 		$result = array ();
 		foreach ($records as $record)
@@ -555,16 +693,16 @@ class Record implements \ArrayAccess
 				{
 					continue;
 				}
-		
+				
 				$table[$column] = static::unserializeValue($column, $value);
 			}
-				
+			
 			$result[] = $table;
 		}
 		
 		return $result;
 	}
-	
+
 	private function setValue(TableFieldStructure $f, $value, $unserialize = false)
 	{
 		if ($unserialize)

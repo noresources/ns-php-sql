@@ -7,6 +7,7 @@
  * @package SQL
  */
 namespace NoreSources\SQL;
+
 use NoreSources as ns;
 
 /**
@@ -16,13 +17,13 @@ use NoreSources as ns;
 class InsertQuery extends TableQuery implements ns\IExpression
 {
 
-	public function __construct (Table $a_table)
+	public function __construct(Table $a_table)
 	{
 		parent::__construct($a_table);
-		$this->m_fieldValues = array();
+		$this->m_fieldValues = array ();
 	}
 
-	public function execute ()
+	public function execute()
 	{
 		$qs = $this->expressionString();
 		if (!$qs)
@@ -38,7 +39,7 @@ class InsertQuery extends TableQuery implements ns\IExpression
 		return false;
 	}
 
-	public function expressionString ($a_options = null)
+	public function expressionString($a_options = null)
 	{
 		if (count($this->m_fieldValues) == 0)
 		{
@@ -56,11 +57,10 @@ class InsertQuery extends TableQuery implements ns\IExpression
 	/**
 	 * Add a field value
 	 *
-	 * @param mixed $a_field
-	 *        	string(name) or TableField
-	 * @param ns\IExpression $a_value        	
+	 * @param mixed $a_field string(name) or TableField
+	 * @param ns\IExpression $a_value
 	 */
-	public function addFieldValue ($a_field, ns\IExpression $a_value)
+	public function addFieldValue($a_field, ns\IExpression $a_value)
 	{
 		$a_field = mixedToTableField($a_field, $this->table);
 		if (!$a_field)
@@ -76,12 +76,11 @@ class InsertQuery extends TableQuery implements ns\IExpression
 	/**
 	 * Add multiple field values
 	 *
-	 * @param mixed $a_fieldAndValues
-	 *        	associative array [field name => value]
-	 *        	
-	 *        	Values are formatted using TableField::importData()
+	 * @param mixed $a_fieldAndValues associative array [field name => value]
+	 *       
+	 *        Values are formatted using TableField::importData()
 	 */
-	public function addFieldValues ($a_fieldAndValues)
+	public function addFieldValues($a_fieldAndValues)
 	{
 		foreach ($a_fieldAndValues as $k => $v)
 		{
@@ -96,9 +95,9 @@ class InsertQuery extends TableQuery implements ns\IExpression
 		}
 	}
 
-	public function clear ()
+	public function clear()
 	{
-		$this->m_fieldValues = array();
+		$this->m_fieldValues = array ();
 	}
 
 	/**
@@ -115,13 +114,13 @@ class InsertQuery extends TableQuery implements ns\IExpression
 class UpdateQuery extends TableQuery implements ns\IExpression
 {
 
-	public function __construct (Table $a_table)
+	public function __construct(Table $a_table)
 	{
 		parent::__construct($a_table);
-		$this->m_fieldValues = array();
+		$this->m_fieldValues = array ();
 	}
 
-	public function execute ()
+	public function execute()
 	{
 		$qs = $this->expressionString();
 		if (!$qs)
@@ -137,23 +136,22 @@ class UpdateQuery extends TableQuery implements ns\IExpression
 		return false;
 	}
 
-	public static function glueSetStatements ($k, $v)
+	public static function glueSetStatements($k, $v)
 	{
 		return ' ' . $k . '=' . $v;
 	}
 
-	public function expressionString ($a_options = null)
+	public function expressionString($a_options = null)
 	{
 		/*
 		 * if (count($this->m_fieldValues) == 0) { return
 		 * ns\Reporter::error($this, __METHOD__.': No field set.'); }
 		 */
 		$qs = 'UPDATE ' . $this->table->expressionString(kExpressionElementName) . ' SET ';
-		$qs .= ' ' . ns\array_implode_cb(', ', $this->m_fieldValues, 
-				array(
-						get_class($this),
-						'glueSetStatements'
-				));
+		$qs .= ' ' . ns\array_implode_cb(', ', $this->m_fieldValues, array (
+				get_class($this),
+				'glueSetStatements' 
+		));
 		
 		if ($this->m_condition)
 		{
@@ -166,11 +164,10 @@ class UpdateQuery extends TableQuery implements ns\IExpression
 	/**
 	 * Add a field value
 	 *
-	 * @param mixed $a_field
-	 *        	string(name) or TableField
-	 * @param ns\IExpression $a_value        	
+	 * @param mixed $a_field string(name) or TableField
+	 * @param ns\IExpression $a_value
 	 */
-	public function addFieldValue ($a_field, ns\IExpression $a_value)
+	public function addFieldValue($a_field, ns\IExpression $a_value)
 	{
 		$a_field = mixedToTableField($a_field, $this->table);
 		if (!(is_object($a_field) && ($a_field instanceof TableField)))
@@ -188,12 +185,11 @@ class UpdateQuery extends TableQuery implements ns\IExpression
 	/**
 	 * Add multiple field values
 	 *
-	 * @param mixed $a_fieldAndValues
-	 *        	associative array [field name => value]
-	 *        	
-	 *        	Values are formatted using TableField::importData()
+	 * @param mixed $a_fieldAndValues associative array [field name => value]
+	 *       
+	 *        Values are formatted using TableField::importData()
 	 */
-	public function addFieldValues ($a_fieldAndValues)
+	public function addFieldValues($a_fieldAndValues)
 	{
 		foreach ($a_fieldAndValues as $k => $v)
 		{
@@ -207,7 +203,7 @@ class UpdateQuery extends TableQuery implements ns\IExpression
 		}
 	}
 
-	public function __get ($member)
+	public function __get($member)
 	{
 		if ($member == 'where')
 		{
@@ -224,10 +220,10 @@ class UpdateQuery extends TableQuery implements ns\IExpression
 
 	/**
 	 *
-	 * @param $a_cond ns\IExpression        	
+	 * @param $a_cond ns\IExpression
 	 * @return WhereQueryConditionStatement
 	 */
-	public function where (ns\IExpression $a_cond = null)
+	public function where(ns\IExpression $a_cond = null)
 	{
 		if ($a_cond)
 		{
@@ -255,14 +251,14 @@ class UpdateQuery extends TableQuery implements ns\IExpression
 class SelectQueryStaticValueColumn implements ns\IExpression
 {
 
-	public function __construct (SelectQuery $a_query, $a_value, $a_strAlias)
+	public function __construct(SelectQuery $a_query, $a_value, $a_strAlias)
 	{
 		$this->m_oQuery = $a_query;
 		$this->m_oValue = (($a_value instanceof ns\IExpression) ? $a_value : new FormattedData($a_value));
 		$this->m_alias = (is_string($a_strAlias) && strlen($a_strAlias)) ? new SQLAlias($a_query->datasource, $a_strAlias) : null;
 	}
 
-	public function expressionString ($a_options = null)
+	public function expressionString($a_options = null)
 	{
 		if ($this->m_alias)
 		{
@@ -295,12 +291,10 @@ abstract class QueryConditionStatement extends ns\UnaryOperatorExpression
 	/**
 	 * Constructor
 	 *
-	 * @param string $a_strOperator
-	 *        	Operator
-	 * @param ns\IExpression $a_oExpression
-	 *        	Expression representing the condition(s)
+	 * @param string $a_strOperator Operator
+	 * @param ns\IExpression $a_oExpression Expression representing the condition(s)
 	 */
-	public function __construct ($a_strOperator, ns\IExpression $a_oExpression = null)
+	public function __construct($a_strOperator, ns\IExpression $a_oExpression = null)
 	{
 		parent::__construct($a_strOperator, $a_oExpression, false);
 	}
@@ -308,10 +302,10 @@ abstract class QueryConditionStatement extends ns\UnaryOperatorExpression
 	/**
 	 * Add a condition with a AND operator if an expression is already set.
 	 *
-	 * @param ns\IExpression $a_oExpression        	
+	 * @param ns\IExpression $a_oExpression
 	 * @return ns\IExpression condition(s)
 	 */
-	public function addAndExpression (ns\IExpression $a_oExpression)
+	public function addAndExpression(ns\IExpression $a_oExpression)
 	{
 		if (!($this->m_expression instanceof ns\IExpression))
 		{
@@ -326,6 +320,7 @@ abstract class QueryConditionStatement extends ns\UnaryOperatorExpression
 		{
 			$this->m_expression->protect(false);
 		}
+		
 		return $this->m_expression;
 	}
 
@@ -335,15 +330,20 @@ abstract class QueryConditionStatement extends ns\UnaryOperatorExpression
 	 * @param ns\IExpression $a_oExpression        	
 	 * @return ns\IExpression condition(s)
 	 */
-	public function addOrExpression (ns\IExpression $a_oExpression)
+	public function addOrExpression(ns\IExpression $a_oExpression)
 	{
-		if (($this->m_expression instanceof ns\IExpression))
+		if (!($this->m_expression instanceof ns\IExpression))
 		{
 			$this->m_expression = $a_oExpression;
 		}
 		else
 		{
 			$this->m_expression = new SQLOr($this->m_expression, $a_oExpression);
+		}
+		
+		if (is_callable($this->m_expression, 'protect'))
+		{
+			$this->m_expression->protect(false);
 		}
 		
 		return $this->m_expression;
