@@ -320,6 +320,18 @@ const kConnectionPersistent = 0x01;
 
 
 /**
+ * @defgroup ExecutionQueryFlags
+ * @{
+ */
+const kRecordsetQueryKeyNumeric = 0x01;
+const kRecordsetQueryKeyName = 0x02;
+const kRecordsetQueryKeyBoth = 0x03;
+/**
+ * @}
+ */
+
+
+/**
  * @defgroup Datasourcequeries 'Datasource elements queries'
  * @{
  */
