@@ -233,12 +233,12 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 	
 
 	/**
-	 * Provide a database object
+	 * Provide a TableSet object
 	 *
 	 * @param string $a_name
 	 * @return Database
 	 */
-	public function getDatabase($a_name)
+	public function getTableSet($a_name)
 	{
 		$subStructure = null;
 		if ($this->structure)
@@ -252,11 +252,11 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 	}
 
 	/**
-	 * Provides an iterator on all the database names of the Datasource
+	 * Provides an iterator on all the tableset names of the Datasource
 	 *
 	 * @return Iterator
 	 */
-	public function getDatabaseIterator()
+	public function getTableSetIterator()
 	{
 		if ($this->m_structure)
 		{
@@ -267,7 +267,7 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 	}
 
 	/**
-	 * Check existence of a database name
+	 * Check existence of a tableset name
 	 * The default implementation is tu check the SQL structure if available
 	 * or to consider any name as valid
 	 *
@@ -276,7 +276,7 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 	 * @param string $a_strDatabaseName
 	 * @return bool
 	 */
-	public function databaseExists($a_strDatabaseName)
+	public function tableSetExists($a_strDatabaseName)
 	{
 		return ($this->m_structure) ? ($this->m_structure->offsetExists($a_strDatabaseName)) : true;
 	}
@@ -387,7 +387,7 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 	 *       
 	 * @return DatabaseStructure
 	 */
-	public abstract function getDatabaseStructure(SQLObject $a_containerObject, $recursive = false);
+	public abstract function getTableSetStructure(SQLObject $a_containerObject, $recursive = false);
 
 	/**
 	 * Get the table structure

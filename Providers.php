@@ -35,14 +35,14 @@ interface ITableSetProvider
 	 * @param string $a_name
 	 * @return Database
 	 */
-	function getDatabase($a_name);
+	function getTableSet($a_name);
 
 	/**
 	 * Provides an iterator on all the database names of the Datasource
 	 *
 	 * @return Iterator
 	 */
-	function getDatabaseIterator();
+	function getTableSetIterator();
 
 	/**
 	 * Check existence of a database name
@@ -50,7 +50,7 @@ interface ITableSetProvider
 	 * @param string $a_databaseName
 	 * @return bool
 	 */
-	function databaseExists($a_databaseName);
+	function tableSetExists($a_databaseName);
 
 	/**
 	 * Set the active/default table set

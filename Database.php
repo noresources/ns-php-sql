@@ -125,7 +125,7 @@ class Database extends SQLObject implements IExpression, ITableProvider
 		
 		if ($a_mode & kObjectQueryDatasource)
 		{
-			$a = $this->m_datasource->getDatabaseStructure($this, false);
+			$a = $this->m_datasource->getTableSetStructure($this, false);
 			return (($a instanceof DatabaseStructure) && $a->offsetExists($a_name) && ($a [$a_name] instanceof TableStructure));
 		}
 		

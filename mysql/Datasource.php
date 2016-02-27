@@ -104,24 +104,25 @@ class MySQLTableManipulator extends TableManipulator
 }
 
 /**
+ * MySQL implementation using 'mysql' PHP extension
+ *
+ * @var integer
+ */
+const kMySQLImplementationMysql = 1;
+
+/**
+ * MySQL implementation using 'mysqli' PHP extension
+ *
+ * @var integer
+ */
+const kMySQLImplementationMysqli = 2;
+
+/**
  */
 class MySQLDatasource extends Datasource implements ITransactionBlock
 {
 	// construction - destruction
 	
-	/**
-	 * MySQL implementation using 'mysql' PHP extension
-	 *
-	 * @var integer
-	 */
-	const kMySQExtension_mysql = 1;
-	
-	/**
-	 * MySQL implementation using 'mysqli' PHP extension
-	 *
-	 * @var integer
-	 */
-	const kMySQExtension_mysqli = 2;
 
 	/**
 	 *
@@ -135,11 +136,11 @@ class MySQLDatasource extends Datasource implements ITransactionBlock
 		$this->m_implementation = 0;
 		if (extension_loaded('mysqli'))
 		{
-			$this->m_implementation = self::kMySQExtension_mysqli;
+			$this->m_implementation = kMySQLImplementationMysqli;
 		}
 		elseif (extension_loaded('mysql'))
 		{
-			$this->m_implementation = self::kMySQExtension_mysql;
+			$this->m_implementation = kMySQLImplementationMysql;
 		}
 		
 		// text types
@@ -237,11 +238,11 @@ class MySQLDatasource extends Datasource implements ITransactionBlock
 	public function setActiveTableSet ($name)
 	{
 		$res = null;
-		if ($this->m_implementation == self::kMySQExtension_mysqli)
+		if ($this->m_implementation == kMySQLImplementationMysqli)
 		{
 			$res = $this->apiCall('select_db', $this->resource, $name);
 		}
-		elseif ($this->m_implementation == self::kMySQExtension_mysql)
+		elseif ($this->m_implementation == kMySQLImplementationMysql)
 		{
 			$res = $this->apiCall('select_db', $name, $this->resource);
 		}
@@ -282,7 +283,7 @@ class MySQLDatasource extends Datasource implements ITransactionBlock
 		if (ns\array_keyvalue($a_aParameters, kConnectionParameterPersistent, false))
 		{
 			$this->setDatasourceFlags($this->flags | kConnectionPersistent);
-			if ($this->m_implementation == self::kMySQExtension_mysqli)
+			if ($this->m_implementation == kMySQLImplementationMysqli)
 			{
 				$host = 'p:' . $host;
 			}
@@ -500,9 +501,9 @@ class MySQLDatasource extends Datasource implements ITransactionBlock
 	
 
 	// default behavior
-	// public function getDatabaseIterator()
-	// public function databaseExists($a_strDatabaseName)
-	public function getDatabaseStructure(SQLObject $a_containerObject, $recursive = false)
+	// public function getTableSetIterator()
+	// public function tableSetExists($a_strDatabaseName)
+	public function getTableSetStructure(SQLObject $a_containerObject, $recursive = false)
 	{
 		/**
 		 *
@@ -648,11 +649,11 @@ class MySQLDatasource extends Datasource implements ITransactionBlock
 	public function isValidResult(QueryResult $a_queryResult)
 	{
 		$r = $a_queryResult->resultResource;
-		if ($this->m_implementation == self::kMySQExtension_mysqli)
+		if ($this->m_implementation == kMySQLImplementationMysqli)
 		{
 			return ($r instanceof \mysqli_result);
 		}
-		elseif ($this->m_implementation == self::kMySQExtension_mysql)
+		elseif ($this->m_implementation == kMySQLImplementationMysql)
 		{
 			return is_resource($r);
 		}
@@ -663,7 +664,7 @@ class MySQLDatasource extends Datasource implements ITransactionBlock
 	public function apiCall($functionName /*, ...*/)
 	{
 		$prefix = 'mysql_';
-		if ($this->m_implementation == self::kMySQExtension_mysqli)
+		if ($this->m_implementation == kMySQLImplementationMysqli)
 		{
 			$prefix = 'mysqli_';
 		}
@@ -676,7 +677,7 @@ class MySQLDatasource extends Datasource implements ITransactionBlock
 		$args = array ();
 		
 		// Auto reverse args if mysqli appears at end of arg list
-		if ($this->m_implementation == self::kMySQExtension_mysqli)
+		if ($this->m_implementation == kMySQLImplementationMysqli)
 		{
 			if ($endIndex > 1)
 			{

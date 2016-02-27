@@ -188,7 +188,7 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 	 */
 	public function getTable($a_strName, $a_strAlias = null, $a_strClassName = null, $useAliasAsName = false)
 	{
-		$schema = $this->getDatabase ($this->activeTableSetName);
+		$schema = $this->getTableSet ($this->activeTableSetName);
 		$res = tableProviderGenericTableObjectMethod($schema, $schema->structure->offsetGet ($a_strName), $a_strName, $a_strAlias, $a_strClassName, $useAliasAsName);
 		return $res;
 	}
@@ -226,7 +226,7 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 		
 		if ($a_mode & kObjectQueryDatasource)
 		{
-			$a = $this->getDatabaseStructure($this, false);
+			$a = $this->getTableSetStructure($this, false);
 			$result = ($result && (($a instanceof DatabaseStructure) && $a->offsetExists($a_strName) && ($a[$a_strName] instanceof TableStructure)));
 		}
 		
@@ -238,7 +238,7 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 		return $this;
 	}
 
-	public function getDatabaseStructure(SQLObject $a_containerObject, $recursive = false)
+	public function getTableSetStructure(SQLObject $a_containerObject, $recursive = false)
 	{
 		$schemaName = $this->activeTableSetName;
 		if (is_object($a_containerObject) && ($a_containerObject instanceof Database))

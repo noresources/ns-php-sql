@@ -31,7 +31,7 @@ class StructureVersion
 		if (is_string($version))
 		{
 			$this->m_versionArray = explode('.', $version);
-
+			
 			while (count($this->m_versionArray) < 3)
 			{
 				$this->m_versionArray[] = '0';
