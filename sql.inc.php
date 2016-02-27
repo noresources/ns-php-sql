@@ -323,9 +323,9 @@ const kConnectionPersistent = 0x01;
  * @defgroup ExecutionQueryFlags
  * @{
  */
-const kRecordsetQueryKeyNumeric = 0x01;
-const kRecordsetQueryKeyName = 0x02;
-const kRecordsetQueryKeyBoth = 0x03;
+const kRecordsetFetchName = 0x01;
+const kRecordsetFetchNumeric = 0x02;
+const kRecordsetFetchBoth = 0x03;
 /**
  * @}
  */

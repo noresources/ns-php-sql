@@ -57,7 +57,7 @@ abstract class IQuery
 	 *
 	 * @return QueryResult
 	 */
-	public abstract function execute();
+	public abstract function execute($flags = 0);
 
 	/**
 	 *
@@ -102,7 +102,7 @@ class FormattedQuery extends IQuery implements ns\IExpression
 		$this->set($a_strQuery);
 	}
 
-	public function execute()
+	public function execute($flags = 0)
 	{
 		if (!$this->m_strQueryString)
 		{

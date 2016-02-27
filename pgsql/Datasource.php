@@ -421,14 +421,15 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 	}
 
 	/**
-	 *
-	 * @see sources/sql/Datasource#fetchResult()
-	 * @return
-	 *
+	 * @return array
 	 */
-	public function fetchResult(QueryResult $a_queryResult)
+	public function fetchResult(QueryResult $a_queryResult, $fetchFlags = kRecordsetFetchBoth)
 	{
-		return pg_fetch_array($a_queryResult->resultResource);
+		$pgsqlFlags = 0;
+		if ($fetchFlags & kRecordsetFetchName) $pgsqlFlags |= PGSQL_ASSOC;
+		if ($fetchFlags & kRecordsetFetchNumeric) $pgsqlFlags |= PGSQL_NUM;
+		
+		return pg_fetch_array($a_queryResult->resultResource, null, $pgsqlFlags);
 	}
 
 	public function resetResult(QueryResult $a_queryResult)

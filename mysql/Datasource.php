@@ -409,14 +409,23 @@ class MySQLDatasource extends Datasource implements ITransactionBlock
 
 	/**
 	 *
-	 * @see sources/sql/Datasource#fetchResult()
 	 * @return
-	 *
-	 *
 	 */
-	public function fetchResult(QueryResult $a_queryResult)
+	public function fetchResult(QueryResult $a_queryResult, $fetchFlags = kRecordsetFetchBoth)
 	{
-		return $this->apiCall('fetch_array', $a_queryResult->resultResource);
+		$mysqlFlags = 0;
+		if ($this->m_implementation == kMySQLImplementationMysql)
+		{
+			if ($fetchFlags & kRecordsetFetchName) $mysqlFlags |= MYSQL_ASSOC;
+			if ($fetchFlags & kRecordsetFetchNumeric) $mysqlFlags |= MYSQL_NUM;
+		}
+		elseif ($this->m_implementation == kMySQLImplementationMysqli)
+		{
+			if ($fetchFlags & kRecordsetFetchName) $mysqlFlags |= MYSQLI_ASSOC;
+			if ($fetchFlags & kRecordsetFetchNumeric) $mysqlFlags |= MYSQLI_NUM;
+		}
+		
+		return $this->apiCall('fetch_array', $a_queryResult->resultResource, $mysqlFlags);
 	}
 
 	public function resetResult(QueryResult $a_queryResult)

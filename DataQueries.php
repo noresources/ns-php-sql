@@ -23,7 +23,7 @@ class InsertQuery extends TableQuery implements ns\IExpression
 		$this->m_fieldValues = array ();
 	}
 
-	public function execute()
+	public function execute($flags = 0)
 	{
 		$qs = $this->expressionString();
 		if (!$qs)
@@ -120,7 +120,7 @@ class UpdateQuery extends TableQuery implements ns\IExpression
 		$this->m_fieldValues = array ();
 	}
 
-	public function execute()
+	public function execute($flags = 0)
 	{
 		$qs = $this->expressionString();
 		if (!$qs)
@@ -385,7 +385,7 @@ class DeleteQuery extends TableQuery
 		$this->m_condition = new WhereQueryConditionStatement();
 	}
 
-	public function execute ()
+	public function execute ($flags = 0)
 	{
 		$qs = $this->expressionString();
 		if (!$qs)
@@ -965,7 +965,7 @@ class SelectQuery extends TableQuery implements ns\IExpression
 	 * @see common/ns/sources/sql/IQuery#execute()
 	 * @return RecordSet
 	 */
-	public function execute ()
+	public function execute ($flags = kRecordsetFetchBoth)
 	{
 		$qs = $this->expressionString();
 		if (!$qs)
@@ -976,7 +976,7 @@ class SelectQuery extends TableQuery implements ns\IExpression
 		$result = $this->m_datasource->executeQuery($qs);
 		if ($result)
 		{
-			return new Recordset($this->datasource, $result);
+			return new Recordset($this->datasource, $result, ($flags & kRecordsetFetchBoth));
 		}
 		return false;
 	}
@@ -1195,7 +1195,7 @@ class TruncateQuery extends TableQuery implements ns\IExpression
 		parent::__construct($a_table);
 	}
 
-	public function execute ()
+	public function execute ($flags = 0)
 	{
 		$qs = $this->expressionString();
 		if (!$qs)
@@ -1206,7 +1206,7 @@ class TruncateQuery extends TableQuery implements ns\IExpression
 		$result = $this->m_datasource->executeQuery($qs);
 		if ($result)
 		{
-			return new Recordset($this->datasource, $result);
+			return true;
 		}
 		return false;
 	}

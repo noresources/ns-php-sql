@@ -321,7 +321,7 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 	 * @param mixed $a_queryResult query result ressource
 	 * @return array
 	 */
-	public abstract function fetchResult(QueryResult $a_queryResult);
+	public abstract function fetchResult(QueryResult $a_queryResult, $fetchFlags = kRecordsetFetchBoth);
 
 	/**
 	 * Reset the result cursor before the first record

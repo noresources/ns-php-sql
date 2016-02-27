@@ -498,16 +498,26 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 		return 0;
 	}
 
-	public function fetchResult(QueryResult $a_queryResult)
+	/**
+	 * @return array
+	 */
+	public function fetchResult(QueryResult $a_queryResult, $fetchFlags = kRecordsetFetchBoth)
 	{
+		//var_dump($fetchFlags); die ('');
+		$sqliteFlags = 0;
+		
 		$r = $a_queryResult->resultResource;
 		if ($this->m_implementation == self::kImplementationSQLite3)
 		{
-			return $r->fetchArray();
+			if ($fetchFlags & kRecordsetFetchName) $sqliteFlags |= SQLITE3_ASSOC;
+			if ($fetchFlags & kRecordsetFetchNumeric) $sqliteFlags |= SQLITE3_NUM;
+			return $r->fetchArray($fetchFlags);
 		}
 		elseif ($this->m_implementation == self::kImplementationLegacy)
 		{
-			return sqlite_fetch_array($r);
+			if ($fetchFlags & kRecordsetFetchName) $sqliteFlags |= SQLITE_ASSOC;
+			if ($fetchFlags & kRecordsetFetchNumeric) $sqliteFlags |= SQLITE_NUM;
+			return sqlite_fetch_array($r, $fetchFlags);
 		}
 		
 		return null;
@@ -565,7 +575,7 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 		}
 		
 		$c = 0;
-		while ($this->fetchResult($a_queryResult))
+		while ($this->fetchResult($a_queryResult, kRecordsetFetchNumeric))
 		{
 			$c++;
 		}
@@ -576,7 +586,7 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 		{
 			while ($index > 0)
 			{
-				$this->fetchResult($a_queryResult);
+				$this->fetchResult($a_queryResult, kRecordsetFetchNumeric);
 				$index--;
 			}
 		}
@@ -706,7 +716,7 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 	{
 		// ns\echo_line($queryStr);
 		$queryStr = 'PRAGMA table_info(\'' . $a_table->getName() . '\')';
-		$queryRes = new Recordset($this, $this->executeQuery($queryStr));
+		$queryRes = new Recordset($this, $this->executeQuery($queryStr), kRecordsetFetchName);
 		if ($queryRes === false)
 		{
 			return false;

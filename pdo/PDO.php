@@ -47,7 +47,7 @@ class PDOBackend
 		
 	}
 	
-	public function fetchResult(QueryResult $a_queryResult)
+	public function fetchResult(QueryResult $a_queryResult, $fetchFlags = kRecordsetFetchBoth)
 	{
 		
 	}

@@ -31,7 +31,7 @@ class DropTableQuery extends TableQuery
 		return 'DROP TABLE ' . $this->table->expressionString($a_options);
 	}
 
-	public function execute()
+	public function execute($flags = 0)
 	{
 		$q = $this->expressionString();
 		$result = $this->m_datasource->executeQuery($q);
@@ -53,7 +53,7 @@ class RenameTableQuery extends TableQuery
 		return 'ALTER TABLE ' . $this->table->expressionString($a_options) . ' RENAME TO ' . $this->m_newTable->expressionString($a_options);
 	}
 
-	public function execute()
+	public function execute($flags = 0)
 	{
 		$q = $this->expressionString();
 		$result = $this->m_datasource->executeQuery($q);
@@ -75,7 +75,7 @@ class CreateTableQuery extends IQuery
 		$this->m_structure;
 	}
 	
-	public function execute()
+	public function execute($flags = 0)
 	{
 		
 	}

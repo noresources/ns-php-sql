@@ -97,48 +97,55 @@ class QueryResult
  */
 class Recordset extends QueryResult implements Iterator, Countable
 {
-	const ITERATOR_BEFORE_RECORD = -1;
-	const FLAG_ROWCOUNT = 1;
-	const FLAG_END = 2;
-	const FLAG_UNINITIALIZED = 4;
-
-	public function __construct(Datasource $a_datasource, $a_resultResource)
+	const kIteratorIndexBefore = -1;
+	
+	const kStateUnitialized = 0x10000000;
+	const kStateIteratorEnd = 0x20000000;
+	const kRowCount = 0x40000000;
+		
+	public function __construct(Datasource $a_datasource, $a_resultResource, $fetchFlags = kRecordsetFetchBoth)
 	{
 		parent::__construct($a_datasource, $a_resultResource);
-		$this->m_iCurrentRowIndex = self::ITERATOR_BEFORE_RECORD;
+		$this->m_iCurrentRowIndex = self::kIteratorIndexBefore;
 		$this->m_aColumnNames = null;
 		$this->m_aCurrentRow = null;
-		$this->m_flags = self::FLAG_UNINITIALIZED;
+		$this->m_flags = self::kStateUnitialized;
+		if ($fetchFlags == 0)
+		{
+			$fetchFlags = kRecordsetFetchBoth;
+		}
+		
+		$this->m_flags |= ($fetchFlags & kRecordsetFetchBoth);
 	}
 	
 	// Iterator implementation
 	public function rewind()
 	{
 		// ns\Reporter::debug($this, 'rewind '.$this->m_iCurrentRowIndex);
-		$this->m_iCurrentRowIndex = self::ITERATOR_BEFORE_RECORD;
+		$this->m_iCurrentRowIndex = self::kIteratorIndexBefore;
 		$this->m_aCurrentRow = null;
-		$this->m_flags |= self::FLAG_UNINITIALIZED;
-		$this->m_flags &= ~self::FLAG_END;
+		$this->m_flags |= self::kStateUnitialized;
+		$this->m_flags &= ~self::kStateIteratorEnd;
 		
 		if ($this->datasource->resetResult($this))
 		{
-			$this->m_aCurrentRow = $this->datasource->fetchResult($this);
+			$this->m_aCurrentRow = $this->datasource->fetchResult($this, ($this->m_flags & kRecordsetFetchBoth));
 			if ($this->m_aCurrentRow)
 			{
 				$this->m_iCurrentRowIndex = 0;
-				$this->m_flags &= ~self::FLAG_UNINITIALIZED;
+				$this->m_flags &= ~self::kStateUnitialized;
 			}
 		}
 		else
 		{
-			$this->m_flags |= self::FLAG_END;
+			$this->m_flags |= self::kStateIteratorEnd;
 		}
 	}
 
 	public function current()
 	{
 		// ns\Reporter::debug($this, 'current '.$this->m_iCurrentRowIndex);
-		if (($this->m_iCurrentRowIndex == self::ITERATOR_BEFORE_RECORD) && !($this->m_flags & self::FLAG_END))
+		if (($this->m_iCurrentRowIndex == self::kIteratorIndexBefore) && !($this->m_flags & self::kStateIteratorEnd))
 		{
 			$this->next();
 		}
@@ -155,15 +162,15 @@ class Recordset extends QueryResult implements Iterator, Countable
 	public function next()
 	{
 		//ns\Reporter::debug($this, 'next '.$this->m_iCurrentRowIndex);
-		$this->m_aCurrentRow = $this->datasource->fetchResult($this);
+		$this->m_aCurrentRow = $this->datasource->fetchResult($this, ($this->m_flags & kRecordsetFetchBoth));
 		if ($this->m_aCurrentRow)
 		{
 			$this->m_iCurrentRowIndex++;
 		}
 		else
 		{
-			$this->m_iCurrentRowIndex = self::ITERATOR_BEFORE_RECORD;
-			$this->m_flags |= self::FLAG_END;
+			$this->m_iCurrentRowIndex = self::kIteratorIndexBefore;
+			$this->m_flags |= self::kStateIteratorEnd;
 		}
 		
 		return $this->m_aCurrentRow;
@@ -171,7 +178,7 @@ class Recordset extends QueryResult implements Iterator, Countable
 
 	public function valid()
 	{
-		return !($this->m_flags & self::FLAG_END);
+		return !($this->m_flags & self::kStateIteratorEnd);
 	}
 	
 	// End of Iterator implementation
@@ -200,7 +207,7 @@ class Recordset extends QueryResult implements Iterator, Countable
 	 */
 	public function rowCount()
 	{
-		if ($this->m_flags & self::FLAG_ROWCOUNT)
+		if ($this->m_flags & self::kRowCount)
 		{
 			//ns\Reporter::debug($this, 'Use buffered row count '. $this->m_rowCount);
 			return $this->m_rowCount;
@@ -209,7 +216,7 @@ class Recordset extends QueryResult implements Iterator, Countable
 		$this->m_rowCount = $this->datasource->resultRowCount($this);
 		if ($this->m_rowCount !== false)
 		{
-			$this->m_flags |= self::FLAG_ROWCOUNT;
+			$this->m_flags |= self::kRowCount;
 		}
 		
 		return $this->m_rowCount;
