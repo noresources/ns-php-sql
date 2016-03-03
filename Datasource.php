@@ -129,6 +129,11 @@ abstract class Datasource extends SQLObject implements IDatabaseProvider
 	 */
 	public static function create($settings, $connect = false)
 	{
+		if (!\is_array($settings))
+		{
+			$settings = ns\to_array($settings, kConnectionParameterHostname);
+		}
+		
 		$cls = ns\array_keyvalue($settings, kConnectionParameterClassname, null);
 		if (!is_string($cls))
 		{
