@@ -196,7 +196,7 @@ class Record implements \ArrayAccess
 	 * @param integer $flags Accepts kRecordQueryCreate
 	 * @param string $className
 	 */
-	public static function get(Table $table, $keys, $flags, $className = null)
+	public static function getRecord(Table $table, $keys, $flags, $className = null)
 	{
 		if (!(is_string($className) && class_exists($className)))
 		{
@@ -282,7 +282,7 @@ class Record implements \ArrayAccess
 	 *        otherwise
 	 *        - an array of Record
 	 */
-	public static function query(Table $table, $filters, $flags = kRecordQueryMultiple, $className = null)
+	public static function queryRecord(Table $table, $filters, $flags = kRecordQueryMultiple, $className = null)
 	{
 		if (!(is_string($className) && class_exists($className)))
 		{
@@ -313,7 +313,7 @@ class Record implements \ArrayAccess
 				
 				if (!is_null($primaryKeyColumn))
 				{
-					return self::query($table, array (
+					return self::queryRecord($table, array (
 							$primaryKeyColumn => $filters 
 					), $flags, $className);
 				}
@@ -609,7 +609,7 @@ class Record implements \ArrayAccess
 	{
 		if (!($flags & kRecordQueryMultiple))
 		{
-			$record = self::query($this->m_table, $this->getKey(), kRecordQueryMultiple, get_called_class());
+			$record = self::queryRecord($this->m_table, $this->getKey(), kRecordQueryMultiple, get_called_class());
 			if (count($record) > 1)
 			{
 				return ns\Reporter::error($this, __METHOD__ . ': Multiple record deletion');
