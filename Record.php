@@ -365,7 +365,7 @@ class Record implements \ArrayAccess
 					}
 					
 					$column = $table->getColumn($name);
-					$s->where->addAndExpression($column->equalityExpression($column->importData($v)));
+					$s->where->addAndExpression($column->equalityExpression($column->importData($filter)));
 				}
 			}
 		}
