@@ -64,16 +64,17 @@ class ColumnFilter
 
 	/**
 	 *
-	 * @param string $o Operator
-	 * @param mixed $v Value
-	 * @param boolean $p
+	 * @param mixel $column Column name or TableField
+	 * @param string $operator Operator
+	 * @param mixed $value Value
+	 * @param boolean $positive
 	 */
-	public function __construct($c, $o, $v, $p = true)
+	public function __construct($column, $operator, $value, $positive = true)
 	{
-		$this->columnName = $c;
-		$this->positive = $p;
-		$this->operator = $o;
-		$this->value = $v;
+		$this->columnName = ($column instanceof TableField) ? $column->getName() : $column;
+		$this->positive = $positive;
+		$this->operator = $operator;
+		$this->value = $value;
 	}
 
 	/**
@@ -161,14 +162,27 @@ class ColumnFilter
 class LimitFilter
 {
 
+	/**
+	 *
+	 * @var number
+	 */
 	public $limit;
 
+	/**
+	 *
+	 * @var number
+	 */
 	public $offset;
 
-	public function __construct($l, $o = 0)
+	/**
+	 *
+	 * @param number $limit
+	 * @param number $ooffset
+	 */
+	public function __construct($limit, $ooffset = 0)
 	{
-		$this->limit = $l;
-		$this->offset = $o;
+		$this->limit = $limit;
+		$this->offset = $ooffset;
 	}
 }
 
@@ -179,9 +193,14 @@ class OrderFilter
 
 	public $ascending;
 
-	public function __construct($c, $asc = true)
+	/**
+	 *
+	 * @param unknown $column Column name or TableField
+	 * @param string $asc
+	 */
+	public function __construct($column, $asc = true)
 	{
-		$this->columnName = $c;
+		$this->columnName = ($column instanceof TableField) ? $column->getName() : $column;
 		$this->ascending = $asc;
 	}
 }
@@ -341,12 +360,12 @@ class Record implements \ArrayAccess
 						continue;
 					}
 					
-					$e = $v->toExpression($className, $table);
+					$e = $filter->toExpression($className, $table);
 					$s->where->addAndExpression($e);
 				}
 				elseif ($filter instanceof LimitFilter)
 				{
-					$s->limit($filter->limit, $filter->offset);
+					$s->limit($filter->offset, $filter->limit);
 				}
 				elseif ($filter instanceof OrderFilter)
 				{
