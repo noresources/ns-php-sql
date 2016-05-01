@@ -651,7 +651,7 @@ class Record implements \ArrayAccess
 		if (is_object($result) && ($result instanceof DeleteQueryResult))
 		{
 			$this->m_flags &= ~kRecordStateExists;
-			return $result->affectedRowCount();
+			return ($result->affectedRowCount() > 0);
 		}
 		
 		return false;
