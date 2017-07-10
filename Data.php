@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Copyright © 2012-2016 by Renaud Guillard (dev@nore.fr)
+ * Copyright © 2012-2017 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
  */
 
@@ -242,9 +242,9 @@ class StringData extends Data
 	/**
 	 *
 	 * @param Datasource $datasource        	
-	 * @param TableFieldStructure $structure        	
+	 * @param TableColumnStructure $structure        	
 	 */
-	public function __construct (Datasource $datasource, /*TableFieldStructure*/ $structure)
+	public function __construct (Datasource $datasource, /*TableColumnStructure*/ $structure)
 	{
 		parent::__construct(kDataTypeString);
 		$this->m_datasource = $datasource;
@@ -352,9 +352,9 @@ class NumberData extends Data
 	/**
 	 *
 	 * @param Datasource $datasource        	
-	 * @param TableFieldStructure $structure        	
+	 * @param TableColumnStructure $structure        	
 	 */
-	public function __construct (Datasource $datasource, /*TableFieldStructure*/ $structure)
+	public function __construct (Datasource $datasource, /*TableColumnStructure*/ $structure)
 	{
 		parent::__construct(kDataTypeNumber);
 		$this->m_value = null;
@@ -438,9 +438,9 @@ class TimestampData extends Data
 	/**
 	 *
 	 * @param Datasource $datasource        	
-	 * @param TableFieldStructure $structure        	
+	 * @param TableColumnStructure $structure        	
 	 */
-	public function __construct (Datasource $datasource, /*TableFieldStructure*/ $structure)
+	public function __construct (Datasource $datasource, /*TableColumnStructure*/ $structure)
 	{
 		parent::__construct(kDataTypeTimestamp);
 		$this->m_datasource = $datasource;
@@ -523,7 +523,7 @@ class TimestampData extends Data
 class BinaryData extends Data
 {
 
-	public function __construct (Datasource $datasource, TableFieldStructure $structure)
+	public function __construct (Datasource $datasource, TableColumnStructure $structure)
 	{
 		parent::__construct(kDataTypeBinary);
 		$this->setFlags($this->flags | self::kAcceptNull);
@@ -574,9 +574,9 @@ class DataList implements ns\IExpression
 	/**
 	 *
 	 * @param array $list        	
-	 * @param TableField $column        	
+	 * @param TableColumn $column        	
 	 */
-	public static function fromList ($list, TableField $column = null)
+	public static function fromList ($list, TableColumn $column = null)
 	{
 		$o = new DataList();
 		if (!ns\is_array($list))
@@ -588,9 +588,9 @@ class DataList implements ns\IExpression
 		{
 			if (!(is_object($element) && ($element instanceof Data)))
 			{
-				if (!(is_object($column) && ($column instanceof TableField)))
+				if (!(is_object($column) && ($column instanceof TableColumn)))
 				{
-					return ns\Reporter::fatalError(__CLASS__, __METHOD__ . ': TableField must be specified to import raw data');
+					return ns\Reporter::fatalError(__CLASS__, __METHOD__ . ': TableColumn must be specified to import raw data');
 				}
 				
 				$element = $column->importData($element);

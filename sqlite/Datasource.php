@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Copyright © 2012-2016 by Renaud Guillard (dev@nore.fr)
+ * Copyright © 2012-2017 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
  */
 
@@ -730,7 +730,7 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 			$name = $row ['name'];
 			$typedef = parseDataTypeDefinition($row ['type'], true);
 			
-			$f = new TableFieldStructure($ts, $name);
+			$f = new TableColumnStructure($ts, $name);
 			$f->setProperty(kStructurePrimaryKey, ($row ['pk'] == '1'));
 			$f->setProperty(kStructureFieldTypename, $typedef ['type']);
 			$f->setProperty(kStructureAcceptNull, intval($row ['notnull']) == 0);
@@ -745,7 +745,7 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 				$f->setProperty(kStructureDecimalCount, $typedef ['dec_size']);
 			}
 			
-			$ts->addFieldStructure($f);
+			$ts->addColumnStructure($f);
 		}
 		
 		return $ts;

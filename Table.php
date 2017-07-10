@@ -18,7 +18,7 @@ require_once (NS_PHP_PATH . '/core/arrays.php');
  * Provide database-independant methods
  * to manipulate data
  */
-class Table extends SQLObject implements IExpression, IAliasedClone, ITableFieldProvider
+class Table extends SQLObject implements IExpression, IAliasedClone, ITableColumnProvider
 {
 	// construction / destruction
 	public function __construct(ITableProvider $a_owner, $a_name, $a_aliasName = '', TableStructure $a_structure = null)
@@ -110,25 +110,25 @@ class Table extends SQLObject implements IExpression, IAliasedClone, ITableField
 		return $result;
 	}
 	
-	// ITableFieldProvider implementation
+	// ITableColumnProvider implementation
 	
 
 	/**
 	 * (non-PHPdoc)
 	 *
-	 * @see sources/sql/ITableFieldProvider#defaultFieldClassName()
+	 * @see sources/sql/ITableColumnProvider#defaultFieldClassName()
 	 */
-	public function defaultFieldClassName()
+	public function defaultColumnClassName()
 	{
-		return __NAMESPACE__ . '\\TableField';
+		return __NAMESPACE__ . '\\TableColumn';
 	}
 
 	/**
 	 * (non-PHPdoc)
 	 *
-	 * @see sources/sql/ITableFieldProvider#defaultStarFieldClassName()
+	 * @see sources/sql/ITableColumnProvider#defaultStarFieldClassName()
 	 */
-	public function defaultStarFieldClassName()
+	public function defaultStarColumnClassName()
 	{
 		return __NAMESPACE__ . '\\StarColumn';
 	}
@@ -139,11 +139,11 @@ class Table extends SQLObject implements IExpression, IAliasedClone, ITableField
 	 * @param $a_className optional
 	 * @return StarColumn
 	 */
-	public function starFieldObject($a_className = null)
+	public function starColumnObject($a_className = null)
 	{
 		if (!class_exists($a_className))
 		{
-			$a_className = $this->defaultStarFieldClassName();
+			$a_className = $this->defaultStarColumnClassName();
 		}
 		
 		$res = new $a_className($this);
@@ -152,14 +152,14 @@ class Table extends SQLObject implements IExpression, IAliasedClone, ITableField
 
 	/**
 	 *
-	 * @see include/ns/php/lib/sources/sql/ITableFieldProvider#getColumn($a_name, $a_aliasName, $a_className)
-	 * @return TableField
+	 * @see include/ns/php/lib/sources/sql/ITableColumnProvider#getColumn($a_name, $a_aliasName, $a_className)
+	 * @return TableColumn
 	 */
 	public function getColumn($a_name, $a_aliasName = null, $a_className = null)
 	{
 		if ($a_name == '*')
 		{
-			$res = $this->starFieldObject(strlen($a_className) ? $a_className : $this->defaultStarFieldClassName());
+			$res = $this->starColumnObject(strlen($a_className) ? $a_className : $this->defaultStarColumnClassName());
 			return $res;
 		}
 		
@@ -177,7 +177,7 @@ class Table extends SQLObject implements IExpression, IAliasedClone, ITableField
 			ns\Reporter::warning($this, __METHOD__ . '(): No structure for table ' . $this->m_name, __FILE__, __LINE__);
 		}
 		
-		$class = strlen($a_className) ? $a_className : $this->defaultFieldClassName();
+		$class = strlen($a_className) ? $a_className : $this->defaultColumnClassName();
 		
 		$obj = new $class($this, $a_name, $a_aliasName, $subStructure);
 		
@@ -187,9 +187,9 @@ class Table extends SQLObject implements IExpression, IAliasedClone, ITableField
 	/**
 	 * (non-PHPdoc)
 	 *
-	 * @see sources/sql/ITableFieldProvider#fieldIterator()
+	 * @see sources/sql/ITableColumnProvider#fieldIterator()
 	 */
-	public function fieldIterator()
+	public function columnIterator()
 	{
 		if ($this->m_structure)
 		{
@@ -201,7 +201,7 @@ class Table extends SQLObject implements IExpression, IAliasedClone, ITableField
 
 	/**
 	 *
-	 * @see sources/sql/ITableFieldProvider#columnExists($a_name)
+	 * @see sources/sql/ITableColumnProvider#columnExists($a_name)
 	 */
 	public function columnExists($a_name)
 	{
@@ -286,7 +286,7 @@ class Table extends SQLObject implements IExpression, IAliasedClone, ITableField
 		}
 		
 		$iq = new InsertQuery($this);
-		$iq->addFieldValues($a_fieldsAndValues);
+		$iq->addColumnValues($a_fieldsAndValues);
 		
 		return $iq->execute();
 	}
@@ -310,7 +310,7 @@ class Table extends SQLObject implements IExpression, IAliasedClone, ITableField
 		}
 		
 		$uq = new UpdateQuery($this);
-		$uq->addFieldValues($a_fieldAndValues);
+		$uq->addColumnValues($a_fieldAndValues);
 		$uq->where->addAndExpression($a_conditions);
 		
 		return $uq->execute();

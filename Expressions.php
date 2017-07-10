@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Copyright © 2012-2016 by Renaud Guillard (dev@nore.fr)
+ * Copyright © 2012-2017 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
  *
  * A set of ns\IExpression designed to be used in queries
@@ -96,7 +96,7 @@ class SQLSmartEquality extends ns\BinaryOperatorExpression
 		if (!(($a_value instanceof Data) || ($a_value instanceof SelectQuery) || ($a_value instanceof DataList) ||
 				 ($a_value instanceof SQLFunction)))
 		{
-			if ($a_column instanceof TableField)
+			if ($a_column instanceof TableColumn)
 			{
 				$t = $a_column->type();
 				if (is_array($a_value))
@@ -117,7 +117,7 @@ class SQLSmartEquality extends ns\BinaryOperatorExpression
 			else
 			{
 				ns\Reporter::addWarning($this, 
-						__METHOD__ . '(): Argument 1 is not a TableField and argument 2 is not a SQLValue. ' .
+						__METHOD__ . '(): Argument 1 is not a TableColumn and argument 2 is not a SQLValue. ' .
 								 'The method will not be able to precisely determine data type.', __FILE__, __LINE__);
 				$a_value = bestEffortImport($a_value);
 			}
@@ -164,7 +164,7 @@ class SQLBetween extends ns\BinaryOperatorExpression
 
 	/**
 	 *
-	 * @param TableField $a_leftExpression        	
+	 * @param TableColumn $a_leftExpression        	
 	 * @param mixed $a_min
 	 *        	basic type Function or SQLValue
 	 * @param mixed $a_max
@@ -177,7 +177,7 @@ class SQLBetween extends ns\BinaryOperatorExpression
 		
 		if (!($a_min instanceof ns\IExpression))
 		{
-			if (is_object($t) && $t instanceof TableField)
+			if (is_object($t) && $t instanceof TableColumn)
 			{
 				$a_min = $a_leftExpression->importData($a_min);
 			}
@@ -220,7 +220,7 @@ class AutoInterval extends ns\BinaryOperatorExpression
 		}
 		
 		$t = null;
-		if ($a_leftExpression instanceof TableField)
+		if ($a_leftExpression instanceof TableColumn)
 		{
 			$t = $a_leftExpression->type();
 		}

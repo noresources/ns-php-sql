@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Copyright © 2012-2016 by Renaud Guillard (dev@nore.fr)
+ * Copyright © 2012-2017 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
  * 
  * @package SQL
@@ -74,15 +74,15 @@ class InsertQuery extends TableQuery implements ns\IExpression
 	/**
 	 * Add a field value
 	 *
-	 * @param mixed $a_field string(name) or TableField
+	 * @param mixed $a_field string(name) or TableColumn
 	 * @param ns\IExpression $a_value
 	 */
-	public function addFieldValue($a_field, ns\IExpression $a_value)
+	public function addColumnValue($a_field, ns\IExpression $a_value)
 	{
-		$a_field = mixedToTableField($a_field, $this->table);
+		$a_field = mixedToTableColumn($a_field, $this->table);
 		if (!$a_field)
 		{
-			return ns\Reporter::error($this, __METHOD__ . '(): Unable to get TableField object', __FILE__, __LINE__);
+			return ns\Reporter::error($this, __METHOD__ . '(): Unable to get TableColumn object', __FILE__, __LINE__);
 		}
 		
 		$f = $this->datasource->encloseElement($a_field->name);
@@ -95,20 +95,20 @@ class InsertQuery extends TableQuery implements ns\IExpression
 	 *
 	 * @param mixed $a_fieldAndValues associative array [field name => value]
 	 *       
-	 *        Values are formatted using TableField::importData()
+	 *        Values are formatted using TableColumn::importData()
 	 */
-	public function addFieldValues($a_fieldAndValues)
+	public function addColumnValues($a_fieldAndValues)
 	{
 		foreach ($a_fieldAndValues as $k => $v)
 		{
-			$k = mixedToTableField($k, $this->table);
+			$k = mixedToTableColumn($k, $this->table);
 			if (!$k)
 			{
 				ns\Reporter::error($this, __METHOD__ . '(): Invalid field ', __FILE__, __LINE__);
 				continue;
 			}
 			
-			$this->addFieldValue($k, $k->importData($v));
+			$this->addColumnValue($k, $k->importData($v));
 		}
 	}
 
@@ -203,15 +203,15 @@ class UpdateQuery extends TableQuery implements ns\IExpression
 	/**
 	 * Add a field value
 	 *
-	 * @param mixed $a_field string(name) or TableField
+	 * @param mixed $a_field string(name) or TableColumn
 	 * @param ns\IExpression $a_value
 	 */
-	public function addFieldValue($a_field, ns\IExpression $a_value)
+	public function addColumnValue($a_field, ns\IExpression $a_value)
 	{
-		$a_field = mixedToTableField($a_field, $this->table);
-		if (!(is_object($a_field) && ($a_field instanceof TableField)))
+		$a_field = mixedToTableColumn($a_field, $this->table);
+		if (!(is_object($a_field) && ($a_field instanceof TableColumn)))
 		{
-			return ns\Reporter::error($this, __METHOD__ . '(): Unable to get TableField object', __FILE__, __LINE__);
+			return ns\Reporter::error($this, __METHOD__ . '(): Unable to get TableColumn object', __FILE__, __LINE__);
 		}
 		
 		$f = $this->datasource->encloseElement($a_field->name);
@@ -226,19 +226,19 @@ class UpdateQuery extends TableQuery implements ns\IExpression
 	 *
 	 * @param mixed $a_fieldAndValues associative array [field name => value]
 	 *       
-	 *        Values are formatted using TableField::importData()
+	 *        Values are formatted using TableColumn::importData()
 	 */
-	public function addFieldValues($a_fieldAndValues)
+	public function addColumnValues($a_fieldAndValues)
 	{
 		foreach ($a_fieldAndValues as $k => $v)
 		{
-			$k = mixedToTableField($k, $this->table);
+			$k = mixedToTableColumn($k, $this->table);
 			if (!$k)
 			{
 				ns\Reporter::error($this, __METHOD__ . '(): Invalid field ', __FILE__, __LINE__);
 				continue;
 			}
-			$this->addFieldValue($k, $k->importData($v));
+			$this->addColumnValue($k, $k->importData($v));
 		}
 	}
 
@@ -610,7 +610,7 @@ class SelectQueryGroupByStatement implements ns\IExpression
 		for ($i = 0; $i < $n; $i++)
 		{
 			$c = func_get_arg($i);
-			if (($c instanceof SQLAlias) || ($c instanceof ITableField))
+			if (($c instanceof SQLAlias) || ($c instanceof ITableColumn))
 			{
 				$this->m_columns[] = $c;
 			}
@@ -832,7 +832,7 @@ class SelectQueryJoin extends ISelectQueryJoin
 		return parent::expressionString() . ($this->m_joinLink ? ' ' . $this->m_joinLink->expressionString(kExpressionElementName) : '');
 	}
 
-	public function addLink(TableField $a_leftField, TableField $a_rightField)
+	public function addLink(TableColumn $a_leftField, TableColumn $a_rightField)
 	{
 		if ($a_leftField->table != $this->leftTable || $a_rightField->table != $this->rightTable)
 		{

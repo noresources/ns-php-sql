@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Copyright © 2012-2016 by Renaud Guillard (dev@nore.fr)
+ * Copyright © 2012-2017 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
  */
 
@@ -420,7 +420,7 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 	/**
 	 *
 	 * @param mixed $mixed SQL data type (number), Datasource-specific type name,
-	 *        TableField or TableFieldStructure
+	 *        TableColumn or TableColumnStructure
 	 */
 	public function createData($dataType)
 	{
@@ -496,11 +496,11 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 				return $this->m_dataTypeNames [$dataType] ['type'];
 			}
 		}
-		elseif ($dataType instanceof TableFieldStructure)
+		elseif ($dataType instanceof TableColumnStructure)
 		{
 			return $dataType->getProperty(self::kStructureDatatype);
 		}
-		elseif ($dataType instanceof TableField)
+		elseif ($dataType instanceof TableColumn)
 		{
 			if ($dataType->structure)
 			{

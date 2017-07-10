@@ -19,7 +19,7 @@ require_once (NS_PHP_PATH . '/core/arrays.php');
 /**
  * Provide a validation on imported data
  */
-interface ITableFieldValueValidator
+interface ITableColumnValueValidator
 {
 
 	/**
@@ -32,7 +32,7 @@ interface ITableFieldValueValidator
 /**
  * Validator for enum-like fields
  */
-class ListedElementTableFieldValueValidator implements ITableFieldValueValidator
+class ListedElementTableColumnValueValidator implements ITableColumnValueValidator
 {
 
 	public function __construct($a_aElements = null)
@@ -60,7 +60,7 @@ class ListedElementTableFieldValueValidator implements ITableFieldValueValidator
 /**
  * Validator for set-like fields
  */
-class MultipleListedElementTableFieldValueValidator extends ListedElementTableFieldValueValidator
+class MultipleListedElementTableColumnValueValidator extends ListedElementTableColumnValueValidator
 {
 
 	public function __construct($a_aElements = null)
@@ -87,29 +87,29 @@ class MultipleListedElementTableFieldValueValidator extends ListedElementTableFi
 	}
 }
 
-interface ITableFieldValueValidatorProvider
+interface ITableColumnValueValidatorProvider
 {
 
 	/**
-	 * Get the ITableFieldValueValidator object (if present) of the field
+	 * Get the ITableColumnValueValidator object (if present) of the field
 	 *
-	 * @return ITableFieldValueValidator
+	 * @return ITableColumnValueValidator
 	 */
-	function getFieldValueValidator();
+	function getColumnValueValidator();
 
-	function setFieldValueValidator(ITableFieldValueValidator $a_validator = null);
+	function setColumnValueValidator(ITableColumnValueValidator $a_validator = null);
 }
 
 /**
  * A database field represent one column of a database table
  */
-abstract class ITableField extends SQLObject implements IExpression, IAliasable
+abstract class ITableColumn extends SQLObject implements IExpression, IAliasable
 {
 
 	/**
-	 * @param TableFieldStructure $a_structure
+	 * @param TableColumnStructure $a_structure
 	 */
-	public function __construct(TableFieldStructure $a_structure = null)
+	public function __construct(TableColumnStructure $a_structure = null)
 	{
 		parent::__construct($a_structure);
 	}
@@ -147,7 +147,7 @@ abstract class ITableField extends SQLObject implements IExpression, IAliasable
  * The Star field is a special SQL syntax representing all
  * columns of a database table
  */
-class StarColumn extends ITableField
+class StarColumn extends ITableColumn
 {
 
 	/**
@@ -206,7 +206,7 @@ class StarColumn extends ITableField
 		return null;
 	}
 	
-	// ITableField implementation
+	// ITableColumn implementation
 	public function getTable()
 	{
 		return $this->m_table;
@@ -231,7 +231,7 @@ class StarColumn extends ITableField
 /**
  * A database table field
  */
-class TableField extends ITableField implements IAliasedClone, ITableFieldValueValidatorProvider, IAliasable
+class TableColumn extends ITableColumn implements IAliasedClone, ITableColumnValueValidatorProvider, IAliasable
 {
 
 	/**
@@ -244,9 +244,9 @@ class TableField extends ITableField implements IAliasedClone, ITableFieldValueV
 	 * @param string $a_strAlias
 	 *        	Alias (optional)
 	 * @param array $a_structure
-	 *        	TableFieldStructure
+	 *        	TableColumnStructure
 	 */
-	public function __construct(Table $a_table, $a_strName, $a_strAlias = null, TableFieldStructure $a_structure = null)
+	public function __construct(Table $a_table, $a_strName, $a_strAlias = null, TableColumnStructure $a_structure = null)
 	{
 		parent::__construct($a_structure);
 		$this->m_table = $a_table;
@@ -262,14 +262,14 @@ class TableField extends ITableField implements IAliasedClone, ITableFieldValueV
 			if (($data = $this->structure->getProperty(kStructureValidatorClassname)))
 			{
 				// ns\Reporter::debug($this, 'Adding '.$data);
-				$this->setFieldValueValidator(new $data($this->structure));
+				$this->setColumnValueValidator(new $data($this->structure));
 			}
 			else if (($data = $this->structure->getProperty(kStructureEnumeration)))
 			{
 				if ($this->structure->getProperty(kStructureAcceptMultipleValues))
 				{
-					// ns\Reporter::debug($this, 'Adding MultipleListedElementTableFieldValueValidator');
-					$v = new MultipleListedElementTableFieldValueValidator($data);
+					// ns\Reporter::debug($this, 'Adding MultipleListedElementTableColumnValueValidator');
+					$v = new MultipleListedElementTableColumnValueValidator($data);
 					if ($this->structure)
 					{
 						if ($this->structure->getProperty(kStructureAcceptNull))
@@ -280,8 +280,8 @@ class TableField extends ITableField implements IAliasedClone, ITableFieldValueV
 				}
 				else
 				{
-					// ns\Reporter::debug($this, 'Adding ListedElementTableFieldValueValidator');
-					$v = new ListedElementTableFieldValueValidator($data);
+					// ns\Reporter::debug($this, 'Adding ListedElementTableColumnValueValidator');
+					$v = new ListedElementTableColumnValueValidator($data);
 					if ($this->structure)
 					{
 						if ($this->structure->getProperty(kStructureAcceptNull))
@@ -291,7 +291,7 @@ class TableField extends ITableField implements IAliasedClone, ITableFieldValueV
 					}
 				}
 				
-				$this->setFieldValueValidator($v);
+				$this->setColumnValueValidator($v);
 			}
 		}
 	}
@@ -357,7 +357,7 @@ class TableField extends ITableField implements IAliasedClone, ITableFieldValueV
 	
 	/**
 	 *
-	 * @return TableField
+	 * @return TableColumn
 	 */
 	public function cloneWithOtherAlias($newAlias)
 	{
@@ -392,7 +392,7 @@ class TableField extends ITableField implements IAliasedClone, ITableFieldValueV
 		return $this->m_alias;
 	}
 	
-	// ITableField implementation
+	// ITableColumn implementation
 	
 	/**
 	 * (non-PHPdoc)
@@ -406,36 +406,28 @@ class TableField extends ITableField implements IAliasedClone, ITableFieldValueV
 
 	/**
 	 *
-	 * @see include/ns/php/lib/sources/sql/ITableField#getName()
+	 * @see include/ns/php/lib/sources/sql/ITableColumn#getName()
 	 */
 	public function getName()
 	{
 		return $this->m_fieldName;
 	}
 	
-	// end of ITableField implementation
+	// end of ITableColumn implementation
 	
-	// ITableFieldValueValidatorProvider implementation
+	// ITableColumnValueValidatorProvider implementation
 	
-	/**
-	 *
-	 * @see include/ns/php/lib/sources/sql/ITableFieldValueValidatorProvider#getFieldValueValidator()
-	 */
-	public function getFieldValueValidator()
+	public function getColumnValueValidator()
 	{
 		return $this->m_valueValidator;
 	}
 
-	/**
-	 *
-	 * @see include/ns/php/lib/sources/sql/ITableFieldValueValidatorProvider#setFieldValueValidator($a_validator)
-	 */
-	public function setFieldValueValidator(ITableFieldValueValidator $a_validator = null)
+	public function setColumnValueValidator(ITableColumnValueValidator $a_validator = null)
 	{
 		$this->m_valueValidator = $a_validator;
 	}
 	
-	// end of ITableFieldValueValidatorProvider implementation
+	// end of ITableColumnValueValidatorProvider implementation
 	public function __toString()
 	{
 		return $this->expressionString();
@@ -562,7 +554,7 @@ class TableField extends ITableField implements IAliasedClone, ITableFieldValueV
 
 	/**
 	 *
-	 * @var ITableFieldValueValidator
+	 * @var ITableColumnValueValidator
 	 */
 	protected $m_valueValidator;
 }

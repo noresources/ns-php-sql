@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Copyright © 2012-2016 by Renaud Guillard (dev@nore.fr)
+ * Copyright © 2012-2017 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
  */
 
@@ -12,7 +12,7 @@
 namespace NoreSources\SQL;
 use NoreSources as ns;
 
-class MySQLEnumFieldValueValidator extends ListedElementTableFieldValueValidator
+class MySQLEnumColumnValueValidator extends ListedElementTableColumnValueValidator
 {
 
 	public function __construct($a_properties)
@@ -58,7 +58,7 @@ class MySQLEnumFieldValueValidator extends ListedElementTableFieldValueValidator
  * A set is a list of enum stored as a 64bit flags
  *
  */
-class MySQLSetFieldValueValidator extends MultipleListedElementTableFieldValueValidator
+class MySQLSetColumnValueValidator extends MultipleListedElementTableColumnValueValidator
 {
 	public function __construct($a_properties)
 	{

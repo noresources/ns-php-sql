@@ -98,11 +98,10 @@ class QueryResult
 class Recordset extends QueryResult implements Iterator, Countable
 {
 	const kIteratorIndexBefore = -1;
-	
 	const kStateUnitialized = 0x10000000;
 	const kStateIteratorEnd = 0x20000000;
 	const kRowCount = 0x40000000;
-		
+
 	public function __construct(Datasource $a_datasource, $a_resultResource, $fetchFlags = kRecordsetFetchBoth)
 	{
 		parent::__construct($a_datasource, $a_resultResource);
@@ -289,9 +288,9 @@ class Recordset extends QueryResult implements Iterator, Countable
 	/**
 	 * Create a XHTML <select> tag
 	 * 
-	 * @param $a_valueField Field
+	 * @param $a_valueColumn Column
 	 *        	used as value attribute
-	 * @param $a_textField Field
+	 * @param $a_textColumn Column
 	 *        	used as text node
 	 * @param $a_selectedValue Selected
 	 *        	value
@@ -302,7 +301,7 @@ class Recordset extends QueryResult implements Iterator, Countable
 	 * @param $a_dom DOMDocument        	
 	 * @return DOMElement
 	 */
-	public function xhtmlSelectTag($a_valueField, $a_textField, $a_selectedValue = null, $a_selectAttributes = null, $a_optionsAttribute = null, DOMDocument $a_dom = null)
+	public function xhtmlSelectTag($a_valueColumn, $a_textColumn, $a_selectedValue = null, $a_selectAttributes = null, $a_optionsAttribute = null, DOMDocument $a_dom = null)
 	{
 		// xhtml is an optional package
 		if (!method_exists('xhtml', 'array_to_select_tag'))
@@ -316,7 +315,7 @@ class Recordset extends QueryResult implements Iterator, Countable
 			require_once ($file);
 		}
 		
-		return xhtml::array_to_select_tag($this, $a_valueField, $a_textField, $a_selectedValue, $a_selectAttributes, $a_optionsAttribute, $a_dom);
+		return xhtml::array_to_select_tag($this, $a_valueColumn, $a_textColumn, $a_selectedValue, $a_selectAttributes, $a_optionsAttribute, $a_dom);
 	}
 
 	protected $m_aCurrentRow;

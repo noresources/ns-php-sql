@@ -187,7 +187,7 @@ abstract class StructureElement implements \ArrayAccess, \IteratorAggregate, \Co
 				break;
 			case 'column':
 			case 'field':
-				$o = new TableFieldStructure($parent, $elementName);
+				$o = new TableColumnStructure($parent, $elementName);
 				break;
 			default:
 				return ns\Reporter::error(__CLASS__, __METHOD__ . ': invalid node ' . $node->localName);
@@ -443,7 +443,7 @@ abstract class StructureElement implements \ArrayAccess, \IteratorAggregate, \Co
 /**
  * Table field properties
  */
-class TableFieldStructure extends StructureElement
+class TableColumnStructure extends StructureElement
 {
 
 	public function __construct(/*TableStructure */$a_tableStructure, $a_name)
@@ -660,7 +660,7 @@ class TableStructure extends StructureElement
 		return $result;
 	}
 
-	public function addFieldStructure (TableFieldStructure $f)
+	public function addColumnStructure (TableColumnStructure $f)
 	{
 		$this->appendChild($f);
 	}

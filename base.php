@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Copyright © 2012-2016 by Renaud Guillard (dev@nore.fr)
+ * Copyright © 2012-2017 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
  */
 
@@ -57,16 +57,16 @@ function bestEffortImport($a_value, Datasource $a_source = null)
 }
 
 /**
- * Convert a variable in a TableField if possible
+ * Convert a variable in a TableColumn if possible
  *
  * @param $a_mixedValue
  * @param $a_provider
- * @return TableField
+ * @return TableColumn
  *
  */
-function mixedToTableField($a_mixedValue, ITableFieldProvider $a_provider)
+function mixedToTableColumn($a_mixedValue, ITableColumnProvider $a_provider)
 {
-	if ($a_mixedValue instanceof TableField)
+	if ($a_mixedValue instanceof TableColumn)
 	{
 		return $a_mixedValue;
 	}
@@ -79,7 +79,7 @@ function mixedToTableField($a_mixedValue, ITableFieldProvider $a_provider)
 	}
 	
 	$name = $a_mixedValue;
-	if (!($a_provider instanceof ITableFieldProvider) || !($a_mixedValue = $a_provider->getColumn($a_mixedValue)))
+	if (!($a_provider instanceof ITableColumnProvider) || !($a_mixedValue = $a_provider->getColumn($a_mixedValue)))
 	{
 		$a_mixedValue = null;
 		ns\Reporter::error(null, __METHOD__ . '(' . $name . ',' . get_class($a_provider) . '): Unable to retrieve field', __FILE__, __LINE__);
@@ -118,7 +118,7 @@ function tableProviderGenericTableObjectMethod(ITableProvider $a_provider, $a_st
 function guessStructureElement ($object)
 {
 	$structure = null;
-	if ($object instanceof TableField)
+	if ($object instanceof TableColumn)
 	{
 		$structure = $object->getStructure();
 	}

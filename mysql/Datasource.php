@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Copyright © 2012-2016 by Renaud Guillard (dev@nore.fr)
+ * Copyright © 2012-2017 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
  */
 
@@ -43,7 +43,7 @@ class MySQLTableManipulator extends TableManipulator
 		$strQuery = 'CREATE TABLE ' . $t->expressionString() . ' (';
 		
 		$first = true;
-		$primaryKeyFields = array ();
+		$primaryKeyColumns = array ();
 		
 		foreach ($a_structure as $name => $field)
 		{
@@ -85,16 +85,16 @@ class MySQLTableManipulator extends TableManipulator
 			
 			if ($field->getProperty(FIELD_PRIMARYKEY))
 			{
-				$primaryKeyFields[] = $this->m_datasource->encloseElement($field->getName());
+				$primaryKeyColumns[] = $this->m_datasource->encloseElement($field->getName());
 				;
 			}
 		}
 		
 		$strQuery .= ')';
 		
-		if (count($primaryKeyFields))
+		if (count($primaryKeyColumns))
 		{
-			$strQuery . ' PRIMARY KEY (' . implode(', ', $primaryKeyFields) . ')';
+			$strQuery . ' PRIMARY KEY (' . implode(', ', $primaryKeyColumns) . ')';
 		}
 		
 		$q = new FormattedQuery($this->m_provider->datasource, $strQuery);
@@ -587,11 +587,11 @@ class MySQLDatasource extends Datasource implements ITransactionBlock
 				);
 				if ($type == 'enum')
 				{
-					$typedef [kStructureValidatorClassname] = 'MySQLEnumFieldValueValidator';
+					$typedef [kStructureValidatorClassname] = 'MySQLEnumColumnValueValidator';
 				}
 				elseif ($type == 'set')
 				{
-					$typedef [kStructureValidatorClassname] = 'MySQLSetFieldValueValidator';
+					$typedef [kStructureValidatorClassname] = 'MySQLSetColumnValueValidator';
 					$typedef [kStructureAcceptMultipleValues] = true;
 				}
 			}
@@ -599,12 +599,12 @@ class MySQLDatasource extends Datasource implements ITransactionBlock
 			{
 				$typedef = parseDataTypeDefinition($row ['Type'], true);
 			}
-			$f = new TableFieldStructure($ts, $name);
+			$f = new TableColumnStructure($ts, $name);
 			
 			$f->setProperty(kStructurePrimaryKey, preg_match('/pri/i', $row ['Key']));
 			$f->setProperty(kStructureAutoincrement, preg_match('/auto_increment/i', $row ['Extra']));
 			$f->setProperty(kStructureAcceptNull, preg_match('/yes/i', $row ['Null']));
-			$f->setProperty(kStructureFieldTypename, $typedef ['type']);
+			$f->setProperty(kStructureColumnTypename, $typedef ['type']);
 			$f->setProperty(kStructureValidatorClassname, ns\array_keyvalue($typedef, kStructureValidatorClassname, false));
 			$f->setProperty(kStructureAcceptMultipleValues, $typedef [kStructureAcceptMultipleValues]);
 			
@@ -624,7 +624,7 @@ class MySQLDatasource extends Datasource implements ITransactionBlock
 				$f->setProperty(kStructureDecimalCount, $typedef ['dec_size']);
 			}
 			
-			$ts->addFieldStructure($f);
+			$ts->addColumnStructure($f);
 		}
 		
 		return $ts;

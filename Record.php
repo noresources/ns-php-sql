@@ -64,14 +64,14 @@ class ColumnFilter
 
 	/**
 	 *
-	 * @param mixel $column Column name or TableField
+	 * @param mixel $column Column name or TableColumn
 	 * @param string $operator Operator
 	 * @param mixed $value Value
 	 * @param boolean $positive
 	 */
 	public function __construct($column, $operator, $value, $positive = true)
 	{
-		$this->columnName = ($column instanceof TableField) ? $column->getName() : $column;
+		$this->columnName = ($column instanceof TableColumn) ? $column->getName() : $column;
 		$this->positive = $positive;
 		$this->operator = $operator;
 		$this->value = $value;
@@ -195,12 +195,12 @@ class OrderFilter
 
 	/**
 	 *
-	 * @param unknown $column Column name or TableField
+	 * @param unknown $column Column name or TableColumn
 	 * @param string $asc
 	 */
 	public function __construct($column, $asc = true)
 	{
-		$this->columnName = ($column instanceof TableField) ? $column->getName() : $column;
+		$this->columnName = ($column instanceof TableColumn) ? $column->getName() : $column;
 		$this->ascending = $asc;
 	}
 }
@@ -544,7 +544,7 @@ class Record implements \ArrayAccess
 			{
 				$f = $this->m_table->getColumn($n);
 				$d = $f->importData(static::serializeValue($n, $this->m_values[$n]));
-				$i->addFieldValue($f, $d);
+				$i->addColumnValue($f, $d);
 			}
 		}
 		
@@ -592,7 +592,7 @@ class Record implements \ArrayAccess
 				else
 				{
 					$count++;
-					$u->addFieldValue($f, $d);
+					$u->addColumnValue($f, $d);
 				}
 			}
 			elseif ($primary)
@@ -722,7 +722,7 @@ class Record implements \ArrayAccess
 		return $result;
 	}
 
-	private function setValue(TableFieldStructure $f, $value, $unserialize = false)
+	private function setValue(TableColumnStructure $f, $value, $unserialize = false)
 	{
 		if ($unserialize)
 		{

@@ -105,20 +105,20 @@ interface ITableProvider
 /**
  * Give access to table fields
  */
-interface ITableFieldProvider
+interface ITableColumnProvider
 {
 
 	/**
 	 *
 	 * @return string
 	 */
-	function defaultFieldClassName();
+	function defaultColumnClassName();
 
 	/**
 	 *
 	 * @return string
 	 */
-	function defaultStarFieldClassName();
+	function defaultStarColumnClassName();
 
 	/**
 	 *
@@ -128,7 +128,7 @@ interface ITableFieldProvider
 	 *        	$a_alias
 	 * @param
 	 *        	$a_className
-	 * @return TableField
+	 * @return TableColumn
 	 */
 	function getColumn($a_name, $a_alias = null, $a_className = null);
 
@@ -136,7 +136,7 @@ interface ITableFieldProvider
 	 *
 	 * @return Iterator
 	 */
-	function fieldIterator();
+	function columnIterator();
 
 	/**
 	 *

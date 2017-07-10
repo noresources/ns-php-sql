@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Copyright © 2012-2016 by Renaud Guillard (dev@nore.fr)
+ * Copyright © 2012-2017 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
  */
 
@@ -16,7 +16,7 @@ use NoreSources as ns;
 class MySQLStringData extends StringData
 {
 
-	public function __construct(Datasource $datasource, TableFieldStructure $structure = null)
+	public function __construct(Datasource $datasource, TableColumnStructure $structure = null)
 	{
 		parent::__construct($datasource, $structure);
 	}
@@ -30,7 +30,7 @@ class MySQLStringData extends StringData
 class MySQLBinaryData extends BinaryData
 {
 
-	public function __construct(Datasource $datasource, TableFieldStructure $structure = null)
+	public function __construct(Datasource $datasource, TableColumnStructure $structure = null)
 	{
 		parent::__construct($datasource, $structure);
 	}

@@ -1,5 +1,5 @@
 <?php
-function autoload_NTZjMGM0YTg5NWQ4Yg($className)
+function autoload_NTg5NzRlMzM1NTE5YQ($className)
 {
 	if ($className == 'NoreSources\SQL\Database')
 	{
@@ -61,11 +61,11 @@ function autoload_NTZjMGM0YTg5NWQ4Yg($className)
 	{
 		require_once(__DIR__ . '/mysql/Expressions.php');
 	}
- 	elseif ($className == 'NoreSources\SQL\MySQLEnumFieldValueValidator')
+ 	elseif ($className == 'NoreSources\SQL\MySQLEnumColumnValueValidator')
 	{
 		require_once(__DIR__ . '/mysql/FieldValidators.php');
 	}
- 	elseif ($className == 'NoreSources\SQL\MySQLSetFieldValueValidator')
+ 	elseif ($className == 'NoreSources\SQL\MySQLSetColumnValueValidator')
 	{
 		require_once(__DIR__ . '/mysql/FieldValidators.php');
 	}
@@ -100,34 +100,6 @@ function autoload_NTZjMGM0YTg5NWQ4Yg($className)
  	elseif ($className == 'NoreSources\SQL\SQLAs')
 	{
 		require_once(__DIR__ . '/BasicExpressions.php');
-	}
- 	elseif ($className == 'NoreSources\SQL\ITableFieldValueValidator')
-	{
-		require_once(__DIR__ . '/TableField.php');
-	}
- 	elseif ($className == 'NoreSources\SQL\ListedElementTableFieldValueValidator')
-	{
-		require_once(__DIR__ . '/TableField.php');
-	}
- 	elseif ($className == 'NoreSources\SQL\MultipleListedElementTableFieldValueValidator')
-	{
-		require_once(__DIR__ . '/TableField.php');
-	}
- 	elseif ($className == 'NoreSources\SQL\ITableFieldValueValidatorProvider')
-	{
-		require_once(__DIR__ . '/TableField.php');
-	}
- 	elseif ($className == 'NoreSources\SQL\ITableField')
-	{
-		require_once(__DIR__ . '/TableField.php');
-	}
- 	elseif ($className == 'NoreSources\SQL\StarColumn')
-	{
-		require_once(__DIR__ . '/TableField.php');
-	}
- 	elseif ($className == 'NoreSources\SQL\TableField')
-	{
-		require_once(__DIR__ . '/TableField.php');
 	}
  	elseif ($className == 'NoreSources\SQL\InsertQuery')
 	{
@@ -205,7 +177,7 @@ function autoload_NTZjMGM0YTg5NWQ4Yg($className)
 	{
 		require_once(__DIR__ . '/Structures.php');
 	}
- 	elseif ($className == 'NoreSources\SQL\TableFieldStructure')
+ 	elseif ($className == 'NoreSources\SQL\TableColumnStructure')
 	{
 		require_once(__DIR__ . '/Structures.php');
 	}
@@ -253,9 +225,45 @@ function autoload_NTZjMGM0YTg5NWQ4Yg($className)
 	{
 		require_once(__DIR__ . '/Record.php');
 	}
+ 	elseif ($className == 'NoreSources\SQL\LimitFilter')
+	{
+		require_once(__DIR__ . '/Record.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\OrderFilter')
+	{
+		require_once(__DIR__ . '/Record.php');
+	}
  	elseif ($className == 'NoreSources\SQL\Record')
 	{
 		require_once(__DIR__ . '/Record.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\ITableColumnValueValidator')
+	{
+		require_once(__DIR__ . '/TableColumn.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\ListedElementTableColumnValueValidator')
+	{
+		require_once(__DIR__ . '/TableColumn.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\MultipleListedElementTableColumnValueValidator')
+	{
+		require_once(__DIR__ . '/TableColumn.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\ITableColumnValueValidatorProvider')
+	{
+		require_once(__DIR__ . '/TableColumn.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\ITableColumn')
+	{
+		require_once(__DIR__ . '/TableColumn.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\StarColumn')
+	{
+		require_once(__DIR__ . '/TableColumn.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\TableColumn')
+	{
+		require_once(__DIR__ . '/TableColumn.php');
 	}
  	elseif ($className == 'NoreSources\SQL\DropTableQuery')
 	{
@@ -353,7 +361,7 @@ function autoload_NTZjMGM0YTg5NWQ4Yg($className)
 	{
 		require_once(__DIR__ . '/Providers.php');
 	}
- 	elseif ($className == 'NoreSources\SQL\ITableFieldProvider')
+ 	elseif ($className == 'NoreSources\SQL\ITableColumnProvider')
 	{
 		require_once(__DIR__ . '/Providers.php');
 	}
@@ -362,4 +370,4 @@ function autoload_NTZjMGM0YTg5NWQ4Yg($className)
 		require_once(__DIR__ . '/Manipulators.php');
 	}
  }
-spl_autoload_register('autoload_NTZjMGM0YTg5NWQ4Yg');
+spl_autoload_register('autoload_NTg5NzRlMzM1NTE5YQ');
