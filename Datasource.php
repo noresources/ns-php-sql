@@ -102,7 +102,7 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 	 *
 	 * @var string
 	 */
-	const kStringClassNameDatabaseManipulator = 'sql.string.clsdbm';
+	const kStringClassNameTableSetManipulator = 'sql.string.clsdbm';
 	
 	/**
 	 * Table implementation to use
@@ -273,12 +273,12 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 	 *
 	 * @tono check in structure and/or source
 	 *
-	 * @param string $a_strDatabaseName
+	 * @param string $tablesetName
 	 * @return bool
 	 */
-	public function tableSetExists($a_strDatabaseName)
+	public function tableSetExists($tablesetName)
 	{
-		return ($this->m_structure) ? ($this->m_structure->offsetExists($a_strDatabaseName)) : true;
+		return ($this->m_structure) ? ($this->m_structure->offsetExists($tablesetName)) : true;
 	}
 	
 	// Datasource API
