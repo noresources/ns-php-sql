@@ -222,7 +222,6 @@ class Record implements \ArrayAccess
 			$className = get_called_class();
 		}
 		
-		$flags = ($flags & (kRecordQueryCreate));
 		$structure = $table->getStructure();
 		
 		if (is_null($keys))
@@ -253,8 +252,9 @@ class Record implements \ArrayAccess
 		$s = new SelectQuery($table);
 		foreach ($keys as $k => $v)
 		{
-			$c = $table->getColumn($k);
-			$s->where->addAndExpression($c->equalityExpression($c->importData($v)));
+			$column = $table->getColumn($k);
+			$data = ($flags & kRecordDataSerialized) ? $v : $column->equalityExpression($c->importData(static::serializeValue($k, $v)));
+			$s->where->addAndExpression($data);
 		}
 		
 		$recordset = $s->execute();
@@ -275,9 +275,13 @@ class Record implements \ArrayAccess
 			
 			if ($flags & kRecordQueryCreate)
 			{
-				$o = new $className($table, $keys);
-				$o->insert();
-				return $o;
+				$o = new $className($table, $keys, ($flags & kRecordDataSerialized));
+				if ($o->insert())
+				{
+					return $o;
+				}
+				
+				return false;
 			}
 			
 			return null;
@@ -339,7 +343,7 @@ class Record implements \ArrayAccess
 			}
 			elseif (!($flags & kRecordQueryMultiple))
 			{
-				return ns\Reporter::error(__CLASS__, __METHOD__ . ': $filter. Array expected');
+				return ns\Reporter::error(__CLASS__, __METHOD__ . ': $filters. Array expected');
 			}
 		}
 		
@@ -384,7 +388,8 @@ class Record implements \ArrayAccess
 					}
 					
 					$column = $table->getColumn($name);
-					$s->where->addAndExpression($column->equalityExpression($column->importData($filter)));
+					$data = ($flags & kRecordDataSerialized) ? $v : $column->equalityExpression($column->importData(static::serializeValue($name, $filter)));
+					$s->where->addAndExpression($data);
 				}
 			}
 		}
@@ -415,6 +420,31 @@ class Record implements \ArrayAccess
 		}
 		
 		return (($flags & kRecordQueryMultiple) ? array () : null);
+	}
+
+	/**
+	 *
+	 * @param Table $table
+	 * @param unknown $values Column name-value pairs
+	 * @param number $flags
+	 * @param string $className Record object classname
+	 * @return Record|boolean The newly created Record on success
+	 *         @c false otherwise
+	 */
+	public static function create(Table $table, $values, $flags = 0, $className = null)
+	{
+		if (!(is_string($className) && class_exists($className)))
+		{
+			$className = get_called_class();
+		}
+		
+		$o = new $className($table, $values, ($flags & kRecordDataSerialized));
+		if ($o->insert())
+		{
+			return $o;
+		}
+		
+		return false;
 	}
 
 	/**
@@ -525,7 +555,7 @@ class Record implements \ArrayAccess
 
 	/**
 	 *
-	 * @return boolean
+	 * @return boolean @c true if the record was successfully inserted
 	 */
 	public function insert()
 	{
@@ -542,9 +572,9 @@ class Record implements \ArrayAccess
 			
 			if (\array_key_exists($n, $this->m_values) && (is_null($autoIncrementColumn) || ($autoIncrementColumn->getName() != $n)))
 			{
-				$f = $this->m_table->getColumn($n);
-				$d = $f->importData(static::serializeValue($n, $this->m_values[$n]));
-				$i->addColumnValue($f, $d);
+				$column = $this->m_table->getColumn($n);
+				$data = $column->importData(static::serializeValue($n, $this->m_values[$n]));
+				$i->addColumnValue($f, $data);
 			}
 		}
 		
@@ -583,16 +613,16 @@ class Record implements \ArrayAccess
 			$primary = $c->getProperty(kStructurePrimaryKey);
 			if (array_key_exists($n, $this->m_values))
 			{
-				$f = $this->m_table->getColumn($n);
-				$d = $f->importData(static::serializeValue($n, $this->m_values[$n]));
+				$column = $this->m_table->getColumn($n);
+				$data = $column->importData(static::serializeValue($n, $this->m_values[$n]));
 				if ($primary)
 				{
-					$u->where->addAndExpression($f->equalityExpression($d));
+					$u->where->addAndExpression($column->equalityExpression($data));
 				}
 				else
 				{
 					$count++;
-					$u->addColumnValue($f, $d);
+					$u->addColumnValue($column, $data);
 				}
 			}
 			elseif ($primary)
