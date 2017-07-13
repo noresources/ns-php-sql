@@ -1,7 +1,7 @@
 <?php
-function autoload_NTg5NzRlMzM1NTE5YQ($className)
+function autoload_NTk2N2FhMjkxYmYwMw($className)
 {
-	if ($className == 'NoreSources\SQL\Database')
+	if ($className == 'NoreSources\SQL\TableSet')
 	{
 		require_once(__DIR__ . '/Database.php');
 	}
@@ -185,7 +185,7 @@ function autoload_NTg5NzRlMzM1NTE5YQ($className)
 	{
 		require_once(__DIR__ . '/Structures.php');
 	}
- 	elseif ($className == 'NoreSources\SQL\DatabaseStructure')
+ 	elseif ($className == 'NoreSources\SQL\TableSetStructure')
 	{
 		require_once(__DIR__ . '/Structures.php');
 	}
@@ -370,4 +370,4 @@ function autoload_NTg5NzRlMzM1NTE5YQ($className)
 		require_once(__DIR__ . '/Manipulators.php');
 	}
  }
-spl_autoload_register('autoload_NTg5NzRlMzM1NTE5YQ');
+spl_autoload_register('autoload_NTk2N2FhMjkxYmYwMw');

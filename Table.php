@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Copyright © 2012-2016 by Renaud Guillard (dev@nore.fr)
+ * Copyright © 2012-2017 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
  * 
  * @package SQL
@@ -24,7 +24,7 @@ class Table extends SQLObject implements IExpression, IAliasedClone, ITableColum
 	public function __construct(ITableProvider $a_owner, $a_name, $a_aliasName = '', TableStructure $a_structure = null)
 	{
 		parent::__construct($a_structure, __NAMESPACE__ . '\\TableStructure');
-		if (!(($a_owner instanceof Datasource) || ($a_owner instanceof Database)))
+		if (!(($a_owner instanceof Datasource) || ($a_owner instanceof TableSet)))
 		{
 			return ns\Reporter::fatalError($this, __METHOD__ . '(): Invalid owner class "' . get_class($a_owner) . '"');
 		}
@@ -89,7 +89,7 @@ class Table extends SQLObject implements IExpression, IAliasedClone, ITableColum
 	 */
 	public function getDatasource()
 	{
-		if (($this->m_owner instanceof Database))
+		if (($this->m_owner instanceof TableSet))
 		{
 			return $this->m_owner->getDatasource();
 		}
@@ -357,7 +357,7 @@ class Table extends SQLObject implements IExpression, IAliasedClone, ITableColum
 
 	/**
 	 * Table owner.
-	 * Datasource or Database, depending of the SQL Server system
+	 * Datasource or TableSet, depending of the SQL Server system
 	 *
 	 * @return SQLObject
 	 */
@@ -368,16 +368,20 @@ class Table extends SQLObject implements IExpression, IAliasedClone, ITableColum
 
 	/**
 	 *
-	 * @return ISQLDatabase
+	 * @return TableSet
 	 */
-	public function database()
+	public function tableSet()
 	{
 		$v = null;
-		if (($this->m_owner instanceof Database))
+		if (($this->m_owner instanceof TableSet))
 		{
 			$v = $this->m_owner;
 		}
 		return $v;
+	}
+	public function database()
+	{
+		return $this->tableSet();
 	}
 
 	/**
@@ -395,7 +399,7 @@ class Table extends SQLObject implements IExpression, IAliasedClone, ITableColum
 	protected $m_aliasName;
 
 	/**
-	 * Database or Datasource reference
+	 * TableSet or Datasource reference
 	 *
 	 * @var SQLObject
 	 */

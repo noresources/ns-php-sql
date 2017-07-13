@@ -91,14 +91,14 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 	const kStringTimestampFormat = 'sql.string.timestamp';
 	
 	/**
-	 * Database implementation to use
+	 * TableSet implementation to use
 	 *
 	 * @var string
 	 */
-	const kStringClassNameDatabase = 'sql.string.clsdb';
+	const kStringClassNameTableSet = 'sql.string.clsdb';
 	
 	/**
-	 * SQLDatabaseManipulator implementation to use
+	 * SQLTableSetManipulator implementation to use
 	 *
 	 * @var string
 	 */
@@ -192,7 +192,7 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 				self::kStringKeywordJoinLeft => 'LEFT JOIN',
 				self::kStringKeywordJoinRight => 'RIGHT JOIN',
 				// Class names
-				self::kStringClassNameDatabase => __NAMESPACE__ . '\\Database',
+				self::kStringClassNameTableSet => __NAMESPACE__ . '\\TableSet',
 				self::kStringClassNameTable => __NAMESPACE__ . '\\Table',
 				// Other
 				self::kStringTimestampFormat => 'Y-m-d H:i:s' 
@@ -236,7 +236,7 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 	 * Provide a TableSet object
 	 *
 	 * @param string $a_name
-	 * @return Database
+	 * @return TableSet
 	 */
 	public function getTableSet($a_name)
 	{
@@ -246,7 +246,7 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 			$subStructure = $this->structure->offsetGet($a_name);
 		}
 		
-		$result = new Database($this, $a_name, $subStructure);
+		$result = new TableSet($this, $a_name, $subStructure);
 		
 		return $result;
 	}
@@ -380,12 +380,12 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 	 * Get the structures contained in the given table container element
 	 *
 	 * @p $a_containerObject can be a Datasource ($this) or a
-	 * IDatabase, depending of Datasource model
+	 * ITableSet, depending of Datasource model
 	 *
 	 * @param SQLObject $a_containerObject
 	 * @param boolean $recursive Fill sub elements
 	 *       
-	 * @return DatabaseStructure
+	 * @return TableSetStructure
 	 */
 	public abstract function getTableSetStructure(SQLObject $a_containerObject, $recursive = false);
 

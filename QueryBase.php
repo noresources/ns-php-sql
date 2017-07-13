@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Copyright © 2012-2016 by Renaud Guillard (dev@nore.fr)
+ * Copyright © 2012-2017 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
  */
 
@@ -14,7 +14,7 @@ namespace NoreSources\SQL;
 use NoreSources as ns;
 
 /**
- * Database-type dependant SQL Query interface
+ * DBMS-type dependant SQL Query interface
  *
  * Provides
  * - query execution on database
@@ -24,7 +24,7 @@ abstract class IQuery
 {
 
 	/**
-	 * Database reference
+	 * DBMS reference
 	 *
 	 * @return Datasource
 	 */

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Copyright © 2012-2016 by Renaud Guillard (dev@nore.fr)
+ * Copyright © 2012-2017 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
  */
 
@@ -179,8 +179,9 @@ abstract class StructureElement implements \ArrayAccess, \IteratorAggregate, \Co
 			case 'datasource':
 				$o = new DatasourceStructure();
 				break;
+			case 'tableset':
 			case 'database':
-				$o = new DatabaseStructure($parent, $elementName);
+				$o = new TableSetStructure($parent, $elementName);
 				break;
 			case 'table':
 				$o = new TableStructure($parent, $elementName);
@@ -240,19 +241,19 @@ abstract class StructureElement implements \ArrayAccess, \IteratorAggregate, \Co
 		$this->m_children = new \ArrayObject(array ());
 		$this->m_index = array ();
 	}
-	
+
 	// Countable
 	public function count()
 	{
 		return $this->m_children->count();
 	}
-	
+
 	// IteratorAggregate
 	public function getIterator()
 	{
 		return $this->m_children->getIterator();
 	}
-	
+
 	// ArrayAccess
 	public function offsetExists($a_key)
 	{
@@ -284,7 +285,7 @@ abstract class StructureElement implements \ArrayAccess, \IteratorAggregate, \Co
 		
 		return null;
 	}
-	
+
 	/**
 	 *
 	 * @return string
@@ -590,9 +591,9 @@ class TableColumnStructure extends StructureElement
 class TableStructure extends StructureElement
 {
 
-	public function __construct(/*DatabaseStructure */ $a_databaseStructure, $a_name)
+	public function __construct(/*TableSetStructure */ $a_tablesetStructure, $a_name)
 	{
-		parent::__construct($a_name, $a_databaseStructure);
+		parent::__construct($a_name, $a_tablesetStructure);
 	}
 
 	public function getName()
@@ -667,9 +668,9 @@ class TableStructure extends StructureElement
 }
 
 /**
- * Database structure definition
+ * Table set structure definition
  */
-class DatabaseStructure extends StructureElement
+class TableSetStructure extends StructureElement
 {
 
 	public function __construct(/*DatasourceStructure */$a_datasourceStructure, $a_name)
@@ -766,7 +767,7 @@ class DatasourceStructure extends StructureElement
 		$xpath = new \DOMXPath($node->ownerDocument);
 		$xpath->registerNamespace('sql', self::XMLNAMESPACE);
 		
-		$dbnodes = $xpath->query('sql:database', $node);
+		$dbnodes = $xpath->query('sql:database|sql:tableset', $node);
 		foreach ($dbnodes as $dbnode)
 		{
 			$db = self::createFromXmlNode($dbnode, $this);
@@ -776,7 +777,7 @@ class DatasourceStructure extends StructureElement
 			}
 			else
 			{
-				return ns\Reporter::error($this, __METHOD__ . ': Failed to create sub database structure');
+				return ns\Reporter::error($this, __METHOD__ . ': Failed to create sub tableset structure');
 			}
 		}
 	}

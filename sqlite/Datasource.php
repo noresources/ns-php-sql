@@ -81,7 +81,7 @@ class SQLiteTableManipulator extends TableManipulator
 	}
 }
 
-class SQLiteDatabase extends Database
+class SQLiteTableSet extends TableSet
 {
 
 	public function __construct(SQLiteDatasource $datasource, $name)
@@ -238,7 +238,7 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 		if ($a_mode & kObjectQueryDatasource)
 		{
 			$a = $this->getTableSetStructure($this, false);
-			$result = ($result && (($a instanceof DatabaseStructure) && $a->offsetExists($a_name) && ($a [$a_name] instanceof TableStructure)));
+			$result = ($result && (($a instanceof TableSetStructure) && $a->offsetExists($a_name) && ($a [$a_name] instanceof TableStructure)));
 		}
 		
 		return $result;
@@ -660,7 +660,7 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 	{
 		if ($name == $this->m_databaseName)
 		{
-			$db = new SQLiteDatabase($this, $name);
+			$db = new SQLiteTableSet($this, $name);
 			return $db;
 		}
 		
@@ -673,7 +673,7 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 	
 	// default behavior
 	// public abstract function getTableSetIterator()
-	// public function tableSetExists($a_strDatabaseName)
+	// public function tableSetExists($a_strTableSetName)
 	
 	public function getTableSetStructure(SQLObject $a_containerObject, $recursive = false)
 	{
@@ -689,7 +689,7 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 		
 		$name = ($a_containerObject == $this) ? $this->m_databaseName : $a_containerObject->getName();
 		
-		$structure = new DatabaseStructure($this->structure, $name);
+		$structure = new TableSetStructure($this->structure, $name);
 		
 		foreach ($queryRes as $row)
 		{

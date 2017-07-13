@@ -506,7 +506,7 @@ class MySQLDatasource extends Datasource implements ITransactionBlock
 		return ($a_strElement == '*') ? $a_strElement : '`' . $a_strElement . '`';
 	}
 	
-	// Database relative
+	// DBMS relative
 	
 
 	// default behavior
@@ -518,9 +518,9 @@ class MySQLDatasource extends Datasource implements ITransactionBlock
 		 *
 		 * @todo support Datasource as argument if a db is selected
 		 */
-		if (!($a_containerObject instanceof Database))
+		if (!($a_containerObject instanceof TableSet))
 		{
-			return ns\Reporter::fatalError($this, __METHOD__ . '(): Database class required');
+			return ns\Reporter::fatalError($this, __METHOD__ . '(): TableSet class required');
 		}
 		
 		$query = new FormattedQuery($this, 'SHOW TABLES FROM ' . $a_containerObject->expressionString(kExpressionElementName));
@@ -531,7 +531,7 @@ class MySQLDatasource extends Datasource implements ITransactionBlock
 		}
 		
 		$p = $a_containerObject->structure ? $a_containerObject->structure->parent() : null;
-		$structure = new DatabaseStructure($p, $a_containerObject->getName());
+		$structure = new TableSetStructure($p, $a_containerObject->getName());
 		foreach ($queryRes as $row)
 		{
 			$ts = null;

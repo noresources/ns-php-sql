@@ -14,16 +14,21 @@ namespace NoreSources\SQL;
 use NoreSources as ns;
 
 /**
- * Represents one of the Database
- * of a Database Datasource
+ * Represents one of the schema/database
+ * of a Datasource
  *
- * When the Database Datasource doesn't have the concept of separate databases,
+ * When the Datasource doesn't have the concept of separate table sets,
  * it should implements ISQLTableRetriever to be able to provide Table access
  */
-class Database extends SQLObject implements IExpression, ITableProvider
+class TableSet extends SQLObject implements IExpression, ITableProvider
 {
 
-	public function __construct(Datasource $Datasource, $a_name, DatabaseStructure $structure = null)
+	/**
+	 * @param Datasource $Datasource Datasource
+	 * @param unknown $a_name Table set name
+	 * @param TableSetStructure $structure TableSet structure informations
+	 */
+	public function __construct(Datasource $Datasource, $a_name, TableSetStructure $structure = null)
 	{
 		parent::__construct($structure);
 		$this->m_datasource = $Datasource;
@@ -126,7 +131,7 @@ class Database extends SQLObject implements IExpression, ITableProvider
 		if ($a_mode & kObjectQueryDatasource)
 		{
 			$a = $this->m_datasource->getTableSetStructure($this, false);
-			return (($a instanceof DatabaseStructure) && $a->offsetExists($a_name) && ($a [$a_name] instanceof TableStructure));
+			return (($a instanceof TableSetStructure) && $a->offsetExists($a_name) && ($a [$a_name] instanceof TableStructure));
 		}
 		
 		return $result;

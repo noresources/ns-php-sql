@@ -19,7 +19,7 @@ require_once (NS_PHP_CORE_PATH . '/arrays.php');
 
 /**
  * Notes:
- * - The term "Database" here, refers to PostgreSQL Structure
+ * - The term "TableSet" here, refers to PostgreSQL Structure
  * - The term "Datasource" efers to PostgreSQL database
  */
 class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransactionBlock
@@ -227,7 +227,7 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 		if ($a_mode & kObjectQueryDatasource)
 		{
 			$a = $this->getTableSetStructure($this, false);
-			$result = ($result && (($a instanceof DatabaseStructure) && $a->offsetExists($a_strName) && ($a[$a_strName] instanceof TableStructure)));
+			$result = ($result && (($a instanceof TableSetStructure) && $a->offsetExists($a_strName) && ($a[$a_strName] instanceof TableStructure)));
 		}
 		
 		return $result;
@@ -241,7 +241,7 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 	public function getTableSetStructure(SQLObject $a_containerObject, $recursive = false)
 	{
 		$schemaName = $this->activeTableSetName;
-		if (is_object($a_containerObject) && ($a_containerObject instanceof Database))
+		if (is_object($a_containerObject) && ($a_containerObject instanceof TableSet))
 		{
 			$schemaName = $a_containerObject->getName();
 		}
@@ -256,7 +256,7 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 			return false;
 		}
 		
-		$structure = new DatabaseStructure($this->structure, $schemaName);
+		$structure = new TableSetStructure($this->structure, $schemaName);
 		
 		foreach ($records as $row)
 		{

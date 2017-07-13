@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Copyright © 2012-2016 by Renaud Guillard (dev@nore.fr)
+ * Copyright © 2012-2017 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
  */
 
@@ -14,7 +14,7 @@ namespace NoreSources\SQL;
 use NoreSources as ns;
 
 /**
- * Provide an access to Database object which
+ * Provide an access to TableSet object which
  * represents each database contained in
  * the database connection
  *
@@ -33,7 +33,7 @@ interface ITableSetProvider
 	 * does not exists.
 	 *
 	 * @param string $a_name
-	 * @return Database
+	 * @return TableSet
 	 */
 	function getTableSet($a_name);
 
@@ -61,7 +61,7 @@ interface ITableSetProvider
 }
 
 /**
- * Give access to Database's or Datasource's table
+ * Give access to TableSet's or Datasource's table
  */
 interface ITableProvider
 {
