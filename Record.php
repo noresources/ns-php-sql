@@ -253,8 +253,8 @@ class Record implements \ArrayAccess
 		foreach ($keys as $k => $v)
 		{
 			$column = $table->getColumn($k);
-			$data = ($flags & kRecordDataSerialized) ? $v : $column->equalityExpression($c->importData(static::serializeValue($k, $v)));
-			$s->where->addAndExpression($data);
+			$data = $column->importData(($flags & kRecordDataSerialized) ? $v : static::serializeValue($k, $v));
+			$s->where->addAndExpression($column->equalityExpression($data));
 		}
 		
 		$recordset = $s->execute();
@@ -388,8 +388,8 @@ class Record implements \ArrayAccess
 					}
 					
 					$column = $table->getColumn($name);
-					$data = ($flags & kRecordDataSerialized) ? $v : $column->equalityExpression($column->importData(static::serializeValue($name, $filter)));
-					$s->where->addAndExpression($data);
+					$data = $column->importData(($flags & kRecordDataSerialized) ? $filter : static::serializeValue($name, $filter));
+					$s->where->addAndExpression($column->equalityExpression($data));
 				}
 			}
 		}
@@ -431,7 +431,7 @@ class Record implements \ArrayAccess
 	 * @return Record|boolean The newly created Record on success
 	 *         @c false otherwise
 	 */
-	public static function create(Table $table, $values, $flags = 0, $className = null)
+	public static function createRecord(Table $table, $values, $flags = 0, $className = null)
 	{
 		if (!(is_string($className) && class_exists($className)))
 		{
@@ -574,7 +574,7 @@ class Record implements \ArrayAccess
 			{
 				$column = $this->m_table->getColumn($n);
 				$data = $column->importData(static::serializeValue($n, $this->m_values[$n]));
-				$i->addColumnValue($f, $data);
+				$i->addColumnValue($column, $data);
 			}
 		}
 		
