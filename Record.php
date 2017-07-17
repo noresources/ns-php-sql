@@ -650,30 +650,53 @@ class Record implements \ArrayAccess
 	}
 
 	/**
-	 *
-	 * @param integer $flags if kRecordQueryMultiple is set. The method may delete more than one record
+	 * Delete the record
+	 * @param integer $flags Option flags
+	 *        If @c kRecordQueryMultiple is set, the method may delete more than one record.
+	 *        Otherwise the method will use the primary key column(s) to identify a unique record
 	 * @return Number of deleted records or @c false if an error occurs
 	 */
 	public function delete($flags = 0x00)
 	{
-		if (!($flags & kRecordQueryMultiple))
+		$structure = $this->m_table->getStructure();
+		$columns = array ();
+		$usePrimaryKeys = false;
+		
+		if ($flags & kRecordQueryMultiple)
 		{
-			$record = self::queryRecord($this->m_table, $this->getKey(), kRecordQueryMultiple, get_called_class());
-			if (count($record) > 1)
+			$columns = $structure->getIterator();
+		}
+		else
+		{
+			$columns = $structure->getPrimaryKeyColumns();
+			$usePrimaryKeys = true;
+			if (count($columns) == 0)
 			{
-				return ns\Reporter::error($this, __METHOD__ . ': Multiple record deletion');
+				// Table does not have primary key -> check if the delete command will
+				$records = self::queryRecord($this->m_table, $this->m_values, $flags | kRecordQueryMultiple);
+				if (count($records) > 1)
+				{
+					return ns\Reporter::error($this, __METHOD__ . ': Multiple records match the current record values');
+				}
+				
+				// We accept to work with all columns
+				$columns = $structure->getIterator();
+				$usePrimaryKeys = false;
 			}
 		}
 		
-		$structure = $this->m_table->getStructure();
 		$d = new DeleteQuery($this->m_table);
-		foreach ($structure as $n => $c)
+		foreach ($columns as $n => $c)
 		{
 			if (array_key_exists($n, $this->m_values))
 			{
 				$column = $this->m_table->getColumn($n);
 				$data = $column->importData(static::serializeValue($n, $this->m_values[$n]));
 				$d->where->addAndExpression($column->equalityExpression($data));
+			}
+			elseif ($usePrimaryKeys)
+			{
+				return ns\Reporter::error($this, __METHOD__ . ': Missing required column ' . $n . ' value');
 			}
 		}
 		
