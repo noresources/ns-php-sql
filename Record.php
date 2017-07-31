@@ -39,7 +39,31 @@ const kRecordQueryCreate = 0x08;
  */
 const kRecordDataSerialized = 0x10;
 
-class ColumnFilter
+/**
+ * Restrict query to a subset of the record
+ */
+class ColumnSelectionFilter extends \ArrayObject
+{
+
+	public $columnNames;
+
+	public function __construct($columnNames)
+	{
+		if (is_string($columnNames))
+		{
+			$this->append($columnNames);
+		}
+		else
+		{
+			foreach ($columnNames as $columnName)
+			{
+				$this->append($columnName);
+			}
+		}
+	}
+}
+
+class ColumnValueFilter
 {
 
 	public $columnName;
@@ -357,7 +381,19 @@ class Record implements \ArrayAccess
 		{
 			foreach ($filters as $name => $filter)
 			{
-				if ($filter instanceof ColumnFilter)
+				if ($filter instanceof ColumnSelectionFilter)
+				{
+					foreach ($filter as $columnName)
+					{
+						if (!$structure->offsetExists($filter->columnName))
+						{
+							continue;
+						}
+						
+						$s->addColumn($columnName);
+					}
+				}
+				elseif ($filter instanceof ColumnValueFilter)
 				{
 					if (!$structure->offsetExists($filter->columnName))
 					{
