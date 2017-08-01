@@ -3,7 +3,6 @@
 namespace NoreSources\SQL;
 
 use NoreSources as ns;
-use SingingWire;
 
 require_once (NS_PHP_CORE_PATH . '/arrays.php');
 
@@ -39,10 +38,23 @@ const kRecordQueryCreate = 0x08;
  */
 const kRecordDataSerialized = 0x10;
 
+interface RecordQueryOption
+{}
+const kRecordKeyColumn = 'keyColumn';
+
+
+class PresentationSettings extends ns\DataTree implements RecordQueryOption
+{
+	public function \__construct($table)
+	{
+	parent::__construct($table);
+}
+}
+
 /**
  * Restrict query to a subset of the record
  */
-class ColumnSelectionFilter extends \ArrayObject
+class ColumnSelectionFilter extends \ArrayObject implements RecordQueryOption
 {
 
 	public $columnNames;
@@ -63,7 +75,7 @@ class ColumnSelectionFilter extends \ArrayObject
 	}
 }
 
-class ColumnValueFilter
+class ColumnValueFilter implements RecordQueryOption
 {
 
 	public $columnName;
@@ -183,7 +195,7 @@ class ColumnValueFilter
 	}
 }
 
-class LimitFilter
+class LimitFilter implements RecordQueryOption
 {
 
 	/**
@@ -210,7 +222,7 @@ class LimitFilter
 	}
 }
 
-class OrderFilter
+class OrderingOption implements RecordQueryOption
 {
 
 	public $columnName;
@@ -317,7 +329,7 @@ class Record implements \ArrayAccess
 	/**
 	 *
 	 * @param Table $table Database table
-	 * @param mixed $filters Array of key-value pairs
+	 * @param mixed $options Array of key-value pairs
 	 *        If @param $table contains a single-column primary key, a singie value is accepted
 	 *        as the value of the primary key column
 	 * @param $flags
@@ -329,17 +341,23 @@ class Record implements \ArrayAccess
 	 *        otherwise
 	 *        - an array of Record
 	 */
-	public static function queryRecord(Table $table, $filters, $flags = kRecordQueryMultiple, $className = null)
+	public static function queryRecord(Table $table, $options = null, $flags = kRecordQueryMultiple, $className = null)
 	{
 		if (!(is_string($className) && class_exists($className)))
 		{
 			$className = get_called_class();
 		}
 		
-		$structure = $table->getStructure();
-		if (!\is_array($filters))
+		if ($options instanceof RecordQueryOption)
 		{
-			if (!is_null($filters))
+			$option = array ($option);
+		}
+		
+		$structure = $table->getStructure();
+		
+		if (!\is_array($options))
+		{
+			if (!is_null($options))
 			{
 				$primaryKeyColumn = null;
 				foreach ($structure as $n => $c)
@@ -361,7 +379,7 @@ class Record implements \ArrayAccess
 				if (!is_null($primaryKeyColumn))
 				{
 					return self::queryRecord($table, array (
-							$primaryKeyColumn => $filters 
+							$primaryKeyColumn => $options 
 					), $flags, $className);
 				}
 			}
@@ -373,19 +391,28 @@ class Record implements \ArrayAccess
 		
 		$s = new SelectQuery($table);
 		
-		/**
-		 *
-		 * @todo Accept IExpression or array of IExpression
-		 */
-		if (\is_array($filters))
+		$keyColumn = nullptr;
+		
+		if (\is_array($options))
 		{
-			foreach ($filters as $name => $filter)
+			foreach ($options as $name => $option)
 			{
-				if ($filter instanceof ColumnSelectionFilter)
+				if ($option instanceof PresentationSettings)
 				{
-					foreach ($filter as $columnName)
+					$keyColumn = $option->getSetting(kRecordKeyColumn, null);
+					if (is_string($keyColumn))
 					{
-						if (!$structure->offsetExists($filter->columnName))
+						if (!$structure->offsetExists($keyColumn))
+						{
+							return ns\Reporter::error($className, __METHOD__ . ': Invalid key column', __FILE__, __LINE__);
+						}
+					}
+				}
+				elseif ($option instanceof ColumnSelectionFilter)
+				{
+					foreach ($option as $columnName)
+					{
+						if (!$structure->offsetExists($columnName))
 						{
 							continue;
 						}
@@ -393,28 +420,28 @@ class Record implements \ArrayAccess
 						$s->addColumn($columnName);
 					}
 				}
-				elseif ($filter instanceof ColumnValueFilter)
+				elseif ($option instanceof ColumnValueFilter)
 				{
-					if (!$structure->offsetExists($filter->columnName))
+					if (!$structure->offsetExists($option->columnName))
 					{
 						continue;
 					}
 					
-					$e = $filter->toExpression($className, $table);
+					$e = $option->toExpression($className, $table);
 					$s->where->addAndExpression($e);
 				}
-				elseif ($filter instanceof LimitFilter)
+				elseif ($option instanceof LimitFilter)
 				{
-					$s->limit($filter->offset, $filter->limit);
+					$s->limit($option->offset, $option->limit);
 				}
-				elseif ($filter instanceof OrderFilter)
+				elseif ($option instanceof OrderingOption)
 				{
-					if (!$structure->offsetExists($filter->columnName))
+					if (!$structure->offsetExists($option->columnName))
 					{
 						continue;
 					}
-					$column = $table->getColumn($filter->columnName);
-					$s->orderBy->addColumn($column, $filter->ascending);
+					$column = $table->getColumn($option->columnName);
+					$s->orderBy->addColumn($column, $option->ascending);
 				}
 				else
 				{
@@ -424,7 +451,7 @@ class Record implements \ArrayAccess
 					}
 					
 					$column = $table->getColumn($name);
-					$data = $column->importData(($flags & kRecordDataSerialized) ? $filter : static::serializeValue($name, $filter));
+					$data = $column->importData(($flags & kRecordDataSerialized) ? $option : static::serializeValue($name, $option));
 					$s->where->addAndExpression($column->equalityExpression($data));
 				}
 			}
@@ -438,7 +465,15 @@ class Record implements \ArrayAccess
 				$result = array ();
 				foreach ($recordset as $record)
 				{
-					$result[] = new $className($table, $record, (kRecordDataSerialized | kRecordStateExists));
+					$r = new $className($table, $record, (kRecordDataSerialized | kRecordStateExists));
+					if (\is_null($keyColumn)) 
+					{
+						$result[] = $r;
+					}
+					else
+					{
+						$result[$r[$keyColumn]] = $r;
+					}
 				}
 				
 				return $result;
