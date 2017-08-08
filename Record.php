@@ -42,13 +42,13 @@ interface RecordQueryOption
 {}
 const kRecordKeyColumn = 'keyColumn';
 
-
 class PresentationSettings extends ns\DataTree implements RecordQueryOption
 {
-	public function \__construct($table)
+
+	public function __construct($table)
 	{
-	parent::__construct($table);
-}
+		parent::__construct($table);
+	}
 }
 
 /**
