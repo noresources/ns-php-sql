@@ -418,26 +418,24 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 		{
 			$a = $this->m_dataTypeNames [$dataType];
 			$sqlType = $a ['type'];
-			$structure = guessStructureElement($sqlType);
 			
 			$d = null;
 			if ($a ['class'])
 			{
 				$cls = $a ['class'];
-				return new $cls($this, $structure);
+				return new $cls($this);
 			}
 		}
 		
 		if ($sqlType = $this->guessDataType($dataType))
 		{
-			$structure = guessStructureElement($sqlType);
 			if ($sqlType == kDataTypeString)
 			{
-				return new SQLiteStringData($this, $structure);
+				return new SQLiteStringData($this);
 			}
 			elseif ($sqlType == kDataTypeBinary)
 			{
-				return new SQLiteBinaryData($this, $structure);
+				return new SQLiteBinaryData($this);
 			}
 		}
 		

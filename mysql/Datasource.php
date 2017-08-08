@@ -355,26 +355,24 @@ class MySQLDatasource extends Datasource implements ITransactionBlock
 		{
 			$a = $this->m_dataTypeNames[$dataType];
 			$sqlType = $a['type'];
-			$structure = guessStructureElement($sqlType);
 			
 			$d = null;
 			if ($a['class'])
 			{
 				$cls = $a['class'];
-				return (new $cls($this, $structure));
+				return (new $cls($this));
 			}
 		}
 		
 		if ($sqlType = $this->guessDataType($dataType))
 		{
-			$structure = guessStructureElement($sqlType);
 			if ($sqlType == kDataTypeString)
 			{
-				return (new MySQLStringData($this, $structure));
+				return (new MySQLStringData($this));
 			}
 			elseif ($sqlType == kDataTypeBinary)
 			{
-				return (new MySQLBinaryData($this, $structure));
+				return (new MySQLBinaryData($this));
 			}
 		}
 		

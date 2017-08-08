@@ -214,18 +214,18 @@ class FormattedData extends Data
 		$this->importResult(true);
 	}
 
-	public function import ($data)
+	public function import($data)
 	{
 		$this->m_value = $data;
 		return $this->importResult(true);
 	}
 
-	public function getValue ()
+	public function getValue()
 	{
 		return $this->m_value;
 	}
 
-	public function expressionString ($options = null)
+	public function expressionString($options = null)
 	{
 		return $this->m_value;
 	}
@@ -241,16 +241,15 @@ class StringData extends Data
 
 	/**
 	 *
-	 * @param Datasource $datasource        	
-	 * @param TableColumnStructure $structure        	
+	 * @param Datasource $datasource
 	 */
-	public function __construct (Datasource $datasource, /*TableColumnStructure*/ $structure)
+	public function __construct(Datasource $datasource)
 	{
 		parent::__construct(kDataTypeString);
 		$this->m_datasource = $datasource;
 	}
 
-	public function __get ($member)
+	public function __get($member)
 	{
 		if ($member == 'datasource')
 		{
@@ -260,7 +259,7 @@ class StringData extends Data
 		return parent::__get($member);
 	}
 
-	public function import ($data)
+	public function import($data)
 	{
 		$valid = false;
 		if (is_string($data) || is_null($data))
@@ -351,10 +350,9 @@ class NumberData extends Data
 
 	/**
 	 *
-	 * @param Datasource $datasource        	
-	 * @param TableColumnStructure $structure        	
+	 * @param Datasource $datasource        	        	
 	 */
-	public function __construct (Datasource $datasource, /*TableColumnStructure*/ $structure)
+	public function __construct (Datasource $datasource)
 	{
 		parent::__construct(kDataTypeNumber);
 		$this->m_value = null;
@@ -437,10 +435,9 @@ class TimestampData extends Data
 
 	/**
 	 *
-	 * @param Datasource $datasource        	
-	 * @param TableColumnStructure $structure        	
+	 * @param Datasource $datasource        	        	
 	 */
-	public function __construct (Datasource $datasource, /*TableColumnStructure*/ $structure)
+	public function __construct (Datasource $datasource)
 	{
 		parent::__construct(kDataTypeTimestamp);
 		$this->m_datasource = $datasource;
@@ -523,7 +520,10 @@ class TimestampData extends Data
 class BinaryData extends Data
 {
 
-	public function __construct (Datasource $datasource, TableColumnStructure $structure)
+	/**
+	 * @param Datasource $datasource
+	 */
+	public function __construct (Datasource $datasource)
 	{
 		parent::__construct(kDataTypeBinary);
 		$this->setFlags($this->flags | self::kAcceptNull);

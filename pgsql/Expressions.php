@@ -17,9 +17,13 @@ namespace NoreSources\SQL;
 class PostgreSQLStringData extends StringData
 {
 
-	public function __construct(Datasource $datasource, TableColumnStructure $structure = null)
+	/**
+	 *
+	 * @param Datasource $datasource
+	 */
+	public function __construct(Datasource $datasource)
 	{
-		parent::__construct($datasource, $structure);
+		parent::__construct($datasource);
 	}
 
 	protected function getDatasourceStringExpression($value)
@@ -31,9 +35,9 @@ class PostgreSQLStringData extends StringData
 class PostgreSQLBinaryData extends BinaryData
 {
 
-	public function __construct(Datasource $datasource, TableColumnStructure $structure = null)
+	public function __construct(Datasource $datasource)
 	{
-		parent::__construct($datasource, $structure);
+		parent::__construct($datasource);
 	}
 
 	protected function getDatasourceBinaryExpression($value)

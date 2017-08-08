@@ -17,7 +17,7 @@ use \SQLite3;
 class SQLiteStringData extends StringData
 {
 
-	public function __construct(Datasource $datasource, TableColumnStructure $structure = null)
+	public function __construct(Datasource $datasource, /*TableColumnStructure*/ $structure = null)
 	{
 		parent::__construct($datasource, $structure);
 	}
@@ -40,22 +40,13 @@ class SQLiteStringData extends StringData
 class SQLiteBinaryData extends BinaryData
 {
 
-	public function __construct(Datasource $datasource, TableColumnStructure $structure = null)
+	public function __construct(Datasource $datasource, /*TableColumnStructure*/ $structure = null)
 	{
 		parent::__construct($datasource, $structure);
 	}
 
 	protected function getDatasourceBinaryExpression($a_value)
 	{
-		if (method_exists('\\SQLite3', 'escapeString'))
-		{
-			$value = SQLite3::escapeString($a_value);
-		}
-		elseif (function_exists('sqlite_escape_string'))
-		{
-			$value = sqlite_escape_string($a_value);
-		}
-		
-		return $value;
+		return "X'" . bin2hex($a_value) . "'";
 	}
 }

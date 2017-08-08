@@ -355,26 +355,24 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 		{
 			$a = $this->m_dataTypeNames[$dataType];
 			$sqlType = $a['type'];
-			$structure = guessStructureElement($sqlType);
 			
 			$d = null;
 			if ($a['class'])
 			{
 				$cls = $a['class'];
-				return (new $cls($this, $structure));
+				return (new $cls($this));
 			}
 		}
 		
 		if ($sqlType = $this->guessDataType($dataType))
 		{
-			$structure = guessStructureElement($sqlType);
 			if ($sqlType == kDataTypeString)
 			{
-				return (new PostgreSQLStringData($this, $structure));
+				return (new PostgreSQLStringData($this));
 			}
 			elseif ($sqlType == kDataTypeBinary)
 			{
-				return (new PostgreSQLBinaryData($this, $structure));
+				return (new PostgreSQLBinaryData($this));
 			}
 		}
 		
