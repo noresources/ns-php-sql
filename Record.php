@@ -391,7 +391,7 @@ class Record implements \ArrayAccess
 		
 		$s = new SelectQuery($table);
 		
-		$keyColumn = nullptr;
+		$keyColumn = null;
 		
 		if (\is_array($options))
 		{
