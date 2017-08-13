@@ -101,7 +101,7 @@ interface ITableColumnValueValidatorProvider
 }
 
 /**
- * A database field represent one column of a database table
+ * A Table column represent one column of a table
  */
 abstract class ITableColumn extends SQLObject implements IExpression, IAliasable
 {
@@ -145,7 +145,7 @@ abstract class ITableColumn extends SQLObject implements IExpression, IAliasable
 
 /**
  * The Star field is a special SQL syntax representing all
- * columns of a database table
+ * columns of a table
  */
 class StarColumn extends ITableColumn
 {
@@ -229,7 +229,7 @@ class StarColumn extends ITableColumn
 }
 
 /**
- * A database table field
+ * A table column
  */
 class TableColumn extends ITableColumn implements IAliasedClone, ITableColumnValueValidatorProvider, IAliasable
 {

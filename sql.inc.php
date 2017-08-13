@@ -227,7 +227,7 @@ const kDataTypeBinary = 32;
 
 
 /**
- * @defgroup params 'A series of standard parameters for database connection''
+ * @defgroup params 'A series of standard parameters for data source connection''
  * @{
  */
 
@@ -237,11 +237,13 @@ const kDataTypeBinary = 32;
  * @var string
  */
 const kConnectionParameterClassname = 'sql.source.classname';
+
 /**
  * Datasource connection user
  * @var string
  */
 const kConnectionParameterUsername = 'sql.source.user';
+
 /**
  * Datasource conneciion user password
  * @var string
@@ -252,14 +254,16 @@ const kConnectionParameterPassword = 'sql.source.password';
  * @var string
  */
 const kConnectionParameterHostname = 'sql.source.host';
+
 /**
  * Datasource source file
  * @var string
  */
 const kConnectionParameterFilename = 'sql.source.file';
+
 /**
- * PostgresSQL: Postgres database to connect to
- * SQLite: defines the name of the main SQLite database
+ * PostgresSQL: Postgres data source to connect to
+ * SQLite: defines the name of the main SQLite main table
  * MySQL: If @c kConnectionParameterActiveTableSet is not set. Set the active MySQL database
  * @var string
  */
@@ -275,6 +279,7 @@ const kConnectionParameterActiveTableSet = 'sql.source.tableset.default';
  * @var bool
  */
 const kConnectionParameterPersistent = 'sql.source.persistent';
+
 /**
  * Read only connection
  * @var bool
@@ -294,6 +299,7 @@ const kConnectionParameterForeignKeySupport = 'sql.source.foreignkey';
  * @var bool
  */
 const kConnectionParameterCreate = 'sql.source.create';
+
 /**
  * A XML structure file
  * Used in Datasource::create()

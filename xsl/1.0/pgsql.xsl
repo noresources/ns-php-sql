@@ -5,7 +5,7 @@
 <!-- Transforms sql:datasource xml document into PostgreSQL instructions -->
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:sql="http://xsd.nore.fr/sql">
 
-	<xsl:import href="base.xsl" />
+	<xsl:import href="dbms-base.xsl" />
 
 	<!-- The PostgreSQL target version -->
 	<xsl:param name="sql.pgsql.targetVersion" select="9.4" />
@@ -36,11 +36,14 @@
 
 	<!-- Text translations -->
 
-	<!-- Convert generic data types into PostgreSQL type affinity. --> 
+	<!-- Convert generic data types into PostgreSQL type affinity. -->
 	<!-- See http://www.postgresql.org/docs/9.3/static/datatype.html -->
 	<xsl:template name="sql.dataTypeTranslation">
 		<xsl:param name="dataTypeNode" />
 		<xsl:choose>
+			<xsl:when test="not ($dataTypeNode)">
+				<xsl:text>TEXT</xsl:text>
+			</xsl:when>
 			<xsl:when test="$dataTypeNode/sql:boolean">
 				<xsl:text>BOOLEAN</xsl:text>
 			</xsl:when>
@@ -78,7 +81,14 @@
 				<xsl:text> time zone</xsl:text>
 			</xsl:when>
 			<xsl:when test="$dataTypeNode/sql:string">
-				<xsl:text>TEXT</xsl:text>
+				<xsl:choose>
+					<xsl:when test="$dataTypeNode/sql:string/@length">
+						<xsl:text>VARCHAR</xsl:text>
+					</xsl:when>
+					<xsl:otherwise>
+						<xsl:text>TEXT</xsl:text>
+					</xsl:otherwise>
+				</xsl:choose>
 			</xsl:when>
 			<xsl:when test="$dataTypeNode/sql:binary">
 				<xsl:text>BYTEA</xsl:text>
@@ -89,8 +99,21 @@
 		</xsl:choose>
 	</xsl:template>
 
+	<xsl:template name="sql.dataTypeSizeSpecification">
+		<xsl:param name="dataTypeNode" select="." />
+		<xsl:choose>
+			<xsl:when test="$dataTypeNode/sql:string">
+				<xsl:if test="$dataTypeNode/sql:string/@length">
+					<xsl:text>(</xsl:text>
+					<xsl:value-of select="$dataTypeNode/sql:string/@length" />
+					<xsl:text>)</xsl:text>
+				</xsl:if>
+			</xsl:when>
+		</xsl:choose>
+	</xsl:template>
+
 	<!-- Objects -->
-	
+
 	<xsl:template match="sql:database">
 		<xsl:text>CREATE SCHEMA </xsl:text>
 		<xsl:if test="$sql.pgsql.targetVersion &gt;= 9.3">

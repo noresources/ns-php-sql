@@ -17,7 +17,7 @@ use NoreSources as ns;
  * DBMS-type dependant SQL Query interface
  *
  * Provides
- * - query execution on database
+ * - query execution
  * - query fetching (return a query result)
  */
 abstract class IQuery
@@ -84,7 +84,7 @@ abstract class IQuery
 }
 
 /**
- * A basic, database independant query interface
+ * A basic, data source type independant query interface
  */
 class FormattedQuery extends IQuery implements ns\IExpression
 {
@@ -132,7 +132,7 @@ class FormattedQuery extends IQuery implements ns\IExpression
 }
 
 /**
- * A query based on a particular database table
+ * A query based on a particular table
  */
 abstract class TableQuery extends IQuery
 {

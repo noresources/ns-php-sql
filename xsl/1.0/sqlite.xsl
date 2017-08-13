@@ -5,7 +5,7 @@
 <!-- Transforms sqldatasource xml document into SQLite instructions -->
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:sql="http://xsd.nore.fr/sql">
 
-	<xsl:import href="base.xsl" />
+	<xsl:import href="dbms-base.xsl" />
 
 	<xsl:output method="text" indent="yes" encoding="utf-8" />
 
@@ -38,6 +38,7 @@
 	<xsl:template name="sql.dataTypeTranslation">
 		<xsl:param name="dataTypeNode" />
 		<xsl:choose>
+			<xsl:when test="not ($dataTypeNode)" />
 			<xsl:when test="$dataTypeNode/sql:boolean">
 				<xsl:text>NUMERIC</xsl:text>
 			</xsl:when>
@@ -67,8 +68,6 @@
 		</xsl:choose>
 	</xsl:template>
 
-	<!-- /////////////////////////////////////////////////////////////// -->
-
 	<!-- Table primary key constraint -->
 	<!-- Do not write constraints if single column + autoincrement type -->
 	<!-- This constraint is handled separately -->
@@ -79,8 +78,9 @@
 	</xsl:template>
 
 	<xsl:template match="sql:table/sql:column">
+		<xsl:apply-templates select="sql:comment" />
 		<xsl:call-template name="sql.elementName" />
-		<xsl:apply-templates />
+		<xsl:apply-templates select="*[not (self::sql:comment)]" />
 
 		<xsl:variable name="name" select="@name" />
 		<xsl:variable name="pk" select="../sql:primarykey" />
@@ -99,28 +99,5 @@
 		</xsl:if>
 
 	</xsl:template>
-
-	<!-- /////////////////////////////////////////////////////////////// -->
-
-	<!-- Find a less xpathish solution -->
-	<!-- <xsl:template name="tableReference">
-		<xsl:param name="id" />
-		<xsl:param name="fullName" select="false()" />
-		<xsl:if test="$fullName">
-		<xsl:if test="//sql:table[@id=$id]/../@name">
-		<xsl:call-template name="sql.elementName">
-		<xsl:with-param name="name">
-		<xsl:value-of select="//sql:table[@id=$id]/../@name" />
-		</xsl:with-param>
-		</xsl:call-template>
-		<xsl:text>.</xsl:text>
-		</xsl:if>
-		</xsl:if>
-		<xsl:call-template name="sql.elementName">
-		<xsl:with-param name="name">
-		<xsl:value-of select="//sql:table[@id=$id]/@name" />
-		</xsl:with-param>
-		</xsl:call-template>
-		</xsl:template> -->
 
 </xsl:stylesheet>

@@ -868,7 +868,7 @@ class SelectQuery extends TableQuery implements ns\IExpression
 	/**
 	 * Constructor
 	 *
-	 * @param Datasource $a_oDatasource Connection to a database
+	 * @param Datasource $a_oDatasource Connection to a data source
 	 * @param Table $a_table Main table of the SELECT query
 	 */
 	public function __construct(Table $a_table)

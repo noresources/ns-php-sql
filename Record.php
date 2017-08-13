@@ -328,7 +328,7 @@ class Record implements \ArrayAccess
 
 	/**
 	 *
-	 * @param Table $table Database table
+	 * @param Table $table table
 	 * @param mixed $options Array of key-value pairs
 	 *        If @param $table contains a single-column primary key, a singie value is accepted
 	 *        as the value of the primary key column

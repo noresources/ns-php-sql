@@ -85,7 +85,7 @@ class QueryResult
 
 	/**
 	 * A query result resource.
-	 * Depend of used database
+	 * Depends on the data source type
 	 *
 	 * @var unknown_type
 	 */

@@ -328,7 +328,7 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 		
 		if (!$this->m_datasourceResource)
 		{
-			return ns\Reporter::instance()->addError($this, __METHOD__ . "(): Unable to connect to Database " . $parameters[kConnectionParameterHostname], __FILE__, __LINE__);
+			return ns\Reporter::instance()->addError($this, __METHOD__ . "(): Unable to connect to data source " . $parameters[kConnectionParameterHostname], __FILE__, __LINE__);
 		}
 		
 		if (array_key_exists(kConnectionParameterActiveTableSet, $parameters))

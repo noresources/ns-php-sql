@@ -17,7 +17,7 @@ require_once (NS_PHP_CORE_PATH . '/arrays.php');
 require_once (__DIR__ . '/base.php');
 
 /**
- * Interface for Database system that support
+ * Interface for Data source system that support
  * Transaction commit & rollbacks
  */
 interface ITransactionBlock

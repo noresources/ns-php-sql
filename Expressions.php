@@ -80,9 +80,9 @@ class SQLIn extends ns\UnaryOperatorExpression
 }
 
 /**
- * A smart database 'equal' depending on values given
+ * A smart 'equal' depending on values given
  * - IS null, NOT IS null if value is SQLNull
- * - IN, NOT IN if value is an array, a DatabasevalueArray or a select query
+ * - IN, NOT IN if value is an array or a select query
  * - = or <> operator otherwise
  */
 class SQLSmartEquality extends ns\BinaryOperatorExpression

@@ -20,13 +20,13 @@ use \Iterator;
 use \ArrayAccess;
 
 /**
- * An expression relative to a database connection
+ * An expression relative to a data source connection
  */
 interface IExpression extends ns\IExpression
 {
 
 	/**
-	 * Return the database connection linked to object.
+	 * Return the data source connection linked to object.
 	 *
 	 * Object can contains its own reference or use one of its member reference.
 	 * 

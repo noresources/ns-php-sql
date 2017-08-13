@@ -13,9 +13,9 @@ use NoreSources as ns;
 require_once (NS_PHP_PATH . '/core/arrays.php');
 
 /**
- * Database table representation class
+ * Table representation class
  *
- * Provide database-independant methods
+ * Provide data source independant methods
  * to manipulate data
  */
 class Table extends SQLObject implements IExpression, IAliasedClone, ITableColumnProvider
@@ -379,6 +379,8 @@ class Table extends SQLObject implements IExpression, IAliasedClone, ITableColum
 		}
 		return $v;
 	}
+
+	/** Legacy */
 	public function database()
 	{
 		return $this->tableSet();

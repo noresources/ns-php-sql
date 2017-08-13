@@ -509,7 +509,8 @@ class MySQLDatasource extends Datasource implements ITransactionBlock
 
 	// default behavior
 	// public function getTableSetIterator()
-	// public function tableSetExists($a_strDatabaseName)
+	// public function tableSetExists($name);
+
 	public function getTableSetStructure(SQLObject $a_containerObject, $recursive = false)
 	{
 		/**

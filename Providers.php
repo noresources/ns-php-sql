@@ -15,8 +15,8 @@ use NoreSources as ns;
 
 /**
  * Provide an access to TableSet object which
- * represents each database contained in
- * the database connection
+ * represents each table set contained in
+ * the data source connection
  *
  * @deprecated Now parts of Datasource interface
  */
@@ -24,12 +24,12 @@ interface ITableSetProvider
 {
 
 	/**
-	 * Provide a database object
+	 * Provide a TableSet object
 	 *
 	 * The method should never fail except if the given arguments are invalid
 	 * (empty name, invalid class name)
 	 *
-	 * The method should construct a database object even if the given name
+	 * The method should construct a TableSet object even if the given name
 	 * does not exists.
 	 *
 	 * @param string $a_name
@@ -38,19 +38,19 @@ interface ITableSetProvider
 	function getTableSet($a_name);
 
 	/**
-	 * Provides an iterator on all the database names of the Datasource
+	 * Provides an iterator on all the table set names of the Datasource
 	 *
 	 * @return Iterator
 	 */
 	function getTableSetIterator();
 
 	/**
-	 * Check existence of a database name
+	 * Check existence of a table set name
 	 *
-	 * @param string $a_databaseName
+	 * @param string $name
 	 * @return bool
 	 */
-	function tableSetExists($a_databaseName);
+	function tableSetExists($name);
 
 	/**
 	 * Set the active/default table set
