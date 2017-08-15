@@ -660,6 +660,21 @@ class TableStructure extends StructureElement
 		
 		return $result;
 	}
+	
+	public function getForeignKeyReferences()
+	{
+		$result = array ();
+		foreach ($this as $n => $c)
+		{
+			$fk = $c->getProperty(kStructureForeignKey);
+			if ($fk)
+			{
+				$result[$n] = $fk;
+			}
+		}
+		
+		return $result;
+	}
 
 	public function addColumnStructure (TableColumnStructure $f)
 	{

@@ -42,6 +42,14 @@ class Table extends SQLObject implements IExpression, IAliasedClone, ITableColum
 		{
 			return $this->getDatasource();
 		}
+		elseif ($member == 'owner')
+		{
+			return $this->m_owner;
+		}
+		elseif ($member == 'tableset')
+		{
+			return (($this->m_owner instanceof TableSet) ? $this->m_owner : null);
+		}
 		
 		return parent::__get($member);
 	}
@@ -377,6 +385,7 @@ class Table extends SQLObject implements IExpression, IAliasedClone, ITableColum
 		{
 			$v = $this->m_owner;
 		}
+		
 		return $v;
 	}
 
