@@ -305,36 +305,12 @@ class Record implements \ArrayAccess
 		$s = new SelectQuery($table);
 		if ($flags & kRecordQueryForeignKeys)
 		{
-			$references = $structure->getForeignKeyReferences();
-			if (count ($references))
+			if (self::buildForeignKeyJoins($s, $table) > 0)
 			{
 				// Manually add main table columns
 				foreach ($structure as $columnName => $column)
 				{
 					$s->addColumn($columnName);
-				}
-
-				$joinIndex = 0;
-				foreach ($references as $columnName => $foreignKey)
-				{
-					$foreignTableName = $foreignKey['table']->getName();
-					$foreignColumnName = $foreignKey['column']->getName();
-
-					$foreignTable = new Table ($table->owner, $foreignTableName, 'j' . $joinIndex, $foreignKey['table']);
-					$foreignColumn = new TableColumn($foreignTable, $foreignColumnName, $columnName . '::' . $foreignColumnName, $foreignKey['column']);
-
-					$join = $s->createJoin($foreignTable, kJoinInner);
-					$join->addLink($table->getColumn($columnName), $foreignColumn);
-
-					$s->addJoin($join);
-
-					foreach ($foreignTable->getStructure() as $fkcn => $fkc)
-					{
-						$c = new TableColumn($foreignTable, $fkcn, $columnName . '::' . $fkcn, $fkc);
-						$s->addColumn($c);
-					}
-
-					$joinIndex++;
 				}
 			}
 		}
@@ -353,7 +329,7 @@ class Record implements \ArrayAccess
 			$c = $recordset->rowCount();
 			if ($c == 1)
 			{
-				$result = new $className($table, $recordset, kRecordStateExists);
+				$result = new $className($table, $recordset, (kRecordStateExists | kRecordDataSerialized));
 				return $result;
 			}
 
@@ -364,7 +340,7 @@ class Record implements \ArrayAccess
 
 			if ($flags & kRecordQueryCreate)
 			{
-				$o = new $className($table, $keys, ($flags & kRecordDataSerialized));
+				$o = new $className($table, $keys, (kRecordDataSerialized));
 				if ($o->insert())
 				{
 					return $o;
@@ -446,6 +422,8 @@ class Record implements \ArrayAccess
 
 		$keyColumn = null;
 
+		$withColumnSelection = false;
+
 		if (\is_array($options))
 		{
 			foreach ($options as $name => $option)
@@ -470,6 +448,7 @@ class Record implements \ArrayAccess
 							continue;
 						}
 
+						$withColumnSelection = true;
 						$s->addColumn($columnName);
 					}
 				}
@@ -509,6 +488,18 @@ class Record implements \ArrayAccess
 				}
 			}
 		}
+		
+		if ($flags & kRecordQueryForeignKeys)
+		{
+			if ((self::buildForeignKeyJoins($s, $table) > 0) && !$withColumnSelection)
+			{
+				// Manually add main table columns
+				foreach ($structure as $columnName => $column)
+				{
+					$s->addColumn($columnName);
+				}
+			}
+		}
 
 		$recordset = $s->execute();
 		if (is_object($recordset) && ($recordset instanceof Recordset) && ($recordset->rowCount()))
@@ -535,7 +526,7 @@ class Record implements \ArrayAccess
 			{
 				if ($recordset->rowCount() == 1)
 				{
-					$result = new $className($table, $recordset, kRecordStateExists);
+					$result = new $className($table, $recordset, (kRecordDataSerialized | kRecordStateExists));
 					return $result;
 				}
 
@@ -562,7 +553,7 @@ class Record implements \ArrayAccess
 			$className = get_called_class();
 		}
 
-		$o = new $className($table, $values, ($flags & kRecordDataSerialized));
+		$o = new $className($table, $values, (kRecordDataSerialized));
 		if ($o->insert())
 		{
 			return $o;
@@ -837,13 +828,13 @@ class Record implements \ArrayAccess
 				{
 					return ns\Reporter::error($this, __METHOD__ . ': Multiple records match the current record values');
 				}
-				
+
 				// We accept to work with all columns
 				$columns = $structure->getIterator();
 				$usePrimaryKeys = false;
 			}
 		}
-		
+
 		$d = new DeleteQuery($this->m_table);
 		foreach ($columns as $n => $c)
 		{
@@ -858,14 +849,14 @@ class Record implements \ArrayAccess
 				return ns\Reporter::error($this, __METHOD__ . ': Missing required column ' . $n . ' value');
 			}
 		}
-		
+
 		$result = $d->execute();
 		if (is_object($result) && ($result instanceof DeleteQueryResult))
 		{
 			$this->m_flags &= ~kRecordStateExists;
 			return ($result->affectedRowCount() > 0);
 		}
-		
+
 		return false;
 	}
 
@@ -877,26 +868,26 @@ class Record implements \ArrayAccess
 	{
 		return $this->m_table;
 	}
-	
+
 	/**
 	 * @param string $columnName
 	 * @param string $foreignColumnName
-	 * 
+	 *
 	 * @return mixed Array of all foreign key data if @param $foreignColumnName is @c null.
 	 *  Otherwise, the value of the foreign column @param $foreignColumnName
 	 */
 	public function getForeignKeyData ($columnName, $foreignColumnName = null)
 	{
 		$a = (array_key_exists($columnName, $this->m_foreignKeyData) ? $this->m_foreignKeyData[$columnName] : array ());
-		
+
 		if (is_string($foreignColumnName) && strlen ($foreignColumnName))
 		{
 			return ((array_key_exists($foreignColumnName, $a)) ? $a[$foreignColumnName] : null);
 		}
-		
-		return $a; 
+
+		return $a;
 	}
-	
+
 	/**
 	 * @param string $glue
 	 */
@@ -911,16 +902,16 @@ class Record implements \ArrayAccess
 				{
 					return ns\Reporter::fatalError($this, __METHOD__ . ': Incomplete key');
 				}
-				
+
 				$key[$n] = $this->m_values[$n];
 			}
 		}
-		
+
 		if (is_string($glue))
 		{
 			$key = implode($glue, $key);
 		}
-		
+
 		return $key;
 	}
 
@@ -960,16 +951,16 @@ class Record implements \ArrayAccess
 				{
 					continue;
 				}
-				
+
 				$table[$column] = static::unserializeValue($column, $value);
 			}
-			
+
 			$result[] = $table;
 		}
-		
+
 		return $result;
 	}
-	
+
 	/**
 	 * @param string $columnName
 	 * @return array
@@ -981,10 +972,10 @@ class Record implements \ArrayAccess
 		{
 			return array ('column' => $m[1], 'foreignColumn' => $m[2]);
 		}
-		
+
 		return null;
 	}
-	
+
 	/**
 	 * @param string $columnName
 	 * @param string $foreignKey
@@ -998,8 +989,8 @@ class Record implements \ArrayAccess
 		}
 		$this->m_foreignKeyData[$columnName][$foreignKey] = $foreignValue;
 	}
-	
-	
+
+
 	private function setValue(TableColumnStructure $f, $value, $unserialize = false)
 	{
 		if ($unserialize)
@@ -1017,8 +1008,44 @@ class Record implements \ArrayAccess
 				$value = intval($value);
 			}
 		}
-		
+
 		$this->m_values[$f->getName()] = $value;
+	}
+
+	private static function buildForeignKeyJoins (SelectQuery &$s, Table $table)
+	{
+		$structure = $table->getStructure();
+		$references = $structure->getForeignKeyReferences();
+		$count = count ($references);
+		if ($count == 0)
+		{
+			return $count;
+		}
+
+		$joinIndex = 0;
+		foreach ($references as $columnName => $foreignKey)
+		{
+			$foreignTableName = $foreignKey['table']->getName();
+			$foreignColumnName = $foreignKey['column']->getName();
+
+			$foreignTable = new Table ($table->owner, $foreignTableName, 'j' . $joinIndex, $foreignKey['table']);
+			$foreignColumn = new TableColumn($foreignTable, $foreignColumnName, $columnName . '::' . $foreignColumnName, $foreignKey['column']);
+
+			$join = $s->createJoin($foreignTable, kJoinInner);
+			$join->addLink($table->getColumn($columnName), $foreignColumn);
+
+			$s->addJoin($join);
+
+			foreach ($foreignTable->getStructure() as $fkcn => $fkc)
+			{
+				$c = new TableColumn($foreignTable, $fkcn, $columnName . '::' . $fkcn, $fkc);
+				$s->addColumn($c);
+			}
+
+			$joinIndex++;
+		}
+
+		return $count;
 	}
 
 	/**
@@ -1038,12 +1065,12 @@ class Record implements \ArrayAccess
 	 * @var array
 	 */
 	private $m_values;
-	
+
 	/**
-	 * Key-value pair table where 
-	 * key = column name 
+	 * Key-value pair table where
+	 * key = column name
 	 * value = array of column/value pair
-	 *  
+	 *
 	 * @var array
 	 */
 	private $m_foreignKeyData;
