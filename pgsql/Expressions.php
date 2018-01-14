@@ -28,7 +28,7 @@ class PostgreSQLStringData extends StringData
 
 	protected function getDatasourceStringExpression($value)
 	{
-		return (pg_escape_string($this->datasource->resource(), $value));
+		return (pg_escape_string($this->datasource->resource, $value));
 	}
 }
 
@@ -42,13 +42,6 @@ class PostgreSQLBinaryData extends BinaryData
 
 	protected function getDatasourceBinaryExpression($value)
 	{
-		return pg_escape_bytea($this->m_datasource->resource(), $value);
+		return protectString($this->datasource->serializeBinaryData ($value));
 	}
-	
-	/*
-	 * public function export($a_value)
-	 * {
-	 * return pg_unescape_bytea($this->m_datasource->resource(), $a_value);
-	 * }
-	 */
 }

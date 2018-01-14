@@ -120,7 +120,6 @@ class Recordset extends QueryResult implements Iterator, Countable
 	// Iterator implementation
 	public function rewind()
 	{
-		// ns\Reporter::debug($this, 'rewind '.$this->m_iCurrentRowIndex);
 		$this->m_iCurrentRowIndex = self::kIteratorIndexBefore;
 		$this->m_aCurrentRow = null;
 		$this->m_flags |= self::kStateUnitialized;
@@ -143,7 +142,6 @@ class Recordset extends QueryResult implements Iterator, Countable
 
 	public function current()
 	{
-		// ns\Reporter::debug($this, 'current '.$this->m_iCurrentRowIndex);
 		if (($this->m_iCurrentRowIndex == self::kIteratorIndexBefore) && !($this->m_flags & self::kStateIteratorEnd))
 		{
 			$this->next();
@@ -154,13 +152,11 @@ class Recordset extends QueryResult implements Iterator, Countable
 
 	public function key()
 	{
-		//ns\Reporter::debug($this, 'next '. $this->m_iCurrentRowIndex);
 		return $this->m_iCurrentRowIndex;
 	}
 
 	public function next()
 	{
-		//ns\Reporter::debug($this, 'next '.$this->m_iCurrentRowIndex);
 		$this->m_aCurrentRow = $this->datasource->fetchResult($this, ($this->m_flags & kRecordsetFetchBoth));
 		if ($this->m_aCurrentRow)
 		{
@@ -208,7 +204,6 @@ class Recordset extends QueryResult implements Iterator, Countable
 	{
 		if ($this->m_flags & self::kRowCount)
 		{
-			//ns\Reporter::debug($this, 'Use buffered row count '. $this->m_rowCount);
 			return $this->m_rowCount;
 		}
 		
@@ -287,6 +282,8 @@ class Recordset extends QueryResult implements Iterator, Countable
 
 	/**
 	 * Create a XHTML <select> tag
+	 * 
+	 * @todo Move this in a dedicated View class
 	 * 
 	 * @param $a_valueColumn Column
 	 *        	used as value attribute

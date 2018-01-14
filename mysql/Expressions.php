@@ -27,16 +27,3 @@ class MySQLStringData extends StringData
 	}
 }
 
-class MySQLBinaryData extends BinaryData
-{
-
-	public function __construct(Datasource $datasource, TableColumnStructure $structure = null)
-	{
-		parent::__construct($datasource, $structure);
-	}
-
-	protected function getDatasourceBinaryExpression($value)
-	{
-		return ($this->datasource->apiCall("real_escape_string", $value, $this->datasource->resource()));
-	}
-}

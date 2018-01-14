@@ -37,16 +37,3 @@ class SQLiteStringData extends StringData
 	}
 }
 
-class SQLiteBinaryData extends BinaryData
-{
-
-	public function __construct(Datasource $datasource, /*TableColumnStructure*/ $structure = null)
-	{
-		parent::__construct($datasource, $structure);
-	}
-
-	protected function getDatasourceBinaryExpression($a_value)
-	{
-		return "X'" . bin2hex($a_value) . "'";
-	}
-}

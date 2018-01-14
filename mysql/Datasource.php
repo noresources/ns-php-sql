@@ -162,8 +162,8 @@ class MySQLDatasource extends Datasource implements ITransactionBlock
 			$this->addDataType($name, kDataTypeString, __NAMESPACE__ . '\\MySQLStringData');
 		}
 		
-		$this->addDataType('BINARY', kDataTypeBinary, __NAMESPACE__ . '\\MySQLBinaryData');
-		$this->addDataType('VARBINARY', kDataTypeBinary, __NAMESPACE__ . '\\MySQLBinaryData');
+		$this->addDataType('BINARY', kDataTypeBinary);
+		$this->addDataType('VARBINARY', kDataTypeBinary);
 		
 		$this->addDataType('BOOL', kDataTypeBoolean);
 		
@@ -370,13 +370,19 @@ class MySQLDatasource extends Datasource implements ITransactionBlock
 			{
 				return (new MySQLStringData($this));
 			}
-			elseif ($sqlType == kDataTypeBinary)
-			{
-				return (new MySQLBinaryData($this));
-			}
 		}
 		
 		return parent::createData($dataType);
+	}
+	
+	public function serializeBinaryData ($data)
+	{
+		return ($this->datasource->apiCall("real_escape_string", $value, $this->resource));
+	}
+	
+	public function unserializeBinaryData ($data)
+	{
+		return $data;
 	}
 
 	/**

@@ -136,7 +136,7 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 		$this->addDataType('INTEGER', kDataTypeNumber);
 		$this->addDataType('REAL', kDataTypeNumber);
 		$this->addDataType('NUMERIC', kDataTypeNumber);
-		$this->addDataType('BLOB', kDataTypeBinary, __NAMESPACE__ . '\\SQLiteBinaryData');
+		$this->addDataType('BLOB', kDataTypeBinary);
 	}
 
 	public function __destruct()
@@ -433,15 +433,21 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 			{
 				return new SQLiteStringData($this);
 			}
-			elseif ($sqlType == kDataTypeBinary)
-			{
-				return new SQLiteBinaryData($this);
-			}
 		}
 		
 		return parent::createData($dataType);
 	}
 
+	public function serializeBinaryData ($data)
+	{
+		return "X'" . bin2hex($data) . "'";
+	}
+	
+	public function unserializeBinaryData ($data)
+	{
+		return $data;
+	}
+	
 	public function executeQuery($a_strQuery)
 	{
 		$errorMessage = '';

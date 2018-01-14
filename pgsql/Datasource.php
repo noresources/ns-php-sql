@@ -25,7 +25,7 @@ require_once (NS_PHP_CORE_PATH . '/arrays.php');
 class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransactionBlock
 {
 	const kDefaultTableSetName = 'public';
-	
+
 	// construction - destruction
 	/**
 	 *
@@ -35,6 +35,8 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 	{
 		parent::__construct($a_structure);
 		$this->activeTableSetName = self::kDefaultTableSetName;
+		
+		// Data types
 		
 		$type = array (
 				'character varying',
@@ -107,6 +109,10 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 		$this->setDefaultTypeName(kDataTypeTimestamp, 'timestamp');
 		$this->setDefaultTypeName(kDataTypeNumber, 'integer');
 		$this->setDefaultTypeName(kDataTypeString, 'text');
+		
+		// Keywords
+		$this->setDatasourceString(self::kStringKeywordTrue, "TRUE");
+		$this->setDatasourceString(self::kStringKeywordFalse, "FALSE");
 	}
 
 	public function __destruct()
@@ -117,10 +123,9 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 			pg_close($this->m_datasourceResource);
 		}
 	}
-	
+
 	// ITransactionBlock implementation
 	
-
 	/**
 	 *
 	 * @see sources/sql/ITransactionBlock#startTransaction()
@@ -155,7 +160,7 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 		 * $oQuery->execute();
 		 */
 	}
-	
+
 	// ITableSetProvider implementation
 	public function setActiveTableSet($name)
 	{
@@ -178,18 +183,17 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 		
 		return true;
 	}
-	
+
 	// ITableProvider implementation
 	
-
 	/**
 	 *
 	 * @todo Check behavior
 	 */
 	public function getTable($a_strName, $a_strAlias = null, $a_strClassName = null, $useAliasAsName = false)
 	{
-		$schema = $this->getTableSet ($this->activeTableSetName);
-		$res = tableProviderGenericTableObjectMethod($schema, $schema->structure->offsetGet ($a_strName), $a_strName, $a_strAlias, $a_strClassName, $useAliasAsName);
+		$schema = $this->getTableSet($this->activeTableSetName);
+		$res = tableProviderGenericTableObjectMethod($schema, $schema->structure->offsetGet($a_strName), $a_strName, $a_strAlias, $a_strClassName, $useAliasAsName);
 		return $res;
 	}
 
@@ -283,10 +287,9 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 	{
 		return Reporter::fatalError($this, __METHOD__ . ' not imp', __FILE__, __LINE__);
 	}
-	
+
 	// Datasource implementation
 	
-
 	/**
 	 * Connection
 	 *
@@ -302,7 +305,7 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 		
 		if (!(array_key_exists(kConnectionParameterHostname, $parameters) && array_key_exists(kConnectionParameterUsername, $parameters)))
 		{
-			return ns\Reporter::instance()->addError($this, __METHOD__ . "(): Parameters are missing. 'host', 'user', ['password' and 'Database'] must be provided.", __FILE__, __LINE__);
+			return ns\Reporter::error($this, __METHOD__ . "(): Parameters are missing. 'host', 'user', ['password' and 'Database'] must be provided.", __FILE__, __LINE__);
 		}
 		
 		$connectionString = "host = '" . $parameters[kConnectionParameterHostname] . "'";
@@ -312,10 +315,8 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 			$connectionString .= " password = '" . $parameters[kConnectionParameterPassword] . "'";
 		}
 		
-		if (array_key_exists(kConnectionParameterDatabasename, $parameters))
-		{
-			$connectionString .= " dbname = '" . $parameters[kConnectionParameterDatabasename] . "'";
-		}
+		$database = array_key_exists(kConnectionParameterDatabasename, $parameters) ? $parameters[kConnectionParameterDatabasename] : $parameters[kConnectionParameterUsername];
+		$connectionString .= " dbname = '" . $database . "'";
 		
 		if (function_exists("pg_connect"))
 		{
@@ -323,12 +324,12 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 		}
 		else
 		{
-			return ns\Reporter::instance()->addError($this, __METHOD__ . "(): PostgreSQL extension is not installed", __FILE__, __LINE__);
+			return ns\Reporter::error($this, __METHOD__ . "(): PostgreSQL extension is not installed", __FILE__, __LINE__);
 		}
 		
 		if (!$this->m_datasourceResource)
 		{
-			return ns\Reporter::instance()->addError($this, __METHOD__ . "(): Unable to connect to data source " . $parameters[kConnectionParameterHostname], __FILE__, __LINE__);
+			return ns\Reporter::error($this, __METHOD__ . "(): Unable to connect to data source " . $parameters[kConnectionParameterHostname], __FILE__, __LINE__);
 		}
 		
 		if (array_key_exists(kConnectionParameterActiveTableSet, $parameters))
@@ -379,13 +380,24 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 		return parent::createData($dataType);
 	}
 
+	public function serializeBinaryData($data)
+	{
+		$data = \is_string($data) ? $data : strval($data);
+		return (pg_escape_bytea($this->resource, $data));
+	}
+
+	public function unserializeBinaryData($data)
+	{
+		return pg_unescape_bytea($data);
+	}
+
 	/**
 	 *
 	 * @see sources/sql/Datasource#executeQuery()
 	 * @return QueryResult
 	 */
 	public function executeQuery($a_strQuery)
-	{		
+	{
 		$result = @pg_query($this->resource(), $a_strQuery);
 		if ($result === false)
 		{
@@ -419,13 +431,16 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 	}
 
 	/**
+	 *
 	 * @return array
 	 */
 	public function fetchResult(QueryResult $a_queryResult, $fetchFlags = kRecordsetFetchBoth)
 	{
 		$pgsqlFlags = 0;
-		if ($fetchFlags & kRecordsetFetchName) $pgsqlFlags |= PGSQL_ASSOC;
-		if ($fetchFlags & kRecordsetFetchNumeric) $pgsqlFlags |= PGSQL_NUM;
+		if ($fetchFlags & kRecordsetFetchName)
+			$pgsqlFlags |= PGSQL_ASSOC;
+		if ($fetchFlags & kRecordsetFetchNumeric)
+			$pgsqlFlags |= PGSQL_NUM;
 		
 		return pg_fetch_array($a_queryResult->resultResource, null, $pgsqlFlags);
 	}
@@ -482,7 +497,7 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 	 */
 	public function affectedRowCount(QueryResult $a_queryResult)
 	{
-		return pg_affected_rows($a_queryResult->datasource->resource());
+		return pg_affected_rows($a_queryResult->resultResource);
 	}
 
 	/**
