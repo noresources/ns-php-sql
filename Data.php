@@ -285,7 +285,7 @@ class StringData extends Data
 		return $this->importResult($valid);
 	}
 
-	public function expressionString ($options = null)
+	public function expressionString($options = null)
 	{
 		$this->check();
 		
@@ -302,7 +302,7 @@ class StringData extends Data
 		return protectString($this->getDatasourceStringExpression($this->getValue()));
 	}
 
-	public function getValue ()
+	public function getValue()
 	{
 		return $this->m_value;
 	}
@@ -311,7 +311,7 @@ class StringData extends Data
 	 *
 	 * @return The string value as it should appear in SQL statement
 	 */
-	protected function getDatasourceStringExpression ($value)
+	protected function getDatasourceStringExpression($value)
 	{
 		return $value;
 	}
@@ -350,9 +350,9 @@ class NumberData extends Data
 
 	/**
 	 *
-	 * @param Datasource $datasource        	        	
+	 * @param Datasource $datasource
 	 */
-	public function __construct (Datasource $datasource)
+	public function __construct(Datasource $datasource)
 	{
 		parent::__construct(kDataTypeNumber);
 		$this->m_value = null;
@@ -363,7 +363,7 @@ class NumberData extends Data
 		 */
 	}
 
-	public function expressionString ($options = null)
+	public function expressionString($options = null)
 	{
 		$this->check();
 		
@@ -396,7 +396,7 @@ class NumberData extends Data
 		return $data;
 	}
 
-	public function import ($data)
+	public function import($data)
 	{
 		if (is_null($data) || (is_string($data) && (strlen($data) == 0)))
 		{
@@ -417,7 +417,7 @@ class NumberData extends Data
 		return $this->importResult(true);
 	}
 
-	public function getValue ()
+	public function getValue()
 	{
 		return $this->m_value;
 	}
@@ -435,9 +435,9 @@ class TimestampData extends Data
 
 	/**
 	 *
-	 * @param Datasource $datasource        	        	
+	 * @param Datasource $datasource
 	 */
-	public function __construct (Datasource $datasource)
+	public function __construct(Datasource $datasource)
 	{
 		parent::__construct(kDataTypeTimestamp);
 		$this->m_datasource = $datasource;
@@ -447,13 +447,12 @@ class TimestampData extends Data
 
 	/**
 	 *
-	 * @param mixed $data
-	 *        	DateTime, integer (UNIX timestamp),
-	 *        	string (compliant with DateTime constructor),
-	 *        	or an array containing {format, time} using 'format'/0 and
-	 *        	'time'/1 keys
+	 * @param mixed $data DateTime, integer (UNIX timestamp),
+	 *        string (compliant with DateTime constructor),
+	 *        or an array containing {format, time} using 'format'/0 and
+	 *        'time'/1 keys
 	 */
-	public function import ($data)
+	public function import($data)
 	{
 		if (is_object($data) && ($data instanceof DateTime))
 		{
@@ -492,12 +491,12 @@ class TimestampData extends Data
 		return $this->importResult(true);
 	}
 
-	public function getValue ()
+	public function getValue()
 	{
 		return $this->m_dateTime;
 	}
 
-	public function expressionString ($options = null)
+	public function expressionString($options = null)
 	{
 		$this->check();
 		$fmtString = $this->m_datasource->getDatasourceString(Datasource::kStringTimestampFormat);
@@ -521,13 +520,24 @@ class BinaryData extends Data
 {
 
 	/**
+	 *
 	 * @param Datasource $datasource
 	 */
-	public function __construct (Datasource $datasource)
+	public function __construct(Datasource $datasource)
 	{
 		parent::__construct(kDataTypeBinary);
 		$this->setFlags($this->flags | self::kAcceptNull);
 		$this->m_datasource = $datasource;
+	}
+
+	public function __get($member)
+	{
+		if ($member == 'datasource')
+		{
+			return $this->m_datasource;
+		}
+		
+		return parent::__get($member);
 	}
 
 	public function import ($data)
@@ -541,7 +551,7 @@ class BinaryData extends Data
 		return $this->importResult(true);
 	}
 
-	public function expressionString ($options = null)
+	public function expressionString($options = null)
 	{
 		$this->check();
 		
@@ -553,14 +563,14 @@ class BinaryData extends Data
 		return $this->getDatasourceBinaryExpression($this->getValue());
 	}
 
-	public function getValue ()
+	public function getValue()
 	{
 		return $this->m_value;
 	}
 
-	protected function getDatasourceBinaryExpression ($value)
+	protected function getDatasourceBinaryExpression($value)
 	{
-		return $value;
+		return $this->m_datasource->serializeBinaryData ($value);
 	}
 
 	private $m_datasource;
@@ -573,10 +583,10 @@ class DataList implements ns\IExpression
 
 	/**
 	 *
-	 * @param array $list        	
-	 * @param TableColumn $column        	
+	 * @param array $list
+	 * @param TableColumn $column
 	 */
-	public static function fromList ($list, TableColumn $column = null)
+	public static function fromList($list, TableColumn $column = null)
 	{
 		$o = new DataList();
 		if (!ns\is_array($list))
@@ -602,26 +612,26 @@ class DataList implements ns\IExpression
 		return $o;
 	}
 
-	public function __construct ()
+	public function __construct()
 	{
 		$this->m_values;
 	}
 
-	public function addData ($data)
+	public function addData($data)
 	{
 		$this->m_values[] = $data;
 	}
 
-	public function expressionString ($options = null)
+	public function expressionString($options = null)
 	{
-		$s = ns\array_implode_cb($this->m_values, ', ', array(
+		$s = ns\array_implode_cb($this->m_values, ', ', array (
 				$this,
-				'glueData'
+				'glueData' 
 		), $options);
 		return $s;
 	}
 
-	public static function glueData ($k, $v, $options)
+	public static function glueData($k, $v, $options)
 	{
 		return $v->expressionString($options);
 	}
