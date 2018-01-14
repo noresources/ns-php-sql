@@ -103,6 +103,14 @@ abstract class Data implements ns\IExpression
 	 */
 	abstract function getValue();
 
+	/**
+	 * Configure Data to match Table column specifications
+	 *
+	 * @param TableColumnStructure $structure
+	 */
+	public function configure(TableColumnStructure $structure)
+	{}
+
 	protected function check()
 	{
 		if (!($this->m_flags & self::kValid))
@@ -358,9 +366,23 @@ class NumberData extends Data
 		$this->m_value = null;
 		$this->m_datasource = $datasource;
 		$this->setFlags($this->flags | self::kAcceptNull);
-		/*
-		 * @todo handle structure info
-		 */
+	}
+
+	/**
+	 *
+	 * @param TableColumnStructure $structure
+	 */
+	public function configure(TableColumnStructure $structure)
+	{
+		$this->decimals = $structure->getProperty(kStructureDecimalCount);
+		if ($structure->getProperty(kStructureAcceptNull))
+		{
+			$this->setFlags($this->flags | self::kAcceptNull);
+		}
+		else
+		{
+			$this->setFlags($this->flags & ~self::kAcceptNull);
+		}
 	}
 
 	public function expressionString($options = null)
@@ -540,7 +562,7 @@ class BinaryData extends Data
 		return parent::__get($member);
 	}
 
-	public function import ($data)
+	public function import($data)
 	{
 		if (is_null($data) && !($this->flags & self::kAcceptNull))
 		{

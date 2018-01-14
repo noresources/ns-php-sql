@@ -20,7 +20,7 @@ class InsertQuery extends TableQuery implements ns\IExpression
 	public function __construct(Table $a_table)
 	{
 		parent::__construct($a_table);
-		$this->m_fieldValues = array ();
+		$this->m_columnValues = array ();
 	}
 
 	/**
@@ -58,15 +58,15 @@ class InsertQuery extends TableQuery implements ns\IExpression
 	 */
 	public function expressionString($a_options = null)
 	{
-		if (count($this->m_fieldValues) == 0)
+		if (count($this->m_columnValues) == 0)
 		{
 			return false;
 		}
 		
 		$qs = 'INSERT INTO ' . $this->table->expressionString(kExpressionElementName);
 		
-		$qs .= ' (' . ns\array_implode_keys(', ', $this->m_fieldValues);
-		$qs .= ') VALUES(' . ns\array_implode_values(', ', $this->m_fieldValues) . ')';
+		$qs .= ' (' . ns\array_implode_keys(', ', $this->m_columnValues);
+		$qs .= ') VALUES(' . ns\array_implode_values(', ', $this->m_columnValues) . ')';
 		
 		return $qs;
 	}
@@ -74,32 +74,32 @@ class InsertQuery extends TableQuery implements ns\IExpression
 	/**
 	 * Add a field value
 	 *
-	 * @param mixed $a_field string(name) or TableColumn
+	 * @param mixed $a_column string(name) or TableColumn
 	 * @param ns\IExpression $a_value
 	 */
-	public function addColumnValue($a_field, ns\IExpression $a_value)
+	public function addColumnValue($a_column, ns\IExpression $a_value)
 	{
-		$a_field = mixedToTableColumn($a_field, $this->table);
-		if (!$a_field)
+		$a_column = mixedToTableColumn($a_column, $this->table);
+		if (!$a_column)
 		{
 			return ns\Reporter::error($this, __METHOD__ . '(): Unable to get TableColumn object', __FILE__, __LINE__);
 		}
 		
-		$f = $this->datasource->encloseElement($a_field->name);
+		$f = $this->datasource->encloseElement($a_column->name);
 		
-		$this->m_fieldValues[$f] = $a_value->expressionString();
+		$this->m_columnValues[$f] = $a_value->expressionString();
 	}
 
 	/**
 	 * Add multiple field values
 	 *
-	 * @param mixed $a_fieldAndValues associative array [field name => value]
+	 * @param mixed $a_columnAndValues associative array [field name => value]
 	 *       
 	 *        Values are formatted using TableColumn::importData()
 	 */
-	public function addColumnValues($a_fieldAndValues)
+	public function addColumnValues($a_columnAndValues)
 	{
-		foreach ($a_fieldAndValues as $k => $v)
+		foreach ($a_columnAndValues as $k => $v)
 		{
 			$k = mixedToTableColumn($k, $this->table);
 			if (!$k)
@@ -114,7 +114,7 @@ class InsertQuery extends TableQuery implements ns\IExpression
 
 	public function clear()
 	{
-		$this->m_fieldValues = array ();
+		$this->m_columnValues = array ();
 	}
 
 	/**
@@ -122,7 +122,7 @@ class InsertQuery extends TableQuery implements ns\IExpression
 	 *
 	 * @var associative array(formatted field name => formatted value)
 	 */
-	protected $m_fieldValues;
+	protected $m_columnValues;
 }
 
 /**
@@ -134,7 +134,7 @@ class UpdateQuery extends TableQuery implements ns\IExpression
 	public function __construct(Table $a_table)
 	{
 		parent::__construct($a_table);
-		$this->m_fieldValues = array ();
+		$this->m_columnValues = array ();
 	}
 
 	/**
@@ -183,11 +183,11 @@ class UpdateQuery extends TableQuery implements ns\IExpression
 	public function expressionString($a_options = null)
 	{
 		/*
-		 * if (count($this->m_fieldValues) == 0) { return
+		 * if (count($this->m_columnValues) == 0) { return
 		 * ns\Reporter::error($this, __METHOD__.': No field set.'); }
 		 */
 		$qs = 'UPDATE ' . $this->table->expressionString(kExpressionElementName) . ' SET ';
-		$qs .= ' ' . ns\array_implode_cb(', ', $this->m_fieldValues, array (
+		$qs .= ' ' . ns\array_implode_cb(', ', $this->m_columnValues, array (
 				get_class($this),
 				'glueSetStatements' 
 		));
@@ -203,20 +203,20 @@ class UpdateQuery extends TableQuery implements ns\IExpression
 	/**
 	 * Add a field value
 	 *
-	 * @param mixed $a_field string(name) or TableColumn
+	 * @param mixed $a_column string(name) or TableColumn
 	 * @param ns\IExpression $a_value
 	 */
-	public function addColumnValue($a_field, ns\IExpression $a_value)
+	public function addColumnValue($a_column, ns\IExpression $a_value)
 	{
-		$a_field = mixedToTableColumn($a_field, $this->table);
-		if (!(is_object($a_field) && ($a_field instanceof TableColumn)))
+		$a_column = mixedToTableColumn($a_column, $this->table);
+		if (!(is_object($a_column) && ($a_column instanceof TableColumn)))
 		{
 			return ns\Reporter::error($this, __METHOD__ . '(): Unable to get TableColumn object', __FILE__, __LINE__);
 		}
 		
-		$f = $this->datasource->encloseElement($a_field->name);
+		$f = $this->datasource->encloseElement($a_column->name);
 		
-		$this->m_fieldValues[$f] = $a_value->expressionString();
+		$this->m_columnValues[$f] = $a_value->expressionString();
 		
 		return true;
 	}
@@ -224,13 +224,13 @@ class UpdateQuery extends TableQuery implements ns\IExpression
 	/**
 	 * Add multiple field values
 	 *
-	 * @param mixed $a_fieldAndValues associative array [field name => value]
+	 * @param mixed $a_columnAndValues associative array [field name => value]
 	 *       
 	 *        Values are formatted using TableColumn::importData()
 	 */
-	public function addColumnValues($a_fieldAndValues)
+	public function addColumnValues($a_columnAndValues)
 	{
-		foreach ($a_fieldAndValues as $k => $v)
+		foreach ($a_columnAndValues as $k => $v)
 		{
 			$k = mixedToTableColumn($k, $this->table);
 			if (!$k)
@@ -292,7 +292,7 @@ class UpdateQuery extends TableQuery implements ns\IExpression
 	 *
 	 * @var associative array(formatted field name => formatted value)
 	 */
-	protected $m_fieldValues;
+	protected $m_columnValues;
 }
 
 class SelectQueryStaticValueColumn implements ns\IExpression

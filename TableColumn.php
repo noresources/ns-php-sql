@@ -24,7 +24,7 @@ interface ITableColumnValueValidator
 
 	/**
 	 *
-	 * @param mixed $a_value        	
+	 * @param mixed $a_value
 	 */
 	function validate($a_value);
 }
@@ -46,7 +46,7 @@ class ListedElementTableColumnValueValidator implements ITableColumnValueValidat
 
 	public function addElement($a_value)
 	{
-		$this->m_aValidValues [] = $a_value;
+		$this->m_aValidValues[] = $a_value;
 	}
 
 	public function validate($a_value)
@@ -107,6 +107,7 @@ abstract class ITableColumn extends SQLObject implements IExpression, IAliasable
 {
 
 	/**
+	 *
 	 * @param TableColumnStructure $a_structure
 	 */
 	public function __construct(TableColumnStructure $a_structure = null)
@@ -133,11 +134,13 @@ abstract class ITableColumn extends SQLObject implements IExpression, IAliasable
 	}
 
 	/**
+	 *
 	 * @return Table
 	 */
 	abstract function getTable();
 
 	/**
+	 *
 	 * @return string
 	 */
 	abstract function getName();
@@ -153,17 +156,17 @@ class StarColumn extends ITableColumn
 	/**
 	 * CoOnstructor
 	 *
-	 * @param Table $a_table
-	 *        	Table reference
+	 * @param Table $a_table Table reference
 	 */
 	public function __construct(Table $a_table)
 	{
 		parent::__construct(null);
 		$this->m_table = $a_table;
 	}
-	
+
 	// ns\IExpression implementation
 	/**
+	 *
 	 * @return string
 	 */
 	public function expressionString($a_options = null)
@@ -185,12 +188,12 @@ class StarColumn extends ITableColumn
 			return $this->m_table->getDatasource();
 		}
 	}
-	
+
 	// end of IExpression implementation
 	
-
 	// ISQLAliased
 	/**
+	 *
 	 * @return boolean
 	 */
 	public function hasAlias()
@@ -199,13 +202,14 @@ class StarColumn extends ITableColumn
 	}
 
 	/**
+	 *
 	 * @return SQLAlias
 	 */
 	public function alias(SQLAlias $alias = null)
 	{
 		return null;
 	}
-	
+
 	// ITableColumn implementation
 	public function getTable()
 	{
@@ -213,6 +217,7 @@ class StarColumn extends ITableColumn
 	}
 
 	/**
+	 *
 	 * @return string
 	 */
 	public function getName()
@@ -237,14 +242,10 @@ class TableColumn extends ITableColumn implements IAliasedClone, ITableColumnVal
 	/**
 	 * Constructor
 	 *
-	 * @param Table $a_table
-	 *        	Table reference
-	 * @param string $a_strName
-	 *        	field name
-	 * @param string $a_strAlias
-	 *        	Alias (optional)
-	 * @param array $a_structure
-	 *        	TableColumnStructure
+	 * @param Table $a_table Table reference
+	 * @param string $a_strName field name
+	 * @param string $a_strAlias Alias (optional)
+	 * @param array $a_structure TableColumnStructure
 	 */
 	public function __construct(Table $a_table, $a_strName, $a_strAlias = null, TableColumnStructure $a_structure = null)
 	{
@@ -295,8 +296,9 @@ class TableColumn extends ITableColumn implements IAliasedClone, ITableColumnVal
 			}
 		}
 	}
-	
+
 	/**
+	 *
 	 * @param string $member
 	 */
 	public function __get($member)
@@ -305,10 +307,10 @@ class TableColumn extends ITableColumn implements IAliasedClone, ITableColumnVal
 		{
 			return $this->type();
 		}
-
+		
 		return parent::__get($member);
 	}
-	
+
 	// ns\IExpression implementation
 	
 	/**
@@ -321,8 +323,7 @@ class TableColumn extends ITableColumn implements IAliasedClone, ITableColumnVal
 		
 		if (($a_options & kExpressionElementDeclaration) == kExpressionElementDeclaration)
 		{
-			return $this->table->expressionString(kExpressionElementAlias) . '.' . $connection->encloseElement($this->getName()) 
-			. ($this->hasAlias() ? ' AS ' . $connection->encloseElement($this->alias()->getAliasName()) : '');
+			return $this->table->expressionString(kExpressionElementAlias) . '.' . $connection->encloseElement($this->getName()) . ($this->hasAlias() ? ' AS ' . $connection->encloseElement($this->alias()->getAliasName()) : '');
 		}
 		elseif ($a_options & kExpressionElementName)
 		{
@@ -335,7 +336,7 @@ class TableColumn extends ITableColumn implements IAliasedClone, ITableColumnVal
 		
 		return $this->table->expressionString(kExpressionElementAlias) . '.' . $connection->encloseElement($this->getName());
 	}
-	
+
 	// IExpression implementation
 	
 	/**
@@ -352,7 +353,7 @@ class TableColumn extends ITableColumn implements IAliasedClone, ITableColumnVal
 		
 		return $ds;
 	}
-	
+
 	// IAliasedClone implementation
 	
 	/**
@@ -365,11 +366,12 @@ class TableColumn extends ITableColumn implements IAliasedClone, ITableColumnVal
 		$result = new $cn($this->table, $this->m_fieldName, $newAlias, $this->structure);
 		return $result;
 	}
-	
+
 	// IAliasedClone implementation
 	
 	// ISQLAliased
 	/**
+	 *
 	 * @see \NoreSources\SQL\IAliasable::hasAlias()
 	 * @return boolean
 	 */
@@ -379,6 +381,7 @@ class TableColumn extends ITableColumn implements IAliasedClone, ITableColumnVal
 	}
 
 	/**
+	 *
 	 * @see \NoreSources\SQL\IAliasable::alias()
 	 * @return SQLAlias
 	 */
@@ -391,7 +394,7 @@ class TableColumn extends ITableColumn implements IAliasedClone, ITableColumnVal
 		
 		return $this->m_alias;
 	}
-	
+
 	// ITableColumn implementation
 	
 	/**
@@ -412,11 +415,10 @@ class TableColumn extends ITableColumn implements IAliasedClone, ITableColumnVal
 	{
 		return $this->m_fieldName;
 	}
-	
+
 	// end of ITableColumn implementation
 	
 	// ITableColumnValueValidatorProvider implementation
-	
 	public function getColumnValueValidator()
 	{
 		return $this->m_valueValidator;
@@ -426,7 +428,7 @@ class TableColumn extends ITableColumn implements IAliasedClone, ITableColumnVal
 	{
 		$this->m_valueValidator = $a_validator;
 	}
-	
+
 	// end of ITableColumnValueValidatorProvider implementation
 	public function __toString()
 	{
@@ -443,6 +445,7 @@ class TableColumn extends ITableColumn implements IAliasedClone, ITableColumnVal
 	}
 
 	/**
+	 *
 	 * @return boolean
 	 */
 	public function indexed()
@@ -451,6 +454,7 @@ class TableColumn extends ITableColumn implements IAliasedClone, ITableColumnVal
 	}
 
 	/**
+	 *
 	 * @return boolean
 	 */
 	public function autoIncrement()
@@ -459,6 +463,7 @@ class TableColumn extends ITableColumn implements IAliasedClone, ITableColumnVal
 	}
 
 	/**
+	 *
 	 * @return integer
 	 */
 	public function size()
@@ -467,6 +472,7 @@ class TableColumn extends ITableColumn implements IAliasedClone, ITableColumnVal
 	}
 
 	/**
+	 *
 	 * @return integer
 	 */
 	public function decimalSize()
@@ -489,9 +495,9 @@ class TableColumn extends ITableColumn implements IAliasedClone, ITableColumnVal
 	}
 
 	/**
-	 * Create a new DATA base on field type and import the given value
+	 * Create a new Data base on field type and import the given value
 	 * @param mixed $a_value Value to import
-	 * @return DATA
+	 * @return \NoreSources\SQL\Data
 	 */
 	public function importData($a_value)
 	{
@@ -500,6 +506,8 @@ class TableColumn extends ITableColumn implements IAliasedClone, ITableColumnVal
 			return ns\Reporter::error($this, __METHOD__ . '(): Value validation failed', __FILE__, __LINE__);
 		}
 		
+		$data = null;
+		$structure = $this->getStructure();
 		$sqlType = $this->type();
 		if (is_null($a_value))
 		{
@@ -514,19 +522,20 @@ class TableColumn extends ITableColumn implements IAliasedClone, ITableColumnVal
 			$sqlType = guessDataType($a_value);
 		}
 		
-		$v = $this->getDatasource()->createData($sqlType);
-		$v->import($a_value);
+		$data = $this->getDatasource()->createData($sqlType);
+		if ($structure)
+			$data->configure($structure);
 		
-		return $v;
+		$data->import($a_value);
+		
+		return $data;
 	}
 
 	/**
 	 * Create a field=value expression
 	 *
-	 * @param
-	 *        	$a_value
-	 * @param
-	 *        	$a_bEquality
+	 * @param $a_value
+	 * @param $a_bEquality
 	 * @return ns\IExpression
 	 */
 	public function equalityExpression($a_value, $a_bEquality = true)
@@ -542,11 +551,13 @@ class TableColumn extends ITableColumn implements IAliasedClone, ITableColumnVal
 	protected $m_table;
 
 	/**
+	 *
 	 * @var SQLAlias
 	 */
 	protected $m_alias;
 
 	/**
+	 *
 	 * @todo Name is given by structure
 	 * @var string
 	 */

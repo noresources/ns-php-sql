@@ -331,7 +331,7 @@ abstract class StructureElement implements \ArrayAccess, \IteratorAggregate, \Co
 	{
 		$parent = $this->parent();
 		$key = $a_child->elementKey();
-		$this->m_children->offsetSet ($key, $a_child);
+		$this->m_children->offsetSet($key, $a_child);
 		if (!($this->m_version instanceof StructureVersion))
 		{
 			$this->m_version = $a_child->m_version;
@@ -442,7 +442,7 @@ abstract class StructureElement implements \ArrayAccess, \IteratorAggregate, \Co
 }
 
 /**
- * Table field properties
+ * Table column properties
  */
 class TableColumnStructure extends StructureElement
 {
@@ -450,7 +450,7 @@ class TableColumnStructure extends StructureElement
 	public function __construct(/*TableStructure */$a_tableStructure, $a_name)
 	{
 		parent::__construct($a_name, $a_tableStructure);
-		$this->m_fieldProperties = array (
+		$this->m_columnProperties = array (
 				kStructureAcceptNull => true,
 				kStructureAutoincrement => false,
 				kStructureDecimalCount => 0,
@@ -470,19 +470,19 @@ class TableColumnStructure extends StructureElement
 	 */
 	public function getProperties()
 	{
-		return $this->m_fieldProperties;
+		return $this->m_columnProperties;
 	}
 
 	public function getProperty($a_strName)
 	{
-		return $this->m_fieldProperties[$a_strName];
+		return $this->m_columnProperties[$a_strName];
 	}
 
 	public function setProperty($a_strName, $a_value)
 	{
-		if (array_key_exists($a_strName, $this->m_fieldProperties))
+		if (array_key_exists($a_strName, $this->m_columnProperties))
 		{
-			$this->m_fieldProperties[$a_strName] = $a_value;
+			$this->m_columnProperties[$a_strName] = $a_value;
 		}
 	}
 
@@ -580,7 +580,7 @@ class TableColumnStructure extends StructureElement
 		parent::postprocess();
 	}
 
-	private $m_fieldProperties;
+	private $m_columnProperties;
 }
 
 /**

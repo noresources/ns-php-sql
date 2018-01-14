@@ -436,13 +436,47 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 	 */
 	public function fetchResult(QueryResult $a_queryResult, $fetchFlags = kRecordsetFetchBoth)
 	{
-		$pgsqlFlags = 0;
-		if ($fetchFlags & kRecordsetFetchName)
-			$pgsqlFlags |= PGSQL_ASSOC;
-		if ($fetchFlags & kRecordsetFetchNumeric)
-			$pgsqlFlags |= PGSQL_NUM;
+		$resource = $a_queryResult->resultResource;
 		
-		return pg_fetch_array($a_queryResult->resultResource, null, $pgsqlFlags);
+		$names = array ();
+		$numbers = pg_fetch_array($resource, null, PGSQL_NUM);
+		if (!\is_array($numbers)) return $numbers;
+		
+		foreach ($numbers as $index => &$value)
+		{
+			$oid = pg_field_type_oid($resource, $index);
+			switch ($oid)
+			{
+				case 16: // boolean
+				{
+					$value = \in_array($value, array (TRUE, 't', 'true', 'y', 'yes', 'on', '1'), true);
+				} break;
+				case 17: // bytea
+				{
+					$value = pg_unescape_bytea($value);
+				} break;
+			}
+						
+			if ($fetchFlags & kRecordsetFetchName)
+			{
+				if ($fetchFlags & kRecordsetFetchName)
+				{
+					$names[pg_field_name($resource, $index)] = $value;
+				}
+			}
+		}
+		
+		if ($fetchFlags & kRecordsetFetchName)
+		{
+			if ($fetchFlags & kRecordsetFetchNumeric)
+			{
+				return array_merge($numbers, $names);
+			}
+			
+			return $names;
+		}
+		
+		return $numbers;		
 	}
 
 	public function resetResult(QueryResult $a_queryResult)

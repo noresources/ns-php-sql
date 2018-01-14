@@ -437,11 +437,11 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 			return ns\Reporter::error($this, __METHOD__ . '(): Unable to find type', __FILE__, __LINE__);
 		}
 		
-		$structure = guessStructureElement($dataType);
+		$structure = getStructure($dataType);
 		
 		if ($sqlType == kDataTypeNull)
 		{
-			return new NullData($this);
+			return new NullData($this, $structure);
 		}
 		elseif ($sqlType == kDataTypeString)
 		{
@@ -457,11 +457,11 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 		}
 		elseif ($sqlType == kDataTypeBoolean)
 		{
-			return new BooleanData($this);
+			return new BooleanData($this, $structure);
 		}
 		elseif ($sqlType == kDataTypeBinary)
 		{
-			return new BinaryData($this);
+			return new BinaryData($this, $structure);
 		}
 		
 		return null;
@@ -481,7 +481,7 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 	{
 		return $data;
 	}
-	
+
 	/**
 	 * Get the default type name for a standard type
 	 *
@@ -492,7 +492,7 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 	{
 		if (\array_key_exists($a_sqlType, $this->m_defaultTypeNames))
 		{
-			return $this->m_defaultTypeNames [$a_sqlType];
+			return $this->m_defaultTypeNames[$a_sqlType];
 		}
 		
 		return ns\Reporter::error($this, __METHOD__ . '(): No default type for ' . strval($a_sqlType), __FILE__, __LINE__);

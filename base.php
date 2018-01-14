@@ -115,7 +115,7 @@ function tableProviderGenericTableObjectMethod(ITableProvider $a_provider, $a_st
 	return $result;
 }
 
-function guessStructureElement ($object)
+function getStructure ($object)
 {
 	$structure = null;
 	if ($object instanceof TableColumn)

@@ -505,8 +505,6 @@ class Record implements \ArrayAccess
 					
 					$column = $table->getColumn($name);
 					$s->where->addAndExpression(new SQLSmartEquality($column, $option));
-					//$data = $column->importData(($flags & kRecordDataSerialized) ? $option : static::serializeValue($name, $option));
-					//$s->where->addAndExpression($column->equalityExpression($data));
 				}
 			}
 		}
@@ -551,7 +549,7 @@ class Record implements \ArrayAccess
 					$result = new $className($table, $recordset, (kRecordDataSerialized | kRecordStateExists));
 					return $result;
 				}
-				
+												
 				return ns\Reporter::error(__CLASS__, __METHOD__ . ': Non unique result', __FILE__, __LINE__);
 			}
 		}
