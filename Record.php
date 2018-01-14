@@ -155,8 +155,8 @@ class ColumnValueFilter implements RecordQueryOption
 			case '=':
 			case 'in':
 				return new SQLSmartEquality($column, call_user_func(array (
-				$className,
-				'serializeValue'
+						$className,
+						'serializeValue' 
 				), $column->getName(), $value), $positive);
 				break;
 			case 'between':
@@ -168,24 +168,24 @@ class ColumnValueFilter implements RecordQueryOption
 				{
 					ns\Reporter::fatalError(__CLASS__, __METHOD__ . ': Invalid between filter', __FILE__, __LINE__);
 				}
-
+				
 				$min = call_user_func(array (
 						$className,
-						'unserializeValue'
+						'unserializeValue' 
 				), $value[0]);
 				$max = call_user_func(array (
 						$className,
-						'unserializeValue'
+						'unserializeValue' 
 				), $value[1]);
-
+				
 				$e = new SQLBetween($column, $a_min, $a_max);
 				if (!$positive)
 				{
 					$e = new SQLNot($between);
 				}
-
+				
 				return $e;
-
+				
 				break;
 			case '<':
 			case '<=':
@@ -193,19 +193,19 @@ class ColumnValueFilter implements RecordQueryOption
 			case '>=':
 			case 'like':
 				$v = call_user_func(array (
-				$className,
-				'serializeValue'
+						$className,
+						'serializeValue' 
 				), $column->getName(), $value);
 				$e = new ns\BinaryOperatorExpression(strtoupper($operator), $column, $column->importData($v));
 				if (!$positive)
 				{
 					$e = new SQLNot($between);
 				}
-
+				
 				return $e;
 				break;
 		}
-
+		
 		return ns\Reporter::fatalError(__CLASS__, __METHOD__ . ': Failed to create filter expression');
 	}
 }
@@ -256,6 +256,16 @@ class OrderingOption implements RecordQueryOption
 	}
 }
 
+class GroupingOption implements RecordQueryOption
+{
+
+	public $columnName;
+
+	public function __construct($column)
+	{
+		$this->columnName = $column;
+	}
+}
 const kRecordForeignKeyColumnFormat = '(.+?)::(.+)';
 
 class Record implements \ArrayAccess
@@ -274,14 +284,14 @@ class Record implements \ArrayAccess
 		{
 			$className = get_called_class();
 		}
-
+		
 		$structure = $table->getStructure();
-
+		
 		if (is_null($keys))
 		{
 			return ns\Reporter::error(__CLASS__, __METHOD__ . ': Invalid key (null)');
 		}
-
+		
 		if (!\is_array($keys))
 		{
 			$primaryKeyColumn = null;
@@ -289,19 +299,19 @@ class Record implements \ArrayAccess
 			$c = count($primaryKeyColumns);
 			if ($c == 0)
 			{
-				return ns\Reporter::error(__CLASS__, __METHOD__ . ': Table "'.$table->getName().'" does not have primary key');
+				return ns\Reporter::error(__CLASS__, __METHOD__ . ': Table "' . $table->getName() . '" does not have primary key');
 			}
 			else if ($c > 1)
 			{
 				return ns\Reporter::error(__CLASS__, __METHOD__ . ': Composite primary key can not accept non-array parameter');
 			}
-
+			
 			list ( $pk, $_ ) = each($primaryKeyColumns);
 			$keys = array (
-					$pk => $keys
+					$pk => $keys 
 			);
 		}
-
+		
 		$s = new SelectQuery($table);
 		if ($flags & kRecordQueryForeignKeys)
 		{
@@ -314,16 +324,16 @@ class Record implements \ArrayAccess
 				}
 			}
 		}
-
+		
 		foreach ($keys as $k => $v)
 		{
 			$column = $table->getColumn($k);
 			$data = $column->importData(($flags & kRecordDataSerialized) ? $v : static::serializeValue($k, $v));
 			$s->where->addAndExpression($column->equalityExpression($data));
 		}
-
+		
 		$recordset = $s->execute();
-
+		
 		if (is_object($recordset) && ($recordset instanceof Recordset))
 		{
 			$c = $recordset->rowCount();
@@ -332,12 +342,12 @@ class Record implements \ArrayAccess
 				$result = new $className($table, $recordset, (kRecordStateExists | kRecordDataSerialized));
 				return $result;
 			}
-
+			
 			if ($c > 1)
 			{
 				return ns\Reporter::error(__CLASS__, __METHOD__ . ': Multiple record found');
 			}
-
+			
 			if ($flags & kRecordQueryCreate)
 			{
 				$o = new $className($table, $keys, (kRecordDataSerialized));
@@ -345,13 +355,13 @@ class Record implements \ArrayAccess
 				{
 					return $o;
 				}
-
+				
 				return false;
 			}
-
+			
 			return null;
 		}
-
+		
 		return ns\Reporter::error(__CLASS__, __METHOD__ . ': Invalid query result');
 	}
 
@@ -376,14 +386,16 @@ class Record implements \ArrayAccess
 		{
 			$className = get_called_class();
 		}
-
+		
 		if ($options instanceof RecordQueryOption)
 		{
-			$option = array ($option);
+			$option = array (
+					$option 
+			);
 		}
-
+		
 		$structure = $table->getStructure();
-
+		
 		if (!\is_array($options))
 		{
 			if (!is_null($options))
@@ -404,11 +416,11 @@ class Record implements \ArrayAccess
 						}
 					}
 				}
-
+				
 				if (!is_null($primaryKeyColumn))
 				{
 					return self::queryRecord($table, array (
-							$primaryKeyColumn => $options
+							$primaryKeyColumn => $options 
 					), $flags, $className);
 				}
 			}
@@ -417,13 +429,13 @@ class Record implements \ArrayAccess
 				return ns\Reporter::error(__CLASS__, __METHOD__ . ': $filters. Array expected');
 			}
 		}
-
+		
 		$s = new SelectQuery($table);
-
+		
 		$keyColumn = null;
-
+		
 		$withColumnSelection = false;
-
+		
 		if (\is_array($options))
 		{
 			foreach ($options as $name => $option)
@@ -447,7 +459,7 @@ class Record implements \ArrayAccess
 						{
 							continue;
 						}
-
+						
 						$withColumnSelection = true;
 						$s->addColumn($columnName);
 					}
@@ -458,7 +470,7 @@ class Record implements \ArrayAccess
 					{
 						continue;
 					}
-
+					
 					$e = $option->toExpression($className, $table);
 					$s->where->addAndExpression($e);
 				}
@@ -475,16 +487,26 @@ class Record implements \ArrayAccess
 					$column = $table->getColumn($option->columnName);
 					$s->orderBy->addColumn($column, $option->ascending);
 				}
+				elseif ($option instanceof GroupingOption)
+				{
+					if (!$structure->offsetExists($option->columnName))
+					{
+						continue;
+					}
+					$column = $table->getColumn($option->columnName);
+					$s->groupBy->addColumn($column);
+				}
 				else
 				{
 					if (!$structure->offsetExists($name))
 					{
 						continue;
 					}
-
+					
 					$column = $table->getColumn($name);
-					$data = $column->importData(($flags & kRecordDataSerialized) ? $option : static::serializeValue($name, $option));
-					$s->where->addAndExpression($column->equalityExpression($data));
+					$s->where->addAndExpression(new SQLSmartEquality($column, $option));
+					//$data = $column->importData(($flags & kRecordDataSerialized) ? $option : static::serializeValue($name, $option));
+					//$s->where->addAndExpression($column->equalityExpression($data));
 				}
 			}
 		}
@@ -500,7 +522,7 @@ class Record implements \ArrayAccess
 				}
 			}
 		}
-
+		
 		$recordset = $s->execute();
 		if (is_object($recordset) && ($recordset instanceof Recordset) && ($recordset->rowCount()))
 		{
@@ -519,7 +541,7 @@ class Record implements \ArrayAccess
 						$result[$r[$keyColumn]] = $r;
 					}
 				}
-
+				
 				return $result;
 			}
 			else
@@ -529,11 +551,11 @@ class Record implements \ArrayAccess
 					$result = new $className($table, $recordset, (kRecordDataSerialized | kRecordStateExists));
 					return $result;
 				}
-
+				
 				return ns\Reporter::error(__CLASS__, __METHOD__ . ': Non unique result', __FILE__, __LINE__);
 			}
 		}
-
+		
 		return (($flags & kRecordQueryMultiple) ? array () : null);
 	}
 
@@ -552,13 +574,13 @@ class Record implements \ArrayAccess
 		{
 			$className = get_called_class();
 		}
-
+		
 		$o = new $className($table, $values, (kRecordDataSerialized));
 		if ($o->insert())
 		{
 			return $o;
 		}
-
+		
 		return false;
 	}
 
@@ -572,10 +594,10 @@ class Record implements \ArrayAccess
 		$this->m_flags = ($flags & (kRecordStateExists | kRecordStateModified));
 		$this->m_values = array ();
 		$this->m_foreignKeyData = array ();
-
+		
 		$structure = $table->getStructure();
 		$foreignKeys = $structure->getForeignKeyReferences();
-
+		
 		if (\is_object($values) && ($values instanceof Recordset))
 		{
 			$this->m_flags |= kRecordStateExists;
