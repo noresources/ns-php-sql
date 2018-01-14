@@ -156,12 +156,21 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 		}
 		
 		$structureFile = ns\array_keyvalue($settings, kConnectionParameterStructureFile, null);
-		if ($structureFile && file_exists($structureFile))
+		if ($structureFile)
 		{
+			if (!file_exists($structureFile))
+			{
+				return ns\Reporter::error(__CLASS__, __METHOD__ . ': Structure file not found', __FILE__, __LINE__);
+			}
+			
 			$structure = StructureElement::createFromXmlFile($structureFile, null);
 			if ($structure && ($structure instanceof DatasourceStructure))
 			{
 				$o->setStructure($structure);
+			}
+			else
+			{
+				return ns\Reporter::error(__CLASS__, __METHOD__ . ': Invalid structure file', __FILE__, __LINE__);
 			}
 		}
 		
@@ -228,10 +237,9 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 		
 		return parent::__get($member);
 	}
-	
+
 	// ITableSetProvider
 	
-
 	/**
 	 * Provide a TableSet object
 	 *
@@ -280,10 +288,9 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 	{
 		return ($this->m_structure) ? ($this->m_structure->offsetExists($tablesetName)) : true;
 	}
-	
+
 	// Datasource API
 	
-
 	/**
 	 * Set the Datasource structure
 	 *
@@ -404,7 +411,7 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 	 */
 	public final function getDatasourceString($a_key)
 	{
-		return \array_key_exists($a_key, $this->m_datasourceStrings) ? $this->m_datasourceStrings [$a_key] : null;
+		return \array_key_exists($a_key, $this->m_datasourceStrings) ? $this->m_datasourceStrings[$a_key] : null;
 	}
 
 	/**
@@ -454,12 +461,27 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 		}
 		elseif ($sqlType == kDataTypeBinary)
 		{
-			return new StringData($this);
+			return new BinaryData($this);
 		}
 		
 		return null;
 	}
 
+	/**
+	 * Serialize binary data to be inserted into the data store
+	 * @param mixed $data
+	 * @return mixed
+	 */
+	public function serializeBinaryData($data)
+	{
+		return $data;
+	}
+
+	public function unserializeBinaryData($data)
+	{
+		return $data;
+	}
+	
 	/**
 	 * Get the default type name for a standard type
 	 *
