@@ -451,16 +451,50 @@ class TableColumnStructure extends StructureElement
 	{
 		parent::__construct($a_name, $a_tableStructure);
 		$this->m_columnProperties = array (
-				kStructureAcceptNull => true,
-				kStructureAutoincrement => false,
-				kStructureDecimalCount => 0,
-				kStructureDataSize => 0,
-				kStructurePrimaryKey => false,
-				kStructureIndexed => false,
-				kStructureDatatype => kDataTypeString,
-				kStructureEnumeration => null,
-				kStructureValidatorClassname => null,
-				kStructureForeignKey => null 
+				kStructureAcceptNull => array (
+						'set' => true,
+						'value' => true 
+				),
+				kStructureAutoincrement => array (
+						'set' => true,
+						'value' => false 
+				),
+				kStructureDecimalCount => array (
+						'set' => true,
+						'value' => 0 
+				),
+				kStructureDataSize => array (
+						'set' => false,
+						'value' => 0 
+				),
+				kStructurePrimaryKey => array (
+						'set' => true,
+						'value' => false 
+				),
+				kStructureIndexed => array (
+						'set' => true,
+						'value' => false 
+				),
+				kStructureDatatype => array (
+						'set' => true,
+						'value' => kDataTypeString 
+				),
+				kStructureEnumeration => array (
+						'set' => false,
+						'value' => null 
+				),
+				kStructureValidatorClassname => array (
+						'set' => false,
+						'value' => null 
+				),
+				kStructureForeignKey => array (
+						'set' => false,
+						'value' => null 
+				),
+				kStructureDefaultValue => array (
+						'set' => false,
+						'value' => null 
+				) 
 		);
 	}
 
@@ -473,29 +507,40 @@ class TableColumnStructure extends StructureElement
 		return $this->m_columnProperties;
 	}
 
-	public function getProperty($a_strName)
+	/**
+	 *
+	 * @param string $key
+	 * @return boolean
+	 */
+	public function hasProperty($key)
 	{
-		return $this->m_columnProperties[$a_strName];
+		return (\array_key_exists($key, $this->m_columnProperties) && $this->m_columnProperties[$key]['set']);
 	}
 
-	public function setProperty($a_strName, $a_value)
+	public function getProperty($key)
 	{
-		if (array_key_exists($a_strName, $this->m_columnProperties))
+		return $this->m_columnProperties[$key]['value'];
+	}
+
+	public function setProperty($key, $a_value)
+	{
+		if (\array_key_exists($key, $this->m_columnProperties))
 		{
-			$this->m_columnProperties[$a_strName] = $a_value;
+			$this->m_columnProperties[$key]['set'] = true;
+			$this->m_columnProperties[$key]['value'] = $a_value;
 		}
 	}
 
 	protected function constructFromXmlNode(\DOMNode $node)
 	{
-		$child = $node->getElementsByTagNameNS(self::XMLNAMESPACE, 'datatype');
+		$children = $node->getElementsByTagNameNS(self::XMLNAMESPACE, 'datatype');
 		
-		if (!($child && $child->length))
+		if (!($children && $children->length))
 		{
 			return;
 		}
 		
-		$dataTypeNode = $child->item(0);
+		$dataTypeNode = $children->item(0);
 		$a = array (
 				'binary' => kDataTypeBinary,
 				'boolean' => kDataTypeBoolean,
@@ -531,6 +576,64 @@ class TableColumnStructure extends StructureElement
 			if ($typeNode->hasAttribute('decimals'))
 			{
 				$this->setProperty(kStructureDecimalCount, intval($typeNode->getAttribute('decimals')));
+			}
+		}
+		
+		$children = $node->getElementsByTagNameNS(self::XMLNAMESPACE, 'default');
+		if ($children && $children->length)
+		{
+			$defaultNode = $children->item(0);
+			
+			$nodeNames = array (
+					'integer',
+					'boolean',
+					'datetime',
+					'string',
+					'null',
+					'number',
+					'base64Binary',
+					'hexBinary' 
+			);
+			
+			foreach ($nodeNames as $name)
+			{
+				$children = $defaultNode->getElementsByTagNameNS(self::XMLNAMESPACE, $name);
+				
+				if (!($children && $children->length))
+					continue;
+				
+				$value = $children->item(0)->nodeValue;
+				
+				switch ($name)
+				{
+					case 'integer':
+						$value = intval($value);
+						break;
+					case 'boolean':
+						$value = ($value == 'true' ? true : false);
+						break;
+					case 'datetime':
+						$value = \DateTime::createFromFormat(\DateTime::ISO8601, $value);
+						break;
+					case 'null':
+						$value = null;
+						break;
+					case 'number':
+						$value = floatval($value);
+						break;
+					case 'base64Binary':
+						$value = base64_decode($value);
+						break;
+					case 'hexBinary':
+						$value = hexdec($value);
+						break;
+					default:
+						break;
+				}
+				
+				$this->setProperty(kStructureDefaultValue, $value);
+				
+				break;
 			}
 		}
 	}
@@ -580,6 +683,10 @@ class TableColumnStructure extends StructureElement
 		parent::postprocess();
 	}
 
+	/**
+	 *
+	 * @var array
+	 */
 	private $m_columnProperties;
 }
 

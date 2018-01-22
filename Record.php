@@ -596,6 +596,14 @@ class Record implements \ArrayAccess
 		$structure = $table->getStructure();
 		$foreignKeys = $structure->getForeignKeyReferences();
 		
+		foreach ($structure as $name => $column)
+		{
+			if ($column->hasProperty(kStructureDefaultValue))
+			{
+				$this->m_values[$name] = $column->getProperty (kStructureDefaultValue);
+			}
+		}
+		
 		if (\is_object($values) && ($values instanceof Recordset))
 		{
 			$this->m_flags |= kRecordStateExists;
@@ -740,7 +748,8 @@ class Record implements \ArrayAccess
 				$autoIncrementColumn = $c;
 			}
 
-			if (\array_key_exists($n, $this->m_values) && (is_null($autoIncrementColumn) || ($autoIncrementColumn->getName() != $n)))
+			if (\array_key_exists($n, $this->m_values) 
+				&& (is_null($autoIncrementColumn) || ($autoIncrementColumn->getName() != $n)))
 			{
 				$column = $this->m_table->getColumn($n);
 				$data = $column->importData(static::serializeValue($n, $this->m_values[$n]));
