@@ -377,7 +377,7 @@ class MySQLDatasource extends Datasource implements ITransactionBlock
 	
 	public function serializeBinaryData ($data)
 	{
-		return ($this->datasource->apiCall("real_escape_string", $value, $this->resource));
+		return ($this->datasource->apiCall("real_escape_string", $data, $this->resource));
 	}
 	
 	public function unserializeBinaryData ($data)
