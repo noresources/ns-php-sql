@@ -143,7 +143,7 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 	{
 		parent::__destruct();
 	}
-	
+
 	// ITransactionBlock implementation
 	function startTransaction()
 	{
@@ -238,27 +238,25 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 		if ($a_mode & kObjectQueryDatasource)
 		{
 			$a = $this->getTableSetStructure($this, false);
-			$result = ($result && (($a instanceof TableSetStructure) && $a->offsetExists($a_name) && ($a [$a_name] instanceof TableStructure)));
+			$result = ($result && (($a instanceof TableSetStructure) && $a->offsetExists($a_name) && ($a[$a_name] instanceof TableStructure)));
 		}
 		
 		return $result;
 	}
-	
+
 	// ITableSetProvider
-	
-	public function setActiveTableSet ($name)
+	public function setActiveTableSet($name)
 	{
 		if ($this->m_databaseName != $name)
 		{
-			return ns\Reporter::error ($this, __METHOD__ . ' Set active TableSet is not allowed', __FILE__, __LINE__);
+			return ns\Reporter::error($this, __METHOD__ . ' Set active TableSet is not allowed', __FILE__, __LINE__);
 		}
 		
 		return true;
 	}
-	
+
 	// Datasource implementation
 	
-
 	/**
 	 * Connect to a SQLite source
 	 *
@@ -507,7 +505,6 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 	 */
 	public function fetchResult(QueryResult $a_queryResult, $fetchFlags = kRecordsetFetchBoth)
 	{
-		//var_dump($fetchFlags); die ('');
 		$sqliteFlags = 0;
 		
 		$r = $a_queryResult->resultResource;

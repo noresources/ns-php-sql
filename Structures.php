@@ -625,7 +625,7 @@ class TableColumnStructure extends StructureElement
 						$value = base64_decode($value);
 						break;
 					case 'hexBinary':
-						$value = hexdec($value);
+						$value = hex2bin($value);
 						break;
 					default:
 						break;

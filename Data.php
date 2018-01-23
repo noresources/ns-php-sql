@@ -538,8 +538,28 @@ class TimestampData extends Data
 	private $m_dateTime;
 }
 
+/**
+ * Binary data
+ * 
+ * Value can be
+ * - a string representing a list of bytes
+ * - an integer 
+ * - null
+ * 
+ * Conversions
+ * - Float value will be converted to the nearest integer
+ * - Integer will be store as a 64 bits little endian unsigned long ('P' format)
+ * - DateTime will be stored as the ISO 8601 string representation 
+ */
 class BinaryData extends Data
 {
+	
+	public static function stringToInteger ($binaryString)
+	{
+		$format = (PHP_VERSION_ID >= 50603) ? 'P' : 'V';
+		$v = unpack($format, $binaryString);
+		return $v[1];
+	}
 
 	/**
 	 *
@@ -572,7 +592,7 @@ class BinaryData extends Data
 		$this->m_value = $data;
 		return $this->importResult(true);
 	}
-
+	
 	public function expressionString($options = null)
 	{
 		$this->check();
@@ -582,7 +602,19 @@ class BinaryData extends Data
 			return $this->m_datasource->getDatasourceString(Datasource::kStringKeywordNull);
 		}
 		
-		return $this->getDatasourceBinaryExpression($this->getValue());
+		$stringData = $this->getValue ();
+		if (is_float($stringData)) 
+		{
+			$stringData = intval (round($stringData));
+		}
+		
+		if (is_int($stringData)) 
+		{
+			$format = (PHP_VERSION_ID >= 50603) ? 'P' : 'V';
+			$stringData = pack($format, $stringData);
+		}
+				
+		return $this->getDatasourceBinaryExpression($stringData);
 	}
 
 	public function getValue()

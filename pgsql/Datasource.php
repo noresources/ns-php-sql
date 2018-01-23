@@ -382,7 +382,11 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 
 	public function serializeBinaryData($data)
 	{
-		$data = \is_string($data) ? $data : strval($data);
+		if (!\is_string($data)) 
+		{
+			throw new \InvalidArgumentException('string expected, got ' . gettype($data));
+		}
+		
 		return (pg_escape_bytea($this->resource, $data));
 	}
 

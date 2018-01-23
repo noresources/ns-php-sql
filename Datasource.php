@@ -469,8 +469,9 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 
 	/**
 	 * Serialize binary data to be inserted into the data store
-	 * @param mixed $data
-	 * @return mixed
+	 * @param string $data Binary data as a list of character
+	 * 
+	 * @return string Escaped binary string
 	 */
 	public function serializeBinaryData($data)
 	{
