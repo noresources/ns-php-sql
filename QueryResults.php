@@ -337,7 +337,7 @@ class InsertQueryResult extends QueryResult
 	public function __construct(Datasource $a_datasource, $a_resultResource)
 	{
 		parent::__construct($a_datasource, $a_resultResource);
-		$this->m_iLastInsertId = $this->datasource->lastInsertId($this->resultResource);
+		$this->m_iLastInsertId = $this->datasource->lastInsertId($this);
 	}
 
 	public function lastInsertId()

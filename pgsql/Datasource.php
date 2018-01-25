@@ -415,23 +415,31 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 	 *
 	 * @see sources/sql/Datasource#lastInsertId()
 	 * @return integer
+	 * 
+	 * @see http://www.php.net/manual/fr/function.pg-last-oid.php
+	 * @see https://stackoverflow.com/questions/2741919/can-i-ask-postgresql-to-ignore-errors-within-a-transaction
+	 * @see https://wiki.postgresql.org/wiki/Transactions_recovering_failures_in_scripts
 	 */
-	public function lastInsertId()
+	public function lastInsertId(QueryResult $a_queryResult = null)
 	{
-		/**
-		 *
-		 * @todo see http://www.php.net/manual/fr/function.pg-last-oid.php
-		 */
-		//return pg_last_oid($this->resource());
-		$query = new FormattedQuery($this, "SELECT LASTVAL()");
-		$queryRes = $query->execute();
-		if ($queryRes === false)
-		{
-			return false;
-		}
+		$id = null;
+		$savePointKey = '_NS_PHP_SQL_LASTVAL_SAVEPOINT_';
+		$transaction = (pg_transaction_status($this->resource()) !== PGSQL_TRANSACTION_IDLE);
 		
-		$firstRow = $queryRes->current();
-		return $firstRow[0];
+		if ($transaction)
+			@pg_query ('SAVEPOINT ' . $savePointKey);
+		$result = @pg_query('SELECT LASTVAL()');
+		if (pg_result_status($result, PGSQL_TUPLES_OK))
+		{
+			$id = intval (pg_fetch_result($result, 0, 0));
+		}
+		if ($transaction)
+		{
+			@pg_query ('RELEASE ' . $savePointKey);
+			@pg_query ('ROLLBACK TO SAVEPOINT ' . $savePointKey);
+		}
+				
+		return $id;
 	}
 
 	/**

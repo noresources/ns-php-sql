@@ -346,10 +346,10 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 	public abstract function freeResult(QueryResult $a_queryResult);
 
 	/**
-	 *
-	 * @return last auto increment insert id
+	 * @param QueryResult $a_queryResult
+	 * @return integer last auto increment insert id
 	 */
-	public abstract function lastInsertId();
+	public abstract function lastInsertId(QueryResult $a_queryResult = null);
 
 	/**
 	 * Number of row returned by query

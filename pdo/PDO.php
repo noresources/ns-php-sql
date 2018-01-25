@@ -39,10 +39,14 @@ class PDOBackend
 	
 	public function executeQuery($a_strQuery)
 	{
-		
+			
 	}
 	
-	public function lastInsertId()
+	/**
+	 * @param QueryResult $a_queryResult
+	 * @return integer
+	 */
+	public function lastInsertId(QueryResult $a_queryResult = null)
 	{
 		
 	}
