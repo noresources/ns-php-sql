@@ -17,9 +17,13 @@ use NoreSources as ns;
 class InsertQuery extends TableQuery implements ns\IExpression
 {
 
-	public function __construct(Table $a_table)
+	/**
+	 *
+	 * @param Table $table
+	 */
+	public function __construct(Table $table)
 	{
-		parent::__construct($a_table);
+		parent::__construct($table);
 		$this->m_columnValues = array ();
 	}
 
@@ -42,7 +46,7 @@ class InsertQuery extends TableQuery implements ns\IExpression
 		$result = $this->m_datasource->executeQuery($qs);
 		if ($result)
 		{
-			return new InsertQueryResult($this->datasource, $result);
+			return new InsertQueryResult($this->table, $result);
 		}
 		
 		return false;
@@ -112,6 +116,9 @@ class InsertQuery extends TableQuery implements ns\IExpression
 		}
 	}
 
+	/**
+	 * Clear columns
+	 */
 	public function clear()
 	{
 		$this->m_columnValues = array ();
@@ -131,9 +138,13 @@ class InsertQuery extends TableQuery implements ns\IExpression
 class UpdateQuery extends TableQuery implements ns\IExpression
 {
 
-	public function __construct(Table $a_table)
+	/**
+	 *
+	 * @param Table $table
+	 */
+	public function __construct(Table $table)
 	{
-		parent::__construct($a_table);
+		parent::__construct($table);
 		$this->m_columnValues = array ();
 	}
 
@@ -436,9 +447,9 @@ class HavingQueryConditionStatement extends QueryConditionStatement
 class DeleteQuery extends TableQuery
 {
 
-	public function __construct(Table $a_table)
+	public function __construct(Table $table)
 	{
-		parent::__construct($a_table);
+		parent::__construct($table);
 		$this->m_condition = new WhereQueryConditionStatement();
 	}
 
@@ -671,6 +682,13 @@ class SelectQueryOrderByStatement implements ISelectQueryOrderByStatement
 		$this->m_columns = array ();
 	}
 
+	/**
+	 *
+	 * @param unknown $k
+	 * @param unknown $v
+	 * @param unknown $selectColumns
+	 * @return string
+	 */
 	public static function glueOrderByStatement($k, $v, $selectColumns = null)
 	{
 		if (is_array($selectColumns))
@@ -734,6 +752,12 @@ class SelectQueryOrderByStatement implements ISelectQueryOrderByStatement
 abstract class ISelectQueryJoin extends ns\UnaryOperatorExpression
 {
 
+	/**
+	 *
+	 * @param integer $a_joinType
+	 * @param Table $a_leftTable
+	 * @param Table $a_rightTable
+	 */
 	public function __construct($a_joinType, Table $a_leftTable, Table $a_rightTable)
 	{
 		parent::__construct($a_leftTable->datasource->getDatasourceString($a_joinType), $a_rightTable);
@@ -805,6 +829,11 @@ abstract class ISelectQueryJoin extends ns\UnaryOperatorExpression
 class SelectQueryNaturalJoin extends ISelectQueryJoin
 {
 
+	/**
+	 *
+	 * @param Table $a_leftTable
+	 * @param Table $a_rightTable
+	 */
 	public function __construct(Table $a_leftTable, Table $a_rightTable)
 	{
 		parent::__construct(kJoinNatural, $a_leftTable, $a_rightTable);
@@ -814,6 +843,12 @@ class SelectQueryNaturalJoin extends ISelectQueryJoin
 class SelectQueryJoin extends ISelectQueryJoin
 {
 
+	/**
+	 *
+	 * @param unknown $a_joinType
+	 * @param Table $a_leftTable
+	 * @param Table $a_rightTable
+	 */
 	public function __construct($a_joinType, Table $a_leftTable, Table $a_rightTable)
 	{
 		parent::__construct($a_joinType, $a_leftTable, $a_rightTable);
@@ -832,6 +867,12 @@ class SelectQueryJoin extends ISelectQueryJoin
 		return parent::expressionString() . ($this->m_joinLink ? ' ' . $this->m_joinLink->expressionString(kExpressionElementName) : '');
 	}
 
+	/**
+	 *
+	 * @param TableColumn $a_leftField
+	 * @param TableColumn $a_rightField
+	 * @return boolean
+	 */
 	public function addLink(TableColumn $a_leftField, TableColumn $a_rightField)
 	{
 		if ($a_leftField->table != $this->leftTable || $a_rightField->table != $this->rightTable)
@@ -869,11 +910,11 @@ class SelectQuery extends TableQuery implements ns\IExpression
 	 * Constructor
 	 *
 	 * @param Datasource $a_oDatasource Connection to a data source
-	 * @param Table $a_table Main table of the SELECT query
+	 * @param Table $table Main table of the SELECT query
 	 */
-	public function __construct(Table $a_table)
+	public function __construct(Table $table)
 	{
-		parent::__construct($a_table);
+		parent::__construct($table);
 		$this->m_distinct = false;
 		$this->m_having = new HavingQueryConditionStatement();
 		$this->m_where = new WhereQueryConditionStatement();
@@ -892,7 +933,6 @@ class SelectQuery extends TableQuery implements ns\IExpression
 		// $this->m_columns = clone $this->m_columns;
 		// $this->m_unionQueries = clone $this->m_unionQueries;
 		
-
 		// do not clone Datasource
 		// $this->m_datasource = $this->m_datasource;
 		if (is_object($this->m_group))
@@ -979,7 +1019,7 @@ class SelectQuery extends TableQuery implements ns\IExpression
 		
 		return parent::__get($key);
 	}
-	
+
 	// Inherited methods
 	/**
 	 *
@@ -1117,13 +1157,13 @@ class SelectQuery extends TableQuery implements ns\IExpression
 
 	/**
 	 *
-	 * @param Table $a_table
+	 * @param Table $table
 	 * @param string $a_joinType
 	 * @return \NoreSources\SQL\ISelectQueryJoin
 	 */
-	public function createJoin(Table $a_table, $a_joinType = kJoinNatural)
+	public function createJoin(Table $table, $a_joinType = kJoinNatural)
 	{
-		$kw = $a_table->datasource->getDatasourceString($a_joinType);
+		$kw = $table->datasource->getDatasourceString($a_joinType);
 		if (!(is_string($kw) && strlen($kw) > 0))
 		{
 			return ns\Reporter::error($this, __METHOD__ . '(): Invalid join type ' . strval($a_joinType), __FILE__, __LINE__);
@@ -1131,11 +1171,11 @@ class SelectQuery extends TableQuery implements ns\IExpression
 		
 		if ($a_joinType == kJoinNatural)
 		{
-			$res = new SelectQueryNaturalJoin($this->table, $a_table);
+			$res = new SelectQueryNaturalJoin($this->table, $table);
 		}
 		else
 		{
-			$res = new SelectQueryJoin($a_joinType, $this->table, $a_table);
+			$res = new SelectQueryJoin($a_joinType, $this->table, $table);
 		}
 		
 		return $res;
@@ -1290,9 +1330,9 @@ class SelectQuery extends TableQuery implements ns\IExpression
 class TruncateQuery extends TableQuery implements ns\IExpression
 {
 
-	public function __construct(Table $a_table)
+	public function __construct(Table $table)
 	{
-		parent::__construct($a_table);
+		parent::__construct($table);
 	}
 
 	/**

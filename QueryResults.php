@@ -25,22 +25,28 @@ require_once ('base.php');
 class QueryResult
 {
 
-	static function queryResultClassName($a_strQuery)
+	/**
+	 * Guess QueryResult class from the SQL command string
+	 *
+	 * @param string $queryString
+	 * @return string QueryResult
+	 */
+	static function queryResultClassName($queryString)
 	{
 		$prefix = __NAMESPACE__ . '\\';
-		if (preg_match('/^[ \t\n\r]*SELECT/i', $a_strQuery))
+		if (preg_match('/^[ \t\n\r]*SELECT/i', $queryString))
 		{
 			return $prefix . 'Recordset';
 		}
-		elseif (preg_match('/^[ \t\n\r]*INSERT[ \t\n\r]+INTO/i', $a_strQuery))
+		elseif (preg_match('/^[ \t\n\r]*INSERT[ \t\n\r]+INTO/i', $queryString))
 		{
 			return $prefix . 'InsertQueryResult';
 		}
-		elseif (preg_match('/^[ \t\n\r]*UPDATE/i', $a_strQuery))
+		elseif (preg_match('/^[ \t\n\r]*UPDATE/i', $queryString))
 		{
 			return $prefix . 'UpdateQueryResult';
 		}
-		elseif (preg_match('/^[ \t\n\r]*DELETE[ \t\n\r]+FROM/i', $a_strQuery))
+		elseif (preg_match('/^[ \t\n\r]*DELETE[ \t\n\r]+FROM/i', $queryString))
 		{
 			return $prefix . 'DeleteQueryResult';
 		}
@@ -48,10 +54,15 @@ class QueryResult
 		return $prefix . 'Recordset';
 	}
 
-	public function __construct(Datasource $a_datasource, $a_resultResource)
+	/**
+	 *
+	 * @param Datasource $datasource
+	 * @param resource $resultResource DBMS dependant result resource
+	 */
+	public function __construct(Datasource $datasource, $resultResource)
 	{
-		$this->m_datasource = $a_datasource;
-		$this->m_resultResource = $a_resultResource;
+		$this->m_datasource = $datasource;
+		$this->m_resultResource = $resultResource;
 	}
 
 	public function __destruct()
@@ -102,9 +113,15 @@ class Recordset extends QueryResult implements Iterator, Countable
 	const kStateIteratorEnd = 0x20000000;
 	const kRowCount = 0x40000000;
 
-	public function __construct(Datasource $a_datasource, $a_resultResource, $fetchFlags = kRecordsetFetchBoth)
+	/**
+	 * Recordset result
+	 * @param Datasource $datasource
+	 * @param resource $resultResource
+	 * @param integer $fetchFlags
+	 */
+	public function __construct(Datasource $datasource, $resultResource, $fetchFlags = kRecordsetFetchBoth)
 	{
-		parent::__construct($a_datasource, $a_resultResource);
+		parent::__construct($datasource, $resultResource);
 		$this->m_iCurrentRowIndex = self::kIteratorIndexBefore;
 		$this->m_aColumnNames = null;
 		$this->m_aCurrentRow = null;
@@ -116,7 +133,7 @@ class Recordset extends QueryResult implements Iterator, Countable
 		
 		$this->m_flags |= ($fetchFlags & kRecordsetFetchBoth);
 	}
-	
+
 	// Iterator implementation
 	public function rewind()
 	{
@@ -175,13 +192,11 @@ class Recordset extends QueryResult implements Iterator, Countable
 	{
 		return !($this->m_flags & self::kStateIteratorEnd);
 	}
-	
+
 	// End of Iterator implementation
 	
-
 	// Countable implementation
 	
-
 	/**
 	 *
 	 * @see sources/extensions/spl/NSCountable#count()
@@ -190,10 +205,9 @@ class Recordset extends QueryResult implements Iterator, Countable
 	{
 		return $this->rowCount();
 	}
-	
+
 	// End of Countable implementation
 	
-
 	/**
 	 * Return the number of selected rows.
 	 * @attention This feature is not available on some data sources like certain ODBC drivers.
@@ -243,7 +257,7 @@ class Recordset extends QueryResult implements Iterator, Countable
 	 *
 	 * @return array
 	 */
-	function columnNames()
+	function getColumnNames()
 	{
 		if (!$this->m_aColumnNames && !($this->m_aColumnNames = $this->datasource->recordsetColumnArray($this)))
 		{
@@ -253,66 +267,40 @@ class Recordset extends QueryResult implements Iterator, Countable
 		return $this->m_aColumnNames;
 	}
 
+	/**
+	 * Fetch all rows to an array
+	 * @return array
+	 */
 	public function dataArray()
 	{
 		$data = array ();
 		foreach ($this as $row)
 		{
-			$data [] = $row;
-		}
-		
-		return $data;
-	}
-
-	public function keyedDataArray($a_columnKey)
-	{
-		$data = array ();
-		foreach ($this as $row)
-		{
-			if (\array_key_exists($row [$a_columnKey], $data))
-			{
-				ns\Reporter::warning($this, __METHOD__ . '(): Duplicated key "' . $row [$a_columnKey] . '"');
-				continue;
-			}
-			$data [$row [$a_columnKey]] = $row;
+			$data[] = $row;
 		}
 		
 		return $data;
 	}
 
 	/**
-	 * Create a XHTML <select> tag
-	 * 
-	 * @todo Move this in a dedicated View class
-	 * 
-	 * @param $a_valueColumn Column
-	 *        	used as value attribute
-	 * @param $a_textColumn Column
-	 *        	used as text node
-	 * @param $a_selectedValue Selected
-	 *        	value
-	 * @param $a_selectAttributes Attributes
-	 *        	of the select tag
-	 * @param $a_optionsAttribute Attributes
-	 *        	of the option tags
-	 * @param $a_dom DOMDocument        	
-	 * @return DOMElement
+	 *
+	 * @param string|integer $columnKey Column name or index to use as row key
+	 * @return array
 	 */
-	public function xhtmlSelectTag($a_valueColumn, $a_textColumn, $a_selectedValue = null, $a_selectAttributes = null, $a_optionsAttribute = null, DOMDocument $a_dom = null)
+	public function keyedDataArray($columnKey)
 	{
-		// xhtml is an optional package
-		if (!method_exists('xhtml', 'array_to_select_tag'))
+		$data = array ();
+		foreach ($this as $row)
 		{
-			$file = ns_find_lib_source('xhtml/xhtml');
-			if (!$file)
+			if (\array_key_exists($row[$columnKey], $data))
 			{
-				return ns\Reporter::error($this, __METHOD__ . '(): xhtml module could not be found', __FILE__, __LINE__);
+				ns\Reporter::warning($this, __METHOD__ . '(): Duplicated key "' . $row[$columnKey] . '"');
+				continue;
 			}
-			
-			require_once ($file);
+			$data[$row[$columnKey]] = $row;
 		}
 		
-		return xhtml::array_to_select_tag($this, $a_valueColumn, $a_textColumn, $a_selectedValue, $a_selectAttributes, $a_optionsAttribute, $a_dom);
+		return $data;
 	}
 
 	protected $m_aCurrentRow;
@@ -334,49 +322,107 @@ class Recordset extends QueryResult implements Iterator, Countable
 class InsertQueryResult extends QueryResult
 {
 
-	public function __construct(Datasource $a_datasource, $a_resultResource)
+	/**
+	 *
+	 * @param Table $table
+	 * @param unknown $resultResource
+	 */
+	public function __construct(Table $table, $resultResource)
 	{
-		parent::__construct($a_datasource, $a_resultResource);
-		$this->m_iLastInsertId = $this->datasource->lastInsertId($this);
+		parent::__construct($table->getDatasource(), $resultResource);
+		$structure = $table->getStructure();
+		if ($structure)
+		{
+			foreach ($structure as $columnName => $column)
+			{
+				if ($column->getProperty(kStructureAutoincrement))
+				{
+					$this->lastInsertId = $table->getDatasource()->lastInsertId($this);
+					break;
+				}
+			}
+		}
+		else
+		{
+			$this->lastInsertId = $table->getDatasource()->lastInsertId($this);
+		}
 	}
 
-	public function lastInsertId()
+	/**
+	 *
+	 * @return integer|null Value of autoincremented column if available. Otherwise @c null
+	 */
+	public function getLastInsertId()
 	{
-		return $this->m_iLastInsertId;
+		return $this->lastInsertId;
 	}
 
-	protected $m_iLastInsertId;
+	/**
+	 *
+	 * @var integer
+	 */
+	protected $lastInsertId;
 }
 
 class UpdateQueryResult extends QueryResult
 {
 
-	public function __construct(Datasource $a_datasource, $a_resultResource)
+	/**
+	 *
+	 * @param Datasource $datasource
+	 * @param resource $resultResource
+	 */
+	public function __construct(Datasource $datasource, $resultResource)
 	{
-		parent::__construct($a_datasource, $a_resultResource);
+		parent::__construct($datasource, $resultResource);
+		$this->m_affectedRowCount = null;
 	}
 
-	public function affectedRowCount()
+	/**
+	 *
+	 * @return integer
+	 */
+	public function getAffectedRowCount()
 	{
-		return $this->datasource->affectedRowCount($this);
+		if (\is_null($this->affectedRowCount))
+		{
+			$this->m_affectedRowCount = $this->datasource->affectedRowCount($this);
+		}
+		
+		return $this->m_affectedRowCount;
 	}
+
+	private $m_affectedRowCount;
 }
 
 class DeleteQueryResult extends QueryResult
 {
 
-	public function __construct(Datasource $a_datasource, $a_resultResource)
+	/**
+	 *
+	 * @param Datasource $datasource
+	 * @param resource $resultResource
+	 */
+	public function __construct(Datasource $datasource, $resultResource)
 	{
-		parent::__construct($a_datasource, $a_resultResource);
-		$this->m_iAffectedRows = $this->datasource->affectedRowCount($this);
+		parent::__construct($datasource, $resultResource);
+		$this->m_affectedRowCount = null;
 	}
 
-	public function affectedRowCount()
+	/**
+	 * @return integer
+	 */
+	public function getAffectedRowCount()
 	{
-		return $this->m_iAffectedRows;
+		if (\is_null($this->affectedRowCount))
+		{
+			$this->m_affectedRowCount = $this->datasource->affectedRowCount($this);
+		}
+		
+		return $this->m_affectedRowCount;
 	}
-
-	protected $m_iAffectedRows;
+	
+	private $m_affectedRowCount;
 }
 
 ?>

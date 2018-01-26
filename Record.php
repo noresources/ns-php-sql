@@ -762,7 +762,7 @@ class Record implements \ArrayAccess
 		{
 			if (!is_null($autoIncrementColumn))
 			{
-				$this->setValue($autoIncrementColumn, $result->lastInsertId());
+				$this->setValue($autoIncrementColumn, $result->getLastInsertId());
 			}
 
 			$this->m_flags |= kRecordStateExists;
@@ -883,7 +883,7 @@ class Record implements \ArrayAccess
 		if (is_object($result) && ($result instanceof DeleteQueryResult))
 		{
 			$this->m_flags &= ~kRecordStateExists;
-			return ($result->affectedRowCount() > 0);
+			return ($result->getAffectedRowCount() > 0);
 		}
 
 		return false;
