@@ -346,6 +346,7 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 	public abstract function freeResult(QueryResult $a_queryResult);
 
 	/**
+	 *
 	 * @param QueryResult $a_queryResult
 	 * @return integer last auto increment insert id
 	 */
@@ -428,6 +429,8 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 	 *
 	 * @param mixed $mixed SQL data type (number), Datasource-specific type name,
 	 *        TableColumn or TableColumnStructure
+	 *       
+	 * @return Data
 	 */
 	public function createData($dataType)
 	{
@@ -470,7 +473,7 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 	/**
 	 * Serialize binary data to be inserted into the data store
 	 * @param string $data Binary data as a list of character
-	 * 
+	 *       
 	 * @return string Escaped binary string
 	 */
 	public function serializeBinaryData($data)
@@ -507,7 +510,7 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 	 */
 	protected function guessDataType($dataType)
 	{
-		if (is_numeric($dataType))
+		if (is_int($dataType))
 		{
 			return $dataType;
 		}
@@ -516,7 +519,7 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 			$dataType = strtolower($dataType);
 			if (\array_key_exists($dataType, $this->m_dataTypeNames))
 			{
-				return $this->m_dataTypeNames [$dataType] ['type'];
+				return $this->m_dataTypeNames[$dataType]['type'];
 			}
 		}
 		elseif ($dataType instanceof TableColumnStructure)
@@ -547,14 +550,14 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 			ns\Reporter::fatalError($this, __METHOD__ . '(): ' . $a_typeName . ' already exists', __FILE__, __LINE__);
 		}
 		
-		$this->m_dataTypeNames [$a_typeName] = array (
+		$this->m_dataTypeNames[$a_typeName] = array (
 				'type' => $sqlType,
 				'class' => $className 
 		);
 		
 		if (!\array_key_exists($sqlType, $this->m_defaultTypeNames))
 		{
-			$this->m_defaultTypeNames [$sqlType] = $a_typeName;
+			$this->m_defaultTypeNames[$sqlType] = $a_typeName;
 		}
 	}
 
@@ -565,7 +568,7 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 
 	protected function setDefaultTypeName($sqlType, $a_typeName)
 	{
-		$this->m_defaultTypeNames [$sqlType] = $a_typeName;
+		$this->m_defaultTypeNames[$sqlType] = $a_typeName;
 	}
 
 	/**
@@ -576,7 +579,7 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 	 */
 	protected function setDatasourceString($a_key, $a_value)
 	{
-		$this->m_datasourceStrings [$a_key] = $a_value;
+		$this->m_datasourceStrings[$a_key] = $a_value;
 	}
 
 	/**

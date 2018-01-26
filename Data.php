@@ -55,6 +55,25 @@ abstract class Data implements ns\IExpression
 	 */
 	const kBoundaryMax = 0x8;
 
+	/**
+	 *
+	 * @param mixed $value Any value
+	 * @return integer the most accurate Data type for the value
+	 */
+	public static function dataTypeFromValue($value)
+	{
+		if (is_null($value))
+			return kDataTypeNull;
+		elseif (is_bool($value))
+			return kDataTypeBoolean;
+		elseif (is_int($value))
+			return kDataTypeNumber;
+		elseif ($value instanceof \DateTime)
+			return kDataTypeTimestamp;
+		
+		return kDataTypeString;
+	}
+
 	protected function __construct($type)
 	{
 		$this->m_type = $type;

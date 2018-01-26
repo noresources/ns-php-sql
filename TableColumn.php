@@ -35,6 +35,10 @@ interface ITableColumnValueValidator
 class ListedElementTableColumnValueValidator implements ITableColumnValueValidator
 {
 
+	/**
+	 *
+	 * @param unknown $a_aElements
+	 */
 	public function __construct($a_aElements = null)
 	{
 		$this->m_aValidValues = $a_aElements;
@@ -49,6 +53,12 @@ class ListedElementTableColumnValueValidator implements ITableColumnValueValidat
 		$this->m_aValidValues[] = $a_value;
 	}
 
+	/**
+	 *
+	 * {@inheritdoc}
+	 * @see \NoreSources\SQL\ITableColumnValueValidator::validate()
+	 * @return boolean
+	 */
 	public function validate($a_value)
 	{
 		return in_array($a_value, $this->m_aValidValues, false);
@@ -68,6 +78,12 @@ class MultipleListedElementTableColumnValueValidator extends ListedElementTableC
 		parent::__construct($a_aElements);
 	}
 
+	/**
+	 *
+	 * {@inheritdoc}
+	 * @see \NoreSources\SQL\ListedElementTableColumnValueValidator::validate()
+	 * @return boolean
+	 */
 	public function validate($a_value)
 	{
 		if (is_array($a_value))
@@ -140,10 +156,80 @@ abstract class ITableColumn extends SQLObject implements IExpression, IAliasable
 	abstract function getTable();
 
 	/**
-	 *
+	 * Get column name
 	 * @return string
 	 */
 	abstract function getName();
+}
+
+class ConstantColumn implements IExpression, IAliasable
+{
+
+	/**
+	 *
+	 * @param Datasource $datasource
+	 * @param string $columnName
+	 * @param mixed $value
+	 */
+	public function __construct(Datasource $datasource, $columnName, $value)
+	{
+		$this->datasource = $datasource;
+		$this->value = $datasource->createData(Data::dataTypeFromValue($value));
+		$this->value->import($value);
+		$this->alias = new SQLAlias($datasource, $columnName);
+	}
+
+	public function getDatasource()
+	{
+		return $this->datasource;
+	}
+
+	public function expressionString($a_options = null)
+	{
+		if (($a_options & kExpressionElementDeclaration) == kExpressionElementDeclaration)
+		{
+			return $this->value->expressionString() . ' AS ' . $this->alias->expressionString();
+		}
+		elseif ($a_options & kExpressionElementName)
+		{
+			return $this->value->expressionString();
+		}
+		
+		return $this->alias->expressionString();
+	}
+
+	public function hasAlias()
+	{
+		return true;
+	}
+
+	public function alias(SQLAlias $alias = null)
+	{
+		if ($alias instanceof SQLAlias)
+		{
+			$this->alias = $alias;
+		}
+		
+		return $this->alias;
+	}
+
+	/**
+	 *
+	 * @var Datasource
+	 */
+	private $datasource;
+
+	/**
+	 *
+	 * @var Data
+	 */
+	private $value;
+
+	/**
+	 *
+	 * @var SQLAlias
+	 */
+	private $alias;
 }
 
 /**

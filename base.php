@@ -29,9 +29,10 @@ function protectString($a_strString, $start = '\'', $end = '\'')
 }
 
 /**
+ *
  * @param mixed $a_value Value to import
  * @param Datasource $a_source Datasource
- * @return Data or null 
+ * @return Data or null
  */
 function bestEffortImport($a_value, Datasource $a_source = null)
 {
@@ -48,6 +49,7 @@ function bestEffortImport($a_value, Datasource $a_source = null)
 	if (!is_null($t))
 	{
 		/**
+		 *
 		 * @todo
 		 */
 		Reporter::fatalError(null, __METHOD__ . '() without datasource not supported yet');
@@ -115,7 +117,7 @@ function tableProviderGenericTableObjectMethod(ITableProvider $a_provider, $a_st
 	return $result;
 }
 
-function getStructure ($object)
+function getStructure($object)
 {
 	$structure = null;
 	if ($object instanceof TableColumn)
@@ -177,9 +179,9 @@ function parseDataTypeDefinition($definition, $typeUpperCase = false)
 	$regs = array ();
 	if (preg_match('/(([A-Za-z0-9_]+)(\(([0-9]+)(,([0-9]+)){0,1}\){0,1}))/', $type, $regs))
 	{
-		$type = ($typeUpperCase) ? strtoupper($regs [2]) : $regs [2];
-		$size = $regs [4];
-		$dsize = $regs [6];
+		$type = ($typeUpperCase) ? strtoupper($regs[2]) : $regs[2];
+		$size = $regs[4];
+		$dsize = $regs[6];
 	}
 	
 	return array (
@@ -250,7 +252,7 @@ interface IAliasedClone
 	/**
 	 * Return a clone of the object with another alias
 	 *
-	 * @param object $a_aliasNameName        	
+	 * @param object $a_aliasNameName
 	 */
 	function cloneWithOtherAlias($a_aliasNameName);
 }
