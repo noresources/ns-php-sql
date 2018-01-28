@@ -11,27 +11,6 @@
  */
 namespace NoreSources\SQL;
 
-/*
- * @see http://www.postgresql.org/docs/9.1/interactive/datatype.html
- */
-class PostgreSQLStringData extends StringData
-{
-
-	/**
-	 *
-	 * @param Datasource $datasource
-	 */
-	public function __construct(Datasource $datasource)
-	{
-		parent::__construct($datasource);
-	}
-
-	protected function getDatasourceStringExpression($value)
-	{
-		return (pg_escape_string($this->datasource->resource, $value));
-	}
-}
-
 class PostgreSQLBinaryData extends BinaryData
 {
 
@@ -40,8 +19,8 @@ class PostgreSQLBinaryData extends BinaryData
 		parent::__construct($datasource);
 	}
 
-	protected function getDatasourceBinaryExpression($value)
+	public function expressionString($options = null)
 	{
-		return protectString($this->datasource->serializeBinaryData ($value));
+		return protectString(parent::expressionString($options));
 	}
 }

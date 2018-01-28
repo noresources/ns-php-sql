@@ -32,28 +32,28 @@ abstract class Data implements ns\IExpression
 	 *
 	 * @var integer
 	 */
-	const kValid = 0x1;
+	const kValid = 0x01;
 	
 	/**
 	 * The data accept NULL as a valid value
 	 *
 	 * @var integer
 	 */
-	const kAcceptNull = 0x2;
+	const kAcceptNull = 0x02;
 	
 	/**
 	 * The data has a minimal value (number data)
 	 *
 	 * @var integer
 	 */
-	const kBoundaryMin = 0x4;
+	const kBoundaryMin = 0x04;
 	
 	/**
 	 * The data has a maximal value (number data)
 	 *
 	 * @var integer
 	 */
-	const kBoundaryMax = 0x8;
+	const kBoundaryMax = 0x08;
 
 	/**
 	 *
@@ -74,6 +74,10 @@ abstract class Data implements ns\IExpression
 		return kDataTypeString;
 	}
 
+	/**
+	 *
+	 * @param integer $type Data type
+	 */
 	protected function __construct($type)
 	{
 		$this->m_type = $type;
@@ -172,6 +176,10 @@ abstract class Data implements ns\IExpression
 class NullData extends Data
 {
 
+	/**
+	 *
+	 * @param Datasource $datasource
+	 */
 	public function __construct(Datasource $datasource)
 	{
 		parent::__construct(kDataTypeNull);
@@ -231,6 +239,9 @@ class BooleanData extends Data
 	private $m_datasource;
 }
 
+/**
+ * Preformatted value
+ */
 class FormattedData extends Data
 {
 
@@ -293,7 +304,7 @@ class StringData extends Data
 		{
 			$valid = true;
 		}
-		elseif (is_numeric($data))
+		elseif (is_int($data) || is_float($data))
 		{
 			$data = strval($data);
 			$valid = true;
@@ -318,15 +329,10 @@ class StringData extends Data
 		
 		if (is_null($this->m_value))
 		{
-			if ($this->m_datasource)
-			{
-				return $this->m_datasource->getDatasourceString(Datasource::kStringKeywordNull);
-			}
-			
-			return 'NULL';
+			return $this->m_datasource->getDatasourceString(Datasource::kStringKeywordNull);
 		}
 		
-		return protectString($this->getDatasourceStringExpression($this->getValue()));
+		return protectString($this->m_datasource->serializeStringData($this->getValue()));
 	}
 
 	public function getValue()
@@ -559,25 +565,23 @@ class TimestampData extends Data
 
 /**
  * Binary data
- * 
+ *
  * Value can be
  * - a string representing a list of bytes
- * - an integer 
+ * - an integer
  * - null
- * 
+ *
  * Conversions
  * - Float value will be converted to the nearest integer
  * - Integer will be store as a 64 bits little endian unsigned long ('P' format)
- * - DateTime will be stored as the ISO 8601 string representation 
+ * - DateTime will be stored as the ISO 8601 string representation
  */
 class BinaryData extends Data
 {
-	
-	public static function stringToInteger ($binaryString)
+
+	public static function stringToInteger($binaryString)
 	{
-		$format = (PHP_VERSION_ID >= 50603) ? 'P' : 'V';
-		$v = unpack($format, $binaryString);
-		return $v[1];
+		return base_convert(bin2hex($binaryString), 16, 10);
 	}
 
 	/**
@@ -601,17 +605,27 @@ class BinaryData extends Data
 		return parent::__get($member);
 	}
 
+	/**
+	 *
+	 * @param $data Data to import. 
+	 * * Float value are not accepted since there is no portable binary representation of a float
+	 * 
+	 */
 	public function import($data)
 	{
 		if (is_null($data) && !($this->flags & self::kAcceptNull))
 		{
 			return $this->importResult(false);
 		}
-		
+		elseif (is_float($data))
+		{
+			return $this->importResult(false);
+		}
+				
 		$this->m_value = $data;
 		return $this->importResult(true);
 	}
-	
+
 	public function expressionString($options = null)
 	{
 		$this->check();
@@ -621,19 +635,19 @@ class BinaryData extends Data
 			return $this->m_datasource->getDatasourceString(Datasource::kStringKeywordNull);
 		}
 		
-		$stringData = $this->getValue ();
-		if (is_float($stringData)) 
+		$data = $this->getValue();
+		
+		if (is_int($data))
 		{
-			$stringData = intval (round($stringData));
+			$hex = base_convert($data, 10, 16);
+			if (strlen($hex) % 2 == 1)
+			{
+				$hex = '0' . $hex;
+			}
+			$data = hex2bin ($hex);
 		}
 		
-		if (is_int($stringData)) 
-		{
-			$format = (PHP_VERSION_ID >= 50603) ? 'P' : 'V';
-			$stringData = pack($format, $stringData);
-		}
-				
-		return $this->getDatasourceBinaryExpression($stringData);
+		return $this->m_datasource->serializeBinaryData($data);
 	}
 
 	public function getValue()
@@ -641,16 +655,14 @@ class BinaryData extends Data
 		return $this->m_value;
 	}
 
-	protected function getDatasourceBinaryExpression($value)
-	{
-		return $this->m_datasource->serializeBinaryData ($value);
-	}
-
 	private $m_datasource;
 
 	private $m_value;
 }
 
+/**
+ * List of Data
+ */
 class DataList implements ns\IExpression
 {
 

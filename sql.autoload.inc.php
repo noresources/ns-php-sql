@@ -1,5 +1,5 @@
 <?php
-function autoload_NWE2ZTA1ZDFhODE3Zg($className)
+function autoload_NWE2ZTMyMzhmMWM1Mg($className)
 {
 	if ($className == 'NoreSources\SQL\TableSet')
 	{
@@ -52,10 +52,6 @@ function autoload_NWE2ZTA1ZDFhODE3Zg($className)
  	elseif ($className == 'NoreSources\SQL\MySQLDatasource')
 	{
 		require_once(__DIR__ . '/mysql/Datasource.php');
-	}
- 	elseif ($className == 'NoreSources\SQL\MySQLStringData')
-	{
-		require_once(__DIR__ . '/mysql/Expressions.php');
 	}
  	elseif ($className == 'NoreSources\SQL\MySQLEnumColumnValueValidator')
 	{
@@ -201,10 +197,6 @@ function autoload_NWE2ZTA1ZDFhODE3Zg($className)
 	{
 		require_once(__DIR__ . '/pgsql/Datasource.php');
 	}
- 	elseif ($className == 'NoreSources\SQL\PostgreSQLStringData')
-	{
-		require_once(__DIR__ . '/pgsql/Expressions.php');
-	}
  	elseif ($className == 'NoreSources\SQL\PostgreSQLBinaryData')
 	{
 		require_once(__DIR__ . '/pgsql/Expressions.php');
@@ -305,10 +297,6 @@ function autoload_NWE2ZTA1ZDFhODE3Zg($className)
 	{
 		require_once(__DIR__ . '/sqlite/Datasource.php');
 	}
- 	elseif ($className == 'NoreSources\SQL\SQLiteStringData')
-	{
-		require_once(__DIR__ . '/sqlite/Expressions.php');
-	}
  	elseif ($className == 'NoreSources\SQL\QueryResult')
 	{
 		require_once(__DIR__ . '/QueryResults.php');
@@ -382,4 +370,4 @@ function autoload_NWE2ZTA1ZDFhODE3Zg($className)
 		require_once(__DIR__ . '/Manipulators.php');
 	}
  }
-spl_autoload_register('autoload_NWE2ZTA1ZDFhODE3Zg');
+spl_autoload_register('autoload_NWE2ZTMyMzhmMWM1Mg');

@@ -471,6 +471,15 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 	}
 
 	/**
+	 * Serialize string to be inserted in a test/string column
+	 * @return string
+	 */
+	public function serializeStringData($stringData)
+	{
+		return preg_replace("/'/", "''", -StringData);
+	}
+
+	/**
 	 * Serialize binary data to be inserted into the data store
 	 * @param string $data Binary data as a list of character
 	 *       
@@ -481,6 +490,12 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 		return $data;
 	}
 
+	/**
+	 * Unserialize binary data extracted from data storage.
+	 *
+	 * @param string $data Data to unserialze
+	 * @return string A string representing binary data
+	 */
 	public function unserializeBinaryData($data)
 	{
 		return $data;

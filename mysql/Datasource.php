@@ -21,31 +21,31 @@ class MySQLTableManipulator extends TableManipulator
 
 	/**
 	 *
-	 * @param ITableProvider $a_oProvider
+	 * @param ITableProvider $provider
 	 */
-	public function __construct(ITableProvider $a_oProvider = null)
+	public function __construct(ITableProvider $provider = null)
 	{
-		parent::__construct($a_oProvider);
+		parent::__construct($provider);
 	}
 
 	/**
 	 *
-	 * @param TableStructure $a_structure
+	 * @param TableStructure $structure
 	 */
-	public function create(TableStructure $a_structure)
+	public function create(TableStructure $structure)
 	{
-		if (!$this->postCreation($a_structure))
+		if (!$this->postCreation($structure))
 		{
 			return false;
 		}
 		
-		$t = new Table($this->m_provider, $a_structure->getName());
+		$t = new Table($this->m_provider, $structure->getName());
 		$strQuery = 'CREATE TABLE ' . $t->expressionString() . ' (';
 		
 		$first = true;
 		$primaryKeyColumns = array ();
 		
-		foreach ($a_structure as $name => $field)
+		foreach ($structure as $name => $field)
 		{
 			if (!$first)
 			{
@@ -121,16 +121,16 @@ const kMySQLImplementationMysqli = 2;
  */
 class MySQLDatasource extends Datasource implements ITransactionBlock
 {
+
 	// construction - destruction
 	
-
 	/**
 	 *
-	 * @param DatasourceStructure $a_structure
+	 * @param DatasourceStructure $structure
 	 */
-	public function __construct(DatasourceStructure $a_structure = null)
+	public function __construct(DatasourceStructure $structure = null)
 	{
-		parent::__construct($a_structure);
+		parent::__construct($structure);
 		$this->setDatasourceString(self::kStringClassNameTableManipulator, __NAMESPACE__ . '\\MySQLTableManipulator');
 		
 		$this->m_implementation = 0;
@@ -159,7 +159,7 @@ class MySQLDatasource extends Datasource implements ITransactionBlock
 		);
 		foreach ($types as $name)
 		{
-			$this->addDataType($name, kDataTypeString, __NAMESPACE__ . '\\MySQLStringData');
+			$this->addDataType($name, kDataTypeString);
 		}
 		
 		$this->addDataType('BINARY', kDataTypeBinary);
@@ -200,10 +200,9 @@ class MySQLDatasource extends Datasource implements ITransactionBlock
 			$this->apiCall('close', $this->resource);
 		}
 	}
-	
+
 	// ITransactionBlock implementation
 	
-
 	/**
 	 *
 	 * @see sources/sql/ITransactionBlock#startTransaction()
@@ -233,9 +232,9 @@ class MySQLDatasource extends Datasource implements ITransactionBlock
 		$oQuery = new FormattedQuery($this, 'ROLLBACK;');
 		$oQuery->execute();
 	}
-	
+
 	// ITableSetProvider
-	public function setActiveTableSet ($name)
+	public function setActiveTableSet($name)
 	{
 		$res = null;
 		if ($this->m_implementation == kMySQLImplementationMysqli)
@@ -249,38 +248,38 @@ class MySQLDatasource extends Datasource implements ITransactionBlock
 		
 		return ($res != false);
 	}
-	
+
 	// Datasource implementation
 	
 	/**
 	 * Connection
 	 *
-	 * @param array $a_aParameters parameters
+	 * @param array $parameters parameters
 	 * @return boolean
 	 */
-	public function connect($a_aParameters)
+	public function connect($parameters)
 	{
 		if ($this->resource)
 		{
 			$this->disconnect();
 		}
 		
-		if (!array_key_exists(kConnectionParameterPassword, $a_aParameters))
+		if (!array_key_exists(kConnectionParameterPassword, $parameters))
 		{
-			$a_aParameters[kConnectionParameterPassword] = '';
+			$parameters[kConnectionParameterPassword] = '';
 		}
 		
-		if (!(array_key_exists(kConnectionParameterHostname, $a_aParameters) && array_key_exists(kConnectionParameterUsername, $a_aParameters)))
+		if (!(array_key_exists(kConnectionParameterHostname, $parameters) && array_key_exists(kConnectionParameterUsername, $parameters)))
 		{
 			return ns\Reporter::error($this, __METHOD__ . '(): Missing parameters "host"', __FILE__, __LINE__);
 		}
 		
-		$host = $a_aParameters[kConnectionParameterHostname];
-		$user = ns\array_keyvalue($a_aParameters, kConnectionParameterUsername, null);
-		$pass = ns\array_keyvalue($a_aParameters, kConnectionParameterPassword, null);
+		$host = $parameters[kConnectionParameterHostname];
+		$user = ns\array_keyvalue($parameters, kConnectionParameterUsername, null);
+		$pass = ns\array_keyvalue($parameters, kConnectionParameterPassword, null);
 		
 		$connectionFunction = 'connect';
-		if (ns\array_keyvalue($a_aParameters, kConnectionParameterPersistent, false))
+		if (ns\array_keyvalue($parameters, kConnectionParameterPersistent, false))
 		{
 			$this->setDatasourceFlags($this->flags | kConnectionPersistent);
 			if ($this->m_implementation == kMySQLImplementationMysqli)
@@ -316,14 +315,14 @@ class MySQLDatasource extends Datasource implements ITransactionBlock
 		$activeTableSet = null;
 		
 		// Legacy behavior
-		if (array_key_exists(kConnectionParameterDatabasename, $a_aParameters))
+		if (array_key_exists(kConnectionParameterDatabasename, $parameters))
 		{
-			$activeTableSet = $a_aParameters[kConnectionParameterDatabasename];
+			$activeTableSet = $parameters[kConnectionParameterDatabasename];
 		}
 		
-		if (array_key_exists(kConnectionParameterActiveTableSet, $a_aParameters))
+		if (array_key_exists(kConnectionParameterActiveTableSet, $parameters))
 		{
-			$activeTableSet = $a_aParameters[kConnectionParameterActiveTableSet];
+			$activeTableSet = $parameters[kConnectionParameterActiveTableSet];
 		}
 		
 		if (is_string($activeTableSet))
@@ -349,38 +348,20 @@ class MySQLDatasource extends Datasource implements ITransactionBlock
 		return @$this->apiCall('close', $this->resource);
 	}
 
-	public function createData($dataType)
+	public function serializeStringData($stringData)
 	{
-		if (array_key_exists($dataType, $this->m_dataTypeNames))
-		{
-			$a = $this->m_dataTypeNames[$dataType];
-			$sqlType = $a['type'];
-			
-			$d = null;
-			if ($a['class'])
-			{
-				$cls = $a['class'];
-				return (new $cls($this));
-			}
-		}
-		
-		if ($sqlType = $this->guessDataType($dataType))
-		{
-			if ($sqlType == kDataTypeString)
-			{
-				return (new MySQLStringData($this));
-			}
-		}
-		
-		return parent::createData($dataType);
+		return ($this->datasource->apiCall("real_escape_string", $stringData, $this->resource));
 	}
-	
-	public function serializeBinaryData ($data)
+
+	public function serializeBinaryData($data)
 	{
-		return ($this->datasource->apiCall("real_escape_string", $data, $this->resource));
+		return "X'" . bin2hex($data) . "'";
 	}
-	
-	public function unserializeBinaryData ($data)
+
+	/**
+	 * MySQL API automatically unserialize binary data on SELECT
+	 */
+	public function unserializeBinaryData($data)
 	{
 		return $data;
 	}
@@ -390,12 +371,12 @@ class MySQLDatasource extends Datasource implements ITransactionBlock
 	 * @see sources/sql/Datasource#executeQuery()
 	 * @return QueryResult
 	 */
-	public function executeQuery($a_strQuery)
+	public function executeQuery($query)
 	{
-		$result = $this->apiCall('query', $a_strQuery, $this->resource);
+		$result = $this->apiCall('query', $query, $this->resource);
 		if ($result === false)
 		{
-			return ns\Reporter::error($this, __METHOD__ . '(): Query error: ' . $a_strQuery . ' / ' . $this->apiCall('error', $this->resource));
+			return ns\Reporter::error($this, __METHOD__ . '(): Query error: ' . $query . ' / ' . $this->apiCall('error', $this->resource));
 		}
 		
 		return $result;
@@ -406,7 +387,7 @@ class MySQLDatasource extends Datasource implements ITransactionBlock
 	 * @see sources/sql/Datasource#lastInsertId()
 	 * @return integer
 	 */
-	public function lastInsertId(QueryResult $a_queryResult = null)
+	public function lastInsertId(QueryResult $result = null)
 	{
 		return $this->apiCall('insert_id', $this->resource);
 	}
@@ -415,27 +396,31 @@ class MySQLDatasource extends Datasource implements ITransactionBlock
 	 *
 	 * @return
 	 */
-	public function fetchResult(QueryResult $a_queryResult, $fetchFlags = kRecordsetFetchBoth)
+	public function fetchResult(QueryResult $result, $fetchFlags = kRecordsetFetchBoth)
 	{
 		$mysqlFlags = 0;
 		if ($this->m_implementation == kMySQLImplementationMysql)
 		{
-			if ($fetchFlags & kRecordsetFetchName) $mysqlFlags |= MYSQL_ASSOC;
-			if ($fetchFlags & kRecordsetFetchNumeric) $mysqlFlags |= MYSQL_NUM;
+			if ($fetchFlags & kRecordsetFetchName)
+				$mysqlFlags |= MYSQL_ASSOC;
+			if ($fetchFlags & kRecordsetFetchNumeric)
+				$mysqlFlags |= MYSQL_NUM;
 		}
 		elseif ($this->m_implementation == kMySQLImplementationMysqli)
 		{
-			if ($fetchFlags & kRecordsetFetchName) $mysqlFlags |= MYSQLI_ASSOC;
-			if ($fetchFlags & kRecordsetFetchNumeric) $mysqlFlags |= MYSQLI_NUM;
+			if ($fetchFlags & kRecordsetFetchName)
+				$mysqlFlags |= MYSQLI_ASSOC;
+			if ($fetchFlags & kRecordsetFetchNumeric)
+				$mysqlFlags |= MYSQLI_NUM;
 		}
 		
-		return $this->apiCall('fetch_array', $a_queryResult->resultResource, $mysqlFlags);
+		return $this->apiCall('fetch_array', $result->resultResource, $mysqlFlags);
 	}
 
-	public function resetResult(QueryResult $a_queryResult)
+	public function resetResult(QueryResult $result)
 	{
-		$r = $a_queryResult->resultResource;
-		if ($this->isValidResult($a_queryResult))
+		$r = $result->resultResource;
+		if ($this->isValidResult($result))
 		{
 			return $this->apiCall('data_seek', $r, 0);
 		}
@@ -454,11 +439,11 @@ class MySQLDatasource extends Datasource implements ITransactionBlock
 	 *
 	 * @see sources/sql/Datasource#freeResult()
 	 */
-	public function freeResult(QueryResult $a_queryResult)
+	public function freeResult(QueryResult $result)
 	{
-		if ($this->isValidResult($a_queryResult))
+		if ($this->isValidResult($result))
 		{
-			return $this->apiCall('free_result', $a_queryResult->resultResource);
+			return $this->apiCall('free_result', $result->resultResource);
 		}
 		
 		return false;
@@ -469,9 +454,9 @@ class MySQLDatasource extends Datasource implements ITransactionBlock
 	 * @see sources/sql/Datasource#resultRowCount()
 	 * @return integer
 	 */
-	public function resultRowCount(QueryResult $a_queryResult)
+	public function resultRowCount(QueryResult $result)
 	{
-		return $this->apiCall('num_rows', $a_queryResult->resultResource);
+		return $this->apiCall('num_rows', $result->resultResource);
 	}
 
 	/**
@@ -479,13 +464,13 @@ class MySQLDatasource extends Datasource implements ITransactionBlock
 	 * @see sources/sql/Datasource#recordsetColumnArray()
 	 * @return array
 	 */
-	public function recordsetColumnArray(QueryResult $a_queryResult)
+	public function recordsetColumnArray(QueryResult $result)
 	{
 		$res = array ();
-		$n = $this->apiCall('num_fields', $a_queryResult->resultResource);
+		$n = $this->apiCall('num_fields', $result->resultResource);
 		for ($i = 0; $i < $n; $i++)
 		{
-			$res[] = $this->apiCall('field_name', $a_queryResult->resultResource, $i);
+			$res[] = $this->apiCall('field_name', $result->resultResource, $i);
 		}
 		return $res;
 	}
@@ -495,9 +480,9 @@ class MySQLDatasource extends Datasource implements ITransactionBlock
 	 * @see sources/sql/Datasource#affectedRowCount()
 	 * @return integer
 	 */
-	public function affectedRowCount(QueryResult $a_queryResult)
+	public function affectedRowCount(QueryResult $result)
 	{
-		return $this->apiCall('affected_rows', $a_queryResult->datasource->resource());
+		return $this->apiCall('affected_rows', $result->datasource->resource());
 	}
 
 	/**
@@ -505,48 +490,45 @@ class MySQLDatasource extends Datasource implements ITransactionBlock
 	 * @see sources/sql/Datasource#encloseElement()
 	 * @return string
 	 */
-	public function encloseElement($a_strElement)
+	public function encloseElement($element)
 	{
-		return ($a_strElement == '*') ? $a_strElement : '`' . $a_strElement . '`';
+		return ($element == '*') ? $element : '`' . $element . '`';
 	}
-	
-	// DBMS relative
-	
 
-	// default behavior
-	// public function getTableSetIterator()
-	// public function tableSetExists($name);
-
-	public function getTableSetStructure(SQLObject $a_containerObject, $recursive = false)
+	/**
+	 *
+	 * @return TableSetStructure
+	 */
+	public function getTableSetStructure(SQLObject $containerObject, $recursive = false)
 	{
 		/**
 		 *
 		 * @todo support Datasource as argument if a db is selected
 		 */
-		if (!($a_containerObject instanceof TableSet))
+		if (!($containerObject instanceof TableSet))
 		{
 			return ns\Reporter::fatalError($this, __METHOD__ . '(): TableSet class required');
 		}
 		
-		$query = new FormattedQuery($this, 'SHOW TABLES FROM ' . $a_containerObject->expressionString(kExpressionElementName));
+		$query = new FormattedQuery($this, 'SHOW TABLES FROM ' . $containerObject->expressionString(kExpressionElementName));
 		$queryRes = $query->execute();
 		if ($queryRes === false)
 		{
 			return false;
 		}
 		
-		$p = $a_containerObject->structure ? $a_containerObject->structure->parent() : null;
-		$structure = new TableSetStructure($p, $a_containerObject->getName());
+		$p = $containerObject->structure ? $containerObject->structure->parent() : null;
+		$structure = new TableSetStructure($p, $containerObject->getName());
 		foreach ($queryRes as $row)
 		{
 			$ts = null;
 			if ($recursive)
 			{
-				$ts = $this->getTableStructure($this->getTable($row [0]));
+				$ts = $this->getTableStructure($this->getTable($row[0]));
 			}
 			else
 			{
-				$ts = new TableStructure($structure, $row [0]);
+				$ts = new TableStructure($structure, $row[0]);
 			}
 			
 			if ($ts)
@@ -564,25 +546,25 @@ class MySQLDatasource extends Datasource implements ITransactionBlock
 	 * @deprecated : Use xml structure
 	 * @return array
 	 */
-	public function getTableStructure(Table $a_table)
+	public function getTableStructure(Table $table)
 	{
-		$query = new FormattedQuery($this, 'SHOW COLUMNS FROM ' . $a_table->expressionString(kExpressionElementName));
+		$query = new FormattedQuery($this, 'SHOW COLUMNS FROM ' . $table->expressionString(kExpressionElementName));
 		$queryRes = $query->execute();
 		if ($queryRes === false)
 		{
 			return $queryRes;
 		}
 		
-		$s = $a_table->structure;
-		$ts = new TableStructure(($s ? $s->parent() : null), $a_table->getName());
+		$s = $table->structure;
+		$ts = new TableStructure(($s ? $s->parent() : null), $table->getName());
 		
 		foreach ($queryRes as $row)
 		{
-			$name = $row ['Field'];
+			$name = $row['Field'];
 			$elements = null;
 			$typedef = null;
 			
-			if ($type = $this->parseListedTypeValue($row ['Type'], $elements))
+			if ($type = $this->parseListedTypeValue($row['Type'], $elements))
 			{
 				$typedef = array (
 						'type' => $type,
@@ -592,26 +574,26 @@ class MySQLDatasource extends Datasource implements ITransactionBlock
 				);
 				if ($type == 'enum')
 				{
-					$typedef [kStructureValidatorClassname] = 'MySQLEnumColumnValueValidator';
+					$typedef[kStructureValidatorClassname] = 'MySQLEnumColumnValueValidator';
 				}
 				elseif ($type == 'set')
 				{
-					$typedef [kStructureValidatorClassname] = 'MySQLSetColumnValueValidator';
-					$typedef [kStructureAcceptMultipleValues] = true;
+					$typedef[kStructureValidatorClassname] = 'MySQLSetColumnValueValidator';
+					$typedef[kStructureAcceptMultipleValues] = true;
 				}
 			}
 			else
 			{
-				$typedef = parseDataTypeDefinition($row ['Type'], true);
+				$typedef = parseDataTypeDefinition($row['Type'], true);
 			}
 			$f = new TableColumnStructure($ts, $name);
 			
-			$f->setProperty(kStructurePrimaryKey, preg_match('/pri/i', $row ['Key']));
-			$f->setProperty(kStructureAutoincrement, preg_match('/auto_increment/i', $row ['Extra']));
-			$f->setProperty(kStructureAcceptNull, preg_match('/yes/i', $row ['Null']));
-			$f->setProperty(kStructureColumnTypename, $typedef ['type']);
+			$f->setProperty(kStructurePrimaryKey, preg_match('/pri/i', $row['Key']));
+			$f->setProperty(kStructureAutoincrement, preg_match('/auto_increment/i', $row['Extra']));
+			$f->setProperty(kStructureAcceptNull, preg_match('/yes/i', $row['Null']));
+			$f->setProperty(kStructureColumnTypename, $typedef['type']);
 			$f->setProperty(kStructureValidatorClassname, ns\array_keyvalue($typedef, kStructureValidatorClassname, false));
-			$f->setProperty(kStructureAcceptMultipleValues, $typedef [kStructureAcceptMultipleValues]);
+			$f->setProperty(kStructureAcceptMultipleValues, $typedef[kStructureAcceptMultipleValues]);
 			
 			if ($elements)
 			{
@@ -619,14 +601,14 @@ class MySQLDatasource extends Datasource implements ITransactionBlock
 				$f->setProperty(kStructureEnumeration, $elements);
 			}
 			
-			if ($typedef ['size'] !== false)
+			if ($typedef['size'] !== false)
 			{
-				$f->setProperty(kStructureDataSize, $typedef ['size']);
+				$f->setProperty(kStructureDataSize, $typedef['size']);
 			}
 			
-			if ($typedef ['dec_size'] !== false)
+			if ($typedef['dec_size'] !== false)
 			{
-				$f->setProperty(kStructureDecimalCount, $typedef ['dec_size']);
+				$f->setProperty(kStructureDecimalCount, $typedef['dec_size']);
 			}
 			
 			$ts->addColumnStructure($f);
@@ -645,12 +627,12 @@ class MySQLDatasource extends Datasource implements ITransactionBlock
 			return false;
 		}
 		
-		$type = strtolower(trim($regs [1]));
+		$type = strtolower(trim($regs[1]));
 		
-		mb_ereg_search_init($regs [2], '\'(.*?)\'');
+		mb_ereg_search_init($regs[2], '\'(.*?)\'');
 		while ($regs = mb_ereg_search_regs())
 		{
-			$elements [] = $regs [1];
+			$elements[] = $regs[1];
 		}
 		return $type;
 	}
@@ -660,9 +642,9 @@ class MySQLDatasource extends Datasource implements ITransactionBlock
 		return $this->m_implementation;
 	}
 
-	public function isValidResult(QueryResult $a_queryResult)
+	public function isValidResult(QueryResult $result)
 	{
-		$r = $a_queryResult->resultResource;
+		$r = $result->resultResource;
 		if ($this->m_implementation == kMySQLImplementationMysqli)
 		{
 			return ($r instanceof \mysqli_result);
@@ -698,15 +680,15 @@ class MySQLDatasource extends Datasource implements ITransactionBlock
 				$lastArg = func_get_arg($endIndex - 1);
 				if (($lastArg instanceof \mysqli))
 				{
-					$args [] = $lastArg;
+					$args[] = $lastArg;
 					$endIndex--;
 				}
 			}
 		}
 		
-		for($i = $startIndex; $i < $endIndex; $i++)
+		for ($i = $startIndex; $i < $endIndex; $i++)
 		{
-			$args [] = func_get_arg($i);
+			$args[] = func_get_arg($i);
 		}
 		
 		return call_user_func_array($f, $args);

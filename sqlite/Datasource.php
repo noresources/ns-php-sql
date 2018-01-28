@@ -130,8 +130,8 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 		
 		$this->m_databaseName = null;
 		
-		$this->addDataType('TEXT', kDataTypeString, __NAMESPACE__ . '\\SQLiteStringData');
-		$this->addDataType('VARCHAR', kDataTypeString, __NAMESPACE__ . '\\SQLiteStringData');
+		$this->addDataType('TEXT', kDataTypeString);
+		$this->addDataType('VARCHAR', kDataTypeString);
 		
 		$this->addDataType('INTEGER', kDataTypeNumber);
 		$this->addDataType('REAL', kDataTypeNumber);
@@ -305,7 +305,7 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 			{
 				// Force file creation here
 				$p = $a_aParameters;
-				$p [kConnectionParameterDatabasename] = self::kDatabaseNameDefault;
+				$p[kConnectionParameterDatabasename] = self::kDatabaseNameDefault;
 				$c = new SQLiteDatasource($this->getStructure());
 				$c->connect($p);
 				$c->disconnect();
@@ -378,7 +378,7 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 		// Use attach rather than open
 		if ($this->m_databaseName != self::kDatabaseNameDefault)
 		{
-			$v = new SQLiteStringData($this);
+			$v = new StringData($this);
 			$v->import($fileName);
 			$str = 'ATTACH DATABASE ' . $v->expressionString() . ' AS ' . $this->encloseElement($this->m_databaseName) . ';';
 			$res = $this->executeQuery($str);
@@ -410,42 +410,33 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 		return true;
 	}
 
-	public function createData($dataType)
+	public function serializeStringData($stringData)
 	{
-		if (array_key_exists($dataType, $this->m_dataTypeNames))
+		if (method_exists('\\SQLite3', 'escapeString'))
 		{
-			$a = $this->m_dataTypeNames [$dataType];
-			$sqlType = $a ['type'];
-			
-			$d = null;
-			if ($a ['class'])
-			{
-				$cls = $a ['class'];
-				return new $cls($this);
-			}
+			$$stringData = SQLite3::escapeString($stringData);
+		}
+		elseif (function_exists('sqlite_escape_string'))
+		{
+			$$stringData = sqlite_escape_string($stringData);
 		}
 		
-		if ($sqlType = $this->guessDataType($dataType))
-		{
-			if ($sqlType == kDataTypeString)
-			{
-				return new SQLiteStringData($this);
-			}
-		}
-		
-		return parent::createData($dataType);
+		return $$stringData;
 	}
 
-	public function serializeBinaryData ($data)
+	public function serializeBinaryData($data)
 	{
 		return "X'" . bin2hex($data) . "'";
 	}
-	
-	public function unserializeBinaryData ($data)
+
+	/**
+	 * SQLite automatically unserialize data on SELECT
+	 */
+	public function unserializeBinaryData($data)
 	{
 		return $data;
 	}
-	
+
 	public function executeQuery($a_strQuery)
 	{
 		$errorMessage = '';
@@ -457,7 +448,7 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 				return ns\Reporter::error($this, __METHOD__ . '(): No Datasource');
 			}
 			
-			$result = @$this->resource()->query($a_strQuery);			
+			$result = @$this->resource()->query($a_strQuery);
 		}
 		elseif ($this->m_implementation == self::kImplementationLegacy)
 		{
@@ -487,6 +478,7 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 	}
 
 	/**
+	 *
 	 * @param QueryResult $a_queryResult
 	 * @return integer
 	 */
@@ -505,6 +497,7 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 	}
 
 	/**
+	 *
 	 * @return array
 	 */
 	public function fetchResult(QueryResult $a_queryResult, $fetchFlags = kRecordsetFetchBoth)
@@ -514,14 +507,18 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 		$r = $a_queryResult->resultResource;
 		if ($this->m_implementation == self::kImplementationSQLite3)
 		{
-			if ($fetchFlags & kRecordsetFetchName) $sqliteFlags |= SQLITE3_ASSOC;
-			if ($fetchFlags & kRecordsetFetchNumeric) $sqliteFlags |= SQLITE3_NUM;
+			if ($fetchFlags & kRecordsetFetchName)
+				$sqliteFlags |= SQLITE3_ASSOC;
+			if ($fetchFlags & kRecordsetFetchNumeric)
+				$sqliteFlags |= SQLITE3_NUM;
 			return $r->fetchArray($fetchFlags);
 		}
 		elseif ($this->m_implementation == self::kImplementationLegacy)
 		{
-			if ($fetchFlags & kRecordsetFetchName) $sqliteFlags |= SQLITE_ASSOC;
-			if ($fetchFlags & kRecordsetFetchNumeric) $sqliteFlags |= SQLITE_NUM;
+			if ($fetchFlags & kRecordsetFetchName)
+				$sqliteFlags |= SQLITE_ASSOC;
+			if ($fetchFlags & kRecordsetFetchNumeric)
+				$sqliteFlags |= SQLITE_NUM;
 			return sqlite_fetch_array($r, $fetchFlags);
 		}
 		
@@ -615,18 +612,18 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 			}
 			
 			$n = $r->numColumns();
-			for($i = 0; $i < $n; $i++)
+			for ($i = 0; $i < $n; $i++)
 			{
-				$res [] = $r->columnName($i);
+				$res[] = $r->columnName($i);
 			}
 			return $res;
 		}
 		elseif ($this->m_implementation == self::kImplementationLegacy)
 		{
 			$n = sqlite_num_fields($r);
-			for($i = 0; $i < $n; $i++)
+			for ($i = 0; $i < $n; $i++)
 			{
-				$res [] = sqlite_field_name($r, $i);
+				$res[] = sqlite_field_name($r, $i);
 			}
 			
 			return $res;

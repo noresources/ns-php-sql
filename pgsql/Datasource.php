@@ -52,7 +52,7 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 		);
 		foreach ($type as $name)
 		{
-			$this->addDataType($name, kDataTypeString, __NAMESPACE__ . '\\PostgreSQLStringData');
+			$this->addDataType($name, kDataTypeString);
 		}
 		
 		$type = array (
@@ -166,7 +166,7 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 	{
 		if ($name != $this->activeTableSetName)
 		{
-			$n = new PostgreSQLStringData($this);
+			$n = new StringData($this);
 			$n->import($name);
 			$result = $this->executeQuery('SELECT count (*) FROM "pg_catalog"."pg_namespace" WHERE "nspname"=' . $n->expressionString());
 			if (($result instanceof Recordset) && ($result->rowCount()))
@@ -250,7 +250,7 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 			$schemaName = $a_containerObject->getName();
 		}
 		
-		$n = new PostgreSQLStringData($this);
+		$n = new StringData($this);
 		$n->import($schemaName);
 		$s = 'SELECT table_name FROM "information_schema"."tables" where "table_schema"=' . $n->expressionString();
 		$s = new FormattedQuery($this, $s);
@@ -298,7 +298,7 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 	 */
 	public function connect($parameters)
 	{
-		if ($this->resource())
+		if ($this->resource)
 		{
 			$this->disconnect();
 		}
@@ -347,46 +347,32 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 	 */
 	protected function disconnect()
 	{
-		return @pg_close($this->resource());
+		return @pg_close($this->resource);
 	}
 
 	public function createData($dataType)
 	{
-		if (array_key_exists($dataType, $this->m_dataTypeNames))
+		$sqlType = self::guessDataType($dataType);
+		if ($sqlType === false)
 		{
-			$a = $this->m_dataTypeNames[$dataType];
-			$sqlType = $a['type'];
-			
-			$d = null;
-			if ($a['class'])
-			{
-				$cls = $a['class'];
-				return (new $cls($this));
-			}
+			return ns\Reporter::error($this, __METHOD__ . '(): Unable to find type', __FILE__, __LINE__);
 		}
 		
-		if ($sqlType = $this->guessDataType($dataType))
+		if ($sqlType == kDataTypeBinary)
 		{
-			if ($sqlType == kDataTypeString)
-			{
-				return (new PostgreSQLStringData($this));
-			}
-			elseif ($sqlType == kDataTypeBinary)
-			{
-				return (new PostgreSQLBinaryData($this));
-			}
+			return new PostgreSQLBinaryData($this);
 		}
 		
 		return parent::createData($dataType);
 	}
 
+	public function serializeStringData($stringData)
+	{
+		return (pg_escape_string($this->resource, $stringData));
+	}
+
 	public function serializeBinaryData($data)
 	{
-		if (!\is_string($data)) 
-		{
-			throw new \InvalidArgumentException('string expected, got ' . gettype($data));
-		}
-		
 		return (pg_escape_bytea($this->resource, $data));
 	}
 
@@ -402,10 +388,10 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 	 */
 	public function executeQuery($a_strQuery)
 	{
-		$result = @pg_query($this->resource(), $a_strQuery);
+		$result = @pg_query($this->resource, $a_strQuery);
 		if ($result === false)
 		{
-			return ns\Reporter::error($this, __METHOD__ . "(): Query error: " . $a_strQuery . " / " . pg_last_error($this->resource()), __FILE__, __LINE__);
+			return ns\Reporter::error($this, __METHOD__ . "(): Query error: " . $a_strQuery . " / " . pg_last_error($this->resource), __FILE__, __LINE__);
 		}
 		
 		return $result;
@@ -415,7 +401,7 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 	 *
 	 * @see sources/sql/Datasource#lastInsertId()
 	 * @return integer
-	 * 
+	 *
 	 * @see http://www.php.net/manual/fr/function.pg-last-oid.php
 	 * @see https://stackoverflow.com/questions/2741919/can-i-ask-postgresql-to-ignore-errors-within-a-transaction
 	 * @see https://wiki.postgresql.org/wiki/Transactions_recovering_failures_in_scripts
@@ -424,7 +410,7 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 	{
 		$id = null;
 		$savePointKey = '_NS_PHP_SQL_LASTVAL_SAVEPOINT_';
-		$transaction = (pg_transaction_status($this->resource()) !== PGSQL_TRANSACTION_IDLE);
+		$transaction = (pg_transaction_status($this->resource) !== PGSQL_TRANSACTION_IDLE);
 		
 		if ($transaction)
 			@pg_query ('SAVEPOINT ' . $savePointKey);
@@ -551,27 +537,18 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 	 * @see sources/sql/Datasource#encloseElement()
 	 * @return string
 	 */
-	public function encloseElement($a_strElement)
+	public function encloseElement($element)
 	{
-		if ($a_strElement != "*")
+		if ($element != "*")
 		{
 			if (function_exists("pg_escape_identifier"))
 			{
-				return pg_escape_identifier($this->resource(), $a_strElement);
+				return pg_escape_identifier($this->resource, $element);
 			}
-			return '"' . $a_strElement . '"';
+			return '"' . $element . '"';
 		}
 		
-		return $a_strElement;
-	}
-
-	/**
-	 *
-	 * @return bool
-	 */
-	public function caseSensitiveTableNames()
-	{
-		return true;
+		return $element;
 	}
 
 	protected $activeTableSetName;

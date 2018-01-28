@@ -7,10 +7,11 @@
 
 /**
  * A set of ns\IExpression designed to be used in queries
- * 
+ *
  * @package SQL
  */
 namespace NoreSources\SQL;
+
 use NoreSources as ns;
 
 require_once ('base.php');
@@ -29,7 +30,7 @@ interface IExpression extends ns\IExpression
 	 * Return the data source connection linked to object.
 	 *
 	 * Object can contains its own reference or use one of its member reference.
-	 * 
+	 *
 	 * @return Datasource
 	 */
 	function getDatasource();
@@ -50,7 +51,7 @@ interface IAliasable
 	/**
 	 * Set and get element alias
 	 *
-	 * @param Alias $alias        	
+	 * @param Alias $alias
 	 * @return Alias
 	 */
 	function alias(Alias $alias = null);
@@ -64,10 +65,8 @@ class Alias implements IExpression
 
 	/**
 	 *
-	 * @param
-	 *        	$Datasource
-	 * @param
-	 *        	$aliasName
+	 * @param $Datasource
+	 * @param $aliasName
 	 * @return unknown_type
 	 */
 	public function __construct(Datasource $Datasource = null, $aliasName)
@@ -77,6 +76,7 @@ class Alias implements IExpression
 	}
 
 	/**
+	 *
 	 * @return string
 	 */
 	public function __toString()
@@ -85,6 +85,7 @@ class Alias implements IExpression
 	}
 
 	/**
+	 *
 	 * @return string
 	 */
 	public function expressionString($a_options = null)
@@ -98,6 +99,7 @@ class Alias implements IExpression
 	}
 
 	/**
+	 *
 	 * @return string
 	 */
 	public function getAliasName()
@@ -143,15 +145,15 @@ class SQLFunction extends ns\UnaryOperatorExpression implements IAliasable
 {
 
 	/**
+	 *
 	 * @var integer Parameter list options to use while calling @c expressionString()
 	 */
 	public $parameterListOptions;
-	
+
 	/**
 	 *
-	 * @param string $a_function
-	 *        	function name
-	 * @param mixed $a_values        	
+	 * @param string $a_function function name
+	 * @param mixed $a_values
 	 */
 	public function __construct($a_function, $a_values = null)
 	{
@@ -168,6 +170,7 @@ class SQLFunction extends ns\UnaryOperatorExpression implements IAliasable
 	}
 
 	/**
+	 *
 	 * @return string
 	 */
 	public function __toString()
@@ -188,6 +191,7 @@ class SQLFunction extends ns\UnaryOperatorExpression implements IAliasable
 	}
 
 	/**
+	 *
 	 * @return string
 	 */
 	public function expressionString($a_options = null)
@@ -260,6 +264,9 @@ class SQLAnd extends ns\BinaryOperatorExpression
 		parent::__construct('AND', $a_left, $a_right);
 	}
 
+	/**
+	 * @return string
+	 */
 	public function __toString()
 	{
 		return $this->expressionString();
@@ -281,6 +288,9 @@ class SQLOr extends ns\BinaryOperatorExpression
 		parent::__construct('OR', $a_left, $a_right);
 	}
 
+	/**
+	 * @return string
+	 */
 	public function __toString()
 	{
 		return $this->expressionString();
@@ -293,11 +303,17 @@ class SQLOr extends ns\BinaryOperatorExpression
 class SQLNot extends ns\UnaryOperatorExpression
 {
 
+	/**
+	 * @param unknown $a_values Eleent to negate
+	 */
 	public function __construct($a_values)
 	{
 		parent::__construct('NOT ', $a_values);
 	}
 
+	/**
+	 * @return string
+	 */
 	public function __toString()
 	{
 		return $this->expressionString();
@@ -310,12 +326,19 @@ class SQLNot extends ns\UnaryOperatorExpression
 class SQLAs extends ns\BinaryOperatorExpression
 {
 
+	/**
+	 * @param ns\IExpression $a_leftExpression Element
+	 * @param ns\IExpression $a_rightExpression Element alias
+	 */
 	public function __construct(ns\IExpression $a_leftExpression, ns\IExpression $a_rightExpression)
 	{
 		parent::__construct('AS', $a_leftExpression, $a_rightExpression);
 		$this->protect(false);
 	}
 
+	/**
+	 * @return string
+	 */
 	public function __toString()
 	{
 		return $this->expressionString();
