@@ -319,7 +319,7 @@ class SelectQueryStaticValueColumn implements ns\IExpression
 	{
 		$this->m_oQuery = $a_query;
 		$this->m_oValue = (($a_value instanceof ns\IExpression) ? $a_value : new FormattedData($a_value));
-		$this->m_alias = (is_string($a_strAlias) && strlen($a_strAlias)) ? new SQLAlias($a_query->datasource, $a_strAlias) : null;
+		$this->m_alias = (is_string($a_strAlias) && strlen($a_strAlias)) ? new Alias($a_query->datasource, $a_strAlias) : null;
 	}
 
 	/**
@@ -621,7 +621,7 @@ class SelectQueryGroupByStatement implements ns\IExpression
 		for ($i = 0; $i < $n; $i++)
 		{
 			$c = func_get_arg($i);
-			if (($c instanceof SQLAlias) || ($c instanceof ITableColumn))
+			if (($c instanceof Alias) || ($c instanceof ITableColumn))
 			{
 				$this->m_columns[] = $c;
 			}
@@ -631,7 +631,7 @@ class SelectQueryGroupByStatement implements ns\IExpression
 			}
 			elseif (is_string($c))
 			{
-				$this->m_columns[] = new SQLAlias($this->m_datasource, $c);
+				$this->m_columns[] = new Alias($this->m_datasource, $c);
 			}
 		}
 		return $n;

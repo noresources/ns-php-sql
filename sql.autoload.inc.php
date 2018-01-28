@@ -1,41 +1,9 @@
 <?php
-function autoload_NTk5MDI2N2Q1OWQxNQ($className)
+function autoload_NWE2ZTA1ZDFhODE3Zg($className)
 {
-	if ($className == 'NoreSources\SQL\IAliasedClone')
+	if ($className == 'NoreSources\SQL\TableSet')
 	{
-		require_once(__DIR__ . '/base.php');
-	}
- 	elseif ($className == 'NoreSources\SQL\IExpression')
-	{
-		require_once(__DIR__ . '/BasicExpressions.php');
-	}
- 	elseif ($className == 'NoreSources\SQL\IAliasable')
-	{
-		require_once(__DIR__ . '/BasicExpressions.php');
-	}
- 	elseif ($className == 'NoreSources\SQL\SQLAlias')
-	{
-		require_once(__DIR__ . '/BasicExpressions.php');
-	}
- 	elseif ($className == 'NoreSources\SQL\SQLFunction')
-	{
-		require_once(__DIR__ . '/BasicExpressions.php');
-	}
- 	elseif ($className == 'NoreSources\SQL\SQLAnd')
-	{
-		require_once(__DIR__ . '/BasicExpressions.php');
-	}
- 	elseif ($className == 'NoreSources\SQL\SQLOr')
-	{
-		require_once(__DIR__ . '/BasicExpressions.php');
-	}
- 	elseif ($className == 'NoreSources\SQL\SQLNot')
-	{
-		require_once(__DIR__ . '/BasicExpressions.php');
-	}
- 	elseif ($className == 'NoreSources\SQL\SQLAs')
-	{
-		require_once(__DIR__ . '/BasicExpressions.php');
+		require_once(__DIR__ . '/TableSet.php');
 	}
  	elseif ($className == 'NoreSources\SQL\Data')
 	{
@@ -72,6 +40,62 @@ function autoload_NTk5MDI2N2Q1OWQxNQ($className)
  	elseif ($className == 'NoreSources\SQL\DataList')
 	{
 		require_once(__DIR__ . '/Data.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\Table')
+	{
+		require_once(__DIR__ . '/Table.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\MySQLTableManipulator')
+	{
+		require_once(__DIR__ . '/mysql/Datasource.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\MySQLDatasource')
+	{
+		require_once(__DIR__ . '/mysql/Datasource.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\MySQLStringData')
+	{
+		require_once(__DIR__ . '/mysql/Expressions.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\MySQLEnumColumnValueValidator')
+	{
+		require_once(__DIR__ . '/mysql/FieldValidators.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\MySQLSetColumnValueValidator')
+	{
+		require_once(__DIR__ . '/mysql/FieldValidators.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\IExpression')
+	{
+		require_once(__DIR__ . '/BasicExpressions.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\IAliasable')
+	{
+		require_once(__DIR__ . '/BasicExpressions.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\Alias')
+	{
+		require_once(__DIR__ . '/BasicExpressions.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\SQLFunction')
+	{
+		require_once(__DIR__ . '/BasicExpressions.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\SQLAnd')
+	{
+		require_once(__DIR__ . '/BasicExpressions.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\SQLOr')
+	{
+		require_once(__DIR__ . '/BasicExpressions.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\SQLNot')
+	{
+		require_once(__DIR__ . '/BasicExpressions.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\SQLAs')
+	{
+		require_once(__DIR__ . '/BasicExpressions.php');
 	}
  	elseif ($className == 'NoreSources\SQL\InsertQuery')
 	{
@@ -141,182 +165,6 @@ function autoload_NTk5MDI2N2Q1OWQxNQ($className)
 	{
 		require_once(__DIR__ . '/DataQueries.php');
 	}
- 	elseif ($className == 'NoreSources\SQL\ITransactionBlock')
-	{
-		require_once(__DIR__ . '/Datasource.php');
-	}
- 	elseif ($className == 'NoreSources\SQL\Datasource')
-	{
-		require_once(__DIR__ . '/Datasource.php');
-	}
- 	elseif ($className == 'NoreSources\SQL\SQLIsNull')
-	{
-		require_once(__DIR__ . '/Expressions.php');
-	}
- 	elseif ($className == 'NoreSources\SQL\SQLIn')
-	{
-		require_once(__DIR__ . '/Expressions.php');
-	}
- 	elseif ($className == 'NoreSources\SQL\SQLSmartEquality')
-	{
-		require_once(__DIR__ . '/Expressions.php');
-	}
- 	elseif ($className == 'NoreSources\SQL\SQLBetween')
-	{
-		require_once(__DIR__ . '/Expressions.php');
-	}
- 	elseif ($className == 'NoreSources\SQL\AutoInterval')
-	{
-		require_once(__DIR__ . '/Expressions.php');
-	}
- 	elseif ($className == 'NoreSources\SQL\TableManipulator')
-	{
-		require_once(__DIR__ . '/Manipulators.php');
-	}
- 	elseif ($className == 'NoreSources\SQL\MySQLTableManipulator')
-	{
-		require_once(__DIR__ . '/mysql/Datasource.php');
-	}
- 	elseif ($className == 'NoreSources\SQL\MySQLDatasource')
-	{
-		require_once(__DIR__ . '/mysql/Datasource.php');
-	}
- 	elseif ($className == 'NoreSources\SQL\MySQLStringData')
-	{
-		require_once(__DIR__ . '/mysql/Expressions.php');
-	}
- 	elseif ($className == 'NoreSources\SQL\MySQLBinaryData')
-	{
-		require_once(__DIR__ . '/mysql/Expressions.php');
-	}
- 	elseif ($className == 'NoreSources\SQL\MySQLEnumColumnValueValidator')
-	{
-		require_once(__DIR__ . '/mysql/FieldValidators.php');
-	}
- 	elseif ($className == 'NoreSources\SQL\MySQLSetColumnValueValidator')
-	{
-		require_once(__DIR__ . '/mysql/FieldValidators.php');
-	}
- 	elseif ($className == 'NoreSources\SQL\PDOBackend')
-	{
-		require_once(__DIR__ . '/pdo/PDO.php');
-	}
- 	elseif ($className == 'NoreSources\SQL\PostgreSQLDatasource')
-	{
-		require_once(__DIR__ . '/pgsql/Datasource.php');
-	}
- 	elseif ($className == 'NoreSources\SQL\PostgreSQLStringData')
-	{
-		require_once(__DIR__ . '/pgsql/Expressions.php');
-	}
- 	elseif ($className == 'NoreSources\SQL\PostgreSQLBinaryData')
-	{
-		require_once(__DIR__ . '/pgsql/Expressions.php');
-	}
- 	elseif ($className == 'NoreSources\SQL\ITableSetProvider')
-	{
-		require_once(__DIR__ . '/Providers.php');
-	}
- 	elseif ($className == 'NoreSources\SQL\ITableProvider')
-	{
-		require_once(__DIR__ . '/Providers.php');
-	}
- 	elseif ($className == 'NoreSources\SQL\ITableColumnProvider')
-	{
-		require_once(__DIR__ . '/Providers.php');
-	}
- 	elseif ($className == 'NoreSources\SQL\IQuery')
-	{
-		require_once(__DIR__ . '/QueryBase.php');
-	}
- 	elseif ($className == 'NoreSources\SQL\FormattedQuery')
-	{
-		require_once(__DIR__ . '/QueryBase.php');
-	}
- 	elseif ($className == 'NoreSources\SQL\TableQuery')
-	{
-		require_once(__DIR__ . '/QueryBase.php');
-	}
- 	elseif ($className == 'NoreSources\SQL\QueryResult')
-	{
-		require_once(__DIR__ . '/QueryResults.php');
-	}
- 	elseif ($className == 'NoreSources\SQL\Recordset')
-	{
-		require_once(__DIR__ . '/QueryResults.php');
-	}
- 	elseif ($className == 'NoreSources\SQL\InsertQueryResult')
-	{
-		require_once(__DIR__ . '/QueryResults.php');
-	}
- 	elseif ($className == 'NoreSources\SQL\UpdateQueryResult')
-	{
-		require_once(__DIR__ . '/QueryResults.php');
-	}
- 	elseif ($className == 'NoreSources\SQL\DeleteQueryResult')
-	{
-		require_once(__DIR__ . '/QueryResults.php');
-	}
- 	elseif ($className == 'NoreSources\SQL\RecordQueryOption')
-	{
-		require_once(__DIR__ . '/Record.php');
-	}
- 	elseif ($className == 'NoreSources\SQL\PresentationSettings')
-	{
-		require_once(__DIR__ . '/Record.php');
-	}
- 	elseif ($className == 'NoreSources\SQL\ColumnSelectionFilter')
-	{
-		require_once(__DIR__ . '/Record.php');
-	}
- 	elseif ($className == 'NoreSources\SQL\ColumnValueFilter')
-	{
-		require_once(__DIR__ . '/Record.php');
-	}
- 	elseif ($className == 'NoreSources\SQL\LimitFilter')
-	{
-		require_once(__DIR__ . '/Record.php');
-	}
- 	elseif ($className == 'NoreSources\SQL\OrderingOption')
-	{
-		require_once(__DIR__ . '/Record.php');
-	}
- 	elseif ($className == 'NoreSources\SQL\Record')
-	{
-		require_once(__DIR__ . '/Record.php');
-	}
- 	elseif ($className == 'NoreSources\SQL\SQLiteTableManipulator')
-	{
-		require_once(__DIR__ . '/sqlite/Datasource.php');
-	}
- 	elseif ($className == 'NoreSources\SQL\SQLiteTableSet')
-	{
-		require_once(__DIR__ . '/sqlite/Datasource.php');
-	}
- 	elseif ($className == 'NoreSources\SQL\SQLiteDatasource')
-	{
-		require_once(__DIR__ . '/sqlite/Datasource.php');
-	}
- 	elseif ($className == 'NoreSources\SQL\SQLiteStringData')
-	{
-		require_once(__DIR__ . '/sqlite/Expressions.php');
-	}
- 	elseif ($className == 'NoreSources\SQL\SQLiteBinaryData')
-	{
-		require_once(__DIR__ . '/sqlite/Expressions.php');
-	}
- 	elseif ($className == 'NoreSources\SQL\DropTableQuery')
-	{
-		require_once(__DIR__ . '/StructureQueries.php');
-	}
- 	elseif ($className == 'NoreSources\SQL\RenameTableQuery')
-	{
-		require_once(__DIR__ . '/StructureQueries.php');
-	}
- 	elseif ($className == 'NoreSources\SQL\CreateTableQuery')
-	{
-		require_once(__DIR__ . '/StructureQueries.php');
-	}
  	elseif ($className == 'NoreSources\SQL\StructureVersion')
 	{
 		require_once(__DIR__ . '/Structures.php');
@@ -345,9 +193,61 @@ function autoload_NTk5MDI2N2Q1OWQxNQ($className)
 	{
 		require_once(__DIR__ . '/Structures.php');
 	}
- 	elseif ($className == 'NoreSources\SQL\Table')
+ 	elseif ($className == 'NoreSources\SQL\PDOBackend')
 	{
-		require_once(__DIR__ . '/Table.php');
+		require_once(__DIR__ . '/pdo/PDO.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\PostgreSQLDatasource')
+	{
+		require_once(__DIR__ . '/pgsql/Datasource.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\PostgreSQLStringData')
+	{
+		require_once(__DIR__ . '/pgsql/Expressions.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\PostgreSQLBinaryData')
+	{
+		require_once(__DIR__ . '/pgsql/Expressions.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\ITransactionBlock')
+	{
+		require_once(__DIR__ . '/Datasource.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\Datasource')
+	{
+		require_once(__DIR__ . '/Datasource.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\RecordQueryOption')
+	{
+		require_once(__DIR__ . '/Record.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\PresentationSettings')
+	{
+		require_once(__DIR__ . '/Record.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\ColumnSelectionFilter')
+	{
+		require_once(__DIR__ . '/Record.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\ColumnValueFilter')
+	{
+		require_once(__DIR__ . '/Record.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\LimitFilter')
+	{
+		require_once(__DIR__ . '/Record.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\OrderingOption')
+	{
+		require_once(__DIR__ . '/Record.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\GroupingOption')
+	{
+		require_once(__DIR__ . '/Record.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\Record')
+	{
+		require_once(__DIR__ . '/Record.php');
 	}
  	elseif ($className == 'NoreSources\SQL\ITableColumnValueValidator')
 	{
@@ -369,6 +269,10 @@ function autoload_NTk5MDI2N2Q1OWQxNQ($className)
 	{
 		require_once(__DIR__ . '/TableColumn.php');
 	}
+ 	elseif ($className == 'NoreSources\SQL\ConstantColumn')
+	{
+		require_once(__DIR__ . '/TableColumn.php');
+	}
  	elseif ($className == 'NoreSources\SQL\StarColumn')
 	{
 		require_once(__DIR__ . '/TableColumn.php');
@@ -377,9 +281,105 @@ function autoload_NTk5MDI2N2Q1OWQxNQ($className)
 	{
 		require_once(__DIR__ . '/TableColumn.php');
 	}
- 	elseif ($className == 'NoreSources\SQL\TableSet')
+ 	elseif ($className == 'NoreSources\SQL\DropTableQuery')
 	{
-		require_once(__DIR__ . '/TableSet.php');
+		require_once(__DIR__ . '/StructureQueries.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\RenameTableQuery')
+	{
+		require_once(__DIR__ . '/StructureQueries.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\CreateTableQuery')
+	{
+		require_once(__DIR__ . '/StructureQueries.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\SQLiteTableManipulator')
+	{
+		require_once(__DIR__ . '/sqlite/Datasource.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\SQLiteTableSet')
+	{
+		require_once(__DIR__ . '/sqlite/Datasource.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\SQLiteDatasource')
+	{
+		require_once(__DIR__ . '/sqlite/Datasource.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\SQLiteStringData')
+	{
+		require_once(__DIR__ . '/sqlite/Expressions.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\QueryResult')
+	{
+		require_once(__DIR__ . '/QueryResults.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\Recordset')
+	{
+		require_once(__DIR__ . '/QueryResults.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\InsertQueryResult')
+	{
+		require_once(__DIR__ . '/QueryResults.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\UpdateQueryResult')
+	{
+		require_once(__DIR__ . '/QueryResults.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\DeleteQueryResult')
+	{
+		require_once(__DIR__ . '/QueryResults.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\IAliasedClone')
+	{
+		require_once(__DIR__ . '/base.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\SQLIsNull')
+	{
+		require_once(__DIR__ . '/Expressions.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\SQLIn')
+	{
+		require_once(__DIR__ . '/Expressions.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\SQLSmartEquality')
+	{
+		require_once(__DIR__ . '/Expressions.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\SQLBetween')
+	{
+		require_once(__DIR__ . '/Expressions.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\AutoInterval')
+	{
+		require_once(__DIR__ . '/Expressions.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\IQuery')
+	{
+		require_once(__DIR__ . '/QueryBase.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\FormattedQuery')
+	{
+		require_once(__DIR__ . '/QueryBase.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\TableQuery')
+	{
+		require_once(__DIR__ . '/QueryBase.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\ITableSetProvider')
+	{
+		require_once(__DIR__ . '/Providers.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\ITableProvider')
+	{
+		require_once(__DIR__ . '/Providers.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\ITableColumnProvider')
+	{
+		require_once(__DIR__ . '/Providers.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\TableManipulator')
+	{
+		require_once(__DIR__ . '/Manipulators.php');
 	}
  }
-spl_autoload_register('autoload_NTk5MDI2N2Q1OWQxNQ');
+spl_autoload_register('autoload_NWE2ZTA1ZDFhODE3Zg');

@@ -50,16 +50,16 @@ interface IAliasable
 	/**
 	 * Set and get element alias
 	 *
-	 * @param SQLAlias $alias        	
-	 * @return SQLAlias
+	 * @param Alias $alias        	
+	 * @return Alias
 	 */
-	function alias(SQLAlias $alias = null);
+	function alias(Alias $alias = null);
 }
 
 /**
  * Represents an alias clause (ie 'AS 'aliasName''
  */
-class SQLAlias implements IExpression
+class Alias implements IExpression
 {
 
 	/**
@@ -127,6 +127,8 @@ class SQLAlias implements IExpression
 	protected $m_datasource;
 }
 
+class_alias(__NAMESPACE__ . '\Alias', __NAMESPACE__ . '\SQLAlias');
+
 /**
  * A unary operator that represents a SQL function
  * *
@@ -140,6 +142,11 @@ class SQLAlias implements IExpression
 class SQLFunction extends ns\UnaryOperatorExpression implements IAliasable
 {
 
+	/**
+	 * @var integer Parameter list options to use while calling @c expressionString()
+	 */
+	public $parameterListOptions;
+	
 	/**
 	 *
 	 * @param string $a_function
@@ -157,7 +164,7 @@ class SQLFunction extends ns\UnaryOperatorExpression implements IAliasable
 		}
 		
 		$this->m_alias = null;
-		$this->m_parameterListOptions = kExpressionElementAlias;
+		$this->parameterListOptions = kExpressionElementAlias;
 	}
 
 	/**
@@ -166,16 +173,6 @@ class SQLFunction extends ns\UnaryOperatorExpression implements IAliasable
 	public function __toString()
 	{
 		return $this->expressionString();
-	}
-
-	public function parameterListOptions($options = null)
-	{
-		if (!is_null($options))
-		{
-			$this->m_parameterListOptions = $options;
-		}
-		
-		return $this->m_parameterListOptions;
 	}
 
 	/**
@@ -200,7 +197,7 @@ class SQLFunction extends ns\UnaryOperatorExpression implements IAliasable
 			ns\Reporter::fatalError($this, __METHOD__ . '(): Invalid expression given', __FILE__, __LINE__);
 		}
 		
-		$res = $this->m_strOperator . '(' . $this->m_expression->expressionString($this->m_parameterListOptions) . ')';
+		$res = $this->m_strOperator . '(' . $this->m_expression->expressionString($this->parameterListOptions) . ')';
 		if ($this->m_alias && (($a_options & kExpressionElementDeclaration) == kExpressionElementDeclaration))
 		{
 			$res .= ' AS ' . $this->m_alias->expressionString($a_options);
@@ -221,9 +218,9 @@ class SQLFunction extends ns\UnaryOperatorExpression implements IAliasable
 	/**
 	 * Set or get function alias name
 	 *
-	 * @param SQLAlias $alias        	
+	 * @param Alias $alias        	
 	 */
-	public function alias(SQLAlias $alias = null)
+	public function alias(Alias $alias = null)
 	{
 		if (!is_null($alias))
 		{
@@ -238,16 +235,14 @@ class SQLFunction extends ns\UnaryOperatorExpression implements IAliasable
 	 */
 	public function hasAlias()
 	{
-		return ($this->m_alias instanceof SQLAlias);
+		return ($this->m_alias instanceof Alias);
 	}
 
 	/**
 	 *
-	 * @var SQLAlias
+	 * @var Alias
 	 */
 	protected $m_alias;
-
-	protected $m_parameterListOptions;
 }
 
 /**
@@ -256,6 +251,10 @@ class SQLFunction extends ns\UnaryOperatorExpression implements IAliasable
 class SQLAnd extends ns\BinaryOperatorExpression
 {
 
+	/**
+	 * @param ns\IExpression $a_left Left operand
+	 * @param ns\IExpression $a_right Right operand
+	 */
 	public function __construct(ns\IExpression $a_left, ns\IExpression $a_right)
 	{
 		parent::__construct('AND', $a_left, $a_right);
@@ -273,6 +272,10 @@ class SQLAnd extends ns\BinaryOperatorExpression
 class SQLOr extends ns\BinaryOperatorExpression
 {
 
+	/**
+	 * @param ns\IExpression $a_left Left operand
+	 * @param ns\IExpression $a_right Right operand
+	 */
 	public function __construct(ns\IExpression $a_left, ns\IExpression $a_right)
 	{
 		parent::__construct('OR', $a_left, $a_right);

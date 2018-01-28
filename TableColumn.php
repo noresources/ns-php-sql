@@ -176,7 +176,7 @@ class ConstantColumn implements IExpression, IAliasable
 		$this->datasource = $datasource;
 		$this->value = $datasource->createData(Data::dataTypeFromValue($value));
 		$this->value->import($value);
-		$this->alias = new SQLAlias($datasource, $columnName);
+		$this->alias = new Alias($datasource, $columnName);
 	}
 
 	public function getDatasource()
@@ -203,9 +203,9 @@ class ConstantColumn implements IExpression, IAliasable
 		return true;
 	}
 
-	public function alias(SQLAlias $alias = null)
+	public function alias(Alias $alias = null)
 	{
-		if ($alias instanceof SQLAlias)
+		if ($alias instanceof Alias)
 		{
 			$this->alias = $alias;
 		}
@@ -227,7 +227,7 @@ class ConstantColumn implements IExpression, IAliasable
 
 	/**
 	 *
-	 * @var SQLAlias
+	 * @var Alias
 	 */
 	private $alias;
 }
@@ -277,7 +277,7 @@ class StarColumn extends ITableColumn
 
 	// end of IExpression implementation
 	
-	// ISQLAliased
+	// IAliased
 	/**
 	 *
 	 * @return boolean
@@ -289,9 +289,9 @@ class StarColumn extends ITableColumn
 
 	/**
 	 *
-	 * @return SQLAlias
+	 * @return Alias
 	 */
-	public function alias(SQLAlias $alias = null)
+	public function alias(Alias $alias = null)
 	{
 		return null;
 	}
@@ -340,7 +340,7 @@ class TableColumn extends ITableColumn implements IAliasedClone, ITableColumnVal
 		$this->m_fieldName = $a_strName;
 		if (is_string($a_strAlias))
 		{
-			$this->m_alias = new SQLAlias($this->getDatasource(), $a_strAlias);
+			$this->m_alias = new Alias($this->getDatasource(), $a_strAlias);
 		}
 		$this->m_valueValidator = null;
 		
@@ -455,7 +455,7 @@ class TableColumn extends ITableColumn implements IAliasedClone, ITableColumnVal
 
 	// IAliasedClone implementation
 	
-	// ISQLAliased
+	// IAliased
 	/**
 	 *
 	 * @see \NoreSources\SQL\IAliasable::hasAlias()
@@ -463,15 +463,15 @@ class TableColumn extends ITableColumn implements IAliasedClone, ITableColumnVal
 	 */
 	public function hasAlias()
 	{
-		return is_a($this->m_alias, __NAMESPACE__ . '\\SQLAlias');
+		return is_a($this->m_alias, __NAMESPACE__ . '\\Alias');
 	}
 
 	/**
 	 *
 	 * @see \NoreSources\SQL\IAliasable::alias()
-	 * @return SQLAlias
+	 * @return Alias
 	 */
-	function alias(SQLAlias $alias = null)
+	function alias(Alias $alias = null)
 	{
 		if ($alias)
 		{
@@ -638,7 +638,7 @@ class TableColumn extends ITableColumn implements IAliasedClone, ITableColumnVal
 
 	/**
 	 *
-	 * @var SQLAlias
+	 * @var Alias
 	 */
 	protected $m_alias;
 
