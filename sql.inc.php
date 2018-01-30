@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Copyright © 2012-2017 by Renaud Guillard (dev@nore.fr)
+ * Copyright © 2012-2018 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
  */
 
@@ -22,10 +22,10 @@ const SQL_VERSION_MINOR = 2;
 const SQL_VERSION_PATCH = 0;
 
 /**
- * Version string of NoreSources XSLT module.
+ * Version string of NoreSources SQL module.
  * The version string can be used with the PHP function version_compare()
  *
- * @return XSLT module version
+ * @return SQL module version
  */
 function sql_version_string()
 {

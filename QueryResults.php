@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Copyright © 2012-2017 by Renaud Guillard (dev@nore.fr)
+ * Copyright © 2012-2018 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
  */
 
@@ -375,7 +375,7 @@ class UpdateQueryResult extends QueryResult
 	public function __construct(Datasource $datasource, $resultResource)
 	{
 		parent::__construct($datasource, $resultResource);
-		$this->m_affectedRowCount = null;
+		$this->affectedRowCount = null;
 	}
 
 	/**
@@ -386,13 +386,13 @@ class UpdateQueryResult extends QueryResult
 	{
 		if (\is_null($this->getAffectedRowCount))
 		{
-			$this->m_affectedRowCount = $this->datasource->getAffectedRowCount($this);
+			$this->affectedRowCount = $this->datasource->getAffectedRowCount($this);
 		}
 		
-		return $this->m_affectedRowCount;
+		return $this->affectedRowCount;
 	}
 
-	private $m_affectedRowCount;
+	private $affectedRowCount;
 }
 
 class DeleteQueryResult extends QueryResult
@@ -406,7 +406,7 @@ class DeleteQueryResult extends QueryResult
 	public function __construct(Datasource $datasource, $resultResource)
 	{
 		parent::__construct($datasource, $resultResource);
-		$this->m_affectedRowCount = null;
+		$this->affectedRowCount = null;
 	}
 
 	/**
@@ -414,15 +414,15 @@ class DeleteQueryResult extends QueryResult
 	 */
 	public function getAffectedRowCount()
 	{
-		if (\is_null($this->m_affectedRowCount))
+		if (\is_null($this->affectedRowCount))
 		{
-			$this->m_affectedRowCount = $this->datasource->getAffectedRowCount($this);
+			$this->affectedRowCount = $this->datasource->getAffectedRowCount($this);
 		}
 		
-		return $this->m_affectedRowCount;
+		return $this->affectedRowCount;
 	}
 	
-	private $m_affectedRowCount;
+	private $affectedRowCount;
 }
 
 ?>
