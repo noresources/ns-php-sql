@@ -27,12 +27,12 @@ const SQL_VERSION_PATCH = 0;
  *
  * @return SQL module version
  */
-function sql_version_string()
+function version_string()
 {
 	return (SQL_VERSION_MAJOR . '.' . SQL_VERSION_MINOR . '.' . SQL_VERSION_PATCH);
 }
 
-function sql_version_number()
+function version_number()
 {
 	return (SQL_VERSION_MAJOR * 10000 + SQL_VERSION_MINOR * 100 + SQL_VERSION_PATCH);
 }
