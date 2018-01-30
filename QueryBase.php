@@ -7,10 +7,11 @@
 
 /**
  * A set of ns\IExpression designed to be used in queries
- * 
+ *
  * @package SQL
  */
 namespace NoreSources\SQL;
+
 use NoreSources as ns;
 
 /**
@@ -30,40 +31,37 @@ abstract class IQuery
 	 */
 	public function getDatasource()
 	{
-		return $this->m_datasource;
+		return $this->datasource;
 	}
 
 	/**
 	 *
-	 * @param Datasource $a_datasource        	
+	 * @param Datasource $a_datasource
 	 */
 	protected function __construct(Datasource $a_datasource)
 	{
-		$this->m_datasource = $a_datasource;
+		$this->datasource = $a_datasource;
 	}
 
-	public function __get($key)
+	public function __get($member)
 	{
-		if ($key == 'datasource')
-		{
-			return $this->m_datasource;
-		}
+		if ($member == 'datasource')
+			return $this->datasource;
 		
 		throw new \InvalidArgumentException($member);
 	}
-	
+
+	public function __invoke($flags = 0)
+	{
+		return $this->execute($flags);
+	}
+
 	/**
 	 * Execute query
 	 *
 	 * @return QueryResult
 	 */
 	public abstract function execute($flags = 0);
-
-	/**
-	 *
-	 * @var Datasource
-	 */
-	protected $m_datasource;
 	
 	/**
 	 *
@@ -73,14 +71,20 @@ abstract class IQuery
 
 	/**
 	 * Indicates if query contains a UNION statement
-	 * 
-	 * @param unknown $a_ptions        	
+	 *
+	 * @param unknown $a_ptions
 	 * @return boolean
 	 */
 	public static function isUnion($a_ptions)
 	{
 		return $a_ptions & self::IS_UNION;
 	}
+
+	/**
+	 *
+	 * @var Datasource
+	 */
+	private $datasource;
 }
 
 /**
@@ -92,9 +96,8 @@ class FormattedQuery extends IQuery implements ns\IExpression
 	/**
 	 * Constructor
 	 *
-	 * @param Datasource $a_datasource        	
-	 * @param string $a_strQuery
-	 *        	SQL Query
+	 * @param Datasource $a_datasource
+	 * @param string $a_strQuery SQL Query
 	 */
 	public function __construct(Datasource $a_datasource, $a_strQuery = null)
 	{
@@ -102,15 +105,20 @@ class FormattedQuery extends IQuery implements ns\IExpression
 		$this->set($a_strQuery);
 	}
 
+	public function __toString()
+	{
+		return $this->expressionString();
+	}
+
 	public function execute($flags = 0)
 	{
-		if (!$this->m_strQueryString)
+		if (!$this->queryString)
 		{
 			return ns\Reporter::addError($this, __METHOD__ . '(): Null query', __FILE__, __LINE__);
 		}
 		
-		$resultClassName = QueryResult::queryResultClassName($this->m_strQueryString);
-		$result = $this->m_datasource->executeQuery($this->expressionString());
+		$resultClassName = QueryResult::queryResultClassName($this->queryString);
+		$result = $this->datasource->executeQuery($this->expressionString());
 		if ($result)
 		{
 			return new $resultClassName($this->datasource, $result);
@@ -120,15 +128,15 @@ class FormattedQuery extends IQuery implements ns\IExpression
 
 	public function expressionString($a_ptions = null)
 	{
-		return $this->m_strQueryString;
+		return $this->queryString;
 	}
 
-	public function set($a_strQueryString)
+	public function set($queryString)
 	{
-		$this->m_strQueryString = $a_strQueryString;
+		$this->queryString = $queryString;
 	}
 
-	protected $m_strQueryString = null;
+	protected $queryString = null;
 }
 
 /**
@@ -140,30 +148,28 @@ abstract class TableQuery extends IQuery
 	/**
 	 * Constructor
 	 *
-	 * @param Datasource $a_datasource        	
-	 * @param mixed $a_table        	
+	 * @param Datasource $a_datasource
+	 * @param mixed $a_table
 	 */
 	protected function __construct(Table $a_table)
 	{
 		parent::__construct($a_table->datasource);
-		$this->m_table = $a_table;
+		$this->table = $a_table;
 	}
 
 	public function __get($key)
 	{
 		if ($key == 'table')
-		{
-			return $this->m_table;
-		}
+			return $this->table;
 		
 		return parent::__get($key);
 	}
-	
+
 	/**
 	 *
-	 * @var ISQLTable
+	 * @var Table
 	 */
-	protected $m_table;
+	protected $table;
 }
 
 ?>

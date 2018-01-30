@@ -169,7 +169,7 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 			$n = new StringData($this);
 			$n->import($name);
 			$result = $this->executeQuery('SELECT count (*) FROM "pg_catalog"."pg_namespace" WHERE "nspname"=' . $n->expressionString());
-			if (($result instanceof Recordset) && ($result->rowCount()))
+			if (($result instanceof Recordset) && ($result->rowCount))
 			{
 				$c = $result->current();
 				if (intval($c[0]) == 0)

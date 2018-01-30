@@ -95,7 +95,16 @@ class QueryResult
 	public function __call($member, $args)
 	{
 		if (count($args) == 0)
+		{
+			$functionName = 'get' . strtoupper(substr($member, 0, 1)) . substr($member, 1);
+			
+			if (method_exists($this, $functionName))
+			{
+				ns\Reporter::notice($this, 'Attempting to call ' . $member . '(). Did you mean ' . $functionName . '() ?');
+			}
+			
 			return $this->__get($member);
+		}
 	}
 
 	/**
@@ -205,7 +214,7 @@ class Recordset extends QueryResult implements Iterator, Countable
 
 	public function count()
 	{
-		return $this->rowCount();
+		return $this->rowCount;
 	}
 
 	/**

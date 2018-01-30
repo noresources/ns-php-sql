@@ -20,6 +20,7 @@ require_once (NS_PHP_PATH . '/core/arrays.php');
  */
 class Table extends SQLObject implements IExpression, IAliasedClone, ITableColumnProvider
 {
+
 	// construction / destruction
 	public function __construct(ITableProvider $a_owner, $a_name, $a_aliasName = '', TableStructure $a_structure = null)
 	{
@@ -50,13 +51,16 @@ class Table extends SQLObject implements IExpression, IAliasedClone, ITableColum
 		{
 			return (($this->m_owner instanceof TableSet) ? $this->m_owner : null);
 		}
+		elseif ($member == 'rowCount')
+		{
+			return $this->getRowCount();
+		}
 		
 		return parent::__get($member);
 	}
-	
+
 	// ns\IExpression implementation
 	
-
 	/**
 	 * Enter description here...
 	 *
@@ -84,13 +88,11 @@ class Table extends SQLObject implements IExpression, IAliasedClone, ITableColum
 		
 		return $db . ($Datasource->encloseElement($this->m_name));
 	}
-	
+
 	// end of ns\IExpression implementation
 	
-
 	// IExpression implementation
 	
-
 	/**
 	 *
 	 * @return Datasource
@@ -104,7 +106,7 @@ class Table extends SQLObject implements IExpression, IAliasedClone, ITableColum
 		
 		return $this->m_owner;
 	}
-	
+
 	// IAliasedClone implementation
 	public function cloneWithOtherAlias($a_aliasName)
 	{
@@ -117,10 +119,9 @@ class Table extends SQLObject implements IExpression, IAliasedClone, ITableColum
 		$result = new $cn($this->m_owner, $this->m_name, $a_aliasName);
 		return $result;
 	}
-	
+
 	// ITableColumnProvider implementation
 	
-
 	/**
 	 * (non-PHPdoc)
 	 *
@@ -213,7 +214,8 @@ class Table extends SQLObject implements IExpression, IAliasedClone, ITableColum
 	 */
 	public function columnExists($a_name)
 	{
-		if ($a_name == '*'){
+		if ($a_name == '*')
+		{
 			return true;
 		}
 		if ($this->structure)
@@ -241,7 +243,7 @@ class Table extends SQLObject implements IExpression, IAliasedClone, ITableColum
 	 * @param $a_oJoins SelectQueryJoin
 	 * @return numeric
 	 */
-	public final function rowCount(ns\IExpression $a_oWhereCondition = null, $a_oJoins = null)
+	public final function getRowCount(ns\IExpression $a_oWhereCondition = null, $a_oJoins = null)
 	{
 		$oQuery = new SelectQuery($this);
 		
@@ -277,7 +279,7 @@ class Table extends SQLObject implements IExpression, IAliasedClone, ITableColum
 		
 		$r = $res->currentRow();
 		
-		return intval($r [0]);
+		return intval($r[0]);
 	}
 
 	/**

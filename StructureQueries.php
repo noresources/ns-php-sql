@@ -26,6 +26,11 @@ class DropTableQuery extends TableQuery
 		parent::__construct($a_table);
 	}
 
+	public function __toString()
+	{
+		return $this->expressionString();
+	}
+
 	public function expressionString($a_options = null)
 	{
 		return 'DROP TABLE ' . $this->table->expressionString($a_options);
@@ -34,7 +39,7 @@ class DropTableQuery extends TableQuery
 	public function execute($flags = 0)
 	{
 		$q = $this->expressionString();
-		$result = $this->m_datasource->executeQuery($q);
+		$result = $this->datasource->executeQuery($q);
 		return ($result) ? true : false;
 	}
 }
@@ -48,6 +53,11 @@ class RenameTableQuery extends TableQuery
 		$this->m_newTable = new Table($a_table->owner(), $a_newName);
 	}
 
+	public function __toString()
+	{
+		return $this->expressionString();
+	}
+
 	public function expressionString($a_options = null)
 	{
 		return 'ALTER TABLE ' . $this->table->expressionString($a_options) . ' RENAME TO ' . $this->m_newTable->expressionString($a_options);
@@ -56,7 +66,7 @@ class RenameTableQuery extends TableQuery
 	public function execute($flags = 0)
 	{
 		$q = $this->expressionString();
-		$result = $this->m_datasource->executeQuery($q);
+		$result = $this->datasource->executeQuery($q);
 		return ($result) ? true : false;
 	}
 
@@ -65,7 +75,9 @@ class RenameTableQuery extends TableQuery
 
 class CreateTableQuery extends IQuery
 {
+
 	/**
+	 *
 	 * @param SQLObject $a_parent
 	 * @param TableStructure $a_structure
 	 */

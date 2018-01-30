@@ -24,7 +24,12 @@ class InsertQuery extends TableQuery implements ns\IExpression
 	public function __construct(Table $table)
 	{
 		parent::__construct($table);
-		$this->m_columnValues = array ();
+		$this->columnValues = array ();
+	}
+
+	public function __toString()
+	{
+		return $this->expressionString();
 	}
 
 	/**
@@ -43,7 +48,7 @@ class InsertQuery extends TableQuery implements ns\IExpression
 			return ns\Reporter::error($this, __METHOD__ . '(): Invalid query string', __FILE__, __LINE__);
 		}
 		
-		$result = $this->m_datasource->executeQuery($qs);
+		$result = $this->datasource->executeQuery($qs);
 		if ($result)
 		{
 			return new InsertQueryResult($this->table, $result);
@@ -62,15 +67,15 @@ class InsertQuery extends TableQuery implements ns\IExpression
 	 */
 	public function expressionString($a_options = null)
 	{
-		if (count($this->m_columnValues) == 0)
+		if (count($this->columnValues) == 0)
 		{
 			return false;
 		}
 		
 		$qs = 'INSERT INTO ' . $this->table->expressionString(kExpressionElementName);
 		
-		$qs .= ' (' . ns\array_implode_keys(', ', $this->m_columnValues);
-		$qs .= ') VALUES(' . ns\array_implode_values(', ', $this->m_columnValues) . ')';
+		$qs .= ' (' . ns\array_implode_keys(', ', $this->columnValues);
+		$qs .= ') VALUES(' . ns\array_implode_values(', ', $this->columnValues) . ')';
 		
 		return $qs;
 	}
@@ -91,7 +96,7 @@ class InsertQuery extends TableQuery implements ns\IExpression
 		
 		$f = $this->datasource->encloseElement($a_column->name);
 		
-		$this->m_columnValues[$f] = $a_value->expressionString();
+		$this->columnValues[$f] = $a_value->expressionString();
 	}
 
 	/**
@@ -121,7 +126,7 @@ class InsertQuery extends TableQuery implements ns\IExpression
 	 */
 	public function clear()
 	{
-		$this->m_columnValues = array ();
+		$this->columnValues = array ();
 	}
 
 	/**
@@ -129,7 +134,7 @@ class InsertQuery extends TableQuery implements ns\IExpression
 	 *
 	 * @var associative array(formatted field name => formatted value)
 	 */
-	protected $m_columnValues;
+	protected $columnValues;
 }
 
 /**
@@ -145,7 +150,35 @@ class UpdateQuery extends TableQuery implements ns\IExpression
 	public function __construct(Table $table)
 	{
 		parent::__construct($table);
-		$this->m_columnValues = array ();
+		$this->columnValues = array ();
+	}
+
+	public function __toString()
+	{
+		return $this->expressionString();
+	}
+
+	/**
+	 *
+	 * {@inheritdoc}
+	 *
+	 * @see \NoreSources\SQL\TableQuery::__get()
+	 *
+	 * @return \NoreSources\SQL\WhereQueryConditionStatement
+	 */
+	public function __get($member)
+	{
+		if ($member == 'where')
+		{
+			if (is_null($this->m_condition))
+			{
+				$this->m_condition = new WhereQueryConditionStatement();
+			}
+			
+			return $this->m_condition;
+		}
+		
+		return parent::__get($member);
 	}
 
 	/**
@@ -164,7 +197,7 @@ class UpdateQuery extends TableQuery implements ns\IExpression
 			return ns\Reporter::error($this, __METHOD__ . '(): Invalid query string', __FILE__, __LINE__);
 		}
 		
-		$result = $this->m_datasource->executeQuery($qs);
+		$result = $this->datasource->executeQuery($qs);
 		if ($result)
 		{
 			return new UpdateQueryResult($this->datasource, $result);
@@ -194,11 +227,11 @@ class UpdateQuery extends TableQuery implements ns\IExpression
 	public function expressionString($a_options = null)
 	{
 		/*
-		 * if (count($this->m_columnValues) == 0) { return
+		 * if (count($this->columnValues) == 0) { return
 		 * ns\Reporter::error($this, __METHOD__.': No field set.'); }
 		 */
 		$qs = 'UPDATE ' . $this->table->expressionString(kExpressionElementName) . ' SET ';
-		$qs .= ' ' . ns\array_implode_cb(', ', $this->m_columnValues, array (
+		$qs .= ' ' . ns\array_implode_cb(', ', $this->columnValues, array (
 				get_class($this),
 				'glueSetStatements' 
 		));
@@ -227,7 +260,7 @@ class UpdateQuery extends TableQuery implements ns\IExpression
 		
 		$f = $this->datasource->encloseElement($a_column->name);
 		
-		$this->m_columnValues[$f] = $a_value->expressionString();
+		$this->columnValues[$f] = $a_value->expressionString();
 		
 		return true;
 	}
@@ -251,29 +284,6 @@ class UpdateQuery extends TableQuery implements ns\IExpression
 			}
 			$this->addColumnValue($k, $k->importData($v));
 		}
-	}
-
-	/**
-	 *
-	 * {@inheritdoc}
-	 *
-	 * @see \NoreSources\SQL\TableQuery::__get()
-	 *
-	 * @return \NoreSources\SQL\WhereQueryConditionStatement
-	 */
-	public function __get($member)
-	{
-		if ($member == 'where')
-		{
-			if (is_null($this->m_condition))
-			{
-				$this->m_condition = new WhereQueryConditionStatement();
-			}
-			
-			return $this->m_condition;
-		}
-		
-		return parent::__get($member);
 	}
 
 	/**
@@ -303,7 +313,7 @@ class UpdateQuery extends TableQuery implements ns\IExpression
 	 *
 	 * @var associative array(formatted field name => formatted value)
 	 */
-	protected $m_columnValues;
+	protected $columnValues;
 }
 
 class SelectQueryStaticValueColumn implements ns\IExpression
@@ -453,24 +463,9 @@ class DeleteQuery extends TableQuery
 		$this->m_condition = new WhereQueryConditionStatement();
 	}
 
-	/**
-	 *
-	 * @return \NoreSources\SQL\DeleteQueryResult
-	 */
-	public function execute($flags = 0)
+	public function __toString()
 	{
-		$qs = $this->expressionString();
-		if (!$qs)
-		{
-			return ns\Reporter::error($this, __METHOD__ . '(): Invalid query string', __FILE__, __LINE__);
-		}
-		
-		$result = $this->m_datasource->executeQuery($qs);
-		if ($result !== false)
-		{
-			return new DeleteQueryResult($this->datasource, $result);
-		}
-		return false;
+		return $this->expressionString();
 	}
 
 	public function __get($key)
@@ -486,6 +481,26 @@ class DeleteQuery extends TableQuery
 		}
 		
 		return parent::__get($key);
+	}
+
+	/**
+	 *
+	 * @return \NoreSources\SQL\DeleteQueryResult
+	 */
+	public function execute($flags = 0)
+	{
+		$qs = $this->expressionString();
+		if (!$qs)
+		{
+			return ns\Reporter::error($this, __METHOD__ . '(): Invalid query string', __FILE__, __LINE__);
+		}
+		
+		$result = $this->datasource->executeQuery($qs);
+		if ($result !== false)
+		{
+			return new DeleteQueryResult($this->datasource, $result);
+		}
+		return false;
 	}
 
 	/**
@@ -576,7 +591,7 @@ class SelectQueryGroupByStatement implements ns\IExpression
 	public function __construct(Datasource $a_datasource)
 	{
 		$this->m_columns = array ();
-		$this->m_datasource = $a_datasource;
+		$this->datasource = $a_datasource;
 	}
 
 	public static function glueGroupByStatement($k, $v, $selectColumns = null)
@@ -631,7 +646,7 @@ class SelectQueryGroupByStatement implements ns\IExpression
 			}
 			elseif (is_string($c))
 			{
-				$this->m_columns[] = new Alias($this->m_datasource, $c);
+				$this->m_columns[] = new Alias($this->datasource, $c);
 			}
 		}
 		return $n;
@@ -644,7 +659,7 @@ class SelectQueryGroupByStatement implements ns\IExpression
 
 	protected $m_columns;
 
-	protected $m_datasource;
+	protected $datasource;
 }
 
 interface ISelectQueryOrderByStatement extends ns\IExpression
@@ -929,12 +944,6 @@ class SelectQuery extends TableQuery implements ns\IExpression
 	 * @return SelectQuery
 	 */
 	public function __clone()
-	{
-		// $this->m_columns = clone $this->m_columns;
-		// $this->m_unionQueries = clone $this->m_unionQueries;
-		
-		// do not clone Datasource
-		// $this->m_datasource = $this->m_datasource;
 		if (is_object($this->m_group))
 		{
 			$this->m_group = clone $this->m_group;
@@ -960,27 +969,32 @@ class SelectQuery extends TableQuery implements ns\IExpression
 			$this->m_order = clone $this->m_order;
 		}
 		
-		$this->m_table = clone $this->m_table;
+		$this->table = clone $this->table;
+	}
+
+	public function __toString()
+	{
+		return $this->expressionString();
 	}
 
 	/**
 	 *
 	 * {@inheritdoc}
 	 *
-	 * @param $key string
+	 * @param $member string
 	 * @return array|integer|\NoreSources\SQL\SelectQueryGroupByStatement|\NoreSources\SQL\SelectQueryLimitStatement|\NoreSources\SQL\SelectQueryOrderByStatement|\NoreSources\SQL\WhereQueryConditionStatement|\NoreSources\SQL\HavingQueryConditionStatement
 	 */
-	public function __get($key)
+	public function __get($member)
 	{
-		if ($key == 'columns')
+		if ($member == 'columns')
 		{
 			return $this->m_columns;
 		}
-		elseif ($key == 'columnCount')
+		elseif ($member == 'columnCount')
 		{
 			return count($this->m_columns);
 		}
-		elseif ($key == 'groupBy')
+		elseif ($member == 'groupBy')
 		{
 			if (!$this->m_group)
 			{
@@ -989,7 +1003,7 @@ class SelectQuery extends TableQuery implements ns\IExpression
 			
 			return $this->m_group;
 		}
-		elseif ($key == 'orderBy')
+		elseif ($member == 'orderBy')
 		{
 			if (!$this->m_order)
 			{
@@ -998,7 +1012,7 @@ class SelectQuery extends TableQuery implements ns\IExpression
 			
 			return $this->m_order;
 		}
-		elseif ($key == 'where')
+		elseif ($member == 'where')
 		{
 			if (!$this->m_where)
 			{
@@ -1007,7 +1021,7 @@ class SelectQuery extends TableQuery implements ns\IExpression
 			
 			return $this->m_where;
 		}
-		elseif ($key == 'having')
+		elseif ($member == 'having')
 		{
 			if (!$this->m_having)
 			{
@@ -1017,7 +1031,23 @@ class SelectQuery extends TableQuery implements ns\IExpression
 			return $this->m_having;
 		}
 		
-		return parent::__get($key);
+		return parent::__get($member);
+	}
+
+	public function __call($member, $arguments)
+	{
+		if ($member == 'limit')
+		{
+			if (count($arguments))
+				return call_user_func_array(array (
+						$this,
+						'setLimit' 
+				), $arguments);
+			else
+				return parent::__get('limit');
+		}
+		
+		return parent::__call($member, $arguments);
 	}
 
 	// Inherited methods
@@ -1097,15 +1127,6 @@ class SelectQuery extends TableQuery implements ns\IExpression
 
 	/**
 	 *
-	 * @return string
-	 */
-	public function __toString()
-	{
-		return $this->expressionString();
-	}
-
-	/**
-	 *
 	 * @return RecordSet
 	 */
 	public function execute($flags = kRecordsetFetchBoth)
@@ -1116,7 +1137,7 @@ class SelectQuery extends TableQuery implements ns\IExpression
 			return ns\Reporter::error($this, __METHOD__ . '(): Invalid query string', __FILE__, __LINE__);
 		}
 		
-		$result = $this->m_datasource->executeQuery($qs);
+		$result = $this->datasource->executeQuery($qs);
 		if ($result)
 		{
 			return new Recordset($this->datasource, $result, ($flags & kRecordsetFetchBoth));
@@ -1220,7 +1241,7 @@ class SelectQuery extends TableQuery implements ns\IExpression
 	 * @param integer $limit
 	 * @return \NoreSources\SQL\SelectQueryLimitStatement
 	 */
-	final function limit($offset = null, $limit = null)
+	final function setLimit($offset = null, $limit = null)
 	{
 		if (($offset instanceof SelectQueryLimitStatement))
 		{
@@ -1235,7 +1256,7 @@ class SelectQuery extends TableQuery implements ns\IExpression
 	}
 
 	/**
-	 * Set random orger constraint
+	 * Set random order constraint
 	 *
 	 * @param string $a_value
 	 * @return boolean
@@ -1263,6 +1284,8 @@ class SelectQuery extends TableQuery implements ns\IExpression
 	/**
 	 * Set or get DISTINCT constraint
 	 *
+	 * @todo rename to setDistinct
+	 *      
 	 * @param string $a_distinct
 	 * @return boolean
 	 */
@@ -1335,6 +1358,11 @@ class TruncateQuery extends TableQuery implements ns\IExpression
 		parent::__construct($table);
 	}
 
+	public function __toString()
+	{
+		return $this->expressionString();
+	}
+	
 	/**
 	 *
 	 * @return boolean
@@ -1347,7 +1375,7 @@ class TruncateQuery extends TableQuery implements ns\IExpression
 			return ns\Reporter::error($this, __METHOD__ . '(): Invalid query string', __FILE__, __LINE__);
 		}
 		
-		$result = $this->m_datasource->executeQuery($qs);
+		$result = $this->datasource->executeQuery($qs);
 		if ($result)
 		{
 			return true;

@@ -336,7 +336,7 @@ class Record implements \ArrayAccess
 		
 		if (is_object($recordset) && ($recordset instanceof Recordset))
 		{
-			$c = $recordset->rowCount();
+			$c = $recordset->rowCount;
 			if ($c == 1)
 			{
 				$result = new $className($table, $recordset, (kRecordStateExists | kRecordDataSerialized));
@@ -522,7 +522,7 @@ class Record implements \ArrayAccess
 		}
 		
 		$recordset = $s->execute();
-		if (is_object($recordset) && ($recordset instanceof Recordset) && ($recordset->rowCount()))
+		if (is_object($recordset) && ($recordset instanceof Recordset) && ($recordset->rowCount))
 		{
 			if ($flags & kRecordQueryMultiple)
 			{
@@ -544,7 +544,7 @@ class Record implements \ArrayAccess
 			}
 			else
 			{
-				if ($recordset->rowCount() == 1)
+				if ($recordset->rowCount == 1)
 				{
 					$result = new $className($table, $recordset, (kRecordDataSerialized | kRecordStateExists));
 					return $result;
