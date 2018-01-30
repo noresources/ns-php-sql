@@ -568,7 +568,7 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 
 	public function resultRowCount(QueryResult $a_queryResult)
 	{
-		$index = $a_queryResult->currentRowIndex();
+		$index = $a_queryResult->getCurrentRowIndex();
 		
 		// Urk, ugly
 		if (!$this->resetResult($a_queryResult))

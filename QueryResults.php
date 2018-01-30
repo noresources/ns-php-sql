@@ -61,30 +61,41 @@ class QueryResult
 	 */
 	public function __construct(Datasource $datasource, $resultResource)
 	{
-		$this->m_datasource = $datasource;
-		$this->m_resultResource = $resultResource;
+		$this->datasource = $datasource;
+		$this->resultResource = $resultResource;
 	}
 
+	/**
+	 * Release the inner result resource
+	 */
 	public function __destruct()
 	{
-		if ($this->m_datasource && $this->m_resultResource)
+		if ($this->datasource && $this->resultResource)
 		{
 			$this->datasource->freeResult($this);
 		}
 	}
 
+	/**
+	 *
+	 * @param string $member
+	 * @throws \InvalidArgumentException
+	 * @return \NoreSources\SQL\Datasource|\NoreSources\SQL\unknown_type
+	 */
 	public function __get($member)
 	{
 		if ($member == 'datasource')
-		{
-			return $this->m_datasource;
-		}
+			return $this->datasource;
 		elseif ($member == 'resultResource')
-		{
-			return $this->m_resultResource;
-		}
+			return $this->resultResource;
 		
 		throw new \InvalidArgumentException(get_class($this) . '::' . $member);
+	}
+
+	public function __call($member, $args)
+	{
+		if (count($args) == 0)
+			return $this->__get($member);
 	}
 
 	/**
@@ -92,7 +103,7 @@ class QueryResult
 	 *
 	 * @var Datasource
 	 */
-	protected $m_datasource;
+	protected $datasource;
 
 	/**
 	 * A query result resource.
@@ -100,7 +111,7 @@ class QueryResult
 	 *
 	 * @var unknown_type
 	 */
-	protected $m_resultResource;
+	protected $resultResource;
 }
 
 /**
@@ -122,132 +133,130 @@ class Recordset extends QueryResult implements Iterator, Countable
 	public function __construct(Datasource $datasource, $resultResource, $fetchFlags = kRecordsetFetchBoth)
 	{
 		parent::__construct($datasource, $resultResource);
-		$this->m_iCurrentRowIndex = self::kIteratorIndexBefore;
-		$this->m_aColumnNames = null;
-		$this->m_aCurrentRow = null;
-		$this->m_flags = self::kStateUnitialized;
+		$this->currentRowIndex = self::kIteratorIndexBefore;
+		$this->columnNames = null;
+		$this->currentRow = null;
+		$this->flags = self::kStateUnitialized;
 		if ($fetchFlags == 0)
 		{
 			$fetchFlags = kRecordsetFetchBoth;
 		}
 		
-		$this->m_flags |= ($fetchFlags & kRecordsetFetchBoth);
+		$this->flags |= ($fetchFlags & kRecordsetFetchBoth);
 	}
 
-	// Iterator implementation
 	public function rewind()
 	{
-		$this->m_iCurrentRowIndex = self::kIteratorIndexBefore;
-		$this->m_aCurrentRow = null;
-		$this->m_flags |= self::kStateUnitialized;
-		$this->m_flags &= ~self::kStateIteratorEnd;
+		$this->currentRowIndex = self::kIteratorIndexBefore;
+		$this->currentRow = null;
+		$this->flags |= self::kStateUnitialized;
+		$this->flags &= ~self::kStateIteratorEnd;
 		
 		if ($this->datasource->resetResult($this))
 		{
-			$this->m_aCurrentRow = $this->datasource->fetchResult($this, ($this->m_flags & kRecordsetFetchBoth));
-			if ($this->m_aCurrentRow)
+			$this->currentRow = $this->datasource->fetchResult($this, ($this->flags & kRecordsetFetchBoth));
+			if ($this->currentRow)
 			{
-				$this->m_iCurrentRowIndex = 0;
-				$this->m_flags &= ~self::kStateUnitialized;
+				$this->currentRowIndex = 0;
+				$this->flags &= ~self::kStateUnitialized;
 			}
 		}
 		else
 		{
-			$this->m_flags |= self::kStateIteratorEnd;
+			$this->flags |= self::kStateIteratorEnd;
 		}
 	}
 
 	public function current()
 	{
-		if (($this->m_iCurrentRowIndex == self::kIteratorIndexBefore) && !($this->m_flags & self::kStateIteratorEnd))
+		if (($this->currentRowIndex == self::kIteratorIndexBefore) && !($this->flags & self::kStateIteratorEnd))
 		{
 			$this->next();
 		}
 		
-		return $this->m_aCurrentRow;
+		return $this->currentRow;
 	}
 
 	public function key()
 	{
-		return $this->m_iCurrentRowIndex;
+		return $this->currentRowIndex;
 	}
 
 	public function next()
 	{
-		$this->m_aCurrentRow = $this->datasource->fetchResult($this, ($this->m_flags & kRecordsetFetchBoth));
-		if ($this->m_aCurrentRow)
+		$this->currentRow = $this->datasource->fetchResult($this, ($this->flags & kRecordsetFetchBoth));
+		if ($this->currentRow)
 		{
-			$this->m_iCurrentRowIndex++;
+			$this->currentRowIndex++;
 		}
 		else
 		{
-			$this->m_iCurrentRowIndex = self::kIteratorIndexBefore;
-			$this->m_flags |= self::kStateIteratorEnd;
+			$this->currentRowIndex = self::kIteratorIndexBefore;
+			$this->flags |= self::kStateIteratorEnd;
 		}
 		
-		return $this->m_aCurrentRow;
+		return $this->currentRow;
 	}
 
 	public function valid()
 	{
-		return !($this->m_flags & self::kStateIteratorEnd);
+		return !($this->flags & self::kStateIteratorEnd);
 	}
 
-	// End of Iterator implementation
-	
-	// Countable implementation
-	
-	/**
-	 *
-	 * @see sources/extensions/spl/NSCountable#count()
-	 */
 	public function count()
 	{
 		return $this->rowCount();
 	}
 
-	// End of Countable implementation
-	
+	/**
+	 *
+	 * @return mixed
+	 */
+	public function __get($member)
+	{
+		if ($member == 'rowCount')
+			return $this->getRowCount();
+		elseif ($member == 'currentRow')
+			return $this->current();
+		elseif ($member == 'currentRowIndex')
+			return $this->getCurrentRowIndex();
+		elseif ($member == 'columnNames')
+			return $this->getColumnNames();
+		
+		return parent::__get($member);
+	}
+
 	/**
 	 * Return the number of selected rows.
 	 * @attention This feature is not available on some data sources like certain ODBC drivers.
 	 *
 	 * @return int or false if feature is not supported
 	 */
-	public function rowCount()
+	public function getRowCount()
 	{
-		if ($this->m_flags & self::kRowCount)
+		if ($this->flags & self::kRowCount)
 		{
-			return $this->m_rowCount;
+			return $this->rowCount;
 		}
 		
-		$this->m_rowCount = $this->datasource->resultRowCount($this);
-		if ($this->m_rowCount !== false)
+		$this->rowCount = $this->datasource->resultRowCount($this);
+		if ($this->rowCount !== false)
 		{
-			$this->m_flags |= self::kRowCount;
+			$this->flags |= self::kRowCount;
 		}
 		
-		return $this->m_rowCount;
+		return $this->rowCount;
 	}
 
 	/**
 	 *
 	 * @return unknown_type
 	 */
-	function currentRow()
-	{
-		return $this->current();
-	}
-
-	/**
-	 *
-	 * @return unknown_type
-	 */
-	function currentRowIndex()
+	function getCurrentRowIndex()
 	{
 		if ($this->valid())
 		{
-			return $this->m_iCurrentRowIndex;
+			return $this->currentRowIndex;
 		}
 		return -1;
 	}
@@ -259,59 +268,23 @@ class Recordset extends QueryResult implements Iterator, Countable
 	 */
 	function getColumnNames()
 	{
-		if (!$this->m_aColumnNames && !($this->m_aColumnNames = $this->datasource->recordsetColumnArray($this)))
+		if (!$this->columnNames && !($this->columnNames = $this->datasource->recordsetColumnArray($this)))
 		{
 			return ns\Reporter::error($this, __METHOD__ . '(): Ubable to retrieve Column list');
 		}
 		
-		return $this->m_aColumnNames;
+		return $this->columnNames;
 	}
 
-	/**
-	 * Fetch all rows to an array
-	 * @return array
-	 */
-	public function dataArray()
-	{
-		$data = array ();
-		foreach ($this as $row)
-		{
-			$data[] = $row;
-		}
-		
-		return $data;
-	}
+	protected $currentRow;
 
-	/**
-	 *
-	 * @param string|integer $columnKey Column name or index to use as row key
-	 * @return array
-	 */
-	public function keyedDataArray($columnKey)
-	{
-		$data = array ();
-		foreach ($this as $row)
-		{
-			if (\array_key_exists($row[$columnKey], $data))
-			{
-				ns\Reporter::warning($this, __METHOD__ . '(): Duplicated key "' . $row[$columnKey] . '"');
-				continue;
-			}
-			$data[$row[$columnKey]] = $row;
-		}
-		
-		return $data;
-	}
+	protected $currentRowIndex;
 
-	protected $m_aCurrentRow;
+	protected $columnNames;
 
-	protected $m_iCurrentRowIndex;
+	private $flags;
 
-	protected $m_aColumnNames;
-
-	private $m_flags;
-
-	private $m_rowCount;
+	private $rowCount;
 }
 
 /**
@@ -348,6 +321,13 @@ class InsertQueryResult extends QueryResult
 		}
 	}
 
+	public function __get($member)
+	{
+		if ($member == 'lastInsertId')
+			return $this->getLastInsertId();
+		return parent::__get($member);
+	}
+
 	/**
 	 *
 	 * @return integer|null Value of autoincremented column if available. Otherwise @c null
@@ -376,6 +356,13 @@ class UpdateQueryResult extends QueryResult
 	{
 		parent::__construct($datasource, $resultResource);
 		$this->affectedRowCount = null;
+	}
+
+	public function __get($member)
+	{
+		if ($member == 'affectedRowCount')
+			return $this->getAffectedRowCount();
+		return parent::__get($member);
 	}
 
 	/**
@@ -407,6 +394,13 @@ class DeleteQueryResult extends QueryResult
 	{
 		parent::__construct($datasource, $resultResource);
 		$this->affectedRowCount = null;
+	}
+	
+	public function __get ($member)
+	{
+		if ($member == 'affectedRowCount') 
+			return $this->getAffectedRowCount();
+		return parent::__get($member);
 	}
 
 	/**
