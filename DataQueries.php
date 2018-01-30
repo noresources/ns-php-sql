@@ -944,6 +944,7 @@ class SelectQuery extends TableQuery implements ns\IExpression
 	 * @return SelectQuery
 	 */
 	public function __clone()
+	{
 		if (is_object($this->m_group))
 		{
 			$this->m_group = clone $this->m_group;
@@ -1362,7 +1363,7 @@ class TruncateQuery extends TableQuery implements ns\IExpression
 	{
 		return $this->expressionString();
 	}
-	
+
 	/**
 	 *
 	 * @return boolean
