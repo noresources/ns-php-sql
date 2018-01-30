@@ -337,14 +337,14 @@ class InsertQueryResult extends QueryResult
 			{
 				if ($column->getProperty(kStructureAutoincrement))
 				{
-					$this->lastInsertId = $table->getDatasource()->lastInsertId($this);
+					$this->lastInsertId = $table->getDatasource()->getLastInsertId($this);
 					break;
 				}
 			}
 		}
 		else
 		{
-			$this->lastInsertId = $table->getDatasource()->lastInsertId($this);
+			$this->lastInsertId = $table->getDatasource()->getLastInsertId($this);
 		}
 	}
 

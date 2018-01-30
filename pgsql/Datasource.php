@@ -399,14 +399,13 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 
 	/**
 	 *
-	 * @see sources/sql/Datasource#lastInsertId()
 	 * @return integer
 	 *
 	 * @see http://www.php.net/manual/fr/function.pg-last-oid.php
 	 * @see https://stackoverflow.com/questions/2741919/can-i-ask-postgresql-to-ignore-errors-within-a-transaction
 	 * @see https://wiki.postgresql.org/wiki/Transactions_recovering_failures_in_scripts
 	 */
-	public function lastInsertId(QueryResult $a_queryResult = null)
+	public function getLastInsertId(QueryResult $a_queryResult = null)
 	{
 		$id = null;
 		$savePointKey = '_NS_PHP_SQL_LASTVAL_SAVEPOINT_';

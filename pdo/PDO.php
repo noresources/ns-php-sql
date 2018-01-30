@@ -46,7 +46,7 @@ class PDOBackend
 	 * @param QueryResult $a_queryResult
 	 * @return integer
 	 */
-	public function lastInsertId(QueryResult $a_queryResult = null)
+	public function getLastInsertId(QueryResult $a_queryResult = null)
 	{
 		
 	}

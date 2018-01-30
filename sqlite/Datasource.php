@@ -482,7 +482,7 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 	 * @param QueryResult $a_queryResult
 	 * @return integer
 	 */
-	public function lastInsertId(QueryResult $a_queryResult = null)
+	public function getLastInsertId(QueryResult $a_queryResult = null)
 	{
 		if ($this->m_implementation == self::kImplementationSQLite3)
 		{

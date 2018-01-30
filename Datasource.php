@@ -350,7 +350,7 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 	 * @param QueryResult $a_queryResult
 	 * @return integer last auto increment insert id
 	 */
-	public abstract function lastInsertId(QueryResult $a_queryResult = null);
+	public abstract function getLastInsertId(QueryResult $a_queryResult = null);
 
 	/**
 	 * Number of row returned by query

@@ -383,11 +383,9 @@ class MySQLDatasource extends Datasource implements ITransactionBlock
 	}
 
 	/**
-	 *
-	 * @see sources/sql/Datasource#lastInsertId()
 	 * @return integer
 	 */
-	public function lastInsertId(QueryResult $result = null)
+	public function getLastInsertId(QueryResult $result = null)
 	{
 		return $this->apiCall('insert_id', $this->resource);
 	}
