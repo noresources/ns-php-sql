@@ -384,9 +384,9 @@ class UpdateQueryResult extends QueryResult
 	 */
 	public function getAffectedRowCount()
 	{
-		if (\is_null($this->affectedRowCount))
+		if (\is_null($this->getAffectedRowCount))
 		{
-			$this->m_affectedRowCount = $this->datasource->affectedRowCount($this);
+			$this->m_affectedRowCount = $this->datasource->getAffectedRowCount($this);
 		}
 		
 		return $this->m_affectedRowCount;
@@ -414,9 +414,9 @@ class DeleteQueryResult extends QueryResult
 	 */
 	public function getAffectedRowCount()
 	{
-		if (\is_null($this->affectedRowCount))
+		if (\is_null($this->m_affectedRowCount))
 		{
-			$this->m_affectedRowCount = $this->datasource->affectedRowCount($this);
+			$this->m_affectedRowCount = $this->datasource->getAffectedRowCount($this);
 		}
 		
 		return $this->m_affectedRowCount;

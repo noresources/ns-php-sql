@@ -523,11 +523,9 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 	}
 
 	/**
-	 *
-	 * @see sources/sql/Datasource#affectedRowCount()
 	 * @return integer
 	 */
-	public function affectedRowCount(QueryResult $a_queryResult)
+	public function getAffectedRowCount(QueryResult $a_queryResult)
 	{
 		return pg_affected_rows($a_queryResult->resultResource);
 	}

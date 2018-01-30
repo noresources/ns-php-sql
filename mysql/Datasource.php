@@ -477,10 +477,9 @@ class MySQLDatasource extends Datasource implements ITransactionBlock
 
 	/**
 	 *
-	 * @see sources/sql/Datasource#affectedRowCount()
 	 * @return integer
 	 */
-	public function affectedRowCount(QueryResult $result)
+	public function getAffectedRowCount(QueryResult $result)
 	{
 		return $this->apiCall('affected_rows', $result->datasource->resource());
 	}

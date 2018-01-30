@@ -632,7 +632,7 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 		return null;
 	}
 
-	public function affectedRowCount(QueryResult $a_queryResult)
+	public function getAffectedRowCount(QueryResult $a_queryResult)
 	{
 		/**
 		 * @bug unsafe if called after another query

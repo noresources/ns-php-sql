@@ -375,7 +375,7 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 	 * @param mixed $a_queryResult query result ressource
 	 * @return integer
 	 */
-	public abstract function affectedRowCount(QueryResult $a_queryResult);
+	public abstract function getAffectedRowCount(QueryResult $a_queryResult);
 
 	/**
 	 * Protect SQL element following Database management system requirements

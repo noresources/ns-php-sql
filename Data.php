@@ -571,10 +571,6 @@ class TimestampData extends Data
  * - an integer
  * - null
  *
- * Conversions
- * - Float value will be converted to the nearest integer
- * - Integer will be store as a 64 bits little endian unsigned long ('P' format)
- * - DateTime will be stored as the ISO 8601 string representation
  */
 class BinaryData extends Data
 {

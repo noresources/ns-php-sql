@@ -76,7 +76,7 @@ class PDOBackend
 		
 	}
 	
-	public function affectedRowCount(QueryResult $a_queryResult)
+	public function getAffectedRowCount(QueryResult $a_queryResult)
 	{
 		
 	}
