@@ -380,7 +380,7 @@ class UpdateQueryResult extends QueryResult
 	 */
 	public function getAffectedRowCount()
 	{
-		if (\is_null($this->getAffectedRowCount))
+		if (\is_null($this->affectedRowCount))
 		{
 			$this->affectedRowCount = $this->datasource->getAffectedRowCount($this);
 		}
