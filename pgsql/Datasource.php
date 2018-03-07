@@ -34,6 +34,8 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 	public function __construct(DatasourceStructure $a_structure = null)
 	{
 		parent::__construct($a_structure);
+		$this->setDatasourceString(self::kStringImplementationTypeKey, basename(__DIR__));
+		
 		$this->activeTableSetName = self::kDefaultTableSetName;
 		
 		// Data types

@@ -18,9 +18,9 @@ require_once ('base.php');
 abstract class TableManipulator
 {
 
-	public function __construct(Datasource $a_oSource, ITableProvider $a_oProvider = null)
+	public function __construct(Datasource $datasource, ITableProvider $provider = null)
 	{
-		if (!($a_oProvider instanceof ITableProvider))
+		if (!($provider instanceof ITableProvider))
 		{
 			if (($this instanceof ITableProvider))
 			{
@@ -30,15 +30,15 @@ abstract class TableManipulator
 			
 			ns\Reporter::fatalError($this, __METHOD__ . '(): Invalid call. Missing ITableProvider argument', __FILE__, __LINE__);
 		}
-		$this->m_provider = $a_oProvider;
-		$this->m_datasource = $a_oSource;
+		$this->m_provider = $provider;
+		$this->m_datasource = $datasource;
 	}
 
 	/**
 	 * Create a new table
-	 * @param TableStructure $a_structure Table properties
+	 * @param TableStructure $structure Table properties
 	 */
-	abstract public function create(TableStructure $a_structure);
+	abstract public function create(TableStructure $structure);
 
 	/**
 	 * Rename a table

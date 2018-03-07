@@ -109,6 +109,7 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 	{
 		parent::__construct();
 		$this->setDatasourceString(self::kStringClassNameTableManipulator, __NAMESPACE__ . '\\SQLiteTableManipulator');
+		$this->setDatasourceString(self::kStringImplementationTypeKey, basename(__DIR__));
 		
 		if (extension_loaded('sqlite3'))
 		{

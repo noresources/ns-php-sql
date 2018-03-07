@@ -84,39 +84,40 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 	const kStringKeywordJoinRight = kJoinRight;
 	
 	/**
-	 * PHP-style string format for timestamps
 	 *
-	 * @var string
+	 * @var string PHP-style string format for timestamps
 	 */
 	const kStringTimestampFormat = 'sql.string.timestamp';
 	
 	/**
-	 * TableSet implementation to use
 	 *
-	 * @var string
+	 * @var string TableSet implementation to use
 	 */
 	const kStringClassNameTableSet = 'sql.string.clsdb';
 	
 	/**
-	 * SQLTableSetManipulator implementation to use
 	 *
-	 * @var string
+	 * @var string SQLTableSetManipulator implementation to use
 	 */
 	const kStringClassNameTableSetManipulator = 'sql.string.clsdbm';
 	
 	/**
-	 * Table implementation to use
 	 *
-	 * @var string
+	 * @var string Table implementation to use
 	 */
 	const kStringClassNameTable = 'sql.string.clst';
 	
 	/**
-	 * TableManipulator implementation to use
+	 *
+	 * @var string TableManipulator implementation to use
+	 */
+	const kStringClassNameTableManipulator = 'sql.string.clstm';
+	
+	/**
 	 *
 	 * @var string
 	 */
-	const kStringClassNameTableManipulator = 'sql.string.clstm';
+	const kStringImplementationTypeKey = 'sql.implementation.key';
 
 	/**
 	 * Create an instance of a Datasource object

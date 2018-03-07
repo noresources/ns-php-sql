@@ -127,6 +127,7 @@ class MySQLDatasource extends Datasource implements ITransactionBlock
 	{
 		parent::__construct($structure);
 		$this->setDatasourceString(self::kStringClassNameTableManipulator, __NAMESPACE__ . '\\MySQLTableManipulator');
+		$this->setDatasourceString(self::kStringImplementationTypeKey, basename(__DIR__));
 		
 		$this->m_implementation = 0;
 		if (extension_loaded('mysqli'))
