@@ -95,5 +95,3 @@ class CreateTableQuery extends IQuery
 	private $m_structure;
 	
 }
-
-?>

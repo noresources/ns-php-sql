@@ -655,5 +655,3 @@ class TableColumn extends ITableColumn implements IAliasedClone, ITableColumnVal
 	 */
 	protected $m_valueValidator;
 }
-
-?>

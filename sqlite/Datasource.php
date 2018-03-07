@@ -36,16 +36,11 @@ class SQLiteTableManipulator extends TableManipulator
 	 */
 	public function create(TableStructure $a_structure)
 	{
-		if (!$this->postCreation($a_structure))
-		{
-			return false;
-		}
-		
 		$t = new Table($this->m_provider, $a_structure->getName());
 		$strQuery = 'CREATE TABLE ' . $t->expressionString() . ' (';
 		
 		$first = true;
-		foreach ($a_structure as $name => $field)
+		foreach ($a_structure as $name => $column)
 		{
 			if (!$first)
 			{
@@ -53,10 +48,10 @@ class SQLiteTableManipulator extends TableManipulator
 			}
 			$first = false;
 			
-			$strQuery .= $this->m_datasource->encloseElement($field->getName());
-			$type = $field->getProperty(kStructureDatatype);
-			$auto = $field->getProperty(kStructureAutoincrement);
-			$acceptNull = $field->getProperty(kStructureAcceptNull);
+			$strQuery .= $this->m_datasource->encloseElement($column->getName());
+			$type = $column->getProperty(kStructureDatatype);
+			$auto = $column->getProperty(kStructureAutoincrement);
+			$acceptNull = $column->getProperty(kStructureAcceptNull);
 			if (!is_null($type))
 			{
 				$strQuery .= ' ' . $this->m_datasource->getDefaultTypeName($type);

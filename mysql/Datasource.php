@@ -34,18 +34,13 @@ class MySQLTableManipulator extends TableManipulator
 	 */
 	public function create(TableStructure $structure)
 	{
-		if (!$this->postCreation($structure))
-		{
-			return false;
-		}
-		
 		$t = new Table($this->m_provider, $structure->getName());
 		$strQuery = 'CREATE TABLE ' . $t->expressionString() . ' (';
 		
 		$first = true;
 		$primaryKeyColumns = array ();
 		
-		foreach ($structure as $name => $field)
+		foreach ($structure as $name => $column)
 		{
 			if (!$first)
 			{
@@ -53,15 +48,15 @@ class MySQLTableManipulator extends TableManipulator
 			}
 			$first = false;
 			
-			$strQuery .= $this->m_datasource->encloseElement($field->getName());
-			$type = $field->getProperty(kStructureDatatype);
-			$auto = $field->getProperty(kStructureAutoincrement);
-			$acceptNull = $field->getProperty(kStructureAcceptNull);
+			$strQuery .= $this->m_datasource->encloseElement($column->getName());
+			$type = $column->getProperty(kStructureDatatype);
+			$auto = $column->getProperty(kStructureAutoincrement);
+			$acceptNull = $column->getProperty(kStructureAcceptNull);
 			if (!is_null($type))
 			{
 				$strQuery .= ' ' . $this->m_datasource->getDefaultTypeName($type);
-				$length = $field->getProperty(kStructureDataSize);
-				$decimals = $field->getProperty(kStructureDecimalCount);
+				$length = $column->getProperty(kStructureDataSize);
+				$decimals = $column->getProperty(kStructureDecimalCount);
 				if ($length)
 				{
 					$strQuery .= '(' . $length;
@@ -83,9 +78,9 @@ class MySQLTableManipulator extends TableManipulator
 				$strQuery .= ' AUTO_INCREMENT';
 			}
 			
-			if ($field->getProperty(FIELD_PRIMARYKEY))
+			if ($column->getProperty(FIELD_PRIMARYKEY))
 			{
-				$primaryKeyColumns[] = $this->m_datasource->encloseElement($field->getName());
+				$primaryKeyColumns[] = $this->m_datasource->encloseElement($column->getName());
 				;
 			}
 		}
@@ -383,6 +378,7 @@ class MySQLDatasource extends Datasource implements ITransactionBlock
 	}
 
 	/**
+	 *
 	 * @return integer
 	 */
 	public function getLastInsertId(QueryResult $result = null)

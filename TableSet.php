@@ -148,5 +148,3 @@ class TableSet extends SQLObject implements IExpression, ITableProvider
 
 	protected $m_strName;
 }
-
-?>

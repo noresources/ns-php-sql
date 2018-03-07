@@ -171,5 +171,3 @@ abstract class TableQuery extends IQuery
 	 */
 	protected $table;
 }
-
-?>

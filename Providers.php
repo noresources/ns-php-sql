@@ -146,5 +146,3 @@ interface ITableColumnProvider
 	 */
 	function columnExists($a_name);
 }
-
-?>

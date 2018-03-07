@@ -10,6 +10,7 @@
  * @package SQL
  */
 namespace NoreSources\SQL;
+
 use NoreSources as ns;
 
 require_once ('base.php');
@@ -26,7 +27,7 @@ abstract class TableManipulator
 				$this->m_provider = $this;
 				return;
 			}
-				
+			
 			ns\Reporter::fatalError($this, __METHOD__ . '(): Invalid call. Missing ITableProvider argument', __FILE__, __LINE__);
 		}
 		$this->m_provider = $a_oProvider;
@@ -52,12 +53,12 @@ abstract class TableManipulator
 		{
 			return ns\Reporter::error($this, __METHOD__ . '(): Table "' . to_string($a_strOldName) . '" does not exists', __FILE__, __LINE__);
 		}
-
+		
 		if ($this->m_provider->tableExists($a_newName, kObjectQueryDatasource))
 		{
 			return ns\Reporter::error($this, __METHOD__ . '(): Table "' . to_string($a_newName) . '" already exists', __FILE__, __LINE__);
 		}
-
+		
 		$t = new Table($this->m_provider, $a_strOldName);
 		$q = new RenameTableQuery($t, $a_newName);
 		return ($q->execute()) ? true : false;
@@ -80,16 +81,6 @@ abstract class TableManipulator
 		$q = new DropTableQuery($t);
 		return $q->execute();
 	}
-
-	protected function postCreation(TableStructure $a_structure)
-	{
-		if ($this->m_provider->tableExists($a_structure->getName(), kObjectQueryDatasource))
-		{
-			return ns\Reporter::error($this, 'Table "' . $a_structure->getName() . '" already exists');
-		}
-		
-		return true;
-	}
 	
 	/**
 	 * @var ITableProvider
@@ -102,5 +93,3 @@ abstract class TableManipulator
 	 */
 	protected $m_datasource;
 }
-
-?>

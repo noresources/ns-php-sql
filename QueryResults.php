@@ -427,5 +427,3 @@ class DeleteQueryResult extends QueryResult
 	
 	private $affectedRowCount;
 }
-
-?>
