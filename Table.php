@@ -108,6 +108,11 @@ class Table extends SQLObject implements IExpression, IAliasedClone, ITableColum
 	}
 
 	// IAliasedClone implementation
+	/**
+	 * {@inheritDoc}
+	 * @see \NoreSources\SQL\IAliasedClone::cloneWithOtherAlias()
+	 * @return \NoreSources\SQL\Table
+	 */
 	public function cloneWithOtherAlias($a_aliasName)
 	{
 		if ($a_aliasName == $this->alias())
@@ -117,6 +122,7 @@ class Table extends SQLObject implements IExpression, IAliasedClone, ITableColum
 		
 		$cn = get_class($this);
 		$result = new $cn($this->m_owner, $this->m_name, $a_aliasName);
+		$result->m_structure = $this->structure;
 		return $result;
 	}
 
@@ -178,7 +184,7 @@ class Table extends SQLObject implements IExpression, IAliasedClone, ITableColum
 			$subStructure = $this->structure->offsetGet($a_name);
 			if (!$subStructure)
 			{
-				ns\Reporter::warning($this, __METHOD__ . '(): No structure for field ' . $a_name, __FILE__, __LINE__);
+				ns\Reporter::warning($this, __METHOD__ . '(): No structure for column ' . $a_name . ' of table ' . $this->m_name, __FILE__, __LINE__);
 			}
 		}
 		else

@@ -87,7 +87,6 @@ class TableSet extends SQLObject implements IExpression, ITableProvider
 	 */
 	public function getTable($a_name, $alias = null, $className = null, $useAliasAsName = false)
 	{
-		// ns\Reporter::debug($this, __METHOD__.'(): getTable ' . $a_name, __FILE__, __LINE__);
 		$subStructure = null;
 		if ($this->structure)
 		{
