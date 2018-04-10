@@ -177,7 +177,7 @@ class SQLBetween extends ns\BinaryOperatorExpression
 		
 		if (!($a_min instanceof ns\IExpression))
 		{
-			if (is_object($t) && $t instanceof TableColumn)
+			if ($a_leftExpression instanceof TableColumn)
 			{
 				$a_min = $a_leftExpression->importData($a_min);
 			}
@@ -189,7 +189,7 @@ class SQLBetween extends ns\BinaryOperatorExpression
 		
 		if (!($a_max instanceof ns\IExpression))
 		{
-			if ($t)
+			if ($a_leftExpression instanceof TableColumn)
 			{
 				$a_max = $a_leftExpression->importData($a_max);
 			}
