@@ -450,6 +450,7 @@ class TableColumn extends ITableColumn implements IAliasedClone, ITableColumnVal
 	{
 		$cn = get_class($this);
 		$result = new $cn($this->table, $this->m_fieldName, $newAlias, $this->structure);
+		$result->m_structure = $this->m_structure;
 		return $result;
 	}
 
@@ -628,6 +629,15 @@ class TableColumn extends ITableColumn implements IAliasedClone, ITableColumnVal
 	{
 		$exp = new SQLSmartEquality($this, $a_value, $a_bEquality);
 		return $exp;
+	}
+
+	/**
+	 * @return \NoreSources\SQL\Distinct
+	 */
+	public function distinctExpression ()
+	{
+		$o = new Distinct($this);
+		return $o;
 	}
 
 	/**

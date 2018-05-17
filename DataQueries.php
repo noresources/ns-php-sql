@@ -930,7 +930,6 @@ class SelectQuery extends TableQuery implements ns\IExpression
 	public function __construct(Table $table)
 	{
 		parent::__construct($table);
-		$this->m_distinct = false;
 		$this->m_having = new HavingQueryConditionStatement();
 		$this->m_where = new WhereQueryConditionStatement();
 		$this->m_unionQueries = array ();
@@ -1058,7 +1057,7 @@ class SelectQuery extends TableQuery implements ns\IExpression
 	 */
 	public function expressionString($a_options = null)
 	{
-		$qs = 'SELECT ' . ($this->m_distinct ? 'DISTINCT ' : '');
+		$qs = 'SELECT ';
 		
 		// columns
 		$selectColumnAliases = array ();
@@ -1281,30 +1280,6 @@ class SelectQuery extends TableQuery implements ns\IExpression
 	{
 		$this->m_unionQueries[] = $a_query;
 	}
-
-	/**
-	 * Set or get DISTINCT constraint
-	 *
-	 * @todo rename to setDistinct
-	 *      
-	 * @param string $a_distinct
-	 * @return boolean
-	 */
-	function distinct($a_distinct = null)
-	{
-		if (!is_null($a_distinct))
-		{
-			$this->m_distinct = $a_distinct;
-		}
-		return $this->m_distinct;
-	}
-
-	/**
-	 * Indicate if query must add the DISTINCT keyword
-	 *
-	 * @var bool
-	 */
-	protected $m_distinct;
 
 	/**
 	 * Fields

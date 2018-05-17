@@ -112,8 +112,8 @@ function tableProviderGenericTableObjectMethod(ITableProvider $a_provider, $a_st
 	$ds = $a_provider->datasource;
 	$className = $ds->getDatasourceString(Datasource::kStringClassNameTable);
 	
-	$class = strlen($a_className) ? $a_className : $className;
-	$result = new $class($a_provider, $n, $a, $a_structure);
+	$className = strlen($a_className) ? $a_className : $className;
+	$result = new $className($a_provider, $n, $a, $a_structure);
 	return $result;
 }
 
