@@ -17,9 +17,6 @@ use NoreSources as ns;
 require_once ('base.php');
 require_once (NS_PHP_PATH . '/core/MathExpressions.php');
 
-use \Iterator;
-use \ArrayAccess;
-
 /**
  * An expression relative to a data source connection
  */
@@ -212,7 +209,7 @@ class SQLFunction extends ns\UnaryOperatorExpression implements IAliasable
 	/**
 	 * Add function parameter
 	 *
-	 * @param ns\IExpression $a_paramter        	
+	 * @param ns\IExpression $a_paramter
 	 */
 	public function addParameter(ns\IExpression $a_paramter)
 	{
@@ -222,7 +219,7 @@ class SQLFunction extends ns\UnaryOperatorExpression implements IAliasable
 	/**
 	 * Set or get function alias name
 	 *
-	 * @param Alias $alias        	
+	 * @param Alias $alias
 	 */
 	public function alias(Alias $alias = null)
 	{
@@ -235,6 +232,7 @@ class SQLFunction extends ns\UnaryOperatorExpression implements IAliasable
 	}
 
 	/**
+	 *
 	 * @return bool
 	 */
 	public function hasAlias()
@@ -256,6 +254,7 @@ class SQLAnd extends ns\BinaryOperatorExpression
 {
 
 	/**
+	 *
 	 * @param ns\IExpression $a_left Left operand
 	 * @param ns\IExpression $a_right Right operand
 	 */
@@ -265,6 +264,7 @@ class SQLAnd extends ns\BinaryOperatorExpression
 	}
 
 	/**
+	 *
 	 * @return string
 	 */
 	public function __toString()
@@ -280,6 +280,7 @@ class SQLOr extends ns\BinaryOperatorExpression
 {
 
 	/**
+	 *
 	 * @param ns\IExpression $a_left Left operand
 	 * @param ns\IExpression $a_right Right operand
 	 */
@@ -289,8 +290,27 @@ class SQLOr extends ns\BinaryOperatorExpression
 	}
 
 	/**
+	 *
 	 * @return string
 	 */
+	public function __toString()
+	{
+		return $this->expressionString();
+	}
+}
+
+/**
+ * DISTINCT column specifier
+ */
+class Distinct extends ns\UnaryOperatorExpression
+{
+
+	public function __construct($a_column)
+	{
+		parent::__construct('DISTINCT', $a_column);
+		$this->protect(false);
+	}
+
 	public function __toString()
 	{
 		return $this->expressionString();
@@ -304,6 +324,7 @@ class SQLNot extends ns\UnaryOperatorExpression
 {
 
 	/**
+	 *
 	 * @param unknown $a_values Eleent to negate
 	 */
 	public function __construct($a_values)
@@ -312,6 +333,7 @@ class SQLNot extends ns\UnaryOperatorExpression
 	}
 
 	/**
+	 *
 	 * @return string
 	 */
 	public function __toString()
@@ -327,6 +349,7 @@ class SQLAs extends ns\BinaryOperatorExpression
 {
 
 	/**
+	 *
 	 * @param ns\IExpression $a_leftExpression Element
 	 * @param ns\IExpression $a_rightExpression Element alias
 	 */
@@ -337,6 +360,7 @@ class SQLAs extends ns\BinaryOperatorExpression
 	}
 
 	/**
+	 *
 	 * @return string
 	 */
 	public function __toString()
