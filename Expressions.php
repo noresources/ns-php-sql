@@ -199,7 +199,8 @@ class SQLBetween extends ns\BinaryOperatorExpression
 			}
 		}
 		
-		$this->rightExpression(new ns\BinaryOperatorExpression('AND', $a_min, $a_max));
+		$x = new ns\BinaryOperatorExpression('AND', $a_min, $a_max);
+		$this->rightExpression($x);
 	}
 }
 
