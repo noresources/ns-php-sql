@@ -261,7 +261,7 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 	 */
 	public function connect($a_aParameters)
 	{
-		if ($this->resource())
+		if ($this->resource)
 		{
 			$this->disconnect();
 		}
@@ -388,20 +388,20 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 	{
 		if ($this->m_implementation == self::kImplementationSQLite3)
 		{
-			if (!($this->resource() instanceof SQLite3))
+			if (!($this->resource instanceof SQLite3))
 			{
 				return false;
 			}
 			
-			$this->resource()->close();
+			$this->resource->close();
 		}
 		elseif ($this->m_implementation == self::kImplementationLegacy)
 		{
-			if (!$this->resource())
+			if (!$this->resource)
 			{
 				return false;
 			}
-			sqlite_close($this->resource());
+			sqlite_close($this->resource);
 		}
 		return true;
 	}
@@ -439,32 +439,32 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 		$result = null;
 		if ($this->m_implementation == self::kImplementationSQLite3)
 		{
-			if (!($this->resource() instanceof SQLite3))
+			if (!($this->resource instanceof SQLite3))
 			{
 				return ns\Reporter::error($this, __METHOD__ . '(): No Datasource');
 			}
 			
-			$result = @$this->resource()->query($a_strQuery);
+			$result = @$this->resource->query($a_strQuery);
 		}
 		elseif ($this->m_implementation == self::kImplementationLegacy)
 		{
-			if (!$this->resource())
+			if (!$this->resource)
 			{
 				return ns\Reporter::error($this, __METHOD__ . '(): No Datasource');
 			}
 			
-			$result = sqlite_query($this->resource(), $a_strQuery, SQLITE_BOTH, $errorMessage);
+			$result = sqlite_query($this->resource, $a_strQuery, SQLITE_BOTH, $errorMessage);
 		}
 		
 		if (!$result)
 		{
 			if ($this->m_implementation == self::kImplementationSQLite3)
 			{
-				$errorMessage = $this->resource()->lastErrorMsg();
+				$errorMessage = $this->resource->lastErrorMsg();
 			}
 			elseif ($this->m_implementation == self::kImplementationLegacy)
 			{
-				$errorMessage = sqlite_error_string(sqlite_last_error($this->resource()));
+				$errorMessage = sqlite_error_string(sqlite_last_error($this->resource));
 			}
 			
 			return ns\Reporter::error($this, __METHOD__ . '(): Query error: ' . $a_strQuery . ' / ' . $errorMessage);
@@ -482,11 +482,11 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 	{
 		if ($this->m_implementation == self::kImplementationSQLite3)
 		{
-			return $this->resource()->lastInsertRowID();
+			return $this->resource->lastInsertRowID();
 		}
 		elseif ($this->m_implementation == self::kImplementationLegacy)
 		{
-			return sqlite_last_insert_rowid($this->resource());
+			return sqlite_last_insert_rowid($this->resource);
 		}
 		
 		return 0;
@@ -635,11 +635,11 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 		 */
 		if ($this->m_implementation == self::kImplementationSQLite3)
 		{
-			return $this->resource()->changes();
+			return $this->resource->changes();
 		}
 		elseif ($this->m_implementation == self::kImplementationLegacy)
 		{
-			return sqlite_changes($this->resource());
+			return sqlite_changes($this->resource);
 		}
 		
 		return 0;
@@ -764,20 +764,20 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 		$result = null;
 		if ($this->m_implementation == self::kImplementationSQLite3)
 		{
-			if (!($this->resource() instanceof SQLite3))
+			if (!($this->resource instanceof SQLite3))
 			{
 				return ns\Reporter::error($this, __METHOD__ . '(): No Datasource', __FILE__, __LINE__);
 			}
 			
-			$result = $this->resource()->exec($a_strQuery);
+			$result = $this->resource->exec($a_strQuery);
 		}
 		elseif ($this->m_implementation == self::kImplementationLegacy)
 		{
-			if (!$this->resource())
+			if (!$this->resource)
 			{
 				return ns\Reporter::error($this, __METHOD__ . '(): No Datasource');
 			}
-			$result = sqlite_query($this->resource(), $a_strQuery, SQLITE_BOTH, $errorMessage);
+			$result = sqlite_query($this->resource, $a_strQuery, SQLITE_BOTH, $errorMessage);
 		}
 		
 		if (!$result)

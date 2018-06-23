@@ -340,7 +340,7 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 	public abstract function resetResult(QueryResult $a_queryResult);
 
 	/**
-	 * Free resource associated to a query result
+	 * Free KK associated to a query result
 	 *
 	 * @param QueryResult $a_queryResult
 	 */
@@ -414,16 +414,6 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 	public final function getDatasourceString($a_key)
 	{
 		return \array_key_exists($a_key, $this->m_datasourceStrings) ? $this->m_datasourceStrings[$a_key] : null;
-	}
-
-	/**
-	 * Get connection resource
-	 *
-	 * @return resource
-	 */
-	public final function resource()
-	{
-		return $this->m_datasourceResource;
 	}
 
 	/**
