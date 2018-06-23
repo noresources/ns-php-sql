@@ -216,6 +216,11 @@ class SQLFunction extends ns\UnaryOperatorExpression implements IAliasable
 		$this->m_expression->add($a_paramter);
 	}
 
+	public function clearParameters()
+	{
+		$this->m_expression = null;
+	}
+	
 	/**
 	 * Set or get function alias name
 	 *
@@ -308,7 +313,7 @@ class Distinct extends ns\UnaryOperatorExpression
 	public function __construct($a_column)
 	{
 		parent::__construct('DISTINCT', $a_column);
-		$this->protect(false);
+		$this->protect = false;
 	}
 
 	public function __toString()
@@ -356,7 +361,7 @@ class SQLAs extends ns\BinaryOperatorExpression
 	public function __construct(ns\IExpression $a_leftExpression, ns\IExpression $a_rightExpression)
 	{
 		parent::__construct('AS', $a_leftExpression, $a_rightExpression);
-		$this->protect(false);
+		$this->protect = false;
 	}
 
 	/**
