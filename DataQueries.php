@@ -396,7 +396,7 @@ abstract class QueryConditionStatement extends ns\UnaryOperatorExpression
 		
 		if (is_callable($this->m_expression, 'protect'))
 		{
-			$this->m_expression->protect(false);
+			$this->m_expression->protect = false;
 		}
 		
 		return $this->m_expression;
@@ -421,7 +421,7 @@ abstract class QueryConditionStatement extends ns\UnaryOperatorExpression
 		
 		if (is_callable($this->m_expression, 'protect'))
 		{
-			$this->m_expression->protect(false);
+			$this->m_expression->protect = false;
 		}
 		
 		return $this->m_expression;
@@ -437,7 +437,7 @@ class WhereQueryConditionStatement extends QueryConditionStatement
 	public function __construct()
 	{
 		parent::__construct('WHERE');
-		$this->protect(false);
+		$this->protect = false;
 	}
 }
 
@@ -450,7 +450,7 @@ class HavingQueryConditionStatement extends QueryConditionStatement
 	public function __construct()
 	{
 		parent::__construct('HAVING');
-		$this->protect(false);
+		$this->protect = false;
 	}
 }
 
@@ -779,35 +779,35 @@ abstract class ISelectQueryJoin extends ns\UnaryOperatorExpression
 		$this->m_leftTable = $a_leftTable;
 		$this->m_rightTable = $a_rightTable;
 		$this->m_joinType = $a_joinType;
-		$this->protect(false);
+		$this->protect = false;
 	}
 
 	/**
 	 *
-	 * @param string $key
+	 * @param string $member
 	 * @throws \InvalidArgumentException
 	 * @return \NoreSource\SQL\Datasource|\NoreSources\SQL\Table
 	 */
-	public function __get($key)
+	public function __get($member)
 	{
-		if ($key == 'datasource')
+		if ($member == 'datasource')
 		{
 			$this->m_leftTable->datasource;
 		}
-		elseif ($key == 'joinType')
+		elseif ($member == 'joinType')
 		{
 			return $this->m_joinType;
 		}
-		elseif ($key == 'leftTable')
+		elseif ($member == 'leftTable')
 		{
 			return $this->m_leftTable;
 		}
-		elseif ($key == 'rightTable')
+		elseif ($member == 'rightTable')
 		{
 			return $this->m_rightTable;
 		}
 		
-		throw new \InvalidArgumentException(get_class($this) . '::' . $member);
+		return parent::__get($member);
 	}
 
 	/**
@@ -896,7 +896,7 @@ class SelectQueryJoin extends ISelectQueryJoin
 		}
 		
 		$e = new ns\BinaryOperatorExpression('=', $a_leftField, $a_rightField);
-		$e->protect(false);
+		$e->protect = false;
 		
 		if (is_null($this->m_joinLink))
 		{
@@ -905,11 +905,11 @@ class SelectQueryJoin extends ISelectQueryJoin
 		else
 		{
 			$and = new SQLAnd($this->m_joinLink->expression(), $e);
-			$and->protect(false);
+			$and->protect = false;
 			$this->m_joinLink->expression($and);
 		}
 		
-		$this->m_joinLink->protect(true);
+		$this->m_joinLink->protect = true;
 	}
 
 	protected $m_joinLink;
