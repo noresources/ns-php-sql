@@ -17,9 +17,7 @@ require_once ('base.php');
 require_once (NS_PHP_CORE_PATH . '/Expressions.php');
 require_once (NS_PHP_CORE_PATH . '/arrays.php');
 
-use \InvalidArgumentException;
-use \Exception;
-use \DateTime;
+use DateTime;
 
 /**
  * Record value
@@ -88,7 +86,7 @@ abstract class Data implements ns\IExpression
 	 * Read only access to some private members
 	 *
 	 * @param string $member Member name (flags, type or value)
-	 * @throws InvalidArgumentException
+	 * @throws \InvalidArgumentException
 	 */
 	public function __get($member)
 	{
@@ -138,7 +136,7 @@ abstract class Data implements ns\IExpression
 	{
 		if (!($this->m_flags & self::kValid))
 		{
-			throw new Exception('Invalid Data ' . gettype($this->value) . ' for ' . get_class($this));
+			throw new \Exception('Invalid Data ' . gettype($this->value) . ' for ' . get_class($this));
 		}
 		
 		return true;
@@ -489,19 +487,19 @@ class TimestampData extends Data
 		parent::__construct(kDataTypeTimestamp);
 		$this->m_datasource = $datasource;
 		$this->setFlags($this->flags | self::kValid);
-		$this->m_dateTime = new DateTime();
+		$this->m_dateTime = new \DateTime();
 	}
 
 	/**
 	 *
-	 * @param mixed $data DateTime, integer (UNIX timestamp),
-	 *        string (compliant with DateTime constructor),
+	 * @param mixed $data \DateTime, integer (UNIX timestamp),
+	 *        string (compliant with \DateTime constructor),
 	 *        or an array containing {format, time} using 'format'/0 and
 	 *        'time'/1 keys
 	 */
 	public function import($data)
 	{
-		if (is_object($data) && ($data instanceof DateTime))
+		if (is_object($data) && ($data instanceof \DateTime))
 		{
 			$this->m_dateTime = clone $data;
 		}
@@ -513,17 +511,17 @@ class TimestampData extends Data
 		elseif (is_string($data))
 		{
 			// Assumes format is a php-compliant format
-			$this->m_dateTime = new DateTime($data);
+			$this->m_dateTime = new \DateTime($data);
 		}
 		elseif (is_array($data) && (count($data) == 2))
 		{
 			if (array_key_exists('format', $data) && array_key_exists('time', $data))
 			{
-				$this->m_dateTime = DateTime::createFromFormat($data['format'], $data['time']);
+				$this->m_dateTime = \DateTime::createFromFormat($data['format'], $data['time']);
 			}
 			elseif (array_key_exists(0, $data) && array_key_exists(1, $data))
 			{
-				$this->m_dateTime = DateTime::createFromFormat($data[0], $data[1]);
+				$this->m_dateTime = \DateTime::createFromFormat($data[0], $data[1]);
 			}
 			else
 			{
@@ -558,7 +556,7 @@ class TimestampData extends Data
 
 	/**
 	 *
-	 * @var DateTime
+	 * @var \DateTime
 	 */
 	private $m_dateTime;
 }
@@ -570,7 +568,6 @@ class TimestampData extends Data
  * - a string representing a list of bytes
  * - an integer
  * - null
- *
  */
 class BinaryData extends Data
 {
@@ -603,9 +600,9 @@ class BinaryData extends Data
 
 	/**
 	 *
-	 * @param $data Data to import. 
-	 * * Float value are not accepted since there is no portable binary representation of a float
-	 * 
+	 * @param $data Data to import.
+	 *        * Float value are not accepted since there is no portable binary representation of a float
+	 *       
 	 */
 	public function import($data)
 	{
@@ -617,7 +614,7 @@ class BinaryData extends Data
 		{
 			return $this->importResult(false);
 		}
-				
+		
 		$this->m_value = $data;
 		return $this->importResult(true);
 	}
@@ -640,7 +637,7 @@ class BinaryData extends Data
 			{
 				$hex = '0' . $hex;
 			}
-			$data = hex2bin ($hex);
+			$data = hex2bin($hex);
 		}
 		
 		return $this->m_datasource->serializeBinaryData($data);

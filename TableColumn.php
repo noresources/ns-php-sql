@@ -12,7 +12,6 @@
 namespace NoreSources\SQL;
 
 use NoreSources as ns;
-use \InvalidArgumentException;
 
 require_once (NS_PHP_PATH . '/core/arrays.php');
 
