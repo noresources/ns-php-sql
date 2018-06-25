@@ -88,13 +88,12 @@ class SQLIn extends ns\UnaryOperatorExpression
 class SQLSmartEquality extends ns\BinaryOperatorExpression
 {
 
-	public function __construct (ns\IExpression $a_column, $a_value, $a_bEqual = true)
+	public function __construct(ns\IExpression $a_column, $a_value, $a_bEqual = true)
 	{
 		$strOperator = '=';
 		
 		// force to construct a FormattedData object
-		if (!(($a_value instanceof Data) || ($a_value instanceof SelectQuery) || ($a_value instanceof DataList) ||
-				 ($a_value instanceof SQLFunction)))
+		if (!(($a_value instanceof Data) || ($a_value instanceof SelectQuery) || ($a_value instanceof DataList) || ($a_value instanceof SQLFunction)))
 		{
 			if ($a_column instanceof TableColumn)
 			{
@@ -116,9 +115,7 @@ class SQLSmartEquality extends ns\BinaryOperatorExpression
 			}
 			else
 			{
-				ns\Reporter::addWarning($this, 
-						__METHOD__ . '(): Argument 1 is not a TableColumn and argument 2 is not a SQLValue. ' .
-								 'The method will not be able to precisely determine data type.', __FILE__, __LINE__);
+				ns\Reporter::addWarning($this, __METHOD__ . '(): Argument 1 is not a TableColumn and argument 2 is not a SQLValue. ' . 'The method will not be able to precisely determine data type.', __FILE__, __LINE__);
 				$a_value = bestEffortImport($a_value);
 			}
 		}
@@ -164,13 +161,11 @@ class SQLBetween extends ns\BinaryOperatorExpression
 
 	/**
 	 *
-	 * @param TableColumn $a_leftExpression        	
-	 * @param mixed $a_min
-	 *        	basic type Function or SQLValue
-	 * @param mixed $a_max
-	 *        	basic type Function or SQLValue
+	 * @param TableColumn $a_leftExpression
+	 * @param mixed $a_min basic type Function or SQLValue
+	 * @param mixed $a_max basic type Function or SQLValue
 	 */
-	public function __construct (ns\IExpression $a_leftExpression, $a_min, $a_max)
+	public function __construct(ns\IExpression $a_leftExpression, $a_min, $a_max)
 	{
 		parent::__construct('BETWEEN', $a_leftExpression);
 		$this->protect(false);
@@ -209,7 +204,7 @@ class SQLBetween extends ns\BinaryOperatorExpression
 class AutoInterval extends ns\BinaryOperatorExpression
 {
 
-	public function __construct (ns\IExpression $a_leftExpression, $a_min, $a_max)
+	public function __construct(ns\IExpression $a_leftExpression, $a_min, $a_max)
 	{
 		parent::__construct(($a_min && $a_max) ? 'BETWEEN' : (($a_min) ? '>= ' : '<='), $a_leftExpression);
 		$this->protect(false);
@@ -263,6 +258,116 @@ class AutoInterval extends ns\BinaryOperatorExpression
 		else
 		{
 			$this->rightExpression($a_max);
+		}
+	}
+}
+
+/**
+ * Timestamp formatting function
+ */
+class TimestampFormatFunction extends SQLFunction
+{
+
+	/**
+	 *
+	 * @param Datasource $datasource
+	 * @param string $format strftime format string
+	 * @param mixed $timestamp
+	 */
+	public function __construct(Datasource $datasource, $format, $timestamp)
+	{
+		parent::__construct('strftime');
+		if ($datasource && is_string($format) && $timestamp)
+			$this->setTimestamp($datasource, $format, $timestamp);
+	}
+
+	public function addParameter(ns\IExpression $a_paramter)
+	{
+		throw new \BadMethodCallException(__METHOD__ . '() is not allowed. Use setTimestampt() instead');
+	}
+
+	public function setTimestamp(Datasource $datasource, $format, $timestamp)
+	{
+		$this->clearParameters();
+		
+		if (!($timestamp instanceof ns\IExpression))
+		{
+			$d = $datasource->createData(kDataTypeTimestamp);
+			$d->import($timestamp);
+			$timestamp = $d;
+		}
+		
+		if ($datasource instanceof PostgreSQLDatasource)
+		{
+			$f = new SQLFunction('CAST');
+			$e = new ns\BinaryOperatorExpression('AS', $timestamp, new FormattedData($datasource->getDefaultTypeName(kDataTypeTimestamp)));
+			$e->protect = false;
+			$f->addParameter($e);
+			
+			$timestamp = $f;
+		}
+		
+		if ($datasource instanceof SQLiteDatasource)
+		{
+			$this->operator = 'strftime';
+			$f = $datasource->createData(kDataTypeString);
+			$f->import($format);
+			parent::addParameter($f);
+			parent::addParameter($timestamp);
+		}
+		else if ($datasource instanceof MySQLDatasource)
+		{
+			$this->operator = 'date_format';
+			$format = preg_replace(array (
+					'/%M/', // minute: 00-59
+					'/%W/' // week of year: 00-53
+			), array (
+					'%i', // minute: 00-59), $format);
+					'/%U/' // week of year: 00-53
+			), $format);
+			$f = $datasource->createData(kDataTypeString);
+			$f->import($format);
+			parent::addParameter($timestamp);
+			parent::addParameter($f);
+		}
+		else // TO_CHAR
+		{
+			$this->operator = 'to_char';
+			
+			$format = preg_replace(array (
+					'/%d/', // day of month: 00
+					'/%f/', // fractional seconds: SS.SSS
+					'/%H/', // hour: 00-24
+					'/%j/', // day of year: 001-366
+					'/%J/', // Julian day number
+					'/%m/', // month: 01-12
+					'/%M/', // minute: 00-59
+					'/%s/', // seconds since 1970-01-01
+					'/%S/', // seconds: 00-59
+					'/%w/', // day of week 0-6 with Sunday==0
+					'/%W/', // week of year: 00-53
+					'/%Y/', // year: 0000-9999
+					'/%%/' // %
+			), array (
+					'DD', // day of month: 00
+					'SS.MS', // fractional seconds: SS.SSS
+					'HH24', // hour: 00-24
+					'DDD', // day of year: 001-366
+					'J', // Julian day number
+					'MM', // month: 01-12
+					'MI', // minute: 00-59
+					'I0', // seconds since 1970-01-01
+					'SS', // seconds: 00-59
+					'ID', // day of week 0-6 with Sunday==0
+					'IW', // MISMATCH week of year: 00-53
+					'YYYY', // year: 0000-9999
+					'%' // %
+			), $format);
+			
+			parent::addParameter($timestamp);
+			$f = $datasource->createData(kDataTypeString);
+			$f->import($format);
+			parent::addParameter($f);
 		}
 	}
 }

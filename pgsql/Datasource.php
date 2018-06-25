@@ -12,7 +12,6 @@
 namespace NoreSources\SQL;
 
 use NoreSources as ns;
-use NoreSources\Reporter;
 
 require_once (__DIR__ . '/../base.php');
 require_once (NS_PHP_CORE_PATH . '/arrays.php');
@@ -287,7 +286,7 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 
 	public function getTableStructure(Table $a_table)
 	{
-		return Reporter::fatalError($this, __METHOD__ . ' not imp', __FILE__, __LINE__);
+		return ns\Reporter::fatalError($this, __METHOD__ . ' not imp', __FILE__, __LINE__);
 	}
 
 	// Datasource implementation

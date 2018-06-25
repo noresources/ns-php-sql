@@ -1,5 +1,5 @@
 <?php
-function autoload_NWE2ZTMyMzhmMWM1Mg($className)
+function autoload_NWIyZWE5MjE0YzNlOQ($className)
 {
 	if ($className == 'NoreSources\SQL\TableSet')
 	{
@@ -82,6 +82,10 @@ function autoload_NWE2ZTMyMzhmMWM1Mg($className)
 		require_once(__DIR__ . '/BasicExpressions.php');
 	}
  	elseif ($className == 'NoreSources\SQL\SQLOr')
+	{
+		require_once(__DIR__ . '/BasicExpressions.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\Distinct')
 	{
 		require_once(__DIR__ . '/BasicExpressions.php');
 	}
@@ -341,6 +345,10 @@ function autoload_NWE2ZTMyMzhmMWM1Mg($className)
 	{
 		require_once(__DIR__ . '/Expressions.php');
 	}
+ 	elseif ($className == 'NoreSources\SQL\TimestampFormatFunction')
+	{
+		require_once(__DIR__ . '/Expressions.php');
+	}
  	elseif ($className == 'NoreSources\SQL\IQuery')
 	{
 		require_once(__DIR__ . '/QueryBase.php');
@@ -370,4 +378,4 @@ function autoload_NWE2ZTMyMzhmMWM1Mg($className)
 		require_once(__DIR__ . '/Manipulators.php');
 	}
  }
-spl_autoload_register('autoload_NWE2ZTMyMzhmMWM1Mg');
+spl_autoload_register('autoload_NWIyZWE5MjE0YzNlOQ');

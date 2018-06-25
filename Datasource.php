@@ -189,7 +189,9 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 		$this->m_datasourceFlags = 0;
 		$this->m_dataTypeNames = array ();
 		$this->m_defaultTypeNames = array ();
+		$this->m_nowExpression = new SQLFunction('now');
 		$this->m_datasourceStrings = array (
+				
 				// Keyworks
 				self::kStringKeywordNull => 'NULL',
 				self::kStringKeywordTrue => '1',
@@ -234,6 +236,10 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 		elseif ($member == 'flags')
 		{
 			return $this->m_datasourceFlags;
+		}
+		elseif ($member == 'now')
+		{
+			return $this->m_nowExpression;
 		}
 		
 		return parent::__get($member);
@@ -460,7 +466,7 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 		
 		return null;
 	}
-
+	
 	/**
 	 * Serialize string to be inserted in a test/string column
 	 * @return string
@@ -588,6 +594,12 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 		$this->m_datasourceStrings[$a_key] = $a_value;
 	}
 
+	
+	protected function setNowExpression (ns\IExpression $expression)
+	{
+		$this->m_nowExpression = $expression;
+	}
+	
 	/**
 	 * Connection resource
 	 *
@@ -622,4 +634,6 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 	 * @var array
 	 */
 	private $m_datasourceStrings;
+	
+	private $m_nowExpression;
 }

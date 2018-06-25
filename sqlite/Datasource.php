@@ -12,7 +12,6 @@
 namespace NoreSources\SQL;
 
 use NoreSources as ns;
-use \SQLite3;
 
 require_once (__DIR__ . '/../base.php');
 require_once (NS_PHP_CORE_PATH . '/arrays.php');
@@ -110,6 +109,8 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 		parent::__construct();
 		$this->setDatasourceString(self::kStringClassNameTableManipulator, __NAMESPACE__ . '\\SQLiteTableManipulator');
 		$this->setDatasourceString(self::kStringImplementationTypeKey, basename(__DIR__));
+		$n = new FormattedData("'now'");
+		$this->setNowExpression($n);
 		
 		if (extension_loaded('sqlite3'))
 		{
@@ -133,6 +134,8 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 		$this->addDataType('REAL', kDataTypeNumber);
 		$this->addDataType('NUMERIC', kDataTypeNumber);
 		$this->addDataType('BLOB', kDataTypeBinary);
+		
+		$this->addDataType('CLOB', kDataTypeTimestamp);
 	}
 
 	public function __destruct()
@@ -335,7 +338,7 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 			
 			try
 			{
-				$this->m_datasourceResource = new SQLite3($mainDatabase, $flags, $ekey);
+				$this->m_datasourceResource = new \SQLite3($mainDatabase, $flags, $ekey);
 			}
 			catch (\Exception $e)
 			{
@@ -388,7 +391,7 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 	{
 		if ($this->m_implementation == self::kImplementationSQLite3)
 		{
-			if (!($this->resource instanceof SQLite3))
+			if (!($this->resource instanceof \SQLite3))
 			{
 				return false;
 			}
@@ -410,7 +413,7 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 	{
 		if (method_exists('\\SQLite3', 'escapeString'))
 		{
-			$$stringData = SQLite3::escapeString($stringData);
+			$$stringData = \SQLite3::escapeString($stringData);
 		}
 		elseif (function_exists('sqlite_escape_string'))
 		{
@@ -439,7 +442,7 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 		$result = null;
 		if ($this->m_implementation == self::kImplementationSQLite3)
 		{
-			if (!($this->resource instanceof SQLite3))
+			if (!($this->resource instanceof \SQLite3))
 			{
 				return ns\Reporter::error($this, __METHOD__ . '(): No Datasource');
 			}
@@ -598,7 +601,7 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 		$r = $a_queryResult->resultResource;
 		if ($this->m_implementation == self::kImplementationSQLite3)
 		{
-			if (!(($r instanceof SQLite3Result)))
+			if (!(($r instanceof \SQLite3Result)))
 			{
 				/**
 				 *
@@ -764,7 +767,7 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 		$result = null;
 		if ($this->m_implementation == self::kImplementationSQLite3)
 		{
-			if (!($this->resource instanceof SQLite3))
+			if (!($this->resource instanceof \SQLite3))
 			{
 				return ns\Reporter::error($this, __METHOD__ . '(): No Datasource', __FILE__, __LINE__);
 			}
@@ -793,12 +796,14 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 	 *
 	 * @var string
 	 */
-	protected $m_databaseName;
+	private $m_databaseName;
 
 	/**
 	 * SQLite extension to use
 	 *
 	 * @var integer
 	 */
-	protected $m_implementation;
+	private $m_implementation;
+	
+	private $m_nowExpression;
 }

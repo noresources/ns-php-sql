@@ -149,12 +149,12 @@ class SQLFunction extends ns\UnaryOperatorExpression implements IAliasable
 
 	/**
 	 *
-	 * @param string $a_function function name
+	 * @param string $functionName function name
 	 * @param mixed $a_values
 	 */
-	public function __construct($a_function, $a_values = null)
+	public function __construct($functionName, $a_values = null)
 	{
-		parent::__construct($a_function);
+		parent::__construct($functionName);
 		$this->m_expression = new ns\ParameterListExpression();
 		
 		if ($a_values instanceof ns\IExpression)
@@ -218,7 +218,7 @@ class SQLFunction extends ns\UnaryOperatorExpression implements IAliasable
 
 	public function clearParameters()
 	{
-		$this->m_expression = null;
+		$this->m_expression = new ns\ParameterListExpression();
 	}
 	
 	/**
