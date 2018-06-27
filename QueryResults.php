@@ -12,8 +12,8 @@
 namespace NoreSources\SQL;
 
 use NoreSources as ns;
-use \Iterator;
-use \Countable;
+use Iterator;
+use Countable;
 
 require_once ('base.php');
 
@@ -353,6 +353,9 @@ class InsertQueryResult extends QueryResult
 	protected $lastInsertId;
 }
 
+/**
+ * Result of a UPDATE
+ */
 class UpdateQueryResult extends QueryResult
 {
 
@@ -391,6 +394,9 @@ class UpdateQueryResult extends QueryResult
 	private $affectedRowCount;
 }
 
+/**
+ * Result of a DELETE query 
+ */
 class DeleteQueryResult extends QueryResult
 {
 

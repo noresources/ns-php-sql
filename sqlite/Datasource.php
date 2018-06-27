@@ -12,7 +12,6 @@
 namespace NoreSources\SQL;
 
 use NoreSources as ns;
-use \SQLite3;
 
 require_once (__DIR__ . '/../base.php');
 require_once (NS_PHP_CORE_PATH . '/arrays.php');
@@ -110,6 +109,8 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 		parent::__construct();
 		$this->setDatasourceString(self::kStringClassNameTableManipulator, __NAMESPACE__ . '\\SQLiteTableManipulator');
 		$this->setDatasourceString(self::kStringImplementationTypeKey, basename(__DIR__));
+		$n = new FormattedData("'now'");
+		$this->setNowExpression($n);
 		
 		if (extension_loaded('sqlite3'))
 		{
@@ -133,6 +134,8 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 		$this->addDataType('REAL', kDataTypeNumber);
 		$this->addDataType('NUMERIC', kDataTypeNumber);
 		$this->addDataType('BLOB', kDataTypeBinary);
+		
+		$this->addDataType('CLOB', kDataTypeTimestamp);
 	}
 
 	public function __destruct()
@@ -261,7 +264,7 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 	 */
 	public function connect($a_aParameters)
 	{
-		if ($this->resource())
+		if ($this->resource)
 		{
 			$this->disconnect();
 		}
@@ -335,7 +338,7 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 			
 			try
 			{
-				$this->m_datasourceResource = new SQLite3($mainDatabase, $flags, $ekey);
+				$this->m_datasourceResource = new \SQLite3($mainDatabase, $flags, $ekey);
 			}
 			catch (\Exception $e)
 			{
@@ -388,20 +391,20 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 	{
 		if ($this->m_implementation == self::kImplementationSQLite3)
 		{
-			if (!($this->resource() instanceof SQLite3))
+			if (!($this->resource instanceof \SQLite3))
 			{
 				return false;
 			}
 			
-			$this->resource()->close();
+			$this->resource->close();
 		}
 		elseif ($this->m_implementation == self::kImplementationLegacy)
 		{
-			if (!$this->resource())
+			if (!$this->resource)
 			{
 				return false;
 			}
-			sqlite_close($this->resource());
+			sqlite_close($this->resource);
 		}
 		return true;
 	}
@@ -410,7 +413,7 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 	{
 		if (method_exists('\\SQLite3', 'escapeString'))
 		{
-			$$stringData = SQLite3::escapeString($stringData);
+			$$stringData = \SQLite3::escapeString($stringData);
 		}
 		elseif (function_exists('sqlite_escape_string'))
 		{
@@ -439,32 +442,32 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 		$result = null;
 		if ($this->m_implementation == self::kImplementationSQLite3)
 		{
-			if (!($this->resource() instanceof SQLite3))
+			if (!($this->resource instanceof \SQLite3))
 			{
 				return ns\Reporter::error($this, __METHOD__ . '(): No Datasource');
 			}
 			
-			$result = @$this->resource()->query($a_strQuery);
+			$result = @$this->resource->query($a_strQuery);
 		}
 		elseif ($this->m_implementation == self::kImplementationLegacy)
 		{
-			if (!$this->resource())
+			if (!$this->resource)
 			{
 				return ns\Reporter::error($this, __METHOD__ . '(): No Datasource');
 			}
 			
-			$result = sqlite_query($this->resource(), $a_strQuery, SQLITE_BOTH, $errorMessage);
+			$result = sqlite_query($this->resource, $a_strQuery, SQLITE_BOTH, $errorMessage);
 		}
 		
 		if (!$result)
 		{
 			if ($this->m_implementation == self::kImplementationSQLite3)
 			{
-				$errorMessage = $this->resource()->lastErrorMsg();
+				$errorMessage = $this->resource->lastErrorMsg();
 			}
 			elseif ($this->m_implementation == self::kImplementationLegacy)
 			{
-				$errorMessage = sqlite_error_string(sqlite_last_error($this->resource()));
+				$errorMessage = sqlite_error_string(sqlite_last_error($this->resource));
 			}
 			
 			return ns\Reporter::error($this, __METHOD__ . '(): Query error: ' . $a_strQuery . ' / ' . $errorMessage);
@@ -482,11 +485,11 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 	{
 		if ($this->m_implementation == self::kImplementationSQLite3)
 		{
-			return $this->resource()->lastInsertRowID();
+			return $this->resource->lastInsertRowID();
 		}
 		elseif ($this->m_implementation == self::kImplementationLegacy)
 		{
-			return sqlite_last_insert_rowid($this->resource());
+			return sqlite_last_insert_rowid($this->resource);
 		}
 		
 		return 0;
@@ -598,7 +601,7 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 		$r = $a_queryResult->resultResource;
 		if ($this->m_implementation == self::kImplementationSQLite3)
 		{
-			if (!(($r instanceof SQLite3Result)))
+			if (!(($r instanceof \SQLite3Result)))
 			{
 				/**
 				 *
@@ -635,11 +638,11 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 		 */
 		if ($this->m_implementation == self::kImplementationSQLite3)
 		{
-			return $this->resource()->changes();
+			return $this->resource->changes();
 		}
 		elseif ($this->m_implementation == self::kImplementationLegacy)
 		{
-			return sqlite_changes($this->resource());
+			return sqlite_changes($this->resource);
 		}
 		
 		return 0;
@@ -764,20 +767,20 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 		$result = null;
 		if ($this->m_implementation == self::kImplementationSQLite3)
 		{
-			if (!($this->resource() instanceof SQLite3))
+			if (!($this->resource instanceof \SQLite3))
 			{
 				return ns\Reporter::error($this, __METHOD__ . '(): No Datasource', __FILE__, __LINE__);
 			}
 			
-			$result = $this->resource()->exec($a_strQuery);
+			$result = $this->resource->exec($a_strQuery);
 		}
 		elseif ($this->m_implementation == self::kImplementationLegacy)
 		{
-			if (!$this->resource())
+			if (!$this->resource)
 			{
 				return ns\Reporter::error($this, __METHOD__ . '(): No Datasource');
 			}
-			$result = sqlite_query($this->resource(), $a_strQuery, SQLITE_BOTH, $errorMessage);
+			$result = sqlite_query($this->resource, $a_strQuery, SQLITE_BOTH, $errorMessage);
 		}
 		
 		if (!$result)
@@ -793,12 +796,14 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 	 *
 	 * @var string
 	 */
-	protected $m_databaseName;
+	private $m_databaseName;
 
 	/**
 	 * SQLite extension to use
 	 *
 	 * @var integer
 	 */
-	protected $m_implementation;
+	private $m_implementation;
+	
+	private $m_nowExpression;
 }
