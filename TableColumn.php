@@ -173,8 +173,12 @@ class ConstantColumn implements IExpression, IAliasable
 	public function __construct(Datasource $datasource, $columnName, $value)
 	{
 		$this->datasource = $datasource;
-		$this->value = $datasource->createData(Data::dataTypeFromValue($value));
-		$this->value->import($value);
+		$this->value = $value;
+		if (!($value instanceof ns\IExpression))
+		{
+			$this->value = $datasource->createData(Data::dataTypeFromValue($value));
+			$this->value->import($value);
+		}
 		$this->alias = new Alias($datasource, $columnName);
 	}
 
@@ -229,6 +233,14 @@ class ConstantColumn implements IExpression, IAliasable
 	 * @var Alias
 	 */
 	private $alias;
+}
+
+class SelectQueryColumn extends ConstantColumn
+{
+	public function __construct(SelectQuery $query, $columnName)
+	{
+		parent::__construct($query->datasource, $columnName, new ns\SurroundingElementExpression($query));
+	}
 }
 
 /**
