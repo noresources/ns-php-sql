@@ -1180,7 +1180,7 @@ class SelectQuery extends TableQuery implements ns\IExpression
 	 *
 	 * @param Table $table
 	 * @param string $a_joinType
-	 * @return \NoreSources\SQL\ISelectQueryJoin
+	 * @return \NoreSources\SQL\SelectQueryJoin
 	 */
 	public function createJoin(Table $table, $a_joinType = kJoinNatural)
 	{

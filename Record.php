@@ -115,11 +115,19 @@ class ColumnValueFilter implements RecordQueryOption
 	/**
 	 *
 	 * @param mixel $column Column name or TableColumn
-	 * @param string $operator Operator
+	 * @param string $operator
+	 * <ul>
+	 * 	<li>"=": Equal. @c $value could be anything</li>
+	 *  <li>"in": List of values. @c $value must be an array of values</li>
+	 *  <li>"between": Interval. @c value must be an array of two values</li>
+	 *  <li>"<", "<=", ">", ">=": Comparison operators</li>
+	 *  <li>"like": String pattern. @c $value must be a SQL pattern string</li>
+	 *  <li>"null": Comparison to NULL. @c $value is ignored. Equivalent to @c $operator = "=" and @c $value = null</li>
+	 * </ul>
 	 * @param mixed $value Value
 	 * @param boolean $positive
 	 */
-	public function __construct($column, $operator, $value, $positive = true)
+	public function __construct($column, $operator, $value = null, $positive = true)
 	{
 		$this->columnName = ($column instanceof TableColumn) ? $column->getName() : $column;
 		$this->positive = $positive;
@@ -142,16 +150,35 @@ class ColumnValueFilter implements RecordQueryOption
 	 * @param string $className
 	 * @param Table $table
 	 * @param string $operator
-	 * @param mixed $value
-	 * @param string $positive
+	 * <ul>
+	 * 	<li>"=": Equal. @c $value could be anything</li>
+	 *  <li>"in": List of values. @c $value must be an array of values</li>
+	 *  <li>"between": Interval. @c value must be an array of two values</li>
+	 *  <li>"<", "<=", ">", ">=": Comparison operators</li>
+	 *  <li>"like": String pattern. @c $value must be a SQL pattern string</li>
+	 *  <li>"null": Comparison to NULL. @c $value is ignored. Equivalent to @c $operator = "=" and @c $value = null</li>
+	 * </ul>
+	 * @param mixed $value Right operand. Type depends on @c $operator
+	 * @param boolean $positive Reverse operator behavior
 	 * @return IExpression
 	 */
-	public function createExpression($className, Table $table, $operator, $value, $positive = true)
+	public function createExpression($className, Table $table, $operator, $value = null, $positive = true)
 	{
+		$datasource = $table->datasource;
 		$column = $table->getColumn($this->columnName);
 		switch ($operator)
 		{
 			case '=':
+				if (is_null ($value))
+				{
+					$e = new ns\BinaryOperatorExpression('IS', $column, $datasource->createData(kDataTypeNull));
+					$e->protect(false);
+					if (!$positive)
+						$e = new SQLNot($e);
+					return $e;
+					break;
+				}
+				// otherwise ...
 			case 'in':
 				return new SQLSmartEquality($column, call_user_func(array (
 						$className,
@@ -202,6 +229,14 @@ class ColumnValueFilter implements RecordQueryOption
 				}
 				
 				return $e;
+				break;
+			case null:
+			case 'null':
+				$e = new ns\BinaryOperatorExpression('IS', $column, $datasource->createData(kDataTypeNull));
+				$e->protect(false);
+				if (!$positive)
+					$e = new SQLNot($e);
+					return $e;
 				break;
 		}
 		
@@ -519,7 +554,7 @@ class Record implements \ArrayAccess
 				}
 			}
 		}
-		
+
 		$recordset = $s->execute();
 		if (is_object($recordset) && ($recordset instanceof Recordset) && ($recordset->rowCount))
 		{
