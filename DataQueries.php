@@ -74,8 +74,8 @@ class InsertQuery extends TableQuery implements ns\IExpression
 		
 		$qs = 'INSERT INTO ' . $this->table->expressionString(kExpressionElementName);
 		
-		$qs .= ' (' . ns\array_implode_keys(', ', $this->columnValues);
-		$qs .= ') VALUES(' . ns\array_implode_values(', ', $this->columnValues) . ')';
+		$qs .= ' (' . ns\ArrayUtil::implodeKeys(', ', $this->columnValues);
+		$qs .= ') VALUES(' . ns\ArrayUtil::implodeValues(', ', $this->columnValues) . ')';
 		
 		return $qs;
 	}
@@ -231,7 +231,7 @@ class UpdateQuery extends TableQuery implements ns\IExpression
 		 * ns\Reporter::error($this, __METHOD__.': No field set.'); }
 		 */
 		$qs = 'UPDATE ' . $this->table->expressionString(kExpressionElementName) . ' SET ';
-		$qs .= ' ' . ns\array_implode_cb(', ', $this->columnValues, array (
+		$qs .= ' ' . ns\ArrayUtil::implode(', ', $this->columnValues, array (
 				get_class($this),
 				'glueSetStatements' 
 		));
@@ -618,7 +618,7 @@ class SelectQueryGroupByStatement implements ns\IExpression
 	{
 		if (count($this->m_columns))
 		{
-			return 'GROUP BY ' . ns\array_implode_cb(', ', $this->m_columns, array (
+			return 'GROUP BY ' . ns\ArrayUtil::implode(', ', $this->m_columns, array (
 					get_class($this),
 					'glueGroupByStatement' 
 			), $a_options);
@@ -726,7 +726,7 @@ class SelectQueryOrderByStatement implements ISelectQueryOrderByStatement
 	{
 		if (count($this->m_columns))
 		{
-			return 'ORDER BY ' . ns\array_implode_cb(', ', $this->m_columns, array (
+			return 'ORDER BY ' . ns\ArrayUtil::implode(', ', $this->m_columns, array (
 					get_class($this),
 					'glueOrderByStatement' 
 			), $a_options);
@@ -1068,7 +1068,7 @@ class SelectQuery extends TableQuery implements ns\IExpression
 				$selectColumnAliases[] = $c->expressionString(kExpressionElementAlias);
 			}
 			
-			$qs .= ns\array_implode_cb($this->m_columns, ', ', __NAMESPACE__ . '\\glueElementDeclarations');
+			$qs .= ns\ArrayUtil::implode($this->m_columns, ', ', __NAMESPACE__ . '\\glueElementDeclarations');
 		}
 		else
 		{

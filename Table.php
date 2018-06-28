@@ -10,8 +10,6 @@ namespace NoreSources\SQL;
 
 use NoreSources as ns;
 
-require_once (NS_PHP_PATH . '/core/arrays.php');
-
 /**
  * Table representation class
  *

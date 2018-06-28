@@ -4,7 +4,6 @@ namespace NoreSources\SQL;
 
 use NoreSources as ns;
 
-require_once (NS_PHP_CORE_PATH . '/arrays.php');
 
 /**
  * The record values differs from the entry stored in the datasource
