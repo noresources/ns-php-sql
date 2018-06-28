@@ -93,7 +93,7 @@ class SQLSmartEquality extends ns\BinaryOperatorExpression
 		$strOperator = '=';
 		
 		// force to construct a FormattedData object
-		if (!(($a_value instanceof Data) || ($a_value instanceof SelectQuery) || ($a_value instanceof DataList) || ($a_value instanceof SQLFunction)))
+		if (!($a_value instanceof ns\IExpression))
 		{
 			if ($a_column instanceof TableColumn)
 			{
@@ -115,7 +115,7 @@ class SQLSmartEquality extends ns\BinaryOperatorExpression
 			}
 			else
 			{
-				ns\Reporter::addWarning($this, __METHOD__ . '(): Argument 1 is not a TableColumn and argument 2 is not a SQLValue. ' . 'The method will not be able to precisely determine data type.', __FILE__, __LINE__);
+				ns\Reporter::addWarning($this, __METHOD__ . '(): Argument 1 is not a TableColumn and argument 2 is not a IExpression. ' . 'The method will not be able to precisely determine data type.', __FILE__, __LINE__);
 				$a_value = bestEffortImport($a_value);
 			}
 		}
