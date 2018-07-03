@@ -14,7 +14,6 @@ namespace NoreSources\SQL;
 use NoreSources as ns;
 
 require_once (__DIR__ . '/../base.php');
-require_once (NS_PHP_CORE_PATH . '/arrays.php');
 
 /**
  * Notes:

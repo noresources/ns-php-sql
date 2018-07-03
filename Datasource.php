@@ -13,7 +13,6 @@ namespace NoreSources\SQL;
 
 use NoreSources as ns;
 
-require_once (NS_PHP_CORE_PATH . '/arrays.php');
 require_once (__DIR__ . '/base.php');
 
 /**
@@ -132,10 +131,10 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 	{
 		if (!\is_array($settings))
 		{
-			$settings = ns\to_array($settings, kConnectionParameterHostname);
+			$settings = ns\ArrayUtil::createArray($settings, kConnectionParameterHostname);
 		}
 		
-		$cls = ns\array_keyvalue($settings, kConnectionParameterClassname, null);
+		$cls = ns\ArrayUtil::keyValue($settings, kConnectionParameterClassname, null);
 		if (!is_string($cls))
 		{
 			return ns\Reporter::error(__CLASS__, __METHOD__ . ' Unable to create Datasource without ' . kConnectionParameterClassname . ' parameter', __FILE__, __LINE__);
@@ -156,7 +155,7 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 			}
 		}
 		
-		$structureFile = ns\array_keyvalue($settings, kConnectionParameterStructureFile, null);
+		$structureFile = ns\ArrayUtil::keyValue($settings, kConnectionParameterStructureFile, null);
 		if ($structureFile)
 		{
 			if (!file_exists($structureFile))

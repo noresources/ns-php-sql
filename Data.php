@@ -15,7 +15,6 @@ use NoreSources as ns;
 
 require_once ('base.php');
 require_once (NS_PHP_CORE_PATH . '/Expressions.php');
-require_once (NS_PHP_CORE_PATH . '/arrays.php');
 
 use DateTime;
 
@@ -667,7 +666,7 @@ class DataList implements ns\IExpression
 	public static function fromList($list, TableColumn $column = null)
 	{
 		$o = new DataList();
-		if (!ns\is_array($list))
+		if (!ns\ArrayUtil::isArray($list))
 		{
 			return ns\Reporter::error(__CLASS__, __METHOD__ . ': Array expected');
 		}
@@ -702,7 +701,7 @@ class DataList implements ns\IExpression
 
 	public function expressionString($options = null)
 	{
-		$s = ns\array_implode_cb($this->m_values, ', ', array (
+		$s = ns\ArrayUtil::implode($this->m_values, ', ', array (
 				$this,
 				'glueData' 
 		), $options);
