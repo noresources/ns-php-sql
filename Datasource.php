@@ -275,9 +275,9 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 	 */
 	public function getTableSetIterator()
 	{
-		if ($this->m_structure)
+		if ($this->structure)
 		{
-			return $this->m_structure;
+			return $this->structure;
 		}
 		
 		return null;
@@ -295,7 +295,7 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 	 */
 	public function tableSetExists($tablesetName)
 	{
-		return ($this->m_structure) ? ($this->m_structure->offsetExists($tablesetName)) : true;
+		return ($this->structure) ? ($this->structure->offsetExists($tablesetName)) : true;
 	}
 
 	// Datasource API
@@ -305,9 +305,13 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 	 *
 	 * @param DatasourceStructure $a_structure Datasource structure
 	 */
-	public final function setStructure(DatasourceStructure $a_structure)
+	public final function setStructure(StructureElement $a_structure)
 	{
-		$this->m_structure = $a_structure;
+		if ($a_structure !== null)
+			if (!($a_structure instanceof DatasourceStructure))
+				throw new \InvalidArgumentException('Structure must be a DatasourceStructure');
+			
+		parent::setStructure($a_structure);
 	}
 
 	/**

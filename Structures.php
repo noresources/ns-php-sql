@@ -960,6 +960,11 @@ class SQLObject
 		
 		throw new \InvalidArgumentException(get_class($this) . '::' . $member);
 	}
+	
+	public function setStructure (StructureElement $structure)
+	{
+		$this->m_structure = $structure;
+	}
 
 	/**
 	 *
