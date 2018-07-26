@@ -17,8 +17,6 @@ use NoreSources as ns;
  * Provide an access to TableSet object which
  * represents each table set contained in
  * the data source connection
- *
- * @deprecated Now parts of Datasource interface
  */
 interface ITableSetProvider
 {
@@ -57,7 +55,22 @@ interface ITableSetProvider
 	 * @param string $name
 	 * @return boolean
 	 */
-	function setActiveTableSet ($name);
+	function setActiveTableSet($name);
+
+	/**
+	 * Get the name of the active table set
+	 *
+	 * If not set, return the default table set name
+	 *
+	 * @return string
+	 */
+	function getActiveTableSet();
+
+	/**
+	 * Get the default table set name
+	 * @return string
+	 */
+	function getDefaultTableSet();
 }
 
 /**
@@ -89,14 +102,12 @@ interface ITableProvider
 	 * @return Iterator
 	 */
 	function tableIterator();
-	
+
 	/**
 	 * Query table presence
-	 * @param string $a_name
-	 *        	Table name
-	 * @param integer $a_mode
-	 *        	Query mode
-	 *        
+	 * @param string $a_name Table name
+	 * @param integer $a_mode Query mode
+	 *       
 	 * @return boolean
 	 */
 	function tableExists($a_name, $a_mode = kObjectQuerySchema);
@@ -122,12 +133,9 @@ interface ITableColumnProvider
 
 	/**
 	 *
-	 * @param
-	 *        	$a_name
-	 * @param
-	 *        	$a_alias
-	 * @param
-	 *        	$a_className
+	 * @param $a_name
+	 * @param $a_alias
+	 * @param $a_className
 	 * @return TableColumn
 	 */
 	function getColumn($a_name, $a_alias = null, $a_className = null);
@@ -140,8 +148,7 @@ interface ITableColumnProvider
 
 	/**
 	 *
-	 * @param
-	 *        	$a_name
+	 * @param $a_name
 	 * @return bool
 	 */
 	function columnExists($a_name);

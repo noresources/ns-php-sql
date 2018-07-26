@@ -242,6 +242,16 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 		return $result;
 	}
 
+	public function getDefaultTableSet()
+	{
+		return self::kDatabaseNameDefault;
+	}
+
+	public function getActiveTableSet()
+	{
+		return $this->m_databaseName;
+	}
+
 	// ITableSetProvider
 	public function setActiveTableSet($name)
 	{

@@ -766,7 +766,7 @@ class TableStructure extends StructureElement
 		
 		return $result;
 	}
-	
+
 	public function getForeignKeyReferences()
 	{
 		$result = array ();
@@ -782,7 +782,7 @@ class TableStructure extends StructureElement
 		return $result;
 	}
 
-	public function addColumnStructure (TableColumnStructure $f)
+	public function addColumnStructure(TableColumnStructure $f)
 	{
 		$this->appendChild($f);
 	}
@@ -959,6 +959,11 @@ class SQLObject
 		}
 		
 		throw new \InvalidArgumentException(get_class($this) . '::' . $member);
+	}
+
+	public function setStructure(StructureElement $structure)
+	{
+		$this->m_structure = $structure;
 	}
 
 	/**

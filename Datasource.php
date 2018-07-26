@@ -249,11 +249,14 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 	/**
 	 * Provide a TableSet object
 	 *
-	 * @param string $a_name
-	 * @return TableSet
+	 * @param string $a_name Table set name or NULL to get the active one
+	 * @return \NoreSources\SQL\TableSet
 	 */
-	public function getTableSet($a_name)
+	public function getTableSet($a_name = null)
 	{
+		if ($a_name === null)
+			$a_name = $this->getActiveTableSet();
+		
 		$subStructure = null;
 		if ($this->structure)
 		{
@@ -272,9 +275,9 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 	 */
 	public function getTableSetIterator()
 	{
-		if ($this->m_structure)
+		if ($this->structure)
 		{
-			return $this->m_structure;
+			return $this->structure;
 		}
 		
 		return null;
@@ -292,7 +295,7 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 	 */
 	public function tableSetExists($tablesetName)
 	{
-		return ($this->m_structure) ? ($this->m_structure->offsetExists($tablesetName)) : true;
+		return ($this->structure) ? ($this->structure->offsetExists($tablesetName)) : true;
 	}
 
 	// Datasource API
@@ -302,9 +305,13 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 	 *
 	 * @param DatasourceStructure $a_structure Datasource structure
 	 */
-	public final function setStructure(DatasourceStructure $a_structure)
+	public final function setStructure(StructureElement $a_structure)
 	{
-		$this->m_structure = $a_structure;
+		if ($a_structure !== null)
+			if (!($a_structure instanceof DatasourceStructure))
+				throw new \InvalidArgumentException('Structure must be a DatasourceStructure');
+		
+		parent::setStructure($a_structure);
 	}
 
 	/**
@@ -465,7 +472,7 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 		
 		return null;
 	}
-	
+
 	/**
 	 * Serialize string to be inserted in a test/string column
 	 * @return string
@@ -593,12 +600,11 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 		$this->m_datasourceStrings[$a_key] = $a_value;
 	}
 
-	
-	protected function setNowExpression (ns\IExpression $expression)
+	protected function setNowExpression(ns\IExpression $expression)
 	{
 		$this->m_nowExpression = $expression;
 	}
-	
+
 	/**
 	 * Connection resource
 	 *
@@ -633,6 +639,6 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 	 * @var array
 	 */
 	private $m_datasourceStrings;
-	
+
 	private $m_nowExpression;
 }
