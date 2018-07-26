@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Copyright © 2012-2017 by Renaud Guillard (dev@nore.fr)
+ * Copyright © 2012-2018 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
  */
 
@@ -125,16 +125,6 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 		}
 		
 		$this->m_databaseName = null;
-		
-		$this->addDataType('TEXT', kDataTypeString);
-		$this->addDataType('VARCHAR', kDataTypeString);
-		
-		$this->addDataType('INTEGER', kDataTypeNumber);
-		$this->addDataType('REAL', kDataTypeNumber);
-		$this->addDataType('NUMERIC', kDataTypeNumber);
-		$this->addDataType('BLOB', kDataTypeBinary);
-		
-		$this->addDataType('CLOB', kDataTypeTimestamp);
 	}
 
 	public function __destruct()
@@ -815,4 +805,22 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 	private $m_implementation;
 
 	private $m_nowExpression;
+
+	public static function initialize()
+	{
+		if (!self::initializeDatasourceData(get_called_class()))
+			return;
+		
+		self::addDataType('TEXT', kDataTypeString);
+		self::addDataType('VARCHAR', kDataTypeString);
+		self::addDataType('INTEGER', kDataTypeInteger);
+		self::addDataType('INTEGER', kDataTypeNumber);
+		self::addDataType('REAL', kDataTypeDecimal);
+		self::addDataType('REAL', kDataTypeNumber);
+		self::addDataType('NUMERIC', kDataTypeNumber);
+		self::addDataType('BLOB', kDataTypeBinary);
+		self::setDefaultTypeName(kDataTypeTimestamp, 'TEXT');
+	}
 }
+
+SQLiteDatasource::initialize();

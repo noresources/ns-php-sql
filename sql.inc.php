@@ -38,6 +38,7 @@ function version_number()
 }
 
 /**
+ *
  * @defgroup structure 'Structure properties'
  * @{
  */
@@ -57,7 +58,6 @@ const kStructurePrimaryKey = 'primary';
  * Value type: boolean
  */
 const kStructureAutoincrement = 'auto';
-
 const kStructureForeignKey = 'foreign';
 
 /**
@@ -102,7 +102,6 @@ const kStructureAcceptMultipleValues = 'accept_multivalues';
 
 // Datasource-relative / Application-relative properties
 
-
 /**
  * The field typename (datasource dependant)
  */
@@ -114,12 +113,13 @@ const kStructureFieldTypename = 'typename';
 const kStructureValidatorClassname = 'validator_classname';
 
 /**
+ *
  * @}
  */
 // group 'structure'
 
-
 /**
+ *
  * @defgroup elemdisplay 'Element expression display options'
  * @{
  */
@@ -140,10 +140,12 @@ const kExpressionElementAlias = 0x2;
 const kExpressionElementDeclaration = 0x3;
 
 /**
+ *
  * @} // group 'elemdisplay'
  */
 
 /**
+ *
  * @defgroup jointypes 'Join types'
  * @{
  */
@@ -182,10 +184,12 @@ const kJoinLeft = 'sql.join.left';
 const kJoinRight = 'sql.join.right';
 
 /**
+ *
  * @} // group jointypes
  */
 
 /**
+ *
  * @defgroup datatypes 'Data types'
  * @{
  */
@@ -193,40 +197,53 @@ const kJoinRight = 'sql.join.right';
 /**
  * null element
  */
-const kDataTypeNull = 1;
+const kDataTypeNull = 0x01;
 
 /**
  * Manage all kind of string based element
  */
-const kDataTypeString = 2;
+const kDataTypeString = 0x02;
+
+/**
+ * Integer number
+ * @var int
+ */
+const kDataTypeInteger = 0x04;
+
+/**
+ * Decimal number
+ * @var int
+ */
+const kDataTypeDecimal = 0x08;
 
 /**
  * Manage all kind of number element
  */
-const kDataTypeNumber = 4;
+const kDataTypeNumber = 0x0c; // 0x04 + 0x08
 
 /**
  * All kind of date (date, datetime, time)
  */
-const kDataTypeTimestamp = 8;
+const kDataTypeTimestamp = 0x10;
 
 /**
  * Boolean (true / false)
  */
-const kDataTypeBoolean = 16;
+const kDataTypeBoolean = 0x20;
 
 /**
  * Binary data
  */
-const kDataTypeBinary = 32;
+const kDataTypeBinary = 0x40;
 
 /**
+ *
  * @}
  */
 // group 'datatype'
 
-
 /**
+ *
  * @defgroup params 'A series of standard parameters for data source connection''
  * @{
  */
@@ -264,7 +281,8 @@ const kConnectionParameterFilename = 'sql.source.file';
 /**
  * PostgresSQL: Postgres data source to connect to
  * SQLite: defines the name of the main SQLite main table
- * MySQL: If @c kConnectionParameterActiveTableSet is not set. Set the active MySQL database
+ * MySQL: If @c kConnectionParameterActiveTableSet is not set.
+ * Set the active MySQL database
  * @var string
  */
 const kConnectionParameterDatabasename = 'sql.source.database';
@@ -308,24 +326,26 @@ const kConnectionParameterCreate = 'sql.source.create';
 const kConnectionParameterStructureFile = 'sql.source.structure';
 
 /**
+ *
  * @}
  */
 // group 'params'
 
-
 /**
+ *
  * @defgroup cnxflags 'Datasource connection flags'
  * @{
  */
 const kConnectionPersistent = 0x01;
 
 /**
+ *
  * @}
  */
 // group 'cnxflags'
 
-
 /**
+ *
  * @defgroup ExecutionQueryFlags
  * @{
  */
@@ -333,11 +353,12 @@ const kRecordsetFetchName = 0x01;
 const kRecordsetFetchNumeric = 0x02;
 const kRecordsetFetchBoth = 0x03;
 /**
+ *
  * @}
  */
 
-
 /**
+ *
  * @defgroup Datasourcequeries 'Datasource elements queries'
  * @{
  */
@@ -358,9 +379,9 @@ const kObjectQueryDatasource = 0x2;
 const kObjectQueryBoth = 0x3;
 
 /**
+ *
  * @}
  */
 // group 'Datasourcequeries'
-
 
 include_once (NS_PHP_SQL_PATH . '/sql.autoload.inc.php');

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Copyright © 2012-2017 by Renaud Guillard (dev@nore.fr)
+ * Copyright © 2012-2018 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
  */
 
@@ -35,80 +35,6 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 		$this->setDatasourceString(self::kStringImplementationTypeKey, basename(__DIR__));
 		
 		$this->activeTableSetName = self::kDefaultTableSetName;
-		
-		// Data types
-		
-		$type = array (
-				'character varying',
-				'varchar' 
-		);
-		foreach ($type as $name)
-		{
-			$this->addDataType($name, kDataTypeString, __NAMESPACE__ . '\\PostgreSQLStringData');
-		}
-		
-		$type = array (
-				'text' 
-		);
-		foreach ($type as $name)
-		{
-			$this->addDataType($name, kDataTypeString);
-		}
-		
-		$type = array (
-				'bytes' 
-		);
-		foreach ($type as $name)
-		{
-			$this->addDataType($name, kDataTypeBinary, __NAMESPACE__ . '\\PostgreSQLBinaryData');
-		}
-		
-		$type = array (
-				'timestamp',
-				'timestamp without timezone',
-				'date',
-				'time',
-				'time without timezone' 
-		);
-		foreach ($type as $name)
-		{
-			$this->addDataType($name, kDataTypeTimestamp);
-		}
-		
-		$this->addDataType("boolean", kDataTypeBoolean);
-		
-		// number types
-		$type = array (
-				'smallint',
-				'integer',
-				'bigint',
-				'int2',
-				'int4',
-				'int8',
-				'serial',
-				'big serial' 
-		);
-		foreach ($type as $name)
-		{
-			$this->addDataType($name, kDataTypeNumber);
-		}
-		
-		$type = array (
-				'numeric',
-				'decimal',
-				'real',
-				'double precision' 
-		);
-		foreach ($type as $name)
-		{
-			$this->addDataType($name, kDataTypeNumber);
-		}
-		
-		$this->setDefaultTypeName(kDataTypeBinary, 'bytes', 'PostgreSQLBinaryData');
-		$this->setDefaultTypeName(kDataTypeBoolean, 'boolean');
-		$this->setDefaultTypeName(kDataTypeTimestamp, 'timestamp');
-		$this->setDefaultTypeName(kDataTypeNumber, 'integer');
-		$this->setDefaultTypeName(kDataTypeString, 'text');
 		
 		// Keywords
 		$this->setDatasourceString(self::kStringKeywordTrue, "TRUE");
@@ -571,4 +497,85 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 	}
 
 	protected $activeTableSetName;
+
+	public static function initialize()
+	{
+		if (!self::initializeDatasourceData(get_called_class()))
+			return;
+		
+		// Data types
+		
+		$type = array (
+				'character varying',
+				'varchar',
+				'text' 
+		);
+		
+		foreach ($type as $name)
+		{
+			self::addDataType($name, kDataTypeString);
+		}
+		
+		$type = array (
+				'bytes' 
+		);
+		foreach ($type as $name)
+		{
+			self::addDataType($name, kDataTypeBinary, __NAMESPACE__ . '\\PostgreSQLBinaryData');
+		}
+		
+		$type = array (
+				'timestamp',
+				'timestamp without timezone',
+				'date',
+				'time',
+				'time without timezone' 
+		);
+		
+		foreach ($type as $name)
+		{
+			self::addDataType($name, kDataTypeTimestamp);
+		}
+		
+		self::addDataType("boolean", kDataTypeBoolean);
+		
+		$type = array (
+				'numeric',
+				'decimal',
+				'real',
+				'double precision' 
+		);
+		foreach ($type as $name)
+		{
+			self::addDataType($name, kDataTypeDecimal);
+			self::addDataType($name, kDataTypeNumber);
+		}
+		
+		// number types
+		$type = array (
+				'smallint',
+				'integer',
+				'bigint',
+				'int2',
+				'int4',
+				'int8',
+				'serial',
+				'big serial' 
+		);
+		foreach ($type as $name)
+		{
+			self::addDataType($name, kDataTypeInteger);
+			self::addDataType($name, kDataTypeNumber);
+		}
+		
+		self::setDefaultTypeName(kDataTypeBinary, 'bytes', PostgreSQLBinaryData::class);
+		self::setDefaultTypeName(kDataTypeBoolean, 'boolean');
+		self::setDefaultTypeName(kDataTypeTimestamp, 'timestamp');
+		self::setDefaultTypeName(kDataTypeInteger, 'integer');
+		self::setDefaultTypeName(kDataTypeDecimal, 'real');
+		self::setDefaultTypeName(kDataTypeNumber, 'numeric');
+		self::setDefaultTypeName(kDataTypeString, 'text');
+	}
 }
+
+PostgreSQLDatasource::initialize();

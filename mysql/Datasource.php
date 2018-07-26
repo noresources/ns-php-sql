@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Copyright © 2012-2017 by Renaud Guillard (dev@nore.fr)
+ * Copyright © 2012-2018 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
  */
 
@@ -136,52 +136,6 @@ class MySQLDatasource extends Datasource implements ITransactionBlock
 		elseif (extension_loaded('mysql'))
 		{
 			$this->m_implementation = kMySQLImplementationMysql;
-		}
-		
-		// text types
-		$this->addDataType('TEXT', kDataTypeString);
-		$types = array (
-				'CHAR',
-				'VARCHAR',
-				'TINYTEXT',
-				'TINYBLOB',
-				'BLOB',
-				'MEDIUMTEXT',
-				'MEDIUMBLOB',
-				'LONGTEXT',
-				'LONGBLOB',
-				'ENUM' 
-		);
-		foreach ($types as $name)
-		{
-			$this->addDataType($name, kDataTypeString);
-		}
-		
-		$this->addDataType('BINARY', kDataTypeBinary);
-		$this->addDataType('VARBINARY', kDataTypeBinary);
-		
-		$this->addDataType('BOOL', kDataTypeBoolean);
-		
-		$this->addDataType('TIMESTAMP', kDataTypeTimestamp);
-		$this->addDataType('DATE', kDataTypeTimestamp);
-		$this->addDataType('TIME', kDataTypeTimestamp);
-		$this->addDataType('DATETIME', kDataTypeTimestamp);
-		
-		// number types
-		$types = array (
-				'INT',
-				'BIGINT',
-				'MEDIUMINT',
-				'SMALLINT',
-				'TINYINT',
-				//'INT',
-				'FLOAT',
-				'DOUBLE',
-				'DECIMAL' 
-		);
-		foreach ($types as $name)
-		{
-			$this->addDataType($name, kDataTypeNumber);
 		}
 	}
 
@@ -701,4 +655,67 @@ class MySQLDatasource extends Datasource implements ITransactionBlock
 	}
 
 	protected $m_implementation;
+
+	public static function initialize()
+	{
+		if (!self::initializeDatasourceData(get_called_class()))
+			return;
+		
+		// text types
+		self::addDataType('TEXT', kDataTypeString);
+		$types = array (
+				'CHAR',
+				'VARCHAR',
+				'TINYTEXT',
+				'TINYBLOB',
+				'BLOB',
+				'MEDIUMTEXT',
+				'MEDIUMBLOB',
+				'LONGTEXT',
+				'LONGBLOB',
+				'ENUM' 
+		);
+		foreach ($types as $name)
+		{
+			self::addDataType($name, kDataTypeString);
+		}
+		
+		self::addDataType('BINARY', kDataTypeBinary);
+		self::addDataType('VARBINARY', kDataTypeBinary);
+		
+		self::addDataType('BOOL', kDataTypeBoolean);
+		
+		self::addDataType('TIMESTAMP', kDataTypeTimestamp);
+		self::addDataType('DATE', kDataTypeTimestamp);
+		self::addDataType('TIME', kDataTypeTimestamp);
+		self::addDataType('DATETIME', kDataTypeTimestamp);
+		
+		// number types
+		$types = array (
+				'FLOAT',
+				'DOUBLE',
+				'DECIMAL' 
+		);
+		foreach ($types as $name)
+		{
+			self::addDataType($name, kDataTypeDecimal);
+			self::addDataType($name, kDataTypeNull);
+		}
+		
+		// number types
+		$types = array (
+				'INT',
+				'BIGINT',
+				'MEDIUMINT',
+				'SMALLINT',
+				'TINYINT' 
+		);
+		foreach ($types as $name)
+		{
+			self::addDataType($name, kDataTypeInteger);
+			self::addDataType($name, kDataTypeNumber);
+		}
+	}
 }
+
+MySQLDatasource::initialize();
