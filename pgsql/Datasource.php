@@ -161,6 +161,16 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 		 */
 	}
 
+	public function getDefaultTableSet()
+	{
+		return self::kDefaultTableSetName;	
+	}
+	
+	public function getActiveTableSet()
+	{
+		return $this->activeTableSetName;
+	}
+	
 	// ITableSetProvider implementation
 	public function setActiveTableSet($name)
 	{

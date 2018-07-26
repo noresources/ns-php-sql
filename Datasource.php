@@ -249,11 +249,14 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 	/**
 	 * Provide a TableSet object
 	 *
-	 * @param string $a_name
-	 * @return TableSet
+	 * @param string $a_name Table set name or NULL to get the active one
+	 * @return \NoreSources\SQL\TableSet
 	 */
-	public function getTableSet($a_name)
+	public function getTableSet($a_name = null)
 	{
+		if ($a_name === null) 
+			$a_name = $this->getActiveTableSet();
+		
 		$subStructure = null;
 		if ($this->structure)
 		{

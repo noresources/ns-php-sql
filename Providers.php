@@ -18,7 +18,6 @@ use NoreSources as ns;
  * represents each table set contained in
  * the data source connection
  *
- * @deprecated Now parts of Datasource interface
  */
 interface ITableSetProvider
 {
@@ -58,6 +57,21 @@ interface ITableSetProvider
 	 * @return boolean
 	 */
 	function setActiveTableSet ($name);
+	
+	/**
+	 * Get the name of the active table set
+	 * 
+	 * If not set, return the default table set name
+	 * 
+	 * @return string
+	 */
+	function getActiveTableSet ();
+	
+	/**
+	 * Get the default table set name
+	 * @return string
+	 */
+	function getDefaultTableSet ();
 }
 
 /**

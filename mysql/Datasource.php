@@ -228,6 +228,19 @@ class MySQLDatasource extends Datasource implements ITransactionBlock
 		$oQuery->execute();
 	}
 
+	public function getDefaultTableSet()
+	{
+		return null;
+	}
+	
+	public function getActiveTableSet()
+	{
+		$result = $this->executeQuery('select database()');
+		$row = $this->fetchResult($result);
+		$value = $row[0];
+		$this->freeResult($result);
+	}
+	
 	// ITableSetProvider
 	public function setActiveTableSet($name)
 	{
