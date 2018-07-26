@@ -206,18 +206,16 @@ const kDataTypeString = 0x02;
 
 /**
  * Integer number
- * @var int
  */
 const kDataTypeInteger = 0x04;
 
 /**
- * Decimal number
- * @var int
+ * Decimal numbers
  */
 const kDataTypeDecimal = 0x08;
 
 /**
- * Manage all kind of number element
+ * All kind of number element
  */
 const kDataTypeNumber = 0x0c; // 0x04 + 0x08
 

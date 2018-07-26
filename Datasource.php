@@ -451,7 +451,7 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 		{
 			return new StringData($this, $structure);
 		}
-		elseif ($sqlType == kDataTypeNumber)
+		elseif ($sqlType & kDataTypeNumber)
 		{
 			return new NumberData($this, $structure);
 		}
@@ -583,7 +583,6 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 	 */
 	protected $m_datasourceResource;
 
-
 	/**
 	 * Capabilities and state
 	 *
@@ -605,7 +604,7 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 	 * @var array
 	 */
 	protected static $m_defaultTypeNames;
-	
+
 	/**
 	 * List of all available datatypes
 	 * @note keys are stored in lowercase
@@ -639,7 +638,7 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 			static::setDefaultTypeName($sqlType, $a_typeName);
 		}
 	}
-	
+
 	protected static function setDefaultTypeName($sqlType, $a_typeName)
 	{
 		self::$m_defaultTypeNames[get_called_class()][$sqlType] = $a_typeName;
@@ -650,11 +649,11 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 		if (!\is_array(self::$m_dataTypeNames))
 			self::$m_dataTypeNames = array ();
 		
-		if (!\is_array (self::$m_defaultTypeNames))
+		if (!\is_array(self::$m_defaultTypeNames))
 			self::$m_defaultTypeNames = array ();
 		
 		$firstTime = false;
-			
+		
 		if (!\array_key_exists($implementationClass, self::$m_dataTypeNames))
 		{
 			self::$m_dataTypeNames[$implementationClass] = array ();

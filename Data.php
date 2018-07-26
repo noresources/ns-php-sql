@@ -64,6 +64,10 @@ abstract class Data implements ns\IExpression
 		elseif (is_bool($value))
 			return kDataTypeBoolean;
 		elseif (is_int($value))
+			return kDataTypeInteger;
+		elseif (is_float($value))
+			return kDataTypeDecimal;
+		elseif (is_numeric($value))
 			return kDataTypeNumber;
 		elseif ($value instanceof \DateTime)
 			return kDataTypeTimestamp;
