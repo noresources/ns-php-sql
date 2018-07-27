@@ -17,7 +17,6 @@ use NoreSources as ns;
  * Provide an access to TableSet object which
  * represents each table set contained in
  * the data source connection
- *
  */
 interface ITableSetProvider
 {
@@ -106,10 +105,8 @@ interface ITableProvider
 	
 	/**
 	 * Query table presence
-	 * @param string $a_name
-	 *        	Table name
-	 * @param integer $a_mode
-	 *        	Query mode
+	 * @param string $a_name Table name
+	 * @param integer $a_mode Query mode
 	 *        
 	 * @return boolean
 	 */
@@ -136,12 +133,9 @@ interface ITableColumnProvider
 
 	/**
 	 *
-	 * @param
-	 *        	$a_name
-	 * @param
-	 *        	$a_alias
-	 * @param
-	 *        	$a_className
+	 * @param $a_name
+	 * @param $a_alias
+	 * @param $a_className
 	 * @return TableColumn
 	 */
 	function getColumn($a_name, $a_alias = null, $a_className = null);
@@ -154,8 +148,7 @@ interface ITableColumnProvider
 
 	/**
 	 *
-	 * @param
-	 *        	$a_name
+	 * @param $a_name
 	 * @return bool
 	 */
 	function columnExists($a_name);

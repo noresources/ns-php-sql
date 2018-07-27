@@ -447,7 +447,8 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 		
 		$names = array ();
 		$numbers = pg_fetch_array($resource, null, PGSQL_NUM);
-		if (!\is_array($numbers)) return $numbers;
+		if (!\is_array($numbers))
+			return $numbers;
 		
 		foreach ($numbers as $index => &$value)
 		{
@@ -456,12 +457,22 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 			{
 				case 16: // boolean
 				{
-					$value = \in_array($value, array (TRUE, 't', 'true', 'y', 'yes', 'on', '1'), true);
-				} break;
+						$value = \in_array($value, array (
+								TRUE,
+								't',
+								'true',
+								'y',
+								'yes',
+								'on',
+								'1' 
+						), true);
+					}
+					break;
 				case 17: // bytea
 				{
 					$value = pg_unescape_bytea($value);
-				} break;
+					}
+					break;
 			}
 						
 			if ($fetchFlags & kRecordsetFetchName)
@@ -532,6 +543,7 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 	}
 
 	/**
+	 *
 	 * @return integer
 	 */
 	public function getAffectedRowCount(QueryResult $a_queryResult)

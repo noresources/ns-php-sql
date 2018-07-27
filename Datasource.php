@@ -600,7 +600,6 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 		$this->m_datasourceStrings[$a_key] = $a_value;
 	}
 
-	
 	protected function setNowExpression (ns\IExpression $expression)
 	{
 		$this->m_nowExpression = $expression;
