@@ -14,7 +14,6 @@ namespace NoreSources\SQL;
 use NoreSources as ns;
 
 require_once (__DIR__ . '/../base.php');
-require_once (NS_PHP_CORE_PATH . '/arrays.php');
 
 class MySQLTableManipulator extends TableManipulator
 {
@@ -229,6 +228,19 @@ class MySQLDatasource extends Datasource implements ITransactionBlock
 		$oQuery->execute();
 	}
 
+	public function getDefaultTableSet()
+	{
+		return null;
+	}
+
+	public function getActiveTableSet()
+	{
+		$result = $this->executeQuery('select database()');
+		$row = $this->fetchResult($result);
+		$value = $row[0];
+		$this->freeResult($result);
+	}
+
 	// ITableSetProvider
 	public function setActiveTableSet($name)
 	{
@@ -271,11 +283,11 @@ class MySQLDatasource extends Datasource implements ITransactionBlock
 		}
 		
 		$host = $parameters[kConnectionParameterHostname];
-		$user = ns\array_keyvalue($parameters, kConnectionParameterUsername, null);
-		$pass = ns\array_keyvalue($parameters, kConnectionParameterPassword, null);
+		$user = ns\ArrayUtil::keyValue($parameters, kConnectionParameterUsername, null);
+		$pass = ns\ArrayUtil::keyValue($parameters, kConnectionParameterPassword, null);
 		
 		$connectionFunction = 'connect';
-		if (ns\array_keyvalue($parameters, kConnectionParameterPersistent, false))
+		if (ns\ArrayUtil::keyValue($parameters, kConnectionParameterPersistent, false))
 		{
 			$this->setDatasourceFlags($this->flags | kConnectionPersistent);
 			if ($this->m_implementation == kMySQLImplementationMysqli)
@@ -586,7 +598,7 @@ class MySQLDatasource extends Datasource implements ITransactionBlock
 			$f->setProperty(kStructureAutoincrement, preg_match('/auto_increment/i', $row['Extra']));
 			$f->setProperty(kStructureAcceptNull, preg_match('/yes/i', $row['Null']));
 			$f->setProperty(kStructureColumnTypename, $typedef['type']);
-			$f->setProperty(kStructureValidatorClassname, ns\array_keyvalue($typedef, kStructureValidatorClassname, false));
+			$f->setProperty(kStructureValidatorClassname, ns\ArrayUtil::keyValue($typedef, kStructureValidatorClassname, false));
 			$f->setProperty(kStructureAcceptMultipleValues, $typedef[kStructureAcceptMultipleValues]);
 			
 			if ($elements)

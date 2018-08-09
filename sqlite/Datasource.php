@@ -14,7 +14,6 @@ namespace NoreSources\SQL;
 use NoreSources as ns;
 
 require_once (__DIR__ . '/../base.php');
-require_once (NS_PHP_CORE_PATH . '/arrays.php');
 
 /**
  *
@@ -243,6 +242,16 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 		return $result;
 	}
 
+	public function getDefaultTableSet()
+	{
+		return self::kDatabaseNameDefault;
+	}
+
+	public function getActiveTableSet()
+	{
+		return $this->m_databaseName;
+	}
+
 	// ITableSetProvider
 	public function setActiveTableSet($name)
 	{
@@ -270,18 +279,18 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 		}
 		
 		// Min requirements
-		if (!ns\array_key_exists(kConnectionParameterHostname, $a_aParameters) && !ns\array_key_exists(kConnectionParameterFilename, $a_aParameters))
+		if (!ns\ArrayUtil::keyExists($a_aParameters, kConnectionParameterHostname) && !ns\ArrayUtil::keyExists($a_aParameters, kConnectionParameterFilename))
 		{
 			return ns\Reporter::error($this, __METHOD__ . '(): Parameters are missing. "' . kConnectionParameterHostname . '" or "' . kConnectionParameterFilename . '"] must be provided.', __FILE__, __LINE__);
 		}
 		
-		if (ns\array_keyvalue($a_aParameters, kConnectionParameterPersistent, false))
+		if (ns\ArrayUtil::keyValue($a_aParameters, kConnectionParameterPersistent, false))
 		{
 			$this->setDatasourceFlags($this->flags | kConnectionPersistent);
 		}
 		
-		$this->m_databaseName = ns\array_keyvalue($a_aParameters, kConnectionParameterDatabasename, self::kDatabaseNameDefault);
-		$fileName = ns\array_keyvalue($a_aParameters, kConnectionParameterFilename, ns\array_keyvalue($a_aParameters, kConnectionParameterHostname, null));
+		$this->m_databaseName = ns\ArrayUtil::keyValue($a_aParameters, kConnectionParameterDatabasename, self::kDatabaseNameDefault);
+		$fileName = ns\ArrayUtil::keyValue($a_aParameters, kConnectionParameterFilename, ns\ArrayUtil::keyValue($a_aParameters, kConnectionParameterHostname, null));
 		
 		if ($fileName != self::kDatabaseNameMemory)
 		{
@@ -290,7 +299,7 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 				$fileName = realpath($fileName);
 			}
 			
-			if (!(file_exists($fileName) || ns\array_keyvalue($a_aParameters, kConnectionParameterCreate, false)))
+			if (!(file_exists($fileName) || ns\ArrayUtil::keyValue($a_aParameters, kConnectionParameterCreate, false)))
 			{
 				return ns\Reporter::error($this, __METHOD__ . '(): Invalid file "' . $fileName . '"', __FILE__, __LINE__);
 			}
@@ -300,7 +309,7 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 		if ($this->m_databaseName != self::kDatabaseNameDefault)
 		{
 			$mainDatabase = self::kDatabaseNameMemory;
-			if (!file_exists($fileName) && ns\array_keyvalue($a_aParameters, kConnectionParameterCreate, false))
+			if (!file_exists($fileName) && ns\ArrayUtil::keyValue($a_aParameters, kConnectionParameterCreate, false))
 			{
 				// Force file creation here
 				$p = $a_aParameters;
@@ -322,12 +331,12 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 			$flags = 0;
 			$ekey = '';
 			
-			if (ns\array_keyvalue($a_aParameters, kConnectionParameterCreate, false))
+			if (ns\ArrayUtil::keyValue($a_aParameters, kConnectionParameterCreate, false))
 			{
 				$flags |= SQLITE3_OPEN_CREATE;
 			}
 			
-			if (ns\array_keyvalue($a_aParameters, kConnectionParameterReadOnly, false))
+			if (ns\ArrayUtil::keyValue($a_aParameters, kConnectionParameterReadOnly, false))
 			{
 				$flags |= SQLITE3_OPEN_READONLY;
 			}
@@ -348,7 +357,7 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 		elseif ($this->m_implementation == self::kImplementationLegacy)
 		{
 			$mode = 0666;
-			if (ns\array_keyvalue($a_aParameters, kConnectionParameterReadOnly, false))
+			if (ns\ArrayUtil::keyValue($a_aParameters, kConnectionParameterReadOnly, false))
 			{
 				$mode = 0444;
 			}
@@ -371,7 +380,7 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 			return ns\Reporter::error($this, __METHOD__ . '(): Unable to connect to database ' . basename($fileName) . ': ' . $errorMessage, __FILE__, __LINE__);
 		}
 		
-		$fkState = ns\array_keyvalue($a_aParameters, kConnectionParameterForeignKeySupport, true) ? 'ON' : 'OFF';
+		$fkState = ns\ArrayUtil::keyValue($a_aParameters, kConnectionParameterForeignKeySupport, true) ? 'ON' : 'OFF';
 		$this->resultlessQuery('PRAGMA foreign_keys = ' . $fkState . ';');
 		
 		// Use attach rather than open
@@ -552,6 +561,7 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 		if ($this->m_implementation == self::kImplementationSQLite3)
 		{
 			/**
+			 *
 			 * @note Due to GC shitty behavior
 			 * SQLite db may have been destroyed before SQLite3Result
 			 */
@@ -634,6 +644,7 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 	public function getAffectedRowCount(QueryResult $a_queryResult)
 	{
 		/**
+		 *
 		 * @bug unsafe if called after another query
 		 */
 		if ($this->m_implementation == self::kImplementationSQLite3)
@@ -671,11 +682,10 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 		 */
 		return ns\Reporter::error($this, __METHOD__ . ' SQLite only provides a signle database named ' . $this->m_databaseName, __FILE__, __LINE__);
 	}
-	
+
 	// default behavior
 	// public abstract function getTableSetIterator()
 	// public function tableSetExists($a_strTableSetName)
-	
 	public function getTableSetStructure(SQLObject $a_containerObject, $recursive = false)
 	{
 		$v = $this->createData(kDataTypeString);
@@ -697,11 +707,11 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 			$ts = null;
 			if ($recursive)
 			{
-				$ts = $this->getTableStructure($this->getTable($row ['name']));
+				$ts = $this->getTableStructure($this->getTable($row['name']));
 			}
 			else
 			{
-				$ts = new TableStructure($structure, $row ['name']);
+				$ts = new TableStructure($structure, $row['name']);
 			}
 			
 			if ($ts)
@@ -728,22 +738,22 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 		
 		foreach ($queryRes as $row)
 		{
-			$name = $row ['name'];
-			$typedef = parseDataTypeDefinition($row ['type'], true);
+			$name = $row['name'];
+			$typedef = parseDataTypeDefinition($row['type'], true);
 			
 			$f = new TableColumnStructure($ts, $name);
-			$f->setProperty(kStructurePrimaryKey, ($row ['pk'] == '1'));
-			$f->setProperty(kStructureFieldTypename, $typedef ['type']);
-			$f->setProperty(kStructureAcceptNull, intval($row ['notnull']) == 0);
+			$f->setProperty(kStructurePrimaryKey, ($row['pk'] == '1'));
+			$f->setProperty(kStructureFieldTypename, $typedef['type']);
+			$f->setProperty(kStructureAcceptNull, intval($row['notnull']) == 0);
 			
-			if ($typedef ['size'] !== false)
+			if ($typedef['size'] !== false)
 			{
-				$f->setProperty(kStructureDataSize, $typedef ['size']);
+				$f->setProperty(kStructureDataSize, $typedef['size']);
 			}
 			
-			if ($typedef ['dec_size'] !== false)
+			if ($typedef['dec_size'] !== false)
 			{
-				$f->setProperty(kStructureDecimalCount, $typedef ['dec_size']);
+				$f->setProperty(kStructureDecimalCount, $typedef['dec_size']);
 			}
 			
 			$ts->addColumnStructure($f);
@@ -751,10 +761,9 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 		
 		return $ts;
 	}
-	
+
 	// Methods
 	
-
 	/**
 	 * Execute a query wich does not return a result
 	 *
@@ -804,6 +813,6 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 	 * @var integer
 	 */
 	private $m_implementation;
-	
+
 	private $m_nowExpression;
 }

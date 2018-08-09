@@ -14,7 +14,6 @@ namespace NoreSources\SQL;
 use NoreSources as ns;
 
 require_once (__DIR__ . '/../base.php');
-require_once (NS_PHP_CORE_PATH . '/arrays.php');
 
 /**
  * Notes:
@@ -160,6 +159,16 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 		 * $oQuery = new FormattedQuery($this, "ROLLBACK;");
 		 * $oQuery->execute();
 		 */
+	}
+
+	public function getDefaultTableSet()
+	{
+		return self::kDefaultTableSetName;
+	}
+
+	public function getActiveTableSet()
+	{
+		return $this->activeTableSetName;
 	}
 
 	// ITableSetProvider implementation
@@ -413,18 +422,18 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 		$transaction = (pg_transaction_status($this->resource) !== PGSQL_TRANSACTION_IDLE);
 		
 		if ($transaction)
-			@pg_query ('SAVEPOINT ' . $savePointKey);
+			@pg_query('SAVEPOINT ' . $savePointKey);
 		$result = @pg_query('SELECT LASTVAL()');
 		if (pg_result_status($result, PGSQL_TUPLES_OK))
 		{
-			$id = intval (pg_fetch_result($result, 0, 0));
+			$id = intval(pg_fetch_result($result, 0, 0));
 		}
 		if ($transaction)
 		{
-			@pg_query ('RELEASE ' . $savePointKey);
-			@pg_query ('ROLLBACK TO SAVEPOINT ' . $savePointKey);
+			@pg_query('RELEASE ' . $savePointKey);
+			@pg_query('ROLLBACK TO SAVEPOINT ' . $savePointKey);
 		}
-				
+		
 		return $id;
 	}
 
@@ -438,7 +447,8 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 		
 		$names = array ();
 		$numbers = pg_fetch_array($resource, null, PGSQL_NUM);
-		if (!\is_array($numbers)) return $numbers;
+		if (!\is_array($numbers))
+			return $numbers;
 		
 		foreach ($numbers as $index => &$value)
 		{
@@ -446,15 +456,25 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 			switch ($oid)
 			{
 				case 16: // boolean
-				{
-					$value = \in_array($value, array (TRUE, 't', 'true', 'y', 'yes', 'on', '1'), true);
-				} break;
+					{
+						$value = \in_array($value, array (
+								TRUE,
+								't',
+								'true',
+								'y',
+								'yes',
+								'on',
+								'1' 
+						), true);
+					}
+					break;
 				case 17: // bytea
-				{
-					$value = pg_unescape_bytea($value);
-				} break;
+					{
+						$value = pg_unescape_bytea($value);
+					}
+					break;
 			}
-						
+			
 			if ($fetchFlags & kRecordsetFetchName)
 			{
 				if ($fetchFlags & kRecordsetFetchName)
@@ -474,7 +494,7 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 			return $names;
 		}
 		
-		return $numbers;		
+		return $numbers;
 	}
 
 	public function resetResult(QueryResult $a_queryResult)
@@ -523,6 +543,7 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 	}
 
 	/**
+	 *
 	 * @return integer
 	 */
 	public function getAffectedRowCount(QueryResult $a_queryResult)

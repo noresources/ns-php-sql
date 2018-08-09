@@ -14,7 +14,6 @@ namespace NoreSources\SQL;
 use NoreSources as ns;
 
 require_once (NS_PHP_PATH . '/core/strings.php');
-require_once (NS_PHP_PATH . '/core/arrays.php');
 
 /**
  * SQL structure definition schema version
@@ -767,7 +766,7 @@ class TableStructure extends StructureElement
 		
 		return $result;
 	}
-	
+
 	public function getForeignKeyReferences()
 	{
 		$result = array ();
@@ -783,7 +782,7 @@ class TableStructure extends StructureElement
 		return $result;
 	}
 
-	public function addColumnStructure (TableColumnStructure $f)
+	public function addColumnStructure(TableColumnStructure $f)
 	{
 		$this->appendChild($f);
 	}
@@ -960,6 +959,11 @@ class SQLObject
 		}
 		
 		throw new \InvalidArgumentException(get_class($this) . '::' . $member);
+	}
+
+	public function setStructure(StructureElement $structure)
+	{
+		$this->m_structure = $structure;
 	}
 
 	/**

@@ -4,7 +4,6 @@ namespace NoreSources\SQL;
 
 use NoreSources as ns;
 
-require_once (NS_PHP_CORE_PATH . '/arrays.php');
 
 /**
  * The record values differs from the entry stored in the datasource
@@ -173,7 +172,7 @@ class ColumnValueFilter implements RecordQueryOption
 				if (is_null ($value))
 				{
 					$e = new ns\BinaryOperatorExpression('IS', $column, $datasource->createData(kDataTypeNull));
-					$e->protect(false);
+					$e->protect = false;
 					if (!$positive)
 						$e = new SQLNot($e);
 					return $e;
@@ -234,7 +233,7 @@ class ColumnValueFilter implements RecordQueryOption
 			case null:
 			case 'null':
 				$e = new ns\BinaryOperatorExpression('IS', $column, $datasource->createData(kDataTypeNull));
-				$e->protect(false);
+				$e->protect = false;
 				if (!$positive)
 					$e = new SQLNot($e);
 					return $e;

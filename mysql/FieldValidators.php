@@ -18,7 +18,7 @@ class MySQLEnumColumnValueValidator extends ListedElementTableColumnValueValidat
 	public function __construct($a_properties)
 	{
 		parent::__construct($a_properties [kStructureEnumeration]);
-		$this->m_bAcceptNull = ns\array_keyvalue($a_properties, kStructureAcceptNull, false);
+		$this->m_bAcceptNull = ns\ArrayUtil::keyValue($a_properties, kStructureAcceptNull, false);
 	}
 
 	public function validate($a_value)
@@ -63,7 +63,7 @@ class MySQLSetColumnValueValidator extends MultipleListedElementTableColumnValue
 	public function __construct($a_properties)
 	{
 		parent::__construct($a_properties[kStructureEnumeration]);
-		$this->m_bAcceptNull = ns\array_keyvalue($a_properties, kStructureAcceptNull, false);
+		$this->m_bAcceptNull = ns\ArrayUtil::keyValue($a_properties, kStructureAcceptNull, false);
 	}
 
 	protected function isValidFlag($a_value)

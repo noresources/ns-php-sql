@@ -24,11 +24,11 @@ class SQLIsNull extends ns\UnaryOperatorExpression
 		if (!$a_bPositive)
 		{
 			$expValue = new ns\UnaryOperatorExpression('NOT ', $expValue);
-			$expValue->protect(false);
+			$expValue->protect = false;
 		}
 		
 		parent::__construct('IS ', $expValue);
-		$this->protect(false);
+		$this->protect = false;
 	}
 }
 
@@ -93,7 +93,7 @@ class SQLSmartEquality extends ns\BinaryOperatorExpression
 		$strOperator = '=';
 		
 		// force to construct a FormattedData object
-		if (!(($a_value instanceof Data) || ($a_value instanceof SelectQuery) || ($a_value instanceof DataList) || ($a_value instanceof SQLFunction)))
+		if (!($a_value instanceof ns\IExpression))
 		{
 			if ($a_column instanceof TableColumn)
 			{
@@ -115,7 +115,7 @@ class SQLSmartEquality extends ns\BinaryOperatorExpression
 			}
 			else
 			{
-				ns\Reporter::addWarning($this, __METHOD__ . '(): Argument 1 is not a TableColumn and argument 2 is not a SQLValue. ' . 'The method will not be able to precisely determine data type.', __FILE__, __LINE__);
+				ns\Reporter::addWarning($this, __METHOD__ . '(): Argument 1 is not a TableColumn and argument 2 is not a IExpression. ' . 'The method will not be able to precisely determine data type.', __FILE__, __LINE__);
 				$a_value = bestEffortImport($a_value);
 			}
 		}
@@ -129,7 +129,7 @@ class SQLSmartEquality extends ns\BinaryOperatorExpression
 			else
 			{
 				$in = new SQLIn($a_column->datasource, $a_value, true);
-				$in->protect(false);
+				$in->protect = false;
 				parent::__construct('NOT', $a_column, $in);
 			}
 		}
@@ -149,7 +149,7 @@ class SQLSmartEquality extends ns\BinaryOperatorExpression
 			}
 		}
 		
-		$this->protect(false);
+		$this->protect = false;
 	}
 }
 
@@ -168,7 +168,7 @@ class SQLBetween extends ns\BinaryOperatorExpression
 	public function __construct(ns\IExpression $a_leftExpression, $a_min, $a_max)
 	{
 		parent::__construct('BETWEEN', $a_leftExpression);
-		$this->protect(false);
+		$this->protect = false;
 		
 		if (!($a_min instanceof ns\IExpression))
 		{
@@ -208,7 +208,7 @@ class AutoInterval extends ns\BinaryOperatorExpression
 	public function __construct(ns\IExpression $a_leftExpression, $a_min, $a_max)
 	{
 		parent::__construct(($a_min && $a_max) ? 'BETWEEN' : (($a_min) ? '>= ' : '<='), $a_leftExpression);
-		$this->protect(false);
+		$this->protect = false;
 		
 		if (!($a_min || $a_max))
 		{
