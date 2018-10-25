@@ -1012,7 +1012,7 @@ class Record implements \ArrayAccess
 			}
 		}
 		
-		return static::unserializeValue($column, $value);
+		return static::unserializeValue($columnStructure->getName(), $value);
 	}
 
 	/**
