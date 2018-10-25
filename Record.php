@@ -182,8 +182,8 @@ class ColumnValueFilter implements RecordQueryOption
 			case 'in':
 				return new SQLSmartEquality($column, call_user_func(array (
 						$className,
-						'serializeValue' 
-				), $column->getName(), $value), $positive);
+						'unserializeColumn' 
+				), $column, $value), $positive);
 				break;
 			case 'between':
 				if (!\is_array($value))
@@ -197,12 +197,12 @@ class ColumnValueFilter implements RecordQueryOption
 				
 				$min = call_user_func(array (
 						$className,
-						'unserializeValue' 
-				), $value[0]);
+						'unserializeColumn' 
+				), $column, $value[0]);
 				$max = call_user_func(array (
 						$className,
-						'unserializeValue' 
-				), $value[1]);
+						'unserializeColumn' 
+				), $column, $value[1]);
 				
 				$e = new SQLBetween($column, $a_min, $a_max);
 				if (!$positive)
@@ -987,15 +987,32 @@ class Record implements \ArrayAccess
 	{
 		return $value;
 	}
-
+	
 	/**
-	 * @param mixed $column
-	 * @param mixed $value
+	 * @param mixed $column Column name
+	 * @param mixed $value Value to unserialize
 	 * @return mixed
 	 */
 	public static function unserializeValue($column, $value)
 	{
 		return $value;
+	}
+	
+	public static function unserializeColumn (TableColumnStructure $columnStructure, $value)
+	{
+		if ($columnStructure->getProperty(kStructureDatatype) == kDataTypeNumber)
+		{
+			if ($columnStructure->getProperty(kStructureDecimalCount) > 0)
+			{
+				$value = floatval($value);
+			}
+			else
+			{
+				$value = intval($value);
+			}
+		}
+		
+		return static::unserializeValue($column, $value);
 	}
 
 	/**
@@ -1058,9 +1075,9 @@ class Record implements \ArrayAccess
 	{
 		if ($unserialize)
 		{
-			$value = static::unserializeValue($f->getName(), $value);
+			$value = static::unserializeColumn($f, $value);
 		}
-		elseif (is_numeric($value) && ($f->getProperty(kStructureDatatype) == kDataTypeNumber))
+		elseif ($f->getProperty(kStructureDatatype) == kDataTypeNumber)
 		{
 			if ($f->getProperty(kStructureDecimalCount) > 0)
 			{
