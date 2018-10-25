@@ -250,10 +250,16 @@ const kConnectionParameterUsername = 'sql.source.user';
  */
 const kConnectionParameterPassword = 'sql.source.password';
 /**
- * Datasource host (for network-based datasource)
+ * Datasource host (for network-based datasources)
  * @var string
  */
 const kConnectionParameterHostname = 'sql.source.host';
+
+/**
+ * Datasource port (for network-based datasources)
+ * @var string
+ */
+const kConnectionParameterPort = 'sql.source.port';
 
 /**
  * Datasource source file
