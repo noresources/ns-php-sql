@@ -4,7 +4,6 @@ namespace NoreSources\SQL;
 
 use NoreSources as ns;
 
-
 /**
  * The record values differs from the entry stored in the datasource
  * @var integer
@@ -115,8 +114,7 @@ class ColumnValueFilter implements RecordQueryOption
 	/**
 	 *
 	 * @param mixel $column Column name or TableColumn
-	 * @param string $operator
-	 * <ul>
+	 * @param string $operator <ul>
 	 * 	<li>"=": Equal. @c $value could be anything</li>
 	 *  <li>"in": List of values. @c $value must be an array of values</li>
 	 *  <li>"between": Interval. @c value must be an array of two values</li>
@@ -149,8 +147,7 @@ class ColumnValueFilter implements RecordQueryOption
 	 *
 	 * @param string $className
 	 * @param Table $table
-	 * @param string $operator
-	 * <ul>
+	 * @param string $operator <ul>
 	 * 	<li>"=": Equal. @c $value could be anything</li>
 	 *  <li>"in": List of values. @c $value must be an array of values</li>
 	 *  <li>"between": Interval. @c value must be an array of two values</li>
@@ -169,7 +166,7 @@ class ColumnValueFilter implements RecordQueryOption
 		switch ($operator)
 		{
 			case '=':
-				if (is_null ($value))
+				if (is_null($value))
 				{
 					$e = new ns\BinaryOperatorExpression('IS', $column, $datasource->createData(kDataTypeNull));
 					$e->protect = false;
@@ -634,7 +631,7 @@ class Record implements \ArrayAccess
 		{
 			if ($column->hasProperty(kStructureDefaultValue))
 			{
-				$this->m_values[$name] = $column->getProperty (kStructureDefaultValue);
+				$this->m_values[$name] = $column->getProperty(kStructureDefaultValue);
 			}
 		}
 		
@@ -762,7 +759,7 @@ class Record implements \ArrayAccess
 	 */
 	public function toArray()
 	{
-		return array_merge ($this->m_values, $this->m_foreignKeyData);
+		return array_merge($this->m_values, $this->m_foreignKeyData);
 	}
 
 	/**
@@ -782,8 +779,7 @@ class Record implements \ArrayAccess
 				$autoIncrementColumn = $c;
 			}
 
-			if (\array_key_exists($n, $this->m_values) 
-				&& (is_null($autoIncrementColumn) || ($autoIncrementColumn->getName() != $n)))
+			if (\array_key_exists($n, $this->m_values) && (is_null($autoIncrementColumn) || ($autoIncrementColumn->getName() != $n)))
 			{
 				$column = $this->m_table->getColumn($n);
 				$data = $column->importData(static::serializeValue($n, $this->m_values[$n]));
@@ -933,17 +929,18 @@ class Record implements \ArrayAccess
 	}
 
 	/**
+	 *
 	 * @param string $columnName
 	 * @param string $foreignColumnName
 	 *
 	 * @return mixed Array of all foreign key data if @param $foreignColumnName is @c null.
 	 *  Otherwise, the value of the foreign column @param $foreignColumnName
 	 */
-	public function getForeignKeyData ($columnName, $foreignColumnName = null)
+	public function getForeignKeyData($columnName, $foreignColumnName = null)
 	{
 		$a = (array_key_exists($columnName, $this->m_foreignKeyData) ? $this->m_foreignKeyData[$columnName] : array ());
 
-		if (is_string($foreignColumnName) && strlen ($foreignColumnName))
+		if (is_string($foreignColumnName) && strlen($foreignColumnName))
 		{
 			return ((array_key_exists($foreignColumnName, $a)) ? $a[$foreignColumnName] : null);
 		}
@@ -952,6 +949,7 @@ class Record implements \ArrayAccess
 	}
 
 	/**
+	 *
 	 * @param string $glue
 	 */
 	public function getKey($glue = null)
@@ -979,6 +977,7 @@ class Record implements \ArrayAccess
 	}
 
 	/**
+	 *
 	 * @param mixed $column
 	 * @param mixed $value
 	 * @return mixed
@@ -1016,6 +1015,7 @@ class Record implements \ArrayAccess
 	}
 
 	/**
+	 *
 	 * @param Recordset $records
 	 * @return array
 	 */
@@ -1042,26 +1042,31 @@ class Record implements \ArrayAccess
 	}
 
 	/**
+	 *
 	 * @param string $columnName
 	 * @return array
 	 */
-	protected function parseForeignKeyColumn ($columnName)
+	protected function parseForeignKeyColumn($columnName)
 	{
 		$m = array ();
-		if (preg_match (chr(1) . kRecordForeignKeyColumnFormat . chr(1), $columnName, $m))
+		if (preg_match(chr(1) . kRecordForeignKeyColumnFormat . chr(1), $columnName, $m))
 		{
-			return array ('column' => $m[1], 'foreignColumn' => $m[2]);
+			return array (
+					'column' => $m[1],
+					'foreignColumn' => $m[2] 
+			);
 		}
 
 		return null;
 	}
 
 	/**
+	 *
 	 * @param string $columnName
 	 * @param string $foreignKey
 	 * @param mixed $foreignValue
 	 */
-	protected function setForeignKeyData ($columnName, $foreignKey, $foreignValue)
+	protected function setForeignKeyData($columnName, $foreignKey, $foreignValue)
 	{
 		if (!array_key_exists($columnName, $this->m_foreignKeyData))
 		{
@@ -1070,14 +1075,13 @@ class Record implements \ArrayAccess
 		$this->m_foreignKeyData[$columnName][$foreignKey] = $foreignValue;
 	}
 
-
 	private function setValue(TableColumnStructure $f, $value, $unserialize = false)
 	{
 		if ($unserialize)
 		{
 			$value = static::unserializeColumn($f, $value);
 		}
-		elseif ($f->getProperty(kStructureDatatype) == kDataTypeNumber)
+		elseif ($f->getProperty(kStructureDatatype) & kDataTypeNumber)
 		{
 			if ($f->getProperty(kStructureDecimalCount) > 0)
 			{
@@ -1092,11 +1096,11 @@ class Record implements \ArrayAccess
 		$this->m_values[$f->getName()] = $value;
 	}
 
-	private static function buildForeignKeyJoins (SelectQuery &$s, Table $table)
+	private static function buildForeignKeyJoins(SelectQuery &$s, Table $table)
 	{
 		$structure = $table->getStructure();
 		$references = $structure->getForeignKeyReferences();
-		$count = count ($references);
+		$count = count($references);
 		if ($count == 0)
 		{
 			return $count;
@@ -1108,7 +1112,7 @@ class Record implements \ArrayAccess
 			$foreignTableName = $foreignKey['table']->getName();
 			$foreignColumnName = $foreignKey['column']->getName();
 
-			$foreignTable = new Table ($table->owner, $foreignTableName, 'j' . $joinIndex, $foreignKey['table']);
+			$foreignTable = new Table($table->owner, $foreignTableName, 'j' . $joinIndex, $foreignKey['table']);
 			$foreignColumn = new TableColumn($foreignTable, $foreignColumnName, $columnName . '::' . $foreignColumnName, $foreignKey['column']);
 
 			$join = $s->createJoin($foreignTable, kJoinInner);

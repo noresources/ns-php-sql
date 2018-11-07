@@ -186,8 +186,6 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 		parent::__construct($a_structure);
 		$this->m_datasourceResource = null;
 		$this->m_datasourceFlags = 0;
-		$this->m_dataTypeNames = array ();
-		$this->m_defaultTypeNames = array ();
 		$this->m_nowExpression = new SQLFunction('now');
 		$this->m_datasourceStrings = array (
 				
@@ -453,7 +451,7 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 		{
 			return new StringData($this, $structure);
 		}
-		elseif ($sqlType == kDataTypeNumber)
+		elseif ($sqlType & kDataTypeNumber)
 		{
 			return new NumberData($this, $structure);
 		}
@@ -512,9 +510,10 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 	 */
 	public final function getDefaultTypeName($a_sqlType)
 	{
-		if (\array_key_exists($a_sqlType, $this->m_defaultTypeNames))
+		$table = self::$m_defaultTypeNames[get_called_class()];
+		if (\array_key_exists($a_sqlType, $table))
 		{
-			return $this->m_defaultTypeNames[$a_sqlType];
+			return $table[$a_sqlType];
 		}
 		
 		return ns\Reporter::error($this, __METHOD__ . '(): No default type for ' . strval($a_sqlType), __FILE__, __LINE__);
@@ -535,9 +534,10 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 		elseif (is_string($dataType))
 		{
 			$dataType = strtolower($dataType);
-			if (\array_key_exists($dataType, $this->m_dataTypeNames))
+			$table = self::$m_dataTypeNames[get_called_class()];
+			if (\array_key_exists($dataType, $table))
 			{
-				return $this->m_dataTypeNames[$dataType]['type'];
+				return $table[$dataType][0]['type'];
 			}
 		}
 		elseif ($dataType instanceof TableColumnStructure)
@@ -555,38 +555,9 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 		return false;
 	}
 
-	/**
-	 *
-	 * @param string $a_typeName Datasource type name
-	 * @param integer $sqlType SQL type index
-	 */
-	protected function addDataType($a_typeName, $sqlType, $className = null)
-	{
-		$a_typeName = strtolower($a_typeName);
-		if (\array_key_exists($a_typeName, $this->m_dataTypeNames))
-		{
-			ns\Reporter::fatalError($this, __METHOD__ . '(): ' . $a_typeName . ' already exists', __FILE__, __LINE__);
-		}
-		
-		$this->m_dataTypeNames[$a_typeName] = array (
-				'type' => $sqlType,
-				'class' => $className 
-		);
-		
-		if (!\array_key_exists($sqlType, $this->m_defaultTypeNames))
-		{
-			$this->m_defaultTypeNames[$sqlType] = $a_typeName;
-		}
-	}
-
 	protected function setDatasourceFlags($flags)
 	{
 		$this->m_datasourceFlags = $flags;
-	}
-
-	protected function setDefaultTypeName($sqlType, $a_typeName)
-	{
-		$this->m_defaultTypeNames[$sqlType] = $a_typeName;
 	}
 
 	/**
@@ -613,21 +584,6 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 	protected $m_datasourceResource;
 
 	/**
-	 * List of all available datatypes
-	 * @note keys are stored in lowercase
-	 *
-	 * @var array Keys: type names; Values: SQL type index
-	 */
-	protected $m_dataTypeNames;
-
-	/**
-	 * List of default datasource type name for each data type
-	 *
-	 * @var array
-	 */
-	protected $m_defaultTypeNames;
-
-	/**
 	 * Capabilities and state
 	 *
 	 * @var integer
@@ -639,6 +595,77 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 	 * @var array
 	 */
 	private $m_datasourceStrings;
-	
+
 	private $m_nowExpression;
+
+	/**
+	 * List of default datasource type name for each data type
+	 *
+	 * @var array
+	 */
+	protected static $m_defaultTypeNames;
+
+	/**
+	 * List of all available datatypes
+	 * @note keys are stored in lowercase
+	 *
+	 * @var array Keys: type names; Values: SQL type index
+	 */
+	protected static $m_dataTypeNames;
+
+	/**
+	 *
+	 * @param string $a_typeName Datasource type name
+	 * @param integer $sqlType SQL type index
+	 */
+	protected static function addDataType($a_typeName, $sqlType, $className = null)
+	{
+		$a_typeName = strtolower($a_typeName);
+		$table = self::$m_dataTypeNames[get_called_class()];
+	
+		if (!\array_key_exists($a_typeName, $table))
+		{
+			$table[$a_typeName] = array ();
+		}
+		
+		$table[$a_typeName][] = array (
+				'type' => $sqlType,
+				'class' => $className 
+		);
+		
+		if (!\array_key_exists($sqlType, self::$m_defaultTypeNames[get_called_class()]))
+		{
+			static::setDefaultTypeName($sqlType, $a_typeName);
+		}
+	}
+
+	protected static function setDefaultTypeName($sqlType, $a_typeName)
+	{
+		self::$m_defaultTypeNames[get_called_class()][$sqlType] = $a_typeName;
+	}
+
+	public static function initializeDatasourceData($implementationClass)
+	{
+		if (!\is_array(self::$m_dataTypeNames))
+			self::$m_dataTypeNames = array ();
+		
+		if (!\is_array(self::$m_defaultTypeNames))
+			self::$m_defaultTypeNames = array ();
+		
+		$firstTime = false;
+		
+		if (!\array_key_exists($implementationClass, self::$m_dataTypeNames))
+		{
+			self::$m_dataTypeNames[$implementationClass] = array ();
+			$firstTime = true;
+		}
+		
+		if (!\array_key_exists($implementationClass, self::$m_defaultTypeNames))
+		{
+			self::$m_defaultTypeNames[$implementationClass] = array ();
+			$firstTime = true;
+		}
+		
+		return $firstTime;
+	}
 }

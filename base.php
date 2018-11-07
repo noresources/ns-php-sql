@@ -243,6 +243,48 @@ function rollback(Datasource $a_datasource)
 }
 
 /**
+ *
+ * @param int|string $value UNIX timestamp or string timestamp
+ * @param \DateTimeZone $timezone Time zone
+ * @param Datasource $datasource Datasourcce
+ * @param TableColumnStructure $structure Column property
+ *       
+ * @return \DateTime|null
+ */
+function timestampToDateTime($value, \DateTimeZone $timezone = null, Datasource $datasource = null, TableColumnStructure $structure = null)
+{
+	if (!($timezone instanceof \DateTimeZone))
+	{
+		$timezone = new \DateTimeZone(date_default_timezone_get());
+	}
+	
+	if ($value instanceof \DateTime) return $value;
+	
+	if (is_numeric($value))
+	{
+		return new \DateTime('@' . $value, $timezone);
+	}
+	
+	if ($datasource)
+	{
+		$format = $datasource->getDatasourceString(Datasource::kStringTimestampFormat);
+		$d = \DateTime::createFromFormat($format, $value, $timezone);
+		if ($d instanceof \DateTime)
+			return $d;
+	}
+	
+	$now = new \DateTime('now', $timezone);
+	$time = strtotime($value, $now->getTimestamp());
+	
+	if (($time !== false) && ($time != -1)) // PHP <= 5.1
+	{
+		return new \DateTime('@' . $time, $timezone);
+	}
+	
+	return null;
+}
+
+/**
  * An object that implements this interface can return
  * a clone of itself that differs only by its alias name
  */

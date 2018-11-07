@@ -562,8 +562,9 @@ class TableColumnStructure extends StructureElement
 			}
 		}
 		
-		if ($type == kDataTypeNumber)
+		if ($type & kDataTypeNumber)
 		{
+			$type = kDataTypeInteger;
 			if ($typeNode->hasAttribute('autoincrement'))
 			{
 				$this->setProperty(kStructureAutoincrement, true);
@@ -574,7 +575,12 @@ class TableColumnStructure extends StructureElement
 			}
 			if ($typeNode->hasAttribute('decimals'))
 			{
-				$this->setProperty(kStructureDecimalCount, intval($typeNode->getAttribute('decimals')));
+				$count = intval($typeNode->getAttribute('decimals'));
+				$this->setProperty(kStructureDecimalCount, $count);
+				if ($count > 0)
+				{
+					$type = kDataTypeDecimal;
+				}
 			}
 		}
 		
@@ -850,37 +856,6 @@ class DatasourceStructure extends StructureElement
 	public function setTablePrefix($prefix)
 	{
 		$this->m_tablePrefix = $prefix;
-	}
-
-	/**
-	 *
-	 * @param string $v Type affinity name
-	 * @return integer
-	 */
-	public static function xmlAffinityToDatatype($v)
-	{
-		if ($v == 'integer')
-		{
-			return kDataTypeNumber;
-		}
-		else if ($v == 'boolean')
-		{
-			return kDataTypeBoolean;
-		}
-		else if ($v == 'decimal')
-		{
-			return kDataTypeNumber;
-		}
-		else if ($v == 'datetime')
-		{
-			return kDataTypeTimestamp;
-		}
-		else if ($v == 'string')
-		{
-			return kDataTypeString;
-		}
-		
-		return kDataTypeBinary;
 	}
 
 	protected function constructFromXmlNode(\DOMNode $node)
