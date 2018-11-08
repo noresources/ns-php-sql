@@ -210,6 +210,22 @@ class ColumnValueFilter implements RecordQueryOption
 				return $e;
 				
 				break;
+			case '&':
+				$v = call_user_func(array (
+				$className,
+				'serializeValue'
+						), $column->getName(), $value);
+				
+				$e = new ns\BinaryOperatorExpression('&', $column, $column->importData($v));
+				$e->protect = true;
+				$e = new ns\BinaryOperatorExpression('=', $e, $column->importData($v));
+				if (!$positive)
+				{
+					$e = new SQLNot($e);
+				}
+				
+				return $e;
+				break;
 			case '<':
 			case '<=':
 			case '>':
@@ -222,7 +238,7 @@ class ColumnValueFilter implements RecordQueryOption
 				$e = new ns\BinaryOperatorExpression(strtoupper($operator), $column, $column->importData($v));
 				if (!$positive)
 				{
-					$e = new SQLNot($between);
+					$e = new SQLNot($e);
 				}
 				
 				return $e;
