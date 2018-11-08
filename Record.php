@@ -638,6 +638,7 @@ class Record implements \ArrayAccess
 		$this->m_table = $table;
 		$this->m_flags = ($flags & (kRecordStateExists | kRecordStateModified));
 		$this->m_values = array ();
+		$this->m_storedKey = array ();
 		$this->m_foreignKeyData = array ();
 		
 		$structure = $table->getStructure();
@@ -685,6 +686,8 @@ class Record implements \ArrayAccess
 				}
 			}
 		}
+		
+		$this->updatePrimaryKeyColumns();
 	}
 
 	/**
@@ -813,6 +816,7 @@ class Record implements \ArrayAccess
 
 			$this->m_flags |= kRecordStateExists;
 			$this->m_flags &= ~kRecordStateModified;
+			$this->updatePrimaryKeyColumns();
 			return true;
 		}
 
@@ -836,15 +840,24 @@ class Record implements \ArrayAccess
 		foreach ($structure as $n => $c)
 		{
 			$primary = $c->getProperty(kStructurePrimaryKey);
+			$primaryKeyChanged = false;
 			if (array_key_exists($n, $this->m_values))
 			{
 				$column = $this->m_table->getColumn($n);
 				$data = $column->importData(static::serializeValue($n, $this->m_values[$n]));
 				if ($primary)
 				{
-					$u->where->addAndExpression($column->equalityExpression($data));
+					$keyData = $data;
+					if (array_key_exists($n, $this->m_storedKey))
+					{
+						$primaryKeyChanged = ($this->m_values[$n] != $this->m_storedKey[$n]);
+						$keyData = $column->importData(static::serializeValue($n, $this->m_storedKey[$n]));
+					}
+					
+					$u->where->addAndExpression($column->equalityExpression($keyData));
 				}
-				else
+				
+				if (!$primary || $primaryKeyChanged)
 				{
 					$count++;
 					$u->addColumnValue($column, $data);
@@ -868,6 +881,7 @@ class Record implements \ArrayAccess
 		if (is_object($result) && ($result instanceof UpdateQueryResult))
 		{
 			$this->m_flags &= ~kRecordStateModified;
+			$this->updatePrimaryKeyColumns();
 			return true;
 		}
 
@@ -968,20 +982,27 @@ class Record implements \ArrayAccess
 	 *
 	 * @param string $glue
 	 */
-	public function getKey($glue = null)
+	public function getKey($glue = null, $current = true)
 	{
 		$key = array ();
-		foreach ($this->m_table->getStructure() as $n => $c)
+		if ($current)
 		{
-			if ($c->getProperty(kStructurePrimaryKey))
+			foreach ($this->m_table->getStructure() as $n => $c)
 			{
-				if (!array_key_exists($n, $this->m_values))
+				if ($c->getProperty(kStructurePrimaryKey))
 				{
-					return ns\Reporter::fatalError($this, __METHOD__ . ': Incomplete key');
+					if (!array_key_exists($n, $this->m_values))
+					{
+						return ns\Reporter::fatalError($this, __METHOD__ . ': Incomplete key');
+					}
+	
+					$key[$n] = $this->m_values[$n];
 				}
-
-				$key[$n] = $this->m_values[$n];
 			}
+		}
+		else 
+		{
+			$key = $this->m_storedKey;
 		}
 
 		if (is_string($glue))
@@ -1147,6 +1168,22 @@ class Record implements \ArrayAccess
 
 		return $count;
 	}
+	
+	private function updatePrimaryKeyColumns ()
+	{
+		$structure = $this->m_table->getStructure();
+		foreach ($structure as $name => $column)
+		{
+			if ($column->getProperty (kStructurePrimaryKey))
+			{
+				$this->m_storedKey[$name] = array_key_exists($name, $this->m_values)
+					? $this->m_values[$name]
+					: (array_key_exists($name, $this->m_storedKey) 
+						? $this->m_storedKey[$name] 
+						: null);
+			}
+		}
+	}
 
 	/**
 	 *
@@ -1165,6 +1202,13 @@ class Record implements \ArrayAccess
 	 * @var array
 	 */
 	private $m_values;
+	
+	/**
+	 * The primary column(s) values from the last update
+	 * @var array
+	 */
+	private $m_storedKey;
+	
 
 	/**
 	 * Key-value pair table where
