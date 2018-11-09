@@ -58,9 +58,8 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 	 */
 	function startTransaction()
 	{
-		/*
-		 * $oQuery = new FormattedQuery($this, "START TRANSACTION;"); $oQuery->execute();
-		 */
+		$oQuery = new FormattedQuery($this, 'BEGIN');
+		$oQuery->execute();
 	}
 
 	/**
@@ -69,10 +68,8 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 	 */
 	function commitTransaction()
 	{
-		/*
-		 * $oQuery = new FormattedQuery($this, "COMMIT;");
-		 * $oQuery->execute();
-		 */
+		$oQuery = new FormattedQuery($this, 'COMMIT');
+		$oQuery->execute();
 	}
 
 	/**
@@ -81,10 +78,8 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 	 */
 	function rollbackTransaction()
 	{
-		/*
-		 * $oQuery = new FormattedQuery($this, "ROLLBACK;");
-		 * $oQuery->execute();
-		 */
+		$oQuery = new FormattedQuery($this, 'ROLLBACK');
+		$oQuery->execute();
 	}
 
 	public function getDefaultTableSet()
