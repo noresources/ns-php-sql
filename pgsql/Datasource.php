@@ -242,7 +242,7 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 		$connectionString = "host = '" . $parameters[kConnectionParameterHostname] . "'";
 		if (array_key_exists(kConnectionParameterPort, $parameters))
 		{
-			$connectionString .= " port = " . intval ($parameters[kConnectionParameterPort]);
+			$connectionString .= " port = " . intval($parameters[kConnectionParameterPort]);
 		}
 		$connectionString .= " user = '" . $parameters[kConnectionParameterUsername] . "'";
 		if (array_key_exists(kConnectionParameterPassword, $parameters))

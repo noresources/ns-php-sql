@@ -212,9 +212,9 @@ class ColumnValueFilter implements RecordQueryOption
 				break;
 			case '&':
 				$v = call_user_func(array (
-				$className,
-				'serializeValue'
-						), $column->getName(), $value);
+						$className,
+						'serializeValue' 
+				), $column->getName(), $value);
 				
 				$e = new ns\BinaryOperatorExpression('&', $column, $column->importData($v));
 				$e->protect = true;
@@ -995,16 +995,16 @@ class Record implements \ArrayAccess
 					{
 						return ns\Reporter::fatalError($this, __METHOD__ . ': Incomplete key');
 					}
-	
+					
 					$key[$n] = $this->m_values[$n];
 				}
 			}
 		}
-		else 
+		else
 		{
 			$key = $this->m_storedKey;
 		}
-
+		
 		if (is_string($glue))
 		{
 			$key = implode($glue, $key);
@@ -1025,6 +1025,7 @@ class Record implements \ArrayAccess
 	}
 	
 	/**
+	 *
 	 * @param mixed $column Column name
 	 * @param mixed $value Value to unserialize
 	 * @return mixed
@@ -1033,8 +1034,8 @@ class Record implements \ArrayAccess
 	{
 		return $value;
 	}
-	
-	public static function unserializeColumn (TableColumnStructure $columnStructure, $value)
+
+	public static function unserializeColumn(TableColumnStructure $columnStructure, $value)
 	{
 		if ($columnStructure->getProperty(kStructureDatatype) == kDataTypeNumber)
 		{
@@ -1185,6 +1186,18 @@ class Record implements \ArrayAccess
 		}
 	}
 
+	private function updatePrimaryKeyColumns()
+	{
+		$structure = $this->m_table->getStructure();
+		foreach ($structure as $name => $column)
+		{
+			if ($column->getProperty(kStructurePrimaryKey))
+			{
+				$this->m_storedKey[$name] = array_key_exists($name, $this->m_values) ? $this->m_values[$name] : (array_key_exists($name, $this->m_storedKey) ? $this->m_storedKey[$name] : null);
+			}
+		}
+	}
+
 	/**
 	 *
 	 * @var Table
@@ -1209,6 +1222,12 @@ class Record implements \ArrayAccess
 	 */
 	private $m_storedKey;
 	
+
+	/**
+	 * The primary column(s) values from the last update
+	 * @var array
+	 */
+	private $m_storedKey;
 
 	/**
 	 * Key-value pair table where
