@@ -890,11 +890,6 @@ class SelectQueryJoin extends ISelectQueryJoin
 	 */
 	public function addLink(TableColumn $a_leftField, TableColumn $a_rightField)
 	{
-		if ($a_leftField->table != $this->leftTable || $a_rightField->table != $this->rightTable)
-		{
-			return ns\Reporter::error($this, __METHOD__ . '(): Field(s)(is/are) not from the left/right table', __FILE__, __LINE__);
-		}
-		
 		$e = new ns\BinaryOperatorExpression('=', $a_leftField, $a_rightField);
 		$e->protect = false;
 		
