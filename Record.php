@@ -115,13 +115,13 @@ class ColumnValueFilter implements RecordQueryOption
 	 *
 	 * @param mixel $column Column name or TableColumn
 	 * @param string $operator <ul>
-	 * 	<li>"=": Equal. @c $value could be anything</li>
-	 *  <li>"in": List of values. @c $value must be an array of values</li>
-	 *  <li>"between": Interval. @c value must be an array of two values</li>
-	 *  <li>"<", "<=", ">", ">=": Comparison operators</li>
-	 *  <li>"like": String pattern. @c $value must be a SQL pattern string</li>
-	 *  <li>"null": Comparison to NULL. @c $value is ignored. Equivalent to @c $operator = "=" and @c $value = null</li>
-	 * </ul>
+	 *        <li>"=": Equal. @c $value could be anything</li>
+	 *        <li>"in": List of values. @c $value must be an array of values</li>
+	 *        <li>"between": Interval. @c value must be an array of two values</li>
+	 *        <li>"<", "<=", ">", ">=": Comparison operators</li>
+	 *        <li>"like": String pattern. @c $value must be a SQL pattern string</li>
+	 *        <li>"null": Comparison to NULL. @c $value is ignored. Equivalent to @c $operator = "=" and @c $value = null</li>
+	 *        </ul>
 	 * @param mixed $value Value
 	 * @param boolean $positive
 	 */
@@ -148,13 +148,13 @@ class ColumnValueFilter implements RecordQueryOption
 	 * @param string $className
 	 * @param Table $table
 	 * @param string $operator <ul>
-	 * 	<li>"=": Equal. @c $value could be anything</li>
-	 *  <li>"in": List of values. @c $value must be an array of values</li>
-	 *  <li>"between": Interval. @c value must be an array of two values</li>
-	 *  <li>"<", "<=", ">", ">=": Comparison operators</li>
-	 *  <li>"like": String pattern. @c $value must be a SQL pattern string</li>
-	 *  <li>"null": Comparison to NULL. @c $value is ignored. Equivalent to @c $operator = "=" and @c $value = null</li>
-	 * </ul>
+	 *        <li>"=": Equal. @c $value could be anything</li>
+	 *        <li>"in": List of values. @c $value must be an array of values</li>
+	 *        <li>"between": Interval. @c value must be an array of two values</li>
+	 *        <li>"<", "<=", ">", ">=": Comparison operators</li>
+	 *        <li>"like": String pattern. @c $value must be a SQL pattern string</li>
+	 *        <li>"null": Comparison to NULL. @c $value is ignored. Equivalent to @c $operator = "=" and @c $value = null</li>
+	 *        </ul>
 	 * @param mixed $value Right operand. Type depends on @c $operator
 	 * @param boolean $positive Reverse operator behavior
 	 * @return IExpression
@@ -175,7 +175,7 @@ class ColumnValueFilter implements RecordQueryOption
 					return $e;
 					break;
 				}
-				// otherwise ...
+			// otherwise ...
 			case 'in':
 				return new SQLSmartEquality($column, call_user_func(array (
 						$className,
@@ -249,7 +249,7 @@ class ColumnValueFilter implements RecordQueryOption
 				$e->protect = false;
 				if (!$positive)
 					$e = new SQLNot($e);
-					return $e;
+				return $e;
 				break;
 		}
 		
@@ -567,7 +567,7 @@ class Record implements \ArrayAccess
 				}
 			}
 		}
-
+		
 		$recordset = $s->execute();
 		if (is_object($recordset) && ($recordset instanceof Recordset) && ($recordset->rowCount))
 		{
@@ -596,7 +596,7 @@ class Record implements \ArrayAccess
 					$result = new $className($table, $recordset, (kRecordDataSerialized | kRecordStateExists));
 					return $result;
 				}
-												
+				
 				return ns\Reporter::error(__CLASS__, __METHOD__ . ': Non unique result', __FILE__, __LINE__);
 			}
 		}
@@ -704,10 +704,10 @@ class Record implements \ArrayAccess
 			{
 				return $this->m_values[$member];
 			}
-
+			
 			return null;
 		}
-
+		
 		throw new \InvalidArgumentException('Invalid member ' . $member);
 	}
 
@@ -749,11 +749,11 @@ class Record implements \ArrayAccess
 		{
 			$c = $structure->offsetGet($member);
 			$this->setValue($c, $value);
-
+			
 			$this->m_flags |= kRecordStateModified;
 			return;
 		}
-
+		
 		throw new \InvalidArgumentException('Invalid member ' . $member);
 	}
 
@@ -790,14 +790,14 @@ class Record implements \ArrayAccess
 		$structure = $this->m_table->getStructure();
 		$i = new InsertQuery($this->m_table);
 		$autoIncrementColumn = null;
-
+		
 		foreach ($structure as $n => $c)
 		{
 			if ($c->getProperty(kStructureAutoincrement))
 			{
 				$autoIncrementColumn = $c;
 			}
-
+			
 			if (\array_key_exists($n, $this->m_values) && (is_null($autoIncrementColumn) || ($autoIncrementColumn->getName() != $n)))
 			{
 				$column = $this->m_table->getColumn($n);
@@ -805,7 +805,7 @@ class Record implements \ArrayAccess
 				$i->addColumnValue($column, $data);
 			}
 		}
-
+		
 		$result = $i->execute();
 		if (is_object($result) && ($result instanceof InsertQueryResult))
 		{
@@ -813,13 +813,13 @@ class Record implements \ArrayAccess
 			{
 				$this->setValue($autoIncrementColumn, $result->getLastInsertId());
 			}
-
+			
 			$this->m_flags |= kRecordStateExists;
 			$this->m_flags &= ~kRecordStateModified;
 			$this->updatePrimaryKeyColumns();
 			return true;
 		}
-
+		
 		return false;
 	}
 
@@ -833,7 +833,7 @@ class Record implements \ArrayAccess
 		{
 			return $this->insert();
 		}
-
+		
 		$structure = $this->m_table->getStructure();
 		$u = new UpdateQuery($this->m_table);
 		$count = 0;
@@ -868,23 +868,23 @@ class Record implements \ArrayAccess
 				return ns\Reporter::error($this, __METHOD__ . ': Missing value for primary key column ' . $n, __FILE__, __LINE__);
 			}
 		}
-
+		
 		if ($count == 0)
 		{
 			ns\Reporter::notice($this, __METHOD__ . ': Nothing to update', __FILE__, __LINE__);
 			$this->m_flags &= ~kRecordStateModified;
 			return true;
 		}
-
+		
 		$result = $u->execute();
-
+		
 		if (is_object($result) && ($result instanceof UpdateQueryResult))
 		{
 			$this->m_flags &= ~kRecordStateModified;
 			$this->updatePrimaryKeyColumns();
 			return true;
 		}
-
+		
 		return false;
 	}
 
@@ -900,7 +900,7 @@ class Record implements \ArrayAccess
 		$structure = $this->m_table->getStructure();
 		$columns = array ();
 		$usePrimaryKeys = false;
-
+		
 		if ($flags & kRecordQueryMultiple)
 		{
 			$columns = $structure->getIterator();
@@ -917,13 +917,13 @@ class Record implements \ArrayAccess
 				{
 					return ns\Reporter::error($this, __METHOD__ . ': Multiple records match the current record values');
 				}
-
+				
 				// We accept to work with all columns
 				$columns = $structure->getIterator();
 				$usePrimaryKeys = false;
 			}
 		}
-
+		
 		$d = new DeleteQuery($this->m_table);
 		foreach ($columns as $n => $c)
 		{
@@ -938,14 +938,14 @@ class Record implements \ArrayAccess
 				return ns\Reporter::error($this, __METHOD__ . ': Missing required column ' . $n . ' value');
 			}
 		}
-
+		
 		$result = $d->execute();
 		if (is_object($result) && ($result instanceof DeleteQueryResult))
 		{
 			$this->m_flags &= ~kRecordStateExists;
 			return ($result->getAffectedRowCount() > 0);
 		}
-
+		
 		return false;
 	}
 
@@ -964,17 +964,17 @@ class Record implements \ArrayAccess
 	 * @param string $foreignColumnName
 	 *
 	 * @return mixed Array of all foreign key data if @param $foreignColumnName is @c null.
-	 *  Otherwise, the value of the foreign column @param $foreignColumnName
+	 *         Otherwise, the value of the foreign column @param $foreignColumnName
 	 */
 	public function getForeignKeyData($columnName, $foreignColumnName = null)
 	{
 		$a = (array_key_exists($columnName, $this->m_foreignKeyData) ? $this->m_foreignKeyData[$columnName] : array ());
-
+		
 		if (is_string($foreignColumnName) && strlen($foreignColumnName))
 		{
 			return ((array_key_exists($foreignColumnName, $a)) ? $a[$foreignColumnName] : null);
 		}
-
+		
 		return $a;
 	}
 
@@ -1009,7 +1009,7 @@ class Record implements \ArrayAccess
 		{
 			$key = implode($glue, $key);
 		}
-
+		
 		return $key;
 	}
 
@@ -1023,7 +1023,7 @@ class Record implements \ArrayAccess
 	{
 		return $value;
 	}
-	
+
 	/**
 	 *
 	 * @param mixed $column Column name
@@ -1069,13 +1069,13 @@ class Record implements \ArrayAccess
 				{
 					continue;
 				}
-
+				
 				$table[$column] = static::unserializeValue($column, $value);
 			}
-
+			
 			$result[] = $table;
 		}
-
+		
 		return $result;
 	}
 
@@ -1094,7 +1094,7 @@ class Record implements \ArrayAccess
 					'foreignColumn' => $m[2] 
 			);
 		}
-
+		
 		return null;
 	}
 
@@ -1130,7 +1130,7 @@ class Record implements \ArrayAccess
 				$value = intval($value);
 			}
 		}
-
+		
 		$this->m_values[$f->getName()] = $value;
 	}
 
@@ -1143,47 +1143,31 @@ class Record implements \ArrayAccess
 		{
 			return $count;
 		}
-
+		
 		$joinIndex = 0;
 		foreach ($references as $columnName => $foreignKey)
 		{
 			$foreignTableName = $foreignKey['table']->getName();
 			$foreignColumnName = $foreignKey['column']->getName();
-
+			
 			$foreignTable = new Table($table->owner, $foreignTableName, 'j' . $joinIndex, $foreignKey['table']);
 			$foreignColumn = new TableColumn($foreignTable, $foreignColumnName, $columnName . '::' . $foreignColumnName, $foreignKey['column']);
-
+			
 			$join = $s->createJoin($foreignTable, kJoinInner);
 			$join->addLink($table->getColumn($columnName), $foreignColumn);
-
+			
 			$s->addJoin($join);
-
+			
 			foreach ($foreignTable->getStructure() as $fkcn => $fkc)
 			{
 				$c = new TableColumn($foreignTable, $fkcn, $columnName . '::' . $fkcn, $fkc);
 				$s->addColumn($c);
 			}
-
+			
 			$joinIndex++;
 		}
-
+		
 		return $count;
-	}
-	
-	private function updatePrimaryKeyColumns ()
-	{
-		$structure = $this->m_table->getStructure();
-		foreach ($structure as $name => $column)
-		{
-			if ($column->getProperty (kStructurePrimaryKey))
-			{
-				$this->m_storedKey[$name] = array_key_exists($name, $this->m_values)
-					? $this->m_values[$name]
-					: (array_key_exists($name, $this->m_storedKey) 
-						? $this->m_storedKey[$name] 
-						: null);
-			}
-		}
 	}
 
 	private function updatePrimaryKeyColumns()
@@ -1215,13 +1199,6 @@ class Record implements \ArrayAccess
 	 * @var array
 	 */
 	private $m_values;
-	
-	/**
-	 * The primary column(s) values from the last update
-	 * @var array
-	 */
-	private $m_storedKey;
-	
 
 	/**
 	 * The primary column(s) values from the last update
