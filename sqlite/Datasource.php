@@ -715,7 +715,6 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 
 	public function getTableStructure(Table $a_table)
 	{
-		// ns\echo_line($queryStr);
 		$queryStr = 'PRAGMA table_info(\'' . $a_table->getName() . '\')';
 		$queryRes = new Recordset($this, $this->executeQuery($queryStr), kRecordsetFetchName);
 		if ($queryRes === false)
