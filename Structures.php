@@ -13,98 +13,64 @@ namespace NoreSources\SQL;
 
 use NoreSources as ns;
 
-require_once (NS_PHP_PATH . '/core/strings.php');
-
-/**
- * SQL structure definition schema version
- */
-class StructureVersion
-{
-
-	/**
-	 *
-	 * @param string $version
-	 */
-	public function __construct($version)
-	{
-		if (is_string($version))
-		{
-			$this->m_versionArray = explode('.', $version);
-			
-			while (count($this->m_versionArray) < 3)
-			{
-				$this->m_versionArray[] = '0';
-			}
-		}
-		else
-		{
-			$this->m_versionArray = array (
-					0,
-					0,
-					0 
-			);
-		}
-	}
-
-	/**
-	 *
-	 * @param unknown $member
-	 * @return number
-	 */
-	public function __get($member)
-	{
-		if ($member == 'major')
-		{
-			return array_key_exists(0, $this->m_versionArray) ? $this->m_versionArray[0] : 0;
-		}
-		elseif ($member == 'minor')
-		{
-			return \array_key_exists(1, $this->m_versionArray) ? $this->m_versionArray[1] : 0;
-		}
-		elseif ($member == 'patch')
-		{
-			return \array_key_exists(2, $this->m_versionArray) ? $this->m_versionArray[2] : 0;
-		}
-		elseif ($member == 'version' || $member == 'versionString')
-		{
-			return implode('.', $this->m_versionArray);
-		}
-		elseif ($member == 'versionNumber')
-		{
-			$v = 0;
-			$m = 10000;
-			foreach ($this->m_versionArray as $part)
-			{
-				$v += (intval($part) * $m);
-				$m /= 100;
-			}
-			
-			return $v;
-		}
-		
-		throw new \InvalidArgumentException(get_class($this) . '::' . $member);
-	}
-
-	/**
-	 *
-	 * @return string
-	 */
-	public function __toString()
-	{
-		return implode('.', $this->m_versionArray);
-	}
-
-	/**
-	 *
-	 * @var array
-	 */
-	private $m_versionArray;
-}
-
 abstract class StructureElement implements \ArrayAccess, \IteratorAggregate, \Countable
 {
 	/**
+	 * The type of Datasource column.
+	 * Value type: integer
+	 */
+	const DATA_TYPE = 'datasourcetype';
+	
+	/**
+	 * The column is part of a primary key.
+	 * Value type: boolean
+	 */
+	const PRIMARY_KEY = 'primary';
+	/**
+	 * The column value is auto-incremented (integer column type only).
+	 * Value type: boolean
+	 */
+	const AUTO_INCREMENT = 'auto';
+	const FOREIGN_KEY = 'foreign';
+	
+	/**
+	 * The column is indexed.
+	 * Value type: boolean
+	 */
+	const INDEXED = 'index';
+	
+	/**
+	 * The column accepts null values.
+	 * Value type: boolean
+	 */
+	const ACCEPT_NULL = 'null';
+	
+	/**
+	 * Data size.
 	 *
+	 * Value type: integer
+	 */
+	const DATA_SIZE = 'size';
+	
+	/**
+	 * Number of decimals (numeric field types).
+	 * Value type: integer
+	 */
+	const DECIMAL_COUNT = 'decimalsize';
+	
+	/**
+	 * List of valid values.
+	 * Value type: array
+	 */
+	const ENUMERATION = 'valid_values';
+	
+	/**
+	 * Default value.
+	 * Value type: mixed
+	 */
+	const DEFAULT_VALUE = 'default_value';
+	
+	/*
 	 * @var string ns-xml SQL schema namespace
 	 */
 	const XMLNAMESPACE = 'http://xsd.nore.fr/sql';
@@ -197,7 +163,7 @@ abstract class StructureElement implements \ArrayAccess, \IteratorAggregate, \Co
 		{
 			if ($node->hasAttribute('version'))
 			{
-				$o->m_version = new StructureVersion($node->getAttribute('version'));
+				$o->m_version = new ns\SemanticVersion($node->getAttribute('version'));
 			}
 		}
 		
@@ -450,35 +416,35 @@ class TableColumnStructure extends StructureElement
 	{
 		parent::__construct($a_name, $a_tableStructure);
 		$this->m_columnProperties = array (
-				kStructureAcceptNull => array (
+				self::ACCEPT_NULL => array (
 						'set' => true,
 						'value' => true 
 				),
-				kStructureAutoincrement => array (
+				self::AUTO_INCREMENT => array (
 						'set' => true,
 						'value' => false 
 				),
-				kStructureDecimalCount => array (
+				self::DECIMAL_COUNT => array (
 						'set' => true,
 						'value' => 0 
 				),
-				kStructureDataSize => array (
+				self::DATA_SIZE => array (
 						'set' => false,
 						'value' => 0 
 				),
-				kStructurePrimaryKey => array (
+				self::PRIMARY_KEY => array (
 						'set' => true,
 						'value' => false 
 				),
-				kStructureIndexed => array (
+				self::INDEXED => array (
 						'set' => true,
 						'value' => false 
 				),
-				kStructureDatatype => array (
+				self::DATA_TYPE => array (
 						'set' => true,
 						'value' => kDataTypeString 
 				),
-				kStructureEnumeration => array (
+				self::ENUMERATION => array (
 						'set' => false,
 						'value' => null 
 				),
@@ -486,11 +452,11 @@ class TableColumnStructure extends StructureElement
 						'set' => false,
 						'value' => null 
 				),
-				kStructureForeignKey => array (
+				self::FOREIGN_KEY => array (
 						'set' => false,
 						'value' => null 
 				),
-				kStructureDefaultValue => array (
+				self::DEFAULT_VALUE => array (
 						'set' => false,
 						'value' => null 
 				) 
@@ -556,7 +522,7 @@ class TableColumnStructure extends StructureElement
 			if ($typeNode && $typeNode->length)
 			{
 				$typeNode = $typeNode->item(0);
-				$this->setProperty(kStructureDatatype, $v);
+				$this->setProperty(self::DATA_TYPE, $v);
 				$type = $v;
 				break;
 			}
@@ -567,16 +533,16 @@ class TableColumnStructure extends StructureElement
 			$type = kDataTypeInteger;
 			if ($typeNode->hasAttribute('autoincrement'))
 			{
-				$this->setProperty(kStructureAutoincrement, true);
+				$this->setProperty(self::AUTO_INCREMENT, true);
 			}
 			if ($typeNode->hasAttribute('length'))
 			{
-				$this->setProperty(kStructureDataSize, intval($typeNode->getAttribute('length')));
+				$this->setProperty(self::DATA_SIZE, intval($typeNode->getAttribute('length')));
 			}
 			if ($typeNode->hasAttribute('decimals'))
 			{
 				$count = intval($typeNode->getAttribute('decimals'));
-				$this->setProperty(kStructureDecimalCount, $count);
+				$this->setProperty(self::DECIMAL_COUNT, $count);
 				if ($count > 0)
 				{
 					$type = kDataTypeDecimal;
@@ -636,7 +602,7 @@ class TableColumnStructure extends StructureElement
 						break;
 				}
 				
-				$this->setProperty(kStructureDefaultValue, $value);
+				$this->setProperty(self::DEFAULT_VALUE, $value);
 				
 				break;
 			}
@@ -645,7 +611,7 @@ class TableColumnStructure extends StructureElement
 
 	protected function postprocess()
 	{
-		$fk = $this->getProperty(kStructureForeignKey);
+		$fk = $this->getProperty(self::FOREIGN_KEY);
 		if ($fk)
 		{
 			$tr = $fk['tableReference'];
@@ -682,7 +648,7 @@ class TableColumnStructure extends StructureElement
 				ns\Reporter::error($this, __METHOD__ . ': Failed to find table for foreign key on ' . $fk['columnName']);
 			}
 			
-			$this->setProperty(kStructureForeignKey, $fk);
+			$this->setProperty(self::FOREIGN_KEY, $fk);
 		}
 		
 		parent::postprocess();
@@ -728,7 +694,7 @@ class TableStructure extends StructureElement
 			{
 				if ($primaryKeyColumnNode->getAttribute('name') == $fs->getName())
 				{
-					$fs->setProperty(kStructurePrimaryKey, true);
+					$fs->setProperty(self::PRIMARY_KEY, true);
 				}
 			}
 			
@@ -755,7 +721,7 @@ class TableStructure extends StructureElement
 					)) 
 			);
 			
-			$column->setProperty(kStructureForeignKey, $property);
+			$column->setProperty(self::FOREIGN_KEY, $property);
 		}
 	}
 
@@ -764,7 +730,7 @@ class TableStructure extends StructureElement
 		$result = array ();
 		foreach ($this as $n => $c)
 		{
-			if ($c->getProperty(kStructurePrimaryKey))
+			if ($c->getProperty(self::PRIMARY_KEY))
 			{
 				$result[$n] = $c;
 			}
@@ -772,13 +738,13 @@ class TableStructure extends StructureElement
 		
 		return $result;
 	}
-	
+
 	public function getForeignKeyReferences()
 	{
 		$result = array ();
 		foreach ($this as $n => $c)
 		{
-			$fk = $c->getProperty(kStructureForeignKey);
+			$fk = $c->getProperty(self::FOREIGN_KEY);
 			if ($fk)
 			{
 				$result[$n] = $fk;
@@ -788,7 +754,7 @@ class TableStructure extends StructureElement
 		return $result;
 	}
 
-	public function addColumnStructure (TableColumnStructure $f)
+	public function addColumnStructure(TableColumnStructure $f)
 	{
 		$this->appendChild($f);
 	}
@@ -889,70 +855,4 @@ class DatasourceStructure extends StructureElement
 	 * @var string
 	 */
 	private $m_tablePrefix;
-}
-
-/**
- * An object part of a SQL Datasource structure
- */
-class SQLObject
-{
-
-	/**
-	 *
-	 * @param StructureElement $a_structure
-	 * @param string $a_structureClassType The expected StructureElement class type
-	 */
-	protected function __construct(StructureElement $a_structure = null, $a_structureClassType = null)
-	{
-		if (is_null($a_structureClassType))
-		{
-			$a_structureClassType = __NAMESPACE__ . '\\StructureElement';
-		}
-		
-		if (is_object($a_structure))
-		{
-			if (is_a($a_structure, $a_structureClassType))
-			{
-				$this->m_structure = $a_structure;
-			}
-			else
-			{
-				\Reporter::fatalError($this, 'Invalid structure object ' . get_class($a_structure) . ', ' . $a_structureClassType . ' expected', __FILE__, __LINE__);
-			}
-		}
-		else
-		{
-			$this->m_structure = null;
-		}
-	}
-
-	public function __get($member)
-	{
-		if ($member == 'structure')
-		{
-			return $this->getStructure();
-		}
-		
-		throw new \InvalidArgumentException(get_class($this) . '::' . $member);
-	}
-	
-	public function setStructure (StructureElement $structure)
-	{
-		$this->m_structure = $structure;
-	}
-
-	/**
-	 *
-	 * @return StructureElement
-	 */
-	public final function getStructure()
-	{
-		return $this->m_structure;
-	}
-
-	/**
-	 *
-	 * @var StructureElement
-	 */
-	protected $m_structure;
 }

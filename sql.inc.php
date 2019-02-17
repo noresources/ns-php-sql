@@ -37,78 +37,16 @@ function version_number()
 	return (SQL_VERSION_MAJOR * 10000 + SQL_VERSION_MINOR * 100 + SQL_VERSION_PATCH);
 }
 
-/**
- *
- * @defgroup structure 'Structure properties'
- * @{
- */
-
-/**
- * The type of Datasource column.
- * Value type: integer
- */
-const kStructureDatatype = 'datasourcetype';
-/**
- * The column is part of a primary key.
- * Value type: boolean
- */
-const kStructurePrimaryKey = 'primary';
-/**
- * The column value is auto-incremented (integer column type only).
- * Value type: boolean
- */
-const kStructureAutoincrement = 'auto';
-const kStructureForeignKey = 'foreign';
-
-/**
- * The column is indexed.
- * Value type: boolean
- */
-const kStructureIndexed = 'index';
-/**
- * The column accepts null values.
- * Value type: boolean
- */
-const kStructureAcceptNull = 'null';
-/**
- * Data size.
- *
- * Value type: integer
- */
-const kStructureDataSize = 'size';
-
-/**
- * Number of decimals (numeric field types).
- * Value type: integer
- */
-const kStructureDecimalCount = 'decimalsize';
-
-/**
- * List of valid values.
- * Value type: array
- */
-const kStructureEnumeration = 'valid_values';
-/**
- * Default value.
- * Value type: mixed
- */
-const kStructureDefaultValue = 'default_value';
-
-/**
- * The column accepts tuple values.
- * Value type: boolean
- */
-const kStructureAcceptMultipleValues = 'accept_multivalues';
 
 // Datasource-relative / Application-relative properties
 
 /**
  * The field typename (datasource dependant)
  */
-const kStructureFieldTypename = 'typename';
+const kStructureColumnTypename = 'typename';
 
 /**
- * FieldValidator classname to use before insertion
+ * ColumnValidator classname to use before insertion
  */
 const kStructureValidatorClassname = 'validator_classname';
 
@@ -152,7 +90,7 @@ const kExpressionElementDeclaration = 0x3;
 
 /**
  * Natural join
- * Does not require any link field
+ * Does not require any link column
  */
 const kJoinNatural = 'sql.join.natural';
 /**
@@ -167,13 +105,10 @@ const kJoinCross = 'sql.join.cross';
 const kJoinOuter = 'sql.join.outer';
 /**
  * Inner join
- * Merge obly lines which linkfields match in then two tables
  */
 const kJoinInner = 'sql.join.inner';
 /**
  * Left (outer) join
- * Take all elements of left table
- * and merge those which match link fields at the right
  */
 const kJoinLeft = 'sql.join.left';
 /**
