@@ -1,18 +1,14 @@
 <?php
-
 /**
  * Copyright © 2012-2018 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
  */
-
 /**
  *
  * @package SQL
  */
 namespace NoreSources\SQL;
-
 use NoreSources as ns;
-
 abstract class StructureElement implements \ArrayAccess, \IteratorAggregate, \Countable
 {
 	/**
@@ -75,6 +71,13 @@ abstract class StructureElement implements \ArrayAccess, \IteratorAggregate, \Co
 	 */
 	const XMLNAMESPACE = 'http://xsd.nore.fr/sql';
 
+	/**
+	 *
+	 * @param unknown $input
+	 * @param StructureElement $parent
+	 * @param unknown $postProcessElementCallback
+	 * @return \NoreSources\SQL\StructureElement
+	 */
 	public static function create($input, StructureElement $parent = null, $postProcessElementCallback = null)
 	{
 		if (is_string($input) && is_file($input))
@@ -118,6 +121,13 @@ abstract class StructureElement implements \ArrayAccess, \IteratorAggregate, \Co
 		return self::createFromXmlNode($doc->documentElement, $p);
 	}
 
+	/**
+	 *
+	 * @param \DOMNode $node
+	 * @param StructureElement $parent
+	 * @param unknown $postProcessElementCallback
+	 * @return \NoreSources\SQL\StructureElement
+	 */
 	public static function createFromXmlNode(\DOMNode $node, StructureElement $parent = null, $postProcessElementCallback = null)
 	{
 		if (!($node && $node->namespaceURI == self::XMLNAMESPACE))
@@ -253,11 +263,23 @@ abstract class StructureElement implements \ArrayAccess, \IteratorAggregate, \Co
 
 	/**
 	 *
-	 * @return string
+	 * @param unknown $tree
+	 * @return \NoreSources\SQL\StructureElement
 	 */
-	public function elementKey()
+	public function findDescendant($tree)
 	{
-		return $this->m_name;
+		if (is_string($tree))
+			return $this->offsetGet($tree);
+		
+		$e = $this;
+		foreach ($tree as $key)
+		{
+			$e = $e->offsetGet($key);
+			if (!$e)
+				break;
+		}
+		
+		return $e;
 	}
 
 	/**
@@ -271,11 +293,37 @@ abstract class StructureElement implements \ArrayAccess, \IteratorAggregate, \Co
 
 	/**
 	 *
-	 * @return StructureElement
+	 * @param StatementBuilder $builder
+	 * @return string
 	 */
-	public function parent()
+	public function getPath(StatementBuilder $builder = null)
 	{
-		return $this->m_parent;
+		$s = ($builder instanceof StatementBuilder) ? $builder->escapeIdentifier($this->getName()) : $this->getName();
+		$p = $this->parent();
+		while ($p && !($p instanceof DatasourceStructure))
+		{
+			$s = (($builder instanceof StatementBuilder) ? $builder->escapeIdentifier($p->getName()) : $p->getName()) . '.' . $s;
+			$p = $p->parent();
+		}
+		
+		return $s;
+	}
+
+	/**
+	 * Get ancestor
+	 * @param number $depth
+	 * @return \NoreSources\SQL\StructureElement
+	 */
+	public function parent($depth = 1)
+	{
+		$p = $this->m_parent;
+		while ($p && ($depth > 1))
+		{
+			$p = $p->m_parent;
+			$depth--;
+		}
+		
+		return $p;
 	}
 
 	/**
@@ -295,9 +343,9 @@ abstract class StructureElement implements \ArrayAccess, \IteratorAggregate, \Co
 	protected function appendChild(StructureElement $a_child)
 	{
 		$parent = $this->parent();
-		$key = $a_child->elementKey();
+		$key = $a_child->getName();
 		$this->m_children->offsetSet($key, $a_child);
-		if (!($this->m_version instanceof StructureVersion))
+		if (!($this->m_version instanceof ns\SemanticVersion))
 		{
 			$this->m_version = $a_child->m_version;
 		}
@@ -331,7 +379,7 @@ abstract class StructureElement implements \ArrayAccess, \IteratorAggregate, \Co
 
 	/**
 	 *
-	 * @return StructureVersion
+	 * @return \NoreSources\SemanticVersion
 	 */
 	public function getStructureVersion()
 	{
@@ -395,7 +443,7 @@ abstract class StructureElement implements \ArrayAccess, \IteratorAggregate, \Co
 
 	/**
 	 *
-	 * @var StructureVersion
+	 * @var \NoreSources\SemanticVersion
 	 */
 	private $m_version;
 
@@ -442,13 +490,9 @@ class TableColumnStructure extends StructureElement
 				),
 				self::DATA_TYPE => array (
 						'set' => true,
-						'value' => kDataTypeString 
+						'value' => K::kDataTypeString 
 				),
 				self::ENUMERATION => array (
-						'set' => false,
-						'value' => null 
-				),
-				kStructureValidatorClassname => array (
 						'set' => false,
 						'value' => null 
 				),
@@ -507,11 +551,11 @@ class TableColumnStructure extends StructureElement
 		
 		$dataTypeNode = $children->item(0);
 		$a = array (
-				'binary' => kDataTypeBinary,
-				'boolean' => kDataTypeBoolean,
-				'numeric' => kDataTypeNumber,
-				'timestamp' => kDataTypeTimestamp,
-				'string' => kDataTypeString 
+				'binary' => K::kDataTypeBinary,
+				'boolean' => K::kDataTypeBoolean,
+				'numeric' => K::kDataTypeNumber,
+				'timestamp' => K::kDataTypeTimestamp,
+				'string' => K::kDataTypeString 
 		);
 		$typeNode = null;
 		$type = null;
@@ -528,9 +572,9 @@ class TableColumnStructure extends StructureElement
 			}
 		}
 		
-		if ($type & kDataTypeNumber)
+		if ($type & K::kDataTypeNumber)
 		{
-			$type = kDataTypeInteger;
+			$type = K::kDataTypeInteger;
 			if ($typeNode->hasAttribute('autoincrement'))
 			{
 				$this->setProperty(self::AUTO_INCREMENT, true);
@@ -545,7 +589,7 @@ class TableColumnStructure extends StructureElement
 				$this->setProperty(self::DECIMAL_COUNT, $count);
 				if ($count > 0)
 				{
-					$type = kDataTypeDecimal;
+					$type = K::kDataTypeDecimal;
 				}
 			}
 		}
@@ -855,4 +899,207 @@ class DatasourceStructure extends StructureElement
 	 * @var string
 	 */
 	private $m_tablePrefix;
+}
+
+/**
+ */
+class StructureResolver
+{
+
+	/**
+	 *
+	 * @param StructureElement $pivot Reference element
+	 */
+	public function __construct(StructureElement $pivot)
+	{
+		$this->pivot = $pivot;
+		$this->cache = new \ArrayObject(array (
+				'columns' => new \ArrayObject(),
+				'tables' => new \ArrayObject(),
+				'tablesets' => new \ArrayObject(),
+				'datasource' => new \ArrayObject() 
+		));
+		
+		$key = self::getKey($pivot);
+		$this->cache[$key]->offsetSet($pivot->getName(), $pivot);
+		$this->cache[$key]->offsetSet($pivot->getPath(), $pivot);
+		$p = $pivot->parent();
+		while ($p instanceof StructureElement)
+		{
+			$this->cache[self::getKey($p)]->offsetSet($p->getName(), $p);
+			$p = $p->parent();
+		}
+	}
+
+	public function findColumn($path)
+	{
+		if ($this->cache['columns']->offsetExists($path))
+		{
+			return $this->cache['columns'][$path];
+		}
+		
+		$x = explode('.', $path);
+		$c = count($x);
+		$name = $x[$c - 1];
+		
+		$table = null;
+		
+		if ($c == 1)
+		{
+			$table = $this->getDefaultTable();
+		}
+		elseif ($c == 2)
+		{
+			$table = $this->findTable($x[0]);
+		}
+		elseif ($c == 3)
+		{
+			$tableset = $this->findTableset($x[0]);
+			if ($tableset)
+			{
+				$table = $tableset->offsetGet($x[1]);
+			}
+		}
+		
+		if (!($table instanceof TableStructure))
+			return null;
+		
+		$column = $table->offsetGet($name);
+		if ($column)
+		{
+			$this->cache['columns']->offsetSet($path, $column);
+		}
+		
+		return $column;
+	}
+
+	public function findTable($path)
+	{
+		if ($this->cache['tables']->offsetExists($path))
+		{
+			return $this->cache['tables'][$path];
+		}
+		
+		$x = explode('.', $path);
+		$c = count($x);
+		$name = $x[$c - 1];
+		
+		$tableset = null;
+		
+		if ($c == 1)
+		{
+			$tableset = $this->getDefaultTableset();
+		}
+		else if ($c == 2)
+		{
+			$tableset = $this->findTableset($x[0]);
+		}
+		
+		$table = ($tableset instanceof TableSetStructure) ? $tableset->offsetGet($name) : null;
+		
+		if ($table)
+		{
+			$this->cache['tables']->offsetSet($path, $table);
+		}
+		
+		return $table;
+	}
+
+	public function findTableset($path)
+	{
+		if ($this->cache['tablesets']->offsetExists($path))
+		{
+			return $this->cache['tablesets'][$path];
+		}
+		
+		$datasource = $this->pivot;
+		while ($datasource && !($datasource instanceof DatasourceStructure))
+		{
+			$datasource = $datasource->parent();
+		}
+		
+		$tableset = ($datasource instanceof DatasourceStructure) ? $datasource->offsetGet($path) : null;
+		
+		if ($tableset)
+			$this->cache['tablesets']->offsetSet($path, $tableset);
+		return $tableset;
+	}
+
+	public function setAlias($alias, StructureElement $structure)
+	{
+		$this->cache[self::getKey($structure)]->offsetSet($alias, $structure);
+	}
+
+	private static function getKey(StructureElement $structure)
+	{
+		if ($structure instanceof TableColumnStructure)
+		{
+			return 'columns';
+		}
+		elseif ($structure instanceof TableStructure)
+		{
+			return 'tables';
+		}
+		elseif ($structure instanceof TableSetStructure)
+		{
+			return 'tablesets';
+		}
+		elseif ($structure instanceof DatasourceStructure)
+		{
+			return 'datasource';
+		}
+	}
+
+	private function getDefaultTableset()
+	{
+		if ($this->pivot instanceof TableSetStructure)
+			return $this->pivot;
+		elseif ($this->pivot instanceof TableStructure)
+			return $this->pivot->parent();
+		elseif ($this->pivot instanceof TableColumnStructure)
+			return $this->pivot->parent(2);
+		
+		return null;
+	}
+
+	private function getDefaultTable()
+	{
+		if ($this->pivot instanceof TableColumnStructure)
+		{
+			return $this->pivot->parent();
+		}
+		elseif ($this->pivot instanceof TableStructure)
+		{
+			return $this->pivot;
+		}
+		
+		return null;
+	}
+
+	public function debugCache()
+	{
+		$a = array ();
+		foreach ($this->cache as $type => $structures)
+		{
+			$a[$type] = array ();
+			foreach ($structures as $name => $structure)
+			{
+				$a[$type][] = $name;
+			}
+		}
+		
+		return $a;
+	}
+
+	/**
+	 *
+	 * @var StructureElement
+	 */
+	private $pivot;
+
+	/**
+	 *
+	 * @var \ArrayObject
+	 */
+	private $cache;
 }
