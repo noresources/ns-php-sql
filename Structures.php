@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright © 2012-2018 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
@@ -8,7 +9,9 @@
  * @package SQL
  */
 namespace NoreSources\SQL;
+
 use NoreSources as ns;
+
 abstract class StructureElement implements \ArrayAccess, \IteratorAggregate, \Countable
 {
 	/**
@@ -901,10 +904,21 @@ class DatasourceStructure extends StructureElement
 	private $m_tablePrefix;
 }
 
+class StructureResolverException extends \Exception
+{
+
+	public function __construct($path)
+	{
+		parent::__construct($path . ' not found');
+	}
+}
+
 /**
  */
 class StructureResolver
 {
+
+	public $useExceptions = false;
 
 	/**
 	 *
@@ -965,9 +979,14 @@ class StructureResolver
 			return null;
 		
 		$column = $table->offsetGet($name);
-		if ($column)
+		
+		if ($column instanceof TableColumnStructure)
 		{
 			$this->cache['columns']->offsetSet($path, $column);
+		}
+		elseif ($this->useExceptions)
+		{
+			throw new StructureResolverException($path);
 		}
 		
 		return $column;
@@ -997,9 +1016,13 @@ class StructureResolver
 		
 		$table = ($tableset instanceof TableSetStructure) ? $tableset->offsetGet($name) : null;
 		
-		if ($table)
+		if ($table instanceof TableStructure)
 		{
 			$this->cache['tables']->offsetSet($path, $table);
+		}
+		elseif ($this->useExceptions)
+		{
+			throw new StructureResolverException($path);
 		}
 		
 		return $table;
@@ -1020,8 +1043,13 @@ class StructureResolver
 		
 		$tableset = ($datasource instanceof DatasourceStructure) ? $datasource->offsetGet($path) : null;
 		
-		if ($tableset)
+		if ($tableset instanceof TableSetStructure) {
 			$this->cache['tablesets']->offsetSet($path, $tableset);
+		}
+		elseif ($this->useExceptions)
+		{
+			throw new StructureResolverException($path);
+		}
 		return $tableset;
 	}
 

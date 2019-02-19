@@ -34,18 +34,6 @@ class TableReference
 		$this->path = $path;
 		$this->alias = $alias;
 	}
-
-	public function canonicalName(StatementBuilder $builder, TableStructure $structure)
-	{
-		$s = $builder->escapeIdentifier($this->path);
-		$p = $structure->parent();
-		while ($p && !($p instanceof DatasourceStructure))
-		{
-			$s = $builder->escapeIdentifier($p->getName()) . '.' . $s;
-			$p = $p->parent();
-		}
-		return $s;
-	}
 }
 
 class ColumnReference
@@ -60,8 +48,8 @@ class ColumnReference
 		$this->path = $path;
 		$this->alias = $alias;
 	}
-	
-	public static function canonicalName ($name, StatementBuilder $builder, TableColumnStructure $structure)
+
+	public static function canonicalName($name, StatementBuilder $builder, TableColumnStructure $structure)
 	{
 		$s = $builder->escapeIdentifier($name);
 		$p = $structure->parent();
@@ -119,7 +107,7 @@ class SelectQuery implements QueryDescription
 				$path = $arg;
 			}
 			
-			$this->parts['columns']->append (new ColumnReference($path, $alias));
+			$this->parts['columns']->append(new ColumnReference($path, $alias));
 		}
 		
 		return $this;
@@ -133,31 +121,31 @@ class SelectQuery implements QueryDescription
 	public function buildStatement(StatementBuilder $builder, StructureElement $referenceStructure)
 	{
 		$resolver = new StructureResolver($referenceStructure);
+		$resolver->useExceptions = true;
 		$tableStructure = $resolver->findTable($this->parts['table']->path);
+		
 		if ($this->parts['table']->alias)
 		{
 			$resolver->setAlias($this->parts['table']->alias, $tableStructure);
 		}
-				
-		$aliases = array ();
-		if ($this->parts['table']->alias)
-		{
-			$aliases[$this->parts['table']->alias] = $this->parts['table'];
-		}
 		
 		foreach ($this->parts['joins'] as $join)
 		{
+			$structure = $resolver->findTable($join->path);
+			
 			if ($join->alias)
 			{
-				$aliases[$join->alias] = $join;
+				$resolver->setAlias($join->alias, $structure);
 			}
 		}
 		
 		foreach ($this->parts['columns'] as $column)
 		{
+			$structure = $resolver->findColumn($column->path);
+			
 			if ($column->alias)
 			{
-				$aliases[$column->alias] = $column;
+				$resolver->setAlias($column->alias, $structure);
 			}
 		}
 		
@@ -165,9 +153,21 @@ class SelectQuery implements QueryDescription
 		
 		if (count($this->parts['columns']))
 		{
+			$index = 0;
 			foreach ($this->parts['columns'] as $column)
 			{
+				if ($index > 0)
+					$s .= ', ';
 				
+				$structure = $resolver->findColumn($column->path);
+				$s .= $builder->getCanonicalName($structure);
+				
+				if ($column->alias)
+				{
+					$s .= ' AS ' . $builder->escapeIdentifier($column->alias);
+				}
+				
+				$index++;
 			}
 		}
 		else
@@ -177,7 +177,7 @@ class SelectQuery implements QueryDescription
 		
 		$s .= ' FROM ';
 		
-		$s .= $this->parts['table']->canonicalName($builder, $tableStructore);
+		$s .= $builder->getCanonicalName($tableStructure);
 		if ($this->parts['table']->alias)
 		{
 			$s .= ' AS ' . $builder->escapeIdentifier($this->parts['table']->alias);
@@ -189,17 +189,30 @@ class SelectQuery implements QueryDescription
 	private $parts;
 }
 
-interface StatementBuilder
+abstract class StatementBuilder
 {
 
-	function escapeString($value);
+	abstract function escapeString($value);
 
-	function escapeIdentifier($identifier);
+	abstract function escapeIdentifier($identifier);
 
-	function featureSupport($feature);
+	abstract function featureSupport($feature);
+
+	public function getCanonicalName(StructureElement $structure)
+	{
+		$s = $this->escapeIdentifier($structure->getName());
+		$p = $structure->parent();
+		while ($p && !($p instanceof DatasourceStructure))
+		{
+			$s = $this->escapeIdentifier($p->getName()) . '.' . $s;
+			$p = $p->parent();
+		}
+		
+		return $s;
+	}
 }
 
-class GenericStatementBuilder implements StatementBuilder
+class GenericStatementBuilder extends StatementBuilder
 {
 
 	public function escapeString($value)
