@@ -918,15 +918,12 @@ class StructureResolverException extends \Exception
 class StructureResolver
 {
 
-	public $useExceptions = false;
-
 	/**
 	 *
 	 * @param StructureElement $pivot Reference element
 	 */
-	public function __construct(StructureElement $pivot)
+	public function __construct(StructureElement $pivot = null)
 	{
-		$this->pivot = $pivot;
 		$this->cache = new \ArrayObject(array (
 				'columns' => new \ArrayObject(),
 				'tables' => new \ArrayObject(),
@@ -934,6 +931,24 @@ class StructureResolver
 				'datasource' => new \ArrayObject() 
 		));
 		
+		if ($pivot instanceof StructureElement)
+		{
+			$this->setPivot($pivot);
+		}
+	}
+
+	/**
+	 * Define the reference node and reset cache
+	 * @param StructureElement $pivot
+	 */
+	public function setPivot(StructureElement $pivot)
+	{
+		foreach ($this->cache as $key => &$table)
+		{
+			$table->exchangeArray(array());
+		}
+		
+		$this->pivot = $pivot;
 		$key = self::getKey($pivot);
 		$this->cache[$key]->offsetSet($pivot->getName(), $pivot);
 		$this->cache[$key]->offsetSet($pivot->getPath(), $pivot);
@@ -944,7 +959,12 @@ class StructureResolver
 			$p = $p->parent();
 		}
 	}
-
+	
+	/**
+	 * @param string $path
+	 * @throws StructureResolverException
+	 * @return \NoreSources\SQL\TableColumnStructure
+	 */
 	public function findColumn($path)
 	{
 		if ($this->cache['columns']->offsetExists($path))
@@ -984,7 +1004,7 @@ class StructureResolver
 		{
 			$this->cache['columns']->offsetSet($path, $column);
 		}
-		elseif ($this->useExceptions)
+		else
 		{
 			throw new StructureResolverException($path);
 		}
@@ -992,6 +1012,11 @@ class StructureResolver
 		return $column;
 	}
 
+	/**
+	 * @param string $path
+	 * @throws StructureResolverException
+	 * @return \NoreSources\SQL\TableStructure
+	 */
 	public function findTable($path)
 	{
 		if ($this->cache['tables']->offsetExists($path))
@@ -1020,7 +1045,7 @@ class StructureResolver
 		{
 			$this->cache['tables']->offsetSet($path, $table);
 		}
-		elseif ($this->useExceptions)
+		else
 		{
 			throw new StructureResolverException($path);
 		}
@@ -1028,6 +1053,11 @@ class StructureResolver
 		return $table;
 	}
 
+	/**
+	 * @param string $path
+	 * @throws StructureResolverException
+	 * @return \NoreSources\SQL\TableSetStructure
+	 */
 	public function findTableset($path)
 	{
 		if ($this->cache['tablesets']->offsetExists($path))
@@ -1046,18 +1076,22 @@ class StructureResolver
 		if ($tableset instanceof TableSetStructure) {
 			$this->cache['tablesets']->offsetSet($path, $tableset);
 		}
-		elseif ($this->useExceptions)
+		else
 		{
 			throw new StructureResolverException($path);
 		}
 		return $tableset;
 	}
 
+	/**
+	 * @param string $alias
+	 * @param StructureElement $structure
+	 */
 	public function setAlias($alias, StructureElement $structure)
 	{
 		$this->cache[self::getKey($structure)]->offsetSet($alias, $structure);
 	}
-
+	
 	private static function getKey(StructureElement $structure)
 	{
 		if ($structure instanceof TableColumnStructure)

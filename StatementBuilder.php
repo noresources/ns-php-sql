@@ -16,10 +16,26 @@ class Statement
 	private $sqlString;
 }
 
-interface QueryDescription
+interface StatementElementDescription
 {
 
-	function buildStatement(StatementBuilder $builder, StructureElement $referenceStructure);
+	function buildStatement(StatementBuilder $builder, StructureResolver $resolver);
+}
+
+abstract class QueryDescription implements StatementElementDescription
+{
+
+	/**
+	 *
+	 * @param StatementBuilder $builder
+	 * @param StructureElement $referenceStructure
+	 * @return string
+	 */
+	function build(StatementBuilder $builder, StructureElement $referenceStructure)
+	{
+		$resolver = new StructureResolver($referenceStructure);
+		return $this->buildStatement($builder, $resolver);
+	}
 }
 
 class TableReference
@@ -43,22 +59,12 @@ class ColumnReference
 
 	public $alias;
 
+	public $flags;
+
 	public function __construct($path, $alias)
 	{
 		$this->path = $path;
 		$this->alias = $alias;
-	}
-
-	public static function canonicalName($name, StatementBuilder $builder, TableColumnStructure $structure)
-	{
-		$s = $builder->escapeIdentifier($name);
-		$p = $structure->parent();
-		while ($p && !($p instanceof DatasourceStructure))
-		{
-			$s = $builder->escapeIdentifier($p->getName()) . '.' . $s;
-			$p = $p->parent();
-		}
-		return $s;
 	}
 }
 
@@ -74,7 +80,7 @@ class Join
 	public $type;
 }
 
-class SelectQuery implements QueryDescription
+class SelectQuery extends QueryDescription
 {
 
 	public function __construct($table, $alias = null)
@@ -118,10 +124,8 @@ class SelectQuery implements QueryDescription
 		return $this;
 	}
 
-	public function buildStatement(StatementBuilder $builder, StructureElement $referenceStructure)
+	public function buildStatement(StatementBuilder $builder, StructureResolver $resolver)
 	{
-		$resolver = new StructureResolver($referenceStructure);
-		$resolver->useExceptions = true;
 		$tableStructure = $resolver->findTable($this->parts['table']->path);
 		
 		if ($this->parts['table']->alias)
