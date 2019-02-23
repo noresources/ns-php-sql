@@ -80,6 +80,23 @@ class Join
 	public $type;
 }
 
+class OrderBy
+{
+
+	public $path;
+
+	public $direction;
+
+	public $collation;
+
+	public function __construct($path, $direction = K::ORDERING_ASC, $collation = null)
+	{
+		$this->path = $path;
+		$this->direction = $direction;
+		$this->collation = $collation;
+	}
+}
+
 class SelectQuery extends QueryDescription
 {
 
@@ -90,9 +107,13 @@ class SelectQuery extends QueryDescription
 				'table' => new TableReference($table, $alias),
 				'joins' => new \ArrayObject(),
 				'where' => null,
-				'having' => null,
 				'groupby' => null,
-				'orderby' => null 
+				'having' => null,
+				'orderby' => new \ArrayObject(),
+				'limit' => array (
+						'count' => 0,
+						'offset' => 0 
+				) 
 		);
 	}
 
@@ -121,6 +142,24 @@ class SelectQuery extends QueryDescription
 
 	public function join($table, $type, $columns)
 	{
+		return $this;
+	}
+
+	public function orderBy($reference, $direction = K::ORDERING_ASC, $collation = null)
+	{
+		$this->parts['orderby']->offsetSet($reference, new OrderBy($reference, $direction, $collation));
+	}
+
+	/**
+	 *
+	 * @param integer $count
+	 * @param integer $offset
+	 * @return \NoreSources\SQL\SelectQuery
+	 */
+	public function limit($count, $offset = 0)
+	{
+		$this->parts['limit']['count'] = $count;
+		$this->parts['limit']['offset'] = $offset;
 		return $this;
 	}
 
@@ -187,6 +226,32 @@ class SelectQuery extends QueryDescription
 			$s .= ' AS ' . $builder->escapeIdentifier($this->parts['table']->alias);
 		}
 		
+		// JOIN
+		
+		// WHERE
+		
+		// GROUP BY
+		
+		// HAVING
+		
+		// ORDER BY
+		if ($this->parts['orderby']->count())
+		{
+			foreach ($this->parts['orderby'] as $clause)
+			{}
+		}
+		
+		// LIMIT
+		if ($this->parts['limit']['count'] > 0)
+		{
+			$s .= ' LIMIT ' . ($this->parts['limit']['count']);
+			
+			if ($this->parts['limit']['offset'] > 0)
+			{
+				$s .= ' OFFSET ' . ($this->parts['limit']['offset']);
+			}
+		}
+		
 		return $s;
 	}
 
@@ -199,9 +264,19 @@ abstract class StatementBuilder
 	abstract function escapeString($value);
 
 	abstract function escapeIdentifier($identifier);
+	
+	abstract function getParameter($name);
 
-	abstract function featureSupport($feature);
-
+	abstract function isFeatureSupported($feature);
+	
+	public function getLiteral(LiteralExpression $literal)
+	{
+		if ($literal->type & K::kDataTypeNumber)
+			return $literal->value;
+		
+		return $this->escapeString($literal->value);
+	}
+	
 	public function getCanonicalName(StructureElement $structure)
 	{
 		$s = $this->escapeIdentifier($structure->getName());
@@ -214,11 +289,18 @@ abstract class StatementBuilder
 		
 		return $s;
 	}
+ 
 }
+
 
 class GenericStatementBuilder extends StatementBuilder
 {
 
+	public function __construct()
+	{
+		$this->arameters = new \ArrayObject();
+	}
+	
 	public function escapeString($value)
 	{
 		return "'" . $value . "'";
@@ -229,8 +311,24 @@ class GenericStatementBuilder extends StatementBuilder
 		return '[' . $identifier . ']';
 	}
 
-	public function featureSupport($feature)
+	public function getParameter($name)
+	{
+		if (!$this->parameters->offsetExists($name))
+		{
+			$c = $this->parameters->count() + 1;
+			$this->parameters->offsetSet($name, $c);
+		}
+		
+		return '$' . $this->parameters->offsetGet($name);
+	}
+	
+	public function isFeatureSupported($feature)
 	{
 		return true;
 	}
+	
+	/**
+	 * @var \ArrayObject
+	 */
+	private $parameters;
 }

@@ -18,6 +18,9 @@ class K
 	const JOIN_CROSS = 	0x04;
 	const JOIN_LEFT = 	0x10;
 	const JOIN_RIGHT = 	0x20;
+	
+	const ORDERING_ASC = 'ASC';
+	const ORDERING_DESC = 'DESC';
 }
 
 const kDataTypeNull = 0x01;
