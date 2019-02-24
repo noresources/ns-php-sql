@@ -368,8 +368,8 @@ class ExpressionParser
 						'parameter',
 						'structure-path',
 						'case',
-						'function' 
-					//'case'
+						'parenthesis',
+						'function'
 				)),
 				'function' => $call,
 				'comma-expression' => $commaExpression,
@@ -381,7 +381,6 @@ class ExpressionParser
 				//'unary-operator' => $unaryOperator,
 				'identifier' => $identifier,
 				'function-name' => $functionName,
-				//'else' => $else,
 				'when-then' => $whenThen,
 				'when-then-star' => $moreWhenThen,
 				'case' => $case,
