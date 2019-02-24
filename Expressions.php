@@ -85,6 +85,125 @@ class FunctionExpression implements Expression
 	}
 }
 
+class ParenthesisExpression
+{
+
+	/**
+	 *
+	 * @var Expression
+	 */
+	public $expression;
+
+	public function __construct(Expression $expression)
+	{
+		$this->expression;
+	}
+
+	function build(StatementBuilder $builder, StructureResolver $resolver)
+	{
+		return '(' . $this->expression->build($builder, $resolver) . ')';
+	}
+}
+
+class UnaryOperatorExpression
+{
+
+	/**
+	 *
+	 * @var string
+	 */
+	public $operator;
+
+	/**
+	 *
+	 * @var Expression
+	 */
+	public $operand;
+
+	public function __construct($operator, Expression $operand)
+	{
+		$this->operand = $operator;
+		$this->operand = $operand;
+	}
+
+	function build(StatementBuilder $builder, StructureResolver $resolver)
+	{
+		return $this->operator . ' ' . $this->operand->build($builder, $resolver);
+	}
+}
+
+class CaseOptionExpression
+{
+
+	/**
+	 *
+	 * @var Expression
+	 */
+	public $when;
+
+	/**
+	 *
+	 * @var Expression
+	 */
+	public $then;
+
+	public function __construct(Expression $when, Expression $then)
+	{
+		$this->when = $when;
+		$this->then = $then;
+	}
+
+	function build(StatementBuilder $builder, StructureResolver $resolver)
+	{
+		return 'WHEN ' . $this->when->build($builder, $resolver) . ' THEN ' . $this->then->build($builder, $resolver);
+	}
+}
+
+class CaseExpression
+{
+
+	/**
+	 *
+	 * @var Expression
+	 */
+	public $subject;
+
+	/**
+	 *
+	 * @var \ArrayObject
+	 */
+	public $options;
+
+	/**
+	 *
+	 * @var Expression
+	 */
+	public $else;
+
+	public function __construct(Expression $subject)
+	{
+		$this->subject = $subject;
+		$this->options = new \ArrayObject();
+		$this->else = null;
+	}
+
+	function build(StatementBuilder $builder, StructureResolver $resolver)
+	{
+		$s = 'CASE ' . $this->subject;
+		foreach ($this->options as $option)
+		{
+			$s .= ' ' . $option->build($builder, $resolver);
+		}
+		
+		if ($this->else instanceof Expression)
+		{
+			$s .= ' ELSE ' . $this->else->build($builder, $resolver);
+		}
+		
+		return $s;
+	}
+}
+
 class ExpressionParser
 {
 
@@ -94,6 +213,7 @@ class ExpressionParser
 				'identifier' => '[a-zA-Z_@#]+',
 				'function' => '[a-zA-Z_][a-zA-Z0-9_]*',
 				'parameter' => '[a-zA-Z0-9_]+',
+				'space' => '[ \n\r\t]+',
 				'whitespace' => '[ \n\r\t]*' 
 		);
 		
@@ -108,25 +228,10 @@ class ExpressionParser
 			return '';
 		});
 		
-		$literal = new Loco\LazyAltParser(array (
-				new Loco\ConcParser(array (
-						'quote',
-						'literal-value',
-						'quote' 
-				), function ($a, $v, $q)
-				{
-					return $v;
-				}),
-				new Loco\ConcParser(array (
-						'double-quote',
-						'literal-value',
-						'double-quote' 
-				), function ($a, $v, $q)
-				{
-					return $v;
-				}),
-				'literal-value' 
-		));
+		$space = new Loco\RegexParser(chr(1) . '^(' . $rx['space'] . ')' . chr(1), function ()
+		{
+			return '';
+		});
 		
 		$parameterName = new Loco\RegexParser(chr(1) . '^:(' . $rx['parameter'] . ')' . chr(1), function ($full, $name)
 		{
@@ -163,7 +268,7 @@ class ExpressionParser
 				new Loco\EmptyParser() 
 		));
 		
-		$functionCall = new Loco\ConcParser(array (
+		$call = new Loco\ConcParser(array (
 				'function-name',
 				'whitespace',
 				new Loco\StringParser('('),
@@ -183,21 +288,105 @@ class ExpressionParser
 			return new FunctionExpression(func_get_arg(0), $args);
 		});
 		
+		$parenthesis = new Loco\ConcParser(array (
+				new Loco\StringParser('('),
+				'whitespace',
+				'expression',
+				'whitespace',
+				new Loco\StringParser(')') 
+		), function ()
+		{
+			return new ParenthesisExpression(func_get_arg(2));
+		});
+		
+		$whenThen = new Loco\ConcParser(array (
+				self::keywordParser('when'),
+				'space',
+				'expression',
+				'space',
+				self::keywordParser('then'),
+				'space',
+				'expression' 
+		), function ()
+		{
+			return new CaseOptionExpression(func_get_arg(2), func_get_arg(6));
+		});
+		
+		$moreWhenThen = new Loco\GreedyMultiParser(new Loco\ConcParser(array (
+				'space',
+				'when-then' 
+		), function ()
+		{
+			return func_get_arg(1);
+		}), 0, null);
+		
+		$else = new Loco\ConcParser(array (
+				'space',
+				self::keywordParser('else'),
+				'space',
+				'expression' 
+		), function ()
+		{
+			return func_get_arg(3);
+		});
+		
+		$case = new Loco\ConcParser(array (
+				self::keywordParser('case'),
+				'space',
+				'expression',
+				'space',
+				'when-then',
+				'when-then-star',
+				new Loco\GreedyMultiParser($else, 0, 1, function ()
+				{
+					$n = func_num_args();
+					return ($n > 0) ? func_get_arg(0) : null;
+				}) 
+		), function ()
+		{
+			$c = new CaseExpression(func_get_arg(2));
+			$c->options->append(func_get_arg(4));
+			foreach (func_get_arg(5) as $wt)
+			{
+				$c->options->append($wt);
+			}
+			$c->else = func_get_arg(6);
+			return $c;
+		});
+		
+		$unaryOperator = new Loco\ConcParser(array (
+				'operator',
+				'whitespace',
+				'expression' 
+		), function ()
+		{
+			return new UnaryOperatorExpression(func_get_arg(0), func_get_arg(2));
+		});
+		
 		$this->grammar = new Loco\Grammar('expression', array (
 				'expression' => new Loco\LazyAltParser(array (
 						'parameter',
 						'structure-path',
-						'function'
+						'case',
+						'function' 
+					//'case'
 				)),
-				'comma-expression' =>$commaExpression,
+				'function' => $call,
+				'comma-expression' => $commaExpression,
 				'comma-expression-list' => $commaExpressionList,
 				'expression-list' => $expressionList,
 				'parameter' => $parameterName,
-				'identifier' => $identifier,
 				'structure-path' => $path,
+				'parenthesis' => $parenthesis,
+				//'unary-operator' => $unaryOperator,
+				'identifier' => $identifier,
 				'function-name' => $functionName,
-				'function' => $functionCall,
-				'whitespace' => $whitespace
+				//'else' => $else,
+				'when-then' => $whenThen,
+				'when-then-star' => $moreWhenThen,
+				'case' => $case,
+				'whitespace' => $whitespace,
+				'space' => $space
 		)); // grammar
 	}
 	
@@ -210,5 +399,13 @@ class ExpressionParser
 		return $this->grammar->parse($string);
 	}
 
+	private static function keywordParser ($keyword) 
+	{
+		return new Loco\LazyAltParser(array (
+				new Loco\StringParser(strtolower($keyword)),
+				new Loco\StringParser(strtoupper($keyword))
+		));
+	}
+	
 	private $grammar;
 }
