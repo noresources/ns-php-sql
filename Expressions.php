@@ -85,7 +85,9 @@ class FunctionExpression implements Expression
 			$this->arguments = new \ArrayObject(\NoreSources\ArrayUtil::createArray($arguments));
 		}
 		else
+		{
 			$this->arguments = new \ArrayObject();
+		}
 	}
 
 	function build(StatementBuilder $builder, StructureResolver $resolver)
@@ -142,6 +144,42 @@ class UnaryOperatorExpression
 	function build(StatementBuilder $builder, StructureResolver $resolver)
 	{
 		return $this->operator . ' ' . $this->operand->build($builder, $resolver);
+	}
+}
+
+class BinaryOperatorExpression implements Expression
+{
+
+	public $operator;
+
+	/**
+	 *
+	 * @var Expression
+	 */
+	public $leftOperand;
+
+	/**
+	 *
+	 * @var Expression
+	 */
+	public $rightOperand;
+
+	/**
+	 *
+	 * @param string $operator
+	 * @param Expression $left
+	 * @param Expression $right
+	 */
+	public function __construct($operator, Expression $left = null, Expression $right = null)
+	{
+		$this->operator = $operator;
+		$this->leftOperand = $left;
+		$this->rightOperand = $right;
+	}
+
+	function build(StatementBuilder $builder, StructureResolver $resolver)
+	{
+		return $this->leftOperand->build($builder, $resolver) . ' ' . $this->operator . ' ' . $this->rightOperand->build($builder, $resolver);
 	}
 }
 
@@ -279,7 +317,9 @@ class ExpressionParser
 						'comma-expression-list' 
 				), function ($first, $others)
 				{
-					$a = array($first);
+					$a = array (
+							$first 
+					);
 					return array_merge($a, $others);
 				}),
 				'expression',
@@ -412,13 +452,75 @@ class ExpressionParser
 			return new LiteralExpression($v, $t);
 		});
 		
-		$unaryOperator = new Loco\ConcParser(array (
-				'operator',
+		$unaryOperatorLiteral = new Loco\LazyAltParser(array (
+				new Loco\StringParser('-'),
+				new Loco\StringParser('+'),
+				new Loco\StringParser('~') 
+		));
+		
+		$unaryOperation = new Loco\ConcParser(array (
+				'unary-operator-literal',
 				'whitespace',
 				'expression' 
-		), function ()
+		), function ($o, $w1, $operand)
 		{
-			return new UnaryOperatorExpression(func_get_arg(0), func_get_arg(2));
+			return new UnaryOperatorExpression(strtolower($o), $operand);
+		});
+		
+		$binaryOperatorLiteral = new Loco\LazyAltParser(array (
+				new Loco\StringParser('||'),
+				new Loco\StringParser('*'),
+				new Loco\StringParser('/'),
+				new Loco\StringParser('%'),
+				new Loco\StringParser('+'),
+				new Loco\StringParser('<<'),
+				new Loco\StringParser('>>'),
+				new Loco\StringParser('&'),
+				new Loco\StringParser('|'),
+				new Loco\StringParser('<'),
+				new Loco\StringParser('<='),
+				new Loco\StringParser('>'),
+				new Loco\StringParser('>='),
+				new Loco\LazyAltParser(array (
+						new Loco\StringParser('='),
+						new Loco\StringParser('==') 
+				), function ()
+				{
+					return '=';
+				}),
+				new Loco\LazyAltParser(array (
+						new Loco\StringParser('!='),
+						new Loco\StringParser('<>') 
+				), function ()
+				{
+					return '<>';
+				})				
+		));
+		
+		$spaceBinaryOperatorLiteral = new Loco\LazyAltParser(array (
+				self::keywordParser('is not'),
+				self::keywordParser('is'),
+				self::keywordParser('and'),
+				self::keywordParser('or')
+				));
+		
+		/**
+		 * @todo Operator with restricted operand types
+		 * like
+		 * glob
+		 * match
+		 * regexp
+		 */
+		
+		$binaryOperation = new Loco\ConcParser(array (
+				'expression',
+				'whitespace',
+				'binary-operator-literal',
+				'whitespace',
+				'expression' 
+		), function ($left, $w1, $o, $w2, $right)
+		{
+			return new BinaryOperatorExpression($o, $left, $right);
 		});
 		
 		$literal = new Loco\LazyAltParser(array (
@@ -444,7 +546,8 @@ class ExpressionParser
 				'parameter' => $parameterName,
 				'structure-path' => $path,
 				'parenthesis' => $parenthesis,
-				//'unary-operator' => $unaryOperator,
+				//'unary-operator' => $unaryOperation,
+				//'binary-operator' => $binaryOperation,
 				'identifier' => $identifier,
 				'function-name' => $functionName,
 				'when-then' => $whenThen,
@@ -461,6 +564,8 @@ class ExpressionParser
 				{
 					return new LiteralExpression(false, K::kDataTypeBoolean);
 				}),
+				'unary-operator-literal' => $unaryOperatorLiteral,
+				'binary-operator-literal' => $binaryOperatorLiteral,
 				'whitespace' => $whitespace,
 				'space' => $space 
 		)); // grammar
