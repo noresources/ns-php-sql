@@ -481,20 +481,10 @@ class ExpressionParser
 				new Loco\StringParser('<='),
 				new Loco\StringParser('>'),
 				new Loco\StringParser('>='),
-				new Loco\LazyAltParser(array (
-						new Loco\StringParser('='),
-						new Loco\StringParser('==') 
-				), function ()
-				{
-					return '=';
-				}),
-				new Loco\LazyAltParser(array (
-						new Loco\StringParser('!='),
-						new Loco\StringParser('<>') 
-				), function ()
-				{
-					return '<>';
-				})				
+				new Loco\StringParser('='),
+				new Loco\StringParser('==', function(){return '=';}),
+				new Loco\StringParser('<>'),
+				new Loco\StringParser('!=', function(){return '<>';}),
 		));
 		
 		$spaceBinaryOperatorLiteral = new Loco\LazyAltParser(array (
@@ -530,13 +520,18 @@ class ExpressionParser
 				'false' 
 		));
 		
-		$this->grammar = new Loco\Grammar('expression', array (
+		$this->grammar = new Loco\Grammar('complex-expression', array (
+				'complex-expression'=> new Loco\LazyAltParser(array (
+						'binary-operator',
+						'unary-operator',
+						'parenthesis',
+						'function',
+						'case',
+						'expression'
+				)),
 				'expression' => new Loco\LazyAltParser(array (
 						'parameter',
 						'structure-path',
-						'case',
-						'parenthesis',
-						'function',
 						'literal' 
 				)),
 				'function' => $call,
@@ -546,8 +541,8 @@ class ExpressionParser
 				'parameter' => $parameterName,
 				'structure-path' => $path,
 				'parenthesis' => $parenthesis,
-				//'unary-operator' => $unaryOperation,
-				//'binary-operator' => $binaryOperation,
+				'unary-operator' => $unaryOperation,
+				'binary-operator' => $binaryOperation,
 				'identifier' => $identifier,
 				'function-name' => $functionName,
 				'when-then' => $whenThen,
