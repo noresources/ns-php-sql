@@ -532,54 +532,59 @@ class TableColumnStructure extends StructureElement
 
 	protected function constructFromXmlNode(\DOMNode $node)
 	{
+		$children = $node->getElementsByTagNameNS(self::XMLNAMESPACE, 'notnull');
+		
+		if ($children && $children->length)
+		{
+			$this->setProperty(kStructureAcceptNull, false);
+		}
+		
 		$children = $node->getElementsByTagNameNS(self::XMLNAMESPACE, 'datatype');
 		
-		if (!($children && $children->length))
+		if ($children && $children->length)
 		{
-			return;
-		}
-		
-		$dataTypeNode = $children->item(0);
-		$a = array (
-				'binary' => kDataTypeBinary,
-				'boolean' => kDataTypeBoolean,
-				'numeric' => kDataTypeNumber,
-				'timestamp' => kDataTypeTimestamp,
-				'string' => kDataTypeString 
-		);
-		$typeNode = null;
-		$type = null;
-		
-		foreach ($a as $k => $v)
-		{
-			$typeNode = $dataTypeNode->getElementsByTagNameNS(self::XMLNAMESPACE, $k);
-			if ($typeNode && $typeNode->length)
+			$dataTypeNode = $children->item(0);
+			$a = array (
+					'binary' => kDataTypeBinary,
+					'boolean' => kDataTypeBoolean,
+					'numeric' => kDataTypeNumber,
+					'timestamp' => kDataTypeTimestamp,
+					'string' => kDataTypeString 
+			);
+			$typeNode = null;
+			$type = null;
+			
+			foreach ($a as $k => $v)
 			{
-				$typeNode = $typeNode->item(0);
-				$this->setProperty(kStructureDatatype, $v);
-				$type = $v;
-				break;
-			}
-		}
-		
-		if ($type & kDataTypeNumber)
-		{
-			$type = kDataTypeInteger;
-			if ($typeNode->hasAttribute('autoincrement'))
-			{
-				$this->setProperty(kStructureAutoincrement, true);
-			}
-			if ($typeNode->hasAttribute('length'))
-			{
-				$this->setProperty(kStructureDataSize, intval($typeNode->getAttribute('length')));
-			}
-			if ($typeNode->hasAttribute('decimals'))
-			{
-				$count = intval($typeNode->getAttribute('decimals'));
-				$this->setProperty(kStructureDecimalCount, $count);
-				if ($count > 0)
+				$typeNode = $dataTypeNode->getElementsByTagNameNS(self::XMLNAMESPACE, $k);
+				if ($typeNode && $typeNode->length)
 				{
-					$type = kDataTypeDecimal;
+					$typeNode = $typeNode->item(0);
+					$this->setProperty(kStructureDatatype, $v);
+					$type = $v;
+					break;
+				}
+			}
+			
+			if ($type & kDataTypeNumber)
+			{
+				$type = kDataTypeInteger;
+				if ($typeNode->hasAttribute('autoincrement'))
+				{
+					$this->setProperty(kStructureAutoincrement, true);
+				}
+				if ($typeNode->hasAttribute('length'))
+				{
+					$this->setProperty(kStructureDataSize, intval($typeNode->getAttribute('length')));
+				}
+				if ($typeNode->hasAttribute('decimals'))
+				{
+					$count = intval($typeNode->getAttribute('decimals'));
+					$this->setProperty(kStructureDecimalCount, $count);
+					if ($count > 0)
+					{
+						$type = kDataTypeDecimal;
+					}
 				}
 			}
 		}
