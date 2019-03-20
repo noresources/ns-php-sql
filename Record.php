@@ -1048,6 +1048,10 @@ class Record implements \ArrayAccess
 				$value = intval($value);
 			}
 		}
+		elseif ($columnStructure->getProperty(kStructureDatatype) == kDataTypeBoolean)
+		{
+			$value = boolval($value);
+		}
 		
 		return static::unserializeValue($columnStructure->getName(), $value);
 	}
