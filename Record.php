@@ -798,7 +798,8 @@ class Record implements \ArrayAccess
 				$autoIncrementColumn = $c;
 			}
 			
-			if (\array_key_exists($n, $this->m_values) && (is_null($autoIncrementColumn) || ($autoIncrementColumn->getName() != $n)))
+			if (\array_key_exists($n, $this->m_values) 
+					&& (is_null($autoIncrementColumn) || ($autoIncrementColumn->getName() != $n)))
 			{
 				$column = $this->m_table->getColumn($n);
 				$data = $column->importData(static::serializeValue($n, $this->m_values[$n]));

@@ -44,7 +44,7 @@ function bestEffortImport($a_value, Datasource $a_source = null)
 		return $v;
 	}
 	
-	$t = guessDataType($a_value);
+	$t = dataTypeFromValue($a_value);
 	$v = null;
 	if (!is_null($t))
 	{
@@ -138,7 +138,7 @@ function getStructure($object)
  * @param mixed $a_value
  * @return enum-like int from kDataType*
  */
-function guessDataType($a_value)
+function dataTypeFromValue($a_value)
 {
 	if (is_object($a_value) && ($a_value instanceof \DateTime))
 	{

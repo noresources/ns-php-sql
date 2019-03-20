@@ -615,7 +615,7 @@ class TableColumn extends ITableColumn implements IAliasedClone, ITableColumnVal
 		}
 		else if ($sqlType === false)
 		{
-			$sqlType = guessDataType($a_value);
+			$sqlType = dataTypeFromValue($a_value);
 		}
 		
 		$data = $this->getDatasource()->createData($sqlType);
