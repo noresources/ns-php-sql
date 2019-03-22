@@ -180,7 +180,7 @@ class ColumnValueFilter implements RecordQueryOption
 				return new SQLSmartEquality($column, call_user_func(array (
 						$className,
 						'unserializeColumn' 
-				), $column, $value), $positive);
+				), $column->getStructure(), $value), $positive);
 				break;
 			case 'between':
 				if (!\is_array($value))
@@ -195,11 +195,11 @@ class ColumnValueFilter implements RecordQueryOption
 				$min = call_user_func(array (
 						$className,
 						'unserializeColumn' 
-				), $column, $value[0]);
+				), $column->getStructure(), $value[0]);
 				$max = call_user_func(array (
 						$className,
 						'unserializeColumn' 
-				), $column, $value[1]);
+				), $column->getStructure(), $value[1]);
 				
 				$e = new SQLBetween($column, $a_min, $a_max);
 				if (!$positive)
