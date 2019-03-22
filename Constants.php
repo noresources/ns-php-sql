@@ -21,6 +21,12 @@ class K
 	
 	const ORDERING_ASC = 'ASC';
 	const ORDERING_DESC = 'DESC';
+	
+	/**
+	 * Allow result column alias resolution in WHERE, HAVING and GROUP BY
+	 * @var integer
+	 */
+	const BUILDER_EXTENDED_RESULTCOLUMN_ALIAS_RESOLUTION = 0x01;
 }
 
 const kDataTypeNull = 0x01;

@@ -257,40 +257,82 @@ class CaseExpression
 
 class ExpressionParser
 {
+	const PATTERN_IDENTIFIER = 'identifier';
+	const PATTERN_FUNCTION_NAME = 'function';
+	const PATTERN_PARAMETER_NAME = 'parameter';
+	const PATTERN_SPACE = 'space';
+	const PATTERN_WHITESPACE = 'whitespace';
+	const PATTERN_NUMBER = 'number';
 
 	public function __construct($patterns = array())
 	{
+		$this->parserFlags = 0;
+		$this->patterns = array ();
+	}
+
+	public function __invoke($string)
+	{
+		return $this->parse($string);
+	}
+
+	/**
+	 * @param string $string
+	 * @return Expression
+	 */
+	public function parse($string)
+	{
+		if (!($this->parserFlags & self::GRAMMAR_BUILT))
+		{
+			$this->buildGrammar();
+		}
+		
+		return $this->grammar->parse($string);
+	}
+
+	/**
+	 * Override default PCRE patterns
+	 * @param string $key
+	 * @param string $pattern
+	 */
+	public function setPattern($key, $pattern)
+	{
+		$this->patterns[$key] = $pattern;
+		$this->parserFlags &= ~self::GRAMMAR_BUILT;
+	}
+
+	private function buildGrammar()
+	{
 		$rx = array (
-				'identifier' => '[a-zA-Z_@#]+',
-				'function' => '[a-zA-Z_][a-zA-Z0-9_]*',
-				'parameter' => '[a-zA-Z0-9_]+',
-				'space' => '[ \n\r\t]+',
-				'whitespace' => '[ \n\r\t]*',
-				'number' => '-?(0|[1-9][0-9]*)(\.[0-9]+)?([eE][-+]?[0-9]+)?' 
+				self::PATTERN_IDENTIFIER => '[a-zA-Z_@#]+',
+				self::PATTERN_FUNCTION_NAME => '[a-zA-Z_][a-zA-Z0-9_]*',
+				self::PATTERN_PARAMETER_NAME => '[a-zA-Z0-9_]+',
+				self::PATTERN_SPACE => '[ \n\r\t]+',
+				self::PATTERN_WHITESPACE => '[ \n\r\t]*',
+				self::PATTERN_NUMBER => '-?(0|[1-9][0-9]*)(\.[0-9]+)?([eE][-+]?[0-9]+)?' 
 		);
 		
-		foreach ($patterns as $key => $pattern)
+		foreach ($this->patterns as $key => $pattern)
 		{
 			$rx[$key] = $pattern;
 		}
 		
 		$any = new Loco\Utf8Parser();
-		$whitespace = new Loco\RegexParser(chr(1) . '^(' . $rx['whitespace'] . ')' . chr(1), function ()
+		$whitespace = new Loco\RegexParser(chr(1) . '^(' . $rx[self::PATTERN_WHITESPACE] . ')' . chr(1), function ()
 		{
 			return '';
 		});
 		
-		$space = new Loco\RegexParser(chr(1) . '^(' . $rx['space'] . ')' . chr(1), function ()
+		$space = new Loco\RegexParser(chr(1) . '^(' . $rx[self::PATTERN_SPACE] . ')' . chr(1), function ()
 		{
 			return '';
 		});
 		
-		$parameterName = new Loco\RegexParser(chr(1) . '^:(' . $rx['parameter'] . ')' . chr(1), function ($full, $name)
+		$parameterName = new Loco\RegexParser(chr(1) . '^:(' . $rx[self::PATTERN_PARAMETER_NAME] . ')' . chr(1), function ($full, $name)
 		{
 			return new ParameterExpression($name);
 		});
-		$functionName = new Loco\RegexParser(chr(1) . '^(' . $rx['function'] . ')' . chr(1));
-		$identifier = new Loco\RegexParser(chr(1) . '^\.(' . $rx['identifier'] . ')' . chr(1), function ($all, $name)
+		$functionName = new Loco\RegexParser(chr(1) . '^(' . $rx[self::PATTERN_FUNCTION_NAME] . ')' . chr(1));
+		$identifier = new Loco\RegexParser(chr(1) . '^\.(' . $rx[self::PATTERN_IDENTIFIER] . ')' . chr(1), function ($all, $name)
 		{
 			return $name;
 		});
@@ -436,7 +478,7 @@ class ExpressionParser
 			return new LiteralExpression(func_get_arg(1), K::kDataTypeString);
 		});
 		
-		$number = new Loco\RegexParser(chr(1) . '^(' . $rx['number'] . ')' . chr(1), function ($full, $v)
+		$number = new Loco\RegexParser(chr(1) . '^(' . $rx[self::PATTERN_NUMBER] . ')' . chr(1), function ($full, $v)
 		{
 			if (strpos($v, '.') >= 0)
 			{
@@ -564,16 +606,9 @@ class ExpressionParser
 				'whitespace' => $whitespace,
 				'space' => $space 
 		)); // grammar
-	}
-
-	public function __invoke($string)
-	{
-		return $this->parse($string);
-	}
-
-	public function parse($string)
-	{
-		return $this->grammar->parse($string);
+				
+		
+		$this->parserFlags |= self::GRAMMAR_BUILT;
 	}
 
 	private static function keywordParser($keyword, $callable = null)
@@ -584,5 +619,11 @@ class ExpressionParser
 		), $callable);
 	}
 
+	const GRAMMAR_BUILT = 0x01;
+	
 	private $grammar;
+	
+	private $patterns;
+	
+	private $parserFlags;
 }

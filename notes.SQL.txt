@@ -1,0 +1,16 @@
+Aliases usage restrictions
+
+	select 
+		name as n 
+	from "Employees" e 
+	where 
+		1. name like 'G%'; 			// correct
+		2. e.name like 'G%'; 		// correct
+		3. "e".name like 'G%'; 		// correct
+		4. n like 'G%'; 			// INCORRECT in postgres & any strict standard implementation
+	ORDER BY
+		name 						// correct
+		e.name						// correct
+		n							// correct
+		
+	// WHERE <=> HAVING	& GROUP BY

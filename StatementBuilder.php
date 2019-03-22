@@ -103,6 +103,7 @@ class SelectQuery extends QueryDescription
 	public function __construct($table, $alias = null)
 	{
 		$this->parts = array (
+				'distinct' => false,
 				'columns' => new \ArrayObject(),
 				'table' => new TableReference($table, $alias),
 				'joins' => new \ArrayObject(),
@@ -167,6 +168,8 @@ class SelectQuery extends QueryDescription
 	{
 		$tableStructure = $resolver->findTable($this->parts['table']->path);
 		
+		# Resolve and build table-related parts
+		
 		if ($this->parts['table']->alias)
 		{
 			$resolver->setAlias($this->parts['table']->alias, $tableStructure);
@@ -182,20 +185,38 @@ class SelectQuery extends QueryDescription
 			}
 		}
 		
-		foreach ($this->parts['columns'] as $column)
+		$tables = $builder->getCanonicalName($tableStructure);
+		if ($this->parts['table']->alias)
 		{
-			$structure = $resolver->findColumn($column->path);
-			
-			if ($column->alias)
-			{
-				$resolver->setAlias($column->alias, $structure);
-			}
+			$tables .= ' AS ' . $builder->escapeIdentifier($this->parts['table']->alias);
 		}
 		
-		$s = 'SELECT ';
+		$joins = '';
+		
+		if ($builder->getBuilderFlags() & K::BUILDER_EXTENDED_RESULTCOLUMN_ALIAS_RESOLUTION)
+		{
+			$this->resolveResultColumns($builder, $resolver);
+		}
+		
+		$where = '';
+		$groupBy = '';
+		$having = '';
+		
+		# Resolve and build column related parts 
+		if (!($builder->getBuilderFlags() & K::BUILDER_EXTENDED_RESULTCOLUMN_ALIAS_RESOLUTION))
+		{
+			$this->resolveResultColumns($builder, $resolver);
+		}
+		
+		$s = 'SELECT';
+		if ($this->parts['distinct'])
+		{
+			$s .= ' DISTINCT';
+		}
 		
 		if (count($this->parts['columns']))
 		{
+			$s .= ' ';
 			$index = 0;
 			foreach ($this->parts['columns'] as $column)
 			{
@@ -215,25 +236,36 @@ class SelectQuery extends QueryDescription
 		}
 		else
 		{
-			$s .= '*';
+			/**
+			 * @todo 
+			 */
+			$s .= ' *';
 		}
 		
-		$s .= ' FROM ';
-		
-		$s .= $builder->getCanonicalName($tableStructure);
-		if ($this->parts['table']->alias)
-		{
-			$s .= ' AS ' . $builder->escapeIdentifier($this->parts['table']->alias);
-		}
+		$s .= ' FROM ' . $tables;
 		
 		// JOIN
+		if (strlen($joins))
+		{
+			$s .= ' ' . $joins;
+		}
 		
 		// WHERE
+		if (strlen($where))
+		{
+			$s .= ' WHERE ' . $where;
+		}
 		
 		// GROUP BY
-		
-		// HAVING
-		
+		if (iconv_strlen($groupBy))
+		{
+			$s .= ' ' . $groupBy;
+			if (strlen($having))
+			{
+				$s .= ' ' . $having;
+			}
+		}
+			
 		// ORDER BY
 		if ($this->parts['orderby']->count())
 		{
@@ -255,20 +287,43 @@ class SelectQuery extends QueryDescription
 		return $s;
 	}
 
+	protected function resolveResultColumns(StatementBuilder $builder, StructureResolver $resolver)
+	{
+		foreach ($this->parts['columns'] as $column)
+		{
+			$structure = $resolver->findColumn($column->path);
+			
+			if ($column->alias)
+			{
+				$resolver->setAlias($column->alias, $structure);
+			}
+		}
+	}
+
 	private $parts;
 }
 
 abstract class StatementBuilder
 {
 
+	public function __construct($flags = 0)
+	{
+		$this->builderFlags = $flags;
+	}
+
+	public function getBuilderFlags()
+	{
+		return $this->builderFlags;
+	}
+
 	abstract function escapeString($value);
 
 	abstract function escapeIdentifier($identifier);
-	
+
 	abstract function getParameter($name);
 
 	abstract function isFeatureSupported($feature);
-	
+
 	public function getLiteral(LiteralExpression $literal)
 	{
 		if ($literal->type & K::kDataTypeNumber)
@@ -276,7 +331,7 @@ abstract class StatementBuilder
 		
 		return $this->escapeString($literal->value);
 	}
-	
+
 	public function getCanonicalName(StructureElement $structure)
 	{
 		$s = $this->escapeIdentifier($structure->getName());
@@ -289,18 +344,18 @@ abstract class StatementBuilder
 		
 		return $s;
 	}
- 
-}
 
+	private $builderFlags;
+}
 
 class GenericStatementBuilder extends StatementBuilder
 {
 
 	public function __construct()
 	{
-		$this->arameters = new \ArrayObject();
+		$this->parameters = new \ArrayObject();
 	}
-	
+
 	public function escapeString($value)
 	{
 		return "'" . $value . "'";
@@ -321,13 +376,14 @@ class GenericStatementBuilder extends StatementBuilder
 		
 		return '$' . $this->parameters->offsetGet($name);
 	}
-	
+
 	public function isFeatureSupported($feature)
 	{
 		return true;
 	}
-	
+
 	/**
+	 *
 	 * @var \ArrayObject
 	 */
 	private $parameters;
