@@ -210,7 +210,7 @@ class CaseOptionExpression
 	}
 }
 
-class CaseExpression
+class CaseExpression implements Expression
 {
 
 	/**
@@ -276,6 +276,7 @@ class ExpressionParser
 	}
 
 	/**
+	 *
 	 * @param string $string
 	 * @return Expression
 	 */
@@ -332,14 +333,34 @@ class ExpressionParser
 			return new ParameterExpression($name);
 		});
 		$functionName = new Loco\RegexParser(chr(1) . '^(' . $rx[self::PATTERN_FUNCTION_NAME] . ')' . chr(1));
-		$identifier = new Loco\RegexParser(chr(1) . '^\.(' . $rx[self::PATTERN_IDENTIFIER] . ')' . chr(1), function ($all, $name)
+		$identifier = new Loco\RegexParser(chr(1) . '^(' . $rx[self::PATTERN_IDENTIFIER] . ')' . chr(1), function ($all, $name)
 		{
 			return $name;
 		});
 		
-		$path = new Loco\GreedyMultiParser('identifier', 1, 3, function ()
+		$subpath = new Loco\ConcParser(array (
+				new Loco\StringParser('.'),
+				'identifier' 
+		), function ($dot, $identifier)
 		{
-			return new ColumnExpression(implode('.', func_get_args()));
+			return $dot . $identifier;
+		});
+		
+		$path = new Loco\LazyAltParser(array (
+				new Loco\ConcParser(array (
+						'identifier',
+						new Loco\GreedyMultiParser($subpath, 1, 3, function ()
+						{
+							return implode('', func_get_args());
+						}) 
+				), function ($a, $b)
+				{
+					return $a  . $b;
+				}),
+				'identifier' 
+		), function ($p)
+		{
+			return new ColumnExpression($p);
 		});
 		
 		$commaExpression = new Loco\ConcParser(array (
@@ -573,8 +594,8 @@ class ExpressionParser
 				)),
 				'expression' => new Loco\LazyAltParser(array (
 						'parameter',
-						'structure-path',
-						'literal' 
+						'literal',
+						'structure-path'
 				)),
 				'function' => $call,
 				'comma-expression' => $commaExpression,
