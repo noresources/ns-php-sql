@@ -52,7 +52,7 @@ class TableReference
 	}
 }
 
-class ColumnReference
+class ResultColumnReference
 {
 
 	public $path;
@@ -83,15 +83,19 @@ class Join
 class OrderBy
 {
 
-	public $path;
+	/**
+	 *
+	 * @var string
+	 */
+	public $expression;
 
 	public $direction;
 
 	public $collation;
 
-	public function __construct($path, $direction = K::ORDERING_ASC, $collation = null)
+	public function __construct($expression, $direction = K::ORDERING_ASC, $collation = null)
 	{
-		$this->path = $path;
+		$this->expression = $expression;
 		$this->direction = $direction;
 		$this->collation = $collation;
 	}
@@ -118,6 +122,10 @@ class SelectQuery extends QueryDescription
 		);
 	}
 
+	/**
+	 *
+	 * @return \NoreSources\SQL\SelectQuery
+	 */
 	public function columns(/*...*/ )
 	{
 		$args = func_get_args();
@@ -125,30 +133,52 @@ class SelectQuery extends QueryDescription
 		{
 			$path = null;
 			$alias = null;
-			if (\is_array($arg))
+			if ($arg instanceof ResultColumnReference)
 			{
-				$path = ArrayUtil::keyValue($arg, 0, null);
-				$alias = ArrayUtil::keyValue($arg, 1, null);
+				$this->parts['columns']->append($arg);
 			}
 			else
 			{
-				$path = $arg;
+				if (\is_array($arg))
+				{
+					$path = ArrayUtil::keyValue($arg, 0, null);
+					$alias = ArrayUtil::keyValue($arg, 1, null);
+				}
+				else
+				{
+					$path = $arg;
+				}
+				
+				$this->parts['columns']->append(new ResultColumnReference($path, $alias));
 			}
-			
-			$this->parts['columns']->append(new ColumnReference($path, $alias));
 		}
 		
 		return $this;
 	}
 
+	/**
+	 *
+	 * @param unknown $table
+	 * @param unknown $type
+	 * @param unknown $columns
+	 * @return \NoreSources\SQL\SelectQuery
+	 */
 	public function join($table, $type, $columns)
 	{
 		return $this;
 	}
 
+	/**
+	 *
+	 * @param string $reference Result column reference
+	 * @param integer $direction
+	 * @param mixed $collation
+	 * @return \NoreSources\SQL\SelectQuery
+	 */
 	public function orderBy($reference, $direction = K::ORDERING_ASC, $collation = null)
 	{
 		$this->parts['orderby']->offsetSet($reference, new OrderBy($reference, $direction, $collation));
+		return $this;
 	}
 
 	/**
@@ -214,7 +244,7 @@ class SelectQuery extends QueryDescription
 			$s .= ' DISTINCT';
 		}
 		
-		if (count($this->parts['columns']))
+		if ($this->parts['columns']->count())
 		{
 			$s .= ' ';
 			$index = 0;
@@ -237,7 +267,8 @@ class SelectQuery extends QueryDescription
 		else
 		{
 			/**
-			 * @todo 
+			 *
+			 * @todo
 			 */
 			$s .= ' *';
 		}
@@ -265,12 +296,18 @@ class SelectQuery extends QueryDescription
 				$s .= ' ' . $having;
 			}
 		}
-			
+		
 		// ORDER BY
 		if ($this->parts['orderby']->count())
 		{
-			foreach ($this->parts['orderby'] as $clause)
-			{}
+			$s .= ' ORDER BY ';
+			$o = array ();
+			foreach ($this->parts['orderby'] as $clause) /// @var OrderBy $clause
+			{
+				$o[] = $clause->expression . ' ' . ($clause->direction == K::ORDERING_ASC ? 'ASC' : 'DESC');
+			}
+			
+			$s .= implode(', ', $o);
 		}
 		
 		// LIMIT
@@ -309,6 +346,7 @@ abstract class StatementBuilder
 	public function __construct($flags = 0)
 	{
 		$this->builderFlags = $flags;
+		$this->parser = null;
 	}
 
 	public function getBuilderFlags()
@@ -345,7 +383,23 @@ abstract class StatementBuilder
 		return $s;
 	}
 
+	protected function setExpressionParser(ExpressionParser $parser)
+	{
+		$this->parser = $parser;
+	}
+
+	/**
+	 *
+	 * @var integer
+	 */
 	private $builderFlags;
+
+	/**
+	 *
+	 * Expression parser
+	 * @var ExpressionParser
+	 */
+	private $parser;
 }
 
 class GenericStatementBuilder extends StatementBuilder
@@ -354,6 +408,7 @@ class GenericStatementBuilder extends StatementBuilder
 	public function __construct()
 	{
 		$this->parameters = new \ArrayObject();
+		$this->setExpressionParser(new ExpressionParser());
 	}
 
 	public function escapeString($value)
