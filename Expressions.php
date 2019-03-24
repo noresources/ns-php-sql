@@ -11,6 +11,22 @@ interface Expression
 	function build(StatementBuilder $builder, StructureResolver $resolver);
 }
 
+class PreformattedExpression implements Expression
+{
+
+	public $expression;
+
+	public function __construct($value)
+	{
+		$this->expression = $value;
+	}
+
+	function build(StatementBuilder $builder, StructureResolver $resolver)
+	{
+		return $this->expression;
+	}
+}
+
 class LiteralExpression implements Expression
 {
 
@@ -26,7 +42,7 @@ class LiteralExpression implements Expression
 
 	function build(StatementBuilder $builder, StructureResolver $resolver)
 	{
-		return $builder->getLiteral($this->value, $this->type);
+		return $builder->getLiteral($this);
 	}
 }
 
@@ -46,9 +62,16 @@ class ParameterExpression implements Expression
 	}
 }
 
+/**
+ * Table column path
+ */
 class ColumnExpression implements Expression
 {
 
+	/**
+	 *
+	 * @var string
+	 */
 	public $path;
 
 	public function __construct($path)
@@ -58,7 +81,7 @@ class ColumnExpression implements Expression
 
 	function build(StatementBuilder $builder, StructureResolver $resolver)
 	{
-		return $builder->getCanonicalName($this->path, $resolver);
+		return $builder->getCanonicalName($resolver->findColumn($this->path), $resolver);
 	}
 }
 
@@ -94,9 +117,15 @@ class FunctionExpression implements Expression
 	{
 		/**
 		 *
-		 * @todo function factory
+		 * @todo builder function translator
 		 */
-		return $this->name . '()';
+		$s = $this->name . '(';
+		$a = array ();
+		foreach ($this->arguments as $arg)
+		{
+			$o[] = $arg->build($builder, $resolver);
+		}
+		return $s . implode(', ', $o) . ')';
 	}
 }
 
@@ -355,7 +384,7 @@ class ExpressionParser
 						}) 
 				), function ($a, $b)
 				{
-					return $a  . $b;
+					return $a . $b;
 				}),
 				'identifier' 
 		), function ($p)
@@ -545,24 +574,31 @@ class ExpressionParser
 				new Loco\StringParser('>'),
 				new Loco\StringParser('>='),
 				new Loco\StringParser('='),
-				new Loco\StringParser('==', function(){return '=';}),
+				new Loco\StringParser('==', function ()
+				{
+					return '=';
+				}),
 				new Loco\StringParser('<>'),
-				new Loco\StringParser('!=', function(){return '<>';}),
+				new Loco\StringParser('!=', function ()
+				{
+					return '<>';
+				}) 
 		));
 		
 		$spaceBinaryOperatorLiteral = new Loco\LazyAltParser(array (
 				self::keywordParser('is not'),
 				self::keywordParser('is'),
 				self::keywordParser('and'),
-				self::keywordParser('or')
-				));
+				self::keywordParser('or') 
+		));
 		
 		/**
+		 *
 		 * @todo Operator with restricted operand types
-		 * like
-		 * glob
-		 * match
-		 * regexp
+		 *       like
+		 *       glob
+		 *       match
+		 *       regexp
 		 */
 		
 		$binaryOperation = new Loco\ConcParser(array (
@@ -584,13 +620,13 @@ class ExpressionParser
 		));
 		
 		$this->grammar = new Loco\Grammar('complex-expression', array (
-				'complex-expression'=> new Loco\LazyAltParser(array (
+				'complex-expression' => new Loco\LazyAltParser(array (
 						'binary-operator',
 						'unary-operator',
 						'parenthesis',
 						'function',
 						'case',
-						'expression'
+						'expression' 
 				)),
 				'expression' => new Loco\LazyAltParser(array (
 						'parameter',

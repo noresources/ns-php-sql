@@ -925,6 +925,7 @@ class StructureResolver
 	public function __construct(StructureElement $pivot = null)
 	{
 		$this->cache = new \ArrayObject(array (
+				'aliases' => new \ArrayObject(),
 				'columns' => new \ArrayObject(),
 				'tables' => new \ArrayObject(),
 				'tablesets' => new \ArrayObject(),
@@ -970,6 +971,16 @@ class StructureResolver
 		if ($this->cache['columns']->offsetExists($path))
 		{
 			return $this->cache['columns'][$path];
+		} 
+		elseif ($this->cache['aliases']->offsetExists($path))
+		{
+			$c = $this->cache['aliases']->offsetGet($path);
+			if ($c instanceof TableColumnStructure || ($c instanceof Expression))
+			{
+				return $c;
+			}
+			
+			throw new StructureResolverException($path);
 		}
 		
 		$x = explode('.', $path);
@@ -1023,6 +1034,16 @@ class StructureResolver
 		{
 			return $this->cache['tables'][$path];
 		}
+		elseif ($this->cache['aliases']->offsetExists($path))
+		{
+			$t = $this->cache['aliases']->offsetGet($path);
+			if ($t instanceof TableStructure)
+			{
+				return $t;
+			}
+			
+			throw new StructureResolverException($path);
+		}
 		
 		$x = explode('.', $path);
 		$c = count($x);
@@ -1063,6 +1084,15 @@ class StructureResolver
 		if ($this->cache['tablesets']->offsetExists($path))
 		{
 			return $this->cache['tablesets'][$path];
+		} elseif ($this->cache['aliases']->offsetExists($path))
+		{
+			$t = $this->cache['aliases']->offsetGet($path);
+			if ($t instanceof TableSetStructure)
+			{
+				return $t;
+			}
+			
+			throw new StructureResolverException($path);
 		}
 		
 		$datasource = $this->pivot;
@@ -1087,26 +1117,26 @@ class StructureResolver
 	 * @param string $alias
 	 * @param StructureElement $structure
 	 */
-	public function setAlias($alias, StructureElement $structure)
+	public function setAlias($alias, $reference)
 	{
-		$this->cache[self::getKey($structure)]->offsetSet($alias, $structure);
+		$this->cache['aliases']->offsetSet($alias, $reference);
 	}
 	
-	private static function getKey(StructureElement $structure)
+	private static function getKey($item)
 	{
-		if ($structure instanceof TableColumnStructure)
+		if ($item instanceof TableColumnStructure)
 		{
 			return 'columns';
 		}
-		elseif ($structure instanceof TableStructure)
+		elseif ($item instanceof TableStructure)
 		{
 			return 'tables';
 		}
-		elseif ($structure instanceof TableSetStructure)
+		elseif ($item instanceof TableSetStructure)
 		{
 			return 'tablesets';
 		}
-		elseif ($structure instanceof DatasourceStructure)
+		elseif ($item instanceof DatasourceStructure)
 		{
 			return 'datasource';
 		}

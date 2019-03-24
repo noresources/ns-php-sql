@@ -4,6 +4,7 @@ namespace NoreSources\SQL;
 
 use NoreSources as ns;
 use NoreSources\ArrayUtil;
+use NoreSources\Creole\PreformattedBlock;
 
 class Statement
 {
@@ -55,15 +56,13 @@ class TableReference
 class ResultColumnReference
 {
 
-	public $path;
+	public $expression;
 
 	public $alias;
 
-	public $flags;
-
-	public function __construct($path, $alias)
+	public function __construct($expression, $alias)
 	{
-		$this->path = $path;
+		$this->expression = $expression;
 		$this->alias = $alias;
 	}
 }
@@ -131,7 +130,7 @@ class SelectQuery extends QueryDescription
 		$args = func_get_args();
 		foreach ($args as $arg)
 		{
-			$path = null;
+			$expression = null;
 			$alias = null;
 			if ($arg instanceof ResultColumnReference)
 			{
@@ -141,15 +140,15 @@ class SelectQuery extends QueryDescription
 			{
 				if (\is_array($arg))
 				{
-					$path = ArrayUtil::keyValue($arg, 0, null);
+					$expression = ArrayUtil::keyValue($arg, 0, null);
 					$alias = ArrayUtil::keyValue($arg, 1, null);
 				}
 				else
 				{
-					$path = $arg;
+					$expression = $arg;
 				}
 				
-				$this->parts['columns']->append(new ResultColumnReference($path, $alias));
+				$this->parts['columns']->append(new ResultColumnReference($expression, $alias));
 			}
 		}
 		
@@ -253,8 +252,8 @@ class SelectQuery extends QueryDescription
 				if ($index > 0)
 					$s .= ', ';
 				
-				$structure = $resolver->findColumn($column->path);
-				$s .= $builder->getCanonicalName($structure);
+				$expression = $builder->parseExpression($column->expression);
+				$s .= $expression->build($builder, $resolver);
 				
 				if ($column->alias)
 				{
@@ -304,7 +303,9 @@ class SelectQuery extends QueryDescription
 			$o = array ();
 			foreach ($this->parts['orderby'] as $clause) /// @var OrderBy $clause
 			{
-				$o[] = $clause->expression . ' ' . ($clause->direction == K::ORDERING_ASC ? 'ASC' : 'DESC');
+				$expression = $builder->parseExpression($clause->expression);
+				
+				$o[] = $expression->build($builder, $resolver) . ' ' . ($clause->direction == K::ORDERING_ASC ? 'ASC' : 'DESC');
 			}
 			
 			$s .= implode(', ', $o);
@@ -328,11 +329,17 @@ class SelectQuery extends QueryDescription
 	{
 		foreach ($this->parts['columns'] as $column)
 		{
-			$structure = $resolver->findColumn($column->path);
-			
 			if ($column->alias)
 			{
-				$resolver->setAlias($column->alias, $structure);
+				$expression = $builder->parseExpression($column->expression);
+				if ($expression instanceof ColumnExpression)
+				{
+					$resolver->setAlias($column->alias, $resolver->findColumn($expression->path));
+				}
+				else
+				{
+					$resolver->setAlias($column->alias, $expression);
+				}
 			}
 		}
 	}
@@ -361,6 +368,20 @@ abstract class StatementBuilder
 	abstract function getParameter($name);
 
 	abstract function isFeatureSupported($feature);
+
+	/**
+	 * @param string $expression
+	 * @return \NoreSources\SQL\Expression|\NoreSources\SQL\PreformattedExpression
+	 */
+	public function parseExpression($expression)
+	{
+		if ($this->parser instanceof ExpressionParser)
+		{
+			return $this->parser->parse($expression);
+		}
+		
+		return new PreformattedExpression($expression);
+	}
 
 	public function getLiteral(LiteralExpression $literal)
 	{
