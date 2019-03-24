@@ -23,6 +23,44 @@ interface StatementElementDescription
 	function buildStatement(StatementBuilder $builder, StructureResolver $resolver);
 }
 
+class QueryResolver extends StructureResolver
+{
+
+	public function __construct(StructureElement $pivot = null)
+	{
+		parent::__construct($pivot);
+		$this->aliases = new \ArrayObject();
+	}
+
+	public function findColumn($path)
+	{
+		echo ($path . PHP_EOL);
+		if ($this->aliases->offsetExists($path))
+			return $this->aliases->offsetGet($path);
+		
+		return parent::findColumn($path);
+	}
+
+	public function setAlias($alias, $reference)
+	{
+		echo ('set alias ' . $alias . ' = ' . get_class($reference) . PHP_EOL);
+		if ($reference instanceof StructureElement)
+		{
+			parent::setAlias($alias, $reference);
+		}
+		else
+		{
+			$this->aliases[$alias] = $reference;
+		}
+	}
+
+	/**
+	 *
+	 * @var \ArrayObject
+	 */
+	private $aliases;
+}
+
 abstract class QueryDescription implements StatementElementDescription
 {
 
@@ -34,7 +72,7 @@ abstract class QueryDescription implements StatementElementDescription
 	 */
 	function build(StatementBuilder $builder, StructureElement $referenceStructure)
 	{
-		$resolver = new StructureResolver($referenceStructure);
+		$resolver = new QueryResolver($referenceStructure);
 		return $this->buildStatement($builder, $resolver);
 	}
 }
@@ -331,15 +369,7 @@ class SelectQuery extends QueryDescription
 		{
 			if ($column->alias)
 			{
-				$expression = $builder->parseExpression($column->expression);
-				if ($expression instanceof ColumnExpression)
-				{
-					$resolver->setAlias($column->alias, $resolver->findColumn($expression->path));
-				}
-				else
-				{
-					$resolver->setAlias($column->alias, $expression);
-				}
+				$resolver->setAlias($column->alias, $builder->parseExpression($column->expression));
 			}
 		}
 	}
@@ -370,6 +400,7 @@ abstract class StatementBuilder
 	abstract function isFeatureSupported($feature);
 
 	/**
+	 *
 	 * @param string $expression
 	 * @return \NoreSources\SQL\Expression|\NoreSources\SQL\PreformattedExpression
 	 */

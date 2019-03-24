@@ -913,8 +913,6 @@ class StructureResolverException extends \Exception
 	}
 }
 
-/**
- */
 class StructureResolver
 {
 
@@ -972,17 +970,7 @@ class StructureResolver
 		{
 			return $this->cache['columns'][$path];
 		} 
-		elseif ($this->cache['aliases']->offsetExists($path))
-		{
-			$c = $this->cache['aliases']->offsetGet($path);
-			if ($c instanceof TableColumnStructure || ($c instanceof Expression))
-			{
-				return $c;
-			}
-			
-			throw new StructureResolverException($path);
-		}
-		
+				
 		$x = explode('.', $path);
 		$c = count($x);
 		$name = $x[$c - 1];
@@ -1034,17 +1022,7 @@ class StructureResolver
 		{
 			return $this->cache['tables'][$path];
 		}
-		elseif ($this->cache['aliases']->offsetExists($path))
-		{
-			$t = $this->cache['aliases']->offsetGet($path);
-			if ($t instanceof TableStructure)
-			{
-				return $t;
-			}
-			
-			throw new StructureResolverException($path);
-		}
-		
+				
 		$x = explode('.', $path);
 		$c = count($x);
 		$name = $x[$c - 1];
@@ -1084,15 +1062,6 @@ class StructureResolver
 		if ($this->cache['tablesets']->offsetExists($path))
 		{
 			return $this->cache['tablesets'][$path];
-		} elseif ($this->cache['aliases']->offsetExists($path))
-		{
-			$t = $this->cache['aliases']->offsetGet($path);
-			if ($t instanceof TableSetStructure)
-			{
-				return $t;
-			}
-			
-			throw new StructureResolverException($path);
 		}
 		
 		$datasource = $this->pivot;
@@ -1119,7 +1088,7 @@ class StructureResolver
 	 */
 	public function setAlias($alias, $reference)
 	{
-		$this->cache['aliases']->offsetSet($alias, $reference);
+		$this->cache[self::getKey($reference)]->offsetSet($alias, $reference);
 	}
 	
 	private static function getKey($item)

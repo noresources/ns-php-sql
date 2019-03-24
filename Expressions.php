@@ -63,7 +63,7 @@ class ParameterExpression implements Expression
 }
 
 /**
- * Table column path
+ * Table column path or Result column aliasden
  */
 class ColumnExpression implements Expression
 {
@@ -81,7 +81,11 @@ class ColumnExpression implements Expression
 
 	function build(StatementBuilder $builder, StructureResolver $resolver)
 	{
-		return $builder->getCanonicalName($resolver->findColumn($this->path), $resolver);
+		$target = $resolver->findColumn($this->path);
+		if ($target instanceof TableColumnStructure)
+			return $builder->getCanonicalName($target, $resolver);
+		else
+			return $builder->escapeIdentifier($this->path);
 	}
 }
 
@@ -631,7 +635,7 @@ class ExpressionParser
 				'expression' => new Loco\LazyAltParser(array (
 						'parameter',
 						'literal',
-						'structure-path'
+						'structure-path' 
 				)),
 				'function' => $call,
 				'comma-expression' => $commaExpression,
