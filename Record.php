@@ -3,6 +3,7 @@
 namespace NoreSources\SQL;
 
 use NoreSources as ns;
+use dp\Application\Data\RecordException;
 
 /**
  * The record values differs from the entry stored in the datasource
@@ -34,6 +35,18 @@ const kRecordQueryCreate = 0x08;
  * @var integer
  */
 const kRecordQueryForeignKeys = 0x10;
+
+/**
+ * Starting point for all query flag extensions
+ * 
+ * User-defined query flags should have the form
+ * @c{ (kRecordQueryFlagExtension << n) @}
+ * 
+ * Witn n >= 1
+ * 
+ * @var integer
+ */
+const kRecordQueryFlagExtension = 0x40;
 
 /**
  * Indicate the input data are serialized
@@ -379,6 +392,8 @@ class Record implements \ArrayAccess
 			$s->where->addAndExpression($column->equalityExpression($data));
 		}
 		
+		ns\Reporter::debug(get_called_class(), $s->expressionString());
+		
 		$recordset = $s->execute();
 		
 		if (is_object($recordset) && ($recordset instanceof Recordset))
@@ -640,6 +655,7 @@ class Record implements \ArrayAccess
 		$this->m_values = array ();
 		$this->m_storedKey = array ();
 		$this->m_foreignKeyData = array ();
+		$this->m_ephemerals = array();
 		
 		$structure = $table->getStructure();
 		$foreignKeys = $structure->getForeignKeyReferences();
@@ -759,6 +775,11 @@ class Record implements \ArrayAccess
 
 	public function __get($member)
 	{
+		if (\array_key_exists($member, $this->m_ephemerals))
+		{
+			return $this->m_ephemerals[$member];
+		}
+		
 		return $this->offsetGet($member);
 	}
 
@@ -769,7 +790,12 @@ class Record implements \ArrayAccess
 	 */
 	public function __set($member, $value)
 	{
-		return $this->offsetSet($member, $value);
+		if (\array_key_exists($member, $this->m_ephemerals))
+		{
+			$this->m_ephemerals[$member] = $value;
+		}
+		
+		$this->offsetSet($member, $value);
 	}
 
 	/**
@@ -778,7 +804,7 @@ class Record implements \ArrayAccess
 	 */
 	public function toArray()
 	{
-		return array_merge($this->m_values, $this->m_foreignKeyData);
+		return array_merge($this->m_values, $this->m_foreignKeyData, $this->m_ephemerals);
 	}
 
 	/**
@@ -1186,6 +1212,34 @@ class Record implements \ArrayAccess
 			}
 		}
 	}
+	
+	/**
+	 * Register and set a non-persistent data
+	 * 
+	 * @param string $key
+	 * @param unknown $value
+	 * @throws RecordException
+	 */
+	protected function setEphemeral($key, $value = null)
+	{
+		$structure = $this->m_table->getStructure();
+		if ($structure->offsetExists($key))
+		{
+			throw new RecordException($this, 'Cannot set ' . $key . ' as metadata. Key exists in table structure');
+		}
+		
+		$this->m_ephemerals[$key] = $value;
+	}
+	
+	protected function getEphemeral ($member)
+	{
+		if (\array_key_exists($member, $this->m_ephemerals))
+		{
+			return $this->m_ephemerals[$member];
+		}
+		
+		throw new RecordException($this, 'Invalid ephemeral key ' . $member);
+	}
 
 	/**
 	 *
@@ -1204,6 +1258,12 @@ class Record implements \ArrayAccess
 	 * @var array
 	 */
 	private $m_values;
+	
+	/**
+	 * Extended data which are not part of the data model
+	 * @var array
+	 */
+	private $m_ephemerals;
 
 	/**
 	 * The primary column(s) values from the last update
