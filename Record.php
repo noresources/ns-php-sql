@@ -391,9 +391,7 @@ class Record implements \ArrayAccess
 			$data = $column->importData(($flags & kRecordDataSerialized) ? $v : static::serializeValue($k, $v));
 			$s->where->addAndExpression($column->equalityExpression($data));
 		}
-		
-		ns\Reporter::debug(get_called_class(), $s->expressionString());
-		
+			
 		$recordset = $s->execute();
 		
 		if (is_object($recordset) && ($recordset instanceof Recordset))
@@ -1184,7 +1182,7 @@ class Record implements \ArrayAccess
 			$foreignTable = new Table($table->owner, $foreignTableName, 'j' . $joinIndex, $foreignKey['table']);
 			$foreignColumn = new TableColumn($foreignTable, $foreignColumnName, $columnName . '::' . $foreignColumnName, $foreignKey['column']);
 			
-			$join = $s->createJoin($foreignTable, kJoinInner);
+			$join = $s->createJoin($foreignTable, kJoinLeft);
 			$join->addLink($table->getColumn($columnName), $foreignColumn);
 			
 			$s->addJoin($join);
