@@ -34,7 +34,6 @@ class QueryResolver extends StructureResolver
 
 	public function findColumn($path)
 	{
-		echo ($path . PHP_EOL);
 		if ($this->aliases->offsetExists($path))
 			return $this->aliases->offsetGet($path);
 		
@@ -84,7 +83,7 @@ class TableReference
 
 	public $alias;
 
-	public function __construct($path, $alias)
+	public function __construct($path, $alias = null)
 	{
 		$this->path = $path;
 		$this->alias = $alias;
@@ -105,16 +104,22 @@ class ResultColumnReference
 	}
 }
 
-class Join
+class JoinClause
 {
 
 	/**
 	 *
-	 * @var TableReference
+	 * @var integer
 	 */
-	public $table;
+	public $operator;
 
-	public $type;
+	/**
+	 * Table or subquery
+	 * @var TableReference|SelectQuery
+	 */
+	public $subject;
+
+	public $constraints;
 }
 
 class OrderBy
@@ -195,13 +200,91 @@ class SelectQuery extends QueryDescription
 
 	/**
 	 *
-	 * @param unknown $table
-	 * @param unknown $type
-	 * @param unknown $columns
+	 * @param integer|JoinClause $operatorOrJoin
+	 * @param string|TableReference|SelectQuery $subject
+	 * @param mixed $constraints
 	 * @return \NoreSources\SQL\SelectQuery
 	 */
-	public function join($table, $type, $columns)
+	public function join($operatorOrJoin, $subject = null, $constraints = null)
 	{
+		if ($operatorOrJoin instanceof JoinClause)
+		{
+			$this->parts['joins']->append($operatorOrJoin);
+		}
+		else
+		{
+			$j = new JoinClause();
+			$j->operator = $operatorOrJoin;
+			
+			if (is_string($subject))
+			{
+				$j->subject = new TableReference($subject);
+			}
+			elseif (ns\ArrayUtil::isArray($subject))
+			{
+				$name = null;
+				$alias = null;
+				
+				if (ns\ArrayUtil::count($subject) == 1)
+				{
+					list ( $name, $alias ) = each($subject);
+				}
+				else
+				{
+					$name = ns\ArrayUtil::keyValue(0, $subject, null);
+					$alias = ns\ArrayUtil::keyValue(1, $subject, null);
+				}
+				
+				$j->subject = new TableReference($name, $alias);
+			}
+			
+			if ($constraints instanceof Expression)
+			{
+				$j->constraints = new UnaryOperatorExpression('ON ', $constraints);
+			}
+			else
+			{
+				if (!($j->subject instanceof TableReference))
+				{
+					throw new \BadMethodCallException();
+				}
+				
+				$left = $this->parts['table'];
+				$right = $j->subject;
+				
+				$left = $left->alias ? $left->alias : $left->path;
+				$right = $right->alias ? $right->alias : $right->path;
+				
+				$expression = null;
+				
+				if (\is_string($constraints)) // left.name = right.name
+				{
+					$expression = new BinaryOperatorExpression('=', new ColumnExpression($left . '.' . $constraints), new ColumnExpression($right . '.' . $constraints));
+				}
+				elseif (ns\ArrayUtil::isArray($constraints))
+				{
+					foreach ($constraints as $leftColumn => $righColumn)
+					{
+						if (is_integer($leftColumn))
+							$leftColumn = $righColumn;
+						
+						$e = new BinaryOperatorExpression('=', new ColumnExpression($left . '.' . $leftColumn), new ColumnExpression($right . '.' . $righColumn));
+						
+						if ($expression instanceof Expression)
+						{
+							$expression = new BinaryOperatorExpression(' AND ', $expression, $e);
+						}
+						else
+							$expression = $e;
+					}
+				}
+				
+				$j->constraints = new UnaryOperatorExpression('ON ', $expression);
+			}
+			
+			$this->parts['joins']->append($j);
+		}
+		
 		return $this;
 	}
 
@@ -244,21 +327,47 @@ class SelectQuery extends QueryDescription
 		
 		foreach ($this->parts['joins'] as $join)
 		{
-			$structure = $resolver->findTable($join->path);
-			
-			if ($join->alias)
+			/**
+			 *
+			 * @var JoinClause $join
+			 */
+			if ($join->subject instanceof TableReference)
 			{
-				$resolver->setAlias($join->alias, $structure);
+				$structure = $resolver->findTable($join->subject->path);
+				if ($join->subject->alias)
+				{
+					$resolver->setAlias($join->subject->alias, $structure);
+				}
 			}
 		}
 		
-		$tables = $builder->getCanonicalName($tableStructure);
+		$table = $builder->getCanonicalName($tableStructure);
 		if ($this->parts['table']->alias)
 		{
-			$tables .= ' AS ' . $builder->escapeIdentifier($this->parts['table']->alias);
+			$table .= ' AS ' . $builder->escapeIdentifier($this->parts['table']->alias);
 		}
 		
 		$joins = '';
+		foreach ($this->parts['joins'] as $join)
+		{
+			$joins .= ' ' . $builder->getJoinOperator($join->operator);
+			if ($join->subject instanceof Expression)
+			{
+				$joins .= ' ' . $join->subject->buildStatement($builder, $resolver);
+			}
+			elseif ($join->subject instanceof TableReference)
+			{
+				$ts = $resolver->findTable($join->subject->path);
+				$joins .= ' ' . $builder->getCanonicalName($ts);
+				if ($join->subject->alias)
+				{
+					$joins .= ' AS ' . $builder->escapeIdentifier($join->subject->alias);
+				}
+			}
+			
+			if ($join->constraints instanceof Expression)
+				$joins .= ' ' . $join->constraints->build($builder, $resolver);
+		}
 		
 		if ($builder->getBuilderFlags() & K::BUILDER_EXTENDED_RESULTCOLUMN_ALIAS_RESOLUTION)
 		{
@@ -310,7 +419,7 @@ class SelectQuery extends QueryDescription
 			$s .= ' *';
 		}
 		
-		$s .= ' FROM ' . $tables;
+		$s .= ' FROM ' . $table;
 		
 		// JOIN
 		if (strlen($joins))
@@ -397,7 +506,39 @@ abstract class StatementBuilder
 
 	abstract function getParameter($name);
 
-	abstract function isFeatureSupported($feature);
+	public function getJoinOperator($joinTypeFlags)
+	{
+		$s = '';
+		if (($joinTypeFlags & K::JOIN_NATURAL) == K::JOIN_NATURAL)
+			$s .= 'NATURAL ';
+		
+		if (($joinTypeFlags & K::JOIN_LEFT) == K::JOIN_LEFT)
+		{
+			$s . 'LEFT ';
+			if (($joinTypeFlags & K::JOIN_OUTER) == K::JOIN_OUTER)
+			{
+				$s .= 'OUTER ';
+			}
+		}
+		else if (($joinTypeFlags & K::JOIN_RIGHT) == K::JOIN_RIGHT)
+		{
+			$s . 'RIGHT ';
+			if (($joinTypeFlags & K::JOIN_OUTER) == K::JOIN_OUTER)
+			{
+				$s .= 'OUTER ';
+			}
+		}
+		else if (($joinTypeFlags & K::JOIN_CROSS) == K::JOIN_CROSS)
+		{
+			$s .= 'CROSS ';
+		}
+		else if (($joinTypeFlags & K::JOIN_INNER) == K::JOIN_INNER)
+		{
+			$s .= 'INNER ';
+		}
+		
+		return ($s . 'JOIN');
+	}
 
 	/**
 	 *
@@ -482,11 +623,6 @@ class GenericStatementBuilder extends StatementBuilder
 		}
 		
 		return '$' . $this->parameters->offsetGet($name);
-	}
-
-	public function isFeatureSupported($feature)
-	{
-		return true;
 	}
 
 	/**

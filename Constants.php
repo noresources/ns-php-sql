@@ -13,11 +13,12 @@ class K
 	const kDataTypeBoolean = 0x20;
 	const kDataTypeBinary = 0x40;
 	
-	const JOIN_INNER = 	0x01;
-	const JOIN_OUTER = 	0x02;
-	const JOIN_CROSS = 	0x04;
-	const JOIN_LEFT = 	0x10;
-	const JOIN_RIGHT = 	0x20;
+	const JOIN_NATURAL 	= 	0x01;
+	const JOIN_LEFT 	= 	0x10;
+	const JOIN_RIGHT 	= 	0x20;
+	const JOIN_INNER 	= 	0x40;
+	const JOIN_CROSS 	= 	0x80;
+	const JOIN_OUTER 	= 	0x02;
 	
 	const ORDERING_ASC = 'ASC';
 	const ORDERING_DESC = 'DESC';

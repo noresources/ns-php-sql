@@ -133,7 +133,31 @@ class FunctionExpression implements Expression
 	}
 }
 
-class ParenthesisExpression
+class ListExpression extends \ArrayObject implements Expression
+{
+	public $separator;
+	
+	public function __construct($list = array(), $separator = ', ')
+	{
+		parent::__construct ($list);
+		$this->separator = $separator;
+	}
+	
+	public function build(StatementBuilder $builder, StructureResolver $resolver)
+	{
+		$s = '';
+		$first = true;
+		foreach ($this as $expression)
+		{
+			if (!$first) $s .= $this->separator;
+			$s .= $expression->build($builder, $resolver);
+		}
+		
+		return $s;
+	}
+}
+
+class ParenthesisExpression implements Expression
 {
 
 	/**
@@ -153,7 +177,7 @@ class ParenthesisExpression
 	}
 }
 
-class UnaryOperatorExpression
+class UnaryOperatorExpression implements Expression
 {
 
 	/**
@@ -170,7 +194,7 @@ class UnaryOperatorExpression
 
 	public function __construct($operator, Expression $operand)
 	{
-		$this->operand = $operator;
+		$this->operator = $operator;
 		$this->operand = $operand;
 	}
 
