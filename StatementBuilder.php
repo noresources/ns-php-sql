@@ -42,7 +42,6 @@ class QueryResolver extends StructureResolver
 
 	public function setAlias($alias, $reference)
 	{
-		echo ('set alias ' . $alias . ' = ' . get_class($reference) . PHP_EOL);
 		if ($reference instanceof StructureElement)
 		{
 			parent::setAlias($alias, $reference);
@@ -51,6 +50,11 @@ class QueryResolver extends StructureResolver
 		{
 			$this->aliases[$alias] = $reference;
 		}
+	}
+
+	public function isAlias($identifier)
+	{
+		return $this->aliases->offsetExists($identifier) || parent::isAlias($identifier);
 	}
 
 	/**
@@ -563,6 +567,15 @@ abstract class StatementBuilder
 		return $this->escapeString($literal->value);
 	}
 
+	/**
+	 * @param array $path
+	 * @return string
+	 */
+	public function escapeIdentifierPath ($path)
+	{
+		return ns\ArrayUtil::implode($path, '.', ns\ArrayUtil::IMPLODE_VALUES, array ($this, 'escapeIdentifier'));
+	}
+	
 	public function getCanonicalName(StructureElement $structure)
 	{
 		$s = $this->escapeIdentifier($structure->getName());

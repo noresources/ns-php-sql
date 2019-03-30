@@ -930,6 +930,8 @@ class StructureResolver
 				'datasource' => new \ArrayObject() 
 		));
 		
+		$this->structureAliases = new \ArrayObject();
+		
 		if ($pivot instanceof StructureElement)
 		{
 			$this->setPivot($pivot);
@@ -1089,6 +1091,12 @@ class StructureResolver
 	public function setAlias($alias, $reference)
 	{
 		$this->cache[self::getKey($reference)]->offsetSet($alias, $reference);
+		$this->structureAliases->offsetSet($alias, $reference);
+	}
+	
+	public function isAlias ($identifier)
+	{
+		return $this->structureAliases->offsetExists($identifier);
 	}
 	
 	private static function getKey($item)
@@ -1163,4 +1171,9 @@ class StructureResolver
 	 * @var \ArrayObject
 	 */
 	private $cache;
+
+	/**
+	 * @var \ArrayObject
+	 */
+	private $structureAliases;
 }

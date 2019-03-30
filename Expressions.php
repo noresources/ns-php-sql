@@ -2,6 +2,7 @@
 
 namespace NoreSources\SQL;
 
+use NoreSources as ns;
 use Ferno\Loco as Loco;
 use Ferno\Loco\Utf8Parser;
 
@@ -82,8 +83,18 @@ class ColumnExpression implements Expression
 	function build(StatementBuilder $builder, StructureResolver $resolver)
 	{
 		$target = $resolver->findColumn($this->path);
+		
 		if ($target instanceof TableColumnStructure)
-			return $builder->getCanonicalName($target, $resolver);
+		{
+			$parts = explode('.', $this->path);
+			foreach ($parts as $part)
+			{
+				if ($resolver->isAlias($part))
+					return $builder->escapeIdentifierPath($parts);
+			}
+			
+			return $builder->getCanonicalName($target);
+		}
 		else
 			return $builder->escapeIdentifier($this->path);
 	}
@@ -135,21 +146,23 @@ class FunctionExpression implements Expression
 
 class ListExpression extends \ArrayObject implements Expression
 {
+
 	public $separator;
-	
+
 	public function __construct($list = array(), $separator = ', ')
 	{
-		parent::__construct ($list);
+		parent::__construct($list);
 		$this->separator = $separator;
 	}
-	
+
 	public function build(StatementBuilder $builder, StructureResolver $resolver)
 	{
 		$s = '';
 		$first = true;
 		foreach ($this as $expression)
 		{
-			if (!$first) $s .= $this->separator;
+			if (!$first)
+				$s .= $this->separator;
 			$s .= $expression->build($builder, $resolver);
 		}
 		
