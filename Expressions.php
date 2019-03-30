@@ -361,7 +361,7 @@ class ExpressionParser
 	private function buildGrammar()
 	{
 		$rx = array (
-				self::PATTERN_IDENTIFIER => '[a-zA-Z_@#]+',
+				self::PATTERN_IDENTIFIER => '[a-zA-Z_@#][a-zA-Z0-9_@#]*',
 				self::PATTERN_FUNCTION_NAME => '[a-zA-Z_][a-zA-Z0-9_]*',
 				self::PATTERN_PARAMETER_NAME => '[a-zA-Z0-9_]+',
 				self::PATTERN_SPACE => '[ \n\r\t]+',
