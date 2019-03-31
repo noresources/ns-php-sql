@@ -158,7 +158,7 @@ class SelectQuery extends QueryDescription
 				'table' => new TableReference($table, $alias),
 				'joins' => new \ArrayObject(),
 				'where' => null,
-				'groupby' => null,
+				'groupby' => new \ArrayObject(),
 				'having' => null,
 				'orderby' => new \ArrayObject(),
 				'limit' => array (
@@ -185,10 +185,17 @@ class SelectQuery extends QueryDescription
 			}
 			else
 			{
-				if (\is_array($arg))
+				if (ns\ArrayUtil::isArray($arg))
 				{
-					$expression = ArrayUtil::keyValue($arg, 0, null);
-					$alias = ArrayUtil::keyValue($arg, 1, null);
+					if (ns\ArrayUtil::isAssociative($arg))
+					{
+						list ($expression, $alias) = each($arg);
+					}
+					else
+					{
+						$expression = ArrayUtil::keyValue($arg, 0, null);
+						$alias = ArrayUtil::keyValue($arg, 1, null);
+					}
 				}
 				else
 				{
@@ -292,6 +299,39 @@ class SelectQuery extends QueryDescription
 		return $this;
 	}
 
+	public function where ()
+	{
+		return $this->whereOrHaving('where', func_get_args());
+	}
+	
+	public function having ()
+	{
+		return $this->whereOrHaving('having', func_get_args());
+	}
+	
+	private function whereOrHaving ($part, $args)
+	{
+		foreach ($args as $arg)
+		{
+			
+		}
+		return $this;
+	}
+	
+	/**
+	 * @param string (variadic) List of result columns
+	 * @return \NoreSources\SQL\SelectQuery
+	 */
+	public function groupBy()
+	{
+		for ($i = 0; $i < func_num_args(); $i++)
+		{
+			$this->parts['groupby']->append (new ColumnExpression(func_get_arg($i)));
+		}
+		
+		return $this;
+	}
+	
 	/**
 	 *
 	 * @param string $reference Result column reference
@@ -379,13 +419,29 @@ class SelectQuery extends QueryDescription
 		}
 		
 		$where = '';
-		$groupBy = '';
 		$having = '';
 		
 		# Resolve and build column related parts 
 		if (!($builder->getBuilderFlags() & K::BUILDER_EXTENDED_RESULTCOLUMN_ALIAS_RESOLUTION))
 		{
 			$this->resolveResultColumns($builder, $resolver);
+		}
+		
+		$groupBy = '';
+		if ($this->parts['groupby']->count())
+		{
+			$groupBy = ' GROUP BY ';
+			$a = array ();
+			foreach ($this->parts['groupby'] as $column)
+			{
+				/**
+				 * @var ColumnExpression $column
+				 */
+				
+				$a[] =  $column->build($builder, $resolver);
+			}
+			
+			$groupBy .= implode(', ', $a);
 		}
 		
 		$s = 'SELECT';
@@ -438,7 +494,7 @@ class SelectQuery extends QueryDescription
 		}
 		
 		// GROUP BY
-		if (iconv_strlen($groupBy))
+		if (strlen($groupBy))
 		{
 			$s .= ' ' . $groupBy;
 			if (strlen($having))
@@ -559,6 +615,12 @@ abstract class StatementBuilder
 		return new PreformattedExpression($expression);
 	}
 
+	/**
+	 * Escape literal value
+	 *
+	 * @param LiteralExpression $literal
+	 * @return string
+	 */
 	public function getLiteral(LiteralExpression $literal)
 	{
 		if ($literal->type & K::kDataTypeNumber)
@@ -568,14 +630,23 @@ abstract class StatementBuilder
 	}
 
 	/**
+	 *
 	 * @param array $path
 	 * @return string
 	 */
-	public function escapeIdentifierPath ($path)
+	public function escapeIdentifierPath($path)
 	{
-		return ns\ArrayUtil::implode($path, '.', ns\ArrayUtil::IMPLODE_VALUES, array ($this, 'escapeIdentifier'));
+		return ns\ArrayUtil::implode($path, '.', ns\ArrayUtil::IMPLODE_VALUES, array (
+				$this,
+				'escapeIdentifier' 
+		));
 	}
-	
+
+	/**
+	 *
+	 * @param StructureElement $structure
+	 * @return string
+	 */
 	public function getCanonicalName(StructureElement $structure)
 	{
 		$s = $this->escapeIdentifier($structure->getName());
@@ -589,9 +660,15 @@ abstract class StatementBuilder
 		return $s;
 	}
 
+	/**
+	 *
+	 * @param ExpressionParser $parser
+	 * @return \NoreSources\SQL\StatementBuilder
+	 */
 	protected function setExpressionParser(ExpressionParser $parser)
 	{
 		$this->parser = $parser;
+		return $this;
 	}
 
 	/**
