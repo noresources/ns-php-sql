@@ -391,10 +391,12 @@ class Record implements \ArrayAccess
 			$data = $column->importData(($flags & kRecordDataSerialized) ? $v : static::serializeValue($k, $v));
 			$s->where->addAndExpression($column->equalityExpression($data));
 		}
-			
+		
+		ns\Reporter::debug(get_called_class(), class_exists('\SqlFormatter') ? \SqlFormatter::format ($s->expressionString(), false) : $s->expressionString());
+		
 		$recordset = $s->execute();
 		
-		if (is_object($recordset) && ($recordset instanceof Recordset))
+		if ($recordset instanceof Recordset)
 		{
 			$c = $recordset->rowCount;
 			if ($c == 1)
@@ -1223,7 +1225,7 @@ class Record implements \ArrayAccess
 		$structure = $this->m_table->getStructure();
 		if ($structure->offsetExists($key))
 		{
-			throw new RecordException($this, 'Cannot set ' . $key . ' as metadata. Key exists in table structure');
+			throw new RecordException($this, 'Cannot set ' . $key . ' as ephemeral.Key exists in table structure');
 		}
 		
 		$this->m_ephemerals[$key] = $value;
@@ -1239,6 +1241,8 @@ class Record implements \ArrayAccess
 		throw new RecordException($this, 'Invalid ephemeral key ' . $member);
 	}
 
+	protected function buildEphemerals(){}
+	
 	/**
 	 *
 	 * @var Table
