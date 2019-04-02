@@ -328,7 +328,7 @@ class GroupingOption implements RecordQueryOption
 }
 const kRecordForeignKeyColumnFormat = '(.+?)::(.+)';
 
-class Record implements \ArrayAccess
+class Record implements \ArrayAccess, \IteratorAggregate
 {
 
 	/**
@@ -773,6 +773,11 @@ class Record implements \ArrayAccess
 		throw new \InvalidArgumentException('Invalid member ' . $member);
 	}
 
+	public function getIterator()
+	{
+		return (new \ArrayObject($this->toArray()))->getIterator();
+	}
+	
 	public function __get($member)
 	{
 		if (\array_key_exists($member, $this->m_ephemerals))
