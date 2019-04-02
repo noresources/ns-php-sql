@@ -1066,14 +1066,21 @@ class Record implements \ArrayAccess
 	{
 		if ($columnStructure->getProperty(kStructureDatatype) == kDataTypeNumber)
 		{
-			if ($columnStructure->getProperty(kStructureDecimalCount) > 0)
+			if (is_numeric($value))
 			{
-				$value = floatval($value);
-			}
-			else
-			{
-				$value = intval($value);
-			}
+				if ($columnStructure->getProperty(kStructureDecimalCount) > 0)
+				{
+					$value = floatval($value);
+				}
+				else
+				{
+					$value = intval($value);
+				}
+			} 
+			elseif ($columnStructure->getProperty(kStructureAcceptNull)) 
+				$value = null;
+			else 
+				$value = 0;
 		}
 		elseif ($columnStructure->getProperty(kStructureDatatype) == kDataTypeBoolean)
 		{
