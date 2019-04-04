@@ -658,7 +658,12 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 		return '[' . $a_strElement . ']';
 	}
 
-	public function getTableSet($name)
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \NoreSources\SQL\Datasource::getTableSet()
+	 */
+	public function getTableSet($name = null)
 	{
 		if ($name == $this->m_databaseName)
 		{
