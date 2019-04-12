@@ -565,8 +565,8 @@ class Record implements \ArrayAccess, \IteratorAggregate
 						continue;
 					}
 					
-					$column = $table->getColumn($name);
-					$s->where->addAndExpression(new SQLSmartEquality($column, $option));
+					$option = new ColumnValueFilter($name, '=', $option);					
+					$s->where->addAndExpression($option->toExpression($className, $table));
 				}
 			}
 		}
