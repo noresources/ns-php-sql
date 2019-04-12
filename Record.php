@@ -451,8 +451,8 @@ class Record implements \ArrayAccess, \IteratorAggregate
 		
 		if ($options instanceof RecordQueryOption)
 		{
-			$option = array (
-					$option 
+			$options = array (
+					$options
 			);
 		}
 		
@@ -583,6 +583,7 @@ class Record implements \ArrayAccess, \IteratorAggregate
 			}
 		}
 		
+		ns\Reporter::debug($className, $s->expressionString());
 		$recordset = $s->execute();
 		if (is_object($recordset) && ($recordset instanceof Recordset) && ($recordset->rowCount))
 		{
