@@ -9,7 +9,18 @@ use Ferno\Loco\Utf8Parser;
 interface Expression
 {
 
+	/**
+	 * @param StatementBuilder $builder
+	 * @param StructureResolver $resolver
+	 * @return string
+	 */
 	function build(StatementBuilder $builder, StructureResolver $resolver);
+
+	/**
+	 *
+	 * @return integer
+	 */
+	function getExpressionDataType();
 }
 
 class PreformattedExpression implements Expression
@@ -17,15 +28,28 @@ class PreformattedExpression implements Expression
 
 	public $expression;
 
-	public function __construct($value)
+	/**
+	 *
+	 * @param mixed $value
+	 * @param integer $type
+	 */
+	public function __construct($value, $type = K::kDataTypeUndefined)
 	{
 		$this->expression = $value;
+		$this->type = $type;
 	}
 
 	function build(StatementBuilder $builder, StructureResolver $resolver)
 	{
 		return $this->expression;
 	}
+
+	function getExpressionDataType()
+	{
+		return $this->type;
+	}
+
+	private $type;
 }
 
 class LiteralExpression implements Expression
@@ -45,6 +69,11 @@ class LiteralExpression implements Expression
 	{
 		return $builder->getLiteral($this);
 	}
+
+	function getExpressionDataType()
+	{
+		return $this->type;
+	}
 }
 
 class ParameterExpression implements Expression
@@ -60,6 +89,11 @@ class ParameterExpression implements Expression
 	function build(StatementBuilder $builder, StructureResolver $resolver)
 	{
 		return $builder->getParameter($this->name);
+	}
+
+	function getExpressionDataType()
+	{
+		return K::kDataTypeUndefined;
 	}
 }
 
@@ -98,6 +132,16 @@ class ColumnExpression implements Expression
 		else
 			return $builder->escapeIdentifier($this->path);
 	}
+
+	/**
+	 * Column data type will be resolved by StructureResolver
+	 * {@inheritdoc}
+	 * @see \NoreSources\SQL\Expression::getExpressionDataType()
+	 */
+	function getExpressionDataType()
+	{
+		return K::kDataTypeUndefined;
+	}
 }
 
 class FunctionExpression implements Expression
@@ -115,9 +159,22 @@ class FunctionExpression implements Expression
 	 */
 	public $arguments;
 
+	/**
+	 * Function return type
+	 * @var integer
+	 */
+	public $returnType;
+
 	public function __construct($name, $arguments = array())
 	{
 		$this->name = $name;
+		$this->returnType = K::kDataTypeUndefined;
+		
+		/**
+		 *
+		 * @todo Recognize function and get its return type
+		 */
+		
 		if (\NoreSources\ArrayUtil::isArray($arguments))
 		{
 			$this->arguments = new \ArrayObject(\NoreSources\ArrayUtil::createArray($arguments));
@@ -141,6 +198,11 @@ class FunctionExpression implements Expression
 			$o[] = $arg->build($builder, $resolver);
 		}
 		return $s . implode(', ', $o) . ')';
+	}
+
+	function getExpressionDataType()
+	{
+		return $this->returnType;
 	}
 }
 
@@ -168,6 +230,26 @@ class ListExpression extends \ArrayObject implements Expression
 		
 		return $s;
 	}
+
+	function getExpressionDataType()
+	{
+		$set = false;
+		$current = K::kDataTypeUndefined;
+		
+		foreach ($this as $expression)
+		{
+			$t = $expression->getExpressionDataType();
+			if ($set && ($t != $current))
+			{
+				return K::kDataTypeUndefined;
+			}
+			
+			$set = true;
+			$current = $t;
+		}
+		
+		return $current;
+	}
 }
 
 class ParenthesisExpression implements Expression
@@ -188,6 +270,11 @@ class ParenthesisExpression implements Expression
 	{
 		return '(' . $this->expression->build($builder, $resolver) . ')';
 	}
+
+	function getExpressionDataType()
+	{
+		return $this->expression->getExpressionDataType();
+	}
 }
 
 class UnaryOperatorExpression implements Expression
@@ -205,15 +292,25 @@ class UnaryOperatorExpression implements Expression
 	 */
 	public $operand;
 
-	public function __construct($operator, Expression $operand)
+	public $type;
+
+	public function __construct($operator, Expression $operand, $type = K::kDataTypeUndefined)
 	{
 		$this->operator = $operator;
 		$this->operand = $operand;
+		$this->type = $type;
 	}
 
 	function build(StatementBuilder $builder, StructureResolver $resolver)
 	{
 		return $this->operator . ' ' . $this->operand->build($builder, $resolver);
+	}
+
+	function getExpressionDataType()
+	{
+		if ($this->type == K::kDataTypeUndefined)
+			return $this->operand->getExpressionDataType();
+		return $this->type;
 	}
 }
 
@@ -234,22 +331,36 @@ class BinaryOperatorExpression implements Expression
 	 */
 	public $rightOperand;
 
+	public $type;
+
 	/**
 	 *
 	 * @param string $operator
 	 * @param Expression $left
 	 * @param Expression $right
 	 */
-	public function __construct($operator, Expression $left = null, Expression $right = null)
+	public function __construct($operator, Expression $left = null, Expression $right = null, $type = K::kDataTypeUndefined)
 	{
 		$this->operator = $operator;
 		$this->leftOperand = $left;
 		$this->rightOperand = $right;
+		$this->type = $type;
 	}
 
 	function build(StatementBuilder $builder, StructureResolver $resolver)
 	{
 		return $this->leftOperand->build($builder, $resolver) . ' ' . $this->operator . ' ' . $this->rightOperand->build($builder, $resolver);
+	}
+
+	function getExpressionDataType()
+	{
+		$t = $this->type;
+		if ($t == K::kDataTypeUndefined)
+			$t = $this->leftOperand->getExpressionDataType();
+		if ($t == K::kDataTypeUndefined)
+			$t = $this->rightOperand->getExpressionDataType();
+		
+		return $t;
 	}
 }
 
@@ -277,6 +388,11 @@ class CaseOptionExpression
 	function build(StatementBuilder $builder, StructureResolver $resolver)
 	{
 		return 'WHEN ' . $this->when->build($builder, $resolver) . ' THEN ' . $this->then->build($builder, $resolver);
+	}
+
+	function getExpressionDataType()
+	{
+		return $this->then->getExpressionDataType();
 	}
 }
 
@@ -322,6 +438,37 @@ class CaseExpression implements Expression
 		}
 		
 		return $s;
+	}
+
+	function getExpressionDataType()
+	{
+		$set = false;
+		$current = K::kDataTypeUndefined;
+		
+		foreach ($this->options as $option)
+		{
+			$t = $option->getExpressionDataType();
+			if ($set && ($t != $current))
+			{
+				return K::kDataTypeUndefined;
+			}
+			
+			$set = true;
+			$current = $t;
+		}
+		
+		if ($this->else instanceof Expression)
+		{
+			$t = $this->else->getExpressionDataType();
+			if ($set && ($t != $current))
+			{
+				return K::kDataTypeUndefined;
+			}
+			
+			$current = $t;
+		}
+		
+		return $current;
 	}
 }
 

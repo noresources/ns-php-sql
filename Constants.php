@@ -4,6 +4,7 @@ namespace NoreSources\SQL;
 
 class K
 {
+	const kDataTypeUndefined = 0x0;
 	const kDataTypeNull = 0x01;
 	const kDataTypeString = 0x02;
 	const kDataTypeInteger = 0x04;

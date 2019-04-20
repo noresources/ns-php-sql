@@ -1,6 +1,0 @@
-Problems to solve
-
-# Conversion of values to the suitable sql data for the given column
-
-	Option 1
-		find a way to look for result type into expression 

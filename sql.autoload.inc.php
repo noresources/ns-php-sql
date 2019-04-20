@@ -1,25 +1,29 @@
 <?php
-function autoload_NWM2OTk3NGIyMjdkOA($className)
+function autoload_NWNiYjEwNzVkYzgwZQ($className)
 {
-	if ($className == 'NoreSources\SQL\Statement')
+	if ($className == 'NoreSources\SQL\K')
 	{
-		require_once(__DIR__ . '/StatementBuilder.php');
+		require_once(__DIR__ . '/Constants.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\Statement')
+	{
+		require_once(__DIR__ . '/Statement.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\StatementElementDescription')
+	{
+		require_once(__DIR__ . '/Statement.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\QueryResolver')
+	{
+		require_once(__DIR__ . '/Statement.php');
 	}
  	elseif ($className == 'NoreSources\SQL\QueryDescription')
 	{
-		require_once(__DIR__ . '/StatementBuilder.php');
+		require_once(__DIR__ . '/Statement.php');
 	}
- 	elseif ($className == 'NoreSources\SQL\QueryTableReference')
+ 	elseif ($className == 'NoreSources\SQL\TableReference')
 	{
-		require_once(__DIR__ . '/StatementBuilder.php');
-	}
- 	elseif ($className == 'NoreSources\SQL\SelectQueryDescription')
-	{
-		require_once(__DIR__ . '/StatementBuilder.php');
-	}
- 	elseif ($className == 'NoreSources\SQL\ColumnReference')
-	{
-		require_once(__DIR__ . '/StatementBuilder.php');
+		require_once(__DIR__ . '/Statement.php');
 	}
  	elseif ($className == 'NoreSources\SQL\StatementBuilder')
 	{
@@ -28,6 +32,58 @@ function autoload_NWM2OTk3NGIyMjdkOA($className)
  	elseif ($className == 'NoreSources\SQL\GenericStatementBuilder')
 	{
 		require_once(__DIR__ . '/StatementBuilder.php');
+	}
+ 	elseif ($className == 'Ferno\Loco\GrammarException')
+	{
+		require_once(__DIR__ . '/vendor/Loco.php');
+	}
+ 	elseif ($className == 'Ferno\Loco\ParseFailureException')
+	{
+		require_once(__DIR__ . '/vendor/Loco.php');
+	}
+ 	elseif ($className == 'Ferno\Loco\MonoParser')
+	{
+		require_once(__DIR__ . '/vendor/Loco.php');
+	}
+ 	elseif ($className == 'Ferno\Loco\StaticParser')
+	{
+		require_once(__DIR__ . '/vendor/Loco.php');
+	}
+ 	elseif ($className == 'Ferno\Loco\EmptyParser')
+	{
+		require_once(__DIR__ . '/vendor/Loco.php');
+	}
+ 	elseif ($className == 'Ferno\Loco\StringParser')
+	{
+		require_once(__DIR__ . '/vendor/Loco.php');
+	}
+ 	elseif ($className == 'Ferno\Loco\RegexParser')
+	{
+		require_once(__DIR__ . '/vendor/Loco.php');
+	}
+ 	elseif ($className == 'Ferno\Loco\Utf8Parser')
+	{
+		require_once(__DIR__ . '/vendor/Loco.php');
+	}
+ 	elseif ($className == 'Ferno\Loco\LazyAltParser')
+	{
+		require_once(__DIR__ . '/vendor/Loco.php');
+	}
+ 	elseif ($className == 'Ferno\Loco\GreedyMultiParser')
+	{
+		require_once(__DIR__ . '/vendor/Loco.php');
+	}
+ 	elseif ($className == 'Ferno\Loco\GreedyStarParser')
+	{
+		require_once(__DIR__ . '/vendor/Loco.php');
+	}
+ 	elseif ($className == 'Ferno\Loco\ConcParser')
+	{
+		require_once(__DIR__ . '/vendor/Loco.php');
+	}
+ 	elseif ($className == 'Ferno\Loco\Grammar')
+	{
+		require_once(__DIR__ . '/vendor/Loco.php');
 	}
  	elseif ($className == 'NoreSources\SQL\StructureElement')
 	{
@@ -49,9 +105,85 @@ function autoload_NWM2OTk3NGIyMjdkOA($className)
 	{
 		require_once(__DIR__ . '/Structures.php');
 	}
+ 	elseif ($className == 'NoreSources\SQL\StructureResolverException')
+	{
+		require_once(__DIR__ . '/Structures.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\StructureResolver')
+	{
+		require_once(__DIR__ . '/Structures.php');
+	}
  	elseif ($className == 'NoreSources\SQL\PDOBackend')
 	{
 		require_once(__DIR__ . '/pdo/PDO.php');
 	}
+ 	elseif ($className == 'NoreSources\SQL\ResultColumnReference')
+	{
+		require_once(__DIR__ . '/Queries/Select.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\JoinClause')
+	{
+		require_once(__DIR__ . '/Queries/Select.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\OrderBy')
+	{
+		require_once(__DIR__ . '/Queries/Select.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\SelectQuery')
+	{
+		require_once(__DIR__ . '/Queries/Select.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\Expression')
+	{
+		require_once(__DIR__ . '/Expressions.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\PreformattedExpression')
+	{
+		require_once(__DIR__ . '/Expressions.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\LiteralExpression')
+	{
+		require_once(__DIR__ . '/Expressions.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\ParameterExpression')
+	{
+		require_once(__DIR__ . '/Expressions.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\ColumnExpression')
+	{
+		require_once(__DIR__ . '/Expressions.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\FunctionExpression')
+	{
+		require_once(__DIR__ . '/Expressions.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\ListExpression')
+	{
+		require_once(__DIR__ . '/Expressions.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\ParenthesisExpression')
+	{
+		require_once(__DIR__ . '/Expressions.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\UnaryOperatorExpression')
+	{
+		require_once(__DIR__ . '/Expressions.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\BinaryOperatorExpression')
+	{
+		require_once(__DIR__ . '/Expressions.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\CaseOptionExpression')
+	{
+		require_once(__DIR__ . '/Expressions.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\CaseExpression')
+	{
+		require_once(__DIR__ . '/Expressions.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\ExpressionParser')
+	{
+		require_once(__DIR__ . '/Expressions.php');
+	}
  }
-spl_autoload_register('autoload_NWM2OTk3NGIyMjdkOA');
+spl_autoload_register('autoload_NWNiYjEwNzVkYzgwZQ');
