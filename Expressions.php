@@ -10,6 +10,7 @@ interface Expression
 {
 
 	/**
+	 *
 	 * @param StatementBuilder $builder
 	 * @param StructureResolver $resolver
 	 * @return string
@@ -138,6 +139,45 @@ class ColumnExpression implements Expression
 	 * {@inheritdoc}
 	 * @see \NoreSources\SQL\Expression::getExpressionDataType()
 	 */
+	function getExpressionDataType()
+	{
+		return K::kDataTypeUndefined;
+	}
+}
+
+class TableExpression implements Expression
+{
+
+	/**
+	 *
+	 * @var string
+	 */
+	public $path;
+
+	public function __construct($path)
+	{
+		$this->path = $path;
+	}
+
+	function build(StatementBuilder $builder, StructureResolver $resolver)
+	{
+		$target = $resolver->findTable($this->path);
+		
+		if ($target instanceof TableStructure)
+		{
+			$parts = explode('.', $this->path);
+			foreach ($parts as $part)
+			{
+				if ($resolver->isAlias($part))
+					return $builder->escapeIdentifierPath($parts);
+			}
+			
+			return $builder->getCanonicalName($target);
+		}
+		else
+			return $builder->escapeIdentifier($this->path);
+	}
+
 	function getExpressionDataType()
 	{
 		return K::kDataTypeUndefined;

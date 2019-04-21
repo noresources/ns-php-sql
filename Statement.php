@@ -1,49 +1,34 @@
 <?php
 
+// Namespace
 namespace NoreSources\SQL;
 
-esultCuse NoreSources as ns;
+// Aliases
+use NoreSources as ns;
 use NoreSources\ArrayUtil;
 use NoreSources\Creole\PreformattedBlock;
-
+  
 /**
- * SQL statement
+ * 
  *
  */
-class Statement
-{
-
-	public function __toString()
-	{
-		return $this->sqlString;
-	}
-
-	private $sqlString;
-}
-
-/**
- * Describe a SQL statement element
- */
-interface StatementElementDescription
-{
-
-	/**
-	 * @param StatementBuilder $builder
-	 * @param StructureResolver $resolver
-	 * @return string
-	 */
-	function buildStatement(StatementBuilder $builder, StructureResolver $resolver);
-}
-
 class QueryResolver extends StructureResolver
 {
 
+	/**
+	 * 
+	 * @param StructureElement $pivot
+	 */
 	public function __construct(StructureElement $pivot = null)
 	{
 		parent::__construct($pivot);
 		$this->aliases = new \ArrayObject();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * @see \NoreSources\SQL\StructureResolver::findColumn()
+	 */
 	public function findColumn($path)
 	{
 		if ($this->aliases->offsetExists($path))
@@ -71,6 +56,10 @@ class QueryResolver extends StructureResolver
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * @see \NoreSources\SQL\StructureResolver::isAlias()
+	 */
 	public function isAlias($identifier)
 	{
 		return $this->aliases->offsetExists($identifier) || parent::isAlias($identifier);
@@ -83,33 +72,11 @@ class QueryResolver extends StructureResolver
 	private $aliases;
 }
 
-abstract class QueryDescription implements StatementElementDescription
-{
-
-	/**
-	 *
-	 * @param StatementBuilder $builder
-	 * @param StructureElement $referenceStructure
-	 * @return string
-	 */
-	function build(StatementBuilder $builder, StructureElement $referenceStructure)
-	{
-		$resolver = new QueryResolver($referenceStructure);
-		return $this->buildStatement($builder, $resolver);
-	}
-}
-
 /**
  * SQL Table reference in a SQL query
  */
-class TableReference
+class TableReference extends TableExpression
 {
-
-	/**
-	 * Table path
-	 * @var string
-	 */
-	public $path;
 
 	/**
 	 * @var string
@@ -118,8 +85,19 @@ class TableReference
 
 	public function __construct($path, $alias = null)
 	{
-		$this->path = $path;
+		parent::__construct($path);
 		$this->alias = $alias;
+	}
+	
+	function build(StatementBuilder $builder, StructureResolver $resolver)
+	{
+		$s = parent::build($builder, $resolver);
+		if ($this->alias)
+		{
+			$s .= ' AS ' . $this->alias;
+		}
+		
+		return $s;
 	}
 }
 

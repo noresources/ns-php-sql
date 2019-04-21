@@ -7,21 +7,6 @@ use NoreSources\ArrayUtil;
 use NoreSources\Creole\PreformattedBlock;
 
 /**
- * SQL statement
- *
- */
-class Statement
-{
-
-	public function __toString()
-	{
-		return $this->sqlString;
-	}
-
-	private $sqlString;
-}
-
-/**
  * Describe a SQL statement element
  */
 interface StatementElementDescription
@@ -33,47 +18,6 @@ interface StatementElementDescription
 	 * @return string
 	 */
 	function buildStatement(StatementBuilder $builder, StructureResolver $resolver);
-}
-
-class QueryResolver extends StructureResolver
-{
-
-	public function __construct(StructureElement $pivot = null)
-	{
-		parent::__construct($pivot);
-		$this->aliases = new \ArrayObject();
-	}
-
-	public function findColumn($path)
-	{
-		if ($this->aliases->offsetExists($path))
-			return $this->aliases->offsetGet($path);
-		
-		return parent::findColumn($path);
-	}
-
-	public function setAlias($alias, $reference)
-	{
-		if ($reference instanceof StructureElement)
-		{
-			parent::setAlias($alias, $reference);
-		}
-		else
-		{
-			$this->aliases[$alias] = $reference;
-		}
-	}
-
-	public function isAlias($identifier)
-	{
-		return $this->aliases->offsetExists($identifier) || parent::isAlias($identifier);
-	}
-
-	/**
-	 *
-	 * @var \ArrayObject
-	 */
-	private $aliases;
 }
 
 abstract class QueryDescription implements StatementElementDescription
@@ -89,30 +33,6 @@ abstract class QueryDescription implements StatementElementDescription
 	{
 		$resolver = new QueryResolver($referenceStructure);
 		return $this->buildStatement($builder, $resolver);
-	}
-}
-
-/**
- * SQL Table reference
- */
-class TableReference
-{
-
-	/**
-	 * Table path
-	 * @var string
-	 */
-	public $path;
-
-	/**
-	 * @var string
-	 */
-	public $alias;
-
-	public function __construct($path, $alias = null)
-	{
-		$this->path = $path;
-		$this->alias = $alias;
 	}
 }
 

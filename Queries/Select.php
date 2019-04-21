@@ -303,20 +303,17 @@ class SelectQuery extends QueryDescription
 		}
 		
 		$table = $builder->getCanonicalName($tableStructure);
-		if ($this->parts['table']->alias)
+		$tableAlias = $this->parts['table']->alias;
+		if ($tableAlias)
 		{
-			$table .= ' AS ' . $builder->escapeIdentifier($this->parts['table']->alias);
+			$table .= ' AS ' . $builder->escapeIdentifier($tableAlias);
 		}
 		
 		$joins = '';
 		foreach ($this->parts['joins'] as $join)
 		{
 			$joins .= ' ' . $builder->getJoinOperator($join->operator);
-			if ($join->subject instanceof Expression)
-			{
-				$joins .= ' ' . $join->subject->buildStatement($builder, $resolver);
-			}
-			elseif ($join->subject instanceof TableReference)
+			if ($join->subject instanceof TableReference)
 			{
 				$ts = $resolver->findTable($join->subject->path);
 				$joins .= ' ' . $builder->getCanonicalName($ts);
@@ -325,7 +322,11 @@ class SelectQuery extends QueryDescription
 					$joins .= ' AS ' . $builder->escapeIdentifier($join->subject->alias);
 				}
 			}
-			
+			elseif ($join->subject instanceof Expression)
+			{
+				$joins .= ' ' . $join->subject->buildStatement($builder, $resolver);
+			}
+						
 			if ($join->constraints instanceof Expression)
 				$joins .= ' ' . $join->constraints->build($builder, $resolver);
 		}
