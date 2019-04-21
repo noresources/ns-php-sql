@@ -1,17 +1,37 @@
 <?php
-function autoload_NWNiYzhkMDJiNjdhYg($className)
+function autoload_NWNiY2E5MTk5Y2ZhMA($className)
 {
-	if ($className == 'NoreSources\SQL\K')
+	if ($className == 'NoreSources\SQL\ResultColumnReference')
+	{
+		require_once(__DIR__ . '/Statements/Select.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\JoinClause')
+	{
+		require_once(__DIR__ . '/Statements/Select.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\OrderBy')
+	{
+		require_once(__DIR__ . '/Statements/Select.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\SelectQuery')
+	{
+		require_once(__DIR__ . '/Statements/Select.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\StructureQueryResolver')
+	{
+		require_once(__DIR__ . '/Statements/Base.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\StructureQueryDescription')
+	{
+		require_once(__DIR__ . '/Statements/Base.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\TableReference')
+	{
+		require_once(__DIR__ . '/Statements/Base.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\K')
 	{
 		require_once(__DIR__ . '/Constants.php');
-	}
- 	elseif ($className == 'NoreSources\SQL\StatementElementDescription')
-	{
-		require_once(__DIR__ . '/Statement.php');
-	}
- 	elseif ($className == 'NoreSources\SQL\QueryDescription')
-	{
-		require_once(__DIR__ . '/Statement.php');
 	}
  	elseif ($className == 'NoreSources\SQL\StatementBuilder')
 	{
@@ -105,22 +125,6 @@ function autoload_NWNiYzhkMDJiNjdhYg($className)
 	{
 		require_once(__DIR__ . '/pdo/PDO.php');
 	}
- 	elseif ($className == 'NoreSources\SQL\ResultColumnReference')
-	{
-		require_once(__DIR__ . '/Queries/Select.php');
-	}
- 	elseif ($className == 'NoreSources\SQL\JoinClause')
-	{
-		require_once(__DIR__ . '/Queries/Select.php');
-	}
- 	elseif ($className == 'NoreSources\SQL\OrderBy')
-	{
-		require_once(__DIR__ . '/Queries/Select.php');
-	}
- 	elseif ($className == 'NoreSources\SQL\SelectQuery')
-	{
-		require_once(__DIR__ . '/Queries/Select.php');
-	}
  	elseif ($className == 'NoreSources\SQL\Expression')
 	{
 		require_once(__DIR__ . '/Expressions.php');
@@ -177,17 +181,5 @@ function autoload_NWNiYzhkMDJiNjdhYg($className)
 	{
 		require_once(__DIR__ . '/Expressions.php');
 	}
- 	elseif ($className == 'NoreSources\SQL\Statement')
-	{
-		require_once(__DIR__ . '/Statement.php');
-	}
- 	elseif ($className == 'NoreSources\SQL\QueryResolver')
-	{
-		require_once(__DIR__ . '/Statement.php');
-	}
- 	elseif ($className == 'NoreSources\SQL\TableReference')
-	{
-		require_once(__DIR__ . '/Statement.php');
-	}
  }
-spl_autoload_register('autoload_NWNiYzhkMDJiNjdhYg');
+spl_autoload_register('autoload_NWNiY2E5MTk5Y2ZhMA');

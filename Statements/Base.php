@@ -7,16 +7,16 @@ namespace NoreSources\SQL;
 use NoreSources as ns;
 use NoreSources\ArrayUtil;
 use NoreSources\Creole\PreformattedBlock;
-  
+
 /**
- * 
+ * Resolve both StructureElement reference and result column aliases
  *
  */
-class QueryResolver extends StructureResolver
+class StructureQueryResolver extends StructureResolver
 {
 
 	/**
-	 * 
+	 *
 	 * @param StructureElement $pivot
 	 */
 	public function __construct(StructureElement $pivot = null)
@@ -26,7 +26,8 @@ class QueryResolver extends StructureResolver
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
+	 * {@inheritdoc}
 	 * @see \NoreSources\SQL\StructureResolver::findColumn()
 	 */
 	public function findColumn($path)
@@ -38,10 +39,10 @@ class QueryResolver extends StructureResolver
 	}
 
 	/**
-	 * 
+	 *
 	 * @param string $alias
 	 * @param StructureElement|TableReference|ResultColumnReference $reference
-	 * 
+	 *
 	 * @see \NoreSources\SQL\StructureResolver::setAlias()
 	 */
 	public function setAlias($alias, $reference)
@@ -57,7 +58,8 @@ class QueryResolver extends StructureResolver
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
+	 * {@inheritdoc}
 	 * @see \NoreSources\SQL\StructureResolver::isAlias()
 	 */
 	public function isAlias($identifier)
@@ -73,12 +75,38 @@ class QueryResolver extends StructureResolver
 }
 
 /**
+ * Describe a Structure-related statement
+ *
+ */
+abstract class StructureQueryDescription implements Expression
+{
+
+	/**
+	 *
+	 * @param StatementBuilder $builder
+	 * @param StructureElement $referenceStructure
+	 * @return string
+	 */
+	function buildStatement(StatementBuilder $builder, StructureElement $referenceStructure)
+	{
+		$resolver = new StructureQueryResolver($referenceStructure);
+		return $this->buildExpression($builder, $resolver);
+	}
+
+	public function getExpressionDataType()
+	{
+		return K::kDataTypeUndefined;
+	}
+}
+
+/**
  * SQL Table reference in a SQL query
  */
 class TableReference extends TableExpression
 {
 
 	/**
+	 *
 	 * @var string
 	 */
 	public $alias;
@@ -88,10 +116,10 @@ class TableReference extends TableExpression
 		parent::__construct($path);
 		$this->alias = $alias;
 	}
-	
-	function build(StatementBuilder $builder, StructureResolver $resolver)
+
+	function buildExpression(StatementBuilder $builder, StructureResolver $resolver)
 	{
-		$s = parent::build($builder, $resolver);
+		$s = parent::buildExpression($builder, $resolver);
 		if ($this->alias)
 		{
 			$s .= ' AS ' . $this->alias;

@@ -7,35 +7,9 @@ use NoreSources\ArrayUtil;
 use NoreSources\Creole\PreformattedBlock;
 
 /**
- * Describe a SQL statement element
+ * Build a SQL statement string to be used in a SQL engine 
+ *
  */
-interface StatementElementDescription
-{
-
-	/**
-	 * @param StatementBuilder $builder
-	 * @param StructureResolver $resolver
-	 * @return string
-	 */
-	function buildStatement(StatementBuilder $builder, StructureResolver $resolver);
-}
-
-abstract class QueryDescription implements StatementElementDescription
-{
-
-	/**
-	 *
-	 * @param StatementBuilder $builder
-	 * @param StructureElement $referenceStructure
-	 * @return string
-	 */
-	function build(StatementBuilder $builder, StructureElement $referenceStructure)
-	{
-		$resolver = new QueryResolver($referenceStructure);
-		return $this->buildStatement($builder, $resolver);
-	}
-}
-
 abstract class StatementBuilder
 {
 
@@ -57,6 +31,7 @@ abstract class StatementBuilder
 	abstract function getParameter($name);
 
 	/**
+	 *
 	 * @param integer $joinTypeFlags JOIN type flags
 	 * @return string
 	 */
@@ -109,7 +84,7 @@ abstract class StatementBuilder
 		return new PreformattedExpression($expression);
 	}
 
-	public function resolveExpressionType (Expression $expression, StructureResolver $resolver)
+	public function resolveExpressionType(Expression $expression, StructureResolver $resolver)
 	{
 		$type = $expression->getExpressionDataType();
 		if ($type != K::kDataTypeUndefined)
@@ -124,17 +99,19 @@ abstract class StatementBuilder
 		}
 		else if ($expression instanceof UnaryOperatorExpression)
 		{
-			$operator = strtolower(trim ($expression->operator));
-			switch ($operator) {
-				case 'not': 
+			$operator = strtolower(trim($expression->operator));
+			switch ($operator)
+			{
+				case 'not':
 				case 'is':
 					return K::kDataTypeBoolean;
 			}
 		}
 		elseif ($expression instanceof BinaryOperatorExpression)
 		{
-			$operator = strtolower(trim ($expression->operator));
-			switch ($operator) {
+			$operator = strtolower(trim($expression->operator));
+			switch ($operator)
+			{
 				case '==':
 				case '=':
 				case '!=':
@@ -145,7 +122,7 @@ abstract class StatementBuilder
 		
 		return $type;
 	}
-	
+
 	/**
 	 * Escape literal value
 	 *
@@ -216,6 +193,10 @@ abstract class StatementBuilder
 	private $parser;
 }
 
+/**
+ * 
+ *
+ */
 class GenericStatementBuilder extends StatementBuilder
 {
 

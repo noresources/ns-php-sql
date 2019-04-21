@@ -8,6 +8,9 @@ use NoreSources as ns;
 use NoreSources\ArrayUtil;
 use NoreSources\Creole\PreformattedBlock;
 
+/**
+ * SELECT query result column
+ */
 class ResultColumnReference
 {
 
@@ -22,6 +25,9 @@ class ResultColumnReference
 	}
 }
 
+/**
+ * SELECT query JOIN clause
+ */
 class JoinClause
 {
 
@@ -40,6 +46,9 @@ class JoinClause
 	public $constraints;
 }
 
+/**
+ * ORDER BY clase
+ */
 class OrderBy
 {
 
@@ -64,21 +73,26 @@ class OrderBy
 /**
  * SELECT query statement
  */
-class SelectQuery extends QueryDescription
+class SelectQuery extends StructureQueryDescription
 {
 
+	/**
+	 *
+	 * @param string $table Table structure path
+	 * @param string|null $alias
+	 */
 	public function __construct($table, $alias = null)
 	{
 		$this->parts = array (
-				'distinct' => false,
-				'columns' => new \ArrayObject(),
-				'table' => new TableReference($table, $alias),
-				'joins' => new \ArrayObject(),
-				'where' => null,
-				'groupby' => new \ArrayObject(),
-				'having' => null,
-				'orderby' => new \ArrayObject(),
-				'limit' => array (
+				self::PART_DISTINCT => false,
+				self::PART_COLUMNS => new \ArrayObject(),
+				self::PART_TABLE => new TableReference($table, $alias),
+				self::PART_JOINS => new \ArrayObject(),
+				self::PART_WHERE => null,
+				self::PART_GROUPBY => new \ArrayObject(),
+				self::PART_HAVING => null,
+				self::PART_ORDERBY => new \ArrayObject(),
+				self::PART_LIMIT => array (
 						'count' => 0,
 						'offset' => 0 
 				) 
@@ -98,7 +112,7 @@ class SelectQuery extends QueryDescription
 			$alias = null;
 			if ($arg instanceof ResultColumnReference)
 			{
-				$this->parts['columns']->append($arg);
+				$this->parts[self::PART_COLUMNS]->append($arg);
 			}
 			else
 			{
@@ -106,7 +120,7 @@ class SelectQuery extends QueryDescription
 				{
 					if (ns\ArrayUtil::isAssociative($arg))
 					{
-						list ($expression, $alias) = each($arg);
+						list ( $expression, $alias ) = each($arg);
 					}
 					else
 					{
@@ -119,7 +133,7 @@ class SelectQuery extends QueryDescription
 					$expression = $arg;
 				}
 				
-				$this->parts['columns']->append(new ResultColumnReference($expression, $alias));
+				$this->parts[self::PART_COLUMNS]->append(new ResultColumnReference($expression, $alias));
 			}
 		}
 		
@@ -137,7 +151,7 @@ class SelectQuery extends QueryDescription
 	{
 		if ($operatorOrJoin instanceof JoinClause)
 		{
-			$this->parts['joins']->append($operatorOrJoin);
+			$this->parts[self::PART_JOINS]->append($operatorOrJoin);
 		}
 		else
 		{
@@ -177,7 +191,7 @@ class SelectQuery extends QueryDescription
 					throw new \BadMethodCallException();
 				}
 				
-				$left = $this->parts['table'];
+				$left = $this->parts[self::PART_TABLE];
 				$right = $j->subject;
 				
 				$left = $left->alias ? $left->alias : $left->path;
@@ -210,32 +224,31 @@ class SelectQuery extends QueryDescription
 				$j->constraints = new UnaryOperatorExpression('ON ', $expression);
 			}
 			
-			$this->parts['joins']->append($j);
+			$this->parts[self::PART_JOINS]->append($j);
 		}
 		
 		return $this;
 	}
 
-	public function where ()
+	public function where()
 	{
-		return $this->whereOrHaving('where', func_get_args());
+		return $this->whereOrHaving(self::PART_WHERE, func_get_args());
 	}
-	
-	public function having ()
+
+	public function having()
 	{
-		return $this->whereOrHaving('having', func_get_args());
+		return $this->whereOrHaving(self::PART_HAVING, func_get_args());
 	}
-	
-	private function whereOrHaving ($part, $args)
+
+	private function whereOrHaving($part, $args)
 	{
 		foreach ($args as $arg)
-		{
-			
-		}
+		{}
 		return $this;
 	}
-	
+
 	/**
+	 *
 	 * @param string (variadic) List of result columns
 	 * @return \NoreSources\SQL\SelectQuery
 	 */
@@ -243,12 +256,12 @@ class SelectQuery extends QueryDescription
 	{
 		for ($i = 0; $i < func_num_args(); $i++)
 		{
-			$this->parts['groupby']->append (new ColumnExpression(func_get_arg($i)));
+			$this->parts[self::PART_GROUPBY]->append(new ColumnExpression(func_get_arg($i)));
 		}
 		
 		return $this;
 	}
-	
+
 	/**
 	 *
 	 * @param string $reference Result column reference
@@ -258,7 +271,7 @@ class SelectQuery extends QueryDescription
 	 */
 	public function orderBy($reference, $direction = K::ORDERING_ASC, $collation = null)
 	{
-		$this->parts['orderby']->offsetSet($reference, new OrderBy($reference, $direction, $collation));
+		$this->parts[self::PART_ORDERBY]->offsetSet($reference, new OrderBy($reference, $direction, $collation));
 		return $this;
 	}
 
@@ -270,23 +283,23 @@ class SelectQuery extends QueryDescription
 	 */
 	public function limit($count, $offset = 0)
 	{
-		$this->parts['limit']['count'] = $count;
-		$this->parts['limit']['offset'] = $offset;
+		$this->parts[self::PART_LIMIT]['count'] = $count;
+		$this->parts[self::PART_LIMIT]['offset'] = $offset;
 		return $this;
 	}
 
-	public function buildStatement(StatementBuilder $builder, StructureResolver $resolver)
+	public function buildExpression(StatementBuilder $builder, StructureResolver $resolver)
 	{
-		$tableStructure = $resolver->findTable($this->parts['table']->path);
+		$tableStructure = $resolver->findTable($this->parts[self::PART_TABLE]->path);
 		
 		# Resolve and build table-related parts
 		
-		if ($this->parts['table']->alias)
+		if ($this->parts[self::PART_TABLE]->alias)
 		{
-			$resolver->setAlias($this->parts['table']->alias, $tableStructure);
+			$resolver->setAlias($this->parts[self::PART_TABLE]->alias, $tableStructure);
 		}
 		
-		foreach ($this->parts['joins'] as $join)
+		foreach ($this->parts[self::PART_JOINS] as $join)
 		{
 			/**
 			 *
@@ -303,14 +316,14 @@ class SelectQuery extends QueryDescription
 		}
 		
 		$table = $builder->getCanonicalName($tableStructure);
-		$tableAlias = $this->parts['table']->alias;
+		$tableAlias = $this->parts[self::PART_TABLE]->alias;
 		if ($tableAlias)
 		{
 			$table .= ' AS ' . $builder->escapeIdentifier($tableAlias);
 		}
 		
 		$joins = '';
-		foreach ($this->parts['joins'] as $join)
+		foreach ($this->parts[self::PART_JOINS] as $join)
 		{
 			$joins .= ' ' . $builder->getJoinOperator($join->operator);
 			if ($join->subject instanceof TableReference)
@@ -326,9 +339,9 @@ class SelectQuery extends QueryDescription
 			{
 				$joins .= ' ' . $join->subject->buildStatement($builder, $resolver);
 			}
-						
+			
 			if ($join->constraints instanceof Expression)
-				$joins .= ' ' . $join->constraints->build($builder, $resolver);
+				$joins .= ' ' . $join->constraints->buildExpression($builder, $resolver);
 		}
 		
 		if ($builder->getBuilderFlags() & K::BUILDER_EXTENDED_RESULTCOLUMN_ALIAS_RESOLUTION)
@@ -346,39 +359,40 @@ class SelectQuery extends QueryDescription
 		}
 		
 		$groupBy = '';
-		if ($this->parts['groupby']->count())
+		if ($this->parts[self::PART_GROUPBY]->count())
 		{
 			$groupBy = ' GROUP BY ';
 			$a = array ();
-			foreach ($this->parts['groupby'] as $column)
+			foreach ($this->parts[self::PART_GROUPBY] as $column)
 			{
 				/**
+				 *
 				 * @var ColumnExpression $column
 				 */
 				
-				$a[] =  $column->build($builder, $resolver);
+				$a[] = $column->buildExpression($builder, $resolver);
 			}
 			
 			$groupBy .= implode(', ', $a);
 		}
 		
 		$s = 'SELECT';
-		if ($this->parts['distinct'])
+		if ($this->parts[self::PART_DISTINCT])
 		{
 			$s .= ' DISTINCT';
 		}
 		
-		if ($this->parts['columns']->count())
+		if ($this->parts[self::PART_COLUMNS]->count())
 		{
 			$s .= ' ';
 			$index = 0;
-			foreach ($this->parts['columns'] as $column)
+			foreach ($this->parts[self::PART_COLUMNS] as $column)
 			{
 				if ($index > 0)
 					$s .= ', ';
 				
 				$expression = $builder->parseExpression($column->expression);
-				$s .= $expression->build($builder, $resolver);
+				$s .= $expression->buildExpression($builder, $resolver);
 				
 				if ($column->alias)
 				{
@@ -422,28 +436,28 @@ class SelectQuery extends QueryDescription
 		}
 		
 		// ORDER BY
-		if ($this->parts['orderby']->count())
+		if ($this->parts[self::PART_ORDERBY]->count())
 		{
 			$s .= ' ORDER BY ';
 			$o = array ();
-			foreach ($this->parts['orderby'] as $clause) /// @var OrderBy $clause
+			foreach ($this->parts[self::PART_ORDERBY] as $clause) /// @var OrderBy $clause
 			{
 				$expression = $builder->parseExpression($clause->expression);
 				
-				$o[] = $expression->build($builder, $resolver) . ' ' . ($clause->direction == K::ORDERING_ASC ? 'ASC' : 'DESC');
+				$o[] = $expression->buildExpression($builder, $resolver) . ' ' . ($clause->direction == K::ORDERING_ASC ? 'ASC' : 'DESC');
 			}
 			
 			$s .= implode(', ', $o);
 		}
 		
 		// LIMIT
-		if ($this->parts['limit']['count'] > 0)
+		if ($this->parts[self::PART_LIMIT]['count'] > 0)
 		{
-			$s .= ' LIMIT ' . ($this->parts['limit']['count']);
+			$s .= ' LIMIT ' . ($this->parts[self::PART_LIMIT]['count']);
 			
-			if ($this->parts['limit']['offset'] > 0)
+			if ($this->parts[self::PART_LIMIT]['offset'] > 0)
 			{
-				$s .= ' OFFSET ' . ($this->parts['limit']['offset']);
+				$s .= ' OFFSET ' . ($this->parts[self::PART_LIMIT]['offset']);
 			}
 		}
 		
@@ -452,7 +466,7 @@ class SelectQuery extends QueryDescription
 
 	protected function resolveResultColumns(StatementBuilder $builder, StructureResolver $resolver)
 	{
-		foreach ($this->parts['columns'] as $column)
+		foreach ($this->parts[self::PART_COLUMNS] as $column)
 		{
 			if ($column->alias)
 			{
@@ -462,4 +476,13 @@ class SelectQuery extends QueryDescription
 	}
 
 	private $parts;
+	const PART_DISTINCT = 'distinct';
+	const PART_COLUMNS = 'columns';
+	const PART_TABLE = 'table';
+	const PART_JOINS = 'joins';
+	const PART_WHERE = 'where';
+	const PART_GROUPBY = 'groupby';
+	const PART_HAVING = 'having';
+	const PART_ORDERBY = 'orderby';
+	const PART_LIMIT = 'limit';
 }

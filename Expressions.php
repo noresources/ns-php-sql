@@ -15,7 +15,7 @@ interface Expression
 	 * @param StructureResolver $resolver
 	 * @return string
 	 */
-	function build(StatementBuilder $builder, StructureResolver $resolver);
+	function buildExpression(StatementBuilder $builder, StructureResolver $resolver);
 
 	/**
 	 *
@@ -40,7 +40,7 @@ class PreformattedExpression implements Expression
 		$this->type = $type;
 	}
 
-	function build(StatementBuilder $builder, StructureResolver $resolver)
+	function buildExpression(StatementBuilder $builder, StructureResolver $resolver)
 	{
 		return $this->expression;
 	}
@@ -66,7 +66,7 @@ class LiteralExpression implements Expression
 		$this->type = $type;
 	}
 
-	function build(StatementBuilder $builder, StructureResolver $resolver)
+	function buildExpression(StatementBuilder $builder, StructureResolver $resolver)
 	{
 		return $builder->getLiteral($this);
 	}
@@ -87,7 +87,7 @@ class ParameterExpression implements Expression
 		$this->name = $name;
 	}
 
-	function build(StatementBuilder $builder, StructureResolver $resolver)
+	function buildExpression(StatementBuilder $builder, StructureResolver $resolver)
 	{
 		return $builder->getParameter($this->name);
 	}
@@ -115,7 +115,7 @@ class ColumnExpression implements Expression
 		$this->path = $path;
 	}
 
-	function build(StatementBuilder $builder, StructureResolver $resolver)
+	function buildExpression(StatementBuilder $builder, StructureResolver $resolver)
 	{
 		$target = $resolver->findColumn($this->path);
 		
@@ -159,7 +159,7 @@ class TableExpression implements Expression
 		$this->path = $path;
 	}
 
-	function build(StatementBuilder $builder, StructureResolver $resolver)
+	function buildExpression(StatementBuilder $builder, StructureResolver $resolver)
 	{
 		$target = $resolver->findTable($this->path);
 		
@@ -225,7 +225,7 @@ class FunctionExpression implements Expression
 		}
 	}
 
-	function build(StatementBuilder $builder, StructureResolver $resolver)
+	function buildExpression(StatementBuilder $builder, StructureResolver $resolver)
 	{
 		/**
 		 *
@@ -235,7 +235,7 @@ class FunctionExpression implements Expression
 		$a = array ();
 		foreach ($this->arguments as $arg)
 		{
-			$o[] = $arg->build($builder, $resolver);
+			$o[] = $arg->buildExpression($builder, $resolver);
 		}
 		return $s . implode(', ', $o) . ')';
 	}
@@ -257,7 +257,7 @@ class ListExpression extends \ArrayObject implements Expression
 		$this->separator = $separator;
 	}
 
-	public function build(StatementBuilder $builder, StructureResolver $resolver)
+	public function buildExpression(StatementBuilder $builder, StructureResolver $resolver)
 	{
 		$s = '';
 		$first = true;
@@ -265,7 +265,7 @@ class ListExpression extends \ArrayObject implements Expression
 		{
 			if (!$first)
 				$s .= $this->separator;
-			$s .= $expression->build($builder, $resolver);
+			$s .= $expression->buildExpression($builder, $resolver);
 		}
 		
 		return $s;
@@ -306,9 +306,9 @@ class ParenthesisExpression implements Expression
 		$this->expression;
 	}
 
-	function build(StatementBuilder $builder, StructureResolver $resolver)
+	function buildExpression(StatementBuilder $builder, StructureResolver $resolver)
 	{
-		return '(' . $this->expression->build($builder, $resolver) . ')';
+		return '(' . $this->expression->buildExpression($builder, $resolver) . ')';
 	}
 
 	function getExpressionDataType()
@@ -341,9 +341,9 @@ class UnaryOperatorExpression implements Expression
 		$this->type = $type;
 	}
 
-	function build(StatementBuilder $builder, StructureResolver $resolver)
+	function buildExpression(StatementBuilder $builder, StructureResolver $resolver)
 	{
-		return $this->operator . ' ' . $this->operand->build($builder, $resolver);
+		return $this->operator . ' ' . $this->operand->buildExpression($builder, $resolver);
 	}
 
 	function getExpressionDataType()
@@ -387,9 +387,9 @@ class BinaryOperatorExpression implements Expression
 		$this->type = $type;
 	}
 
-	function build(StatementBuilder $builder, StructureResolver $resolver)
+	function buildExpression(StatementBuilder $builder, StructureResolver $resolver)
 	{
-		return $this->leftOperand->build($builder, $resolver) . ' ' . $this->operator . ' ' . $this->rightOperand->build($builder, $resolver);
+		return $this->leftOperand->buildExpression($builder, $resolver) . ' ' . $this->operator . ' ' . $this->rightOperand->buildExpression($builder, $resolver);
 	}
 
 	function getExpressionDataType()
@@ -425,9 +425,9 @@ class CaseOptionExpression
 		$this->then = $then;
 	}
 
-	function build(StatementBuilder $builder, StructureResolver $resolver)
+	function buildExpression(StatementBuilder $builder, StructureResolver $resolver)
 	{
-		return 'WHEN ' . $this->when->build($builder, $resolver) . ' THEN ' . $this->then->build($builder, $resolver);
+		return 'WHEN ' . $this->when->buildExpression($builder, $resolver) . ' THEN ' . $this->then->buildExpression($builder, $resolver);
 	}
 
 	function getExpressionDataType()
@@ -464,17 +464,17 @@ class CaseExpression implements Expression
 		$this->else = null;
 	}
 
-	function build(StatementBuilder $builder, StructureResolver $resolver)
+	function buildExpression(StatementBuilder $builder, StructureResolver $resolver)
 	{
 		$s = 'CASE ' . $this->subject;
 		foreach ($this->options as $option)
 		{
-			$s .= ' ' . $option->build($builder, $resolver);
+			$s .= ' ' . $option->buildExpression($builder, $resolver);
 		}
 		
 		if ($this->else instanceof Expression)
 		{
-			$s .= ' ELSE ' . $this->else->build($builder, $resolver);
+			$s .= ' ELSE ' . $this->else->buildExpression($builder, $resolver);
 		}
 		
 		return $s;
