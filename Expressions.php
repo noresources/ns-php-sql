@@ -759,10 +759,10 @@ class ExpressionParser
 		
 		// Date & Time
 		
-		$year = new Loco\RegexParser(chr(1) . '^-?[1-9][0-9]*' . chr(1));
+		$year = new Loco\RegexParser(chr(1) . '^(\+|-)?[0-9]{1,4}' . chr(1));
 		$month = new Loco\LazyAltParser(array (
 				new Loco\RegexParser(chr(1) . '^1[0-2]' . chr(1)),
-				new Loco\RegexParser(chr(1) . '^[0-9]' . chr(1)) 
+				new Loco\RegexParser(chr(1) . '^0[0-9]' . chr(1)) 
 		));
 		$day = new Loco\LazyAltParser(array (
 				new Loco\RegexParser(chr(1) . '^3[0-1]' . chr(1)),
@@ -843,78 +843,87 @@ class ExpressionParser
 			);
 		});
 		
+		$dateSeparator = new Loco\StringParser('-');
+		$optionalDateSeparator = new Loco\LazyAltParser(array (
+				$dateSeparator,
+				new Loco\EmptyParser() 
+		));
 		$date = new Loco\LazyAltParser(array (
-				$extendedDate,
-				$baseDate 
-		), function ($d)
-		{
-			return array (
-					'year' => $d[0],
-					'month' => $d[1],
-					'day' => $d[2] 
-			);
-		});
-		
-		$time = new Loco\LazyAltParser(array (
 				new Loco\ConcParser(array (
-						$hour,
-						new Loco\StringParser(':'),
-						$minutes,
-						new Loco\StringParser(':'),
-						$seconds,
-						$whitespace,
-						$timezone 
-				), function ($h, $_1, $m, $_2, $s, $_3, $z)
+						$year,
+						$optionalDateSeparator,
+						$month,
+						$optionalDateSeparator,
+						$day 
+				), function ($y, $a, $m, $b, $d)
 				{
 					return array (
-							'hour' => $h,
-							'minute' => $m,
-							'second' => $s,
-							'timezone' => $z 
+							'year' => $y,
+							'month' => $m,
+							'day' => $d 
 					);
 				}),
+				// YYYY-MM
 				new Loco\ConcParser(array (
-						$hour,
-						$minutes,
-						$seconds,
-						$whitespace,
-						$timezone 
-				), function ($h, $m, $s, $_1, $z)
+						$year,
+						$dateSeparator,
+						$month 
+				), function ($y, $a, $m)
 				{
 					return array (
-							'hour' => $h,
-							'minute' => $m,
-							'second' => $s,
-							'timezone' => $z 
+							'year' => $y,
+							'month' => $m,
+							'day' => date('d') 
+					);
+				}),
+				// --MM-DD
+				new Loco\ConcParser(array (
+						new Loco\StringParser('--'),
+						$month,
+						$optionalDateSeparator,
+						$day 
+				), function ($a, $m, $b, $d)
+				{
+					return array (
+							'year' => date('y'),
+							'month' => $m,
+							'day' => $d 
 					);
 				}) 
-			// TODO truncated version
 		));
 		
+		$optionalTimeSeparator = new Loco\LazyAltParser(array(
+				new Loco\StringParser(':'),
+				new Loco\EmptyParser()
+		));
+		
+		/*$time = new Loco\LazyAltParser(
+				// hh:mm:ss.sss
+		);*/
+		
+		
 		$dateTime = new Loco\LazyAltParser(array (
-				// Year only
-				new Loco\LazyAltParser(array ($year), function ($year){
-					return array ('year' => $year, 'month' => date ('m'), 'day' => date('d'));
-				})
+				$date 
 		));
 		
 		/*
-		$dateTime = new Loco\LazyAltParser(array (
-				new Loco\ConcParser(array (
-						$date,
-						new Loco\LazyAltParser(array (
-								$space,
-								new Loco\StringParser('T') 
-						)),
-						$time 
-				), function ($d, $s, $t)
-				{
-					return array_merge($d, $t);
-				}),
-				$date,
-				$time 
-		))
-		*/;
+		 * $dateTime = new Loco\LazyAltParser(array (
+		 * new Loco\ConcParser(array (
+		 * $date,
+		 * new Loco\LazyAltParser(array (
+		 * $space,
+		 * new Loco\StringParser('T')
+		 * )),
+		 * $time
+		 * ), function ($d, $s, $t)
+		 * {
+		 * return array_merge($d, $t);
+		 * }),
+		 * $date,
+		 * $time
+		 * ))
+		 */
+		;
 		
 		$timestamp = new Loco\ConcParser(array (
 				new Loco\StringParser('#'),
@@ -926,12 +935,12 @@ class ExpressionParser
 			$value = new \DateTime('now');
 			if (ArrayUtil::keyExists($dt, 'hour'))
 			{
-				$value->setTime ($dt['hour'], $dt['minute'], $dt['second']);
+				$value->setTime($dt['hour'], $dt['minute'], $dt['second']);
 			}
-				
+			
 			if (ArrayUtil::keyExists($dt, 'year'))
 			{
-				$value->setDate ($dt['year'], $dt['month'], $dt['day']);
+				$value->setDate($dt['year'], $dt['month'], $dt['day']);
 			}
 			
 			// TODO timezone
