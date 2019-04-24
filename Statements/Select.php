@@ -243,7 +243,13 @@ class SelectQuery extends StructureQueryDescription
 	private function whereOrHaving($part, $args)
 	{
 		foreach ($args as $arg)
-		{}
+		{
+			if (is_string($arg))
+			{
+				
+			}
+		}
+		
 		return $this;
 	}
 
