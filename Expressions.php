@@ -790,6 +790,15 @@ class ExpressionParser
 				$minutes 
 		));
 		
+		/**
+		 *
+		 * @todo offset in seconds
+		 *       get
+		 *       [ 'timezone' => string ]
+		 *       or [ hour-offset => , minute-offset => ]
+		 *       or [ second-offset ]
+		 *       find timzzone from settings
+		 */
 		$timezone = new Loco\LazyAltParser(array (
 				new Loco\RegexParser(chr(1) . '^[A-Z]+' . chr(1)),
 				new Loco\ConcParser(array (
@@ -892,38 +901,70 @@ class ExpressionParser
 				}) 
 		));
 		
-		$optionalTimeSeparator = new Loco\LazyAltParser(array(
+		$optionalTimeSeparator = new Loco\LazyAltParser(array (
 				new Loco\StringParser(':'),
-				new Loco\EmptyParser()
+				new Loco\EmptyParser() 
 		));
 		
-		/*$time = new Loco\LazyAltParser(
-				// hh:mm:ss.sss
-		);*/
+		$time = new Loco\LazyAltParser(array (
+				// hh:mm:ss[.sss]
+				new Loco\ConcParser(array (
+						$hour,
+						$optionalTimeSeparator,
+						$minutes,
+						$optionalTimeSeparator,
+						$seconds 
+				), function ($h, $a, $m, $b, $s)
+				{
+					return array (
+							'hour' => $h,
+							'minute' => $m,
+							'second' => $s 
+					);
+				}),
+				// hh:mm
+				new Loco\ConcParser(array (
+						$hour,
+						$optionalTimeSeparator,
+						$minutes 
+				), function ($h, $a, $m)
+				{
+					return array (
+							'hour' => $h,
+							'minute' => $m,
+							'second' => date('s') 
+					);
+				}),
+				// hh
+				new Loco\ConcParser(array (
+						$hour 
+				), function ($h)
+				{
+					return array (
+							'hour' => $h,
+							'minute' => date('i'),
+							'second' => date('s') 
+					);
+				}) 
+		));
 		
+		$dateTimeSeparator = new Loco\LazyAltParser(array (
+				new Loco\StringParser('T'),
+				$space 
+		));
 		
 		$dateTime = new Loco\LazyAltParser(array (
-				$date 
+				new Loco\ConcParser(array (
+						$date,
+						$dateTimeSeparator,
+						$time 
+				), function ($d, $s, $t)
+				{
+					return array_merge($d, $t);
+				}),
+				$date,
+				$time
 		));
-		
-		/*
-		 * $dateTime = new Loco\LazyAltParser(array (
-		 * new Loco\ConcParser(array (
-		 * $date,
-		 * new Loco\LazyAltParser(array (
-		 * $space,
-		 * new Loco\StringParser('T')
-		 * )),
-		 * $time
-		 * ), function ($d, $s, $t)
-		 * {
-		 * return array_merge($d, $t);
-		 * }),
-		 * $date,
-		 * $time
-		 * ))
-		 */
-		;
 		
 		$timestamp = new Loco\ConcParser(array (
 				new Loco\StringParser('#'),
