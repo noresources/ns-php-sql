@@ -4,8 +4,6 @@ namespace NoreSources\SQL;
 
 use NoreSources as ns;
 use Ferno\Loco as Loco;
-use Ferno\Loco\Utf8Parser;
-use NoreSources\ArrayUtil;
 
 interface Expression
 {
@@ -216,9 +214,9 @@ class FunctionExpression implements Expression
 		 * @todo Recognize function and get its return type
 		 */
 		
-		if (\NoreSources\ArrayUtil::isArray($arguments))
+		if (ns\ArrayUtil::isArray($arguments))
 		{
-			$this->arguments = new \ArrayObject(\NoreSources\ArrayUtil::createArray($arguments));
+			$this->arguments = new \ArrayObject(ns\ArrayUtil::createArray($arguments));
 		}
 		else
 		{
@@ -789,49 +787,7 @@ class ExpressionParser
 				}),
 				$minutes 
 		));
-		
-		/**
-		 *
-		 * @todo offset in seconds
-		 *       get
-		 *       [ 'timezone' => string ]
-		 *       or [ hour-offset => , minute-offset => ]
-		 *       or [ second-offset ]
-		 *       find timzzone from settings
-		 */
-		$timezone = new Loco\LazyAltParser(array (
-				new Loco\RegexParser(chr(1) . '^[A-Z]+' . chr(1)),
-				new Loco\ConcParser(array (
-						new Loco\RegexParser(chr(1) . '^\+|-' . chr(1)),
-						$minutes,
-						new Loco\StringParser(':'),
-						$minutes 
-				), function ($s, $m, $d, $s)
-				{
-					return array (
-							$s,
-							$m,
-							$s 
-					);
-				}),
-				new Loco\ConcParser(array (
-						new Loco\RegexParser(chr(1) . '^\+|-' . chr(1)),
-						$minutes,
-						$minutes 
-				)),
-				new Loco\ConcParser(array (
-						new Loco\RegexParser(chr(1) . '^\+|-' . chr(1)),
-						$minutes 
-				), function ($s, $m, $d, $s)
-				{
-					return array (
-							$s,
-							$m,
-							0 
-					);
-				}) 
-		));
-		
+				
 		$baseDate = new Loco\ConcParser(array (
 				$year,
 				$month,
@@ -932,7 +888,7 @@ class ExpressionParser
 					return array (
 							'hour' => $h,
 							'minute' => $m,
-							'second' => date('s') 
+							'second' => '00' 
 					);
 				}),
 				// hh
@@ -942,11 +898,43 @@ class ExpressionParser
 				{
 					return array (
 							'hour' => $h,
-							'minute' => date('i'),
-							'second' => date('s') 
+							'minute' => '00',
+							'second' => '00' 
 					);
 				}) 
 		));
+		
+		$timezone = new Loco\LazyAltParser(array (
+				// Z (UTC)
+				new Loco\StringParser('Z', function ()
+				{
+					return array (
+							'timezone' => '+0000'
+					);
+				}),
+				// Hour & minutes
+				new Loco\ConcParser(array (
+						new Loco\RegexParser(chr(1) . '^\+|-' . chr(1)),
+						$hour,
+						$optionalTimeSeparator,
+						$minutes
+				), function ($s, $h, $_1, $m)
+				{
+					return array (
+							'timezone' => $s . $h . $m
+					);
+				}),
+				// hour
+				new Loco\ConcParser(array (
+						new Loco\RegexParser(chr(1) . '^\+|-' . chr(1)),
+						$hour
+				), function ($s, $h)
+				{
+					return array (
+							'timezone' => $s . $h . '00'
+					);
+				})
+				));
 		
 		$dateTimeSeparator = new Loco\LazyAltParser(array (
 				new Loco\StringParser('T'),
@@ -957,13 +945,29 @@ class ExpressionParser
 				new Loco\ConcParser(array (
 						$date,
 						$dateTimeSeparator,
+						$time,
+						$timezone 
+				), function ($d, $s, $t, $z)
+				{
+					return array_merge($d, $t, $z);
+				}),
+				new Loco\ConcParser(array (
+						$date,
+						$dateTimeSeparator,
 						$time 
 				), function ($d, $s, $t)
 				{
 					return array_merge($d, $t);
 				}),
 				$date,
-				$time
+				new Loco\ConcParser(array (
+						$time,
+						$timezone 
+				), function ($t, $z)
+				{
+					return array_merge($t, $z);
+				}),
+				$time 
 		));
 		
 		$timestamp = new Loco\ConcParser(array (
@@ -972,21 +976,29 @@ class ExpressionParser
 				new Loco\StringParser('#') 
 		), function ($a, $dt, $b)
 		{
-			//$tzOffset = date ('P');
-			$value = new \DateTime('now');
-			if (ArrayUtil::keyExists($dt, 'hour'))
+			$timezone = date('O');
+			$date = date('Y-m-d');
+			$time = date('H:i:s');
+			
+			if (ns\ArrayUtil::keyExists($dt, 'hour'))
 			{
-				$value->setTime($dt['hour'], $dt['minute'], $dt['second']);
+				$time = $dt['hour'] . ':' . $dt['minute'] . ':' . $dt['second'];
 			}
 			
-			if (ArrayUtil::keyExists($dt, 'year'))
+			if (ns\ArrayUtil::keyExists($dt, 'year'))
 			{
-				$value->setDate($dt['year'], $dt['month'], $dt['day']);
+				$date = $dt['year'] . '-' . $dt['month'] . '-' . $dt['day'];
 			}
 			
-			// TODO timezone
+			if (ns\ArrayUtil::keyExists($dt, 'timezone'))
+			{
+				$timezone = $dt['timezone'];
+			}
 			
-			return new LiteralExpression($value, K::kDataTypeTimestamp);
+			$dateTimeString = $date . 'T' . $time . $timezone;
+			$dateTime = \DateTime::createFromFormat(\DateTime::ISO8601, $dateTimeString);
+			
+			return new LiteralExpression($dateTime, K::kDataTypeTimestamp);
 		});
 		
 		$number = new Loco\RegexParser(chr(1) . '^(' . $rx[self::PATTERN_NUMBER] . ')' . chr(1), function ($full, $v)

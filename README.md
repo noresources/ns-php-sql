@@ -14,3 +14,10 @@ SQL abstraction layer for SQL engine and SQL language
   * SQLite: A SQLite file
   * Postgres: A Postgres SCHEMA
 * Table: A SQL table
+
+# Expression
+## Timestamp
+
+Timestamp must follow the ISO 8601 format with the following restrictions
+
+* The midnight notation 24:00 is not supported 
