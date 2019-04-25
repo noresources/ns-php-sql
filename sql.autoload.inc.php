@@ -85,10 +85,6 @@ function autoload_NWIyZWE5MjE0YzNlOQ($className)
 	{
 		require_once(__DIR__ . '/BasicExpressions.php');
 	}
- 	elseif ($className == 'NoreSources\SQL\Distinct')
-	{
-		require_once(__DIR__ . '/BasicExpressions.php');
-	}
  	elseif ($className == 'NoreSources\SQL\SQLNot')
 	{
 		require_once(__DIR__ . '/BasicExpressions.php');

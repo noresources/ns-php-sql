@@ -641,15 +641,6 @@ class TableColumn extends ITableColumn implements IAliasedClone, ITableColumnVal
 	}
 
 	/**
-	 * @return \NoreSources\SQL\Distinct
-	 */
-	public function distinctExpression ()
-	{
-		$o = new Distinct($this);
-		return $o;
-	}
-
-	/**
 	 *
 	 * @var Table
 	 */

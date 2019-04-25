@@ -305,24 +305,6 @@ class SQLOr extends ns\BinaryOperatorExpression
 }
 
 /**
- * DISTINCT column specifier
- */
-class Distinct extends ns\UnaryOperatorExpression
-{
-
-	public function __construct($a_column)
-	{
-		parent::__construct('DISTINCT', $a_column);
-		$this->protect = false;
-	}
-
-	public function __toString()
-	{
-		return $this->expressionString();
-	}
-}
-
-/**
  * NOT operator
  */
 class SQLNot extends ns\UnaryOperatorExpression
