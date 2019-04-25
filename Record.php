@@ -37,6 +37,12 @@ const kRecordQueryCreate = 0x08;
 const kRecordQueryForeignKeys = 0x10;
 
 /**
+ * Return the SelectQuery object
+ * @var integer
+ */
+const kRecordQuerySQL = 0x20;
+
+/**
  * Starting point for all query flag extensions
  * 
  * User-defined query flags should have the form
@@ -67,6 +73,8 @@ interface RecordQueryOption
  * @var string
  */
 const kRecordKeyColumn = 'keyColumn';
+
+const kRecordDistinct = 'distinct';
 
 class PresentationSettings extends ns\DataTree implements RecordQueryOption
 {
@@ -190,10 +198,14 @@ class ColumnValueFilter implements RecordQueryOption
 				}
 			// otherwise ...
 			case 'in':
-				return new SQLSmartEquality($column, call_user_func(array (
-						$className,
-						'unserializeColumn' 
-				), $column->getStructure(), $value), $positive);
+				if (!($value instanceof ns\IExpression))
+				{
+					$value = call_user_func(array (
+							$className,
+							'unserializeColumn'
+					), $column->getStructure(), $value);
+				}
+				return new SQLSmartEquality($column, $value, $positive);
 				break;
 			case 'between':
 				if (!\is_array($value))
@@ -394,6 +406,8 @@ class Record implements \ArrayAccess, \IteratorAggregate
 		
 		ns\Reporter::debug(get_called_class(), class_exists('\SqlFormatter') ? \SqlFormatter::format ($s->expressionString(), false) : $s->expressionString());
 		
+		if ($flags & kRecordQuerySQL) return $s;
+		
 		$recordset = $s->execute();
 		
 		if ($recordset instanceof Recordset)
@@ -512,6 +526,8 @@ class Record implements \ArrayAccess, \IteratorAggregate
 							return ns\Reporter::error($className, __METHOD__ . ': Invalid key column', __FILE__, __LINE__);
 						}
 					}
+					
+					$s->distinct = $option->getSetting(kRecordDistinct, false);
 				}
 				elseif ($option instanceof ColumnSelectionFilter)
 				{
@@ -584,6 +600,12 @@ class Record implements \ArrayAccess, \IteratorAggregate
 		}
 		
 		ns\Reporter::debug($className, $s->expressionString());
+		
+		if ($flags & kRecordQuerySQL)
+		{
+			return $s;
+		}
+		
 		$recordset = $s->execute();
 		if (is_object($recordset) && ($recordset instanceof Recordset) && ($recordset->rowCount))
 		{
