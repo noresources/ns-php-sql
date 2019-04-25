@@ -915,6 +915,8 @@ class SelectQueryJoin extends ISelectQueryJoin
  */
 class SelectQuery extends TableQuery implements ns\IExpression
 {
+	
+	public $distinct;
 
 	/**
 	 * Constructor
@@ -925,6 +927,7 @@ class SelectQuery extends TableQuery implements ns\IExpression
 	public function __construct(Table $table)
 	{
 		parent::__construct($table);
+		$this->distinct = false;
 		$this->m_having = new HavingQueryConditionStatement();
 		$this->m_where = new WhereQueryConditionStatement();
 		$this->m_unionQueries = array ();
@@ -1053,6 +1056,7 @@ class SelectQuery extends TableQuery implements ns\IExpression
 	public function expressionString($a_options = null)
 	{
 		$qs = 'SELECT ';
+		if ($this->distinct) $qs .= 'DISTINCT ';
 		
 		// columns
 		$selectColumnAliases = array ();
