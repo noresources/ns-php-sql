@@ -20,4 +20,5 @@ SQL abstraction layer for SQL engine and SQL language
 
 Timestamp must follow the ISO 8601 format with the following restrictions
 
-* The midnight notation 24:00 is not supported 
+* The midnight notation 24:00 is not supported
+* Fractional time is only accepted for seconds   

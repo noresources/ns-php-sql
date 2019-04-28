@@ -519,6 +519,8 @@ class ExpressionParser
 	const PATTERN_SPACE = 'space';
 	const PATTERN_WHITESPACE = 'whitespace';
 	const PATTERN_NUMBER = 'number';
+	
+	const DATETIME_FORMAT = 'Y-m-d\TH:i:s.uO';
 
 	public function __construct($patterns = array())
 	{
@@ -787,7 +789,7 @@ class ExpressionParser
 				}),
 				$minutes 
 		));
-				
+		
 		$baseDate = new Loco\ConcParser(array (
 				$year,
 				$month,
@@ -862,6 +864,18 @@ class ExpressionParser
 				new Loco\EmptyParser() 
 		));
 		
+		// .sss
+		$optionalTimeFraction = new Loco\LazyAltParser(array (
+				new Loco\ConcParser(array (
+						new Loco\LazyAltParser(array (new Loco\StringParser('.'), new Loco\StringParser(','))),
+						new Loco\RegexParser(chr (1) . '^[0-9]+' . chr (1))
+				), function ($s, $f){
+					$length = strlen($f);
+					return intval ($f) * pow (10, -$length);
+				}),
+				new Loco\EmptyParser(function (){ return 0; })
+		));
+				
 		$time = new Loco\LazyAltParser(array (
 				// hh:mm:ss[.sss]
 				new Loco\ConcParser(array (
@@ -869,37 +883,41 @@ class ExpressionParser
 						$optionalTimeSeparator,
 						$minutes,
 						$optionalTimeSeparator,
-						$seconds 
-				), function ($h, $a, $m, $b, $s)
+						$seconds,
+						$optionalTimeFraction
+				), function ($h, $a, $m, $b, $s, $f)
 				{
 					return array (
 							'hour' => $h,
 							'minute' => $m,
-							'second' => $s 
+							'second' => $s,
+							'microsecond' => $f * 1000000
 					);
 				}),
 				// hh:mm
 				new Loco\ConcParser(array (
 						$hour,
 						$optionalTimeSeparator,
-						$minutes 
+						$minutes
 				), function ($h, $a, $m)
 				{
 					return array (
 							'hour' => $h,
 							'minute' => $m,
-							'second' => '00' 
+							'second' => '00',
+							'microsecond' => 0
 					);
 				}),
 				// hh
 				new Loco\ConcParser(array (
-						$hour 
+						$hour
 				), function ($h)
 				{
 					return array (
 							'hour' => $h,
 							'minute' => '00',
-							'second' => '00' 
+							'second' => '00',
+							'microsecond' => 0
 					);
 				}) 
 		));
@@ -978,11 +996,11 @@ class ExpressionParser
 		{
 			$timezone = date('O');
 			$date = date('Y-m-d');
-			$time = date('H:i:s');
+			$time = date('H:i:s.u');
 			
 			if (ns\ArrayUtil::keyExists($dt, 'hour'))
 			{
-				$time = $dt['hour'] . ':' . $dt['minute'] . ':' . $dt['second'];
+				$time = $dt['hour'] . ':' . $dt['minute'] . ':' . $dt['second'] . '.' .  $dt['microsecond'];
 			}
 			
 			if (ns\ArrayUtil::keyExists($dt, 'year'))
@@ -996,7 +1014,7 @@ class ExpressionParser
 			}
 			
 			$dateTimeString = $date . 'T' . $time . $timezone;
-			$dateTime = \DateTime::createFromFormat(\DateTime::ISO8601, $dateTimeString);
+			$dateTime = \DateTime::createFromFormat(self::DATETIME_FORMAT, $dateTimeString);
 			
 			return new LiteralExpression($dateTime, K::kDataTypeTimestamp);
 		});
