@@ -177,7 +177,7 @@ function autoload_NWNiY2E5MTk5Y2ZhMA($className)
 	{
 		require_once(__DIR__ . '/Expressions.php');
 	}
- 	elseif ($className == 'NoreSources\SQL\ExpressionParser')
+ 	elseif ($className == 'NoreSources\SQL\ExpressionBuilder')
 	{
 		require_once(__DIR__ . '/Expressions.php');
 	}

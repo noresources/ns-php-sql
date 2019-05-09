@@ -9,7 +9,6 @@ interface Expression
 {
 
 	/**
-	 *
 	 * @param StatementBuilder $builder
 	 * @param StructureResolver $resolver
 	 * @return string
@@ -17,7 +16,6 @@ interface Expression
 	function buildExpression(StatementBuilder $builder, StructureResolver $resolver);
 
 	/**
-	 *
 	 * @return integer
 	 */
 	function getExpressionDataType();
@@ -29,7 +27,6 @@ class PreformattedExpression implements Expression
 	public $expression;
 
 	/**
-	 *
 	 * @param mixed $value
 	 * @param integer $type
 	 */
@@ -104,7 +101,6 @@ class ColumnExpression implements Expression
 {
 
 	/**
-	 *
 	 * @var string
 	 */
 	public $path;
@@ -117,7 +113,7 @@ class ColumnExpression implements Expression
 	function buildExpression(StatementBuilder $builder, StructureResolver $resolver)
 	{
 		$target = $resolver->findColumn($this->path);
-		
+
 		if ($target instanceof TableColumnStructure)
 		{
 			$parts = explode('.', $this->path);
@@ -126,7 +122,7 @@ class ColumnExpression implements Expression
 				if ($resolver->isAlias($part))
 					return $builder->escapeIdentifierPath($parts);
 			}
-			
+
 			return $builder->getCanonicalName($target);
 		}
 		else
@@ -148,7 +144,6 @@ class TableExpression implements Expression
 {
 
 	/**
-	 *
 	 * @var string
 	 */
 	public $path;
@@ -161,7 +156,7 @@ class TableExpression implements Expression
 	function buildExpression(StatementBuilder $builder, StructureResolver $resolver)
 	{
 		$target = $resolver->findTable($this->path);
-		
+
 		if ($target instanceof TableStructure)
 		{
 			$parts = explode('.', $this->path);
@@ -170,7 +165,7 @@ class TableExpression implements Expression
 				if ($resolver->isAlias($part))
 					return $builder->escapeIdentifierPath($parts);
 			}
-			
+
 			return $builder->getCanonicalName($target);
 		}
 		else
@@ -193,7 +188,6 @@ class FunctionExpression implements Expression
 	public $name;
 
 	/**
-	 *
 	 * @var \ArrayObject
 	 */
 	public $arguments;
@@ -208,12 +202,11 @@ class FunctionExpression implements Expression
 	{
 		$this->name = $name;
 		$this->returnType = K::kDataTypeUndefined;
-		
+
 		/**
-		 *
 		 * @todo Recognize function and get its return type
 		 */
-		
+
 		if (ns\ArrayUtil::isArray($arguments))
 		{
 			$this->arguments = new \ArrayObject(ns\ArrayUtil::createArray($arguments));
@@ -227,7 +220,6 @@ class FunctionExpression implements Expression
 	function buildExpression(StatementBuilder $builder, StructureResolver $resolver)
 	{
 		/**
-		 *
 		 * @todo builder function translator
 		 */
 		$s = $this->name . '(';
@@ -266,7 +258,7 @@ class ListExpression extends \ArrayObject implements Expression
 				$s .= $this->separator;
 			$s .= $expression->buildExpression($builder, $resolver);
 		}
-		
+
 		return $s;
 	}
 
@@ -274,7 +266,7 @@ class ListExpression extends \ArrayObject implements Expression
 	{
 		$set = false;
 		$current = K::kDataTypeUndefined;
-		
+
 		foreach ($this as $expression)
 		{
 			$t = $expression->getExpressionDataType();
@@ -282,11 +274,11 @@ class ListExpression extends \ArrayObject implements Expression
 			{
 				return K::kDataTypeUndefined;
 			}
-			
+
 			$set = true;
 			$current = $t;
 		}
-		
+
 		return $current;
 	}
 }
@@ -295,7 +287,6 @@ class ParenthesisExpression implements Expression
 {
 
 	/**
-	 *
 	 * @var Expression
 	 */
 	public $expression;
@@ -320,13 +311,11 @@ class UnaryOperatorExpression implements Expression
 {
 
 	/**
-	 *
 	 * @var string
 	 */
 	public $operator;
 
 	/**
-	 *
 	 * @var Expression
 	 */
 	public $operand;
@@ -359,13 +348,11 @@ class BinaryOperatorExpression implements Expression
 	public $operator;
 
 	/**
-	 *
 	 * @var Expression
 	 */
 	public $leftOperand;
 
 	/**
-	 *
 	 * @var Expression
 	 */
 	public $rightOperand;
@@ -373,7 +360,6 @@ class BinaryOperatorExpression implements Expression
 	public $type;
 
 	/**
-	 *
 	 * @param string $operator
 	 * @param Expression $left
 	 * @param Expression $right
@@ -398,7 +384,7 @@ class BinaryOperatorExpression implements Expression
 			$t = $this->leftOperand->getExpressionDataType();
 		if ($t == K::kDataTypeUndefined)
 			$t = $this->rightOperand->getExpressionDataType();
-		
+
 		return $t;
 	}
 }
@@ -407,13 +393,11 @@ class CaseOptionExpression
 {
 
 	/**
-	 *
 	 * @var Expression
 	 */
 	public $when;
 
 	/**
-	 *
 	 * @var Expression
 	 */
 	public $then;
@@ -439,19 +423,16 @@ class CaseExpression implements Expression
 {
 
 	/**
-	 *
 	 * @var Expression
 	 */
 	public $subject;
 
 	/**
-	 *
 	 * @var \ArrayObject
 	 */
 	public $options;
 
 	/**
-	 *
 	 * @var Expression
 	 */
 	public $else;
@@ -470,12 +451,12 @@ class CaseExpression implements Expression
 		{
 			$s .= ' ' . $option->buildExpression($builder, $resolver);
 		}
-		
+
 		if ($this->else instanceof Expression)
 		{
 			$s .= ' ELSE ' . $this->else->buildExpression($builder, $resolver);
 		}
-		
+
 		return $s;
 	}
 
@@ -483,7 +464,7 @@ class CaseExpression implements Expression
 	{
 		$set = false;
 		$current = K::kDataTypeUndefined;
-		
+
 		foreach ($this->options as $option)
 		{
 			$t = $option->getExpressionDataType();
@@ -491,11 +472,11 @@ class CaseExpression implements Expression
 			{
 				return K::kDataTypeUndefined;
 			}
-			
+
 			$set = true;
 			$current = $t;
 		}
-		
+
 		if ($this->else instanceof Expression)
 		{
 			$t = $this->else->getExpressionDataType();
@@ -503,15 +484,15 @@ class CaseExpression implements Expression
 			{
 				return K::kDataTypeUndefined;
 			}
-			
+
 			$current = $t;
 		}
-		
+
 		return $current;
 	}
 }
 
-class ExpressionParser
+class ExpressionBuilder
 {
 	const PATTERN_IDENTIFIER = 'identifier';
 	const PATTERN_FUNCTION_NAME = 'function';
@@ -519,32 +500,49 @@ class ExpressionParser
 	const PATTERN_SPACE = 'space';
 	const PATTERN_WHITESPACE = 'whitespace';
 	const PATTERN_NUMBER = 'number';
-	
 	const DATETIME_FORMAT = 'Y-m-d\TH:i:s.uO';
 
 	public function __construct($patterns = array())
 	{
-		$this->parserFlags = 0;
+		$this->builderFlags = 0;
 		$this->patterns = array ();
 	}
 
 	public function __invoke($string)
 	{
-		return $this->parse($string);
+		return $this->evaluate($string);
 	}
 
 	/**
-	 *
-	 * @param string $string
-	 * @return Expression
+	 * @param string|array $expression
 	 */
-	public function parse($string)
+	public function evaluate($expression)
 	{
-		if (!($this->parserFlags & self::GRAMMAR_BUILT))
+		if (is_string($expression))
+			return $this->evaluateString($expression);
+		else if (ns\ArrayUtil::isArray($expression))
+			return $this->evaluatePolishNotation($expression);
+
+		throw new \InvalidArgumentException('Invalid argument type ' . gettype($expression));
+	}
+
+	/**
+	 * @param array $polishTree
+	 */
+	public function evaluatePolishNotation($polishTree)
+	{}
+
+	/**
+	 * @param string $string
+	 * @return mixed
+	 */
+	public function evaluateString($string)
+	{
+		if (!($this->builderFlags & self::GRAMMAR_BUILT))
 		{
 			$this->buildGrammar();
 		}
-		
+
 		return $this->grammar->parse($string);
 	}
 
@@ -556,7 +554,7 @@ class ExpressionParser
 	public function setPattern($key, $pattern)
 	{
 		$this->patterns[$key] = $pattern;
-		$this->parserFlags &= ~self::GRAMMAR_BUILT;
+		$this->builderFlags &= ~self::GRAMMAR_BUILT;
 	}
 
 	private function buildGrammar()
@@ -567,25 +565,25 @@ class ExpressionParser
 				self::PATTERN_PARAMETER_NAME => '[a-zA-Z0-9_]+',
 				self::PATTERN_SPACE => '[ \n\r\t]+',
 				self::PATTERN_WHITESPACE => '[ \n\r\t]*',
-				self::PATTERN_NUMBER => '-?(0|[1-9][0-9]*)(\.[0-9]+)?([eE][-+]?[0-9]+)?' 
+				self::PATTERN_NUMBER => '-?(0|[1-9][0-9]*)(\.[0-9]+)?([eE][-+]?[0-9]+)?'
 		);
-		
+
 		foreach ($this->patterns as $key => $pattern)
 		{
 			$rx[$key] = $pattern;
 		}
-		
+
 		$any = new Loco\Utf8Parser();
 		$whitespace = new Loco\RegexParser(chr(1) . '^(' . $rx[self::PATTERN_WHITESPACE] . ')' . chr(1), function ()
 		{
 			return '';
 		});
-		
+
 		$space = new Loco\RegexParser(chr(1) . '^(' . $rx[self::PATTERN_SPACE] . ')' . chr(1), function ()
 		{
 			return '';
 		});
-		
+
 		$parameterName = new Loco\RegexParser(chr(1) . '^:(' . $rx[self::PATTERN_PARAMETER_NAME] . ')' . chr(1), function ($full, $name)
 		{
 			return new ParameterExpression($name);
@@ -595,67 +593,67 @@ class ExpressionParser
 		{
 			return $name;
 		});
-		
+
 		$subpath = new Loco\ConcParser(array (
 				new Loco\StringParser('.'),
-				'identifier' 
+				'identifier'
 		), function ($dot, $identifier)
 		{
 			return $dot . $identifier;
 		});
-		
+
 		$path = new Loco\LazyAltParser(array (
 				new Loco\ConcParser(array (
 						'identifier',
 						new Loco\GreedyMultiParser($subpath, 1, 3, function ()
 						{
 							return implode('', func_get_args());
-						}) 
+						})
 				), function ($a, $b)
 				{
 					return $a . $b;
 				}),
-				'identifier' 
+				'identifier'
 		), function ($p)
 		{
 			return new ColumnExpression($p);
 		});
-		
+
 		$commaExpression = new Loco\ConcParser(array (
 				new Loco\StringParser(','),
 				'whitespace',
-				'expression' 
+				'expression'
 		), function ($c, $w, $expression)
 		{
 			return $expression;
 		});
-		
+
 		$commaExpressionList = new Loco\GreedyMultiParser('comma-expression', 1, null);
-		
+
 		$expressionList = new Loco\LazyAltParser(array (
 				new Loco\ConcParser(array (
 						'expression',
-						'comma-expression-list' 
+						'comma-expression-list'
 				), function ($first, $others)
 				{
 					$a = array (
-							$first 
+							$first
 					);
 					return array_merge($a, $others);
 				}),
 				'expression',
-				new Loco\EmptyParser() 
+				new Loco\EmptyParser()
 		), function ($a)
 		{
 			if (\is_null($a))
 				return array ();
 			elseif ($a instanceof Expression)
 				return array (
-						$a 
+						$a
 				);
 			return $a;
 		});
-		
+
 		$call = new Loco\ConcParser(array (
 				'function-name',
 				'whitespace',
@@ -663,23 +661,23 @@ class ExpressionParser
 				'whitespace',
 				'expression-list',
 				'whitespace',
-				new Loco\StringParser(')') 
+				new Loco\StringParser(')')
 		), function ($name, $w1, $s1, $w2, $args)
 		{
 			return new FunctionExpression($name, $args);
 		});
-		
+
 		$parenthesis = new Loco\ConcParser(array (
 				new Loco\StringParser('('),
 				'whitespace',
 				'expression',
 				'whitespace',
-				new Loco\StringParser(')') 
+				new Loco\StringParser(')')
 		), function ()
 		{
 			return new ParenthesisExpression(func_get_arg(2));
 		});
-		
+
 		$whenThen = new Loco\ConcParser(array (
 				self::keywordParser('when'),
 				'space',
@@ -687,30 +685,30 @@ class ExpressionParser
 				'space',
 				self::keywordParser('then'),
 				'space',
-				'expression' 
+				'expression'
 		), function ()
 		{
 			return new CaseOptionExpression(func_get_arg(2), func_get_arg(6));
 		});
-		
+
 		$moreWhenThen = new Loco\GreedyMultiParser(new Loco\ConcParser(array (
 				'space',
-				'when-then' 
+				'when-then'
 		), function ()
 		{
 			return func_get_arg(1);
 		}), 0, null);
-		
+
 		$else = new Loco\ConcParser(array (
 				'space',
 				self::keywordParser('else'),
 				'space',
-				'expression' 
+				'expression'
 		), function ()
 		{
 			return func_get_arg(3);
 		});
-		
+
 		$case = new Loco\ConcParser(array (
 				self::keywordParser('case'),
 				'space',
@@ -722,7 +720,7 @@ class ExpressionParser
 				{
 					$n = func_num_args();
 					return ($n > 0) ? func_get_arg(0) : null;
-				}) 
+				})
 		), function ()
 		{
 			$c = new CaseExpression(func_get_arg(2));
@@ -734,86 +732,86 @@ class ExpressionParser
 			$c->else = func_get_arg(6);
 			return $c;
 		});
-		
+
 		$stringContent = new Loco\GreedyStarParser(new Loco\LazyAltParser(array (
 				new Loco\Utf8Parser(array (
-						"'" 
+						"'"
 				)),
 				new Loco\StringParser("''", function ()
 				{
 					return "'";
-				}) 
+				})
 		)), function ()
 		{
 			return implode('', func_get_args());
 		});
-		
+
 		$string = new Loco\ConcParser(array (
 				new Loco\StringParser("'"),
 				$stringContent,
-				new Loco\StringParser("'") 
+				new Loco\StringParser("'")
 		), function ()
 		{
 			return new LiteralExpression(func_get_arg(1), K::kDataTypeString);
 		});
-		
+
 		// Date & Time
-		
+
 		$year = new Loco\RegexParser(chr(1) . '^(\+|-)?[0-9]{1,4}' . chr(1));
 		$month = new Loco\LazyAltParser(array (
 				new Loco\RegexParser(chr(1) . '^1[0-2]' . chr(1)),
-				new Loco\RegexParser(chr(1) . '^0[0-9]' . chr(1)) 
+				new Loco\RegexParser(chr(1) . '^0[0-9]' . chr(1))
 		));
 		$day = new Loco\LazyAltParser(array (
 				new Loco\RegexParser(chr(1) . '^3[0-1]' . chr(1)),
-				new Loco\RegexParser(chr(1) . '^[0-2][0-9]' . chr(1)) 
+				new Loco\RegexParser(chr(1) . '^[0-2][0-9]' . chr(1))
 		));
 		$hour = new Loco\LazyAltParser(array (
 				new Loco\RegexParser(chr(1) . '^2[0-3]' . chr(1)),
-				new Loco\RegexParser(chr(1) . '^[0-1][0-9]' . chr(1)) 
+				new Loco\RegexParser(chr(1) . '^[0-1][0-9]' . chr(1))
 		));
-		
+
 		$minutes = new Loco\RegexParser(chr(1) . '^[0-5][0-9]' . chr(1));
-		
+
 		$seconds = new Loco\LazyAltParser(array (
 				new Loco\ConcParser(array (
 						$minutes,
 						new Loco\StringParser('.'),
-						new Loco\RegexParser(chr(1) . '^[0-1][0-9][0-9]' . chr(1)) 
+						new Loco\RegexParser(chr(1) . '^[0-1][0-9][0-9]' . chr(1))
 				), function ($m, $_d, $s)
 				{
 					return array (
 							$m,
-							$s 
+							$s
 					);
 				}),
-				$minutes 
+				$minutes
 		));
-		
+
 		$baseDate = new Loco\ConcParser(array (
 				$year,
 				$month,
-				$day 
+				$day
 		));
 		$extendedDate = new Loco\ConcParser(array (
 				$year,
 				new Loco\StringParser('-'),
 				$month,
 				new Loco\StringParser('-'),
-				$day 
+				$day
 		), function ($y, $_1, $m, $_2, $d)
 		{
 			return array (
 					$y,
 					$m,
-					$d 
+					$d
 			);
 		});
-		
+
 		$dateSeparator = new Loco\StringParser('-');
 		$optionalDateSeparator = new Loco\LazyAltParser(array (
 				$dateSeparator,
-				new Loco\EmptyParser() 
+				new Loco\EmptyParser()
 		));
 		$date = new Loco\LazyAltParser(array (
 				new Loco\ConcParser(array (
@@ -821,26 +819,26 @@ class ExpressionParser
 						$optionalDateSeparator,
 						$month,
 						$optionalDateSeparator,
-						$day 
+						$day
 				), function ($y, $a, $m, $b, $d)
 				{
 					return array (
 							'year' => $y,
 							'month' => $m,
-							'day' => $d 
+							'day' => $d
 					);
 				}),
 				// YYYY-MM
 				new Loco\ConcParser(array (
 						$year,
 						$dateSeparator,
-						$month 
+						$month
 				), function ($y, $a, $m)
 				{
 					return array (
 							'year' => $y,
 							'month' => $m,
-							'day' => date('d') 
+							'day' => date('d')
 					);
 				}),
 				// --MM-DD
@@ -848,34 +846,41 @@ class ExpressionParser
 						new Loco\StringParser('--'),
 						$month,
 						$optionalDateSeparator,
-						$day 
+						$day
 				), function ($a, $m, $b, $d)
 				{
 					return array (
 							'year' => date('y'),
 							'month' => $m,
-							'day' => $d 
+							'day' => $d
 					);
-				}) 
+				})
 		));
-		
+
 		$optionalTimeSeparator = new Loco\LazyAltParser(array (
 				new Loco\StringParser(':'),
-				new Loco\EmptyParser() 
+				new Loco\EmptyParser()
 		));
-		
+
 		// .sss
 		$optionalTimeFraction = new Loco\LazyAltParser(array (
 				new Loco\ConcParser(array (
-						new Loco\LazyAltParser(array (new Loco\StringParser('.'), new Loco\StringParser(','))),
-						new Loco\RegexParser(chr (1) . '^[0-9]+' . chr (1))
-				), function ($s, $f){
+						new Loco\LazyAltParser(array (
+								new Loco\StringParser('.'),
+								new Loco\StringParser(',')
+						)),
+						new Loco\RegexParser(chr(1) . '^[0-9]+' . chr(1))
+				), function ($s, $f)
+				{
 					$length = strlen($f);
-					return intval ($f) * pow (10, -$length);
+					return intval($f) * pow(10, -$length);
 				}),
-				new Loco\EmptyParser(function (){ return 0; })
+				new Loco\EmptyParser(function ()
+				{
+					return 0;
+				})
 		));
-				
+
 		$time = new Loco\LazyAltParser(array (
 				// hh:mm:ss[.sss]
 				new Loco\ConcParser(array (
@@ -919,9 +924,9 @@ class ExpressionParser
 							'second' => '00',
 							'microsecond' => 0
 					);
-				}) 
+				})
 		));
-		
+
 		$timezone = new Loco\LazyAltParser(array (
 				// Z (UTC)
 				new Loco\StringParser('Z', function ()
@@ -952,19 +957,19 @@ class ExpressionParser
 							'timezone' => $s . $h . '00'
 					);
 				})
-				));
-		
+		));
+
 		$dateTimeSeparator = new Loco\LazyAltParser(array (
 				new Loco\StringParser('T'),
-				$space 
+				$space
 		));
-		
+
 		$dateTime = new Loco\LazyAltParser(array (
 				new Loco\ConcParser(array (
 						$date,
 						$dateTimeSeparator,
 						$time,
-						$timezone 
+						$timezone
 				), function ($d, $s, $t, $z)
 				{
 					return array_merge($d, $t, $z);
@@ -972,7 +977,7 @@ class ExpressionParser
 				new Loco\ConcParser(array (
 						$date,
 						$dateTimeSeparator,
-						$time 
+						$time
 				), function ($d, $s, $t)
 				{
 					return array_merge($d, $t);
@@ -980,45 +985,45 @@ class ExpressionParser
 				$date,
 				new Loco\ConcParser(array (
 						$time,
-						$timezone 
+						$timezone
 				), function ($t, $z)
 				{
 					return array_merge($t, $z);
 				}),
-				$time 
+				$time
 		));
-		
+
 		$timestamp = new Loco\ConcParser(array (
 				new Loco\StringParser('#'),
 				$dateTime,
-				new Loco\StringParser('#') 
+				new Loco\StringParser('#')
 		), function ($a, $dt, $b)
 		{
 			$timezone = date('O');
 			$date = date('Y-m-d');
 			$time = date('H:i:s.u');
-			
+
 			if (ns\ArrayUtil::keyExists($dt, 'hour'))
 			{
-				$time = $dt['hour'] . ':' . $dt['minute'] . ':' . $dt['second'] . '.' .  $dt['microsecond'];
+				$time = $dt['hour'] . ':' . $dt['minute'] . ':' . $dt['second'] . '.' . $dt['microsecond'];
 			}
-			
+
 			if (ns\ArrayUtil::keyExists($dt, 'year'))
 			{
 				$date = $dt['year'] . '-' . $dt['month'] . '-' . $dt['day'];
 			}
-			
+
 			if (ns\ArrayUtil::keyExists($dt, 'timezone'))
 			{
 				$timezone = $dt['timezone'];
 			}
-			
+
 			$dateTimeString = $date . 'T' . $time . $timezone;
 			$dateTime = \DateTime::createFromFormat(self::DATETIME_FORMAT, $dateTimeString);
-			
+
 			return new LiteralExpression($dateTime, K::kDataTypeTimestamp);
 		});
-		
+
 		$number = new Loco\RegexParser(chr(1) . '^(' . $rx[self::PATTERN_NUMBER] . ')' . chr(1), function ($full, $v)
 		{
 			if (strpos($v, '.') >= 0)
@@ -1031,25 +1036,25 @@ class ExpressionParser
 				$v = intval($v);
 				$t = K::kDataTypeInteger;
 			}
-			
+
 			return new LiteralExpression($v, $t);
 		});
-		
+
 		$unaryOperatorLiteral = new Loco\LazyAltParser(array (
 				new Loco\StringParser('-'),
 				new Loco\StringParser('+'),
-				new Loco\StringParser('~') 
+				new Loco\StringParser('~')
 		));
-		
+
 		$unaryOperation = new Loco\ConcParser(array (
 				'unary-operator-literal',
 				'whitespace',
-				'expression' 
+				'expression'
 		), function ($o, $w1, $operand)
 		{
 			return new UnaryOperatorExpression(strtolower($o), $operand);
 		});
-		
+
 		$binaryOperatorLiteral = new Loco\LazyAltParser(array (
 				new Loco\StringParser('||'),
 				new Loco\StringParser('*'),
@@ -1073,44 +1078,43 @@ class ExpressionParser
 				new Loco\StringParser('!=', function ()
 				{
 					return '<>';
-				}) 
+				})
 		));
-		
+
 		$spaceBinaryOperatorLiteral = new Loco\LazyAltParser(array (
 				self::keywordParser('is not'),
 				self::keywordParser('is'),
 				self::keywordParser('and'),
-				self::keywordParser('or') 
+				self::keywordParser('or')
 		));
-		
+
 		/**
-		 *
 		 * @todo Operator with restricted operand types
 		 *       like
 		 *       glob
 		 *       match
 		 *       regexp
 		 */
-		
+
 		$binaryOperation = new Loco\ConcParser(array (
 				'expression',
 				'whitespace',
 				'binary-operator-literal',
 				'whitespace',
-				'expression' 
+				'expression'
 		), function ($left, $w1, $o, $w2, $right)
 		{
 			return new BinaryOperatorExpression($o, $left, $right);
 		});
-		
+
 		$literal = new Loco\LazyAltParser(array (
 				'timestamp',
 				'number',
 				'string',
 				'true',
-				'false' 
+				'false'
 		));
-		
+
 		$this->grammar = new Loco\Grammar('complex-expression', array (
 				'complex-expression' => new Loco\LazyAltParser(array (
 						'binary-operator',
@@ -1118,12 +1122,12 @@ class ExpressionParser
 						'parenthesis',
 						'function',
 						'case',
-						'expression' 
+						'expression'
 				)),
 				'expression' => new Loco\LazyAltParser(array (
 						'parameter',
 						'literal',
-						'structure-path' 
+						'structure-path'
 				)),
 				'function' => $call,
 				'comma-expression' => $commaExpression,
@@ -1154,10 +1158,10 @@ class ExpressionParser
 				'unary-operator-literal' => $unaryOperatorLiteral,
 				'binary-operator-literal' => $binaryOperatorLiteral,
 				'whitespace' => $whitespace,
-				'space' => $space 
+				'space' => $space
 		)); // grammar
-		
-		$this->parserFlags |= self::GRAMMAR_BUILT;
+
+		$this->builderFlags |= self::GRAMMAR_BUILT;
 	}
 
 	private static function keywordParser($keyword, $callable = null)
@@ -1173,5 +1177,5 @@ class ExpressionParser
 
 	private $patterns;
 
-	private $parserFlags;
+	private $builderFlags;
 }
