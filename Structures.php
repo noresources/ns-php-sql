@@ -14,60 +14,16 @@ use NoreSources as ns;
 
 abstract class StructureElement implements \ArrayAccess, \IteratorAggregate, \Countable
 {
-	/**
-	 * The type of Datasource column.
-	 * Value type: integer
-	 */
-	const DATA_TYPE = 'datasourcetype';
-	
-	/**
-	 * The column is part of a primary key.
-	 * Value type: boolean
-	 */
-	const PRIMARY_KEY = 'primary';
-	/**
-	 * The column value is auto-incremented (integer column type only).
-	 * Value type: boolean
-	 */
-	const AUTO_INCREMENT = 'auto';
-	const FOREIGN_KEY = 'foreign';
-	
-	/**
-	 * The column is indexed.
-	 * Value type: boolean
-	 */
-	const INDEXED = 'index';
-	
-	/**
-	 * The column accepts null values.
-	 * Value type: boolean
-	 */
-	const ACCEPT_NULL = 'null';
-	
-	/**
-	 * Data size.
-	 *
-	 * Value type: integer
-	 */
-	const DATA_SIZE = 'size';
-	
-	/**
-	 * Number of decimals (numeric field types).
-	 * Value type: integer
-	 */
-	const DECIMAL_COUNT = 'decimalsize';
-	
-	/**
-	 * List of valid values.
-	 * Value type: array
-	 */
-	const ENUMERATION = 'valid_values';
-	
-	/**
-	 * Default value.
-	 * Value type: mixed
-	 */
-	const DEFAULT_VALUE = 'default_value';
+	const DATA_TYPE = K::PROPERTY_COLUMN_DATA_TYPE;
+	const PRIMARY_KEY = K::PROPERTY_COLUMN_PRIMARYKEY;
+	const AUTO_INCREMENT = K::PROPERTY_COLUMN_AUTOINCREMENT;
+	const FOREIGN_KEY = K::PROPERTY_COLUMN_FOREIGNKEY;
+	const INDEXED = K::PROPERTY_COLUMN_INDEXED;
+	const ACCEPT_NULL = K::PROPERTY_COLUMN_NULL;
+	const DATA_SIZE = K::PROPERTY_COLUMN_DATA_SIZE;
+	const DECIMAL_COUNT = K::PROPERTY_COLUMN_DECIMAL_COUNT;
+	const ENUMERATION = K::PROPERTY_COLUMN_ENUMERATION;
+	const DEFAULT_VALUE = K::PROPERTY_COLUMN_DEFAULT_VALUE;
 	
 	/*
 	 * @var string ns-xml SQL schema namespace
