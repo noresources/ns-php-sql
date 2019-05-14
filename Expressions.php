@@ -4,9 +4,7 @@ namespace NoreSources\SQL;
 
 use NoreSources as ns;
 use Ferno\Loco as Loco;
-use JMS\Serializer\Tests\Fixtures\Timestamp;
-use Twig\Node\Expression\Binary\EndsWithBinary;
-use JMS\Serializer\Exception\ExpressionLanguageRequiredException;
+
 
 interface Expression
 {
@@ -497,10 +495,13 @@ class CaseExpression implements Expression
 
 class PolishNotationOperator
 {
-	const PRE_SPACE = 0x01;
-	const POST_SPACE = 0x02;
-	const SPACE = 0x03;
-	const PARENTHESIS = 0x04;
+	const PRE_WHITESPACE = 0x10;
+	const PRE_SPACE = 0x30; // (0x20 + 0x10);
+	const POST_WHITESPACE = 0x01;
+	const POST_SPACE = 0x03; // (0x02 + 0x01);
+	const WHITESPACE = 0x11;
+	const SPACE = 0x33;
+	const KEYWORD = 0x04;
 
 	public $operator;
 
@@ -518,44 +519,60 @@ class PolishNotationOperator
 	// bm1
 	public function createParser($key)
 	{
-		if (($this->flags & PolishNotationOperator::PRE_SPACE) == PolishNotationOperator::PRE_SPACE)
+		$parsers = array ();
+		if ($this->flags & self::KEYWORD)
+			$parsers[] = ExpressionBuilder::keywordParser($key, $this);
+		else
+			$parsers[] = new Loco\StringParser($key, $this);
+
+		if ($this->flags & self::PRE_SPACE)
 		{
-			if (($this->flags & PolishNotationOperator::POST_SPACE) == PolishNotationOperator::POST_SPACE)
-			{
-				return new Loco\ConcParser(array (
-						'space',
-						new Loco\StringParser($key, $this),
-						'space'
-				));
-			}
-			else
-			{
-				return new Loco\ConcParser(array (
-						'space',
-						new Loco\StringParser($key, $this),
-						'whitespace'
-				));
-			}
-		}
-		elseif (($this->flags & PolishNotationOperator::POST_SPACE) == PolishNotationOperator::POST_SPACE)
-		{
-			return new Loco\ConcParser(array (
-					'whitespace',
-					new Loco\StringParser($key, $this),
-					'space'
-			));
+			array_unshift($parsers, (($this->flags & self::PRE_SPACE) == self::PRE_SPACE) ? 'space' : 'whitespace');
 		}
 
-		return new Loco\ConcParser(array (
-				'whitespace',
-				new Loco\StringParser($key, $this),
-				'whitespace'
-		));
+		if ($this->flags & self::POST_SPACE)
+		{
+			array_push($parsers, (($this->flags & self::POST_SPACE) == self::POST_SPACE) ? 'space' : 'whitespace');
+		}
+
+		return new Loco\ConcParser($parsers, $this);
 	}
 
 	public function __invoke()
 	{
-		return $this->operator;
+		$flags = $this->flags;
+		if ($flags & self::KEYWORD)
+		{
+			if ($flags & self::PRE_SPACE)
+				$flags |= self::PRE_SPACE;
+			if ($flags & self::POST_SPACE)
+				$flags |= self::POST_SPACE;
+		}
+		$s = '';
+		if (($flags & self::PRE_SPACE) == self::PRE_SPACE)
+			$s .= ' ';
+		$s .= $this->operator;
+		if (($flags & self::POST_SPACE) == self::POST_SPACE)
+			$s .= ' ';
+		return $s;
+	}
+}
+
+class BinaryPolishNotationOperator extends PolishNotationOperator
+{
+
+	public function __construct($key, $flags = PolishNotationOperator::WHITESPACE, $className = null)
+	{
+		parent::__construct($key, ($flags | PolishNotationOperator::WHITESPACE), ($className ? $className : BinaryOperatorExpression::class));
+	}
+}
+
+class UnaryPolishNotationOperator extends PolishNotationOperator
+{
+
+	public function __construct($key, $flags = PolishNotationOperator::POST_WHITESPACE, $className = null)
+	{
+		parent::__construct($key, ($flags | PolishNotationOperator::POST_WHITESPACE), ($className ? $className : UnaryOperatorExpression::class));
 	}
 }
 
@@ -629,32 +646,32 @@ class ExpressionBuilder
 		$this->patterns = array ();
 		$this->operators = array ( 
 				1 => array (
-						'not' => new PolishNotationOperator ('NOT', PolishNotationOperator::SPACE, UnaryOperatorExpression::class),
-						'!' => new PolishNotationOperator ('NOT', PolishNotationOperator::SPACE, UnaryOperatorExpression::class),
-						'-' => new PolishNotationOperator ('-', 0, UnaryOperatorExpression::class),
-						'~' => new PolishNotationOperator ('~', 0, UnaryOperatorExpression::class)
+						'not' => new UnaryPolishNotationOperator ('NOT', PolishNotationOperator::KEYWORD | PolishNotationOperator::POST_SPACE),
+						'!' => new UnaryPolishNotationOperator ('NOT', PolishNotationOperator::KEYWORD),
+						'-' => new UnaryPolishNotationOperator ('-'),
+						'~' => new UnaryPolishNotationOperator ('~')
 				),
 				2 => array (
-						'=' => new PolishNotationOperator ('=', 0, BinaryOperatorExpression::class),
-						'==' => new PolishNotationOperator ('=', 0, BinaryOperatorExpression::class),
-						'<>' => new PolishNotationOperator ('<>', 0, BinaryOperatorExpression::class),
-						'!=' => new PolishNotationOperator ('<>', 0, BinaryOperatorExpression::class),
-						'<' => new PolishNotationOperator ('<', 0, BinaryOperatorExpression::class),
-						'<=' => new PolishNotationOperator ('<=', 0, BinaryOperatorExpression::class),
-						'>' => new PolishNotationOperator ('>', 0, BinaryOperatorExpression::class),
-						'>=' => new PolishNotationOperator ('>=', 0, BinaryOperatorExpression::class),
-						'<<' => new PolishNotationOperator ('<<', 0, BinaryOperatorExpression::class),
-						'>>' => new PolishNotationOperator ('>>', 0, BinaryOperatorExpression::class),
-						'&' => new PolishNotationOperator ('&', 0, BinaryOperatorExpression::class),
-						'|' => new PolishNotationOperator ('|', 0, BinaryOperatorExpression::class),
-						'^' => new PolishNotationOperator ('^', 0, BinaryOperatorExpression::class),
-						'-' => new PolishNotationOperator ('-', 0, BinaryOperatorExpression::class),
-						'+' => new PolishNotationOperator ('+', 0, BinaryOperatorExpression::class),
-						'*' => new PolishNotationOperator ('*', 0, BinaryOperatorExpression::class),
-						'/' => new PolishNotationOperator ('/', 0, BinaryOperatorExpression::class),
-						'%' => new PolishNotationOperator ('%', 0, BinaryOperatorExpression::class),
-						'and' => new PolishNotationOperator ('AND', PolishNotationOperator::SPACE, BinaryOperatorExpression::class),
-						'or' => new PolishNotationOperator ('OR', PolishNotationOperator::SPACE, BinaryOperatorExpression::class)
+						'==' => new BinaryPolishNotationOperator ('='),
+						'<>' => new BinaryPolishNotationOperator ('<>'),
+						'!=' => new BinaryPolishNotationOperator ('<>'),
+						'<=' => new BinaryPolishNotationOperator ('<='),
+						'<<' => new BinaryPolishNotationOperator ('<<'),
+						'>>' => new BinaryPolishNotationOperator ('>>'),
+						'>=' => new BinaryPolishNotationOperator ('>='),
+						'=' => new BinaryPolishNotationOperator ('='),
+						'<' => new BinaryPolishNotationOperator ('<'),
+						'>' => new BinaryPolishNotationOperator ('>'),
+						'&' => new BinaryPolishNotationOperator ('&'),
+						'|' => new BinaryPolishNotationOperator ('|'),
+						'^' => new BinaryPolishNotationOperator ('^'),
+						'-' => new BinaryPolishNotationOperator ('-'),
+						'+' => new BinaryPolishNotationOperator ('+'),
+						'*' => new BinaryPolishNotationOperator ('*'),
+						'/' => new BinaryPolishNotationOperator ('/'),
+						'%' => new BinaryPolishNotationOperator ('%'),
+						'and' => new BinaryPolishNotationOperator ('AND', PolishNotationOperator::KEYWORD | PolishNotationOperator::SPACE),
+						'or' => new BinaryPolishNotationOperator ('OR', PolishNotationOperator::KEYWORD | PolishNotationOperator::SPACE)
 					)
 		);
 	}
@@ -1245,17 +1262,19 @@ class ExpressionBuilder
 			return new LiteralExpression($v, $t);
 		});
 
-		$unaryOperatorLiteral = new Loco\LazyAltParser(array (
-				new Loco\StringParser('-'),
-				new Loco\StringParser('+'),
-				new Loco\StringParser('~')
-		));
+		// bm2
+		$unaryOperators = array ();
+		foreach ($this->operators[1] as $key => $po)
+		{
+			$unaryOperators[] = $po->createParser($key);
+		}
+
+		$unaryOperatorLiteral = new Loco\LazyAltParser($unaryOperators);
 
 		$unaryOperation = new Loco\ConcParser(array (
 				'unary-operator-literal',
-				'whitespace',
 				'expression'
-		), function ($o, $w1, $operand)
+		), function ($o, $operand)
 		{
 			return new UnaryOperatorExpression(strtolower($o), $operand);
 		});
@@ -1296,8 +1315,8 @@ class ExpressionBuilder
 
 		$this->grammar = new Loco\Grammar('complex-expression', array (
 				'complex-expression' => new Loco\LazyAltParser(array (
-						'binary-operator',
-						'unary-operator',
+						'binary-operation',
+						'unary-operation',
 						'parenthesis',
 						'function',
 						'case',
@@ -1315,8 +1334,8 @@ class ExpressionBuilder
 				'parameter' => $parameterName,
 				'structure-path' => $path,
 				'parenthesis' => $parenthesis,
-				'unary-operator' => $unaryOperation,
-				'binary-operator' => $binaryOperation,
+				'unary-operation' => $unaryOperation,
+				'binary-operation' => $binaryOperation,
 				'identifier' => $identifier,
 				'function-name' => $functionName,
 				'when-then' => $whenThen,
@@ -1370,7 +1389,7 @@ class ExpressionBuilder
 		$this->operators[$operandCount][$key] = new PolishNotationOperator ($sql, $className);
 	}
 	
-	private static function keywordParser($keyword, $callable = null)
+	public static function keywordParser($keyword, $callable = null)
 	{
 		return new Loco\LazyAltParser(array (
 				new Loco\StringParser(strtolower($keyword)),
