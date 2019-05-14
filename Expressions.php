@@ -5,7 +5,6 @@ namespace NoreSources\SQL;
 use NoreSources as ns;
 use Ferno\Loco as Loco;
 
-
 interface Expression
 {
 
@@ -644,35 +643,35 @@ class ExpressionBuilder
 	{
 		$this->builderFlags = 0;
 		$this->patterns = array ();
-		$this->operators = array ( 
+		$this->operators = array (
 				1 => array (
-						'not' => new UnaryPolishNotationOperator ('NOT', PolishNotationOperator::KEYWORD | PolishNotationOperator::POST_SPACE),
-						'!' => new UnaryPolishNotationOperator ('NOT', PolishNotationOperator::KEYWORD),
-						'-' => new UnaryPolishNotationOperator ('-'),
-						'~' => new UnaryPolishNotationOperator ('~')
+						'not' => new UnaryPolishNotationOperator('NOT', PolishNotationOperator::KEYWORD | PolishNotationOperator::POST_SPACE),
+						'!' => new UnaryPolishNotationOperator('NOT', PolishNotationOperator::KEYWORD),
+						'-' => new UnaryPolishNotationOperator('-'),
+						'~' => new UnaryPolishNotationOperator('~')
 				),
 				2 => array (
-						'==' => new BinaryPolishNotationOperator ('='),
-						'<>' => new BinaryPolishNotationOperator ('<>'),
-						'!=' => new BinaryPolishNotationOperator ('<>'),
-						'<=' => new BinaryPolishNotationOperator ('<='),
-						'<<' => new BinaryPolishNotationOperator ('<<'),
-						'>>' => new BinaryPolishNotationOperator ('>>'),
-						'>=' => new BinaryPolishNotationOperator ('>='),
-						'=' => new BinaryPolishNotationOperator ('='),
-						'<' => new BinaryPolishNotationOperator ('<'),
-						'>' => new BinaryPolishNotationOperator ('>'),
-						'&' => new BinaryPolishNotationOperator ('&'),
-						'|' => new BinaryPolishNotationOperator ('|'),
-						'^' => new BinaryPolishNotationOperator ('^'),
-						'-' => new BinaryPolishNotationOperator ('-'),
-						'+' => new BinaryPolishNotationOperator ('+'),
-						'*' => new BinaryPolishNotationOperator ('*'),
-						'/' => new BinaryPolishNotationOperator ('/'),
-						'%' => new BinaryPolishNotationOperator ('%'),
-						'and' => new BinaryPolishNotationOperator ('AND', PolishNotationOperator::KEYWORD | PolishNotationOperator::SPACE),
-						'or' => new BinaryPolishNotationOperator ('OR', PolishNotationOperator::KEYWORD | PolishNotationOperator::SPACE)
-					)
+						'==' => new BinaryPolishNotationOperator('='),
+						'<>' => new BinaryPolishNotationOperator('<>'),
+						'!=' => new BinaryPolishNotationOperator('<>'),
+						'<=' => new BinaryPolishNotationOperator('<='),
+						'<<' => new BinaryPolishNotationOperator('<<'),
+						'>>' => new BinaryPolishNotationOperator('>>'),
+						'>=' => new BinaryPolishNotationOperator('>='),
+						'=' => new BinaryPolishNotationOperator('='),
+						'<' => new BinaryPolishNotationOperator('<'),
+						'>' => new BinaryPolishNotationOperator('>'),
+						'&' => new BinaryPolishNotationOperator('&'),
+						'|' => new BinaryPolishNotationOperator('|'),
+						'^' => new BinaryPolishNotationOperator('^'),
+						'-' => new BinaryPolishNotationOperator('-'),
+						'+' => new BinaryPolishNotationOperator('+'),
+						'*' => new BinaryPolishNotationOperator('*'),
+						'/' => new BinaryPolishNotationOperator('/'),
+						'%' => new BinaryPolishNotationOperator('%'),
+						'and' => new BinaryPolishNotationOperator('AND', PolishNotationOperator::KEYWORD | PolishNotationOperator::SPACE),
+						'or' => new BinaryPolishNotationOperator('OR', PolishNotationOperator::KEYWORD | PolishNotationOperator::SPACE)
+				)
 		);
 	}
 
