@@ -515,7 +515,6 @@ class PolishNotationOperator
 		$this->className = $c;
 	}
 
-	// bm1
 	public function createParser($key)
 	{
 		$parsers = array ();
@@ -630,6 +629,16 @@ class ExpressionBuilder
 		return new ParameterExpression($name);
 	}
 
+	/**
+	 * Create a preformatted expression
+	 * @param mixed $value
+	 * @return \NoreSources\SQL\PreformattedExpression
+	 */
+	public static function pre($value)
+	{
+		return new PreformattedExpression($value);
+	}
+
 	// Patterns
 	const PATTERN_IDENTIFIER = 'identifier';
 	const PATTERN_FUNCTION_NAME = 'function';
@@ -685,17 +694,45 @@ class ExpressionBuilder
 		return $this->evaluate($expression);
 	}
 
+	// bm3
 	/**
 	 * @param string|array $expression
 	 */
 	public function evaluate($expression)
 	{
-		if (is_string($expression))
+		if (is_numeric($expression))
+		{
+			return new LiteralExpression($expression, is_float($expression) ? K::kDataTypeDecimal : K::kDataTypeInteger);
+		}
+		elseif ($expression instanceof \DateTime)
+		{
+			return new LiteralExpression($expression, K::kDataTypeTimestamp);
+		}
+		elseif (is_string($expression))
+		{
 			return $this->evaluateString($expression);
-		else if (ns\ArrayUtil::isArray($expression))
-			return $this->evaluatePolishNotation($expression);
+		}
+		elseif ($expression instanceof Expression)
+		{
+			return $expression;
+		}
+		elseif (ns\ArrayUtil::isArray($expression))
+		{
+			if (ns\ArrayUtil::isAssociative($expression))
+			{
+				return $this->evaluatePolishNotation($expression);
+			}
+			else
+			{
+				return array_map(array (
+						$this,
+						'evaluate'
+				), $expression);
+			}
+		}
 
-		throw new ExpressionEvaluationException('Invalid argument type ' . gettype($expression));
+		$t = is_object($expression) ? get_class($expression) : gettype($expression);
+		throw new ExpressionEvaluationException('Invalid argument type/class ' . $t);
 	}
 
 	/**
@@ -718,9 +755,8 @@ class ExpressionBuilder
 
 		$cls = new \ReflectionClass($o->className);
 		return $cls->newInstanceArgs(array_merge(array (
-				$o->operator,
-				$operands
-		)));
+				$o->operator
+		), $operands));
 	}
 
 	/**
@@ -729,27 +765,33 @@ class ExpressionBuilder
 	private function evaluatePolishNotation($polishTree)
 	{
 		$result = null;
-		foreach ($polishTree as $operator => $operands)
+		foreach ($polishTree as $key => $operands)
 		{
-			$expression = $this->evaluatePolishNotationElement($operator, $operands);
+			$operands = array_map(array (
+					$this,
+					'evaluate'
+			), $operands);
 
-			$operator = strtoupper($operator);
+			$expression = $this->evaluatePolishNotationElement($key, $operands);
 
 			if (!($expression instanceof Expression))
 			{
-				throw new ExpressionEvaluationException('Unable to create expression');
+				throw new ExpressionEvaluationException('Unable to create expression (got ' . var_export($expression, true) . ')');
 			}
 
 			if ($result instanceof Expression)
 			{
 				$result = new BinaryOperatorExpression('AND', $result, $expression);
 			}
+			else
+				$result = $expression;
 		}
 
 		if (!($result instanceof Expression))
 		{
 			throw new ExpressionEvaluationException('Unable to create expression');
 		}
+
 		return $result;
 	}
 
@@ -1261,7 +1303,6 @@ class ExpressionBuilder
 			return new LiteralExpression($v, $t);
 		});
 
-		// bm2
 		$unaryOperators = array ();
 		foreach ($this->operators[1] as $key => $po)
 		{
@@ -1278,7 +1319,6 @@ class ExpressionBuilder
 			return new UnaryOperatorExpression(strtolower($o), $operand);
 		});
 
-		// bm1
 		$binaryOperators = array ();
 		foreach ($this->operators[2] as $key => $po)
 		{
