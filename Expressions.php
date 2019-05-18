@@ -737,21 +737,27 @@ class ExpressionBuilder
 
 	/**
 	 * Evaluate a polish notation form expression
-	 * @param string $operator Lower case operator name
+	 * @param string $key Lower case operator or function name
 	 * @param array $operands
 	 */
-	protected function evaluatePolishNotationElement($operator, $operands)
+	protected function evaluatePolishNotationElement($key, $operands)
 	{
+		$length = strlen($key);
+		if (strpos($key, '()') == ($length - 2))
+		{
+			return new FunctionExpression(substr($key, 0, $length - 2), $operands);
+		}
+
 		$c = count($operands);
 		$o = false;
 		if (\array_key_exists($c, $this->operators))
-			$o = ns\ArrayUtil::keyValue($this->operators[$c], $operator, false);
+			$o = ns\ArrayUtil::keyValue($this->operators[$c], $key, false);
 
 		if (!($o instanceof PolishNotationOperator))
-			$o = ns\ArrayUtil::keyValue($this->operators['*'], $operator, false);
+			$o = ns\ArrayUtil::keyValue($this->operators['*'], $key, false);
 
 		if (!($o instanceof PolishNotationOperator))
-			throw new ExpressionEvaluationException('Unable to evalate Polish notation ' . $operator . ' => ');
+			throw new ExpressionEvaluationException('Unable to evalate Polish notation ' . $key . ' => ');
 
 		$cls = new \ReflectionClass($o->className);
 		return $cls->newInstanceArgs(array_merge(array (
@@ -767,6 +773,7 @@ class ExpressionBuilder
 		$result = null;
 		foreach ($polishTree as $key => $operands)
 		{
+			$key = strtolower($key);
 			$operands = array_map(array (
 					$this,
 					'evaluate'
