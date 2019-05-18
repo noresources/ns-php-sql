@@ -74,30 +74,6 @@ class StructureQueryResolver extends StructureResolver
 	private $aliases;
 }
 
-/**
- * Describe a Structure-related statement
- *
- */
-abstract class StructureQueryDescription implements Expression
-{
-
-	/**
-	 *
-	 * @param StatementBuilder $builder
-	 * @param StructureElement $referenceStructure
-	 * @return string
-	 */
-	function buildStatement(StatementBuilder $builder, StructureElement $referenceStructure)
-	{
-		$resolver = new StructureQueryResolver($referenceStructure);
-		return $this->buildExpression($builder, $resolver);
-	}
-
-	public function getExpressionDataType()
-	{
-		return K::kDataTypeUndefined;
-	}
-}
 
 /**
  * SQL Table reference in a SQL query

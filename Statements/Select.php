@@ -73,7 +73,7 @@ class OrderBy
 /**
  * SELECT query statement
  */
-class SelectQuery extends StructureQueryDescription
+class SelectQuery implements  Expression
 {
 
 	/**
@@ -99,6 +99,11 @@ class SelectQuery extends StructureQueryDescription
 		);
 	}
 
+	public function getExpressionDataType()
+	{
+		return K::kDataTypeUndefined;
+	}
+	
 	/**
 	 *
 	 * @return \NoreSources\SQL\SelectQuery
@@ -343,7 +348,7 @@ class SelectQuery extends StructureQueryDescription
 			}
 			elseif ($join->subject instanceof Expression)
 			{
-				$joins .= ' ' . $join->subject->buildStatement($builder, $resolver);
+				$joins .= ' ' . $join->subject->buildExpression($builder, $resolver);
 			}
 			
 			if ($join->constraints instanceof Expression)
