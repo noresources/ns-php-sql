@@ -16,7 +16,7 @@ abstract class StatementBuilder
 	public function __construct($flags = 0)
 	{
 		$this->builderFlags = $flags;
-		$this->parser = null;
+		$this->evaluator = null;
 	}
 
 	public function getBuilderFlags()
@@ -74,11 +74,11 @@ abstract class StatementBuilder
 	 * @param string $expression
 	 * @return \NoreSources\SQL\Expression|\NoreSources\SQL\PreformattedExpression
 	 */
-	public function parseExpression($expression)
+	public function evaluateExpression($expression)
 	{
-		if ($this->parser instanceof ExpressionBuilder)
+		if ($this->evaluator instanceof ExpressionEvaluator)
 		{
-			return $this->parser->parse($expression);
+			return $this->evaluator->evaluate($expression);
 		}
 		
 		return new PreformattedExpression($expression);
@@ -170,12 +170,12 @@ abstract class StatementBuilder
 
 	/**
 	 *
-	 * @param ExpressionBuilder $parser
+	 * @param ExpressionEvaluator $evaluator
 	 * @return \NoreSources\SQL\StatementBuilder
 	 */
-	protected function setExpressionBuilder(ExpressionBuilder $parser)
+	protected function setExpressionEvaluator(ExpressionEvaluator $evaluator)
 	{
-		$this->parser = $parser;
+		$this->evaluator = $evaluator;
 		return $this;
 	}
 
@@ -187,10 +187,10 @@ abstract class StatementBuilder
 
 	/**
 	 *
-	 * Expression parser
-	 * @var ExpressionBuilder
+	 * Expression evaluator
+	 * @var ExpressionEvaluator
 	 */
-	private $parser;
+	private $evaluator;
 }
 
 /**
@@ -203,7 +203,7 @@ class GenericStatementBuilder extends StatementBuilder
 	public function __construct()
 	{
 		$this->parameters = new \ArrayObject();
-		$this->setExpressionBuilder(new ExpressionBuilder());
+		$this->setExpressionEvaluator(new ExpressionEvaluator());
 	}
 
 	public function escapeString($value)

@@ -397,7 +397,7 @@ class SelectQuery extends StructureQueryDescription
 				if ($index > 0)
 					$s .= ', ';
 				
-				$expression = $builder->parseExpression($column->expression);
+				$expression = $builder->evaluateExpression($column->expression);
 				$s .= $expression->buildExpression($builder, $resolver);
 				
 				if ($column->alias)
@@ -448,7 +448,7 @@ class SelectQuery extends StructureQueryDescription
 			$o = array ();
 			foreach ($this->parts[self::PART_ORDERBY] as $clause) /// @var OrderBy $clause
 			{
-				$expression = $builder->parseExpression($clause->expression);
+				$expression = $builder->evaluateExpression($clause->expression);
 				
 				$o[] = $expression->buildExpression($builder, $resolver) . ' ' . ($clause->direction == K::ORDERING_ASC ? 'ASC' : 'DESC');
 			}
@@ -476,7 +476,7 @@ class SelectQuery extends StructureQueryDescription
 		{
 			if ($column->alias)
 			{
-				$resolver->setAlias($column->alias, $builder->parseExpression($column->expression));
+				$resolver->setAlias($column->alias, $builder->evaluateExpression($column->expression));
 			}
 		}
 	}

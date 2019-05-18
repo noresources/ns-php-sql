@@ -519,7 +519,7 @@ class PolishNotationOperator
 	{
 		$parsers = array ();
 		if ($this->flags & self::KEYWORD)
-			$parsers[] = ExpressionBuilder::keywordParser($key, $this);
+			$parsers[] = ExpressionEvaluator::keywordParser($key, $this);
 		else
 			$parsers[] = new Loco\StringParser($key, $this);
 
@@ -583,7 +583,7 @@ class ExpressionEvaluationException extends \ErrorException
 	}
 }
 
-class ExpressionBuilder
+class ExpressionEvaluator
 {
 
 	/**
