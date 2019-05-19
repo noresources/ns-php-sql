@@ -214,26 +214,47 @@ class ExpressionEvaluator
 	 */
 	public function evaluate($expression)
 	{
-		if (is_numeric($expression))
+		if (\is_object($expression))
+		{
+			if ($expression instanceof Expression)
+			{
+				return $expression;
+			}
+			elseif ($expression instanceof \DateTime)
+			{
+				return new LiteralExpression($expression, K::kDataTypeTimestamp);
+			}
+		}
+		elseif (\is_null($expression))
+		{
+			return new LiteralExpression($expression, K::kDataTypeNull);
+		}
+		elseif (\is_bool($expression))
+		{
+			return new LiteralExpression($expression, K::kDataTypeBoolean);
+		}
+		elseif (\is_numeric($expression))
 		{
 			return new LiteralExpression($expression, is_float($expression) ? K::kDataTypeDecimal : K::kDataTypeInteger);
-		}
-		elseif ($expression instanceof \DateTime)
-		{
-			return new LiteralExpression($expression, K::kDataTypeTimestamp);
 		}
 		elseif (is_string($expression))
 		{
 			return $this->evaluateString($expression);
 		}
-		elseif ($expression instanceof Expression)
-		{
-			return $expression;
-		}
 		elseif (ns\ArrayUtil::isArray($expression))
 		{
 			if (ns\ArrayUtil::isAssociative($expression))
 			{
+				if (\count($expression) == 1)
+				{
+					reset($expression);
+					list ( $a, $b ) = each($expression);
+					if (!\is_array($b))
+					{
+						return new BinaryOperatorExpression('=', $this->evaluate($a), $this->evaluate($b));
+					}
+				}
+
 				return $this->evaluatePolishNotation($expression);
 			}
 			else
@@ -256,7 +277,7 @@ class ExpressionEvaluator
 				new Loco\StringParser(strtoupper($keyword))
 		), $callable);
 	}
-	
+
 	/**
 	 * Evaluate a polish notation form expression
 	 * @param string $key Lower case operator or function name
@@ -945,12 +966,10 @@ class ExpressionEvaluator
 			switch ($operandCount)
 			{
 				case 1:
-					$className = UnaryOperatorExpression::
-					;
+					$className = UnaryOperatorExpression::class;
 					break;
 				case 2:
-					$className = BinaryOperatorExpression::
-					;
+					$className = BinaryOperatorExpression::class;
 					break;
 			}
 		}

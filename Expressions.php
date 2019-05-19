@@ -482,7 +482,7 @@ class CaseExpression implements Expression
 		$this->else = null;
 	}
 
-	function buildExpression(StatementBuilder $builder, StructureResolver $resolver)
+	public function buildExpression(StatementBuilder $builder, StructureResolver $resolver)
 	{
 		$s = 'CASE ' . $this->subject;
 		foreach ($this->options as $option)
@@ -498,7 +498,7 @@ class CaseExpression implements Expression
 		return $s;
 	}
 
-	function getExpressionDataType()
+	public function getExpressionDataType()
 	{
 		$set = false;
 		$current = K::kDataTypeUndefined;
