@@ -28,7 +28,7 @@ class ResultColumnReference
 /**
  * SELECT query JOIN clause
  */
-class JoinClause
+class JoinClause implements Expression
 {
 
 	/**
@@ -43,6 +43,34 @@ class JoinClause
 	public $subject;
 
 	public $constraints;
+	
+	public function buildExpression (StatementBuilder $builder, StructureResolver $resolver)
+	{
+		$s = $builder->getJoinOperator($this->operator);
+		if ($this->subject instanceof TableReference)
+		{
+			$ts = $resolver->findTable($this->subject->path);
+			$s .= ' ' . $builder->getCanonicalName($ts);
+			if ($this->subject->alias)
+			{
+				$s .= ' AS ' . $builder->escapeIdentifier($this->subject->alias);
+			}
+		}
+		elseif ($this->subject instanceof Expression)
+		{
+			$s .= ' ' . $this->subject->buildExpression($builder, $resolver);
+		}
+		
+		if ($this->constraints instanceof Expression)
+			$s .= ' ' . $this->constraints->buildExpression($builder, $resolver);
+		
+		return $s;
+	}
+
+	public function getExpressionDataType()
+	{
+		return K::kDataTypeUndefined;
+	}
 }
 
 /**
@@ -301,23 +329,7 @@ class SelectQuery extends Statement
 		$joins = '';
 		foreach ($this->parts[self::PART_JOINS] as $join)
 		{
-			$joins .= ' ' . $builder->getJoinOperator($join->operator);
-			if ($join->subject instanceof TableReference)
-			{
-				$ts = $resolver->findTable($join->subject->path);
-				$joins .= ' ' . $builder->getCanonicalName($ts);
-				if ($join->subject->alias)
-				{
-					$joins .= ' AS ' . $builder->escapeIdentifier($join->subject->alias);
-				}
-			}
-			elseif ($join->subject instanceof Expression)
-			{
-				$joins .= ' ' . $join->subject->buildExpression($builder, $resolver);
-			}
-
-			if ($join->constraints instanceof Expression)
-				$joins .= ' ' . $join->constraints->buildExpression($builder, $resolver);
+			$joins .= ' ' . $join->buildExpression($builder, $resolver);
 		}
 
 		if ($builder->getBuilderFlags() & K::BUILDER_EXTENDED_RESULTCOLUMN_ALIAS_RESOLUTION)
