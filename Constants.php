@@ -2,7 +2,7 @@
 
 namespace NoreSources\SQL;
 
-class K
+class Constants
 {
 	const kDataTypeUndefined = 0x0;
 	const kDataTypeNull = 0x01;

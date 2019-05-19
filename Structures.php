@@ -12,6 +12,8 @@ namespace NoreSources\SQL;
 
 use NoreSources as ns;
 
+use NoreSources\SQL\Constants as K;
+
 abstract class StructureElement implements \ArrayAccess, \IteratorAggregate, \Countable
 {
 	const DATA_TYPE = K::PROPERTY_COLUMN_DATA_TYPE;

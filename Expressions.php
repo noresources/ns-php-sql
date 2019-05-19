@@ -4,6 +4,7 @@ namespace NoreSources\SQL;
 
 use NoreSources as ns;
 use Ferno\Loco as Loco;
+use NoreSources\SQL\Constants as K;
 
 interface Expression
 {

@@ -5,6 +5,7 @@ namespace NoreSources\SQL;
 use NoreSources as ns;
 use NoreSources\ArrayUtil;
 use NoreSources\Creole\PreformattedBlock;
+use NoreSources\SQL\Constants as K;
 
 /**
  * Build a SQL statement string to be used in a SQL engine 
