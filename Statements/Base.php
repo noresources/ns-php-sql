@@ -10,13 +10,11 @@ use NoreSources\Creole\PreformattedBlock;
 
 /**
  * Resolve both StructureElement reference and result column aliases
- *
  */
 class StructureQueryResolver extends StructureResolver
 {
 
 	/**
-	 *
 	 * @param StructureElement $pivot
 	 */
 	public function __construct(StructureElement $pivot = null)
@@ -105,3 +103,11 @@ class TableReference extends TableExpression
 	}
 }
 
+
+abstract class Statement implements Expression
+{
+	public function getExpressionDataType()
+	{
+		return K::kDataTypeUndefined;
+	}
+}

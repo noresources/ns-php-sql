@@ -32,7 +32,6 @@ class JoinClause
 {
 
 	/**
-	 *
 	 * @var integer
 	 */
 	public $operator;
@@ -47,37 +46,12 @@ class JoinClause
 }
 
 /**
- * ORDER BY clase
- */
-class OrderBy
-{
-
-	/**
-	 *
-	 * @var string
-	 */
-	public $expression;
-
-	public $direction;
-
-	public $collation;
-
-	public function __construct($expression, $direction = K::ORDERING_ASC, $collation = null)
-	{
-		$this->expression = $expression;
-		$this->direction = $direction;
-		$this->collation = $collation;
-	}
-}
-
-/**
  * SELECT query statement
  */
-class SelectQuery implements  Expression
+class SelectQuery extends Statement
 {
 
 	/**
-	 *
 	 * @param string $table Table structure path
 	 * @param string|null $alias
 	 */
@@ -94,18 +68,12 @@ class SelectQuery implements  Expression
 				self::PART_ORDERBY => new \ArrayObject(),
 				self::PART_LIMIT => array (
 						'count' => 0,
-						'offset' => 0 
-				) 
+						'offset' => 0
+				)
 		);
 	}
 
-	public function getExpressionDataType()
-	{
-		return K::kDataTypeUndefined;
-	}
-	
 	/**
-	 *
 	 * @return \NoreSources\SQL\SelectQuery
 	 */
 	public function columns(/*...*/ )
@@ -137,16 +105,15 @@ class SelectQuery implements  Expression
 				{
 					$expression = $arg;
 				}
-				
+
 				$this->parts[self::PART_COLUMNS]->append(new ResultColumnReference($expression, $alias));
 			}
 		}
-		
+
 		return $this;
 	}
 
 	/**
-	 *
 	 * @param integer|JoinClause $operatorOrJoin
 	 * @param string|TableReference|SelectQuery $subject
 	 * @param mixed $constraints
@@ -162,7 +129,7 @@ class SelectQuery implements  Expression
 		{
 			$j = new JoinClause();
 			$j->operator = $operatorOrJoin;
-			
+
 			if (is_string($subject))
 			{
 				$j->subject = new TableReference($subject);
@@ -171,7 +138,7 @@ class SelectQuery implements  Expression
 			{
 				$name = null;
 				$alias = null;
-				
+
 				if (ns\ArrayUtil::count($subject) == 1)
 				{
 					list ( $name, $alias ) = each($subject);
@@ -181,10 +148,10 @@ class SelectQuery implements  Expression
 					$name = ns\ArrayUtil::keyValue(0, $subject, null);
 					$alias = ns\ArrayUtil::keyValue(1, $subject, null);
 				}
-				
+
 				$j->subject = new TableReference($name, $alias);
 			}
-			
+
 			if ($constraints instanceof Expression)
 			{
 				$j->constraints = new UnaryOperatorExpression('ON ', $constraints);
@@ -195,15 +162,15 @@ class SelectQuery implements  Expression
 				{
 					throw new \BadMethodCallException();
 				}
-				
+
 				$left = $this->parts[self::PART_TABLE];
 				$right = $j->subject;
-				
+
 				$left = $left->alias ? $left->alias : $left->path;
 				$right = $right->alias ? $right->alias : $right->path;
-				
+
 				$expression = null;
-				
+
 				if (\is_string($constraints)) // left.name = right.name
 				{
 					$expression = new BinaryOperatorExpression('=', new ColumnExpression($left . '.' . $constraints), new ColumnExpression($right . '.' . $constraints));
@@ -214,9 +181,9 @@ class SelectQuery implements  Expression
 					{
 						if (is_integer($leftColumn))
 							$leftColumn = $righColumn;
-						
+
 						$e = new BinaryOperatorExpression('=', new ColumnExpression($left . '.' . $leftColumn), new ColumnExpression($right . '.' . $righColumn));
-						
+
 						if ($expression instanceof Expression)
 						{
 							$expression = new BinaryOperatorExpression(' AND ', $expression, $e);
@@ -225,13 +192,13 @@ class SelectQuery implements  Expression
 							$expression = $e;
 					}
 				}
-				
+
 				$j->constraints = new UnaryOperatorExpression('ON ', $expression);
 			}
-			
+
 			$this->parts[self::PART_JOINS]->append($j);
 		}
-		
+
 		return $this;
 	}
 
@@ -250,16 +217,13 @@ class SelectQuery implements  Expression
 		foreach ($args as $arg)
 		{
 			if (is_string($arg))
-			{
-				
-			}
+			{}
 		}
-		
+
 		return $this;
 	}
 
 	/**
-	 *
 	 * @param string (variadic) List of result columns
 	 * @return \NoreSources\SQL\SelectQuery
 	 */
@@ -269,12 +233,11 @@ class SelectQuery implements  Expression
 		{
 			$this->parts[self::PART_GROUPBY]->append(new ColumnExpression(func_get_arg($i)));
 		}
-		
+
 		return $this;
 	}
 
 	/**
-	 *
 	 * @param string $reference Result column reference
 	 * @param integer $direction
 	 * @param mixed $collation
@@ -282,12 +245,15 @@ class SelectQuery implements  Expression
 	 */
 	public function orderBy($reference, $direction = K::ORDERING_ASC, $collation = null)
 	{
-		$this->parts[self::PART_ORDERBY]->offsetSet($reference, new OrderBy($reference, $direction, $collation));
+		$this->parts[self::PART_ORDERBY]->offsetSet($reference, array (
+				'expression' => $reference,
+				'direction' => $direction,
+				'collation' => $collation
+		));
 		return $this;
 	}
 
 	/**
-	 *
 	 * @param integer $count
 	 * @param integer $offset
 	 * @return \NoreSources\SQL\SelectQuery
@@ -302,18 +268,17 @@ class SelectQuery implements  Expression
 	public function buildExpression(StatementBuilder $builder, StructureResolver $resolver)
 	{
 		$tableStructure = $resolver->findTable($this->parts[self::PART_TABLE]->path);
-		
+
 		# Resolve and build table-related parts
-		
+
 		if ($this->parts[self::PART_TABLE]->alias)
 		{
 			$resolver->setAlias($this->parts[self::PART_TABLE]->alias, $tableStructure);
 		}
-		
+
 		foreach ($this->parts[self::PART_JOINS] as $join)
 		{
 			/**
-			 *
 			 * @var JoinClause $join
 			 */
 			if ($join->subject instanceof TableReference)
@@ -325,14 +290,14 @@ class SelectQuery implements  Expression
 				}
 			}
 		}
-		
+
 		$table = $builder->getCanonicalName($tableStructure);
 		$tableAlias = $this->parts[self::PART_TABLE]->alias;
 		if ($tableAlias)
 		{
 			$table .= ' AS ' . $builder->escapeIdentifier($tableAlias);
 		}
-		
+
 		$joins = '';
 		foreach ($this->parts[self::PART_JOINS] as $join)
 		{
@@ -350,25 +315,25 @@ class SelectQuery implements  Expression
 			{
 				$joins .= ' ' . $join->subject->buildExpression($builder, $resolver);
 			}
-			
+
 			if ($join->constraints instanceof Expression)
 				$joins .= ' ' . $join->constraints->buildExpression($builder, $resolver);
 		}
-		
+
 		if ($builder->getBuilderFlags() & K::BUILDER_EXTENDED_RESULTCOLUMN_ALIAS_RESOLUTION)
 		{
 			$this->resolveResultColumns($builder, $resolver);
 		}
-		
+
 		$where = '';
 		$having = '';
-		
+
 		# Resolve and build column related parts 
 		if (!($builder->getBuilderFlags() & K::BUILDER_EXTENDED_RESULTCOLUMN_ALIAS_RESOLUTION))
 		{
 			$this->resolveResultColumns($builder, $resolver);
 		}
-		
+
 		$groupBy = '';
 		if ($this->parts[self::PART_GROUPBY]->count())
 		{
@@ -377,22 +342,21 @@ class SelectQuery implements  Expression
 			foreach ($this->parts[self::PART_GROUPBY] as $column)
 			{
 				/**
-				 *
 				 * @var ColumnExpression $column
 				 */
-				
+
 				$a[] = $column->buildExpression($builder, $resolver);
 			}
-			
+
 			$groupBy .= implode(', ', $a);
 		}
-		
+
 		$s = 'SELECT';
 		if ($this->parts[self::PART_DISTINCT])
 		{
 			$s .= ' DISTINCT';
 		}
-		
+
 		if ($this->parts[self::PART_COLUMNS]->count())
 		{
 			$s .= ' ';
@@ -401,41 +365,40 @@ class SelectQuery implements  Expression
 			{
 				if ($index > 0)
 					$s .= ', ';
-				
+
 				$expression = $builder->evaluateExpression($column->expression);
 				$s .= $expression->buildExpression($builder, $resolver);
-				
+
 				if ($column->alias)
 				{
 					$s .= ' AS ' . $builder->escapeIdentifier($column->alias);
 				}
-				
+
 				$index++;
 			}
 		}
 		else
 		{
 			/**
-			 *
 			 * @todo
 			 */
 			$s .= ' *';
 		}
-		
+
 		$s .= ' FROM ' . $table;
-		
+
 		// JOIN
 		if (strlen($joins))
 		{
 			$s .= ' ' . $joins;
 		}
-		
+
 		// WHERE
 		if (strlen($where))
 		{
 			$s .= ' WHERE ' . $where;
 		}
-		
+
 		// GROUP BY
 		if (strlen($groupBy))
 		{
@@ -451,11 +414,11 @@ class SelectQuery implements  Expression
 		{
 			$s .= ' ORDER BY ';
 			$o = array ();
-			foreach ($this->parts[self::PART_ORDERBY] as $clause) /// @var OrderBy $clause
+			foreach ($this->parts[self::PART_ORDERBY] as $clause)
 			{
-				$expression = $builder->evaluateExpression($clause->expression);
+				$expression = $builder->evaluateExpression($clause['expression']);
 				
-				$o[] = $expression->buildExpression($builder, $resolver) . ' ' . ($clause->direction == K::ORDERING_ASC ? 'ASC' : 'DESC');
+				$o[] = $expression->buildExpression($builder, $resolver) . ' ' . ($clause['direction'] == K::ORDERING_ASC ? 'ASC' : 'DESC');
 			}
 			
 			$s .= implode(', ', $o);
