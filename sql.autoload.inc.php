@@ -1,15 +1,11 @@
 <?php
-function autoload_NWNiY2E5MTk5Y2ZhMA($className)
+function autoload_NWNlMTNjOTBjODYzYg($className)
 {
 	if ($className == 'NoreSources\SQL\ResultColumnReference')
 	{
 		require_once(__DIR__ . '/Statements/Select.php');
 	}
  	elseif ($className == 'NoreSources\SQL\JoinClause')
-	{
-		require_once(__DIR__ . '/Statements/Select.php');
-	}
- 	elseif ($className == 'NoreSources\SQL\OrderBy')
 	{
 		require_once(__DIR__ . '/Statements/Select.php');
 	}
@@ -21,15 +17,15 @@ function autoload_NWNiY2E5MTk5Y2ZhMA($className)
 	{
 		require_once(__DIR__ . '/Statements/Base.php');
 	}
- 	elseif ($className == 'NoreSources\SQL\StructureQueryDescription')
-	{
-		require_once(__DIR__ . '/Statements/Base.php');
-	}
  	elseif ($className == 'NoreSources\SQL\TableReference')
 	{
 		require_once(__DIR__ . '/Statements/Base.php');
 	}
- 	elseif ($className == 'NoreSources\SQL\K')
+ 	elseif ($className == 'NoreSources\SQL\Statement')
+	{
+		require_once(__DIR__ . '/Statements/Base.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\Constants')
 	{
 		require_once(__DIR__ . '/Constants.php');
 	}
@@ -125,6 +121,38 @@ function autoload_NWNiY2E5MTk5Y2ZhMA($className)
 	{
 		require_once(__DIR__ . '/pdo/PDO.php');
 	}
+ 	elseif ($className == 'NoreSources\SQL\RecordQueryOption')
+	{
+		require_once(__DIR__ . '/Record.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\PresentationSettings')
+	{
+		require_once(__DIR__ . '/Record.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\ColumnSelectionFilter')
+	{
+		require_once(__DIR__ . '/Record.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\ColumnValueFilter')
+	{
+		require_once(__DIR__ . '/Record.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\LimitFilter')
+	{
+		require_once(__DIR__ . '/Record.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\OrderingOption')
+	{
+		require_once(__DIR__ . '/Record.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\GroupingOption')
+	{
+		require_once(__DIR__ . '/Record.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\Record')
+	{
+		require_once(__DIR__ . '/Record.php');
+	}
  	elseif ($className == 'NoreSources\SQL\Expression')
 	{
 		require_once(__DIR__ . '/Expressions.php');
@@ -177,9 +205,25 @@ function autoload_NWNiY2E5MTk5Y2ZhMA($className)
 	{
 		require_once(__DIR__ . '/Expressions.php');
 	}
+ 	elseif ($className == 'NoreSources\SQL\PolishNotationOperator')
+	{
+		require_once(__DIR__ . '/Expressions.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\BinaryPolishNotationOperator')
+	{
+		require_once(__DIR__ . '/Expressions.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\UnaryPolishNotationOperator')
+	{
+		require_once(__DIR__ . '/Expressions.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\ExpressionEvaluationException')
+	{
+		require_once(__DIR__ . '/Expressions.php');
+	}
  	elseif ($className == 'NoreSources\SQL\ExpressionEvaluator')
 	{
 		require_once(__DIR__ . '/Expressions.php');
 	}
  }
-spl_autoload_register('autoload_NWNiY2E5MTk5Y2ZhMA');
+spl_autoload_register('autoload_NWNlMTNjOTBjODYzYg');
