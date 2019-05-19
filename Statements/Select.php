@@ -8,6 +8,7 @@ use NoreSources as ns;
 use NoreSources\ArrayUtil;
 use NoreSources\Creole\PreformattedBlock;
 use NoreSources\SQL\Constants as K;
+use Twig\Node\Expression\Binary\EndsWithBinary;
 
 /**
  * SELECT query result column
@@ -44,8 +45,15 @@ class JoinClause implements Expression
 	public $subject;
 
 	public $constraints;
-	
-	public function buildExpression (StatementBuilder $builder, StructureResolver $resolver)
+
+	public function __construct($operator = null, $subject = null, $constraints = null)
+	{
+		$this->operator = $operator;
+		$this->subject = $subject;
+		$this->constraints = $constraints;
+	}
+
+	public function buildExpression(StatementBuilder $builder, StructureResolver $resolver)
 	{
 		$s = $builder->getJoinOperator($this->operator);
 		if ($this->subject instanceof TableReference)
@@ -61,10 +69,16 @@ class JoinClause implements Expression
 		{
 			$s .= ' ' . $this->subject->buildExpression($builder, $resolver);
 		}
-		
-		if ($this->constraints instanceof Expression)
-			$s .= ' ' . $this->constraints->buildExpression($builder, $resolver);
-		
+
+		if ($this->constraints !== null)
+		{
+			$e = $this->constraints;
+			if (!($e instanceof EndsWithBinary))
+				$e = $builder->evaluateExpression($e);
+
+			$s .= ' ON ' . $e->buildExpression($builder, $resolver);
+		}
+
 		return $s;
 	}
 
@@ -181,49 +195,7 @@ class SelectQuery extends Statement
 				$j->subject = new TableReference($name, $alias);
 			}
 
-			if ($constraints instanceof Expression)
-			{
-				$j->constraints = new UnaryOperatorExpression('ON ', $constraints);
-			}
-			else
-			{
-				if (!($j->subject instanceof TableReference))
-				{
-					throw new \BadMethodCallException();
-				}
-
-				$left = $this->parts[self::PART_TABLE];
-				$right = $j->subject;
-
-				$left = $left->alias ? $left->alias : $left->path;
-				$right = $right->alias ? $right->alias : $right->path;
-
-				$expression = null;
-
-				if (\is_string($constraints)) // left.name = right.name
-				{
-					$expression = new BinaryOperatorExpression('=', new ColumnExpression($left . '.' . $constraints), new ColumnExpression($right . '.' . $constraints));
-				}
-				elseif (ns\ArrayUtil::isArray($constraints))
-				{
-					foreach ($constraints as $leftColumn => $righColumn)
-					{
-						if (is_integer($leftColumn))
-							$leftColumn = $righColumn;
-
-						$e = new BinaryOperatorExpression('=', new ColumnExpression($left . '.' . $leftColumn), new ColumnExpression($right . '.' . $righColumn));
-
-						if ($expression instanceof Expression)
-						{
-							$expression = new BinaryOperatorExpression(' AND ', $expression, $e);
-						}
-						else
-							$expression = $e;
-					}
-				}
-
-				$j->constraints = new UnaryOperatorExpression('ON ', $expression);
-			}
+			$j->constraints = $constraints;
 
 			$this->parts[self::PART_JOINS]->append($j);
 		}
@@ -421,7 +393,7 @@ class SelectQuery extends Statement
 				$s .= ' ' . $having;
 			}
 		}
-		
+
 		// ORDER BY
 		if ($this->parts[self::PART_ORDERBY]->count())
 		{
@@ -430,7 +402,7 @@ class SelectQuery extends Statement
 			foreach ($this->parts[self::PART_ORDERBY] as $clause)
 			{
 				$expression = $builder->evaluateExpression($clause['expression']);
-				
+
 				$o[] = $expression->buildExpression($builder, $resolver) . ' ' . ($clause['direction'] == K::ORDERING_ASC ? 'ASC' : 'DESC');
 			}
 			
