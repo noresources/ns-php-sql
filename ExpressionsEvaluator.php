@@ -6,88 +6,6 @@ use NoreSources as ns;
 use Ferno\Loco as Loco;
 use NoreSources\SQL\Constants as K;
 
-class PolishNotationOperator
-{
-	const PRE_WHITESPACE = 0x10;
-	const PRE_SPACE = 0x30; // (0x20 + 0x10);
-	const POST_WHITESPACE = 0x01;
-	const POST_SPACE = 0x03; // (0x02 + 0x01);
-	const WHITESPACE = 0x11;
-	const SPACE = 0x33;
-	const KEYWORD = 0x04;
-
-	public $operator;
-
-	public $className;
-
-	public $flags;
-
-	public function __construct($o, $f, $c)
-	{
-		$this->operator = $o;
-		$this->flags = $f;
-		$this->className = $c;
-	}
-
-	public function createParser($key)
-	{
-		$parsers = array ();
-		if ($this->flags & self::KEYWORD)
-			$parsers[] = ExpressionEvaluator::keywordParser($key, $this);
-		else
-			$parsers[] = new Loco\StringParser($key, $this);
-
-		if ($this->flags & self::PRE_SPACE)
-		{
-			array_unshift($parsers, (($this->flags & self::PRE_SPACE) == self::PRE_SPACE) ? 'space' : 'whitespace');
-		}
-
-		if ($this->flags & self::POST_SPACE)
-		{
-			array_push($parsers, (($this->flags & self::POST_SPACE) == self::POST_SPACE) ? 'space' : 'whitespace');
-		}
-
-		return new Loco\ConcParser($parsers, $this);
-	}
-
-	public function __invoke()
-	{
-		$flags = $this->flags;
-		if ($flags & self::KEYWORD)
-		{
-			if ($flags & self::PRE_SPACE)
-				$flags |= self::PRE_SPACE;
-			if ($flags & self::POST_SPACE)
-				$flags |= self::POST_SPACE;
-		}
-		$s = '';
-		if (($flags & self::PRE_SPACE) == self::PRE_SPACE)
-			$s .= ' ';
-		$s .= $this->operator;
-		if (($flags & self::POST_SPACE) == self::POST_SPACE)
-			$s .= ' ';
-		return $s;
-	}
-}
-
-class BinaryPolishNotationOperator extends PolishNotationOperator
-{
-
-	public function __construct($key, $flags = PolishNotationOperator::WHITESPACE, $className = null)
-	{
-		parent::__construct($key, ($flags | PolishNotationOperator::WHITESPACE), ($className ? $className : BinaryOperatorExpression::class));
-	}
-}
-
-class UnaryPolishNotationOperator extends PolishNotationOperator
-{
-
-	public function __construct($key, $flags = PolishNotationOperator::POST_WHITESPACE, $className = null)
-	{
-		parent::__construct($key, ($flags | PolishNotationOperator::POST_WHITESPACE), ($className ? $className : UnaryOperatorExpression::class));
-	}
-}
-
 class ExpressionEvaluationException extends \ErrorException
 {
 
@@ -168,32 +86,32 @@ class ExpressionEvaluator
 		$this->patterns = array ();
 		$this->operators = array (
 				1 => array (
-						'not' => new UnaryPolishNotationOperator('NOT', PolishNotationOperator::KEYWORD | PolishNotationOperator::POST_SPACE),
-						'!' => new UnaryPolishNotationOperator('NOT', PolishNotationOperator::KEYWORD),
-						'-' => new UnaryPolishNotationOperator('-'),
-						'~' => new UnaryPolishNotationOperator('~')
+						'not' => new UnaryPolishNotationOperation('NOT', PolishNotationOperation::KEYWORD | PolishNotationOperation::POST_SPACE),
+						'!' => new UnaryPolishNotationOperation('NOT', PolishNotationOperation::KEYWORD),
+						'-' => new UnaryPolishNotationOperation('-'),
+						'~' => new UnaryPolishNotationOperation('~')
 				),
 				2 => array (
-						'==' => new BinaryPolishNotationOperator('='),
-						'<>' => new BinaryPolishNotationOperator('<>'),
-						'!=' => new BinaryPolishNotationOperator('<>'),
-						'<=' => new BinaryPolishNotationOperator('<='),
-						'<<' => new BinaryPolishNotationOperator('<<'),
-						'>>' => new BinaryPolishNotationOperator('>>'),
-						'>=' => new BinaryPolishNotationOperator('>='),
-						'=' => new BinaryPolishNotationOperator('='),
-						'<' => new BinaryPolishNotationOperator('<'),
-						'>' => new BinaryPolishNotationOperator('>'),
-						'&' => new BinaryPolishNotationOperator('&'),
-						'|' => new BinaryPolishNotationOperator('|'),
-						'^' => new BinaryPolishNotationOperator('^'),
-						'-' => new BinaryPolishNotationOperator('-'),
-						'+' => new BinaryPolishNotationOperator('+'),
-						'*' => new BinaryPolishNotationOperator('*'),
-						'/' => new BinaryPolishNotationOperator('/'),
-						'%' => new BinaryPolishNotationOperator('%'),
-						'and' => new BinaryPolishNotationOperator('AND', PolishNotationOperator::KEYWORD | PolishNotationOperator::SPACE),
-						'or' => new BinaryPolishNotationOperator('OR', PolishNotationOperator::KEYWORD | PolishNotationOperator::SPACE)
+						'==' => new BinaryPolishNotationOperation('='),
+						'<>' => new BinaryPolishNotationOperation('<>'),
+						'!=' => new BinaryPolishNotationOperation('<>'),
+						'<=' => new BinaryPolishNotationOperation('<='),
+						'<<' => new BinaryPolishNotationOperation('<<'),
+						'>>' => new BinaryPolishNotationOperation('>>'),
+						'>=' => new BinaryPolishNotationOperation('>='),
+						'=' => new BinaryPolishNotationOperation('='),
+						'<' => new BinaryPolishNotationOperation('<'),
+						'>' => new BinaryPolishNotationOperation('>'),
+						'&' => new BinaryPolishNotationOperation('&'),
+						'|' => new BinaryPolishNotationOperation('|'),
+						'^' => new BinaryPolishNotationOperation('^'),
+						'-' => new BinaryPolishNotationOperation('-'),
+						'+' => new BinaryPolishNotationOperation('+'),
+						'*' => new BinaryPolishNotationOperation('*'),
+						'/' => new BinaryPolishNotationOperation('/'),
+						'%' => new BinaryPolishNotationOperation('%'),
+						'and' => new BinaryPolishNotationOperation('AND', PolishNotationOperation::KEYWORD | PolishNotationOperation::SPACE),
+						'or' => new BinaryPolishNotationOperation('OR', PolishNotationOperation::KEYWORD | PolishNotationOperation::SPACE)
 				)
 		);
 	}
@@ -296,10 +214,10 @@ class ExpressionEvaluator
 		if (\array_key_exists($c, $this->operators))
 			$o = ns\ArrayUtil::keyValue($this->operators[$c], $key, false);
 
-		if (!($o instanceof PolishNotationOperator))
+		if (!($o instanceof PolishNotationOperation))
 			$o = ns\ArrayUtil::keyValue($this->operators['*'], $key, false);
 
-		if (!($o instanceof PolishNotationOperator))
+		if (!($o instanceof PolishNotationOperation))
 			throw new ExpressionEvaluationException('Unable to evalate Polish notation ' . $key . ' => ');
 
 		$cls = new \ReflectionClass($o->className);
@@ -980,7 +898,7 @@ class ExpressionEvaluator
 		if (!ns\ArrayUtil::keyExists($this->operators, $operandCount))
 			$this->operators[$operandCount] = array ();
 
-		$this->operators[$operandCount][$key] = new PolishNotationOperator($sql, $className);
+		$this->operators[$operandCount][$key] = new PolishNotationOperation($sql, $className);
 	}
 	
 	const GRAMMAR_BUILT = 0x01;
@@ -992,4 +910,99 @@ class ExpressionEvaluator
 	private $builderFlags;
 
 	private $operators;
+}
+
+class PolishNotationOperation
+{
+	const PRE_WHITESPACE = 0x10;
+	const PRE_SPACE = 0x30; // (0x20 + 0x10);
+	const POST_WHITESPACE = 0x01;
+	const POST_SPACE = 0x03; // (0x02 + 0x01);
+	const WHITESPACE = 0x11;
+	const SPACE = 0x33;
+	const KEYWORD = 0x04;
+	
+	public $operator;
+	
+	public $className;
+	
+	public $flags;
+	
+	public function __construct($key, $flags, $className)
+	{
+		$builder = debug_backtrace();
+		$context = null;
+		if (count($builder) >= 2 && isset($builder[1]['class']))
+		{
+			$context = $builder[1]['class'];
+		}
+		
+		if (!($context && ($context == ExpressionEvaluator::class || is_subclass_of($context, self::class, true))))
+		{
+			$context = ($context ? $context : 'global');
+			throw new \Exception(self::class . ' is a private class of ' . ExpressionEvaluator::class . ' (not allowed in ' . $context . ' context)');
+		}
+		
+		$this->operator = $key;
+		$this->flags = $flags;
+		$this->className = $className;
+	}
+	
+	public function createParser($key)
+	{
+		$parsers = array ();
+		if ($this->flags & self::KEYWORD)
+			$parsers[] = ExpressionEvaluator::keywordParser($key, $this);
+			else
+				$parsers[] = new Loco\StringParser($key, $this);
+				
+				if ($this->flags & self::PRE_SPACE)
+				{
+					array_unshift($parsers, (($this->flags & self::PRE_SPACE) == self::PRE_SPACE) ? 'space' : 'whitespace');
+				}
+				
+				if ($this->flags & self::POST_SPACE)
+				{
+					array_push($parsers, (($this->flags & self::POST_SPACE) == self::POST_SPACE) ? 'space' : 'whitespace');
+				}
+				
+				return new Loco\ConcParser($parsers, $this);
+	}
+	
+	public function __invoke()
+	{
+		$flags = $this->flags;
+		if ($flags & self::KEYWORD)
+		{
+			if ($flags & self::PRE_SPACE)
+				$flags |= self::PRE_SPACE;
+				if ($flags & self::POST_SPACE)
+					$flags |= self::POST_SPACE;
+		}
+		$s = '';
+		if (($flags & self::PRE_SPACE) == self::PRE_SPACE)
+			$s .= ' ';
+			$s .= $this->operator;
+			if (($flags & self::POST_SPACE) == self::POST_SPACE)
+				$s .= ' ';
+				return $s;
+	}
+}
+
+class BinaryPolishNotationOperation extends PolishNotationOperation
+{
+	
+	public function __construct($key, $flags = PolishNotationOperation::WHITESPACE, $className = null)
+	{
+		parent::__construct($key, ($flags | PolishNotationOperation::WHITESPACE), ($className ? $className : BinaryOperatorExpression::class));
+	}
+}
+
+class UnaryPolishNotationOperation extends PolishNotationOperation
+{
+	
+	public function __construct($key, $flags = PolishNotationOperation::POST_WHITESPACE, $className = null)
+	{
+		parent::__construct($key, ($flags | PolishNotationOperation::POST_WHITESPACE), ($className ? $className : UnaryOperatorExpression::class));
+	}
 }
