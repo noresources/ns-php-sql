@@ -8,7 +8,6 @@ use NoreSources as ns;
 use NoreSources\ArrayUtil;
 use NoreSources\Creole\PreformattedBlock;
 use NoreSources\SQL\Constants as K;
-use Twig\Node\Expression\Binary\EndsWithBinary;
 
 /**
  * SELECT query result column
@@ -217,8 +216,7 @@ class SelectQuery extends Statement
 	{
 		foreach ($args as $arg)
 		{
-			if (is_string($arg))
-			{}
+			$this->parts[$part][] = $arg;
 		}
 
 		return $this;
@@ -310,13 +308,23 @@ class SelectQuery extends Statement
 			$this->resolveResultColumns($context);
 		}
 
-		$where = '';
-		$having = '';
-
 		# Resolve and build column related parts 
 		if (!($context->getBuilderFlags() & K::BUILDER_EXTENDED_RESULTCOLUMN_ALIAS_RESOLUTION))
 		{
 			$this->resolveResultColumns($context);
+		}
+
+		$where = '';
+
+		if (ns\ArrayUtil::count($this->parts[self::PART_WHERE]))
+		{
+			$where = $this->buildConstraints($this->parts[self::PART_WHERE], $context);
+		}
+
+		$having = '';
+		if (ns\ArrayUtil::count($this->parts[self::PART_HAVING]))
+		{
+			$having = $this->buildConstraints($this->parts[self::PART_HAVING], $context);
 		}
 
 		$groupBy = '';
@@ -423,6 +431,21 @@ class SelectQuery extends Statement
 		return $s;
 	}
 
+	protected function buildConstraints ($constraints, StatementContext $context)
+	{
+		$c = null;
+		foreach ($constraints as $constraint) 
+		{
+			$e = $context->evaluateExpression ($constraint);
+			if ($c instanceof Expression) 
+				$c = new BinaryOperatorExpression(' AND ', $c, $e);
+			else
+				$c = $e;
+		}
+		
+		return $c->buildExpression($context);
+	}
+	
 	protected function resolveResultColumns(StatementContext $context)
 	{
 		foreach ($this->parts[self::PART_COLUMNS] as $column)
