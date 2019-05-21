@@ -53,30 +53,30 @@ class JoinClause implements Expression
 		$this->constraints = $constraints;
 	}
 
-	public function buildExpression(StatementBuilder $builder, StructureResolver $resolver)
+	public function buildExpression(StatementContext $context)
 	{
-		$s = $builder->getJoinOperator($this->operator);
+		$s = $context->getJoinOperator($this->operator);
 		if ($this->subject instanceof TableReference)
 		{
-			$ts = $resolver->findTable($this->subject->path);
-			$s .= ' ' . $builder->getCanonicalName($ts);
+			$ts = $context->findTable($this->subject->path);
+			$s .= ' ' . $context->getCanonicalName($ts);
 			if ($this->subject->alias)
 			{
-				$s .= ' AS ' . $builder->escapeIdentifier($this->subject->alias);
+				$s .= ' AS ' . $context->escapeIdentifier($this->subject->alias);
 			}
 		}
 		elseif ($this->subject instanceof Expression)
 		{
-			$s .= ' ' . $this->subject->buildExpression($builder, $resolver);
+			$s .= ' ' . $this->subject->buildExpression($context);
 		}
 
 		if ($this->constraints !== null)
 		{
 			$e = $this->constraints;
 			if (!($e instanceof EndsWithBinary))
-				$e = $builder->evaluateExpression($e);
+				$e = $context->evaluateExpression($e);
 
-			$s .= ' ON ' . $e->buildExpression($builder, $resolver);
+			$s .= ' ON ' . $e->buildExpression($context);
 		}
 
 		return $s;
@@ -266,15 +266,15 @@ class SelectQuery extends Statement
 		return $this;
 	}
 
-	public function buildExpression(StatementBuilder $builder, StructureResolver $resolver)
+	public function buildExpression(StatementContext $context)
 	{
-		$tableStructure = $resolver->findTable($this->parts[self::PART_TABLE]->path);
+		$tableStructure = $context->findTable($this->parts[self::PART_TABLE]->path);
 
 		# Resolve and build table-related parts
 
 		if ($this->parts[self::PART_TABLE]->alias)
 		{
-			$resolver->setAlias($this->parts[self::PART_TABLE]->alias, $tableStructure);
+			$context->setAlias($this->parts[self::PART_TABLE]->alias, $tableStructure);
 		}
 
 		foreach ($this->parts[self::PART_JOINS] as $join)
@@ -284,39 +284,39 @@ class SelectQuery extends Statement
 			 */
 			if ($join->subject instanceof TableReference)
 			{
-				$structure = $resolver->findTable($join->subject->path);
+				$structure = $context->findTable($join->subject->path);
 				if ($join->subject->alias)
 				{
-					$resolver->setAlias($join->subject->alias, $structure);
+					$context->setAlias($join->subject->alias, $structure);
 				}
 			}
 		}
 
-		$table = $builder->getCanonicalName($tableStructure);
+		$table = $context->getCanonicalName($tableStructure);
 		$tableAlias = $this->parts[self::PART_TABLE]->alias;
 		if ($tableAlias)
 		{
-			$table .= ' AS ' . $builder->escapeIdentifier($tableAlias);
+			$table .= ' AS ' . $context->escapeIdentifier($tableAlias);
 		}
 
 		$joins = '';
 		foreach ($this->parts[self::PART_JOINS] as $join)
 		{
-			$joins .= ' ' . $join->buildExpression($builder, $resolver);
+			$joins .= ' ' . $join->buildExpression($context);
 		}
 
-		if ($builder->getBuilderFlags() & K::BUILDER_EXTENDED_RESULTCOLUMN_ALIAS_RESOLUTION)
+		if ($context->getBuilderFlags() & K::BUILDER_EXTENDED_RESULTCOLUMN_ALIAS_RESOLUTION)
 		{
-			$this->resolveResultColumns($builder, $resolver);
+			$this->resolveResultColumns($context);
 		}
 
 		$where = '';
 		$having = '';
 
 		# Resolve and build column related parts 
-		if (!($builder->getBuilderFlags() & K::BUILDER_EXTENDED_RESULTCOLUMN_ALIAS_RESOLUTION))
+		if (!($context->getBuilderFlags() & K::BUILDER_EXTENDED_RESULTCOLUMN_ALIAS_RESOLUTION))
 		{
-			$this->resolveResultColumns($builder, $resolver);
+			$this->resolveResultColumns($context);
 		}
 
 		$groupBy = '';
@@ -330,7 +330,7 @@ class SelectQuery extends Statement
 				 * @var ColumnExpression $column
 				 */
 
-				$a[] = $column->buildExpression($builder, $resolver);
+				$a[] = $column->buildExpression($context);
 			}
 
 			$groupBy .= implode(', ', $a);
@@ -351,12 +351,12 @@ class SelectQuery extends Statement
 				if ($index > 0)
 					$s .= ', ';
 
-				$expression = $builder->evaluateExpression($column->expression);
-				$s .= $expression->buildExpression($builder, $resolver);
+				$expression = $context->evaluateExpression($column->expression);
+				$s .= $expression->buildExpression($context);
 
 				if ($column->alias)
 				{
-					$s .= ' AS ' . $builder->escapeIdentifier($column->alias);
+					$s .= ' AS ' . $context->escapeIdentifier($column->alias);
 				}
 
 				$index++;
@@ -401,9 +401,9 @@ class SelectQuery extends Statement
 			$o = array ();
 			foreach ($this->parts[self::PART_ORDERBY] as $clause)
 			{
-				$expression = $builder->evaluateExpression($clause['expression']);
+				$expression = $context->evaluateExpression($clause['expression']);
 
-				$o[] = $expression->buildExpression($builder, $resolver) . ' ' . ($clause['direction'] == K::ORDERING_ASC ? 'ASC' : 'DESC');
+				$o[] = $expression->buildExpression($context) . ' ' . ($clause['direction'] == K::ORDERING_ASC ? 'ASC' : 'DESC');
 			}
 			
 			$s .= implode(', ', $o);
@@ -423,13 +423,13 @@ class SelectQuery extends Statement
 		return $s;
 	}
 
-	protected function resolveResultColumns(StatementBuilder $builder, StructureResolver $resolver)
+	protected function resolveResultColumns(StatementContext $context)
 	{
 		foreach ($this->parts[self::PART_COLUMNS] as $column)
 		{
 			if ($column->alias)
 			{
-				$resolver->setAlias($column->alias, $builder->evaluateExpression($column->expression));
+				$context->setAlias($column->alias, $context->evaluateExpression($column->expression));
 			}
 		}
 	}

@@ -91,6 +91,8 @@ class Constants
 	const BUILDER_EXTENDED_RESULTCOLUMN_ALIAS_RESOLUTION = 0x01;
 	const CONSTRAINT_MODIFIER_AND = 1;
 	const CONSTRAINT_MODIFIER_OR = 2;
+	
+	const STATEMENT_PARAMETER_SUBSTITUTION = 0x01;
 }
 const kDataTypeNull = 0x01;
 const kDataTypeString = 0x02;

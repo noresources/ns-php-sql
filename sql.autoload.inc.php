@@ -1,5 +1,5 @@
 <?php
-function autoload_NWNlMmVhODc1ZGM1Mw($className)
+function autoload_NWNlNDU2NmFjZDVhMQ($className)
 {
 	if ($className == 'NoreSources\SQL\ResultColumnReference')
 	{
@@ -153,18 +153,6 @@ function autoload_NWNlMmVhODc1ZGM1Mw($className)
 	{
 		require_once(__DIR__ . '/Record.php');
 	}
- 	elseif ($className == 'NoreSources\SQL\PolishNotationOperator')
-	{
-		require_once(__DIR__ . '/ExpressionsEvaluator.php');
-	}
- 	elseif ($className == 'NoreSources\SQL\BinaryPolishNotationOperator')
-	{
-		require_once(__DIR__ . '/ExpressionsEvaluator.php');
-	}
- 	elseif ($className == 'NoreSources\SQL\UnaryPolishNotationOperator')
-	{
-		require_once(__DIR__ . '/ExpressionsEvaluator.php');
-	}
  	elseif ($className == 'NoreSources\SQL\ExpressionEvaluationException')
 	{
 		require_once(__DIR__ . '/ExpressionsEvaluator.php');
@@ -172,6 +160,22 @@ function autoload_NWNlMmVhODc1ZGM1Mw($className)
  	elseif ($className == 'NoreSources\SQL\ExpressionEvaluator')
 	{
 		require_once(__DIR__ . '/ExpressionsEvaluator.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\PolishNotationOperation')
+	{
+		require_once(__DIR__ . '/ExpressionsEvaluator.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\BinaryPolishNotationOperation')
+	{
+		require_once(__DIR__ . '/ExpressionsEvaluator.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\UnaryPolishNotationOperation')
+	{
+		require_once(__DIR__ . '/ExpressionsEvaluator.php');
+	}
+ 	elseif ($className == 'NoreSources\SQL\StatementContext')
+	{
+		require_once(__DIR__ . '/StatementContext.php');
 	}
  	elseif ($className == 'NoreSources\SQL\Expression')
 	{
@@ -226,4 +230,4 @@ function autoload_NWNlMmVhODc1ZGM1Mw($className)
 		require_once(__DIR__ . '/Expressions.php');
 	}
  }
-spl_autoload_register('autoload_NWNlMmVhODc1ZGM1Mw');
+spl_autoload_register('autoload_NWNlNDU2NmFjZDVhMQ');

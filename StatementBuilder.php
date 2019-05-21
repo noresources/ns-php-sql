@@ -8,8 +8,7 @@ use NoreSources\Creole\PreformattedBlock;
 use NoreSources\SQL\Constants as K;
 
 /**
- * Build a SQL statement string to be used in a SQL engine 
- *
+ * Build a SQL statement string to be used in a SQL engine
  */
 abstract class StatementBuilder
 {
@@ -29,10 +28,13 @@ abstract class StatementBuilder
 
 	abstract function escapeIdentifier($identifier);
 
+	abstract function isValidParameterName($name);
+
+	abstract function normalizeParameterName($name, StatementContext $context);
+
 	abstract function getParameter($name);
 
 	/**
-	 *
 	 * @param integer $joinTypeFlags JOIN type flags
 	 * @return string
 	 */
@@ -41,7 +43,7 @@ abstract class StatementBuilder
 		$s = '';
 		if (($joinTypeFlags & K::JOIN_NATURAL) == K::JOIN_NATURAL)
 			$s .= 'NATURAL ';
-		
+
 		if (($joinTypeFlags & K::JOIN_LEFT) == K::JOIN_LEFT)
 		{
 			$s . 'LEFT ';
@@ -66,12 +68,11 @@ abstract class StatementBuilder
 		{
 			$s .= 'INNER ';
 		}
-		
+
 		return ($s . 'JOIN');
 	}
 
 	/**
-	 *
 	 * @param string $expression
 	 * @return \NoreSources\SQL\Expression|\NoreSources\SQL\PreformattedExpression
 	 */
@@ -81,7 +82,7 @@ abstract class StatementBuilder
 		{
 			return $this->evaluator->evaluate($expression);
 		}
-		
+
 		return new PreformattedExpression($expression);
 	}
 
@@ -92,7 +93,7 @@ abstract class StatementBuilder
 		{
 			return $type;
 		}
-		
+
 		if ($expression instanceof ColumnExpression)
 		{
 			$column = $resolver->findColumn($expression->path);
@@ -120,7 +121,7 @@ abstract class StatementBuilder
 					return K::kDataTypeBoolean;
 			}
 		}
-		
+
 		return $type;
 	}
 
@@ -134,12 +135,11 @@ abstract class StatementBuilder
 	{
 		if ($literal->type & K::kDataTypeNumber)
 			return $literal->value;
-		
+
 		return $this->escapeString($literal->value);
 	}
 
 	/**
-	 *
 	 * @param array $path
 	 * @return string
 	 */
@@ -147,12 +147,11 @@ abstract class StatementBuilder
 	{
 		return ns\ArrayUtil::implode($path, '.', ns\ArrayUtil::IMPLODE_VALUES, array (
 				$this,
-				'escapeIdentifier' 
+				'escapeIdentifier'
 		));
 	}
 
 	/**
-	 *
 	 * @param StructureElement $structure
 	 * @return string
 	 */
@@ -165,12 +164,11 @@ abstract class StatementBuilder
 			$s = $this->escapeIdentifier($p->getName()) . '.' . $s;
 			$p = $p->parent();
 		}
-		
+
 		return $s;
 	}
 
 	/**
-	 *
 	 * @param ExpressionEvaluator $evaluator
 	 * @return \NoreSources\SQL\StatementBuilder
 	 */
@@ -181,7 +179,6 @@ abstract class StatementBuilder
 	}
 
 	/**
-	 *
 	 * @var integer
 	 */
 	private $builderFlags;
@@ -195,8 +192,6 @@ abstract class StatementBuilder
 }
 
 /**
- * 
- *
  */
 class GenericStatementBuilder extends StatementBuilder
 {
@@ -217,20 +212,19 @@ class GenericStatementBuilder extends StatementBuilder
 		return '[' . $identifier . ']';
 	}
 
-	public function getParameter($name)
+	public function isValidParameterName($name)
 	{
-		if (!$this->parameters->offsetExists($name))
-		{
-			$c = $this->parameters->count() + 1;
-			$this->parameters->offsetSet($name, $c);
-		}
-		
-		return '$' . $this->parameters->offsetGet($name);
+		return true;
 	}
 
-	/**
-	 *
-	 * @var \ArrayObject
-	 */
-	private $parameters;
+	public function normalizeParameterName($name, StatementContext $context)
+	{
+		return $name;
+	}
+
+	public function getParameter($name)
+	{
+		return '$' . $name;
+	}
+
 }
