@@ -34,6 +34,7 @@ class StatementContext
 		$this->builder = $builder;
 		$this->resolver = $resolver;
 		$this->parameters = new \ArrayObject();
+		$this->parameterCount = 0;
 		$this->aliases = new \ArrayObject();
 	}
 
@@ -75,7 +76,7 @@ class StatementContext
 	{
 		return ns\ArrayUtil::keyExists($this->aliases, $identifier) || $this->resolver->isAlias($identifier);
 	}
-	
+
 	/**
 	 * @param string $name
 	 * @throws \Exception
@@ -83,9 +84,15 @@ class StatementContext
 	 */
 	public function getParameter($name)
 	{
+		$index = $this->parameterCount;
 		$normalized = $name;
+		
+		$this->parameterCount++;
+		
 		if (ns\ArrayUtil::keyExists($this->parameters, $name))
+		{
 			$normalized = $this->parameters[$name];
+		}
 		else
 		{
 			if (!$this->builder->isValidParameterName($name))
@@ -95,12 +102,14 @@ class StatementContext
 
 			$this->parameters[$name] = array (
 					"name" => $normalized,
-					'value' => null
+					'value' => null,
+					'indexes' => array ()
 			);
 		}
 
-		$p = $this->parameters[$normalized];
-
+		$p = &$this->parameters[$normalized];
+		$p['indexes'][] = $index;
+		
 		if ($this->flags & self::PARAMETER_SUBSTITUTION)
 		{
 			$e = $p['value'];
@@ -113,10 +122,15 @@ class StatementContext
 		}
 		else
 		{
-			return $this->builder->getParameter($p['name']);
+			return $this->builder->getParameter($p['name'], $index);
 		}
 	}
-	
+
+	public function getParameters()
+	{
+		return $this->parameters->getArrayCopy();
+	}
+		
 	/**
 	 * Attemp to call StatementBuilder or StructureResolver method
 	 * @param string $method Method name
@@ -140,11 +154,13 @@ class StatementContext
 					$method
 			), $args);
 		}
-		
+
 		throw new \BadMethodCallException($method);
 	}
 
 	private $parameters;
+
+	private $parameterCount;
 
 	private $aliases;
 }

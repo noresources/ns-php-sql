@@ -32,7 +32,7 @@ abstract class StatementBuilder
 
 	abstract function normalizeParameterName($name, StatementContext $context);
 
-	abstract function getParameter($name);
+	abstract function getParameter($name, $index = -1);
 
 	/**
 	 * @param integer $joinTypeFlags JOIN type flags
@@ -194,8 +194,7 @@ abstract class StatementBuilder
 /**
  */
 class GenericStatementBuilder extends StatementBuilder
-{
-
+{	
 	public function __construct()
 	{
 		$this->parameters = new \ArrayObject();
@@ -222,7 +221,7 @@ class GenericStatementBuilder extends StatementBuilder
 		return $name;
 	}
 
-	public function getParameter($name)
+	public function getParameter($name, $index = -1)
 	{
 		return '$' . $name;
 	}
