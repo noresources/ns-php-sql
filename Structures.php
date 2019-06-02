@@ -1066,7 +1066,14 @@ class StructureResolver
 
 	private function getDefaultTableset()
 	{
-		if ($this->pivot instanceof TableSetStructure)
+		if ($this->pivot instanceof DatasourceStructure)
+		{
+			if ($this->pivot->count() == 1)
+			{
+				return $this->pivot->getIterator()->current();				
+			}
+		}
+		elseif ($this->pivot instanceof TableSetStructure)
 			return $this->pivot;
 		elseif ($this->pivot instanceof TableStructure)
 			return $this->pivot->parent();
