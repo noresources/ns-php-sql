@@ -13,6 +13,20 @@ class Constants
 	const kDataTypeTimestamp = 0x10;
 	const kDataTypeBoolean = 0x20;
 	const kDataTypeBinary = 0x40;
+	
+	// DBMS types
+	const CONNECTION_TYPE_VIRTUAL = 'virtual';
+	const CONNECTION_TYPE_SQLITE = 'sqlite';
+	const CONNECTION_TYPE_MYSQL = 'mysql';
+	const CONNECTION_TYPE_POSTGRESQL = 'pgsql';
+	
+	// DBMS connection settings
+	const CONNECTION_PARAMETER_HOST = 'host';
+	const CONNECTION_PARAMETER_PORT = 'port';
+	const CONNECTION_PARAMETER_FILE = 'file';
+	const CONNECTION_PARAMETER_USER = 'user';
+	const CONNECTION_PARAMETER_PASSWORD = 'password';
+	const CONNECTION_PARAMETER_DATABASE = 'database';
 
 	/**
 	 * The type of Datasource column.
@@ -25,19 +39,18 @@ class Constants
 	 * Value type: boolean
 	 */
 	const PROPERTY_COLUMN_PRIMARYKEY = 'primary';
-	
+
 	/**
-	 * @var string
-	 * Value type: boolean
+	 * @var string Value type: boolean
 	 */
 	const PROPERTY_COLUMN_FOREIGNKEY = 'foreign';
-	
+
 	/**
 	 * The column value is auto-incremented (integer column type only).
 	 * Value type: boolean
 	 */
 	const PROPERTY_COLUMN_AUTOINCREMENT = 'auto';
-	
+
 	/**
 	 * The column is indexed.
 	 * Value type: boolean
@@ -74,7 +87,6 @@ class Constants
 	 * Value type: mixed
 	 */
 	const PROPERTY_COLUMN_DEFAULT_VALUE = 'default_value';
-	
 	const JOIN_NATURAL = 0x01;
 	const JOIN_LEFT = 0x10;
 	const JOIN_RIGHT = 0x20;
@@ -92,7 +104,7 @@ class Constants
 	const CONSTRAINT_MODIFIER_AND = 1;
 	const CONSTRAINT_MODIFIER_OR = 2;
 	
-	const STATEMENT_PARAMETER_SUBSTITUTION = 0x01;
+	const STATEMENT_PARAMETER_SUBSTITUTION = 0x01; 
 }
 const kDataTypeNull = 0x01;
 const kDataTypeString = 0x02;

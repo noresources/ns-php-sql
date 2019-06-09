@@ -72,7 +72,7 @@ class JoinClause implements Expression
 		if ($this->constraints !== null)
 		{
 			$e = $this->constraints;
-			if (!($e instanceof EndsWithBinary))
+			if (!($e instanceof Expression))
 				$e = $context->evaluateExpression($e);
 
 			$s .= ' ON ' . $e->buildExpression($context);
@@ -84,6 +84,18 @@ class JoinClause implements Expression
 	public function getExpressionDataType()
 	{
 		return K::kDataTypeUndefined;
+	}
+
+	public function traverse($callable, StatementContext $context, $flags = 0)
+	{
+		call_user_func($callable, $this, $context, $flags);
+
+		$this->subject->traverse($callable, $context, $flags);
+
+		if ($this->constraints !== null)
+		{
+			$context->evaluateExpression($this->constraints)->traverse($callable, $context, $flags);
+		}
 	}
 }
 
@@ -291,6 +303,7 @@ class SelectQuery extends Statement
 		}
 
 		$table = $context->getCanonicalName($tableStructure);
+		//$table = $tableStructure->getName();
 		$tableAlias = $this->parts[self::PART_TABLE]->alias;
 		if ($tableAlias)
 		{
@@ -315,7 +328,6 @@ class SelectQuery extends Statement
 		}
 
 		$where = '';
-
 		if (ns\ArrayUtil::count($this->parts[self::PART_WHERE]))
 		{
 			$where = $this->buildConstraints($this->parts[self::PART_WHERE], $context);
@@ -334,10 +346,6 @@ class SelectQuery extends Statement
 			$a = array ();
 			foreach ($this->parts[self::PART_GROUPBY] as $column)
 			{
-				/**
-				 * @var ColumnExpression $column
-				 */
-
 				$a[] = $column->buildExpression($context);
 			}
 
@@ -413,39 +421,74 @@ class SelectQuery extends Statement
 
 				$o[] = $expression->buildExpression($context) . ' ' . ($clause['direction'] == K::ORDERING_ASC ? 'ASC' : 'DESC');
 			}
-			
+
 			$s .= implode(', ', $o);
 		}
-		
+
 		// LIMIT
 		if ($this->parts[self::PART_LIMIT]['count'] > 0)
 		{
 			$s .= ' LIMIT ' . ($this->parts[self::PART_LIMIT]['count']);
-			
+
 			if ($this->parts[self::PART_LIMIT]['offset'] > 0)
 			{
 				$s .= ' OFFSET ' . ($this->parts[self::PART_LIMIT]['offset']);
 			}
 		}
-		
+
 		return $s;
 	}
 
-	protected function buildConstraints ($constraints, StatementContext $context)
+	public function traverse($callable, StatementContext $context, $flags = 0)
+	{
+		call_user_func($callable, $this, $context, $flags);
+
+		foreach ($this->parts[self::PART_COLUMNS] as $resultColumn)
+		{
+			$context->evaluateExpression($resultColumn->expression)->traverse($callable, $context, $flags);
+		}
+
+		foreach ($this->parts[self::PART_JOINS] as $join)
+		{
+			$join->traverse($callable, $context, $flags);
+		}
+
+		if ($this->parts[self::PART_WHERE] instanceof Expression)
+		{
+			$this->parts[self::PART_WHERE]->traverse($callable, $context, $flags);
+		}
+
+		foreach ($this->parts[self::PART_GROUPBY] as $group)
+		{
+			$group->traverse($callable, $context, $flags);
+		}
+
+		if ($this->parts[self::PART_HAVING] instanceof Expression)
+		{
+			$this->parts[self::PART_HAVING]->traverse ($callable, $context, $flags);
+		}
+		
+		foreach ($this->parts[self::PART_ORDERBY] as $clause) 
+		{
+			$context->evaluateExpression($clause['expression'])->traverse($callable, $context, $flags);
+		}
+	}
+	
+	protected function buildConstraints($constraints, StatementContext $context)
 	{
 		$c = null;
-		foreach ($constraints as $constraint) 
+		foreach ($constraints as $constraint)
 		{
-			$e = $context->evaluateExpression ($constraint);
-			if ($c instanceof Expression) 
+			$e = $context->evaluateExpression($constraint);
+			if ($c instanceof Expression)
 				$c = new BinaryOperatorExpression(' AND ', $c, $e);
 			else
 				$c = $e;
 		}
-		
+
 		return $c->buildExpression($context);
 	}
-	
+
 	protected function resolveResultColumns(StatementContext $context)
 	{
 		foreach ($this->parts[self::PART_COLUMNS] as $column)

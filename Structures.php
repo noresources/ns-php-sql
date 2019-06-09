@@ -1080,7 +1080,7 @@ class StructureResolver
 		elseif ($this->pivot instanceof TableColumnStructure)
 			return $this->pivot->parent(2);
 
-		return null;
+		throw new StructureResolverException('Default tableset');
 	}
 
 	private function getDefaultTable()
@@ -1093,8 +1093,14 @@ class StructureResolver
 		{
 			return $this->pivot;
 		}
-
-		return null;
+		else
+		{
+			$tableset = $this->getDefaultTableset();
+			if ($tableset instanceof TableSetStructure && ($tableset->count() == 1))
+				return $tableset->getIterator()->current();
+		}
+		
+		throw new StructureResolverException('Default table');
 	}
 
 	public function debugCache()
@@ -1104,14 +1110,13 @@ class StructureResolver
 		{
 			$a[$type] = array ();
 			foreach ($structures as $name => $structure)
-			{
-				$a[$type][] = $name;
-			}
+		{
+			$a[$type][] = $name;
+		}
 		}
 
 		return $a;
 	}
-
 	/**
 	 * @var StructureElement
 	 */

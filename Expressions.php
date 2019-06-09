@@ -11,7 +11,7 @@ interface Expression
 
 	/**
 	 * @param StatementContext $context
-	 * @return string
+	 * @return string*
 	 */
 	function buildExpression(StatementContext $context);
 
@@ -19,6 +19,13 @@ interface Expression
 	 * @return integer
 	 */
 	function getExpressionDataType();
+
+	/**
+	 * @param callable $callable Callable with the following prototype:: callable ($expression, StatementContext, $flags)
+	 *       
+	 *        The expression should call the @c $callable then invoke the @c traverse method of all nested Expression
+	 */
+	function traverse($callable, StatementContext $context, $flags = 0);
 }
 
 /**
@@ -49,6 +56,11 @@ class PreformattedExpression implements Expression
 		return $this->type;
 	}
 
+	public function traverse($callable, StatementContext $context, $flags = 0)
+	{
+		call_user_func($callable, $this, $context, $flags);
+	}
+
 	private $type;
 }
 
@@ -77,11 +89,15 @@ class LiteralExpression implements Expression
 	{
 		return $this->type;
 	}
+
+	public function traverse($callable, StatementContext $context, $flags = 0)
+	{
+		call_user_func($callable, $this, $context, $flags);
+	}
 }
 
 /**
  * Query parameter
- *
  */
 class ParameterExpression implements Expression
 {
@@ -101,6 +117,11 @@ class ParameterExpression implements Expression
 	function getExpressionDataType()
 	{
 		return K::kDataTypeUndefined;
+	}
+
+	public function traverse($callable, StatementContext $context, $flags = 0)
+	{
+		call_user_func($callable, $this, $context, $flags);
 	}
 }
 
@@ -148,12 +169,17 @@ class ColumnExpression implements Expression
 	{
 		return K::kDataTypeUndefined;
 	}
+
+	public function traverse($callable, StatementContext $context, $flags = 0)
+	{
+		call_user_func($callable, $this, $context, $flags);
+	}
 }
 
 /**
  * Table path
  * @author renaud
- *
+ *        
  */
 class TableExpression implements Expression
 {
@@ -191,11 +217,15 @@ class TableExpression implements Expression
 	{
 		return K::kDataTypeUndefined;
 	}
+
+	public function traverse($callable, StatementContext $context, $flags = 0)
+	{
+		call_user_func($callable, $this, $context, $flags);
+	}
 }
 
 /**
  * Function
-
  */
 class FunctionExpression implements Expression
 {
@@ -254,6 +284,15 @@ class FunctionExpression implements Expression
 	{
 		return $this->returnType;
 	}
+
+	public function traverse($callable, StatementContext $context, $flags = 0)
+	{
+		call_user_func($callable, $this, $context, $flags);
+		foreach ($this->arguments as $argumnet)
+		{
+			$argumnet->traverse($callable, $context, $flags);
+		}
+	}
 }
 
 /**
@@ -303,10 +342,18 @@ class ListExpression extends \ArrayObject implements Expression
 
 		return $current;
 	}
+
+	public function traverse($callable, StatementContext $context, $flags = 0)
+	{
+		call_user_func($callable, $this, $context, $flags);
+		foreach ($this as $expression)
+		{
+			$expression->traverse($callable, $context, $flags);
+		}
+	}
 }
 
 /**
- * 
  */
 class ParenthesisExpression implements Expression
 {
@@ -329,6 +376,12 @@ class ParenthesisExpression implements Expression
 	function getExpressionDataType()
 	{
 		return $this->expression->getExpressionDataType();
+	}
+
+	public function traverse($callable, StatementContext $context, $flags = 0)
+	{
+		call_user_func($callable, $this, $context, $flags);
+		$this->expression->traverse($callable, $context, $flags);
 	}
 }
 
@@ -367,6 +420,12 @@ class UnaryOperatorExpression implements Expression
 		if ($this->type == K::kDataTypeUndefined)
 			return $this->operand->getExpressionDataType();
 		return $this->type;
+	}
+
+	public function traverse($callable, StatementContext $context, $flags = 0)
+	{
+		call_user_func($callable, $this, $context, $flags);
+		$this->operand->traverse($callable, $context, $flags);
 	}
 }
 
@@ -418,6 +477,13 @@ class BinaryOperatorExpression implements Expression
 
 		return $t;
 	}
+
+	public function traverse($callable, StatementContext $context, $flags = 0)
+	{
+		call_user_func($callable, $this, $context, $flags);
+		$this->leftOperand->traverse($callable, $context, $flags);
+		$this->rightOperand->traverse($callable, $context, $flags);
+	}
 }
 
 /**
@@ -450,6 +516,13 @@ class CaseOptionExpression
 	function getExpressionDataType()
 	{
 		return $this->then->getExpressionDataType();
+	}
+
+	public function traverse($callable, StatementContext $context, $flags = 0)
+	{
+		call_user_func($callable, $this, $context, $flags);
+		$this->when->traverse($callable, $context, $flags);
+		$this->then->traverse($callable, $context, $flags);
 	}
 }
 
@@ -526,6 +599,17 @@ class CaseExpression implements Expression
 		}
 
 		return $current;
+	}
+
+	public function traverse($callable, StatementContext $context, $flags = 0)
+	{
+		call_user_func($callable, $this, $context, $flags);
+		$this->subject->traverse($callable, $context, $flags);
+		foreach ($this->options as $option)
+		{
+			$option->traverse($callable, $context, $flags);
+		}
+		$this->else->traverse($callable, $context, $flags);
 	}
 }
 

@@ -7,6 +7,57 @@ use NoreSources\ArrayUtil;
 use NoreSources\Creole\PreformattedBlock;
 use NoreSources\SQL\Constants as K;
 
+class StatementContextParameter
+{
+
+	/**
+	 * @var string
+	 */
+	public $normalizedName;
+
+	/**
+	 * Positions of the parameter in the SQL statement
+	 * @var array
+	 */
+	public $indexes;
+
+	/**
+	 * @var Expression
+	 */
+	public $defaultValue;
+
+	public function __construct($name)
+	{
+		$this->normalizedName = $name;
+		$this->indexes = array ();
+		$this->defaultValue = null;
+	}
+
+	public function __toString()
+	{
+		return $this->normalizedName . ' (' . implode(', ', $this->indexes) . ')';
+	}
+}
+
+class StatementContextParameterMap extends \ArrayObject
+{
+
+	public function __construct($a = array ())
+	{
+		parent::__construct($a);
+	}
+
+	public function __toString()
+	{
+		$s = '';
+		foreach ($this as $key => $value)
+		{
+			$s .= $key . ' -> ' . $value . "\n";
+		}
+		return $s;
+	}
+}
+
 class StatementContext
 {
 
@@ -33,7 +84,7 @@ class StatementContext
 		$this->flags = 0;
 		$this->builder = $builder;
 		$this->resolver = $resolver;
-		$this->parameters = new \ArrayObject();
+		$this->parameters = new StatementContextParameterMap();
 		$this->parameterCount = 0;
 		$this->aliases = new \ArrayObject();
 	}
@@ -77,6 +128,9 @@ class StatementContext
 		return ns\ArrayUtil::keyExists($this->aliases, $identifier) || $this->resolver->isAlias($identifier);
 	}
 
+	public function addParameter($name)
+	{}
+
 	/**
 	 * @param string $name
 	 * @throws \Exception
@@ -86,12 +140,12 @@ class StatementContext
 	{
 		$index = $this->parameterCount;
 		$normalized = $name;
-		
+
 		$this->parameterCount++;
-		
+
 		if (ns\ArrayUtil::keyExists($this->parameters, $name))
 		{
-			$normalized = $this->parameters[$name];
+			$normalized = $this->parameters[$name]->normalizedName;
 		}
 		else
 		{
@@ -100,19 +154,15 @@ class StatementContext
 				$normalized = $this->builder->normalizeParameterName($name, $this);
 			}
 
-			$this->parameters[$name] = array (
-					"name" => $normalized,
-					'value' => null,
-					'indexes' => array ()
-			);
+			$this->parameters[$name] = new StatementContextParameter($normalized);
 		}
 
-		$p = &$this->parameters[$normalized];
-		$p['indexes'][] = $index;
-		
+		$p = &$this->parameters[$name];
+		$p->indexes[] = $index;
+
 		if ($this->flags & self::PARAMETER_SUBSTITUTION)
 		{
-			$e = $p['value'];
+			$e = $p->defaultValue;
 			if ($e instanceof Expression)
 			{
 				return $e->buildExpression($this);
@@ -122,15 +172,15 @@ class StatementContext
 		}
 		else
 		{
-			return $this->builder->getParameter($p['name'], $index);
+			return $this->builder->getParameter($p->normalizedName, $index);
 		}
 	}
 
 	public function getParameters()
 	{
-		return $this->parameters->getArrayCopy();
+		return $this->parameters;
 	}
-		
+
 	/**
 	 * Attemp to call StatementBuilder or StructureResolver method
 	 * @param string $method Method name

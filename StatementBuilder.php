@@ -3,8 +3,6 @@
 namespace NoreSources\SQL;
 
 use NoreSources as ns;
-use NoreSources\ArrayUtil;
-use NoreSources\Creole\PreformattedBlock;
 use NoreSources\SQL\Constants as K;
 
 /**
@@ -136,7 +134,7 @@ abstract class StatementBuilder
 		if ($literal->type & K::kDataTypeNumber)
 			return $literal->value;
 
-		return $this->escapeString($literal->value);
+		return "'" . $this->escapeString($literal->value) . "'";
 	}
 
 	/**
@@ -203,7 +201,7 @@ class GenericStatementBuilder extends StatementBuilder
 
 	public function escapeString($value)
 	{
-		return "'" . $value . "'";
+		return str_replace("'", "''", $value);
 	}
 
 	public function escapeIdentifier($identifier)
