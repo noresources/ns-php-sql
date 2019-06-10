@@ -6,6 +6,7 @@ namespace NoreSources\SQL;
 // Aliases
 use NoreSources as ns;
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\SQLite\Connection;
 
 class ConnectionException extends \Exception
 {
@@ -58,7 +59,7 @@ interface Connection
 	 * @param StatementContext $context Context used to build SQL statement
 	 */
 	function prepare($statement, StatementContext $context);
-	
+
 	/**
 	 * @param PreparedStatement|string $statement
 	 * @param ParameterArray $parameters
@@ -69,19 +70,47 @@ interface Connection
 
 class ConnectionHelper
 {
-	public static function constructConnection($settings)
+
+	/**
+	 * @param array|\ArrayObject $settings Connection settings
+	 * @throws ConnectionException
+	 * @return \NoreSources\SQL\SQLite\Connection
+	 */
+	public static function createConnection($settings)
 	{
-		
+		$connection = null;
+		$type = ns\ArrayUtil::keyValue($settings, K::CONNECTION_TYPE_SQLITE, K::CONNECTION_TYPE_VIRTUAL);
+		if ($type == K::CONNECTION_TYPE_SQLITE)
+		{
+			if (class_exists('\SQLIte3'))
+			{
+				$connection = new SQLite\Connection();
+			}
+			else
+			{
+				throw new ConnectionException('SQLite3 extension not loaded');
+			}
+		}
+
+		if ($connection instanceof Connection)
+		{
+			$connection->connect($settings);
+		}
+		else
+		{
+			throw new ConnectionException('Unable to create a Connection with settings ' . var_export($settings, true));
+		}
+
+		return $connection;
 	}
 
 	/**
-	 * 
 	 * @param Connection $connection
 	 * @param Statement $statement
 	 * @param StructureElement $reference
 	 * @return PreparedStatement
 	 */
-	public static function prepareStatement (Connection $connection, Statement $statement, StructureElement $reference = null)
+	public static function prepareStatement(Connection $connection, Statement $statement, StructureElement $reference = null)
 	{
 		$builder = $connection->getStatementBuilder();
 		$resolver = new StructureResolver($reference);

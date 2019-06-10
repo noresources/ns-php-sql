@@ -13,26 +13,50 @@ class Constants
 	const kDataTypeTimestamp = 0x10;
 	const kDataTypeBoolean = 0x20;
 	const kDataTypeBinary = 0x40;
-	
+
 	// DBMS types
 	const CONNECTION_TYPE_VIRTUAL = 'virtual';
 	const CONNECTION_TYPE_SQLITE = 'sqlite';
 	const CONNECTION_TYPE_MYSQL = 'mysql';
 	const CONNECTION_TYPE_POSTGRESQL = 'pgsql';
-	
+
 	// DBMS connection settings
-	const CONNECTION_PARAMETER_HOST = 'host';
+
+	/**
+	 * DBMS hostname, IP address or databalse file(s) path
+	 * @var string
+	 */
+	const CONNECTION_PARAMETER_SOURCE = 'source';
+	/**
+	 * DBMS network port
+	 * @var string
+	 */
 	const CONNECTION_PARAMETER_PORT = 'port';
-	const CONNECTION_PARAMETER_FILE = 'file';
+
+	/**
+	 * Account login
+	 * @var string
+	 */
 	const CONNECTION_PARAMETER_USER = 'user';
+
+	/**
+	 * Account password
+	 * @var string
+	 */
 	const CONNECTION_PARAMETER_PASSWORD = 'password';
+
+	/**
+	 * DBMS database.
+	 * For DBMS with multiple database management such as PostgreSQL
+	 * @var string
+	 */
 	const CONNECTION_PARAMETER_DATABASE = 'database';
 
 	/**
 	 * The type of Datasource column.
 	 * Value type: integer
 	 */
-	const PROPERTY_COLUMN_DATA_TYPE = 'datasourcetype';
+	const PROPERTY_COLUMN_DATA_TYPE = 'datatype';
 
 	/**
 	 * The column is part of a primary key.
