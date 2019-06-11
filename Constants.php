@@ -53,6 +53,24 @@ class Constants
 	const CONNECTION_PARAMETER_DATABASE = 'database';
 
 	/**
+	 * Create Database if it does not exists yer
+	 * @var string
+	 */
+	const CONNECTION_PARAMETER_CREATE = 'create';
+
+	/**
+	 * Read-only access to database
+	 * @var string
+	 */
+	const CONNECTION_PARAMETER_READONLY = 'readonly';
+
+	/**
+	 * SQLite file encryption key
+	 * @var string
+	 */
+	const CONNECTION_PARAMETER_ENCRYPTION_KEY = 'encryptionkey';
+
+	/**
 	 * The type of Datasource column.
 	 * Value type: integer
 	 */
@@ -127,8 +145,13 @@ class Constants
 	const BUILDER_EXTENDED_RESULTCOLUMN_ALIAS_RESOLUTION = 0x01;
 	const CONSTRAINT_MODIFIER_AND = 1;
 	const CONSTRAINT_MODIFIER_OR = 2;
+	const STATEMENT_PARAMETER_SUBSTITUTION = 0x01;
 	
-	const STATEMENT_PARAMETER_SUBSTITUTION = 0x01; 
+	// Recordset flags
+	
+	const RECORDSET_FETCH_ASSOCIATIVE = 0x01;
+	const RECORDSET_FETCH_INDEXED = 0x02;
+	const RECORDSET_FETCH_BOTH = 0x03;
 }
 const kDataTypeNull = 0x01;
 const kDataTypeString = 0x02;

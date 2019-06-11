@@ -10,6 +10,7 @@ use NoreSources\SQL\Constants as K;
 
 class StatementBuilder extends sql\StatementBuilder
 {
+
 	public function __construct(sql\ExpressionEvaluator $evaluator = null)
 	{
 		parent::__construct(0);
@@ -17,7 +18,7 @@ class StatementBuilder extends sql\StatementBuilder
 			$evaluator = new sql\ExpressionEvaluator();
 		$this->setExpressionEvaluator($evaluator);
 	}
-	
+
 	public function escapeString($value)
 	{
 		return \SQLite3::escapeString($value);
@@ -40,6 +41,6 @@ class StatementBuilder extends sql\StatementBuilder
 	
 	public function getParameter($name, $index = -1)
 	{
-		return '$' . $name;
+		return ':' . $name;
 	}
 }

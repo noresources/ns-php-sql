@@ -6,7 +6,6 @@ namespace NoreSources\SQL;
 // Aliases
 use NoreSources as ns;
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\SQLite\Connection;
 
 class ConnectionException extends \Exception
 {
@@ -40,7 +39,7 @@ interface Connection
 
 	/**
 	 * Connect to DBMS
-	 * @param unknown $parameters Connection parameters
+	 * @param \ArrayAccess $parameters Connection parameters
 	 */
 	function connect($parameters);
 
@@ -116,7 +115,6 @@ class ConnectionHelper
 		$resolver = new StructureResolver($reference);
 		$context = new StatementContext($builder, $resolver);
 		$sql = $statement->buildExpression($context);
-		$prepared = $connection->prepare($sql, $context);
-		return $prepared;
+		return $connection->prepare($sql, $context);
 	}
 }

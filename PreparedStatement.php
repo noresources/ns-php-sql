@@ -30,7 +30,7 @@ class ParameterArray implements \IteratorAggregate
 				$type = K::kDataTypeNull;
 		}
 
-		$this->table->offsetSet($key, array (
+		$this->table->offsetSet($parameter, array (
 				self::VALUE => $value,
 				self::TYPE => $type
 		));
@@ -41,7 +41,7 @@ class ParameterArray implements \IteratorAggregate
 		$this->table->exchangeArray(array ());
 	}
 
-	public function __construct($table)
+	public function __construct($table = array ())
 	{
 		$this->table = new \ArrayObject();
 
