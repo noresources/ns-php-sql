@@ -343,6 +343,13 @@ const kRecordForeignKeyColumnFormat = '(.+?)::(.+)';
 class Record implements \ArrayAccess, \IteratorAggregate
 {
 
+	const QUERY_MULTIPLE = kRecordQueryMultiple;
+	const QUERY_CREATE = kRecordQueryCreate;
+	const QUERY_FOREIGNKEYS = kRecordQueryForeignKeys;
+	const QUERY_SQL = kRecordQuerySQL;
+	const QUERY_FLAGEXTENSION = kRecordQueryFlagExtension;
+	
+	
 	/**
 	 * Get or create a single record
 	 * @param Table $table Table
