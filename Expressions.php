@@ -82,7 +82,7 @@ class LiteralExpression implements Expression
 
 	function buildExpression(StatementContext $context)
 	{
-		return $context->getLiteral($this);
+		return $context->getLiteral($this->value, $this->type);
 	}
 
 	function getExpressionDataType()

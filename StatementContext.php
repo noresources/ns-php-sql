@@ -67,6 +67,9 @@ class StatementContext
 	 */
 	const PARAMETER_SUBSTITUTION = K::STATEMENT_PARAMETER_SUBSTITUTION;
 
+	/**
+	 * @var integer
+	 */
 	public $flags;
 
 	/**
@@ -208,9 +211,19 @@ class StatementContext
 		throw new \BadMethodCallException($method);
 	}
 
+	/**
+	 * @var StatementContextParameterMap
+	 */
 	private $parameters;
 
+	/**
+	 * @var integer
+	 */
 	private $parameterCount;
 
+	/**
+	 * 
+	 * @var \ArrayObject
+	 */
 	private $aliases;
 }

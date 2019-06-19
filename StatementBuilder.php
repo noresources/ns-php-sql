@@ -32,6 +32,8 @@ abstract class StatementBuilder
 
 	abstract function getParameter($name, $index = -1);
 
+	abstract function getColumnTymeName($dataType = K::kDataTypeUndefined);
+
 	/**
 	 * @param integer $joinTypeFlags JOIN type flags
 	 * @return string
@@ -68,6 +70,31 @@ abstract class StatementBuilder
 		}
 
 		return ($s . 'JOIN');
+	}
+
+	public function getColumnDescription(TableColumnStructure $column)
+	{
+		$type = $column->getProperty(K::PROPERTY_COLUMN_DATA_TYPE);
+
+		$s = $this->escapeIdentifier($column->getName());
+
+		$s .= ' ' . $this->getColumnTymeName($type);
+		if ($column->hasProperty(K::PROPERTY_COLUMN_DATA_SIZE))
+		{
+			$s .= '(' . $column->getProperty(K::PROPERTY_COLUMN_DATA_SIZE) . ')';
+		}
+
+		if (!$column->getProperty(K::PROPERTY_COLUMN_NULL))
+		{
+			$s .= ' NOT NULL';
+		}
+
+		if ($column->hasProperty(K::PROPERTY_COLUMN_DEFAULT_VALUE))
+		{
+			$s .= ' DEFAULT ' . $this->getLiteral($column->getProperty(K::PROPERTY_COLUMN_DECIMAL_COUNT), $type);
+		}
+
+		return $s;
 	}
 
 	/**
@@ -126,15 +153,16 @@ abstract class StatementBuilder
 	/**
 	 * Escape literal value
 	 *
-	 * @param LiteralExpression $literal
+	 * @param mixed $value Literal value
+	 * @param integer $type Value type
 	 * @return string
 	 */
-	public function getLiteral(LiteralExpression $literal)
+	public function getLiteral($value, $type)
 	{
-		if ($literal->type & K::kDataTypeNumber)
-			return $literal->value;
+		if ($type & K::kDataTypeNumber)
+			return $value;
 
-		return "'" . $this->escapeString($literal->value) . "'";
+		return "'" . $this->escapeString($value) . "'";
 	}
 
 	/**
@@ -192,7 +220,8 @@ abstract class StatementBuilder
 /**
  */
 class GenericStatementBuilder extends StatementBuilder
-{	
+{
+
 	public function __construct()
 	{
 		$this->parameters = new \ArrayObject();
@@ -222,6 +251,21 @@ class GenericStatementBuilder extends StatementBuilder
 	public function getParameter($name, $index = -1)
 	{
 		return '$' . $name;
+	}
+	
+	public function getColumnTymeName ($dataType = K::kDataTypeUndefined)
+	{
+		switch ($dataType) {
+			case K::kDataTypeBinary: return 'BLOB';
+			case K::kDataTypeBoolean: return 'BOOL';
+			case K::kDataTypeInteger: return 'INTEGER';
+			case K::kDataTypeNumber:
+			case K::kDataTypeDecimal: 
+				return 'REAL';
+			
+		}
+		
+		return 'TEXT';
 	}
 
 }

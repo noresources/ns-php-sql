@@ -129,6 +129,8 @@ class Constants
 	 * Value type: mixed
 	 */
 	const PROPERTY_COLUMN_DEFAULT_VALUE = 'default_value';
+
+	// JOIN operator 
 	const JOIN_NATURAL = 0x01;
 	const JOIN_LEFT = 0x10;
 	const JOIN_RIGHT = 0x20;

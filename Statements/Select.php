@@ -6,7 +6,6 @@ namespace NoreSources\SQL;
 // Aliases
 use NoreSources as ns;
 use NoreSources\ArrayUtil;
-use NoreSources\Creole\PreformattedBlock;
 use NoreSources\SQL\Constants as K;
 
 /**

@@ -4,10 +4,29 @@
 namespace NoreSources\SQL;
 
 // Aliases
-use NoreSources as ns;
 use NoreSources\ArrayUtil;
 use NoreSources\Creole\PreformattedBlock;
 use NoreSources\SQL\Constants as K;
+
+class StatementException extends \Exception
+{
+
+	public function __construct(Statement $statement, $message)
+	{
+		parent::__construct($message);
+		$this->statement = $statement;
+	}
+
+	/**
+	 * @return \NoreSources\SQL\Statement
+	 */
+	public function getStatement()
+	{
+		return $this->statement;
+	}
+
+	private $statement;
+}
 
 /**
  * SQL Table reference in a SQL query
