@@ -520,7 +520,6 @@ class TableColumnStructure extends StructureElement
 			if ($typeNode && $typeNode->length)
 			{
 				$typeNode = $typeNode->item(0);
-				$this->setProperty(self::DATA_TYPE, $v);
 				$type = $v;
 				break;
 			}
@@ -547,6 +546,8 @@ class TableColumnStructure extends StructureElement
 				}
 			}
 		}
+		
+		$this->setProperty(self::DATA_TYPE, $type);
 
 		$children = $node->getElementsByTagNameNS(self::XMLNAMESPACE, 'default');
 		if ($children && $children->length)
@@ -905,6 +906,14 @@ class StructureResolver
 		}
 	}
 
+	/**
+	 * @return \NoreSources\SQL\StructureElement
+	 */
+	public function getPivot()
+	{
+		return $this->pivot;
+	}
+	
 	/**
 	 * @param string $path
 	 * @throws StructureResolverException
