@@ -413,7 +413,7 @@ class Record implements \ArrayAccess, \IteratorAggregate
 		
 		ns\Reporter::debug(get_called_class(), class_exists('\SqlFormatter') ? \SqlFormatter::format ($s->expressionString(), false) : $s->expressionString());
 		
-		if ($flags & kRecordQuerySQL) return $s;
+		if ($flags & self::QUERY_SQL) return $s;
 		
 		$recordset = $s->execute();
 		
@@ -608,7 +608,7 @@ class Record implements \ArrayAccess, \IteratorAggregate
 		
 		ns\Reporter::debug($className, $s->expressionString());
 		
-		if ($flags & kRecordQuerySQL)
+		if ($flags & self::QUERY_SQL)
 		{
 			return $s;
 		}
@@ -658,7 +658,7 @@ class Record implements \ArrayAccess, \IteratorAggregate
 	 */
 	public static function deleteRecord (Table $table, $options = null, $flags = kRecordQueryMultiple, $className = null)
 	{
-		$sql = self::queryRecord($table, $options, $flags | kRecordQuerySQL, $className);
+		$sql = self::queryRecord($table, $options, $flags | self::QUERY_SQL, $className);
 		$records = self::queryRecord($table, $options, $flags, $className);
 		if ($records instanceof Record) {
 			$record->delete ();
