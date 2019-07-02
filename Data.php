@@ -14,7 +14,6 @@ namespace NoreSources\SQL;
 use NoreSources as ns;
 
 require_once ('base.php');
-require_once (NS_PHP_CORE_PATH . '/Expressions.php');
 
 use DateTime;
 
