@@ -13,8 +13,6 @@ namespace NoreSources\SQL;
 
 use NoreSources as ns;
 
-require_once (NS_PHP_PATH . '/core/strings.php');
-
 /**
  * SQL structure definition schema version
  */

@@ -15,7 +15,6 @@ namespace NoreSources\SQL;
 use NoreSources as ns;
 
 require_once ('base.php');
-require_once (NS_PHP_PATH . '/core/MathExpressions.php');
 
 /**
  * An expression relative to a data source connection
