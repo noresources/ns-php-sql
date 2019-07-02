@@ -643,6 +643,33 @@ class Record implements \ArrayAccess, \IteratorAggregate
 	}
 
 	/**
+	 * Temporary
+	 * @param Table $table
+	 * @param unknown $options
+	 * @param string $flags
+	 * @param unknown $className
+	 */
+	public static function deleteRecord (Table $table, $options = null, $flags = kRecordQueryMultiple, $className = null)
+	{
+		$sql = self::queryRecord($table, $options, $flags | kRecordQuerySQL, $className);
+		$records = self::queryRecord($table, $options, $flags, $className);
+		if ($records instanceof Record) {
+			$record->delete ();
+			return 1;
+		}
+		elseif (\is_array ($records))
+		{
+			foreach ($records as $record)
+			{
+				$record->delete();
+			}
+			return count ($records);
+		}
+		
+		return ns\Reporter::error ($className, 'Invalid query result ' . gettype($records));
+	}
+	
+	/**
 	 *
 	 * @param Table $table
 	 * @param unknown $values Column name-value pairs
