@@ -1,0 +1,41 @@
+{
+	"name": "noresources/ns-php-sql",
+	"description": "SQL-related class library for PHP",
+	"type": "library",
+	"license": "MIT",
+	"authors": [
+		{
+			"name": "Renaud Guillard",
+			"email": "dev@nore.fr",
+			"role": "lead"
+		}
+	],
+	"support": {
+		"issues": "https://github.com/noresources/ns-php-sql/issues"
+	},
+	"autoload": {
+		"psr-4": {
+			"NoreSources\\SQL\\": "./",
+			"NoreSources\\SQL\\SQLite\\": "./SQLite"
+		}
+	},
+	"prefer-stable": false,
+	"minimum-stability": "dev",
+	"repositories": [
+		{
+			"type": "git",
+			"url": "https://github.com/noresources/ns-php-core"
+		}
+	],
+	"require": {
+		"php": ">= 5.4",
+		"noresources/ns-php-core": "~2.0"
+	},
+	"suggest": {
+		"ext-sqlite": "*",
+		"ext-mysql": "*"
+	},
+	"require-dev": {
+		"phpunit/phpunit": "^4.8"
+	}
+}
