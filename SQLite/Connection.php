@@ -7,10 +7,33 @@ namespace NoreSources\SQL\SQLite;
 use NoreSources as ns;
 use NoreSources\SQL as sql;
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\StatementBuilder;
 
+/**
+ * SQLite connection
+ */
 class Connection implements sql\Connection
 {
+	/**
+	 * Special in-memory database name
+	 * 
+	 * @see https://www.sqlite.org/inmemorydb.html
+	 * 
+	 * @var string
+	 */
 	const SOURCE_MEMORY = ':memory:';
+	
+	/**
+	 * Temporary database.
+	 * @see https://www.sqlite.org/inmemorydb.html
+	 * @var string
+	 */
+	const SOURCE_TEMPORARY = '';
+	
+	/**
+	 * The default tableset name
+	 * @var string
+	 */
 	const TABLESET_NAME_DEFAULT = 'main';
 
 	public function __construct()
@@ -141,6 +164,11 @@ class Connection implements sql\Connection
 		return $this->builder;
 	}
 
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \NoreSources\SQL\Connection::executeStatement()
+	 */
 	public function executeStatement($statement, sql\ParameterArray $parameters = null)
 	{
 		if (!($this->connection instanceof \SQLite3))
@@ -204,6 +232,11 @@ class Connection implements sql\Connection
 		return new PreparedStatement($context, $stmt, $statement);
 	}
 
+	/**
+	 * 
+	 * @param integer $sqlType
+	 * @return integer The SQLITE_* type corresponding to the given \NoreSOurce\SQL data type
+	 */
 	public static function getSQLiteDataType($sqlType)
 	{
 		switch ($sqlType)
@@ -221,12 +254,19 @@ class Connection implements sql\Connection
 		return \SQLITE3_TEXT;
 	}
 
+	/**
+	 * Get a tableset name for the given database source
+	 * 
+	 * @param mixed $name User-defined name
+	 * @param string $source Database source
+	 * @return string
+	 */
 	private static function getTablesetName($name, $source)
 	{
-		if (is_string($name))
+		if (is_string($name) && strlen ($name))
 			return $name;
 
-		if ($source == self::SOURCE_MEMORY)
+		if ($source == self::SOURCE_MEMORY || $source == self::SOURCE_TEMPORARY)
 		{
 			return self::TABLESET_NAME_DEFAULT;
 		}
@@ -234,7 +274,14 @@ class Connection implements sql\Connection
 		return pathinfo($source, 'filename');
 	}
 
+	/**
+	 * @var StatementBuilder
+	 */
 	private $builder;
 
+	/**
+	 * DBMS connection
+	 * @var \SQLite3
+	 */
 	private $connection;
 }
