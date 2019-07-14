@@ -19,6 +19,9 @@
 			"NoreSources\\SQL\\SQLite\\": "./SQLite"
 		}
 	},
+	"scripts": {
+		"tests": "@php  ./vendor/bin/phpunit --bootstrap autoload.php tests"
+	},
 	"prefer-stable": false,
 	"minimum-stability": "dev",
 	"repositories": [

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sql:datasource version="1.0" xmlns:sql="http://xsd.nore.fr/sql">
+	<sql:database name="ns_unittests">
+		<sql:table name="types">
+			<sql:column name="base"></sql:column>
+			<sql:column name="binary">
+				<sql:datatype>
+					<sql:binary />
+				</sql:datatype>
+				<sql:default>
+					<!-- abc -->
+					<sql:base64Binary>YWJj</sql:base64Binary>
+				</sql:default>
+			</sql:column>
+			<sql:column name="boolean">
+				<sql:datatype>
+					<sql:boolean />
+				</sql:datatype>
+				<sql:default>
+					<sql:boolean>true</sql:boolean>
+				</sql:default>
+			</sql:column>
+			<sql:column name="int">
+				<sql:datatype>
+					<sql:numeric />
+				</sql:datatype>
+				<sql:default>
+					<sql:integer>3</sql:integer>
+				</sql:default>
+			</sql:column>
+			<sql:column name="float">
+				<sql:datatype>
+					<sql:numeric decimals="2" />
+				</sql:datatype>
+				<sql:default>
+					<sql:number>1.23</sql:number>
+				</sql:default>
+			</sql:column>
+			<sql:column name="timestamp">
+				<sql:datatype>
+					<sql:timestamp />
+				</sql:datatype>
+				<sql:default>
+					<sql:datetime>2010-11-12T13:14:15+01:00</sql:datetime>
+				</sql:default>
+			</sql:column>
+			<sql:column name="timestamp_tz">
+				<sql:datatype>
+					<sql:timestamp timezone="yes" />
+				</sql:datatype>
+				<sql:default>
+					<sql:datetime>2010-11-12T13:14:15+01:00</sql:datetime>
+				</sql:default>
+			</sql:column>
+		</sql:table>
+	</sql:database>
+</sql:datasource>
