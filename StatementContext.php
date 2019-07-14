@@ -82,11 +82,14 @@ class StatementContext
 	 */
 	public $resolver;
 
-	public function __construct(StatementBuilder $builder, StructureResolver $resolver)
+	public function __construct(StatementBuilder $builder, StructureResolver $resolver = null)
 	{
 		$this->flags = 0;
 		$this->builder = $builder;
-		$this->resolver = $resolver;
+		if ($resolver instanceof StructureResolver)
+			$this->resolver = $resolver;
+		else
+			$this->resolver = new StructureResolver();
 		$this->parameters = new StatementContextParameterMap();
 		$this->parameterCount = 0;
 		$this->aliases = new \ArrayObject();
@@ -190,6 +193,8 @@ class StatementContext
 	 * @param array $args Arguments
 	 * @throws \BadMethodCallException
 	 * @return mixed
+	 * 
+	 * @method string getColumnDescription(TableColumnStructure $column)
 	 */
 	public function __call($method, $args)
 	{

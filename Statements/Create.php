@@ -16,6 +16,12 @@ class CreateTableQuery extends Statement
 		$this->structure = $structure;
 	}
 
+	/**
+	 * 
+	 * @property-read \NoreSources\SQL\TableStructure
+	 * @param mixed $member
+	 * @return \NoreSources\SQL\TableStructure|unknown
+	 */
 	public function __get($member)
 	{
 		if ($member == 'structure')
@@ -45,7 +51,7 @@ class CreateTableQuery extends Statement
 
 		if ($this->structure->count())
 		{
-			$s .= ' (';
+			$s .= PHP_EOL . '(' . PHP_EOL;
 			$first = true;
 			foreach ($this->structure as $name => $column)
 			{
@@ -56,12 +62,22 @@ class CreateTableQuery extends Statement
 
 				$s .= $context->getColumnDescription($column);
 			}
-			$s .= ')';
+			
+			/**
+			 * @todo Foreign keys etc.
+			 */
+			
+			$s .= PHP_EOL . ')';
 		}
 
 		return $s;
 	}
 
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \NoreSources\SQL\Expression::traverse()
+	 */
 	public function traverse($callable, StatementContext $context, $flags = 0)
 	{}
 

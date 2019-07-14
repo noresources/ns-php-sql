@@ -32,6 +32,11 @@ abstract class StatementBuilder
 
 	abstract function getParameter($name, $index = -1);
 
+	/**
+	 * Get the default type name for a given data type
+	 * @param integer $dataType \NoreSources\SQL Data type constant
+	 * @return string The default Connection type name for the given data type
+	 */
 	abstract function getColumnTymeName($dataType = K::kDataTypeUndefined);
 
 	/**
@@ -72,6 +77,20 @@ abstract class StatementBuilder
 		return ($s . 'JOIN');
 	}
 
+	/**
+	 * Get the \DateTime timestamp format accepted by the Connection
+	 * @return string \DateTime format string
+	 */
+	public function getTimestampFormat()
+	{
+		return \DateTime::ISO8601;
+	}
+
+	/**
+	 * Get a table column description to be used in CREATE TABLE query
+	 * @param TableColumnStructure $column
+	 * @return string
+	 */
 	public function getColumnDescription(TableColumnStructure $column)
 	{
 		$type = $column->getProperty(K::PROPERTY_COLUMN_DATA_TYPE);
@@ -91,7 +110,7 @@ abstract class StatementBuilder
 
 		if ($column->hasProperty(K::PROPERTY_COLUMN_DEFAULT_VALUE))
 		{
-			$s .= ' DEFAULT ' . $this->getLiteral($column->getProperty(K::PROPERTY_COLUMN_DECIMAL_COUNT), $type);
+			$s .= ' DEFAULT ' . $this->getLiteral($column->getProperty(K::PROPERTY_COLUMN_DEFAULT_VALUE), $type);
 		}
 
 		return $s;
@@ -159,8 +178,24 @@ abstract class StatementBuilder
 	 */
 	public function getLiteral($value, $type)
 	{
+		if ($value instanceof \DateTime)
+		{
+			if ($type & K::kDataTypeNumber)
+				$value = $value->getTimestamp();
+			else
+			{
+				$value = $value->format ($this->getTimestampFormat());
+			}
+		}
+		
 		if ($type & K::kDataTypeNumber)
+		{
+			if ($type & K::kDataTypeInteger == K::kDataTypeInteger)
+				$value = intval($value);
+			else
+				$value = floatval($value);
 			return $value;
+		}
 
 		return "'" . $this->escapeString($value) . "'";
 	}
