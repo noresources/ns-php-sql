@@ -1,2 +1,7 @@
 # composer
 /vendor
+
+# Eclpse
+\.project
+\.buildpath
+\.settings
