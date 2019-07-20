@@ -60,13 +60,6 @@ class StatementContextParameterMap extends \ArrayObject
 
 class StatementContext
 {
-
-	/**
-	 * Substiture parameter expression by its value
-	 * @var integer
-	 */
-	const PARAMETER_SUBSTITUTION = K::STATEMENT_PARAMETER_SUBSTITUTION;
-
 	/**
 	 * @var integer
 	 */

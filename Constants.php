@@ -8,7 +8,7 @@ class Constants
 	const kDataTypeNull = 0x01;
 	const kDataTypeString = 0x02;
 	const kDataTypeInteger = 0x04;
-	const kDataTypeDecimal = 0x08;
+	const kDataTypeFloat = 0x08;
 	const kDataTypeNumber = 0x0c; // 0x04 + 0x08
 	const kDataTypeTimestamp = 0x10;
 	const kDataTypeBoolean = 0x20;
@@ -77,27 +77,10 @@ class Constants
 	const PROPERTY_COLUMN_DATA_TYPE = 'datatype';
 
 	/**
-	 * The column is part of a primary key.
-	 * Value type: boolean
-	 */
-	const PROPERTY_COLUMN_PRIMARYKEY = 'primary';
-
-	/**
-	 * @var string Value type: boolean
-	 */
-	const PROPERTY_COLUMN_FOREIGNKEY = 'foreign';
-
-	/**
 	 * The column value is auto-incremented (integer column type only).
 	 * Value type: boolean
 	 */
 	const PROPERTY_COLUMN_AUTOINCREMENT = 'auto';
-
-	/**
-	 * The column is indexed.
-	 * Value type: boolean
-	 */
-	const PROPERTY_COLUMN_INDEXED = 'index';
 
 	/**
 	 * The column accepts null values.
@@ -141,24 +124,58 @@ class Constants
 	const ORDERING_DESC = 'DESC';
 
 	/**
+	 * Uniqueness constraint type
+	 * @var integer
+	 */
+	const TABLE_CONSTRAINT_UNIQUE = 0x01;
+	
+	/**
+	 * Primary key constraint type
+	 * @var integer
+	 */
+	const TABLE_CONSTRAINT_PRIMARY_KEY = 0x03;
+	
+	const TABLE_CONSTRAINT_FOREIGN_KEY = 0x04;
+	
+	const CONSTRAINT_CONFLICT_ROLLBACK = 'rollback';
+	const CONSTRAINT_CONFLICT_ABORT = 'abort';
+	const CONSTRAINT_CONFLICT_FAIL = 'fail';
+	const CONSTRAINT_CONFLICT_IGNORE = 'ignore';
+	const CONSTRAINT_CONFLICT_REPLACE = 'replace';
+	
+	const FOREIGN_KEY_ACTION_SET_NULL = ' null';
+	const FOREIGN_KEY_ACTION_SET_DEFAULT = 'default';
+	const FOREIGN_KEY_ACTION_CASCADE = 'cascade';
+	const FOREIGN_KEY_ACTION_RESTRICT = 'restrict';
+		
+	/**
 	 * Allow result column alias resolution in WHERE, HAVING and GROUP BY
 	 * @var integer
 	 */
 	const BUILDER_EXTENDED_RESULTCOLUMN_ALIAS_RESOLUTION = 0x01;
-	const CONSTRAINT_MODIFIER_AND = 1;
-	const CONSTRAINT_MODIFIER_OR = 2;
-	const STATEMENT_PARAMETER_SUBSTITUTION = 0x01;
 	
 	// Recordset flags
 	
 	const RECORDSET_FETCH_ASSOCIATIVE = 0x01;
 	const RECORDSET_FETCH_INDEXED = 0x02;
 	const RECORDSET_FETCH_BOTH = 0x03;
+
+	const XML_NAMESPACE_URI = 'http://xsd.nore.fr/sql';
+	const XML_NAMESPACE_PREFIX = 'sql';
+	const XML_ELEMENT_DATASOURCE = 'datasource';
+	const XML_ELEMENT_TABLESET = 'database';
+	const XML_ELEMENT_TABLE = 'table';
+	const XML_ELEMENT_COLUMN = 'column';
+	const XML_ELEMENT_FOREIGN_KEY = 'foreignkey';
+	const XML_ELEMENT_PRIMARY_KEY = 'primarykey';
+	const XML_ELEMENT_UBDEX = 'index';
 }
+
+
 const kDataTypeNull = 0x01;
 const kDataTypeString = 0x02;
 const kDataTypeInteger = 0x04;
-const kDataTypeDecimal = 0x08;
+const kDataTypeFloat = 0x08;
 const kDataTypeNumber = 0x0c; // 0x04 + 0x08
 const kDataTypeTimestamp = 0x10;
 const kDataTypeBoolean = 0x20;

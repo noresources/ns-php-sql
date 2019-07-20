@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<datasource version="1.0" xmlns="http://xsd.nore.fr/sql">
+	<database name="ns_unittests">
+		<table name="XIncluded">
+			<column name="xid">
+				<datatype>
+					<numeric autoincrement="yes" />
+				</datatype>
+				<notnull />
+			</column>
+			<field name="xidName">
+				<datatype>
+					<string />
+				</datatype>
+			</field>
+		</table>
+	</database>
+</datasource>

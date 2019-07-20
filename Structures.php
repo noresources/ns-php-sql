@@ -15,19 +15,27 @@ use NoreSources\SQL\Constants as K;
 class StructureException extends \Exception
 {
 
-	public function __construct($message)
+	public function __construct($message, StructureElement $element = null)
 	{
 		parent::__construct($message);
+		$this->structure = $element;
 	}
+
+	public function getStructureElement()
+	{
+		return $this->structure();
+	}
+
+	/**
+	 * @var StructureElement
+	 */
+	private $structure;
 }
 
 abstract class StructureElement implements \ArrayAccess, \IteratorAggregate, \Countable
 {
 	const DATA_TYPE = K::PROPERTY_COLUMN_DATA_TYPE;
-	const PRIMARY_KEY = K::PROPERTY_COLUMN_PRIMARYKEY;
 	const AUTO_INCREMENT = K::PROPERTY_COLUMN_AUTOINCREMENT;
-	const FOREIGN_KEY = K::PROPERTY_COLUMN_FOREIGNKEY;
-	const INDEXED = K::PROPERTY_COLUMN_INDEXED;
 	const ACCEPT_NULL = K::PROPERTY_COLUMN_NULL;
 	const DATA_SIZE = K::PROPERTY_COLUMN_DATA_SIZE;
 	const DECIMAL_COUNT = K::PROPERTY_COLUMN_DECIMAL_COUNT;
@@ -40,149 +48,18 @@ abstract class StructureElement implements \ArrayAccess, \IteratorAggregate, \Co
 	const XMLNAMESPACE = 'http://xsd.nore.fr/sql';
 
 	/**
-	 * @param string|\DOMNode $input
+	 * @param string $name StructureElement
 	 * @param StructureElement $parent
-	 * @param unknown $postProcessElementCallback
-	 * @return \NoreSources\SQL\StructureElement
 	 */
-	public static function create($input, StructureElement $parent = null, $postProcessElementCallback = null)
+	protected function __construct($name, $parent = null)
 	{
-		if (is_string($input))
-		{
-			if (is_file($input))
-			{
-				return self::createFromXmlFile($input, $postProcessElementCallback);
-			}
-			throw new \BadMethodCallException('Invalid structure file ' . $input);
-		}
-		else if ($input instanceof \DOMNode)
-		{
-			return self::createFromXmlNode($input, $parent, $postProcessElementCallback);
-		}
-
-		throw new \BadMethodCallException(__METHOD__);
-	}
-
-	/**
-	 * @param unknown $filename XML SQL structure to load
-	 * @param unknown $postProcessElementCallback A delegate called for each node. The currently processed node
-	 * @param string $xincludeSupport Resolve XInclude instructions
-	 */
-	public static function createFromXmlFile($filename, $postProcessElementCallback = null, $xincludeSupport = true)
-	{
-		$doc = new \DOMDocument();
-		if (!$doc->load($filename))
-		{
-			throw new StructureException('Failed to load structure file ' . $filename);
-		}
-
-		if ($xincludeSupport)
-		{
-			$xpath = new \DOMXPath($doc);
-			$xpath->registerNamespace('xinclude', 'http://www.w3.org/2001/XInclude');
-			$nodes = $xpath->query('//xinclude:include');
-			if ($nodes->length)
-			{
-				$doc->xinclude();
-			}
-		}
-
-		$p = null;
-		return self::createFromXmlNode($doc->documentElement, $p);
-	}
-
-	/**
-	 * @param \DOMNode $node
-	 * @param StructureElement $parent
-	 * @param unknown $postProcessElementCallback
-	 * @return \NoreSources\SQL\StructureElement
-	 */
-	public static function createFromXmlNode(\DOMNode $node, StructureElement $parent = null, $postProcessElementCallback = null)
-	{
-		if (!($node && $node->namespaceURI == self::XMLNAMESPACE))
-		{
-			throw new StructureException('Invalid XML namespace ' . $node->namespaceURI);
-		}
-
-		$datasource = (($parent instanceof StructureElement)) ? $parent->root() : null;
-
-		$o = null;
-		$elementName = $node->hasAttribute('name') ? $node->getAttribute('name') : null;
-		if (!$elementName)
-		{
-			$elementName = $node->hasAttributeNS(self::XMLNAMESPACE, 'name') ? $node->getAttributeNS(self::XMLNAMESPACE, 'name') : null;
-		}
-
-		if (!($elementName || ($node->localName == 'datasource')))
-		{
-			throw new StructureException('Missing name attribute');
-		}
-
-		switch ($node->localName)
-		{
-			case 'datasource':
-				$o = new DatasourceStructure();
-				break;
-			case 'tableset':
-			case 'database':
-				$o = new TableSetStructure($parent, $elementName);
-				break;
-			case 'table':
-				$o = new TableStructure($parent, $elementName);
-				break;
-			case 'column':
-			case 'field':
-				$o = new TableColumnStructure($parent, $elementName);
-				break;
-			default:
-				throw new StructureException('Invalid node ' . $node->localName);
-		}
-
-		if (is_null($parent))
-		{
-			if ($node->hasAttribute('version'))
-			{
-				$o->m_version = new ns\SemanticVersion($node->getAttribute('version'));
-			}
-		}
-
-		$id = $node->hasAttribute('id') ? $node->getAttribute('id') : null;
-		if (!$id)
-		{
-			$id = $node->hasAttributeNS(self::XMLNAMESPACE, 'id') ? $node->getAttributeNS(self::XMLNAMESPACE, 'id') : null;
-		}
-
-		$o->setIndex($id, $o);
-
-		$o->constructFromXmlNode($node);
-
-		if ($parent == null)
-		{
-			$o->postprocess();
-		}
-
-		if (is_callable($postProcessElementCallback))
-		{
-			call_user_func($postProcessElementCallback, $o);
-		}
-
-		return $o;
-	}
-
-	abstract protected function constructFromXmlNode(\DOMNode $node);
-
-	/**
-	 * @param string $a_name StructureElement
-	 * @param StructureElement $a_parent
-	 */
-	protected function __construct($a_name, $a_parent = null)
-	{
-		$this->m_name = $a_name;
-		$this->m_parent = $a_parent;
+		if (!(is_string($name) && strlen($name)))
+			throw new StructureException('Invalid element name (' . ns\TypeDescription::getName($name) . ')');
+		$this->m_name = $name;
+		$this->m_parent = $parent;
 
 		$this->m_version = null;
 		$this->m_children = new \ArrayObject(array ());
-		$this->m_index = array ();
 	}
 
 	// Countable
@@ -303,7 +180,7 @@ abstract class StructureElement implements \ArrayAccess, \IteratorAggregate, \Co
 	 * @param StructureElement $a_child
 	 * @return StructureElement
 	 */
-	protected function appendChild(StructureElement $a_child)
+	public function appendChild(StructureElement $a_child)
 	{
 		$parent = $this->parent();
 		$key = $a_child->getName();
@@ -313,9 +190,7 @@ abstract class StructureElement implements \ArrayAccess, \IteratorAggregate, \Co
 			$this->m_version = $a_child->m_version;
 		}
 
-		$this->m_index = array_merge($this->m_index, $a_child->m_index);
 		$a_child->m_version = null;
-		$a_child->m_index = null;
 
 		return $a_child;
 	}
@@ -352,27 +227,6 @@ abstract class StructureElement implements \ArrayAccess, \IteratorAggregate, \Co
 		return $this->m_version;
 	}
 
-	public function setIndex($name, $object)
-	{
-		if ($this->parent())
-		{
-			$this->parent()->setIndex($name, $object);
-			return;
-		}
-
-		$this->m_index[$name] = $object;
-	}
-
-	public function getStructureElementIndex()
-	{
-		if ($this->parent())
-		{
-			return $this->parent()->getStructureElementIndex();
-		}
-
-		return $this->m_index;
-	}
-
 	/**
 	 * Post process construction
 	 */
@@ -403,11 +257,6 @@ abstract class StructureElement implements \ArrayAccess, \IteratorAggregate, \Co
 	 * @var \NoreSources\SemanticVersion
 	 */
 	private $m_version;
-
-	/**
-	 * @var array
-	 */
-	private $m_index;
 }
 
 /**
@@ -416,9 +265,9 @@ abstract class StructureElement implements \ArrayAccess, \IteratorAggregate, \Co
 class TableColumnStructure extends StructureElement
 {
 
-	public function __construct(/*TableStructure */$a_tableStructure, $a_name)
+	public function __construct(/*TableStructure */$a_tableStructure, $name)
 	{
-		parent::__construct($a_name, $a_tableStructure);
+		parent::__construct($name, $a_tableStructure);
 		$this->m_columnProperties = array (
 				self::ACCEPT_NULL => array (
 						'set' => true,
@@ -436,23 +285,11 @@ class TableColumnStructure extends StructureElement
 						'set' => false,
 						'value' => 0
 				),
-				self::PRIMARY_KEY => array (
-						'set' => true,
-						'value' => false
-				),
-				self::INDEXED => array (
-						'set' => true,
-						'value' => false
-				),
 				self::DATA_TYPE => array (
 						'set' => true,
 						'value' => K::kDataTypeString
 				),
 				self::ENUMERATION => array (
-						'set' => false,
-						'value' => null
-				),
-				self::FOREIGN_KEY => array (
 						'set' => false,
 						'value' => null
 				),
@@ -493,166 +330,7 @@ class TableColumnStructure extends StructureElement
 			$this->m_columnProperties[$key]['value'] = $a_value;
 		}
 	}
-
-	protected function constructFromXmlNode(\DOMNode $node)
-	{
-		$children = $node->getElementsByTagNameNS(self::XMLNAMESPACE, 'datatype');
-
-		if (!($children && $children->length))
-		{
-			return;
-		}
-
-		$dataTypeNode = $children->item(0);
-		$a = array (
-				'binary' => K::kDataTypeBinary,
-				'boolean' => K::kDataTypeBoolean,
-				'numeric' => K::kDataTypeNumber,
-				'timestamp' => K::kDataTypeTimestamp,
-				'string' => K::kDataTypeString
-		);
-		$typeNode = null;
-		$type = null;
-
-		foreach ($a as $k => $v)
-		{
-			$typeNode = $dataTypeNode->getElementsByTagNameNS(self::XMLNAMESPACE, $k);
-			if ($typeNode && $typeNode->length)
-			{
-				$typeNode = $typeNode->item(0);
-				$type = $v;
-				break;
-			}
-		}
-
-		if ($type & K::kDataTypeNumber)
-		{
-			$type = K::kDataTypeInteger;
-			if ($typeNode->hasAttribute('autoincrement'))
-			{
-				$this->setProperty(self::AUTO_INCREMENT, true);
-			}
-			if ($typeNode->hasAttribute('length'))
-			{
-				$this->setProperty(self::DATA_SIZE, intval($typeNode->getAttribute('length')));
-			}
-			if ($typeNode->hasAttribute('decimals'))
-			{
-				$count = intval($typeNode->getAttribute('decimals'));
-				$this->setProperty(self::DECIMAL_COUNT, $count);
-				if ($count > 0)
-				{
-					$type = K::kDataTypeDecimal;
-				}
-			}
-		}
-		
-		$this->setProperty(self::DATA_TYPE, $type);
-
-		$children = $node->getElementsByTagNameNS(self::XMLNAMESPACE, 'default');
-		if ($children && $children->length)
-		{
-			$defaultNode = $children->item(0);
-
-			$nodeNames = array (
-					'integer',
-					'boolean',
-					'datetime',
-					'string',
-					'null',
-					'number',
-					'base64Binary',
-					'hexBinary'
-			);
-
-			foreach ($nodeNames as $name)
-			{
-				$children = $defaultNode->getElementsByTagNameNS(self::XMLNAMESPACE, $name);
-
-				if (!($children && $children->length))
-					continue;
-
-				$value = $children->item(0)->nodeValue;
-
-				switch ($name)
-				{
-					case 'integer':
-						$value = intval($value);
-						break;
-					case 'boolean':
-						$value = ($value == 'true' ? true : false);
-						break;
-					case 'datetime':
-						$value = \DateTime::createFromFormat(\DateTime::ISO8601, $value);
-						break;
-					case 'null':
-						$value = null;
-						break;
-					case 'number':
-						$value = floatval($value);
-						break;
-					case 'base64Binary':
-						$value = base64_decode($value);
-						break;
-					case 'hexBinary':
-						$value = hex2bin($value);
-						break;
-					default:
-						break;
-				}
-
-				$this->setProperty(self::DEFAULT_VALUE, $value);
-
-				break;
-			}
-		}
-	}
-
-	protected function postprocess()
-	{
-		$fk = $this->getProperty(self::FOREIGN_KEY);
-		if ($fk)
-		{
-			$tr = $fk['tableReference'];
-			$table = null;
-			if (array_key_exists('id', $tr))
-			{
-				$idx = $this->getStructureElementIndex();
-				if (array_key_exists($tr['id'], $idx))
-				{
-					$table = $idx[$tr['id']];
-				}
-			}
-			elseif (array_key_exists('name', $tr))
-			{
-				if ($p = $this->parent())
-				{
-					// parent table
-					if ($p = $p->parent())
-					{
-						// parent db
-						$table = $p->offsetGet($tr['name']);
-					}
-				}
-			}
-
-			if ($table)
-			{
-				$fk['column'] = $table->offsetGet($fk['columnName']);
-				$fk['table'] = $table;
-			}
-			else
-			{
-				$fk = null;
-				throw new StructureException('Failed to find table for foreign key on ' . $fk['columnName']);
-			}
-
-			$this->setProperty(self::FOREIGN_KEY, $fk);
-		}
-
-		parent::postprocess();
-	}
-
+	
 	/**
 	 * @var array
 	 */
@@ -667,95 +345,55 @@ class TableColumnStructure extends StructureElement
 class TableStructure extends StructureElement
 {
 
-	public function __construct(/*TableSetStructure */ $a_tablesetStructure, $a_name)
+	public function __construct(/*TableSetStructure */ $a_tablesetStructure, $name)
 	{
-		parent::__construct($a_name, $a_tablesetStructure);
+		parent::__construct($name, $a_tablesetStructure);
+
+		$this->constraints = new \ArrayObject();
 	}
 
-	public function getName()
+	/**
+	 * @property-read \ArrayObject $constraints Table constraints
+	 * @param unknown $member
+	 * @throws \InvalidArgumentException
+	 * @return ArrayObject
+	 */
+	public function __get($member)
 	{
-		return $this->root()->getTablePrefix() . parent::getName();
-	}
-
-	protected function constructFromXmlNode(\DOMNode $node)
-	{
-		$xpath = new \DOMXPath($node->ownerDocument);
-		$xpath->registerNamespace('sql', self::XMLNAMESPACE);
-
-		$primaryKeyColumnNodes = $xpath->query('sql:primarykey/sql:column', $node);
-		$columnNodes = $xpath->query('sql:column|sql:field', $node);
-		foreach ($columnNodes as $columnNode)
+		if ($member == 'constraints')
 		{
-			$fs = self::createFromXmlNode($columnNode, $this);
+			return $this->constraints;
+		}
 
-			foreach ($primaryKeyColumnNodes as $primaryKeyColumnNode)
+		throw new \InvalidArgumentException($member);
+	}
+
+	/**
+	 * Add table constraint
+	 * @param TableConstraint $constraint Constraint to add. If The constraint is the primary key constraint, it will replace
+	 *        the existing one.
+	 */
+	public function addConstraint(TableConstraint $constraint)
+	{
+		if ($constraint instanceof KeyTableConstraint && $constraint->type == K::TABLE_CONSTRAINT_PRIMARY_KEY)
+		{
+			foreach ($this->constraints as $key => $value)
 			{
-				if ($primaryKeyColumnNode->getAttribute('name') == $fs->getName())
+				if ($value instanceof KeyTableConstraint && $value->type == K::TABLE_CONSTRAINT_PRIMARY_KEY)
 				{
-					$fs->setProperty(self::PRIMARY_KEY, true);
+					$this->constraints[$key] = $constraint;
+					return;
 				}
 			}
 
-			$this->appendChild($fs);
-		}
-
-		$foreignKeyNodes = $xpath->query('sql:foreignkey', $node);
-		foreach ($foreignKeyNodes as $foreignKey)
-		{
-			$columnNode = $foreignKey->getElementsByTagNameNS(self::XMLNAMESPACE, 'column')->item(0);
-			$columnName = $columnNode->getAttribute('name');
-			$column = $this->offsetGet($columnName);
-
-			$referenceNode = $foreignKey->getElementsByTagNameNS(self::XMLNAMESPACE, 'reference')->item(0);
-			$referenceColumnNode = $referenceNode->getElementsByTagNameNS(self::XMLNAMESPACE, 'column')->item(0);
-			$referenceTableNode = $referenceNode->getElementsByTagNameNS(self::XMLNAMESPACE, 'tableref')->item(0);
-
-			$property = array (
-					'columnName' => $referenceColumnNode->getAttribute('name'),
-					'tableReference' => ($referenceTableNode->hasAttribute('id') ? array (
-							'id' => $referenceTableNode->getAttribute('id')
-					) : array (
-							'name' => $referenceTableNode->getAttribute('name')
-					))
-			);
-
-			$column->setProperty(self::FOREIGN_KEY, $property);
+			$this->constraints->append($constraint);
 		}
 	}
 
-	public function getPrimaryKeyColumns()
-	{
-		$result = array ();
-		foreach ($this as $n => $c)
-		{
-			if ($c->getProperty(self::PRIMARY_KEY))
-			{
-				$result[$n] = $c;
-			}
-		}
-
-		return $result;
-	}
-
-	public function getForeignKeyReferences()
-	{
-		$result = array ();
-		foreach ($this as $n => $c)
-		{
-			$fk = $c->getProperty(self::FOREIGN_KEY);
-			if ($fk)
-			{
-				$result[$n] = $fk;
-			}
-		}
-
-		return $result;
-	}
-
-	public function addColumnStructure(TableColumnStructure $f)
-	{
-		$this->appendChild($f);
-	}
+	/**
+	 * @var \ArrayObject
+	 */
+	private $constraints;
 }
 
 /**
@@ -764,26 +402,14 @@ class TableStructure extends StructureElement
 class TableSetStructure extends StructureElement
 {
 
-	public function __construct(/*DatasourceStructure */$a_datasourceStructure, $a_name)
+	public function __construct(/*DatasourceStructure */$a_datasourceStructure, $name)
 	{
-		parent::__construct($a_name, $a_datasourceStructure);
+		parent::__construct($name, $a_datasourceStructure);
 	}
 
 	public final function addTableStructure(TableStructure $a_table)
 	{
 		$this->appendChild($a_table);
-	}
-
-	protected function constructFromXmlNode(\DOMNode $node)
-	{
-		$xpath = new \DOMXPath($node->ownerDocument);
-		$xpath->registerNamespace('sql', self::XMLNAMESPACE);
-
-		$tnodes = $xpath->query('sql:table', $node);
-		foreach ($tnodes as $tnode)
-		{
-			$this->appendChild(self::createFromXmlNode($tnode, $this));
-		}
 	}
 }
 
@@ -794,60 +420,12 @@ class DatasourceStructure extends StructureElement
 {
 
 	/**
-	 * @param string $a_name Datasource class name
-	 * @param number $flags
+	 * @param string $name Datasource class name
 	 */
-	public function __construct($a_name = 'Datasource', $flags = 0)
+	public function __construct($name = 'datasource')
 	{
-		parent::__construct($a_name);
-		$this->m_flags = $flags;
+		parent::__construct(((is_string($name) && strlen($name)) ? $name : 'datasource'));
 	}
-
-	/**
-	 * @return string
-	 */
-	public function getTablePrefix()
-	{
-		return $this->m_tablePrefix;
-	}
-
-	/**
-	 * @param string $prefix
-	 */
-	public function setTablePrefix($prefix)
-	{
-		$this->m_tablePrefix = $prefix;
-	}
-
-	protected function constructFromXmlNode(\DOMNode $node)
-	{
-		$xpath = new \DOMXPath($node->ownerDocument);
-		$xpath->registerNamespace('sql', self::XMLNAMESPACE);
-
-		$dbnodes = $xpath->query('sql:database|sql:tableset', $node);
-		foreach ($dbnodes as $dbnode)
-		{
-			$db = self::createFromXmlNode($dbnode, $this);
-			if ($db)
-			{
-				$this->appendChild($db);
-			}
-			else
-			{
-				throw new StructureException(': Failed to create sub tableset structure');
-			}
-		}
-	}
-
-	/**
-	 * @var integer
-	 */
-	protected $m_flags;
-
-	/**
-	 * @var string
-	 */
-	private $m_tablePrefix;
 }
 
 class StructureResolverException extends \Exception
@@ -913,7 +491,7 @@ class StructureResolver
 	{
 		return $this->pivot;
 	}
-	
+
 	/**
 	 * @param string $path
 	 * @throws StructureResolverException
@@ -1079,7 +657,7 @@ class StructureResolver
 		{
 			if ($this->pivot->count() == 1)
 			{
-				return $this->pivot->getIterator()->current();				
+				return $this->pivot->getIterator()->current();
 			}
 		}
 		elseif ($this->pivot instanceof TableSetStructure)
@@ -1108,24 +686,10 @@ class StructureResolver
 			if ($tableset instanceof TableSetStructure && ($tableset->count() == 1))
 				return $tableset->getIterator()->current();
 		}
-		
+
 		throw new StructureResolverException('Default table');
 	}
 
-	public function debugCache()
-	{
-		$a = array ();
-		foreach ($this->cache as $type => $structures)
-		{
-			$a[$type] = array ();
-			foreach ($structures as $name => $structure)
-		{
-			$a[$type][] = $name;
-		}
-		}
-
-		return $a;
-	}
 	/**
 	 * @var StructureElement
 	 */
