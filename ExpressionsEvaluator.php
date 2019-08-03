@@ -153,7 +153,7 @@ class ExpressionEvaluator
 		}
 		elseif (\is_numeric($expression))
 		{
-			return new LiteralExpression($expression, is_float($expression) ? K::kDataTypeDecimal : K::kDataTypeInteger);
+			return new LiteralExpression($expression, is_float($expression) ? K::kDataTypeFloat : K::kDataTypeInteger);
 		}
 		elseif (is_string($expression))
 		{
@@ -759,7 +759,7 @@ class ExpressionEvaluator
 		{
 			if (strpos($v, '.') >= 0)
 			{
-				$t = K::kDataTypeDecimal;
+				$t = K::kDataTypeFloat;
 				$v = floatval($v);
 			}
 			else

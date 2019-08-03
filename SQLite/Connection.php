@@ -243,7 +243,7 @@ class Connection implements sql\Connection
 		{
 			case K::kDataTypeBinary:
 				return \SQLITE3_BLOB;
-			case K::kDataTypeDecimal:
+			case K::kDataTypeFloat:
 				return \SQLITE3_FLOAT;
 			case K::kDataTypeNull:
 				return \SQLITE3_NULL;

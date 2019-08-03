@@ -34,19 +34,6 @@ class StructureException extends \Exception
 
 abstract class StructureElement implements \ArrayAccess, \IteratorAggregate, \Countable
 {
-	const DATA_TYPE = K::PROPERTY_COLUMN_DATA_TYPE;
-	const AUTO_INCREMENT = K::PROPERTY_COLUMN_AUTOINCREMENT;
-	const ACCEPT_NULL = K::PROPERTY_COLUMN_NULL;
-	const DATA_SIZE = K::PROPERTY_COLUMN_DATA_SIZE;
-	const DECIMAL_COUNT = K::PROPERTY_COLUMN_DECIMAL_COUNT;
-	const ENUMERATION = K::PROPERTY_COLUMN_ENUMERATION;
-	const DEFAULT_VALUE = K::PROPERTY_COLUMN_DEFAULT_VALUE;
-
-	/*
-	 * @var string ns-xml SQL schema namespace
-	 */
-	const XMLNAMESPACE = 'http://xsd.nore.fr/sql';
-
 	/**
 	 * @param string $name StructureElement
 	 * @param StructureElement $parent
@@ -264,7 +251,14 @@ abstract class StructureElement implements \ArrayAccess, \IteratorAggregate, \Co
  */
 class TableColumnStructure extends StructureElement
 {
-
+	const DATA_TYPE = K::PROPERTY_COLUMN_DATA_TYPE;
+	const AUTO_INCREMENT = K::PROPERTY_COLUMN_AUTOINCREMENT;
+	const ACCEPT_NULL = K::PROPERTY_COLUMN_NULL;
+	const DATA_SIZE = K::PROPERTY_COLUMN_DATA_SIZE;
+	const DECIMAL_COUNT = K::PROPERTY_COLUMN_DECIMAL_COUNT;
+	const ENUMERATION = K::PROPERTY_COLUMN_ENUMERATION;
+	const DEFAULT_VALUE = K::PROPERTY_COLUMN_DEFAULT_VALUE;
+	
 	public function __construct(/*TableStructure */$a_tableStructure, $name)
 	{
 		parent::__construct($name, $a_tableStructure);
@@ -301,11 +295,19 @@ class TableColumnStructure extends StructureElement
 	}
 
 	/**
-	 * @return array
+	 * Get column properties
+	 * @return array 
 	 */
 	public function getProperties()
 	{
-		return $this->m_columnProperties;
+		$a = array ();
+		foreach ($this->m_columnProperties as $key => $property)
+		{
+			if ($property['set']) 
+				$a[$key] = $property['value'];
+		}
+		
+		return $a;
 	}
 
 	/**

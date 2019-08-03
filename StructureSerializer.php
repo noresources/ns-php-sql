@@ -42,7 +42,7 @@ class JSONStructureSerializer extends StructureSerializer
 	 * @var integer
 	 */
 	public $jsonSerializeFlags;
-	
+
 	public function __construct(StructureElement $structure, $flags = 0)
 	{
 		parent::__construct($structure);
@@ -63,7 +63,7 @@ class JSONStructureSerializer extends StructureSerializer
 		$data = null;
 		if ($this->structureElement instanceof DatasourceStructure)
 		{
-			$data = $this->serializeDatasource($this->structureElement);		
+			$data = $this->serializeDatasource($this->structureElement);
 		}
 		elseif ($this->structureElement instanceof TableSetStructure)
 		{
@@ -77,10 +77,10 @@ class JSONStructureSerializer extends StructureSerializer
 		{
 			$data = $this->serializeTableColumn($this->structureElement);
 		}
-				
+
 		return json_encode($data, $this->jsonSerializeFlags);
 	}
-	
+
 	private function serializeDatasource(DatasourceStructure $structure)
 	{
 		$properties = array (
@@ -88,12 +88,12 @@ class JSONStructureSerializer extends StructureSerializer
 				'kind' => 'datasource',
 				'tablesets' => array ()
 		);
-		
+
 		foreach ($structure as $tableName => $table)
 		{
 			$properties['tablesets'][$tableName] = $this->serializeTableSet($table);
 		}
-		
+
 		return $properties;
 	}
 
@@ -102,7 +102,7 @@ class JSONStructureSerializer extends StructureSerializer
 		$properties = array (
 				'tables' => array ()
 		);
-		
+
 		foreach ($structure as $tableName => $table)
 		{
 			$properties['tables'][$tableName] = $this->serializeTable($table);
@@ -144,8 +144,8 @@ class JSONStructureSerializer extends StructureSerializer
 	private function serializeTableColumn(TableColumnStructure $structure)
 	{
 		$properties = array ();
-		foreach ($structure->getProperties() as $key => $property) {
-			if ($property['set']) $properties[$key] = $property['value'];
+		foreach ($structure->getProperties() as $key => $value) {
+			$properties[$key] = $value;
 		}
 		if (!($structure->parent() instanceof TableStructure))
 		{

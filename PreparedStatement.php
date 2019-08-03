@@ -23,7 +23,7 @@ class ParameterArray implements \IteratorAggregate
 			if (is_bool($value))
 				$type = K::kDataTypeBoolean;
 			elseif (is_float($value))
-				$type = K::kDataTypeDecimal;
+			$type = K::kDataTypeFloat;
 			elseif (is_int($value))
 				$type = K::kDataTypeInteger;
 			elseif (is_null($value))

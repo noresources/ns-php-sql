@@ -15,8 +15,8 @@ final class CreateTableTest extends TestCase
 
 	public function testCreateTableBasic()
 	{
-		$ds = $this->getDatasource('types');
-		$t = $ds['ns_unittests']['types'];
+		$serializer = $this->getDatasource('types');
+		$t = $serializer['ns_unittests']['types'];
 		$this->assertInstanceOf(TableStructure::class, $t);
 		$builder = new GenericStatementBuilder();
 		$context = new StatementContext($builder);
@@ -32,11 +32,12 @@ final class CreateTableTest extends TestCase
 			return $this->datasources[$name];
 		}
 
-		$filename = __DIR__ . '/data/sql/' . $name . '.xml';
-		$ds = DatasourceStructure::create($filename);
-		$this->assertInstanceOf(DatasourceStructure::class, $ds);
-		$this->datasources->offsetSet($name, $ds);
-		return $ds;
+		$filename = __DIR__ . '/data/structures/' . $name . '.xml';
+		$serializer = new XMLStructureSerializer();
+		$serializer->unserialize(file_get_contents($filename));
+		$this->assertInstanceOf(DatasourceStructure::class, $serializer->structureElement);
+		$this->datasources->offsetSet($name, $serializer->structureElement);
+		return $serializer->structureElement;
 	}
 
 	/**

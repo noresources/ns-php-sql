@@ -295,7 +295,7 @@ class GenericStatementBuilder extends StatementBuilder
 			case K::kDataTypeBoolean: return 'BOOL';
 			case K::kDataTypeInteger: return 'INTEGER';
 			case K::kDataTypeNumber:
-			case K::kDataTypeDecimal: 
+			case K::kDataTypeFloat: 
 				return 'REAL';
 			
 		}
