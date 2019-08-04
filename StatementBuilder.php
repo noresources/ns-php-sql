@@ -4,6 +4,7 @@ namespace NoreSources\SQL;
 
 use NoreSources as ns;
 use NoreSources\SQL\Constants as K;
+use NoreSources\ContainerUtil;
 
 /**
  * Build a SQL statement string to be used in a SQL engine
@@ -178,6 +179,26 @@ abstract class StatementBuilder
 	 */
 	public function getLiteral($value, $type)
 	{
+		if (ContainerUtil::isArray ($value))
+		{
+			$dateTimeKeys = array ('date', 'timezone', 'timezone_type');
+			$matchingKeys = 0;
+			if (ContainerUtil::count($value) == 3)
+			{
+				foreach ($dateTimeKeys as $key)
+				{
+					if (in_array ($key, $value))
+						$matchingKeys++;
+					else break;
+				}
+				
+				if ($matchingKeys == 3)
+				{
+					$value = \DateTime::__set_state($value);
+				}
+			}
+		}
+		
 		if ($value instanceof \DateTime)
 		{
 			if ($type & K::kDataTypeNumber)
