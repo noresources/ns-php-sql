@@ -261,12 +261,12 @@ class XMLStructureSerializer extends StructureSerializer
 		if ($pkNode instanceof \DOMElement)
 		{
 			$constraint = new KeyTableConstraint(K::TABLE_CONSTRAINT_PRIMARY_KEY);
-			$constraint->name = $pkNode->getAttribute('name');
+			$constraint->constraintName = $pkNode->getAttribute('name');
 
 			$columnNodes = $xpath->query($columnNodeName, $pkNode);
 			foreach ($columnNodes as $columnNode)
 			{
-				$name = $columnName->getAttribute('name');
+				$name = $columnNode->getAttribute('name');
 				if (!$structure->offsetExists($name))
 				{
 					throw new StructureException('Invalid primary column "' . $name . '"', $structure);
