@@ -76,7 +76,7 @@ class KeyTableConstraint extends TableConstraint implements \ArrayAccess, \Itera
 
 	public function offsetSet($offset, $value)
 	{
-		return $this->columns->offsetSet($offset, $newval);
+		return $this->columns->offsetSet($offset, $value);
 	}
 
 	public function offsetGet($offset)
@@ -111,8 +111,6 @@ class ForeignKeyTableConstraint implements \IteratorAggregate
 		$this->onDelete = null;
 		$this->onUpdate = null;
 		$this->foreignTable = $foreignTable;
-		$this->onDelete
-		$s = K::CONNECTION_PARAMETER_CREATE
 	}
 
 	/**
