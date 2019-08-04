@@ -76,10 +76,6 @@ spl_autoload_register(function($className) {
 		require_once(__DIR__ . '/Statements/Select.php');
 	} elseif ($className == 'NoreSources\SQL\DropTableQuery') {
 		require_once(__DIR__ . '/Statements/Drop.php');
-	} elseif ($className == 'NoreSources\SQL\StructureSerializerTest') {
-		require_once(__DIR__ . '/tests/StructureSerializerTest.php');
-	} elseif ($className == 'NoreSources\SQL\CreateTableTest') {
-		require_once(__DIR__ . '/tests/CreateTest.php');
 	} elseif ($className == 'NoreSources\SQL\StatementContextParameter') {
 		require_once(__DIR__ . '/StatementContext.php');
 	} elseif ($className == 'NoreSources\SQL\StatementContextParameterMap') {
@@ -89,6 +85,8 @@ spl_autoload_register(function($className) {
 	} elseif ($className == 'NoreSources\SQL\Constants') {
 		require_once(__DIR__ . '/Constants.php');
 	} elseif ($className == 'NoreSources\SQL\StructureSerializer') {
+		require_once(__DIR__ . '/StructureSerializer.php');
+	} elseif ($className == 'NoreSources\SQL\JSONStructureSerializer') {
 		require_once(__DIR__ . '/StructureSerializer.php');
 	} elseif ($className == 'NoreSources\SQL\XMLStructureSerializer') {
 		require_once(__DIR__ . '/StructureSerializer.php');

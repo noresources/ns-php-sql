@@ -22,7 +22,7 @@ final class CreateTableTest extends TestCase
 		$context = new StatementContext($builder);
 		$q = new CreateTableQuery($t);
 		$sql = $q->buildExpression($context);
-		//echo $sql;
+		echo $sql;
 	}
 
 	private function getDatasource($name)

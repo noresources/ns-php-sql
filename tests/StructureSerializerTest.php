@@ -17,7 +17,7 @@ final class StructureSerializerTest extends TestCase
 		$serializer = new XMLStructureSerializer();
 		$serializer->unserialize($this->getStructureFileContent('types'));
 		$j = new JSONStructureSerializer($serializer->structureElement, JSON_PRETTY_PRINT);
-		echo ($j->serialize());
+		//echo ($j->serialize());
 	}
 
 	private function getStructureFileContent($name)

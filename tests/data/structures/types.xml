@@ -52,6 +52,10 @@
 					<sql:datetime>2010-11-12T13:14:15+01:00</sql:datetime>
 				</sql:default>
 			</sql:column>
+		<sql:primarykey name="pk_types">
+			<sql:column name="base"/>
+			<sql:column name="int"/>
+		</sql:primarykey>
 		</sql:table>
 	</sql:database>
 </sql:datasource>

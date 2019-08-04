@@ -117,6 +117,39 @@ abstract class StatementBuilder
 		return $s;
 	}
 
+	public function getTableConstraintDescription(TableStructure $structure, TableConstraint $constraint)
+	{
+		$s = '';
+		if (strlen($constraint->constraintName))
+		{
+			$s .= 'CONSTRAINT ' . $this->escapeIdentifier($constraint->constraintName) . ' ';
+		}
+
+		if ($constraint instanceof KeyTableConstraint)
+		{
+			$s .= ($constraint->type == TableConstraint::PRIMARY_KEY) ? 'PRIMARY KEY' : 'UNIQUE';
+			$columns = array ();
+
+			foreach ($constraint as $column)
+			{
+				$columns[] = $this->escapeIdentifier($column->getName());
+			}
+
+			$s .= ' (' . implode(', ', $columns) . ')';
+			
+			if ($constraint->onConflict)
+			{
+				$s .= ' ON CONFLICT ' . $constraint->onConflict;
+			}
+		}
+		elseif ($constraint instanceof ForeignKeyTableConstraint)
+		{
+			$s .= 'FOREIGN KEY';
+		}
+
+		return $s;
+	}
+
 	/**
 	 * @param string $expression
 	 * @return \NoreSources\SQL\Expression|\NoreSources\SQL\PreformattedExpression
@@ -179,17 +212,22 @@ abstract class StatementBuilder
 	 */
 	public function getLiteral($value, $type)
 	{
-		if (ContainerUtil::isArray ($value))
+		if (ContainerUtil::isArray($value))
 		{
-			$dateTimeKeys = array ('date', 'timezone', 'timezone_type');
+			$dateTimeKeys = array (
+					'date',
+					'timezone',
+					'timezone_type'
+			);
 			$matchingKeys = 0;
 			if (ContainerUtil::count($value) == 3)
 			{
 				foreach ($dateTimeKeys as $key)
 				{
-					if (in_array ($key, $value))
+					if (in_array($key, $value))
 						$matchingKeys++;
-					else break;
+					else
+						break;
 				}
 				
 				if ($matchingKeys == 3)

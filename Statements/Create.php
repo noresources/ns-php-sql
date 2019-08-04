@@ -17,7 +17,6 @@ class CreateTableQuery extends Statement
 	}
 
 	/**
-	 * 
 	 * @property-read \NoreSources\SQL\TableStructure
 	 * @param mixed $member
 	 * @return \NoreSources\SQL\TableStructure|unknown
@@ -26,7 +25,7 @@ class CreateTableQuery extends Statement
 	{
 		if ($member == 'structure')
 			return $this->structure;
-		
+
 		return $this->structure->$member;
 	}
 
@@ -38,7 +37,7 @@ class CreateTableQuery extends Statement
 			$structure = $context->getPivot();
 		}
 
-		if (!($structure instanceof TableStructure))
+		if (!($structure instanceof TableStructure && ($structure->count() > 0)))
 		{
 			throw new StatementException($this, 'Missing or invalid table structure');
 		}
@@ -49,33 +48,28 @@ class CreateTableQuery extends Statement
 
 		$s = 'CREATE TABLE ' . $context->getCanonicalName($this->structure);
 
-		if ($this->structure->count())
-		{
-			$s .= PHP_EOL . '(' . PHP_EOL;
-			$first = true;
-			foreach ($this->structure as $name => $column)
-			{
-				if ($first)
-					$first = false;
-				else
-					$s .= ', ' . PHP_EOL;
+		$instructions = array ();
 
-				$s .= $context->getColumnDescription($column);
-			}
-			
-			/**
-			 * @todo Foreign keys etc.
-			 */
-			
-			$s .= PHP_EOL . ')';
+		$s .= PHP_EOL . '(' . PHP_EOL;
+		foreach ($this->structure as $name => $column)
+		{
+			$instructions[] = $context->getColumnDescription($column);
 		}
+
+		foreach ($structure->constraints as $constraint)
+		{
+			$instructions[] = $context->getTableConstraintDescription($structure, $constraint);
+		}
+
+		$s .= implode(',' . PHP_EOL, $instructions);
+
+		$s .= PHP_EOL . ')';
 
 		return $s;
 	}
 
 	/**
-	 * 
-	 * {@inheritDoc}
+	 * {@inheritdoc}
 	 * @see \NoreSources\SQL\Expression::traverse()
 	 */
 	public function traverse($callable, StatementContext $context, $flags = 0)
