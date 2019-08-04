@@ -34,6 +34,7 @@ class StructureException extends \Exception
 
 abstract class StructureElement implements \ArrayAccess, \IteratorAggregate, \Countable
 {
+
 	/**
 	 * @param string $name StructureElement
 	 * @param StructureElement $parent
@@ -42,29 +43,28 @@ abstract class StructureElement implements \ArrayAccess, \IteratorAggregate, \Co
 	{
 		if (!(is_string($name) && strlen($name)))
 			throw new StructureException('Invalid element name (' . ns\TypeDescription::getName($name) . ')');
-		$this->m_name = $name;
-		$this->m_parent = $parent;
+		$this->elementName = $name;
+		$this->parentElement = $parent;
 
-		$this->m_version = null;
-		$this->m_children = new \ArrayObject(array ());
+		$this->subElements = new \ArrayObject(array ());
 	}
 
 	// Countable
 	public function count()
 	{
-		return $this->m_children->count();
+		return $this->subElements->count();
 	}
 
 	// IteratorAggregate
 	public function getIterator()
 	{
-		return $this->m_children->getIterator();
+		return $this->subElements->getIterator();
 	}
 
 	// ArrayAccess
 	public function offsetExists($a_key)
 	{
-		return $this->m_children->offsetExists($a_key);
+		return $this->subElements->offsetExists($a_key);
 	}
 
 	public function offsetSet($a_iKey, $a_value)
@@ -79,15 +79,15 @@ abstract class StructureElement implements \ArrayAccess, \IteratorAggregate, \Co
 
 	public function offsetGet($key)
 	{
-		if ($this->m_children->offsetExists($key))
+		if ($this->subElements->offsetExists($key))
 		{
-			return $this->m_children->offsetGet($key);
+			return $this->subElements->offsetGet($key);
 		}
 
 		$key = strtolower($key);
-		if ($this->m_children->offsetExists($key))
+		if ($this->subElements->offsetExists($key))
 		{
-			return $this->m_children->offsetGet($key);
+			return $this->subElements->offsetGet($key);
 		}
 
 		return null;
@@ -118,7 +118,7 @@ abstract class StructureElement implements \ArrayAccess, \IteratorAggregate, \Co
 	 */
 	public function getName()
 	{
-		return $this->m_name;
+		return $this->elementName;
 	}
 
 	/**
@@ -145,10 +145,10 @@ abstract class StructureElement implements \ArrayAccess, \IteratorAggregate, \Co
 	 */
 	public function parent($depth = 1)
 	{
-		$p = $this->m_parent;
+		$p = $this->parentElement;
 		while ($p && ($depth > 1))
 		{
-			$p = $p->m_parent;
+			$p = $p->parentElement;
 			$depth--;
 		}
 
@@ -160,7 +160,7 @@ abstract class StructureElement implements \ArrayAccess, \IteratorAggregate, \Co
 	 */
 	public function children()
 	{
-		return $this->m_children->getArrayCopy();
+		return $this->subElements->getArrayCopy();
 	}
 
 	/**
@@ -171,20 +171,14 @@ abstract class StructureElement implements \ArrayAccess, \IteratorAggregate, \Co
 	{
 		$parent = $this->parent();
 		$key = $a_child->getName();
-		$this->m_children->offsetSet($key, $a_child);
-		if (!($this->m_version instanceof ns\SemanticVersion))
-		{
-			$this->m_version = $a_child->m_version;
-		}
-
-		$a_child->m_version = null;
+		$this->subElements->offsetSet($key, $a_child);
 
 		return $a_child;
 	}
 
 	protected function clear()
 	{
-		$this->m_children->exchangeArray(array ());
+		$this->subElements->exchangeArray(array ());
 	}
 
 	/**
@@ -202,24 +196,11 @@ abstract class StructureElement implements \ArrayAccess, \IteratorAggregate, \Co
 	}
 
 	/**
-	 * @return \NoreSources\SemanticVersion
-	 */
-	public function getStructureVersion()
-	{
-		if ($this->parent())
-		{
-			return $this->parent()->getStructureVersion();
-		}
-
-		return $this->m_version;
-	}
-
-	/**
 	 * Post process construction
 	 */
 	protected function postprocess()
 	{
-		foreach ($this->m_children as $n => $e)
+		foreach ($this->subElements as $n => $e)
 		{
 			$e->postprocess();
 		}
@@ -228,22 +209,17 @@ abstract class StructureElement implements \ArrayAccess, \IteratorAggregate, \Co
 	/**
 	 * @var string
 	 */
-	private $m_name;
+	private $elementName;
 
 	/**
 	 * @var StructureElement
 	 */
-	private $m_parent;
+	private $parentElement;
 
 	/**
 	 * @var \ArrayObject
 	 */
-	private $m_children;
-
-	/**
-	 * @var \NoreSources\SemanticVersion
-	 */
-	private $m_version;
+	private $subElements;
 }
 
 /**
@@ -258,7 +234,7 @@ class TableColumnStructure extends StructureElement
 	const DECIMAL_COUNT = K::PROPERTY_COLUMN_DECIMAL_COUNT;
 	const ENUMERATION = K::PROPERTY_COLUMN_ENUMERATION;
 	const DEFAULT_VALUE = K::PROPERTY_COLUMN_DEFAULT_VALUE;
-	
+
 	public function __construct(/*TableStructure */$a_tableStructure, $name)
 	{
 		parent::__construct($name, $a_tableStructure);
@@ -296,17 +272,17 @@ class TableColumnStructure extends StructureElement
 
 	/**
 	 * Get column properties
-	 * @return array 
+	 * @return array
 	 */
 	public function getProperties()
 	{
 		$a = array ();
 		foreach ($this->m_columnProperties as $key => $property)
 		{
-			if ($property['set']) 
+			if ($property['set'])
 				$a[$key] = $property['value'];
 		}
-		
+
 		return $a;
 	}
 
@@ -332,7 +308,7 @@ class TableColumnStructure extends StructureElement
 			$this->m_columnProperties[$key]['value'] = $a_value;
 		}
 	}
-	
+
 	/**
 	 * @var array
 	 */
@@ -356,7 +332,7 @@ class TableStructure extends StructureElement
 
 	/**
 	 * @property-read \ArrayObject $constraints Table constraints
-	 * @param unknown $member
+	 * @param string $member
 	 * @throws \InvalidArgumentException
 	 * @return ArrayObject
 	 */
@@ -374,21 +350,29 @@ class TableStructure extends StructureElement
 	 * Add table constraint
 	 * @param TableConstraint $constraint Constraint to add. If The constraint is the primary key constraint, it will replace
 	 *        the existing one.
+	 * @throws StructureException
 	 */
 	public function addConstraint(TableConstraint $constraint)
 	{
 		if ($constraint instanceof KeyTableConstraint && $constraint->type == K::TABLE_CONSTRAINT_PRIMARY_KEY)
 		{
-			foreach ($this->constraints as $key => $value)
+			foreach ($this->constraints as $value)
 			{
 				if ($value instanceof KeyTableConstraint && $value->type == K::TABLE_CONSTRAINT_PRIMARY_KEY)
 				{
-					$this->constraints[$key] = $constraint;
-					return;
+					throw new StructureException($this, 'Primary key already exists.');
 				}
 			}
-
-			$this->constraints->append($constraint);
+		}
+		
+		$this->constraints->append($constraint);
+	}
+	
+	public function removeConstraint($constraint)
+	{
+		foreach ($this->constraints as $i => $c)
+		{
+			if ($c === $constraint) $this->constraints->offsetUnset($i);
 		}
 	}
 
