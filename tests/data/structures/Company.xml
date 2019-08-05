@@ -29,14 +29,15 @@
 					<sql:numeric length="7" decimals="2" />
 				</sql:datatype>
 			</sql:column>
-			<sql:primarykey name="pk_id">				<sql:column name="id" />
+			<sql:primarykey name="pk_id">
+				<sql:column name="id" />
 			</sql:primarykey>
 		</sql:table>
 
 		<sql:index name="index_employees_name">
 			<sql:tableref name="Employees" />
-			<sql:column name="name"/>
-			<sql:column name="pia"/>
+			<sql:column name="name" />
+			<sql:column name="pia" />
 		</sql:index>
 
 		<sql:table name="Tasks">
@@ -105,9 +106,6 @@
 		</sql:table>
 
 		<xi:include href="./types.xml" xpointer="xmlns(sql=http://xsd.nore.fr/sql) xpointer(//sql:table)" />
-
-		<!-- Theses tables does not exists in db. It's just to test the xinclude behavior -->
-		<xi:include href="./XIncludedStructure.xml" xpointer="xmlns(sql=http://xsd.nore.fr/sql) xpointer(//sql:table)" />
 
 	</sql:database>
 </sql:datasource>

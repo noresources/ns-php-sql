@@ -136,7 +136,7 @@ abstract class StatementBuilder
 			}
 
 			$s .= ' (' . implode(', ', $columns) . ')';
-			
+
 			if ($constraint->onConflict)
 			{
 				$s .= ' ON CONFLICT ' . $constraint->onConflict;
@@ -145,6 +145,29 @@ abstract class StatementBuilder
 		elseif ($constraint instanceof ForeignKeyTableConstraint)
 		{
 			$s .= 'FOREIGN KEY';
+			if ($constraint->count())
+			{
+				$s .= ' (';
+				$s .= ContainerUtil::implodeKeys($constraint->columns, ', ', array ($this, 'escapeIdentifier'));
+				$s .= ')';
+			}
+			$s .= ' REFERENCES ' . $this->getCanonicalName($constraint->foreignTable);
+			if ($constraint->count())
+			{
+				$s .= ' (';
+				$s .= ContainerUtil::implodeValues($constraint->columns, ', ', array ($this, 'escapeIdentifier'));
+				$s .= ')';
+			}
+			
+			if ($constraint->onUpdate)
+			{
+				$s .= ' ON UPDATE ' . $constraint->onUpdate;
+			}
+			
+			if ($constraint->onDelete)
+			{
+				$s .= ' ON DELETE ' . $constraint->onDelete;
+			}
 		}
 
 		return $s;

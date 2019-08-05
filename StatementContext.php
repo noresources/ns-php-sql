@@ -188,6 +188,8 @@ class StatementContext
 	 * @return mixed
 	 * 
 	 * @method string getColumnDescription(TableColumnStructure $column)
+	 * @method string getTableConstraintDescription(TableStructure, TableConstraint)
+	 * 
 	 */
 	public function __call($method, $args)
 	{
