@@ -95,7 +95,7 @@ class KeyTableConstraint extends TableConstraint implements \ArrayAccess, \Itera
 /**
  * @see https://www.sqlite.org/syntax/foreign-key-clause.html
  */
-class ForeignKeyTableConstraint implements \IteratorAggregate
+class ForeignKeyTableConstraint extends TableConstraint implements \IteratorAggregate, \Countable
 {
 	const ACTION_SET_NULL = K::FOREIGN_KEY_ACTION_SET_NULL;
 	const ACTION_SET_DEFAULT = K::FOREIGN_KEY_ACTION_SET_DEFAULT;
@@ -106,11 +106,13 @@ class ForeignKeyTableConstraint implements \IteratorAggregate
 
 	public $onUpdate;
 
-	public function __construct(TableStructure $foreignTable)
+	public function __construct(TableStructure $foreignTable, $name = '')
 	{
+		parent::__construct($name);
 		$this->onDelete = null;
 		$this->onUpdate = null;
 		$this->foreignTable = $foreignTable;
+		$this->columns = new \ArrayObject();
 	}
 
 	/**
@@ -130,6 +132,11 @@ class ForeignKeyTableConstraint implements \IteratorAggregate
 		throw new \InvalidArgumentException($member);
 	}
 
+	public function count ()
+	{
+		return $this->columns->count();
+	}
+	
 	public function getIterator()
 	{
 		return $this->columns->getIterator();
