@@ -144,7 +144,8 @@ class JSONStructureSerializer extends StructureSerializer
 	private function serializeTableColumn(TableColumnStructure $structure)
 	{
 		$properties = array ();
-		foreach ($structure->getProperties() as $key => $value) {
+		foreach ($structure->getProperties() as $key => $value)
+		{
 			$properties[$key] = $value;
 		}
 		if (!($structure->parent() instanceof TableStructure))
@@ -154,7 +155,7 @@ class JSONStructureSerializer extends StructureSerializer
 					'kind' => 'column'
 			), $properties);
 		}
-		
+
 		return $properties;
 	}
 }
@@ -188,7 +189,15 @@ class XMLStructureSerializer extends StructureSerializer
 		$this->identifiedElements = new \ArrayObject();
 		$document = new \DOMDocument('1.0', 'utf-8');
 
-		$document->loadXML($serialized);
+		if (is_file($serialized))
+		{
+			$document->load($serialized, LIBXML_XINCLUDE);
+		}
+		else
+		{
+			$document->loadXML($serialized, LIBXML_XINCLUDE);
+		}
+
 		$document->xinclude();
 
 		if ($document->documentElement->localName == K::XML_ELEMENT_DATASOURCE)
@@ -197,11 +206,22 @@ class XMLStructureSerializer extends StructureSerializer
 			$this->unserializeDatasource($this->structureElement, $document->documentElement);
 		}
 		elseif ($document->documentElement->localName == K::XML_ELEMENT_TABLESET)
-		{}
+		{
+			$this->structureElement = new TableSetStructure($document->documentElement->getAttribute('name'));
+			$this->unserializeTableset($this->structureElement, $document->documentElement);
+		}
 		elseif ($document->documentElement->localName == K::XML_ELEMENT_TABLE)
-		{}
+		{
+			$this->structureElement = new TableStructure($document->documentElement->getAttribute('name'));
+			$this->unserializeTable($this->structureElement, $document->documentElement);
+		}
 		elseif ($document->documentElement->localName == K::XML_ELEMENT_COLUMN)
-		{}
+		{
+			$this->structureElement = new TableColumnStructure($document->documentElement->getAttribute('name'));
+			$this->unserializeTableColumn($this->structureElement, $document->documentElement);
+		}
+
+		$this->userializePostprocess($document);
 	}
 
 	private function unserializeDatasource(DatasourceStructure $structure, \DOMNode $node)
@@ -432,23 +452,24 @@ class XMLStructureSerializer extends StructureSerializer
 	 * Resolve foreign key constaints
 	 * @throws StructureException
 	 */
-	private function userializePostprocess()
+	private function userializePostprocess(\DOMDocument $document)
 	{
 		$resolver = new StructureResolver(null);
+		
+		$xpath = new \DOMXPath($document);
+		$xpath->registerNamespace(K::XML_NAMESPACE_PREFIX, K::XML_NAMESPACE_URI);
+		
+		$columnNodeName = K::XML_NAMESPACE_PREFIX . ':' . K::XML_ELEMENT_COLUMN;
+		
 		foreach ($this->foreignKeys as $entry)
 		{
 			$structure = $entry['table'];
 			$fkNode = $entry['node'];
-			$referenceNode = self::getSingleElementByTagName($fkNode, 'reference', true);
 			$resolver->setPivot($structure);
 
+			$referenceNode = self::getSingleElementByTagName($fkNode, 'reference', true);
 			$columnNodes = $xpath->query($columnNodeName, $fkNode);
-			$referenceColumnNodes = $xpath->query($columnNodeName, $referenceNode);
-			if ($columnNodes->length != $referenceNodes->length)
-			{
-				throw new StructureException('Invalid foreign key', $structure);
-			}
-
+			
 			$referenceTableNode = self::getSingleElementByTagName($referenceNode, 'tableref', true);
 			$foreignTable = null;
 
@@ -473,14 +494,17 @@ class XMLStructureSerializer extends StructureSerializer
 				throw new StructureException('Invalid foreign key reference table');
 			}
 
+			$foreignColumnNodes = $xpath->query($columnNodeName, $referenceNode);
+			
 			$fk = new ForeignKeyTableConstraint($foreignTable);
-			for ($i = 0; $i < $columnNode->length; $i++)
+			for ($i = 0; $i < $columnNodes->length; $i++)
 			{
-				$columnNode = $columnNodes->item(0);
-				$referenceNode = $referenceNodes->item(0);
-
+				$columnNode = $columnNodes->item($i);
+				$foreignColumnNode = $foreignColumnNodes->item($i);
+				
 				$name = $columnNode->getAttribute('name');
-				$foreignColumnName = $referenceNode->getAttribute('name');
+				$foreignColumnName = $foreignColumnNode->getAttribute('name');
+				
 				if (!$structure->offsetExists($name))
 				{
 					throw new StructureException('Invalid foreign key column "' . $name . '"', $structure);
@@ -491,7 +515,7 @@ class XMLStructureSerializer extends StructureSerializer
 					throw new StructureException('Invalid foreign key column "' . $foreignColumnName . '"', $foreignTable);
 				}
 				
-				$fk->addColumn($columnNode, $foreignColumnName);
+				$fk->addColumn($name, $foreignColumnName);
 			}
 				
 			$structure->addConstraint ($fk);
