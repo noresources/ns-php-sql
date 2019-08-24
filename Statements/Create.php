@@ -51,11 +51,16 @@ class CreateTableQuery extends Statement
 		$instructions = array ();
 
 		$s .= PHP_EOL . '(' . PHP_EOL;
+		
+		// Columns
+		
 		foreach ($this->structure as $name => $column)
 		{
 			$instructions[] = $context->getColumnDescription($column);
 		}
 
+		// Constraints
+		
 		foreach ($structure->constraints as $constraint)
 		{
 			$instructions[] = $context->getTableConstraintDescription($structure, $constraint);

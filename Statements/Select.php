@@ -82,7 +82,7 @@ class JoinClause implements Expression
 
 	public function getExpressionDataType()
 	{
-		return K::kDataTypeUndefined;
+		return K::DATATYPE_UNDEFINED;
 	}
 
 	public function traverse($callable, StatementContext $context, $flags = 0)

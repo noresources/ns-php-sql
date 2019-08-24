@@ -40,7 +40,7 @@ class PreformattedExpression implements Expression
 	 * @param mixed $value
 	 * @param integer $type
 	 */
-	public function __construct($value, $type = K::kDataTypeUndefined)
+	public function __construct($value, $type = K::DATATYPE_UNDEFINED)
 	{
 		$this->expression = $value;
 		$this->type = $type;
@@ -74,7 +74,7 @@ class LiteralExpression implements Expression
 
 	public $type;
 
-	public function __construct($value, $type = K::kDataTypeString)
+	public function __construct($value, $type = K::DATATYPE_STRING)
 	{
 		$this->value = $value;
 		$this->type = $type;
@@ -116,7 +116,7 @@ class ParameterExpression implements Expression
 
 	function getExpressionDataType()
 	{
-		return K::kDataTypeUndefined;
+		return K::DATATYPE_UNDEFINED;
 	}
 
 	public function traverse($callable, StatementContext $context, $flags = 0)
@@ -167,7 +167,7 @@ class ColumnExpression implements Expression
 	 */
 	function getExpressionDataType()
 	{
-		return K::kDataTypeUndefined;
+		return K::DATATYPE_UNDEFINED;
 	}
 
 	public function traverse($callable, StatementContext $context, $flags = 0)
@@ -215,7 +215,7 @@ class TableExpression implements Expression
 
 	function getExpressionDataType()
 	{
-		return K::kDataTypeUndefined;
+		return K::DATATYPE_UNDEFINED;
 	}
 
 	public function traverse($callable, StatementContext $context, $flags = 0)
@@ -250,7 +250,7 @@ class FunctionExpression implements Expression
 	public function __construct($name, $arguments = array())
 	{
 		$this->name = $name;
-		$this->returnType = K::kDataTypeUndefined;
+		$this->returnType = K::DATATYPE_UNDEFINED;
 
 		/**
 		 * @todo Recognize function and get its return type
@@ -326,14 +326,14 @@ class ListExpression extends \ArrayObject implements Expression
 	function getExpressionDataType()
 	{
 		$set = false;
-		$current = K::kDataTypeUndefined;
+		$current = K::DATATYPE_UNDEFINED;
 
 		foreach ($this as $expression)
 		{
 			$t = $expression->getExpressionDataType();
 			if ($set && ($t != $current))
 			{
-				return K::kDataTypeUndefined;
+				return K::DATATYPE_UNDEFINED;
 			}
 
 			$set = true;
@@ -403,7 +403,7 @@ class UnaryOperatorExpression implements Expression
 
 	public $type;
 
-	public function __construct($operator, Expression $operand, $type = K::kDataTypeUndefined)
+	public function __construct($operator, Expression $operand, $type = K::DATATYPE_UNDEFINED)
 	{
 		$this->operator = $operator;
 		$this->operand = $operand;
@@ -417,7 +417,7 @@ class UnaryOperatorExpression implements Expression
 
 	function getExpressionDataType()
 	{
-		if ($this->type == K::kDataTypeUndefined)
+		if ($this->type == K::DATATYPE_UNDEFINED)
 			return $this->operand->getExpressionDataType();
 		return $this->type;
 	}
@@ -454,7 +454,7 @@ class BinaryOperatorExpression implements Expression
 	 * @param Expression $left
 	 * @param Expression $right
 	 */
-	public function __construct($operator, Expression $left = null, Expression $right = null, $type = K::kDataTypeUndefined)
+	public function __construct($operator, Expression $left = null, Expression $right = null, $type = K::DATATYPE_UNDEFINED)
 	{
 		$this->operator = $operator;
 		$this->leftOperand = $left;
@@ -470,9 +470,9 @@ class BinaryOperatorExpression implements Expression
 	function getExpressionDataType()
 	{
 		$t = $this->type;
-		if ($t == K::kDataTypeUndefined)
+		if ($t == K::DATATYPE_UNDEFINED)
 			$t = $this->leftOperand->getExpressionDataType();
-		if ($t == K::kDataTypeUndefined)
+		if ($t == K::DATATYPE_UNDEFINED)
 			$t = $this->rightOperand->getExpressionDataType();
 
 		return $t;
@@ -573,14 +573,14 @@ class CaseExpression implements Expression
 	public function getExpressionDataType()
 	{
 		$set = false;
-		$current = K::kDataTypeUndefined;
+		$current = K::DATATYPE_UNDEFINED;
 
 		foreach ($this->options as $option)
 		{
 			$t = $option->getExpressionDataType();
 			if ($set && ($t != $current))
 			{
-				return K::kDataTypeUndefined;
+				return K::DATATYPE_UNDEFINED;
 			}
 
 			$set = true;
@@ -592,7 +592,7 @@ class CaseExpression implements Expression
 			$t = $this->else->getExpressionDataType();
 			if ($set && ($t != $current))
 			{
-				return K::kDataTypeUndefined;
+				return K::DATATYPE_UNDEFINED;
 			}
 
 			$current = $t;

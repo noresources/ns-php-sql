@@ -4,6 +4,7 @@ namespace NoreSources\SQL;
 
 use NoreSources as ns;
 use NoreSources\SQL\Constants as K;
+use NoreSources\ContainerUtil;
 
 abstract class StructureSerializer implements \Serializable
 {
@@ -312,18 +313,18 @@ class XMLStructureSerializer extends StructureSerializer
 		if ($node->hasAttribute('id'))
 			$this->identifiedElements->offsetSet($node->getAttribute('id'), $structure);
 
-		$type = K::kDataTypeUndefined;
+		$type = K::DATATYPE_UNDEFINED;
 		$typeNode = null;
 
 		$dataTypeNode = self::getSingleElementByTagName($node, 'datatype');
 		if ($dataTypeNode instanceof \DOMElement)
 		{
 			$a = array (
-					'binary' => K::kDataTypeBinary,
-					'boolean' => K::kDataTypeBoolean,
-					'numeric' => K::kDataTypeNumber,
-					'timestamp' => K::kDataTypeTimestamp,
-					'string' => K::kDataTypeString
+					'binary' => K::DATATYPE_BINARY,
+					'boolean' => K::DATATYPE_BOOLEAN,
+					'numeric' => K::DATATYPE_NUMBER,
+					'timestamp' => K::DATATYPE_TIMESTAMP,
+					'string' => K::DATATYPE_STRING
 			);
 
 			foreach ($a as $k => $v)
@@ -337,9 +338,9 @@ class XMLStructureSerializer extends StructureSerializer
 			}
 		}
 
-		if ($type & K::kDataTypeNumber)
+		if ($type & K::DATATYPE_NUMBER)
 		{
-			$type = K::kDataTypeInteger;
+			$type = K::DATATYPE_INTEGER;
 			if ($typeNode->hasAttribute('autoincrement'))
 			{
 				$structure->setProperty(K::PROPERTY_COLUMN_AUTOINCREMENT, true);
@@ -354,12 +355,12 @@ class XMLStructureSerializer extends StructureSerializer
 				$structure->setProperty(K::PROPERTY_COLUMN_DECIMAL_COUNT, $count);
 				if ($count > 0)
 				{
-					$type = K::kDataTypeFloat;
+					$type = K::DATATYPE_FLOAT;
 				}
 			}
 		}
 
-		if ($type != K::kDataTypeUndefined)
+		if ($type != K::DATATYPE_UNDEFINED)
 			$structure->setProperty(K::PROPERTY_COLUMN_DATA_TYPE, $type);
 
 		$defaultNode = self::getSingleElementByTagName($node, 'default');
@@ -455,12 +456,12 @@ class XMLStructureSerializer extends StructureSerializer
 	private function userializePostprocess(\DOMDocument $document)
 	{
 		$resolver = new StructureResolver(null);
-		
+
 		$xpath = new \DOMXPath($document);
 		$xpath->registerNamespace(K::XML_NAMESPACE_PREFIX, K::XML_NAMESPACE_URI);
-		
+
 		$columnNodeName = K::XML_NAMESPACE_PREFIX . ':' . K::XML_ELEMENT_COLUMN;
-		
+
 		foreach ($this->foreignKeys as $entry)
 		{
 			$structure = $entry['table'];
@@ -469,7 +470,7 @@ class XMLStructureSerializer extends StructureSerializer
 
 			$referenceNode = self::getSingleElementByTagName($fkNode, 'reference', true);
 			$columnNodes = $xpath->query($columnNodeName, $fkNode);
-			
+
 			$referenceTableNode = self::getSingleElementByTagName($referenceNode, 'tableref', true);
 			$foreignTable = null;
 
@@ -495,16 +496,19 @@ class XMLStructureSerializer extends StructureSerializer
 			}
 
 			$foreignColumnNodes = $xpath->query($columnNodeName, $referenceNode);
-			
+
 			$fk = new ForeignKeyTableConstraint($foreignTable);
+			if ($fkNode->hasAttribute('name'))
+				$fk->constraintName = $fkNode->getAttribute('name');
+
 			for ($i = 0; $i < $columnNodes->length; $i++)
 			{
 				$columnNode = $columnNodes->item($i);
 				$foreignColumnNode = $foreignColumnNodes->item($i);
-				
+
 				$name = $columnNode->getAttribute('name');
 				$foreignColumnName = $foreignColumnNode->getAttribute('name');
-				
+
 				if (!$structure->offsetExists($name))
 				{
 					throw new StructureException('Invalid foreign key column "' . $name . '"', $structure);
@@ -514,18 +518,44 @@ class XMLStructureSerializer extends StructureSerializer
 				{
 					throw new StructureException('Invalid foreign key column "' . $foreignColumnName . '"', $foreignTable);
 				}
-				
+
 				$fk->addColumn($name, $foreignColumnName);
-			}
+
+				$events = array (
+						'onUpdate',
+						'onDelete'
+				);
 				
-			$structure->addConstraint ($fk);
+				$actions = array (
+						'cascade' => K::FOREIGN_KEY_ACTION_CASCADE,
+						'restrict' => K::FOREIGN_KEY_ACTION_RESTRICT,
+						'default' => K::FOREIGN_KEY_ACTION_SET_DEFAULT,
+						'null' => K::FOREIGN_KEY_ACTION_SET_NULL
+				);
+				
+				foreach ($events as $event)
+				{
+					$eventNode = self::getSingleElementByTagName($fkNode, strtolower($event));
+					if ($eventNode)
+					{
+						$action = $eventNode->getAttribute ('action');
+						if (ContainerUtil::keyExists($actions, $action))
+						{
+							$fk->$event = $actions[$action];
+						}
+					}
+				}
+			}
+
+			$structure->addConstraint($fk);
 		}
 	}
-	
+
 	/**
 	 * @var \ArrayObject
 	 */
 	private $foreignKeys;
+
 	private $identifiedElements;
 }
 

@@ -38,7 +38,7 @@ abstract class StatementBuilder
 	 * @param integer $dataType \NoreSources\SQL Data type constant
 	 * @return string The default Connection type name for the given data type
 	 */
-	abstract function getColumnTymeName($dataType = K::kDataTypeUndefined);
+	abstract function getColumnTymeName($dataType = K::DATATYPE_UNDEFINED);
 
 	/**
 	 * @param integer $joinTypeFlags JOIN type flags
@@ -148,25 +148,31 @@ abstract class StatementBuilder
 			if ($constraint->count())
 			{
 				$s .= ' (';
-				$s .= ContainerUtil::implodeKeys($constraint->columns, ', ', array ($this, 'escapeIdentifier'));
+				$s .= ContainerUtil::implodeKeys($constraint->columns, ', ', array (
+						$this,
+						'escapeIdentifier'
+				));
 				$s .= ')';
 			}
 			$s .= ' REFERENCES ' . $this->getCanonicalName($constraint->foreignTable);
 			if ($constraint->count())
 			{
 				$s .= ' (';
-				$s .= ContainerUtil::implodeValues($constraint->columns, ', ', array ($this, 'escapeIdentifier'));
+				$s .= ContainerUtil::implodeValues($constraint->columns, ', ', array (
+						$this,
+						'escapeIdentifier'
+				));
 				$s .= ')';
 			}
-			
+
 			if ($constraint->onUpdate)
 			{
-				$s .= ' ON UPDATE ' . $constraint->onUpdate;
+				$s .= ' ON UPDATE ' . $this->getForeignKeyAction($constraint->onUpdate);
 			}
-			
+
 			if ($constraint->onDelete)
 			{
-				$s .= ' ON DELETE ' . $constraint->onDelete;
+				$s .= ' ON DELETE ' . $this->getForeignKeyAction($constraint->onDelete);
 			}
 		}
 
@@ -190,7 +196,7 @@ abstract class StatementBuilder
 	public function resolveExpressionType(Expression $expression, StructureResolver $resolver)
 	{
 		$type = $expression->getExpressionDataType();
-		if ($type != K::kDataTypeUndefined)
+		if ($type != K::DATATYPE_UNDEFINED)
 		{
 			return $type;
 		}
@@ -207,7 +213,7 @@ abstract class StatementBuilder
 			{
 				case 'not':
 				case 'is':
-					return K::kDataTypeBoolean;
+					return K::DATATYPE_BOOLEAN;
 			}
 		}
 		elseif ($expression instanceof BinaryOperatorExpression)
@@ -219,7 +225,7 @@ abstract class StatementBuilder
 				case '=':
 				case '!=':
 				case '<>':
-					return K::kDataTypeBoolean;
+					return K::DATATYPE_BOOLEAN;
 			}
 		}
 
@@ -252,27 +258,27 @@ abstract class StatementBuilder
 					else
 						break;
 				}
-				
+
 				if ($matchingKeys == 3)
 				{
 					$value = \DateTime::__set_state($value);
 				}
 			}
 		}
-		
+
 		if ($value instanceof \DateTime)
 		{
-			if ($type & K::kDataTypeNumber)
+			if ($type & K::DATATYPE_NUMBER)
 				$value = $value->getTimestamp();
 			else
 			{
-				$value = $value->format ($this->getTimestampFormat());
+				$value = $value->format($this->getTimestampFormat());
 			}
 		}
-		
-		if ($type & K::kDataTypeNumber)
+
+		if ($type & K::DATATYPE_NUMBER)
 		{
-			if ($type & K::kDataTypeInteger == K::kDataTypeInteger)
+			if ($type & K::DATATYPE_INTEGER == K::DATATYPE_INTEGER)
 				$value = intval($value);
 			else
 				$value = floatval($value);
@@ -321,6 +327,17 @@ abstract class StatementBuilder
 		return $this;
 	}
 
+	private function getForeignKeyAction($action)
+	{
+		switch ($action) {
+			case K::FOREIGN_KEY_ACTION_CASCADE: return 'CASCADE';
+			case K::FOREIGN_KEY_ACTION_RESTRICT: return 'RESTRICT';
+			case K::FOREIGN_KEY_ACTION_SET_DEFAULT: return 'SET DEFAULT';
+			case K::FOREIGN_KEY_ACTION_SET_NULL: 'SET NULL';
+		}
+		return 'NO ACTION';
+	}
+	
 	/**
 	 * @var integer
 	 */
@@ -370,14 +387,14 @@ class GenericStatementBuilder extends StatementBuilder
 		return '$' . $name;
 	}
 	
-	public function getColumnTymeName ($dataType = K::kDataTypeUndefined)
+	public function getColumnTymeName ($dataType = K::DATATYPE_UNDEFINED)
 	{
 		switch ($dataType) {
-			case K::kDataTypeBinary: return 'BLOB';
-			case K::kDataTypeBoolean: return 'BOOL';
-			case K::kDataTypeInteger: return 'INTEGER';
-			case K::kDataTypeNumber:
-			case K::kDataTypeFloat: 
+			case K::DATATYPE_BINARY: return 'BLOB';
+			case K::DATATYPE_BOOLEAN: return 'BOOL';
+			case K::DATATYPE_INTEGER: return 'INTEGER';
+			case K::DATATYPE_NUMBER:
+			case K::DATATYPE_FLOAT: 
 				return 'REAL';
 			
 		}

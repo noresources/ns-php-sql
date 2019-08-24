@@ -41,7 +41,7 @@ class ExpressionEvaluator
 	 *       
 	 * @return \NoreSources\SQL\LiteralExpression
 	 */
-	public static function literal($value, $type = K::kDataTypeUndefined)
+	public static function literal($value, $type = K::DATATYPE_UNDEFINED)
 	{
 		if ($type instanceof TableColumnStructure)
 		{
@@ -140,20 +140,20 @@ class ExpressionEvaluator
 			}
 			elseif ($expression instanceof \DateTime)
 			{
-				return new LiteralExpression($expression, K::kDataTypeTimestamp);
+				return new LiteralExpression($expression, K::DATATYPE_TIMESTAMP);
 			}
 		}
 		elseif (\is_null($expression))
 		{
-			return new LiteralExpression($expression, K::kDataTypeNull);
+			return new LiteralExpression($expression, K::DATATYPE_NULL);
 		}
 		elseif (\is_bool($expression))
 		{
-			return new LiteralExpression($expression, K::kDataTypeBoolean);
+			return new LiteralExpression($expression, K::DATATYPE_BOOLEAN);
 		}
 		elseif (\is_numeric($expression))
 		{
-			return new LiteralExpression($expression, is_float($expression) ? K::kDataTypeFloat : K::kDataTypeInteger);
+			return new LiteralExpression($expression, is_float($expression) ? K::DATATYPE_FLOAT : K::DATATYPE_INTEGER);
 		}
 		elseif (is_string($expression))
 		{
@@ -483,7 +483,7 @@ class ExpressionEvaluator
 				new Loco\StringParser("'")
 		), function ()
 		{
-			return new LiteralExpression(func_get_arg(1), K::kDataTypeString);
+			return new LiteralExpression(func_get_arg(1), K::DATATYPE_STRING);
 		});
 
 		// Date & Time
@@ -752,20 +752,20 @@ class ExpressionEvaluator
 			$dateTimeString = $date . 'T' . $time . $timezone;
 			$dateTime = \DateTime::createFromFormat(self::DATETIME_FORMAT, $dateTimeString);
 
-			return new LiteralExpression($dateTime, K::kDataTypeTimestamp);
+			return new LiteralExpression($dateTime, K::DATATYPE_TIMESTAMP);
 		});
 
 		$number = new Loco\RegexParser(chr(1) . '^(' . $rx[self::PATTERN_NUMBER] . ')' . chr(1), function ($full, $v)
 		{
 			if (strpos($v, '.') >= 0)
 			{
-				$t = K::kDataTypeFloat;
+				$t = K::DATATYPE_FLOAT;
 				$v = floatval($v);
 			}
 			else
 			{
 				$v = intval($v);
-				$t = K::kDataTypeInteger;
+				$t = K::DATATYPE_INTEGER;
 			}
 
 			return new LiteralExpression($v, $t);
@@ -854,11 +854,11 @@ class ExpressionEvaluator
 				'number' => $number,
 				'true' => self::keywordParser('true', function ()
 				{
-					return new LiteralExpression(true, K::kDataTypeBoolean);
+					return new LiteralExpression(true, K::DATATYPE_BOOLEAN);
 				}),
 				'false' => self::keywordParser('false', function ()
 				{
-					return new LiteralExpression(false, K::kDataTypeBoolean);
+					return new LiteralExpression(false, K::DATATYPE_BOOLEAN);
 				}),
 				'unary-operator-literal' => $unaryOperatorLiteral,
 				'binary-operator-literal' => $binaryOperatorLiteral,

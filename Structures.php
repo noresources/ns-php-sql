@@ -257,7 +257,7 @@ class TableColumnStructure extends StructureElement
 				),
 				self::DATA_TYPE => array (
 						'set' => true,
-						'value' => K::kDataTypeString
+						'value' => K::DATATYPE_STRING
 				),
 				self::ENUMERATION => array (
 						'set' => false,
@@ -323,6 +323,11 @@ class TableColumnStructure extends StructureElement
 class TableStructure extends StructureElement
 {
 
+	/**
+	 * 
+	 * @param TableSetStructure $a_tablesetStructure
+	 * @param string $name
+	 */
 	public function __construct(/*TableSetStructure */ $a_tablesetStructure, $name)
 	{
 		parent::__construct($name, $a_tablesetStructure);

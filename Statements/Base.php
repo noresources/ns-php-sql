@@ -61,6 +61,6 @@ abstract class Statement implements Expression
 {
 	public function getExpressionDataType()
 	{
-		return K::kDataTypeUndefined;
+		return K::DATATYPE_UNDEFINED;
 	}
 }

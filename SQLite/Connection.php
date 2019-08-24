@@ -192,7 +192,7 @@ class Connection implements sql\Connection
 				{
 					$key = $this->builder->getParameter($key);
 					$value = ns\ArrayUtil::keyValue($entry, sql\ParameterArray::VALUE, null);
-					$type = ns\ArrayUtil::keyValue($entry, sql\ParameterArray::TYPE, K::kDataTypeUndefined);
+					$type = ns\ArrayUtil::keyValue($entry, sql\ParameterArray::TYPE, K::DATATYPE_UNDEFINED);
 					
 					$type = self::getSQLiteDataType($type);
 					$bindResult = $stmt->bindValue($key, $value, $type);
@@ -241,14 +241,14 @@ class Connection implements sql\Connection
 	{
 		switch ($sqlType)
 		{
-			case K::kDataTypeBinary:
+			case K::DATATYPE_BINARY:
 				return \SQLITE3_BLOB;
-			case K::kDataTypeFloat:
+			case K::DATATYPE_FLOAT:
 				return \SQLITE3_FLOAT;
-			case K::kDataTypeNull:
+			case K::DATATYPE_NULL:
 				return \SQLITE3_NULL;
-			case K::kDataTypeInteger:
-			case K::kDataTypeBoolean:
+			case K::DATATYPE_INTEGER:
+			case K::DATATYPE_BOOLEAN:
 				return \SQLITE3_INTEGER;
 		}
 		return \SQLITE3_TEXT;

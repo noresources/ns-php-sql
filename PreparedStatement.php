@@ -15,19 +15,19 @@ class ParameterArray implements \IteratorAggregate
 		return $this->table->getIterator();
 	}
 
-	public function set($parameter, $value, $type = K::kDataTypeUndefined)
+	public function set($parameter, $value, $type = K::DATATYPE_UNDEFINED)
 	{
-		if ($type == K::kDataTypeUndefined)
+		if ($type == K::DATATYPE_UNDEFINED)
 		{
-			$type = K::kDataTypeString;
+			$type = K::DATATYPE_STRING;
 			if (is_bool($value))
-				$type = K::kDataTypeBoolean;
+				$type = K::DATATYPE_BOOLEAN;
 			elseif (is_float($value))
-			$type = K::kDataTypeFloat;
+			$type = K::DATATYPE_FLOAT;
 			elseif (is_int($value))
-				$type = K::kDataTypeInteger;
+				$type = K::DATATYPE_INTEGER;
 			elseif (is_null($value))
-				$type = K::kDataTypeNull;
+				$type = K::DATATYPE_NULL;
 		}
 
 		$this->table->offsetSet($parameter, array (
@@ -47,10 +47,10 @@ class ParameterArray implements \IteratorAggregate
 
 		foreach ($table as $key => $value)
 		{
-			$tyoe = K::kDataTypeUndefined;
+			$tyoe = K::DATATYPE_UNDEFINED;
 			if (ns\ArrayUtil::isArray($value))
 			{
-				$type = ns\ArrayUtil::keyValue($value, self::TYPE, K::kDataTypeUndefined);
+				$type = ns\ArrayUtil::keyValue($value, self::TYPE, K::DATATYPE_UNDEFINED);
 				$value = ns\ArrayUtil::keyValue($value, self::VALUE, null);
 			}
 			

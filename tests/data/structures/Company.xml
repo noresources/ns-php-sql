@@ -84,7 +84,7 @@
 				<sql:column name="id" />
 			</sql:primarykey>
 
-			<sql:foreignkey>
+			<sql:foreignkey name="fk_creator">
 				<sql:column name="creator" />
 				<sql:reference>
 					<sql:tableref id="nsut.tables.Employees" />
