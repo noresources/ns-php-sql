@@ -4,11 +4,36 @@ namespace NoreSources\SQL;
 
 class Constants
 {
+	/**
+	 * Undefined value type
+	 * @var integer
+	 */
 	const DATATYPE_UNDEFINED = 0x0;
+
+	/**
+	 * NULL value type
+	 * @var integer
+	 */
 	const DATATYPE_NULL = 0x01;
+
+	/**
+	 * String value type
+	 * @var integer
+	 */
 	const DATATYPE_STRING = 0x02;
+
+	/**
+	 * Integer value type
+	 * @var integer
+	 */
 	const DATATYPE_INTEGER = 0x04;
+
+	/**
+	 * Float value type
+	 * @var integer
+	 */
 	const DATATYPE_FLOAT = 0x08;
+
 	/**
 	 * Integer or float number.
 	 * This constant value is a combination of
@@ -21,14 +46,24 @@ class Constants
 	 * @var integer
 	 */
 	const DATATYPE_TIMESTAMP = 0x10;
+
+	/**
+	 * Boolean value type
+	 * @var integer
+	 */
 	const DATATYPE_BOOLEAN = 0x20;
+
+	/**
+	 * Binary value type
+	 * @var integer
+	 */
 	const DATATYPE_BINARY = 0x40;
 
 	// DBMS types
-	const CONNECTION_TYPE_VIRTUAL = 'cnx.virtual';
-	const CONNECTION_TYPE_SQLITE = 'cnx.sqlite';
-	const CONNECTION_TYPE_MYSQL = 'cnx.mysql';
-	const CONNECTION_TYPE_POSTGRESQL = 'cnx.pgsql';
+	const CONNECTION_TYPE_VIRTUAL = 'virtual';
+	const CONNECTION_TYPE_SQLITE = 'sqlite';
+	const CONNECTION_TYPE_MYSQL = 'mysql';
+	const CONNECTION_TYPE_POSTGRESQL = 'pgsql';
 
 	// DBMS connection settings
 
@@ -36,92 +71,86 @@ class Constants
 	 * DBMS hostname, IP address or databalse file(s) path
 	 * @var string
 	 */
-	const CONNECTION_PARAMETER_SOURCE = 'cnx.param.source';
+	const CONNECTION_PARAMETER_SOURCE = 'source';
 	/**
 	 * DBMS network port
 	 * @var string
 	 */
-	const CONNECTION_PARAMETER_PORT = 'cnx.param.port';
+	const CONNECTION_PARAMETER_PORT = 'port';
 
 	/**
 	 * Account login
 	 * @var string
 	 */
-	const CONNECTION_PARAMETER_USER = 'cnx.param.user';
+	const CONNECTION_PARAMETER_USER = 'user';
 
 	/**
 	 * Account password
 	 * @var string
 	 */
-	const CONNECTION_PARAMETER_PASSWORD = 'cnx.param.password';
+	const CONNECTION_PARAMETER_PASSWORD = 'password';
 
 	/**
 	 * DBMS database.
 	 * For DBMS with multiple database management such as PostgreSQL
 	 * @var string
 	 */
-	const CONNECTION_PARAMETER_DATABASE = 'cnx.param.database';
+	const CONNECTION_PARAMETER_DATABASE = 'database';
 
 	/**
 	 * Create Database if it does not exists yer
 	 * @var string
 	 */
-	const CONNECTION_PARAMETER_CREATE = 'cnx.param.create';
+	const CONNECTION_PARAMETER_CREATE = 'create';
 
 	/**
 	 * Read-only access to database
 	 * @var string
 	 */
-	const CONNECTION_PARAMETER_READONLY = 'cnx.param.readonly';
-
-	/**
-	 * SQLite file encryption key
-	 * @var string
-	 */
-	const CONNECTION_PARAMETER_ENCRYPTION_KEY = 'cnx.param.encryptionkey';
+	const CONNECTION_PARAMETER_READONLY = 'readonly';
 
 	/**
 	 * The type of Datasource column.
 	 * Value type: integer
 	 */
-	const PROPERTY_COLUMN_DATA_TYPE = 'column.datatype';
+	const COLUMN_PROPERTY_DATA_TYPE = 'datatype';
 
 	/**
 	 * The column value is auto-incremented (integer column type only).
 	 * Value type: boolean
 	 */
-	const PROPERTY_COLUMN_AUTOINCREMENT = 'column.autoincrement';
+	const COLUMN_PROPERTY_AUTOINCREMENT = 'autoincrement';
 
 	/**
 	 * The column accepts null values.
 	 * Value type: boolean
 	 */
-	const PROPERTY_COLUMN_NULL = 'column.null';
+	const COLUMN_PROPERTY_NULL = 'null';
 
 	/**
 	 * Data size.
 	 *
 	 * Value type: integer
 	 */
-	const PROPERTY_COLUMN_DATA_SIZE = 'column.datasize';
+	const COLUMN_PROPERTY_DATA_SIZE = 'datasize';
 
 	/**
-	 * Number of decimals (numeric field types).
+	 * Maximum number of digit to represents the fractional part of a floating-point number
 	 * Value type: integer
 	 */
-	const PROPERTY_COLUMN_DECIMAL_COUNT = 'column.decimalsize';
+	const COLUMN_PROPERTY_FRACTION_DIGIT_COUNT = 'fractiondigitcount';
 
 	/**
 	 * List of valid values.
 	 * Value type: array
 	 */
-	const PROPERTY_COLUMN_ENUMERATION = 'column.enum';
+	const COLUMN_PROPERTY_ENUMERATION = 'enum';
 
 	/**
 	 * Default value.
 	 * Value type: mixed
 	 */
-	const PROPERTY_COLUMN_DEFAULT_VALUE = 'column.default';
+	const COLUMN_PROPERTY_DEFAULT_VALUE = 'default';
 
 	// JOIN operator 
 	const JOIN_NATURAL = 0x01;
@@ -144,32 +173,32 @@ class Constants
 	const ORDERING_DESC = 'DESC';
 
 	/**
-	 * Uniqueness constraint type
-	 * @var integer
-	 */
-	const TABLE_CONSTRAINT_UNIQUE = 0x01;
-
-	/**
-	 * Primary key constraint type
-	 * @var integer
-	 */
-	const TABLE_CONSTRAINT_PRIMARY_KEY = 0x03;
-	const TABLE_CONSTRAINT_FOREIGN_KEY = 0x04;
-	
-	/**
-	 * Foreign key constraint 
+	 * Foreign key action "SET NULL".
+	 * The constant value is used in StructureSerializer
 	 * @var string
 	 */
-	const CONSTRAINT_CONFLICT_ROLLBACK = 'constraint.rollback';
-	const CONSTRAINT_CONFLICT_ABORT = 'constraint.abort';
-	const CONSTRAINT_CONFLICT_FAIL = 'constraint.fail';
-	const CONSTRAINT_CONFLICT_IGNORE = 'constraint.ignore';
-	const CONSTRAINT_CONFLICT_REPLACE = 'constraint.replace';
-	
-	const FOREIGN_KEY_ACTION_SET_NULL = 'fk.action.null';
-	const FOREIGN_KEY_ACTION_SET_DEFAULT = 'fk.action.default';
-	const FOREIGN_KEY_ACTION_CASCADE = 'fk.action.cascade';
-	const FOREIGN_KEY_ACTION_RESTRICT = 'fk.action.restrict';
+	const FOREIGN_KEY_ACTION_SET_NULL = 'null';
+
+	/**
+	 * Foreign key action "DEFAULT".
+	 * The constant value is used in StructureSerializer
+	 * @var string
+	 */
+	const FOREIGN_KEY_ACTION_SET_DEFAULT = 'default';
+
+	/**
+	 * Foreign key action "CASCADE"
+	 * The constant value is used in StructureSerializer
+	 * @var string
+	 */
+	const FOREIGN_KEY_ACTION_CASCADE = 'cascade';
+
+	/**
+	 * Foreign key action "RESTRICT".
+	 * The constant value is used in StructureSerializer
+	 * @var string
+	 */
+	const FOREIGN_KEY_ACTION_RESTRICT = 'restrict';
 
 	/**
 	 * Allow result column alias resolution in WHERE, HAVING and GROUP BY
@@ -178,8 +207,23 @@ class Constants
 	const BUILDER_EXTENDED_RESULTCOLUMN_ALIAS_RESOLUTION = 0x01;
 
 	// Recordset flags
+
+	/**
+	 * Fetch record row to an associative array
+	 * @var integer
+	 */
 	const RECORDSET_FETCH_ASSOCIATIVE = 0x01;
+
+	/**
+	 * Fetch record row to a indexed array
+	 * @var integer
+	 */
 	const RECORDSET_FETCH_INDEXED = 0x02;
+
+	/**
+	 * Fetch record row to an array with both indexed and associative key
+	 * @var integer
+	 */
 	const RECORDSET_FETCH_BOTH = 0x03;
 
 	/**

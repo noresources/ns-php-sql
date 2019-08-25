@@ -16,8 +16,15 @@ final class StructureSerializerTest extends TestCase
 	{
 		$serializer = new XMLStructureSerializer();
 		$serializer->unserialize($this->getStructureFileContent('types'));
+		$this->assertInstanceOf(DatasourceStructure::class, $serializer->structureElement);
+
 		$j = new JSONStructureSerializer($serializer->structureElement, JSON_PRETTY_PRINT);
-		//echo ($j->serialize());
+		$text = $j->serialize();
+		$this->assertEquals('string', gettype($text));
+		$a = json_decode($text, true);
+		$this->assertArrayHasKey('tablesets', $a);
+		
+		//echo ($text);
 	}
 
 	private function getStructureFileContent($name)

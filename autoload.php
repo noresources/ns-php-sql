@@ -36,6 +36,8 @@ spl_autoload_register(function($className) {
 		require_once(__DIR__ . '/Expressions.php');
 	} elseif ($className == 'NoreSources\SQL\CaseExpression') {
 		require_once(__DIR__ . '/Expressions.php');
+	} elseif ($className == 'NoreSources\SQL\SQLite\Constants') {
+		require_once(__DIR__ . '/SQLite/Constants.php');
 	} elseif ($className == 'NoreSources\SQL\SQLite\StatementBuilder') {
 		require_once(__DIR__ . '/SQLite/StatementBuilder.php');
 	} elseif ($className == 'NoreSources\SQL\SQLite\Connection') {
@@ -102,7 +104,11 @@ spl_autoload_register(function($className) {
 		require_once(__DIR__ . '/Connection.php');
 	} elseif ($className == 'NoreSources\SQL\TableConstraint') {
 		require_once(__DIR__ . '/TableConstraints.php');
-	} elseif ($className == 'NoreSources\SQL\KeyTableConstraint') {
+	} elseif ($className == 'NoreSources\SQL\ColumnTableConstraint') {
+		require_once(__DIR__ . '/TableConstraints.php');
+	} elseif ($className == 'NoreSources\SQL\PrimaryKeyTableConstraint') {
+		require_once(__DIR__ . '/TableConstraints.php');
+	} elseif ($className == 'NoreSources\SQL\UniqueTableConstraint') {
 		require_once(__DIR__ . '/TableConstraints.php');
 	} elseif ($className == 'NoreSources\SQL\ForeignKeyTableConstraint') {
 		require_once(__DIR__ . '/TableConstraints.php');

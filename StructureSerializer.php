@@ -281,7 +281,7 @@ class XMLStructureSerializer extends StructureSerializer
 		$pkNode = self::getSingleElementByTagName($node, K::XML_ELEMENT_PRIMARY_KEY);
 		if ($pkNode instanceof \DOMElement)
 		{
-			$constraint = new KeyTableConstraint(K::TABLE_CONSTRAINT_PRIMARY_KEY);
+			$constraint = new PrimaryKeyTableConstraint();
 			$constraint->constraintName = $pkNode->getAttribute('name');
 
 			$columnNodes = $xpath->query($columnNodeName, $pkNode);
@@ -343,16 +343,16 @@ class XMLStructureSerializer extends StructureSerializer
 			$type = K::DATATYPE_INTEGER;
 			if ($typeNode->hasAttribute('autoincrement'))
 			{
-				$structure->setProperty(K::PROPERTY_COLUMN_AUTOINCREMENT, true);
+				$structure->setProperty(K::COLUMN_PROPERTY_AUTOINCREMENT, true);
 			}
 			if ($typeNode->hasAttribute('length'))
 			{
-				$structure->setProperty(K::PROPERTY_COLUMN_DATA_SIZE, intval($typeNode->getAttribute('length')));
+				$structure->setProperty(K::COLUMN_PROPERTY_DATA_SIZE, intval($typeNode->getAttribute('length')));
 			}
 			if ($typeNode->hasAttribute('decimals'))
 			{
 				$count = intval($typeNode->getAttribute('decimals'));
-				$structure->setProperty(K::PROPERTY_COLUMN_DECIMAL_COUNT, $count);
+				$structure->setProperty(K::COLUMN_PROPERTY_FRACTION_DIGIT_COUNT, $count);
 				if ($count > 0)
 				{
 					$type = K::DATATYPE_FLOAT;
@@ -361,7 +361,7 @@ class XMLStructureSerializer extends StructureSerializer
 		}
 
 		if ($type != K::DATATYPE_UNDEFINED)
-			$structure->setProperty(K::PROPERTY_COLUMN_DATA_TYPE, $type);
+			$structure->setProperty(K::COLUMN_PROPERTY_DATA_TYPE, $type);
 
 		$defaultNode = self::getSingleElementByTagName($node, 'default');
 		if ($defaultNode instanceof \DOMElement)
@@ -412,7 +412,7 @@ class XMLStructureSerializer extends StructureSerializer
 						break;
 				}
 
-				$structure->setProperty(K::PROPERTY_COLUMN_DEFAULT_VALUE, $value);
+				$structure->setProperty(K::COLUMN_PROPERTY_DEFAULT_VALUE, $value);
 
 				break;
 			} // for each default value type

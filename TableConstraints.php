@@ -11,9 +11,6 @@ use NoreSources\SQL\Constants as K;
  */
 class TableConstraint
 {
-	const UNIQUE = K::TABLE_CONSTRAINT_UNIQUE;
-	const PRIMARY_KEY = K::TABLE_CONSTRAINT_PRIMARY_KEY;
-	const FOREIGN_KEY = K::TABLE_CONSTRAINT_FOREIGN_KEY;
 
 	/**
 	 * @var string
@@ -29,30 +26,21 @@ class TableConstraint
 	}
 }
 
-class KeyTableConstraint extends TableConstraint implements \ArrayAccess, \IteratorAggregate
+class ColumnTableConstraint extends TableConstraint implements \ArrayAccess, \IteratorAggregate, \Countable
 {
 
 	/**
-	 * @var integer One of Constants::TABLE_CONSTRAINT_UNIQUE or Constants::TABLE_CONSTRAINT_PRIMARY_KEY
+	 * @param array $columns Column names on which the key applies.
+	 * @param unknown $name Constraint name
 	 */
-	public $type;
-
-	public $onConflict;
-
-	/**
-	 * @param integer $type One of Constants::KEY_CONSTRAINT_UNIQUE or Constants::KEY_CONSTRAINT_PRIMARY
-	 * @param array $columns
-	 * @param string $onConflict One of Constants::KEY_CONFLICT_*
-	 */
-	public function __construct($type = self::PRIMARY, $columns = array (), $onConflict = null)
+	protected function __construct($columns = array (), $name = null)
 	{
-		$this->type = $type;
-		$this->onConflict = $onConflict;
+		parent::__construct($name);
 		$this->columns = new \ArrayObject($columns);
 	}
 
 	/**
-	 * @property-read \ArrayObject $columns
+	 * @property-read \ArrayObject $columns Column names on which the key applies.
 	 * @param string $member
 	 * @throws \InvalidArgumentException
 	 * @return \ArrayObject
@@ -64,6 +52,16 @@ class KeyTableConstraint extends TableConstraint implements \ArrayAccess, \Itera
 		throw new \InvalidArgumentException($member);
 	}
 
+	public function count()
+	{
+		return $this->columns->count();
+	}
+
+	/**
+	 * Get an interator on columns
+	 * {@inheritdoc}
+	 * @see IteratorAggregate::getIterator()
+	 */
 	public function getIterator()
 	{
 		return $this->columns->getIterator();
@@ -89,7 +87,35 @@ class KeyTableConstraint extends TableConstraint implements \ArrayAccess, \Itera
 		return $this->columns->offsetUnset($offset);
 	}
 
+	/**
+	 * Column names on which the key applies.
+	 * @var \ArrayObject
+	 */
 	private $columns;
+}
+
+class PrimaryKeyTableConstraint extends ColumnTableConstraint
+{
+	/*
+	* @param array $columns Column names on which the key applies.
+	* @param unknown $name Constraint name
+	*/
+	public function __construct($columns = array (), $name = null)
+	{
+		parent::__construct ($columns, $name);
+	}
+}
+
+class UniqueTableConstraint extends ColumnTableConstraint
+{
+	/*
+	 * @param array $columns Column names on which the key applies.
+	 * @param unknown $name Constraint name
+	 */
+	public function __construct($columns = array (), $name = null)
+	{
+		parent::__construct ($columns, $name);
+	}
 }
 
 /**
@@ -102,8 +128,14 @@ class ForeignKeyTableConstraint extends TableConstraint implements \IteratorAggr
 	const ACTION_CASCADE = K::FOREIGN_KEY_ACTION_CASCADE;
 	const ACTION_RESTRICT = K::FOREIGN_KEY_ACTION_RESTRICT;
 
+	/**
+	 * ON DELETE action.
+	 */
 	public $onDelete;
 
+	/**
+	 * ON UPDATE action.
+	 */
 	public $onUpdate;
 
 	public function __construct(TableStructure $foreignTable, $name = '')

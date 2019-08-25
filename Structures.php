@@ -227,13 +227,13 @@ abstract class StructureElement implements \ArrayAccess, \IteratorAggregate, \Co
  */
 class TableColumnStructure extends StructureElement
 {
-	const DATA_TYPE = K::PROPERTY_COLUMN_DATA_TYPE;
-	const AUTO_INCREMENT = K::PROPERTY_COLUMN_AUTOINCREMENT;
-	const ACCEPT_NULL = K::PROPERTY_COLUMN_NULL;
-	const DATA_SIZE = K::PROPERTY_COLUMN_DATA_SIZE;
-	const DECIMAL_COUNT = K::PROPERTY_COLUMN_DECIMAL_COUNT;
-	const ENUMERATION = K::PROPERTY_COLUMN_ENUMERATION;
-	const DEFAULT_VALUE = K::PROPERTY_COLUMN_DEFAULT_VALUE;
+	const DATATYPE = K::COLUMN_PROPERTY_DATA_TYPE;
+	const AUTO_INCREMENT = K::COLUMN_PROPERTY_AUTOINCREMENT;
+	const ACCEPT_NULL = K::COLUMN_PROPERTY_NULL;
+	const DATA_SIZE = K::COLUMN_PROPERTY_DATA_SIZE;
+	const FRACTION_DIGIT_COUNT = K::COLUMN_PROPERTY_FRACTION_DIGIT_COUNT;
+	const ENUMERATION = K::COLUMN_PROPERTY_ENUMERATION;
+	const DEFAULT_VALUE = K::COLUMN_PROPERTY_DEFAULT_VALUE;
 
 	public function __construct(/*TableStructure */$a_tableStructure, $name)
 	{
@@ -247,7 +247,7 @@ class TableColumnStructure extends StructureElement
 						'set' => true,
 						'value' => false
 				),
-				self::DECIMAL_COUNT => array (
+				self::FRACTION_DIGIT_COUNT => array (
 						'set' => true,
 						'value' => 0
 				),
@@ -255,7 +255,7 @@ class TableColumnStructure extends StructureElement
 						'set' => false,
 						'value' => 0
 				),
-				self::DATA_TYPE => array (
+				self::DATATYPE => array (
 						'set' => true,
 						'value' => K::DATATYPE_STRING
 				),
@@ -359,11 +359,11 @@ class TableStructure extends StructureElement
 	 */
 	public function addConstraint(TableConstraint $constraint)
 	{
-		if ($constraint instanceof KeyTableConstraint && $constraint->type == K::TABLE_CONSTRAINT_PRIMARY_KEY)
+		if ($constraint instanceof PrimaryKeyTableConstraint)
 		{
 			foreach ($this->constraints as $value)
 			{
-				if ($value instanceof KeyTableConstraint && $value->type == K::TABLE_CONSTRAINT_PRIMARY_KEY)
+				if ($value instanceof PrimaryKeyTableConstraint)
 				{
 					throw new StructureException($this, 'Primary key already exists.');
 				}

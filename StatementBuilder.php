@@ -94,24 +94,24 @@ abstract class StatementBuilder
 	 */
 	public function getColumnDescription(TableColumnStructure $column)
 	{
-		$type = $column->getProperty(K::PROPERTY_COLUMN_DATA_TYPE);
+		$type = $column->getProperty(K::COLUMN_PROPERTY_DATA_TYPE);
 
 		$s = $this->escapeIdentifier($column->getName());
 
 		$s .= ' ' . $this->getColumnTymeName($type);
-		if ($column->hasProperty(K::PROPERTY_COLUMN_DATA_SIZE))
+		if ($column->hasProperty(K::COLUMN_PROPERTY_DATA_SIZE))
 		{
-			$s .= '(' . $column->getProperty(K::PROPERTY_COLUMN_DATA_SIZE) . ')';
+			$s .= '(' . $column->getProperty(K::COLUMN_PROPERTY_DATA_SIZE) . ')';
 		}
 
-		if (!$column->getProperty(K::PROPERTY_COLUMN_NULL))
+		if (!$column->getProperty(K::COLUMN_PROPERTY_NULL))
 		{
 			$s .= ' NOT NULL';
 		}
 
-		if ($column->hasProperty(K::PROPERTY_COLUMN_DEFAULT_VALUE))
+		if ($column->hasProperty(K::COLUMN_PROPERTY_DEFAULT_VALUE))
 		{
-			$s .= ' DEFAULT ' . $this->getLiteral($column->getProperty(K::PROPERTY_COLUMN_DEFAULT_VALUE), $type);
+			$s .= ' DEFAULT ' . $this->getLiteral($column->getProperty(K::COLUMN_PROPERTY_DEFAULT_VALUE), $type);
 		}
 
 		return $s;
@@ -125,9 +125,12 @@ abstract class StatementBuilder
 			$s .= 'CONSTRAINT ' . $this->escapeIdentifier($constraint->constraintName) . ' ';
 		}
 
-		if ($constraint instanceof KeyTableConstraint)
+		if ($constraint instanceof ColumnTableConstraint)
 		{
-			$s .= ($constraint->type == TableConstraint::PRIMARY_KEY) ? 'PRIMARY KEY' : 'UNIQUE';
+			if ($constraint instanceof PrimaryKeyTableConstraint)
+				$s .= 'PRIMARY KEY';
+			elseif ($constraint instanceof UniqueTableConstraint)
+				$v .= 'UNIQUE';
 			$columns = array ();
 
 			foreach ($constraint as $column)
@@ -136,11 +139,6 @@ abstract class StatementBuilder
 			}
 
 			$s .= ' (' . implode(', ', $columns) . ')';
-
-			if ($constraint->onConflict)
-			{
-				$s .= ' ON CONFLICT ' . $constraint->onConflict;
-			}
 		}
 		elseif ($constraint instanceof ForeignKeyTableConstraint)
 		{
@@ -204,7 +202,7 @@ abstract class StatementBuilder
 		if ($expression instanceof ColumnExpression)
 		{
 			$column = $resolver->findColumn($expression->path);
-			return $column->getProperty(TableColumnStructure::DATA_TYPE);
+			return $column->getProperty(TableColumnStructure::DATATYPE);
 		}
 		else if ($expression instanceof UnaryOperatorExpression)
 		{
