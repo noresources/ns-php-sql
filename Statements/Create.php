@@ -56,7 +56,7 @@ class CreateTableQuery extends Statement
 		
 		foreach ($this->structure as $name => $column)
 		{
-			$instructions[] = $context->getColumnDescription($column);
+			$instructions[] = $context->getColumnDescription($column, $context);
 		}
 
 		// Constraints

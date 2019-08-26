@@ -46,12 +46,12 @@ class PreformattedExpression implements Expression
 		$this->type = $type;
 	}
 
-	function buildExpression(StatementContext $context)
+	public function buildExpression(StatementContext $context)
 	{
 		return $this->expression;
 	}
 
-	function getExpressionDataType()
+	public function getExpressionDataType()
 	{
 		return $this->type;
 	}
@@ -62,6 +62,46 @@ class PreformattedExpression implements Expression
 	}
 
 	private $type;
+}
+
+/**
+ * SQL Language keyword.
+ *
+ * For all keyword that may differ from a SGBD to another.
+ */
+class KeywordExpression implements Expression
+{
+
+	/**
+	 * Keyword constant.
+	 * One of Constants\KEYWORD_*.
+	 * 
+	 * @var integer
+	 */
+	public $keyword;
+
+	/**
+	 * @param integer $keyword
+	 */
+	public function __construct($keyword)
+	{
+		$this->keyword = $keyword;
+	}
+
+	public function buildExpression(StatementContext $context)
+	{
+		return $context->getKeyword($this->keyword);
+	}
+
+	public function getExpressionDataType()
+	{
+		return K::DATATYPE_UNDEFINED;
+	}
+
+	public function traverse($callable, StatementContext $context, $flags = 0)
+	{
+		call_user_func($callable, $this, $context, $flags);
+	}
 }
 
 /**

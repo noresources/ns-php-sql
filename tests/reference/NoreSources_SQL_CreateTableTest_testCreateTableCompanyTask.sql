@@ -2,6 +2,7 @@ CREATE TABLE [ns_unittests].[Tasks]
 (
 [id] INTEGER,
 [name] TEXT,
+[creationDateTime] TEXT DEFAULT CURRENT_TIMESTAMP,
 [priority] INTEGER,
 [category] INTEGER,
 [creator] INTEGER DEFAULT 0,

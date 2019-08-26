@@ -159,7 +159,7 @@ class ExpressionEvaluator
 		{
 			return $this->evaluateString($expression);
 		}
-		elseif (ns\ArrayUtil::isArray($expression))
+		elseif (ns\ContainerUtil::isArray($expression))
 		{
 			if (ns\ArrayUtil::isAssociative($expression))
 			{

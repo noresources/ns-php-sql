@@ -41,6 +41,25 @@ abstract class StatementBuilder
 	abstract function getColumnTymeName($dataType = K::DATATYPE_UNDEFINED);
 
 	/**
+	 * Get syntax keyword.
+	 * @param integer $keyword
+	 * @throws \InvalidArgumentException
+	 * @return string
+	 */
+	public function getKeyword($keyword)
+	{
+		switch ($keyword)
+		{
+			case K::KEYWORD_CURRENT_TIMESTAMP:
+				return 'CURRENT_TIMESTAMP';
+			case K::KEYWORD_NULL:
+				return 'NULL';
+		}
+
+		throw new \InvalidArgumentException($keyword);
+	}
+
+	/**
 	 * @param integer $joinTypeFlags JOIN type flags
 	 * @return string
 	 */
@@ -92,7 +111,7 @@ abstract class StatementBuilder
 	 * @param TableColumnStructure $column
 	 * @return string
 	 */
-	public function getColumnDescription(TableColumnStructure $column)
+	public function getColumnDescription(TableColumnStructure $column, StatementContext $context)
 	{
 		$type = $column->getProperty(K::COLUMN_PROPERTY_DATA_TYPE);
 
@@ -111,7 +130,12 @@ abstract class StatementBuilder
 
 		if ($column->hasProperty(K::COLUMN_PROPERTY_DEFAULT_VALUE))
 		{
-			$s .= ' DEFAULT ' . $this->getLiteral($column->getProperty(K::COLUMN_PROPERTY_DEFAULT_VALUE), $type);
+			$v = $column->getProperty(K::COLUMN_PROPERTY_DEFAULT_VALUE);
+			$s .= ' DEFAULT ';
+			if ($v instanceof Expression)
+				$s .= $v->buildExpression($context);
+			else
+				$s .= $this->getLiteral($v, $type);
 		}
 
 		return $s;
@@ -239,6 +263,9 @@ abstract class StatementBuilder
 	 */
 	public function getLiteral($value, $type)
 	{
+		if ($type == K::DATATYPE_NULL)
+			return $this->getKeyword(K::KEYWORD_NULL);
+		
 		if (ContainerUtil::isArray($value))
 		{
 			$dateTimeKeys = array (
@@ -327,15 +354,20 @@ abstract class StatementBuilder
 
 	private function getForeignKeyAction($action)
 	{
-		switch ($action) {
-			case K::FOREIGN_KEY_ACTION_CASCADE: return 'CASCADE';
-			case K::FOREIGN_KEY_ACTION_RESTRICT: return 'RESTRICT';
-			case K::FOREIGN_KEY_ACTION_SET_DEFAULT: return 'SET DEFAULT';
-			case K::FOREIGN_KEY_ACTION_SET_NULL: 'SET NULL';
+		switch ($action)
+		{
+			case K::FOREIGN_KEY_ACTION_CASCADE:
+				return 'CASCADE';
+			case K::FOREIGN_KEY_ACTION_RESTRICT:
+				return 'RESTRICT';
+			case K::FOREIGN_KEY_ACTION_SET_DEFAULT:
+				return 'SET DEFAULT';
+			case K::FOREIGN_KEY_ACTION_SET_NULL:
+				'SET NULL';
 		}
 		return 'NO ACTION';
 	}
-	
+
 	/**
 	 * @var integer
 	 */
@@ -384,7 +416,7 @@ class GenericStatementBuilder extends StatementBuilder
 	{
 		return '$' . $name;
 	}
-	
+
 	public function getColumnTymeName ($dataType = K::DATATYPE_UNDEFINED)
 	{
 		switch ($dataType) {

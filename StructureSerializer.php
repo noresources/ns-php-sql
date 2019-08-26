@@ -369,7 +369,8 @@ class XMLStructureSerializer extends StructureSerializer
 			$nodeNames = array (
 					'integer',
 					'boolean',
-					'datetime',
+					'datetime', // deprecated
+					'timestamp',
 					'string',
 					'null',
 					'number',
@@ -393,8 +394,12 @@ class XMLStructureSerializer extends StructureSerializer
 					case 'boolean':
 						$value = ($value == 'true' ? true : false);
 						break;
-					case 'datetime':
-						$value = \DateTime::createFromFormat(\DateTime::ISO8601, $value);
+					case 'timestamp':
+					case 'datetime': // deprecated
+						if (strlen ($value))
+							$value = \DateTime::createFromFormat(\DateTime::ISO8601, $value);
+						else
+							$value = new KeywordExpression(K::KEYWORD_CURRENT_TIMESTAMP);
 						break;
 					case 'null':
 						$value = null;

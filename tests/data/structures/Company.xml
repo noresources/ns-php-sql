@@ -51,6 +51,16 @@
 					<sql:string length="32" />
 				</sql:datatype>
 			</sql:column>
+			<sql:column name="creationDateTime">
+				<sql:comment>Creation timestamp</sql:comment>
+				<sql:datatype>
+					<sql:timestamp />
+				</sql:datatype>
+				<sql:default>
+					<!-- Empty value = NOW / CURRENT_TIMESTAMP -->
+					<sql:datetime />
+				</sql:default>
+			</sql:column>
 			<sql:column name="priority">
 				<sql:datatype>
 					<sql:numeric />

@@ -161,6 +161,18 @@ class Constants
 	const JOIN_OUTER = 0x02;
 
 	/**
+	 * CURRENT_TIMESTAMP, CURRENT_TIMESTAMP() or NOW()
+	 * @var integer
+	 */
+	const KEYWORD_CURRENT_TIMESTAMP = 0;
+	
+	/**
+	 * NULL keyword
+	 * @var integer
+	 */
+	const KEYWORD_NULL = 1;
+	
+	/**
 	 * Ascending ORDER BY
 	 * @var string
 	 */
