@@ -12,23 +12,45 @@ use NoreSources\ContainerUtil;
 abstract class StatementBuilder
 {
 
+	/**
+	 * @param number $flags Builder flags
+	 */
 	public function __construct($flags = 0)
 	{
 		$this->builderFlags = $flags;
 		$this->evaluator = null;
 	}
 
+	/**
+	 * @return number
+	 */
 	public function getBuilderFlags()
 	{
 		return $this->builderFlags;
 	}
 
+	/**
+	 * Escape text string to be inserted in a SQL statement.
+	 * @param string $value
+	 */
 	abstract function escapeString($value);
 
+	/**
+	 * Escape SQL identifier to be inserted in a SQL statement.
+	 * @param string $identifier
+	 */
 	abstract function escapeIdentifier($identifier);
 
+	/**
+	 * Indicates if the given name is a valid parameter name
+	 * @param mixed $name
+	 */
 	abstract function isValidParameterName($name);
 
+	/**
+	 * @param mixed $name
+	 * @param StatementContext $context
+	 */
 	abstract function normalizeParameterName($name, StatementContext $context);
 
 	abstract function getParameter($name, $index = -1);
@@ -141,6 +163,12 @@ abstract class StatementBuilder
 		return $s;
 	}
 
+	/**
+	 * Build a partial SQL statement describing a table constraint in a CREATE TABLE statement.  
+	 * @param TableStructure $structure
+	 * @param TableConstraint $constraint
+	 * @return string
+	 */
 	public function getTableConstraintDescription(TableStructure $structure, TableConstraint $constraint)
 	{
 		$s = '';
@@ -215,6 +243,12 @@ abstract class StatementBuilder
 		return new PreformattedExpression($expression);
 	}
 
+	/**
+	 * Find the kind of data returned by the given expression.
+	 * @param Expression $expression
+	 * @param StructureResolver $resolver
+	 * @return number|boolean|number|NULL|string|string
+	 */
 	public function resolveExpressionType(Expression $expression, StructureResolver $resolver)
 	{
 		$type = $expression->getExpressionDataType();
@@ -352,6 +386,11 @@ abstract class StatementBuilder
 		return $this;
 	}
 
+	/**
+	 * GET the SQL keyword associated to the given foreign key action
+	 * @param string $action
+	 * @return string
+	 */
 	private function getForeignKeyAction($action)
 	{
 		switch ($action)
