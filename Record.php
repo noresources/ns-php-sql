@@ -3,7 +3,6 @@
 namespace NoreSources\SQL;
 
 use NoreSources as ns;
-use dp\Application\Data\RecordException;
 
 /**
  * The record values differs from the entry stored in the datasource
@@ -658,10 +657,10 @@ class Record implements \ArrayAccess, \IteratorAggregate
 	 */
 	public static function deleteRecord (Table $table, $options = null, $flags = kRecordQueryMultiple, $className = null)
 	{
-		$sql = self::queryRecord($table, $options, $flags | self::QUERY_SQL, $className);
 		$records = self::queryRecord($table, $options, $flags, $className);
-		if ($records instanceof Record) {
-			$record->delete ();
+		if ($records instanceof Record) 
+		{
+			$records->delete();
 			return 1;
 		}
 		elseif (\is_array ($records))
@@ -670,6 +669,7 @@ class Record implements \ArrayAccess, \IteratorAggregate
 			{
 				$record->delete();
 			}
+			
 			return count ($records);
 		}
 		
@@ -1287,14 +1287,14 @@ class Record implements \ArrayAccess, \IteratorAggregate
 	 * 
 	 * @param string $key
 	 * @param unknown $value
-	 * @throws RecordException
+	 * @throws \Exception
 	 */
 	protected function setEphemeral($key, $value = null)
 	{
 		$structure = $this->m_table->getStructure();
 		if ($structure->offsetExists($key))
 		{
-			throw new RecordException($this, 'Cannot set ' . $key . ' as ephemeral.Key exists in table structure');
+			throw new \Exception('Cannot set ' . $key . ' as ephemeral.Key exists in table structure');
 		}
 		
 		$this->m_ephemerals[$key] = $value;
@@ -1307,7 +1307,7 @@ class Record implements \ArrayAccess, \IteratorAggregate
 			return $this->m_ephemerals[$member];
 		}
 		
-		throw new RecordException($this, 'Invalid ephemeral key ' . $member);
+		throw new \Exception('Invalid ephemeral key ' . $member);
 	}
 
 	protected function buildEphemerals(){}
