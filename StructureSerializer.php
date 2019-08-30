@@ -4,7 +4,7 @@ namespace NoreSources\SQL;
 
 use NoreSources as ns;
 use NoreSources\SQL\Constants as K;
-use NoreSources\ContainerUtil;
+use NoreSources\SQL\ExpressionEvaluator as X;
 
 abstract class StructureSerializer implements \Serializable
 {
@@ -385,38 +385,56 @@ class XMLStructureSerializer extends StructureSerializer
 					continue;
 
 				$value = $valueNode->nodeValue;
-
+				$valueType = K::DATATYPE_UNDEFINED;
 				switch ($name)
 				{
 					case 'integer':
 						$value = intval($value);
+						$valueType = K::DATATYPE_INTEGER;
 						break;
 					case 'boolean':
 						$value = ($value == 'true' ? true : false);
+						$valueType = K::DATATYPE_BOOLEAN;
 						break;
 					case 'timestamp':
-					case 'datetime': // deprecated
+					case 'datetime': 
+						$valueType = K::DATATYPE_TIMESTAMP;// deprecated
 						if (strlen ($value))
 							$value = \DateTime::createFromFormat(\DateTime::ISO8601, $value);
 						else
 							$value = new KeywordExpression(K::KEYWORD_CURRENT_TIMESTAMP);
 						break;
 					case 'null':
+						$valueType = K::DATATYPE_NULL;
 						$value = null;
 						break;
 					case 'number':
+						$ivalue = intval($value);
 						$value = floatval($value);
+						$valueType = K::DATATYPE_FLOAT;
+						if ($ivalue == $value)
+						{
+							$valueType = K::DATATYPE_INTEGER;
+							$value = $ivalue;
+						}
 						break;
 					case 'base64Binary':
+						$valueType = K::DATATYPE_BINARY;
 						$value = base64_decode($value);
 						break;
 					case 'hexBinary':
+						$valueType = K::DATATYPE_BINARY;
 						$value = hex2bin($value);
 						break;
 					default:
 						break;
 				}
-
+				
+				if (!($value instanceof Expression))
+				{
+					$value = X::literal($value, $valueType);					
+				}
+				
 				$structure->setProperty(K::COLUMN_PROPERTY_DEFAULT_VALUE, $value);
 
 				break;
@@ -544,7 +562,7 @@ class XMLStructureSerializer extends StructureSerializer
 					if ($eventNode)
 					{
 						$action = $eventNode->getAttribute ('action');
-						if (ContainerUtil::keyExists($actions, $action))
+						if (ns\ContainerUtil::keyExists($actions, $action))
 						{
 							$fk->$event = $actions[$action];
 						}
