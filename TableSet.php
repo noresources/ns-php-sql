@@ -117,14 +117,13 @@ class TableSet extends SQLObject implements IExpression, ITableProvider
 		$result = true;
 		if ($a_mode & kObjectQuerySchema)
 		{
+			$result = false;
 			if ($this->structure)
 			{
 				$result = ($this->structure->offsetExists($a_name));
 			}
-			else
-			{
-				return false;
-			}
+			
+			if (!$result) return false;
 		}
 		
 		if ($a_mode & kObjectQueryDatasource)

@@ -221,10 +221,14 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 					$result = $db->offsetExists($a_name);
 				}
 			}
+			
+			if (!$result)
+				return false;
 		}
 		
 		if ($a_mode & kObjectQueryDatasource)
 		{
+			die ('test');
 			$a = $this->getTableSetStructure($this, false);
 			$result = ($result && (($a instanceof TableSetStructure) && $a->offsetExists($a_name) && ($a[$a_name] instanceof TableStructure)));
 		}
@@ -685,19 +689,17 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 	{
 		$v = $this->createData(kDataTypeString);
 		$v->import('table');
-		$queryStr = 'SELECT * FROM ' . $this->encloseElement($this->m_databaseName) . '.' . $this->encloseElement('sqlite_master') . ' WHERE ' . $this->encloseElement('type') . '=' . $v->expressionString() . ' ORDER BY ' . $this->encloseElement('name') . ';';
-		$query = new FormattedQuery($this, $queryStr);
-		$queryRes = $query->execute();
-		if ($queryRes === false)
-		{
-			return false;
-		}
+		$sql = 'SELECT * FROM ' . $this->encloseElement($this->m_databaseName) . '.' . $this->encloseElement('sqlite_master') . ' WHERE ' . $this->encloseElement('type') . '=' . $v->expressionString() . ' ORDER BY ' . $this->encloseElement('name') . ';';
+		$query = new FormattedQuery($this, $sql);
+		$records = $query->execute();
+		if (!($records instanceof Recordset))
+			throw new \Exception ($sql);
 		
 		$name = ($a_containerObject == $this) ? $this->m_databaseName : $a_containerObject->getName();
 		
 		$structure = new TableSetStructure($this->structure, $name);
 		
-		foreach ($queryRes as $row)
+		foreach ($records as $row)
 		{
 			$ts = null;
 			if ($recursive)
@@ -720,9 +722,8 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 
 	public function getTableStructure(Table $a_table)
 	{
-		// ns\echo_line($queryStr);
-		$queryStr = 'PRAGMA table_info(\'' . $a_table->getName() . '\')';
-		$queryRes = new Recordset($this, $this->executeQuery($queryStr), kRecordsetFetchName);
+		$sql = 'PRAGMA table_info(\'' . $a_table->getName() . '\')';
+		$queryRes = new Recordset($this, $this->executeQuery($sql), kRecordsetFetchName);
 		if ($queryRes === false)
 		{
 			return false;
