@@ -1,0 +1,1 @@
+INSERT INTO [ns_unittests].[Tasks]([creator], [name]) VALUES (1, substr('Lorem ipsum', 0, 5))

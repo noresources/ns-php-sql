@@ -37,7 +37,6 @@
 		<sql:index name="index_employees_name">
 			<sql:tableref name="Employees" />
 			<sql:column name="name" />
-			<sql:column name="pia" />
 		</sql:index>
 
 		<sql:table name="Tasks">

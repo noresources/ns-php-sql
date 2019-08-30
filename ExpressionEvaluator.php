@@ -15,6 +15,14 @@ class ExpressionEvaluationException extends \ErrorException
 	}
 }
 
+/**
+ * Any type that can be evaluated by the ExpressionEvaluator
+ */
+interface Evaluable
+{
+	
+}
+
 class ExpressionEvaluator
 {
 

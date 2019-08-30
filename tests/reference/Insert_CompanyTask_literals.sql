@@ -1,0 +1,1 @@
+INSERT INTO [ns_unittests].[Tasks]([name], [creationDateTime]) VALUES ('Test task', '2012-01-16T16:35:26+0100')

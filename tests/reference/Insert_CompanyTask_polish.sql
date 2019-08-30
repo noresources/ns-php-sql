@@ -1,0 +1,1 @@
+INSERT INTO [ns_unittests].[Tasks]([name], [priority]) VALUES ('Random priority', rand(1, 10))

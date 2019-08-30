@@ -5,8 +5,8 @@ CREATE TABLE [ns_unittests].[Tasks]
 [creationDateTime] TEXT DEFAULT CURRENT_TIMESTAMP,
 [priority] INTEGER,
 [category] INTEGER,
-[creator] INTEGER DEFAULT 0,
-[assignedTo] INTEGER DEFAULT 0,
+[creator] INTEGER DEFAULT NULL,
+[assignedTo] INTEGER DEFAULT NULL,
 CONSTRAINT [pk_tid] PRIMARY KEY ([id]),
 CONSTRAINT [fk_creator] FOREIGN KEY ([creator]) REFERENCES [ns_unittests].[Employees] ([id]) ON UPDATE CASCADE ON DELETE CASCADE,
 FOREIGN KEY ([assignedTo]) REFERENCES [ns_unittests].[Employees] ([id]) ON UPDATE CASCADE ON DELETE CASCADE

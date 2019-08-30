@@ -13,7 +13,11 @@ class StatementBuilder extends sql\StatementBuilder
 
 	public function __construct(sql\ExpressionEvaluator $evaluator = null)
 	{
-		parent::__construct(0);
+		parent::__construct(
+				K::BUILDER_EXTENDED_RESULTCOLUMN_ALIAS_RESOLUTION
+				| K::BUILDER_INSERT_DEFAULT_KEYWORD
+		);
+		
 		if (!($evaluator instanceof sql\ExpressionEvaluator))
 			$evaluator = new sql\ExpressionEvaluator();
 		$this->setExpressionEvaluator($evaluator);

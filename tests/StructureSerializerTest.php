@@ -23,8 +23,6 @@ final class StructureSerializerTest extends TestCase
 		$this->assertEquals('string', gettype($text));
 		$a = json_decode($text, true);
 		$this->assertArrayHasKey('tablesets', $a);
-		
-		//echo ($text);
 	}
 
 	private function getStructureFileContent($name)

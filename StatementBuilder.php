@@ -4,7 +4,6 @@ namespace NoreSources\SQL;
 
 use NoreSources as ns;
 use NoreSources\SQL\Constants as K;
-use NoreSources\ContainerUtil;
 
 /**
  * Build a SQL statement string to be used in a SQL engine
@@ -152,19 +151,18 @@ abstract class StatementBuilder
 
 		if ($column->hasProperty(K::COLUMN_PROPERTY_DEFAULT_VALUE))
 		{
-			$v = $column->getProperty(K::COLUMN_PROPERTY_DEFAULT_VALUE);
-			$s .= ' DEFAULT ';
-			if ($v instanceof Expression)
-				$s .= $v->buildExpression($context);
-			else
-				$s .= $this->getLiteral($v, $type);
+			$v = $context->evaluateExpression(
+					$column->getProperty(K::COLUMN_PROPERTY_DEFAULT_VALUE)
+					);
+
+			$s .= ' DEFAULT ' . $v->buildExpression($context);
 		}
 
 		return $s;
 	}
 
 	/**
-	 * Build a partial SQL statement describing a table constraint in a CREATE TABLE statement.  
+	 * Build a partial SQL statement describing a table constraint in a CREATE TABLE statement.
 	 * @param TableStructure $structure
 	 * @param TableConstraint $constraint
 	 * @return string
@@ -198,7 +196,7 @@ abstract class StatementBuilder
 			if ($constraint->count())
 			{
 				$s .= ' (';
-				$s .= ContainerUtil::implodeKeys($constraint->columns, ', ', array (
+				$s .= ns\ContainerUtil::implodeKeys($constraint->columns, ', ', array (
 						$this,
 						'escapeIdentifier'
 				));
@@ -208,7 +206,7 @@ abstract class StatementBuilder
 			if ($constraint->count())
 			{
 				$s .= ' (';
-				$s .= ContainerUtil::implodeValues($constraint->columns, ', ', array (
+				$s .= ns\ContainerUtil::implodeValues($constraint->columns, ', ', array (
 						$this,
 						'escapeIdentifier'
 				));
@@ -300,7 +298,7 @@ abstract class StatementBuilder
 		if ($type == K::DATATYPE_NULL)
 			return $this->getKeyword(K::KEYWORD_NULL);
 		
-		if (ContainerUtil::isArray($value))
+		if (ns\ContainerUtil::isArray($value))
 		{
 			$dateTimeKeys = array (
 					'date',
@@ -308,7 +306,7 @@ abstract class StatementBuilder
 					'timezone_type'
 			);
 			$matchingKeys = 0;
-			if (ContainerUtil::count($value) == 3)
+			if (ns\ContainerUtil::count($value) == 3)
 			{
 				foreach ($dateTimeKeys as $key)
 				{
@@ -425,8 +423,9 @@ abstract class StatementBuilder
 class GenericStatementBuilder extends StatementBuilder
 {
 
-	public function __construct()
+	public function __construct($flags = 0)
 	{
+		parent::__construct($flags);
 		$this->parameters = new \ArrayObject();
 		$this->setExpressionEvaluator(new ExpressionEvaluator());
 	}

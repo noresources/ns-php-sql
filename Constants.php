@@ -165,13 +165,13 @@ class Constants
 	 * @var integer
 	 */
 	const KEYWORD_CURRENT_TIMESTAMP = 0;
-	
+
 	/**
 	 * NULL keyword
 	 * @var integer
 	 */
 	const KEYWORD_NULL = 1;
-	
+
 	/**
 	 * Ascending ORDER BY
 	 * @var string
@@ -217,6 +217,18 @@ class Constants
 	 * @var integer
 	 */
 	const BUILDER_EXTENDED_RESULTCOLUMN_ALIAS_RESOLUTION = 0x01;
+
+	/**
+	 * INSERT INTO {table} DEFAULT VALUES syntax support
+	 * @var integer
+	 */
+	const BUILDER_INSERT_DEFAULT_VALUES = 0x02;
+	
+	/**
+	 * INSERT INTO {table} ({column}) VALUES (DEFAULT) syntax support
+	 * @var integer
+	 */
+	const BUILDER_INSERT_DEFAULT_KEYWORD = 0x04;
 
 	// Recordset flags
 

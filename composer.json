@@ -20,7 +20,7 @@
 		}
 	},
 	"scripts": {
-		"tests": "@php  ./vendor/bin/phpunit --bootstrap autoload.php tests"
+		"tests": "@php  ./vendor/bin/phpunit --bootstrap tests/bootstrap.php tests"
 	},
 	"prefer-stable": false,
 	"minimum-stability": "dev",
