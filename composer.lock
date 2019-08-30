@@ -4,8 +4,44 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "582a82e7de03beda4d6b8873f27d4417",
+    "content-hash": "a337efb32406bc2e1b3f986a07c48493",
     "packages": [
+        {
+            "name": "ferno/loco",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ferno/loco.git",
+                "reference": "75743fe66f1dedb96ed8453e0360e19815e6cd7f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ferno/loco/zipball/75743fe66f1dedb96ed8453e0360e19815e6cd7f",
+                "reference": "75743fe66f1dedb96ed8453e0360e19815e6cd7f",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "require-dev": {
+                "jakub-onderka/php-parallel-lint": "0.*",
+                "squizlabs/php_codesniffer": "^2.3"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "src/Loco.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "homepage": "http://qntm.org/loco",
+            "keywords": [
+                "lexer",
+                "parser",
+                "parsing"
+            ],
+            "time": "2016-09-04T14:01:17+00:00"
+        },
         {
             "name": "noresources/ns-php-core",
             "version": "2.0.x-dev",
@@ -1240,7 +1276,9 @@
     ],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": [],
+    "stability-flags": {
+        "ferno/loco": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {

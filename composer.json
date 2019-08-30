@@ -32,7 +32,8 @@
 	],
 	"require": {
 		"php": ">= 5.4",
-		"noresources/ns-php-core": "~2.0"
+		"noresources/ns-php-core": "~2.0",
+		"ferno/loco": "dev-master"
 	},
 	"suggest": {
 		"ext-sqlite": "*",
