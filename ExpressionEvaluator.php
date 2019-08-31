@@ -832,6 +832,22 @@ class ExpressionEvaluator
 			return new BinaryOperatorExpression($o, $left, $right);
 		});
 
+		$between = new Loco\ConcParser(array (
+				'expression',
+				'space',
+				self::keywordParser('between'),
+				'space',
+				'expression',
+				'space',
+				self::keywordParser('and'),
+				'space',
+				'expression'
+				
+		), function ($left, $s1, $between, $s2, $min, $s3, $nd, $s4, $max ) {
+			 $x = new BetweenExpression($left, $min, $max);
+			return $x;
+		});
+		
 		$literal = new Loco\LazyAltParser(array (
 				'timestamp',
 				'number',
@@ -840,9 +856,10 @@ class ExpressionEvaluator
 				'false',
 				'null'
 		));
-
+		
 		$this->grammar = new Loco\Grammar('complex-expression', array (
 				'complex-expression' => new Loco\LazyAltParser(array (
+						'between',
 						'binary-operation',
 						'unary-operation',
 						'case',
@@ -864,6 +881,7 @@ class ExpressionEvaluator
 				'parenthesis' => $parenthesis,
 				'unary-operation' => $unaryOperation,
 				'binary-operation' => $binaryOperation,
+				'between' => $between,
 				'identifier' => $identifier,
 				'function-name' => $functionName,
 				'when-then' => $whenThen,

@@ -34,6 +34,25 @@ final class ExpressionEvaluatorTest extends TestCase
 		}
 	}
 
+	public function testComplex()
+	{
+		$list = [
+			'binary' => [ ':p1 or :p2', BinaryOperatorExpression::class ],
+			'complex binary' => [ '(:p1 * 2) or (not :p2)', BinaryOperatorExpression::class ],
+			'unary' => [ 'not null', UnaryOperatorExpression::class ],
+			'between' => [ 'peace between 1940 and 1945', BetweenExpression::class ],
+		];
+
+		$evaluator = new ExpressionEvaluator();
+
+		foreach ($list as $label => $test)
+		{
+			$label = $label . ' ' . strval($test[0]);
+			$e = $evaluator($test[0]);
+			$this->assertInstanceOf($test[1], $e);
+		}
+	}
+
 	public function testLiterals()
 	{
 		$list = [

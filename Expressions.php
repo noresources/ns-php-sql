@@ -75,7 +75,7 @@ class KeywordExpression implements Expression
 	/**
 	 * Keyword constant.
 	 * One of Constants\KEYWORD_*.
-	 * 
+	 *
 	 * @var integer
 	 */
 	public $keyword;
@@ -507,7 +507,7 @@ class BinaryOperatorExpression implements Expression
 		return $this->leftOperand->buildExpression($context) . ' ' . $this->operator . ' ' . $this->rightOperand->buildExpression($context);
 	}
 
-	function getExpressionDataType()
+	public function getExpressionDataType()
 	{
 		$t = $this->type;
 		if ($t == K::DATATYPE_UNDEFINED)
@@ -650,6 +650,65 @@ class CaseExpression implements Expression
 			$option->traverse($callable, $context, $flags);
 		}
 		$this->else->traverse($callable, $context, $flags);
+	}
+}
+
+/**
+ * a BETWEEN b AND c
+ */
+class BetweenExpression implements Expression
+{
+
+	/**
+	 * @var boolean
+	 */
+	public $inside;
+
+	/**
+	 * Left operand
+	 * @var Expression
+	 */
+	public $leftOperand;
+
+	/**
+	 * @var Expression
+	 */
+	public $minBoudary;
+
+	/**
+	 * @var Expression
+	 */
+	public $maxBoundary;
+
+	/**
+	 * @param Expression $left Left operand
+	 * @param Expression $min Minimum boundary
+	 * @param Expression $max Maximum boundary
+	 */
+	public function __construct(Expression $left = null, Expression $min = null, Expression $max = null)
+	{
+		$this->inside = true;
+		$this->leftOperand = $left;
+		$this->minBoudary = $min;
+		$this->maxBoundary = $max;
+	}
+
+	public function buildExpression(StatementContext $context)
+	{
+		return $this->leftOperand->buildExpression($context) . ($this->inside ? '' : ' NOT') . ' BETWEEN ' . $this->minBoudary->buildExpression($context) . ' AND ' . $this->maxBoudary->buildExpression($context);
+	}
+
+	public function getExpressionDataType()
+	{
+		return K::DATATYPE_BOOLEAN;
+	}
+
+	public function traverse($callable, StatementContext $context, $flags = 0)
+	{
+		call_user_func($callable, $this, $context, $flags);
+		$this->leftOperand->traverse($callable, $context, $flags);
+		$this->minBoudary->traverse($callable, $context, $flags);
+		$this->maxBoudary->traverse($callable, $context, $flags);
 	}
 }
 
