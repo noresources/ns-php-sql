@@ -12,13 +12,13 @@ final class InsertTest extends TestCase
 	public function __construct()
 	{
 		parent::__construct();
-		$this->datasources = new \ArrayObject();
-		$this->derivedFileManager = new \DerivedFileManager();
+		$this->datasources = new DatasourceManager();
+		$this->derivedFileManager = new DerivedFileManager();
 	}
 
 	public function testInsertBasic()
 	{
-		$serializer = $this->getDatasource('types');
+		$serializer = $this->datasources->get ('types');
 		$t = $serializer['ns_unittests']['types'];
 		$this->assertInstanceOf(TableStructure::class, $t);
 
@@ -42,7 +42,7 @@ final class InsertTest extends TestCase
 
 	public function testInsertCompanyTask()
 	{
-		$serializer = $this->getDatasource('Company');
+		$serializer = $this->datasources->get('Company');
 		$t = $serializer['ns_unittests']['Tasks'];
 		$this->assertInstanceOf(TableStructure::class, $t);
 		$builder = new GenericStatementBuilder();
@@ -81,23 +81,8 @@ final class InsertTest extends TestCase
 		}
 	}
 
-	private function getDatasource($name)
-	{
-		if ($this->datasources->offsetExists($name))
-			return $this->datasources[$name];
-
-		$filename = __DIR__ . '/data/structures/' . $name . '.xml';
-		$content = file_get_contents($filename);
-		$serializer = new XMLStructureSerializer();
-		//$serializer->unserialize($content);
-		$serializer->unserialize($filename);
-		$this->assertInstanceOf(DatasourceStructure::class, $serializer->structureElement);
-		$this->datasources->offsetSet($name, $serializer->structureElement);
-		return $serializer->structureElement;
-	}
-
 	/**
-	 * @var \ArrayObject
+	 * @var DatasourceManager
 	 */
 	private $datasources;
 
@@ -105,7 +90,7 @@ final class InsertTest extends TestCase
 
 	/**
 	 * 
-	 * @var \DerivedFileManager
+	 * @var DerivedFileManager
 	 */
 	private $derivedFileManager;
 }

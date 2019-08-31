@@ -2,3 +2,5 @@
 * text eol=crlf
 *.sh text eol=lf
 *.php text eol=crlf
+
+/tests/reference/*.sql text=auto

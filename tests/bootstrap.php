@@ -1,7 +1,47 @@
 <?php
-require_once (__DIR__ . '/../autoload.php');
+
+namespace NoreSources\SQL;
 
 use PHPUnit\Framework\TestCase;
+
+require_once (__DIR__ . '/../autoload.php');
+
+class DatasourceManager extends TestCase
+{
+
+	public function __construct()
+	{
+		$this->datasources = new \ArrayObject();
+	}
+
+	public function get($name)
+	{
+		if ($this->datasources->offsetExists($name))
+			return $this->datasources[$name];
+
+		$filename = __DIR__ . '/data/structures/' . $name . '.xml';
+
+		$this->assertFileExists($filename, $name . ' datasource loading');
+
+		$content = file_get_contents($filename);
+		$serializer = new XMLStructureSerializer();
+		$serializer->unserialize($filename);
+		
+		$this->assertInstanceOf(DatasourceStructure::class, 
+				$serializer->structureElement,
+				$name . ' datasource loading'
+		);
+		
+		$this->datasources->offsetSet($name, $serializer->structureElement);
+		
+		return $serializer->structureElement;
+	}
+
+	/**
+	 * @var \ArrayObject
+	 */
+	private $datasources;
+}
 
 class DerivedFileManager extends TestCase
 {
@@ -74,9 +114,9 @@ class DerivedFileManager extends TestCase
 	{
 		preg_match('/.*\\\\(.*?)Test::test(.*)$/', $method, $m);
 		$cls = $m[1];
-		$method = str_replace ($cls, '', $m[2]);
-		
-		if (\is_string ($suffix) && strlen ($suffix))
+		$method = str_replace($cls, '', $m[2]);
+
+		if (\is_string($suffix) && strlen($suffix))
 			$method .= '_' . $suffix;
 		return __DIR__ . '/' . $directory . '/' . $cls . '_' . $method . '.' . $extension;
 	}
