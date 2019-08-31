@@ -562,7 +562,7 @@ class XMLStructureSerializer extends StructureSerializer
 					if ($eventNode)
 					{
 						$action = $eventNode->getAttribute ('action');
-						if (ns\ContainerUtil::keyExists($actions, $action))
+						if (ns\Container::keyExists($actions, $action))
 						{
 							$fk->$event = $actions[$action];
 						}

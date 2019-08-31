@@ -3,7 +3,7 @@
 namespace NoreSources\SQL;
 
 use NoreSources as ns;
-use NoreSources\ContainerUtil;
+use NoreSources\Container;
 use NoreSources\Creole\PreformattedBlock;
 use NoreSources\SQL\Constants as K;
 
@@ -94,7 +94,7 @@ class StatementContext
 	 */
 	public function findColumn($path)
 	{
-		if (ns\ContainerUtil::keyExists($this->aliases, $path))
+		if (ns\Container::keyExists($this->aliases, $path))
 			return $this->aliases[$path];
 
 		return $this->resolver->findColumn($path);
@@ -124,7 +124,7 @@ class StatementContext
 	 */
 	public function isAlias($identifier)
 	{
-		return ns\ContainerUtil::keyExists($this->aliases, $identifier) || $this->resolver->isAlias($identifier);
+		return ns\Container::keyExists($this->aliases, $identifier) || $this->resolver->isAlias($identifier);
 	}
 
 	public function addParameter($name)
@@ -142,7 +142,7 @@ class StatementContext
 
 		$this->parameterCount++;
 
-		if (ns\ContainerUtil::keyExists($this->parameters, $name))
+		if (ns\Container::keyExists($this->parameters, $name))
 		{
 			$normalized = $this->parameters[$name]->normalizedName;
 		}

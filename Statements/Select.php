@@ -5,7 +5,7 @@ namespace NoreSources\SQL;
 
 // Aliases
 use NoreSources as ns;
-use NoreSources\ContainerUtil;
+use NoreSources\Container;
 use NoreSources\SQL\Constants as K;
 
 /**
@@ -142,16 +142,16 @@ class SelectQuery extends Statement
 			}
 			else
 			{
-				if (ns\ContainerUtil::isArray($arg))
+				if (ns\Container::isArray($arg))
 				{
-					if (ns\ContainerUtil::isAssociative($arg))
+					if (ns\Container::isAssociative($arg))
 					{
 						list ( $expression, $alias ) = each($arg);
 					}
 					else
 					{
-						$expression = ContainerUtil::keyValue($arg, 0, null);
-						$alias = ContainerUtil::keyValue($arg, 1, null);
+						$expression = Container::keyValue($arg, 0, null);
+						$alias = Container::keyValue($arg, 1, null);
 					}
 				}
 				else
@@ -187,19 +187,19 @@ class SelectQuery extends Statement
 			{
 				$j->subject = new TableReference($subject);
 			}
-			elseif (ns\ContainerUtil::isArray($subject))
+			elseif (ns\Container::isArray($subject))
 			{
 				$name = null;
 				$alias = null;
 
-				if (ns\ContainerUtil::count($subject) == 1)
+				if (ns\Container::count($subject) == 1)
 				{
 					list ( $name, $alias ) = each($subject);
 				}
 				else
 				{
-					$name = ns\ContainerUtil::keyValue(0, $subject, null);
-					$alias = ns\ContainerUtil::keyValue(1, $subject, null);
+					$name = ns\Container::keyValue(0, $subject, null);
+					$alias = ns\Container::keyValue(1, $subject, null);
 				}
 
 				$j->subject = new TableReference($name, $alias);
@@ -327,13 +327,13 @@ class SelectQuery extends Statement
 		}
 
 		$where = '';
-		if (ns\ContainerUtil::count($this->parts[self::PART_WHERE]))
+		if (ns\Container::count($this->parts[self::PART_WHERE]))
 		{
 			$where = $this->buildConstraints($this->parts[self::PART_WHERE], $context);
 		}
 
 		$having = '';
-		if (ns\ContainerUtil::count($this->parts[self::PART_HAVING]))
+		if (ns\Container::count($this->parts[self::PART_HAVING]))
 		{
 			$having = $this->buildConstraints($this->parts[self::PART_HAVING], $context);
 		}

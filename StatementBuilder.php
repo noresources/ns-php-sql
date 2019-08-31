@@ -196,7 +196,7 @@ abstract class StatementBuilder
 			if ($constraint->count())
 			{
 				$s .= ' (';
-				$s .= ns\ContainerUtil::implodeKeys($constraint->columns, ', ', array (
+				$s .= ns\Container::implodeKeys($constraint->columns, ', ', array (
 						$this,
 						'escapeIdentifier'
 				));
@@ -206,7 +206,7 @@ abstract class StatementBuilder
 			if ($constraint->count())
 			{
 				$s .= ' (';
-				$s .= ns\ContainerUtil::implodeValues($constraint->columns, ', ', array (
+				$s .= ns\Container::implodeValues($constraint->columns, ', ', array (
 						$this,
 						'escapeIdentifier'
 				));
@@ -298,7 +298,7 @@ abstract class StatementBuilder
 		if ($type == K::DATATYPE_NULL)
 			return $this->getKeyword(K::KEYWORD_NULL);
 		
-		if (ns\ContainerUtil::isArray($value))
+		if (ns\Container::isArray($value))
 		{
 			$dateTimeKeys = array (
 					'date',
@@ -306,7 +306,7 @@ abstract class StatementBuilder
 					'timezone_type'
 			);
 			$matchingKeys = 0;
-			if (ns\ContainerUtil::count($value) == 3)
+			if (ns\Container::count($value) == 3)
 			{
 				foreach ($dateTimeKeys as $key)
 				{
@@ -351,7 +351,7 @@ abstract class StatementBuilder
 	 */
 	public function escapeIdentifierPath($path)
 	{
-		return ns\ContainerUtil::implode($path, '.', ns\ContainerUtil::IMPLODE_VALUES, array (
+		return ns\Container::implode($path, '.', ns\Container::IMPLODE_VALUES, array (
 				$this,
 				'escapeIdentifier'
 		));

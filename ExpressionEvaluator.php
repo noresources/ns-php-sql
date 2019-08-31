@@ -178,9 +178,9 @@ class ExpressionEvaluator
 		{
 			return $this->evaluateString($expression);
 		}
-		elseif (ns\ContainerUtil::isArray($expression))
+		elseif (ns\Container::isArray($expression))
 		{
-			if (ns\ContainerUtil::isAssociative($expression))
+			if (ns\Container::isAssociative($expression))
 			{
 				if (\count($expression) == 1)
 				{
@@ -231,10 +231,10 @@ class ExpressionEvaluator
 		$c = count($operands);
 		$o = false;
 		if (\array_key_exists($c, $this->operators))
-			$o = ns\ContainerUtil::keyValue($this->operators[$c], $key, false);
+			$o = ns\Container::keyValue($this->operators[$c], $key, false);
 
 		if (!($o instanceof PolishNotationOperation))
-			$o = ns\ContainerUtil::keyValue($this->operators['*'], $key, false);
+			$o = ns\Container::keyValue($this->operators['*'], $key, false);
 
 		if (!($o instanceof PolishNotationOperation))
 			throw new ExpressionEvaluationException('Unable to evalate Polish notation ' . $key . ' => ');
@@ -760,17 +760,17 @@ class ExpressionEvaluator
 			$date = date('Y-m-d');
 			$time = date('H:i:s.u');
 
-			if (ns\ContainerUtil::keyExists($dt, 'hour'))
+			if (ns\Container::keyExists($dt, 'hour'))
 			{
 				$time = $dt['hour'] . ':' . $dt['minute'] . ':' . $dt['second'] . '.' . $dt['microsecond'];
 			}
 
-			if (ns\ContainerUtil::keyExists($dt, 'year'))
+			if (ns\Container::keyExists($dt, 'year'))
 			{
 				$date = $dt['year'] . '-' . $dt['month'] . '-' . $dt['day'];
 			}
 
-			if (ns\ContainerUtil::keyExists($dt, 'timezone'))
+			if (ns\Container::keyExists($dt, 'timezone'))
 			{
 				$timezone = $dt['timezone'];
 			}
@@ -919,7 +919,7 @@ class ExpressionEvaluator
 		if (!is_subclass_of($className, Expression::class, true))
 			throw new ExpressionEvaluationException('Invalid class name ' . strval($className));
 
-		if (!ns\ContainerUtil::keyExists($this->operators, $operandCount))
+		if (!ns\Container::keyExists($this->operators, $operandCount))
 			$this->operators[$operandCount] = array ();
 
 		$this->operators[$operandCount][$key] = new PolishNotationOperation($sql, $className);

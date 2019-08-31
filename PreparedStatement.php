@@ -48,10 +48,10 @@ class ParameterArray implements \IteratorAggregate
 		foreach ($table as $key => $value)
 		{
 			$tyoe = K::DATATYPE_UNDEFINED;
-			if (ns\ContainerUtil::isArray($value))
+			if (ns\Container::isArray($value))
 			{
-				$type = ns\ContainerUtil::keyValue($value, self::TYPE, K::DATATYPE_UNDEFINED);
-				$value = ns\ContainerUtil::keyValue($value, self::VALUE, null);
+				$type = ns\Container::keyValue($value, self::TYPE, K::DATATYPE_UNDEFINED);
+				$value = ns\Container::keyValue($value, self::VALUE, null);
 			}
 			
 			$this->set($key, $value, $tyoe);
@@ -98,7 +98,7 @@ abstract class PreparedStatement
 		$c = 0;
 		foreach ($this->parameters as $p) 
 		{
-			$c += ns\ContainerUtil::count ($p->indexes);
+			$c += ns\Container::count ($p->indexes);
 		}
 		return $c;
 	}
