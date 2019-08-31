@@ -70,6 +70,8 @@ spl_autoload_register(function($className) {
 		require_once(__DIR__ . '/Statements/Insert.php');
 	} elseif ($className == 'NoreSources\SQL\DropTableQuery') {
 		require_once(__DIR__ . '/Statements/Drop.php');
+	} elseif ($className == 'NoreSources\SQL\UpdateQuery') {
+		require_once(__DIR__ . '/Statements/Update.php');
 	} elseif ($className == 'NoreSources\SQL\CreateTableQuery') {
 		require_once(__DIR__ . '/Statements/CreateTable.php');
 	} elseif ($className == 'NoreSources\SQL\StatementContextParameter') {

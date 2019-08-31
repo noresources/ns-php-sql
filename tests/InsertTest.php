@@ -18,8 +18,8 @@ final class InsertTest extends TestCase
 
 	public function testInsertBasic()
 	{
-		$serializer = $this->datasources->get ('types');
-		$t = $serializer['ns_unittests']['types'];
+		$structure = $this->datasources->get ('types');
+		$t = $structure['ns_unittests']['types'];
 		$this->assertInstanceOf(TableStructure::class, $t);
 
 		$q = new InsertQuery($t);
@@ -42,9 +42,9 @@ final class InsertTest extends TestCase
 
 	public function testInsertCompanyTask()
 	{
-		$serializer = $this->datasources->get('Company');
-		$t = $serializer['ns_unittests']['Tasks'];
-		$this->assertInstanceOf(TableStructure::class, $t);
+		$structure = $this->datasources->get('Company');
+		$tableStructure = $structure['ns_unittests']['Tasks'];
+		$this->assertInstanceOf(TableStructure::class, $tableStructure);
 		$builder = new GenericStatementBuilder();
 		$context = new StatementContext($builder);
 
@@ -65,7 +65,7 @@ final class InsertTest extends TestCase
 
 		foreach ($tests as $key => $values)
 		{
-			$q = new InsertQuery($t);
+			$q = new InsertQuery($tableStructure);
 
 			foreach ($values as $column => $value)
 			{

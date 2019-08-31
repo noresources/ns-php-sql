@@ -1,0 +1,1 @@
+UPDATE [ns_unittests].[Employees] SET [salary]=[ns_unittests].[Employees].[salary] * 2 WHERE [ns_unittests].[Employees].[id] = 1
