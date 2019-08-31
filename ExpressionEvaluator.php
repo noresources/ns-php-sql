@@ -209,10 +209,19 @@ class ExpressionEvaluator
 
 	public static function keywordParser($keyword, $callable = null)
 	{
+		$c = $callable;
+		if (!\is_callable($callable))
+		{
+			$c = function () use ($callable)
+			{
+				return $callable;
+			};
+		}
+
 		return new Loco\LazyAltParser(array (
 				new Loco\StringParser(strtolower($keyword)),
 				new Loco\StringParser(strtoupper($keyword))
-		), $callable);
+		), $c);
 	}
 
 	/**
@@ -835,19 +844,30 @@ class ExpressionEvaluator
 		$between = new Loco\ConcParser(array (
 				'expression',
 				'space',
-				self::keywordParser('between'),
+				new Loco\LazyAltParser(array (
+						new Loco\ConcParser(array (
+								self::keywordParser('not'),
+								'space',
+								self::keywordParser('between')
+						), function ()
+						{
+							return false;
+						}),
+						self::keywordParser('between', true)
+				)),
 				'space',
 				'expression',
 				'space',
 				self::keywordParser('and'),
 				'space',
 				'expression'
-				
-		), function ($left, $s1, $between, $s2, $min, $s3, $nd, $s4, $max ) {
-			 $x = new BetweenExpression($left, $min, $max);
+		), function ($left, $s1, $between, $s2, $min, $s3, $nd, $s4, $max)
+		{
+			$x = new BetweenExpression($left, $min, $max);
+			$x->inside = $between;
 			return $x;
 		});
-		
+
 		$literal = new Loco\LazyAltParser(array (
 				'timestamp',
 				'number',
@@ -856,7 +876,7 @@ class ExpressionEvaluator
 				'false',
 				'null'
 		));
-		
+
 		$this->grammar = new Loco\Grammar('complex-expression', array (
 				'complex-expression' => new Loco\LazyAltParser(array (
 						'between',
@@ -870,7 +890,7 @@ class ExpressionEvaluator
 						'parenthesis',
 						'parameter',
 						'literal',
-						'structure-path',
+						'structure-path'
 				)),
 				'function' => $procedure,
 				'comma-expression' => $commaExpression,

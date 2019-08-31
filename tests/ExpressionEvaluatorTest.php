@@ -40,7 +40,8 @@ final class ExpressionEvaluatorTest extends TestCase
 			'binary' => [ ':p1 or :p2', BinaryOperatorExpression::class ],
 			'complex binary' => [ '(:p1 * 2) or (not :p2)', BinaryOperatorExpression::class ],
 			'unary' => [ 'not null', UnaryOperatorExpression::class ],
-			'between' => [ 'peace between 1940 and 1945', BetweenExpression::class ],
+			'between' => [ 'peace between 1919 and 1939', BetweenExpression::class ],
+			'not-between' => [ 'peace not between 1940 and 1945', BetweenExpression::class ],
 		];
 
 		$evaluator = new ExpressionEvaluator();
