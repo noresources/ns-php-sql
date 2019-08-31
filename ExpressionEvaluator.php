@@ -19,9 +19,7 @@ class ExpressionEvaluationException extends \ErrorException
  * Any type that can be evaluated by the ExpressionEvaluator
  */
 interface Evaluable
-{
-	
-}
+{}
 
 class ExpressionEvaluator
 {
@@ -159,9 +157,22 @@ class ExpressionEvaluator
 		{
 			return new LiteralExpression($expression, K::DATATYPE_BOOLEAN);
 		}
+		elseif (is_int ($expression))
+		{
+			return new LiteralExpression($expression, K::DATATYPE_INTEGER);
+		}
+		elseif (is_float ($expression))
+		{
+			return new LiteralExpression($expression, K::DATATYPE_FLOAT);
+		}
 		elseif (\is_numeric($expression))
 		{
-			return new LiteralExpression($expression, is_float($expression) ? K::DATATYPE_FLOAT : K::DATATYPE_INTEGER);
+			$i = \intval($expression);
+			$f = \floatval($expression);
+			if ($i == $f)
+				return new LiteralExpression($i, K::DATATYPE_INTEGER);
+			else
+				return new LiteralExpression($f, K::DATATYPE_FLOAT);
 		}
 		elseif (is_string($expression))
 		{
@@ -169,7 +180,7 @@ class ExpressionEvaluator
 		}
 		elseif (ns\ContainerUtil::isArray($expression))
 		{
-			if (ns\ArrayUtil::isAssociative($expression))
+			if (ns\ContainerUtil::isAssociative($expression))
 			{
 				if (\count($expression) == 1)
 				{
@@ -220,10 +231,10 @@ class ExpressionEvaluator
 		$c = count($operands);
 		$o = false;
 		if (\array_key_exists($c, $this->operators))
-			$o = ns\ArrayUtil::keyValue($this->operators[$c], $key, false);
+			$o = ns\ContainerUtil::keyValue($this->operators[$c], $key, false);
 
 		if (!($o instanceof PolishNotationOperation))
-			$o = ns\ArrayUtil::keyValue($this->operators['*'], $key, false);
+			$o = ns\ContainerUtil::keyValue($this->operators['*'], $key, false);
 
 		if (!($o instanceof PolishNotationOperation))
 			throw new ExpressionEvaluationException('Unable to evalate Polish notation ' . $key . ' => ');
@@ -742,17 +753,17 @@ class ExpressionEvaluator
 			$date = date('Y-m-d');
 			$time = date('H:i:s.u');
 
-			if (ns\ArrayUtil::keyExists($dt, 'hour'))
+			if (ns\ContainerUtil::keyExists($dt, 'hour'))
 			{
 				$time = $dt['hour'] . ':' . $dt['minute'] . ':' . $dt['second'] . '.' . $dt['microsecond'];
 			}
 
-			if (ns\ArrayUtil::keyExists($dt, 'year'))
+			if (ns\ContainerUtil::keyExists($dt, 'year'))
 			{
 				$date = $dt['year'] . '-' . $dt['month'] . '-' . $dt['day'];
 			}
 
-			if (ns\ArrayUtil::keyExists($dt, 'timezone'))
+			if (ns\ContainerUtil::keyExists($dt, 'timezone'))
 			{
 				$timezone = $dt['timezone'];
 			}
@@ -765,18 +776,12 @@ class ExpressionEvaluator
 
 		$number = new Loco\RegexParser(chr(1) . '^(' . $rx[self::PATTERN_NUMBER] . ')' . chr(1), function ($full, $v)
 		{
-			if (strpos($v, '.') >= 0)
-			{
-				$t = K::DATATYPE_FLOAT;
-				$v = floatval($v);
-			}
+			$i = \intval($v);
+			$f = \floatval($v);
+			if ($i == $v)
+				return new LiteralExpression($i, K::DATATYPE_INTEGER);
 			else
-			{
-				$v = intval($v);
-				$t = K::DATATYPE_INTEGER;
-			}
-
-			return new LiteralExpression($v, $t);
+				return new LiteralExpression($f, K::DATATYPE_FLOAT);
 		});
 
 		$unaryOperators = array ();
@@ -825,7 +830,8 @@ class ExpressionEvaluator
 				'number',
 				'string',
 				'true',
-				'false'
+				'false',
+				'null'
 		));
 
 		$this->grammar = new Loco\Grammar('complex-expression', array (
@@ -868,6 +874,10 @@ class ExpressionEvaluator
 				{
 					return new LiteralExpression(false, K::DATATYPE_BOOLEAN);
 				}),
+				'null' => self::keywordParser('null', function ()
+				{
+					return new LiteralExpression(null, K::DATATYPE_NULL);
+				}),
 				'unary-operator-literal' => $unaryOperatorLiteral,
 				'binary-operator-literal' => $binaryOperatorLiteral,
 				'whitespace' => $whitespace,
@@ -889,26 +899,24 @@ class ExpressionEvaluator
 	{
 		if (!\is_string($className))
 		{
-			switch ($operandCount)
+			if ($operandCount == 1)
 			{
-				case 1:
-					$className = UnaryOperatorExpression::class;
-					break;
-				case 2:
-					$className = BinaryOperatorExpression::class;
-					break;
+				$className = UnaryOperatorExpression::class;
+			}
+			elseif ($operandCount == 2)
+			{
+				$className = BinaryOperatorExpression::class;
 			}
 		}
 		
 		if (!is_subclass_of($className, Expression::class, true))
 			throw new \InvalidArgumentException('Invalid class name ' . strval($className));
 
-		if (!ns\ArrayUtil::keyExists($this->operators, $operandCount))
+		if (!ns\ContainerUtil::keyExists($this->operators, $operandCount))
 			$this->operators[$operandCount] = array ();
 
 		$this->operators[$operandCount][$key] = new PolishNotationOperation($sql, $className);
 	}
-	
 	const GRAMMAR_BUILT = 0x01;
 
 	private $grammar;
@@ -929,13 +937,13 @@ class PolishNotationOperation
 	const WHITESPACE = 0x11;
 	const SPACE = 0x33;
 	const KEYWORD = 0x04;
-	
+
 	public $operator;
-	
+
 	public $className;
-	
+
 	public $flags;
-	
+
 	public function __construct($key, $flags, $className)
 	{
 		$builder = debug_backtrace();
@@ -950,33 +958,33 @@ class PolishNotationOperation
 			$context = ($context ? $context : 'global');
 			throw new \Exception(self::class . ' is a private class of ' . ExpressionEvaluator::class . ' (not allowed in ' . $context . ' context)');
 		}
-		
+
 		$this->operator = $key;
 		$this->flags = $flags;
 		$this->className = $className;
 	}
-	
+
 	public function createParser($key)
 	{
 		$parsers = array ();
 		if ($this->flags & self::KEYWORD)
 			$parsers[] = ExpressionEvaluator::keywordParser($key, $this);
-			else
-				$parsers[] = new Loco\StringParser($key, $this);
-				
-				if ($this->flags & self::PRE_SPACE)
-				{
-					array_unshift($parsers, (($this->flags & self::PRE_SPACE) == self::PRE_SPACE) ? 'space' : 'whitespace');
-				}
-				
-				if ($this->flags & self::POST_SPACE)
-				{
-					array_push($parsers, (($this->flags & self::POST_SPACE) == self::POST_SPACE) ? 'space' : 'whitespace');
-				}
-				
-				return new Loco\ConcParser($parsers, $this);
+		else
+			$parsers[] = new Loco\StringParser($key, $this);
+
+		if ($this->flags & self::PRE_SPACE)
+		{
+			array_unshift($parsers, (($this->flags & self::PRE_SPACE) == self::PRE_SPACE) ? 'space' : 'whitespace');
+		}
+
+		if ($this->flags & self::POST_SPACE)
+		{
+			array_push($parsers, (($this->flags & self::POST_SPACE) == self::POST_SPACE) ? 'space' : 'whitespace');
+		}
+
+		return new Loco\ConcParser($parsers, $this);
 	}
-	
+
 	public function __invoke()
 	{
 		$flags = $this->flags;
@@ -984,22 +992,22 @@ class PolishNotationOperation
 		{
 			if ($flags & self::PRE_SPACE)
 				$flags |= self::PRE_SPACE;
-				if ($flags & self::POST_SPACE)
-					$flags |= self::POST_SPACE;
+			if ($flags & self::POST_SPACE)
+				$flags |= self::POST_SPACE;
 		}
 		$s = '';
 		if (($flags & self::PRE_SPACE) == self::PRE_SPACE)
 			$s .= ' ';
-			$s .= $this->operator;
-			if (($flags & self::POST_SPACE) == self::POST_SPACE)
-				$s .= ' ';
-				return $s;
+		$s .= $this->operator;
+		if (($flags & self::POST_SPACE) == self::POST_SPACE)
+			$s .= ' ';
+		return $s;
 	}
 }
 
 class BinaryPolishNotationOperation extends PolishNotationOperation
 {
-	
+
 	public function __construct($key, $flags = PolishNotationOperation::WHITESPACE, $className = null)
 	{
 		parent::__construct($key, ($flags | PolishNotationOperation::WHITESPACE), ($className ? $className : BinaryOperatorExpression::class));
@@ -1008,7 +1016,7 @@ class BinaryPolishNotationOperation extends PolishNotationOperation
 
 class UnaryPolishNotationOperation extends PolishNotationOperation
 {
-	
+
 	public function __construct($key, $flags = PolishNotationOperation::POST_WHITESPACE, $className = null)
 	{
 		parent::__construct($key, ($flags | PolishNotationOperation::POST_WHITESPACE), ($className ? $className : UnaryOperatorExpression::class));
