@@ -297,7 +297,7 @@ class ExpressionEvaluator
 		{
 			return $this->grammar->parse($string);
 		}
-		catch (\Exception $e)
+		catch (Loco\ParseFailureException $e)
 		{
 			throw new ExpressionEvaluationException($e->getMessage());
 		}
@@ -427,7 +427,7 @@ class ExpressionEvaluator
 		$parenthesis = new Loco\ConcParser(array (
 				new Loco\StringParser('('),
 				'whitespace',
-				'expression',
+				'complex-expression',
 				'whitespace',
 				new Loco\StringParser(')')
 		), function ()
@@ -845,12 +845,12 @@ class ExpressionEvaluator
 				'complex-expression' => new Loco\LazyAltParser(array (
 						'binary-operation',
 						'unary-operation',
-						'parenthesis',
-						'function',
 						'case',
 						'expression'
 				)),
 				'expression' => new Loco\LazyAltParser(array (
+						'function',
+						'parenthesis',
 						'parameter',
 						'literal',
 						'structure-path',

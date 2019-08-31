@@ -5,6 +5,7 @@ namespace NoreSources\SQL;
 use PHPUnit\Framework\TestCase;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\ExpressionEvaluator as X;
+use phpDocumentor\Reflection\Types\Parent_;
 
 final class ExpressionEvaluatorTest extends TestCase
 {
@@ -18,8 +19,9 @@ final class ExpressionEvaluatorTest extends TestCase
 	{
 		$list = [
 			'parameter' => [ ':p1', ParameterExpression::class ],
-				'simple column' => ['column_name', ColumnExpression::class ],
-				'canonical column name' => ['schema.table.column_name', ColumnExpression::class],
+			'simple column' => ['column_name', ColumnExpression::class ],
+			'canonical column name' => ['schema.table.column_name', ColumnExpression::class],
+			'parenthesis' => ['(12)', ParenthesisExpression::class ],
 		];
 
 		$evaluator = new ExpressionEvaluator();
@@ -73,11 +75,16 @@ final class ExpressionEvaluatorTest extends TestCase
 					LiteralExpression::class,
 					LiteralExpression::class,
 			],
-			/*'complex' => [ 
+			'complex' => [ 
 					"substr(:string, strpos(:string, ','))", 2, 
 					ParameterExpression::class, 
 					FunctionExpression::class 
-			],*/
+			],
+			'complex 2' => ['expressions(#2010-07-12#, :p, (:v + 2))', 3,
+				LiteralExpression::class,
+				ParameterExpression::class,
+						BinaryOperatorExpression::class
+			],
 		];
 
 		$evaluator = new ExpressionEvaluator();
