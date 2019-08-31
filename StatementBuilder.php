@@ -351,7 +351,7 @@ abstract class StatementBuilder
 	 */
 	public function escapeIdentifierPath($path)
 	{
-		return ns\ArrayUtil::implode($path, '.', ns\ArrayUtil::IMPLODE_VALUES, array (
+		return ns\ContainerUtil::implode($path, '.', ns\ContainerUtil::IMPLODE_VALUES, array (
 				$this,
 				'escapeIdentifier'
 		));

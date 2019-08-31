@@ -78,7 +78,7 @@ class ConnectionHelper
 	public static function createConnection($settings)
 	{
 		$connection = null;
-		$type = ns\ArrayUtil::keyValue($settings, K::CONNECTION_TYPE_SQLITE, K::CONNECTION_TYPE_VIRTUAL);
+		$type = ns\ContainerUtil::keyValue($settings, K::CONNECTION_TYPE_SQLITE, K::CONNECTION_TYPE_VIRTUAL);
 		if ($type == K::CONNECTION_TYPE_SQLITE)
 		{
 			if (class_exists('\SQLIte3'))

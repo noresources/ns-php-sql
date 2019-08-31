@@ -296,9 +296,9 @@ class FunctionExpression implements Expression
 		 * @todo Recognize function and get its return type
 		 */
 
-		if (ns\ArrayUtil::isArray($arguments))
+		if (ns\ContainerUtil::isArray($arguments))
 		{
-			$this->arguments = new \ArrayObject(ns\ArrayUtil::createArray($arguments));
+			$this->arguments = new \ArrayObject(ns\ContainerUtil::createArray($arguments));
 		}
 		else
 		{
