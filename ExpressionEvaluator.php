@@ -157,11 +157,11 @@ class ExpressionEvaluator
 		{
 			return new LiteralExpression($expression, K::DATATYPE_BOOLEAN);
 		}
-		elseif (is_int ($expression))
+		elseif (is_int($expression))
 		{
 			return new LiteralExpression($expression, K::DATATYPE_INTEGER);
 		}
-		elseif (is_float ($expression))
+		elseif (is_float($expression))
 		{
 			return new LiteralExpression($expression, K::DATATYPE_FLOAT);
 		}
@@ -293,7 +293,14 @@ class ExpressionEvaluator
 			$this->buildGrammar();
 		}
 
-		return $this->grammar->parse($string);
+		try
+		{
+			return $this->grammar->parse($string);
+		}
+		catch (\Exception $e)
+		{
+			throw new ExpressionEvaluationException($e->getMessage());
+		}
 	}
 
 	/**
@@ -404,7 +411,7 @@ class ExpressionEvaluator
 			return $a;
 		});
 
-		$call = new Loco\ConcParser(array (
+		$procedure = new Loco\ConcParser(array (
 				'function-name',
 				'whitespace',
 				new Loco\StringParser('('),
@@ -846,9 +853,9 @@ class ExpressionEvaluator
 				'expression' => new Loco\LazyAltParser(array (
 						'parameter',
 						'literal',
-						'structure-path'
+						'structure-path',
 				)),
-				'function' => $call,
+				'function' => $procedure,
 				'comma-expression' => $commaExpression,
 				'comma-expression-list' => $commaExpressionList,
 				'expression-list' => $expressionList,
@@ -910,7 +917,7 @@ class ExpressionEvaluator
 		}
 		
 		if (!is_subclass_of($className, Expression::class, true))
-			throw new \InvalidArgumentException('Invalid class name ' . strval($className));
+			throw new ExpressionEvaluationException('Invalid class name ' . strval($className));
 
 		if (!ns\ContainerUtil::keyExists($this->operators, $operandCount))
 			$this->operators[$operandCount] = array ();
@@ -956,7 +963,7 @@ class PolishNotationOperation
 		if (!($context && ($context == ExpressionEvaluator::class || is_subclass_of($context, self::class, true))))
 		{
 			$context = ($context ? $context : 'global');
-			throw new \Exception(self::class . ' is a private class of ' . ExpressionEvaluator::class . ' (not allowed in ' . $context . ' context)');
+			throw new ExpressionEvaluationException(self::class . ' is a private class of ' . ExpressionEvaluator::class . ' (not allowed in ' . $context . ' context)');
 		}
 
 		$this->operator = $key;

@@ -14,6 +14,24 @@ final class ExpressionEvaluatorTest extends TestCase
 		$this->datasources = new DatasourceManager();
 	}
 
+	public function testBasics()
+	{
+		$list = [
+			'parameter' => [ ':p1', ParameterExpression::class ],
+				'simple column' => ['column_name', ColumnExpression::class ],
+				'canonical column name' => ['schema.table.column_name', ColumnExpression::class],
+		];
+
+		$evaluator = new ExpressionEvaluator();
+
+		foreach ($list as $label => $test)
+		{
+			$label = $label . ' ' . strval($test[0]);
+			$e = $evaluator($test[0]);
+			$this->assertInstanceOf($test[1], $e);
+		}
+	}
+
 	public function testLiterals()
 	{
 		$list = [
@@ -40,6 +58,44 @@ final class ExpressionEvaluatorTest extends TestCase
 			if ($e instanceof LiteralExpression)
 			{
 				$this->assertEquals($e->type, $test[1], $label);
+			}
+		}
+	}
+
+	public function testFunctions()
+	{
+		$list = [
+			'simple' => [ 'rand()', 0 ],
+			'max' => [ 'max(1, 2)', 2, LiteralExpression::class, LiteralExpression::class ],
+			'substr' => [
+					"substr(:string, 0, 2)", 3,
+					ParameterExpression::class,
+					LiteralExpression::class,
+					LiteralExpression::class,
+			],
+			/*'complex' => [ 
+					"substr(:string, strpos(:string, ','))", 2, 
+					ParameterExpression::class, 
+					FunctionExpression::class 
+			],*/
+		];
+
+		$evaluator = new ExpressionEvaluator();
+
+		foreach ($list as $label => $test)
+		{
+			$label = $label . ' ' . strval($test[0]);
+			$e = $evaluator($test[0]);
+			$this->assertInstanceOf(FunctionExpression::class, $e, $label);
+			if ($e instanceof FunctionExpression)
+			{
+				$this->assertCount($test[1], $e->arguments, $label . ' number of arguments');
+			}
+
+			for ($i = 2; $i < $test[1]; $i++)
+			{
+				$index = $i - 2;
+				$this->assertInstanceOf($test[$i], $e->arguments[$index], $label . ' type of argument ' . $index);
 			}
 		}
 	}
