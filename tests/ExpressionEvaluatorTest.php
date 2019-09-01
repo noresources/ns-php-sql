@@ -127,6 +127,44 @@ final class ExpressionEvaluatorTest extends TestCase
 		}
 	}
 
+	public function testTimestamp()
+	{
+		$timestamps = [ [
+				'label' => 'Extended date',
+				'expression' => '#2017-11-28#'
+			], [
+				'label' => 'Basic date',
+				'expression' => '#20171128#'
+			], [
+				'label' => 'Date & time in local timezone',
+				'expression' => '#2019-03-10 15:16:59#'
+			], [
+				'label' => 'Date & time in UTC',
+				'expression' => '#2019-03-10 15:16:59Z#'
+			], [
+				'label' => 'Date & time in a given timezone',
+				'expression' => '#2019-03-10 15:16:59-0700#'
+			], [
+				'label' => 'Hour & minutes',
+				'expression' => '#13:37#'
+			], [
+				'label' => 'Time with second fraction',
+				'expression' => '#13:37:39.256#'
+			]
+		];
+		
+		$evaluator = new ExpressionEvaluator();
+		foreach ($timestamps as $label => $timestamp)
+		{
+			$x = $evaluator($timestamp['expression']);
+			$this->assertInstanceOf(LiteralExpression::class, $x, $label . ' class');
+			if ($x instanceof LiteralExpression)
+			{
+				$this->assertEquals(K::DATATYPE_TIMESTAMP, $x->getExpressionDataType());
+			}
+		}
+	}
+	
 	public function _test1()
 	{
 		$structure = $this->datasources->get('Company');
