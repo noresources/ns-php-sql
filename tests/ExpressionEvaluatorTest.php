@@ -164,14 +164,54 @@ final class ExpressionEvaluatorTest extends TestCase
 			}
 		}
 	}
-	
-	public function _test1()
+
+	public function testPolishNotation ()
 	{
-		$structure = $this->datasources->get('Company');
-		$tableStructure = $structure['ns_unittests']['Employees'];
-		$this->assertInstanceOf(TableStructure::class, $tableStructure);
-		$builder = new GenericStatementBuilder();
-		$context = new StatementContext($builder);
+		$expressions = [
+			'shortest' => [
+				'expression' => ['column' => "'value'"],
+				'main' => BinaryOperatorExpression::class,
+				'left' => ColumnExpression::class,
+				'right' => LiteralExpression::class
+			],
+			'short' => [
+					'expression' => ["=" => ['column', "'value'"]],
+					'main' => BinaryOperatorExpression::class,
+					'left' => ColumnExpression::class,
+					'right' => LiteralExpression::class
+			],
+			'function' => [
+					'expression' => ["func()" => [2, 'column', X::literal ('string')]],
+					'main' => FunctionExpression::class,
+					'args' => [LiteralExpression::class, ColumnExpression::class, LiteralExpression::class],
+			]
+		];
+		
+		$evaluator = new ExpressionEvaluator();
+		
+		foreach ($expressions as $label => $test) 
+		{
+			$x = $evaluator($test['expression']);
+			$this->assertInstanceOf($test['main'], $x, $label . ' main');
+			if ($x instanceof BinaryOperatorExpression)
+			{
+				if (\array_key_exists('left', $test))
+					$this->assertInstanceOf($test['left'], $x->leftOperand, $label . ' left');
+				if (\array_key_exists('right', $test))
+					$this->assertInstanceOf($test['right'], $x->rightOperand, $label . ' right');
+			}
+			elseif ($x instanceof FunctionExpression)
+			{
+				if (\array_key_exists('args', $test))
+				{
+					$this->assertCount(count ($test['args']), $x->arguments);
+					for ($i = 0; $i < count ($test['args']); $i++)
+					{
+						$this->assertInstanceOf($test['args'][$i], $x->arguments[$i], $label . ' arg ' . $i);
+					}
+				}
+			}
+		}
 	}
 
 	/**

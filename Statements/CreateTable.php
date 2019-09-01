@@ -11,6 +11,9 @@ use NoreSources\SQL\Constants as K;
 class CreateTableQuery extends Statement
 {
 
+	/**
+	 * @param TableStructure $structure Table structire to create
+	 */
 	public function __construct(TableStructure $structure = null)
 	{
 		$this->structure = $structure;

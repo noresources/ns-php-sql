@@ -105,11 +105,16 @@ class SelectQuery extends Statement
 {
 
 	/**
-	 * @param string $table Table structure path
+	 * @param TableStructure|string $table Table structure path
 	 * @param string|null $alias
 	 */
 	public function __construct($table, $alias = null)
 	{
+		if ($table instanceof TableStructure)
+		{
+			$table = $table->getPath();
+		}
+
 		$this->parts = array (
 				self::PART_DISTINCT => false,
 				self::PART_COLUMNS => new \ArrayObject(),
@@ -327,13 +332,13 @@ class SelectQuery extends Statement
 		}
 
 		$where = '';
-		if (ns\Container::count($this->parts[self::PART_WHERE]))
+		if ($this->parts[self::PART_WHERE] && ns\Container::count($this->parts[self::PART_WHERE]))
 		{
 			$where = $this->buildConstraints($this->parts[self::PART_WHERE], $context);
 		}
 
 		$having = '';
-		if (ns\Container::count($this->parts[self::PART_HAVING]))
+		if ($this->parts[self::PART_HAVING] && ns\Container::count($this->parts[self::PART_HAVING]))
 		{
 			$having = $this->buildConstraints($this->parts[self::PART_HAVING], $context);
 		}
@@ -464,15 +469,15 @@ class SelectQuery extends Statement
 
 		if ($this->parts[self::PART_HAVING] instanceof Expression)
 		{
-			$this->parts[self::PART_HAVING]->traverse ($callable, $context, $flags);
+			$this->parts[self::PART_HAVING]->traverse($callable, $context, $flags);
 		}
-		
-		foreach ($this->parts[self::PART_ORDERBY] as $clause) 
+
+		foreach ($this->parts[self::PART_ORDERBY] as $clause)
 		{
 			$context->evaluateExpression($clause['expression'])->traverse($callable, $context, $flags);
 		}
 	}
-	
+
 	protected function buildConstraints($constraints, StatementContext $context)
 	{
 		$c = null;

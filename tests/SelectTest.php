@@ -1,0 +1,60 @@
+<?php
+
+namespace NoreSources\SQL;
+
+use PHPUnit\Framework\TestCase;
+use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\ExpressionEvaluator as X;
+
+final class SelectTest extends TestCase
+{
+
+	public function __construct()
+	{
+		parent::__construct();
+		$this->derivedFileManager = new DerivedFileManager();
+		$this->datasources = new DatasourceManager();
+	}
+
+	public function testSelectCompanyTasks()
+	{
+		$structure = $this->datasources->get('Company');
+		$tableStructure = $structure['ns_unittests']['Tasks'];
+		$this->assertInstanceOf(TableStructure::class, $tableStructure);
+		$builder = new GenericStatementBuilder();
+		$context = new StatementContext($builder);
+		$context->setPivot($tableStructure);
+		$q = new SelectQuery($tableStructure, 't');
+
+		$q->columns (
+				['t.name', 'N'],
+				'category', ['Employees.name' => 'AuthorName'],
+				['e2.name', 'AssignedToName'])
+				// Joins
+			->join (K::JOIN_INNER, 'Employees', ['creator' => 'Employees.id'])
+			->join (K::JOIN_INNER, [ 'Employees' => 'e2' ], ['assignedTo' => 'e2.id'])
+			// Conditions
+			->where('category = :userDefinedCategory')->
+		// Grouping
+		groupBy('N', 'id')->
+		// 	Ordery
+		orderBy('substr(N, 3)')->
+		// Limit
+		limit(5, 3);
+
+		$sql = $q->buildExpression($context);
+		$sql = \SqlFormatter::format($sql, false);
+		
+		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, null, 'sql');
+	}
+
+	/**
+	 * @var DatasourceManager
+	 */
+	private $datasources;
+
+	/**
+	 * @var DerivedFileManager
+	 */
+	private $derivedFileManager;
+}

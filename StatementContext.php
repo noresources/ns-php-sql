@@ -159,20 +159,7 @@ class StatementContext
 		$p = &$this->parameters[$name];
 		$p->indexes[] = $index;
 
-		if ($this->flags & self::PARAMETER_SUBSTITUTION)
-		{
-			$e = $p->defaultValue;
-			if ($e instanceof Expression)
-			{
-				return $e->buildExpression($this);
-			}
-
-			throw new \Exception('Invalid substitution expression for parameter ' . $name);
-		}
-		else
-		{
-			return $this->builder->getParameter($p->normalizedName, $index);
-		}
+		return $this->builder->getParameter($p->normalizedName, $index);
 	}
 
 	public function getParameters()
