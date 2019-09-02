@@ -42,6 +42,8 @@ final class ExpressionEvaluatorTest extends TestCase
 			'unary' => [ 'not null', UnaryOperatorExpression::class ],
 			'between' => [ 'peace between 1919 and 1939', BetweenExpression::class ],
 			'not-between' => [ 'peace not between 1940 and 1945', BetweenExpression::class ],
+			'in' => [ 'even in (0, 2, 4, 6, 8, 10)', InOperatorExpression::class ],
+			'not in' => [ 'odd not in (0, 2, 4, 6, 8, 10)', InOperatorExpression::class ]
 		];
 
 		$evaluator = new ExpressionEvaluator();

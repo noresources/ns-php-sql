@@ -207,6 +207,27 @@ class ExpressionEvaluator
 		throw new ExpressionEvaluationException('Invalid argument type/class ' . $t);
 	}
 
+	public static function negatableKeywordParser($keyword, $positiveCallable = true, $negativeCallable = false)
+	{
+		$nc = $negativeCallable;
+		if (!\is_callable($negativeCallable))
+		{
+			$nc = function () use ($negativeCallable)
+			{
+				return $negativeCallable;
+			};
+		}
+
+		return new Loco\LazyAltParser(array (
+				new Loco\ConcParser(array (
+						self::keywordParser('not'),
+						'space',
+						self::keywordParser($keyword)
+				), $nc),
+				self::keywordParser($keyword, $positiveCallable)
+		));
+	}
+
 	public static function keywordParser($keyword, $callable = null)
 	{
 		$c = $callable;
@@ -841,20 +862,25 @@ class ExpressionEvaluator
 			return new BinaryOperatorExpression($o, $left, $right);
 		});
 
+		$inOperation = new Loco\ConcParser(array (
+				'expression',
+				'space',
+				self::negatableKeywordParser('in'),
+				'whitespace',
+				new Loco\StringParser('('),
+				'whitespace',
+				'expression-list',
+				'whitespace',
+				new Loco\StringParser(')')
+		), function ($left, $_s1, $include, $_s2, $_po, $_s3, $right)
+		{
+			return new InOperatorExpression($left, $right, $include);
+		});
+
 		$between = new Loco\ConcParser(array (
 				'expression',
 				'space',
-				new Loco\LazyAltParser(array (
-						new Loco\ConcParser(array (
-								self::keywordParser('not'),
-								'space',
-								self::keywordParser('between')
-						), function ()
-						{
-							return false;
-						}),
-						self::keywordParser('between', true)
-				)),
+				self::negatableKeywordParser('between'),
 				'space',
 				'expression',
 				'space',
@@ -880,6 +906,7 @@ class ExpressionEvaluator
 		$this->grammar = new Loco\Grammar('complex-expression', array (
 				'complex-expression' => new Loco\LazyAltParser(array (
 						'between',
+						'in-operation',
 						'binary-operation',
 						'unary-operation',
 						'case',
@@ -900,6 +927,7 @@ class ExpressionEvaluator
 				'structure-path' => $path,
 				'parenthesis' => $parenthesis,
 				'unary-operation' => $unaryOperation,
+				'in-operation' => $inOperation,
 				'binary-operation' => $binaryOperation,
 				'between' => $between,
 				'identifier' => $identifier,

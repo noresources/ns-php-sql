@@ -654,6 +654,113 @@ class CaseExpression implements Expression
 }
 
 /**
+ * <expressio> IN (<expression-list>) 
+ * or <expression IN (SelectQuery) 
+ *
+ */
+class InOperatorExpression implements Expression, \IteratorAggregate, \Countable
+{
+	/**
+	 * @var Expression
+	 */
+	public $leftOperand;
+	
+	/**
+	 * 
+	 * @var unknown
+	 */
+	public $include;
+	
+	
+	/**
+	 * 
+	 * @param Expression $left
+	 * @param array|\ArrayObject $list
+	 * @param boolean $include
+	 */
+	public function __construct (Expression $left = null, $list, $include = true)
+	{
+		$this->leftOperand = $left;
+		$this->elements = new \ArrayObject();
+		if (ns\Container::isArray($list))
+		{
+			foreach ($list as $value) 
+			{
+				$this->elements->append($list);
+			}
+		}
+		
+		$this->include = $include;	
+	}
+	
+	/**
+	 * @property-read \ArrayObject $elements
+	 * @param unknown $member
+	 * @return ArrayObject|unknown
+	 */
+	public function __get ($member)
+	{
+		if ($member == 'elements') 
+			return $this->elements;
+		
+		throw new \InvalidArgumentException($member);
+	}
+	
+	public function count()
+	{
+		return $this->elements->count();
+	}
+	
+	public function getIterator()
+	{
+		return $this->elements->getIterator();
+	}
+	
+	public function getExpressionDataType()
+	{
+		if ($this->leftOperand instanceof Expression)
+			return $this->leftOperand->getExpressionDataType();
+		foreach ($this->elements as $value) {
+			if ($value instanceof Expression) return $value->getExpressionDataType();
+		}
+		
+		return K::DATATYPE_UNDEFINED;
+	}
+	
+	public function buildExpression(StatementContext $context)
+	{
+		$s = $this->leftOperand->buildExpression($context);
+		if (!$this->include)
+			$s .= ' NOT';
+		$s .= ' IN(';
+		$s .= ns\Container::implodeValues($this->elements, ', ', function ($v) use ($context) {
+			$v->buildExpression ($context);
+		});
+		$s .= ')';
+		
+		return $s;
+	}
+	
+	public function traverse($callable, StatementContext $context, $flags = 0)
+	{
+		call_user_func($callable, $this, $context, $flags);
+		if ($this->leftOperand instanceof Expression)
+			$this->leftOperand->traverse($callable, $context, $flags);
+		foreach ($this->elements as $value) 
+		{
+			if ($value instanceof Expression) {
+				$value->traverse($callable, $context, $flags);
+			}
+		}
+	}
+	
+	/**
+	 * @var \ArrayObject
+	 */
+	private $elements;
+}
+
+/**
  * a BETWEEN b AND c
  */
 class BetweenExpression implements Expression
@@ -693,16 +800,34 @@ class BetweenExpression implements Expression
 		$this->maxBoundary = $max;
 	}
 
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \NoreSources\SQL\Expression::buildExpression()
+	 */
 	public function buildExpression(StatementContext $context)
 	{
 		return $this->leftOperand->buildExpression($context) . ($this->inside ? '' : ' NOT') . ' BETWEEN ' . $this->minBoudary->buildExpression($context) . ' AND ' . $this->maxBoudary->buildExpression($context);
 	}
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \NoreSources\SQL\Expression::getExpressionDataType()
+	 */
 
 	public function getExpressionDataType()
 	{
 		return K::DATATYPE_BOOLEAN;
 	}
 
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \NoreSources\SQL\Expression::traverse()
+	 */
 	public function traverse($callable, StatementContext $context, $flags = 0)
 	{
 		call_user_func($callable, $this, $context, $flags);
