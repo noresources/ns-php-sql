@@ -16,6 +16,26 @@ final class SelectTest extends TestCase
 		$this->datasources = new DatasourceManager();
 	}
 
+	public function testSelectCompanyEmployees()
+	{
+		$structure = $this->datasources->get('Company');
+		$tableStructure = $structure['ns_unittests']['Employees'];
+		$this->assertInstanceOf(TableStructure::class, $tableStructure);
+		$builder = new GenericStatementBuilder();
+		$context = new StatementContext($builder);
+		$context->setPivot($tableStructure);
+		$q = new SelectQuery($tableStructure, 't');
+		
+		$q->where (new InOperatorExpression( X::column('id'), [
+				2, 4, 6, 8
+		]), "name like 'Jean%'");
+
+		$sql = $q->buildExpression($context);
+		$sql = \SqlFormatter::format($sql, false);
+
+		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, null, 'sql');
+	}
+
 	public function testSelectCompanyTasks()
 	{
 		$structure = $this->datasources->get('Company');

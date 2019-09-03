@@ -5,6 +5,7 @@ namespace NoreSources\SQL;
 use NoreSources as ns;
 use Ferno\Loco as Loco;
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\ExpressionEvaluator as X;
 
 interface Expression
 {
@@ -234,7 +235,7 @@ class TableExpression implements Expression
 		$this->path = $path;
 	}
 
-	function buildExpression(StatementContext $context)
+	public function buildExpression(StatementContext $context)
 	{
 		$target = $context->findTable($this->path);
 
@@ -253,7 +254,7 @@ class TableExpression implements Expression
 			return $context->escapeIdentifier($this->path);
 	}
 
-	function getExpressionDataType()
+	public function getExpressionDataType()
 	{
 		return K::DATATYPE_UNDEFINED;
 	}
@@ -261,6 +262,53 @@ class TableExpression implements Expression
 	public function traverse($callable, StatementContext $context, $flags = 0)
 	{
 		call_user_func($callable, $this, $context, $flags);
+	}
+}
+
+/**
+ * Comma separated list of Expression
+ */
+class ListExpression extends \ArrayObject implements Expression
+{
+
+	public function __construct($array)
+	{
+		parent::__construct();
+		if (ns\Container::isArray($array))
+		{
+			$this->exchangeArray($array);
+		}
+		else
+		{
+			$this->exchangeArray(ns\Container::createArray($array));
+		}
+	}
+
+	public function buildExpression(StatementContext $context)
+	{
+		return ns\Container::implodeValues($this, ', ', function ($v) use ($context)
+		{
+			return $context->evaluateExpression($v)->buildExpression($context);
+		});
+	}
+
+	public function getExpressionDataType()
+	{
+		foreach ($this as $value)
+		{
+			return $value->getExpressionDataType();
+		}
+
+		return K::DATATYPE_UNDEFINED;
+	}
+
+	public function traverse($callable, StatementContext $context, $flags = 0)
+	{
+		call_user_func($callable, $this, $context, $flags);
+		foreach ($this as $value)
+		{
+			$value->traverse($callable, $context, $flags);
+		}
 	}
 }
 
@@ -277,7 +325,7 @@ class FunctionExpression implements Expression
 	public $name;
 
 	/**
-	 * @var \ArrayObject
+	 * @var ListExpression
 	 */
 	public $arguments;
 
@@ -291,33 +339,12 @@ class FunctionExpression implements Expression
 	{
 		$this->name = $name;
 		$this->returnType = K::DATATYPE_UNDEFINED;
-
-		/**
-		 * @todo Recognize function and get its return type
-		 */
-
-		if (ns\Container::isArray($arguments))
-		{
-			$this->arguments = new \ArrayObject(ns\Container::createArray($arguments));
-		}
-		else
-		{
-			$this->arguments = new \ArrayObject();
-		}
+		$this->arguments = new ListExpression($arguments);
 	}
 
 	function buildExpression(StatementContext $context)
 	{
-		/**
-		 * @todo builder function translator
-		 */
-		$s = $this->name . '(';
-		$a = array ();
-		foreach ($this->arguments as $arg)
-		{
-			$o[] = $arg->buildExpression($context);
-		}
-		return $s . implode(', ', $o) . ')';
+		return ($this->name . '(' . $this->arguments->buildExpression($context) . ')');
 	}
 
 	function getExpressionDataType()
@@ -328,68 +355,7 @@ class FunctionExpression implements Expression
 	public function traverse($callable, StatementContext $context, $flags = 0)
 	{
 		call_user_func($callable, $this, $context, $flags);
-		foreach ($this->arguments as $argumnet)
-		{
-			$argumnet->traverse($callable, $context, $flags);
-		}
-	}
-}
-
-/**
- * Comma-separated expression list
- */
-class ListExpression extends \ArrayObject implements Expression
-{
-
-	public $separator;
-
-	public function __construct($list = array(), $separator = ', ')
-	{
-		parent::__construct($list);
-		$this->separator = $separator;
-	}
-
-	public function buildExpression(StatementContext $context)
-	{
-		$s = '';
-		$first = true;
-		foreach ($this as $expression)
-		{
-			if (!$first)
-				$s .= $this->separator;
-			$s .= $expression->buildExpression($context);
-		}
-
-		return $s;
-	}
-
-	function getExpressionDataType()
-	{
-		$set = false;
-		$current = K::DATATYPE_UNDEFINED;
-
-		foreach ($this as $expression)
-		{
-			$t = $expression->getExpressionDataType();
-			if ($set && ($t != $current))
-			{
-				return K::DATATYPE_UNDEFINED;
-			}
-
-			$set = true;
-			$current = $t;
-		}
-
-		return $current;
-	}
-
-	public function traverse($callable, StatementContext $context, $flags = 0)
-	{
-		call_user_func($callable, $this, $context, $flags);
-		foreach ($this as $expression)
-		{
-			$expression->traverse($callable, $context, $flags);
-		}
+		$this->arguments->traverse($callable, $context, $flags);
 	}
 }
 
@@ -654,24 +620,22 @@ class CaseExpression implements Expression
 }
 
 /**
- * <expressio> IN (<expression-list>) 
- * or <expression IN (SelectQuery) 
- *
+ * <expressio> IN (<expression-list>)
+ * or <expression IN (SelectQuery)
  */
-class InOperatorExpression implements Expression, \IteratorAggregate, \Countable
+class InOperatorExpression extends ListExpression
 {
+
 	/**
 	 * @var Expression
 	 */
 	public $leftOperand;
-	
+
 	/**
-	 * 
-	 * @var unknown
+	 * @var boolean
 	 */
 	public $include;
-	
-	
+		
 	/**
 	 * 
 	 * @param Expression $left
@@ -680,51 +644,17 @@ class InOperatorExpression implements Expression, \IteratorAggregate, \Countable
 	 */
 	public function __construct (Expression $left = null, $list, $include = true)
 	{
+		parent::__construct($list);
 		$this->leftOperand = $left;
-		$this->elements = new \ArrayObject();
-		if (ns\Container::isArray($list))
-		{
-			foreach ($list as $value) 
-			{
-				$this->elements->append($list);
-			}
-		}
-		
 		$this->include = $include;	
 	}
-	
-	/**
-	 * @property-read \ArrayObject $elements
-	 * @param unknown $member
-	 * @return ArrayObject|unknown
-	 */
-	public function __get ($member)
-	{
-		if ($member == 'elements') 
-			return $this->elements;
 		
-		throw new \InvalidArgumentException($member);
-	}
-	
-	public function count()
-	{
-		return $this->elements->count();
-	}
-	
-	public function getIterator()
-	{
-		return $this->elements->getIterator();
-	}
-	
 	public function getExpressionDataType()
 	{
 		if ($this->leftOperand instanceof Expression)
 			return $this->leftOperand->getExpressionDataType();
-		foreach ($this->elements as $value) {
-			if ($value instanceof Expression) return $value->getExpressionDataType();
-		}
-		
-		return K::DATATYPE_UNDEFINED;
+				
+		return parent::getExpressionDataType();
 	}
 	
 	public function buildExpression(StatementContext $context)
@@ -732,21 +662,20 @@ class InOperatorExpression implements Expression, \IteratorAggregate, \Countable
 		$s = $this->leftOperand->buildExpression($context);
 		if (!$this->include)
 			$s .= ' NOT';
-		$s .= ' IN(';
-		$s .= ns\Container::implodeValues($this->elements, ', ', function ($v) use ($context) {
-			$v->buildExpression ($context);
-		});
-		$s .= ')';
+		$s .= ' IN';
 		
-		return $s;
+		return ($s .'('. parent::buildExpression($context) . ')');
 	}
 	
 	public function traverse($callable, StatementContext $context, $flags = 0)
 	{
+		// Respect order
 		call_user_func($callable, $this, $context, $flags);
+		
 		if ($this->leftOperand instanceof Expression)
 			$this->leftOperand->traverse($callable, $context, $flags);
-		foreach ($this->elements as $value) 
+		
+		foreach ($this as $value) 
 		{
 			if ($value instanceof Expression) {
 				$value->traverse($callable, $context, $flags);

@@ -862,6 +862,16 @@ class ExpressionEvaluator
 			return new BinaryOperatorExpression($o, $left, $right);
 		});
 
+		$likeOperation = new Loco\ConcParser(array (
+			'expression',
+			'space',
+			self::negatableKeywordParser('like', 'LIKE', 'NOT LIKE'),
+			'space',
+			'string'
+		), function ($e, $_s1, $o, $_s2, $s) {
+			return new BinaryOperatorExpression($o, $e, $s);
+		});
+		
 		$inOperation = new Loco\ConcParser(array (
 				'expression',
 				'space',
@@ -907,6 +917,7 @@ class ExpressionEvaluator
 				'complex-expression' => new Loco\LazyAltParser(array (
 						'between',
 						'in-operation',
+						'like-operation',
 						'binary-operation',
 						'unary-operation',
 						'case',
@@ -928,6 +939,7 @@ class ExpressionEvaluator
 				'parenthesis' => $parenthesis,
 				'unary-operation' => $unaryOperation,
 				'in-operation' => $inOperation,
+				'like-operation' => $likeOperation,
 				'binary-operation' => $binaryOperation,
 				'between' => $between,
 				'identifier' => $identifier,
