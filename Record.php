@@ -56,7 +56,7 @@ const kRecordQueryFlagExtension = 0x40;
 /**
  * Indicate the input data are serialized
  * and should be unserialized
- * @var unknown
+ * @var integer
  */
 const kRecordDataSerialized = 0x20;
 
@@ -679,20 +679,20 @@ class Record implements \ArrayAccess, \IteratorAggregate
 	/**
 	 *
 	 * @param Table $table
-	 * @param unknown $values Column name-value pairs
-	 * @param number $flags
+	 * @param array $values Column name-value pairs
+	 * @param integer $flags
 	 * @param string $className Record object classname
 	 * @return Record|boolean The newly created Record on success
 	 *         @c false otherwise
 	 */
-	public static function createRecord(Table $table, $values, $flags = 0, $className = null)
+	public static function createRecord(Table $table, $values, $flags = kRecordDataSerialized, $className = null)
 	{
 		if (!(is_string($className) && class_exists($className)))
 		{
 			$className = get_called_class();
 		}
 		
-		$o = new $className($table, $values, (kRecordDataSerialized));
+		$o = new $className($table, $values, ($flags));
 		if ($o->insert())
 		{
 			return $o;
@@ -725,8 +725,12 @@ class Record implements \ArrayAccess, \IteratorAggregate
 			}
 		}
 		
-		if (\is_object($values) && ($values instanceof Recordset))
+		if ($values instanceof Recordset)
 		{
+			/**
+			 * @todo Remove this automatic flag. The recordset could come from 
+			 * another table etc.
+			 */
 			$this->m_flags |= kRecordStateExists;
 			$values = $values->current();
 			foreach ($values as $key => $value)
@@ -744,7 +748,7 @@ class Record implements \ArrayAccess, \IteratorAggregate
 				}
 			}
 		}
-		elseif (\is_array($values) || (\is_object($values) && ($values instanceof \ArrayAccess)))
+		elseif (ns\ArrayUtil::isArray ($values))
 		{
 			foreach ($values as $key => $value)
 			{
