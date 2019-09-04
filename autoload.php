@@ -1,34 +1,6 @@
 <?php
 spl_autoload_register(function($className) {
-	if ($className == 'NoreSources\SQL\Expression') {
-		require_once(__DIR__ . '/Expressions.php');
-	} elseif ($className == 'NoreSources\SQL\PreformattedExpression') {
-		require_once(__DIR__ . '/Expressions.php');
-	} elseif ($className == 'NoreSources\SQL\KeywordExpression') {
-		require_once(__DIR__ . '/Expressions.php');
-	} elseif ($className == 'NoreSources\SQL\LiteralExpression') {
-		require_once(__DIR__ . '/Expressions.php');
-	} elseif ($className == 'NoreSources\SQL\ParameterExpression') {
-		require_once(__DIR__ . '/Expressions.php');
-	} elseif ($className == 'NoreSources\SQL\ColumnExpression') {
-		require_once(__DIR__ . '/Expressions.php');
-	} elseif ($className == 'NoreSources\SQL\TableExpression') {
-		require_once(__DIR__ . '/Expressions.php');
-	} elseif ($className == 'NoreSources\SQL\FunctionExpression') {
-		require_once(__DIR__ . '/Expressions.php');
-	} elseif ($className == 'NoreSources\SQL\ListExpression') {
-		require_once(__DIR__ . '/Expressions.php');
-	} elseif ($className == 'NoreSources\SQL\ParenthesisExpression') {
-		require_once(__DIR__ . '/Expressions.php');
-	} elseif ($className == 'NoreSources\SQL\UnaryOperatorExpression') {
-		require_once(__DIR__ . '/Expressions.php');
-	} elseif ($className == 'NoreSources\SQL\BinaryOperatorExpression') {
-		require_once(__DIR__ . '/Expressions.php');
-	} elseif ($className == 'NoreSources\SQL\CaseOptionExpression') {
-		require_once(__DIR__ . '/Expressions.php');
-	} elseif ($className == 'NoreSources\SQL\CaseExpression') {
-		require_once(__DIR__ . '/Expressions.php');
-	} elseif ($className == 'NoreSources\SQL\SQLite\Constants') {
+	if ($className == 'NoreSources\SQL\SQLite\Constants') {
 		require_once(__DIR__ . '/SQLite/Constants.php');
 	} elseif ($className == 'NoreSources\SQL\SQLite\StatementBuilder') {
 		require_once(__DIR__ . '/SQLite/StatementBuilder.php');
@@ -82,18 +54,6 @@ spl_autoload_register(function($className) {
 		require_once(__DIR__ . '/StatementContext.php');
 	} elseif ($className == 'NoreSources\SQL\Constants') {
 		require_once(__DIR__ . '/Constants.php');
-	} elseif ($className == 'NoreSources\SQL\ExpressionEvaluationException') {
-		require_once(__DIR__ . '/ExpressionEvaluator.php');
-	} elseif ($className == 'NoreSources\SQL\Evaluable') {
-		require_once(__DIR__ . '/ExpressionEvaluator.php');
-	} elseif ($className == 'NoreSources\SQL\ExpressionEvaluator') {
-		require_once(__DIR__ . '/ExpressionEvaluator.php');
-	} elseif ($className == 'NoreSources\SQL\PolishNotationOperation') {
-		require_once(__DIR__ . '/ExpressionEvaluator.php');
-	} elseif ($className == 'NoreSources\SQL\BinaryPolishNotationOperation') {
-		require_once(__DIR__ . '/ExpressionEvaluator.php');
-	} elseif ($className == 'NoreSources\SQL\UnaryPolishNotationOperation') {
-		require_once(__DIR__ . '/ExpressionEvaluator.php');
 	} elseif ($className == 'NoreSources\SQL\StructureSerializer') {
 		require_once(__DIR__ . '/StructureSerializer.php');
 	} elseif ($className == 'NoreSources\SQL\JSONStructureSerializer') {
@@ -124,6 +84,50 @@ spl_autoload_register(function($className) {
 		require_once(__DIR__ . '/PreparedStatement.php');
 	} elseif ($className == 'NoreSources\SQL\PreparedStatement') {
 		require_once(__DIR__ . '/PreparedStatement.php');
+	} elseif ($className == 'NoreSources\SQL\Expression') {
+		require_once(__DIR__ . '/Expressions/Base.php');
+	} elseif ($className == 'NoreSources\SQL\PreformattedExpression') {
+		require_once(__DIR__ . '/Expressions/Base.php');
+	} elseif ($className == 'NoreSources\SQL\KeywordExpression') {
+		require_once(__DIR__ . '/Expressions/Base.php');
+	} elseif ($className == 'NoreSources\SQL\LiteralExpression') {
+		require_once(__DIR__ . '/Expressions/Base.php');
+	} elseif ($className == 'NoreSources\SQL\ParameterExpression') {
+		require_once(__DIR__ . '/Expressions/Base.php');
+	} elseif ($className == 'NoreSources\SQL\ColumnExpression') {
+		require_once(__DIR__ . '/Expressions/Base.php');
+	} elseif ($className == 'NoreSources\SQL\TableExpression') {
+		require_once(__DIR__ . '/Expressions/Base.php');
+	} elseif ($className == 'NoreSources\SQL\CaseOptionExpression') {
+		require_once(__DIR__ . '/Expressions/Case.php');
+	} elseif ($className == 'NoreSources\SQL\CaseExpression') {
+		require_once(__DIR__ . '/Expressions/Case.php');
+	} elseif ($className == 'NoreSources\SQL\FunctionExpression') {
+		require_once(__DIR__ . '/Expressions/Functions.php');
+	} elseif ($className == 'NoreSources\SQL\ExpressionEvaluationException') {
+		require_once(__DIR__ . '/Expressions/Evaluator.php');
+	} elseif ($className == 'NoreSources\SQL\Evaluable') {
+		require_once(__DIR__ . '/Expressions/Evaluator.php');
+	} elseif ($className == 'NoreSources\SQL\ExpressionEvaluator') {
+		require_once(__DIR__ . '/Expressions/Evaluator.php');
+	} elseif ($className == 'NoreSources\SQL\PolishNotationOperation') {
+		require_once(__DIR__ . '/Expressions/Evaluator.php');
+	} elseif ($className == 'NoreSources\SQL\BinaryPolishNotationOperation') {
+		require_once(__DIR__ . '/Expressions/Evaluator.php');
+	} elseif ($className == 'NoreSources\SQL\UnaryPolishNotationOperation') {
+		require_once(__DIR__ . '/Expressions/Evaluator.php');
+	} elseif ($className == 'NoreSources\SQL\ListExpression') {
+		require_once(__DIR__ . '/Expressions/Chunks.php');
+	} elseif ($className == 'NoreSources\SQL\ParenthesisExpression') {
+		require_once(__DIR__ . '/Expressions/Chunks.php');
+	} elseif ($className == 'NoreSources\SQL\UnaryOperatorExpression') {
+		require_once(__DIR__ . '/Expressions/Chunks.php');
+	} elseif ($className == 'NoreSources\SQL\BinaryOperatorExpression') {
+		require_once(__DIR__ . '/Expressions/Chunks.php');
+	} elseif ($className == 'NoreSources\SQL\InOperatorExpression') {
+		require_once(__DIR__ . '/Expressions/Chunks.php');
+	} elseif ($className == 'NoreSources\SQL\BetweenExpression') {
+		require_once(__DIR__ . '/Expressions/Chunks.php');
 	} elseif ($className == 'NoreSources\SQL\Recordset') {
 		require_once(__DIR__ . '/Recordset.php');
 	}
