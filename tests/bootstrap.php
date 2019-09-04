@@ -73,7 +73,7 @@ class DerivedFileManager extends TestCase
 	 * @param unknown $suffix
 	 * @param unknown $extension
 	 */
-	public function assertDerivedFile($data, $method, $suffix, $extension, $label = '')
+	public function assertDerivedFile($data, $method, $suffix, $extension, $label = '', $eol = 'lf')
 	{
 		$reference = $this->buildFilename(self::DIRECTORY_REFERENCE, $method, $suffix, $extension);
 		$derived = $this->buildFilename(self::DIRECTORY_DERIVED, $method, $suffix, $extension);
@@ -83,6 +83,15 @@ class DerivedFileManager extends TestCase
 
 		if ($result)
 		{
+			if ($eol == 'lf')
+			{
+				$data = str_replace("\r", "", $data);
+			}
+			elseif ($eol == 'crlf')
+			{
+				$data = str_replace("\n", "\r\n", str_replace("\r\n", "\n", $data));
+			}
+			
 			$result = file_put_contents($derived, $data);
 			$this->assertNotFalse($result, $label . 'Write derived data');
 			$this->assertFileExists($derived, $label . 'Derived file exists');
