@@ -717,11 +717,21 @@ class Record implements \ArrayAccess, \IteratorAggregate
 		$structure = $table->getStructure();
 		$foreignKeys = $structure->getForeignKeyReferences();
 		
+		// Fill all column with default values or NULL
 		foreach ($structure as $name => $column)
 		{
+			/**
+			 * @var TableColumnStructure $column
+			 */
+			
 			if ($column->hasProperty(kStructureDefaultValue))
 			{
 				$this->m_values[$name] = $column->getProperty(kStructureDefaultValue);
+			}
+			elseif ($column->hasProperty(kStructureAcceptNull) 
+				&& $column->getProperty (kStructureAcceptNull))
+			{
+				$this->m_values[$name] = null;
 			}
 		}
 		
@@ -735,16 +745,17 @@ class Record implements \ArrayAccess, \IteratorAggregate
 			$values = $values->current();
 			foreach ($values as $key => $value)
 			{
-				if (is_string($key))
+				if (!is_string($key))
 				{
-					if ($structure->offsetExists($key))
-					{
-						$this->setValue($structure->offsetGet($key), $value, true);
-					}
-					elseif (($fk = $this->parseForeignKeyColumn($key)) && array_key_exists($fk['column'], $foreignKeys))
-					{
-						$this->setForeignKeyData($fk['column'], $fk['foreignColumn'], $this->unserializeValue($fk, $value));
-					}
+					continue;
+				}
+				if ($structure->offsetExists($key))
+				{
+					$this->setValue($structure->offsetGet($key), $value, true);
+				}
+				elseif (($fk = $this->parseForeignKeyColumn($key)) && array_key_exists($fk['column'], $foreignKeys))
+				{
+					$this->setForeignKeyData($fk['column'], $fk['foreignColumn'], $this->unserializeValue($fk, $value));
 				}
 			}
 		}
@@ -885,13 +896,16 @@ class Record implements \ArrayAccess, \IteratorAggregate
 		
 		foreach ($structure as $n => $c)
 		{
-			if ($c->getProperty(kStructureAutoincrement))
+			/**
+			 * @var TableColumnStructure $c
+			 */
+			if ($c->hasProperty(kStructureAutoincrement) && $c->getProperty(kStructureAutoincrement))
 			{
 				$autoIncrementColumn = $c;
 			}
 			
-			if (\array_key_exists($n, $this->m_values) 
-					&& (is_null($autoIncrementColumn) || ($autoIncrementColumn->getName() != $n)))
+			if (ns\ArrayUtil::keyExists($this->m_values, $n) 
+					&& (\is_null($autoIncrementColumn) || ($autoIncrementColumn->getName() != $n)))
 			{
 				$column = $this->m_table->getColumn($n);
 				$data = $column->importData(static::serializeValue($n, $this->m_values[$n]));
@@ -900,9 +914,9 @@ class Record implements \ArrayAccess, \IteratorAggregate
 		}
 		
 		$result = $i->execute();
-		if (is_object($result) && ($result instanceof InsertQueryResult))
+		if ($result instanceof InsertQueryResult)
 		{
-			if (!is_null($autoIncrementColumn))
+			if (!\is_null($autoIncrementColumn))
 			{
 				$this->setValue($autoIncrementColumn, $result->getLastInsertId());
 			}
@@ -1293,12 +1307,15 @@ class Record implements \ArrayAccess, \IteratorAggregate
 	 * @param unknown $value
 	 * @throws \Exception
 	 */
-	protected function setEphemeral($key, $value = null)
+	protected function setEphemeral($key, $value = null, $check = true)
 	{
-		$structure = $this->m_table->getStructure();
-		if ($structure->offsetExists($key))
+		if ($check)
 		{
-			throw new \Exception('Cannot set ' . $key . ' as ephemeral.Key exists in table structure');
+			$structure = $this->m_table->getStructure();
+			if ($structure->offsetExists($key))
+			{
+				throw new \Exception('Cannot set ' . $key . ' as ephemeral.Key exists in table structure');
+			}
 		}
 		
 		$this->m_ephemerals[$key] = $value;
