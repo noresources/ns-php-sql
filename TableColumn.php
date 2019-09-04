@@ -357,14 +357,12 @@ class TableColumn extends ITableColumn implements IAliasedClone, ITableColumnVal
 		{
 			if (($data = $this->structure->getProperty(kStructureValidatorClassname)))
 			{
-				// ns\Reporter::debug($this, 'Adding '.$data);
 				$this->setColumnValueValidator(new $data($this->structure));
 			}
 			else if (($data = $this->structure->getProperty(kStructureEnumeration)))
 			{
 				if ($this->structure->getProperty(kStructureAcceptMultipleValues))
 				{
-					// ns\Reporter::debug($this, 'Adding MultipleListedElementTableColumnValueValidator');
 					$v = new MultipleListedElementTableColumnValueValidator($data);
 					if ($this->structure)
 					{
@@ -376,7 +374,6 @@ class TableColumn extends ITableColumn implements IAliasedClone, ITableColumnVal
 				}
 				else
 				{
-					// ns\Reporter::debug($this, 'Adding ListedElementTableColumnValueValidator');
 					$v = new ListedElementTableColumnValueValidator($data);
 					if ($this->structure)
 					{
