@@ -3,6 +3,7 @@
 namespace NoreSources\SQL;
 
 use NoreSources as ns;
+use dp\Application\Data\RecordException;
 
 /**
  * The record values differs from the entry stored in the datasource
@@ -209,11 +210,12 @@ class ColumnValueFilter implements RecordQueryOption
 			case 'between':
 				if (!\is_array($value))
 				{
+					throw new RecordException(null, 'Invalid between filter (array required)');
 					break;
 				}
 				if (count($value) != 2)
 				{
-					ns\Reporter::fatalError(__CLASS__, __METHOD__ . ': Invalid between filter', __FILE__, __LINE__);
+					throw new RecordException(null, 'Invalid between filter (2 element expected)');
 				}
 				
 				$min = call_user_func(array (
@@ -225,7 +227,7 @@ class ColumnValueFilter implements RecordQueryOption
 						'unserializeColumn' 
 				), $column->getStructure(), $value[1]);
 				
-				$e = new SQLBetween($column, $a_min, $a_max);
+				$e = new SQLBetween($column, $min, $max);
 				if (!$positive)
 				{
 					$e = new SQLNot($between);
@@ -552,6 +554,7 @@ class Record implements \ArrayAccess, \IteratorAggregate
 				{
 					if (!$structure->offsetExists($option->columnName))
 					{
+						throw new RecordException($className, 'Invalid column "' . $option->columnName . '" for filter');
 						continue;
 					}
 					

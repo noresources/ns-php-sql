@@ -138,7 +138,8 @@ abstract class Data implements ns\IExpression
 	{
 		if (!($this->m_flags & self::kValid))
 		{
-			throw new \Exception('Invalid Data ' . gettype($this->value) . ' for ' . get_class($this));
+			$t = (\is_object($this->value) ? get_class($this->value) : gettype($this->value));
+			throw new \Exception('Invalid Data (' . $t . ') for ' . get_class($this));
 		}
 		
 		return true;
