@@ -203,7 +203,7 @@ class ColumnValueFilter implements RecordQueryOption
 					$value = call_user_func(array (
 							$className,
 							'unserializeColumn'
-					), $column->getStructure(), $value);
+					), $column->getDatasource(), $column->getStructure(), $value);
 				}
 				return new SQLSmartEquality($column, $value, $positive);
 				break;
@@ -221,11 +221,11 @@ class ColumnValueFilter implements RecordQueryOption
 				$min = call_user_func(array (
 						$className,
 						'unserializeColumn' 
-				), $column->getStructure(), $value[0]);
+				), $column->getDatasource(), $column->getStructure(), $value[0]);
 				$max = call_user_func(array (
 						$className,
 						'unserializeColumn' 
-				), $column->getStructure(), $value[1]);
+				), $column->getDatasource(), $column->getStructure(), $value[1]);
 				
 				$e = new SQLBetween($column, $min, $max);
 				if (!$positive)
@@ -884,7 +884,17 @@ class Record implements \ArrayAccess, \IteratorAggregate
 	 */
 	public function toArray()
 	{
-		return array_merge($this->m_values, $this->m_foreignKeyData, $this->m_ephemerals);
+		$x = function ($v) {
+			if ($v instanceof \DateTime) 
+				return $v->format(\DateTime::ISO8601);
+			else return  ($v);
+		};
+		
+		return array_merge(
+				array_map($x, $this->m_values),
+				array_map($x, $this->m_foreignKeyData),
+				array_map($x, $this->m_ephemerals)
+		);
 	}
 
 	/**
@@ -1145,27 +1155,42 @@ class Record implements \ArrayAccess, \IteratorAggregate
 		return $value;
 	}
 
-	public static function unserializeColumn(TableColumnStructure $columnStructure, $value)
+	public static function unserializeColumn(Datasource $datasource, TableColumnStructure $columnStructure, $value)
 	{
-		if ($columnStructure->getProperty(kStructureDatatype) == kDataTypeNumber)
+		if (!$columnStructure->hasProperty(kStructureDatatype))
 		{
-			if (is_numeric($value))
-			{
-				if ($columnStructure->getProperty(kStructureDecimalCount) > 0)
-				{
-					$value = floatval($value);
-				}
-				else
-				{
-					$value = intval($value);
-				}
-			} 
-			elseif ($columnStructure->getProperty(kStructureAcceptNull)) 
-				$value = null;
-			else 
-				$value = 0;
+			return static::unserializeValue($columnStructure->getName(), $value);
 		}
-		elseif ($columnStructure->getProperty(kStructureDatatype) == kDataTypeBoolean)
+		
+		$type = $columnStructure->getProperty(kStructureDatatype);
+		
+		if ($type == kDataTypeTimestamp)
+		{
+			if (\is_string ($value) && strlen ($value))
+			{
+				$format = $datasource->getDatasourceString(Datasource::kStringTimestampFormat);
+				$value = \DateTime::createFromFormat($format, $value);
+			}
+		}
+		elseif ($type == kDataTypeInteger)
+		{
+			$value = intval($value);
+		}
+		elseif ($type == kDataTypeDecimal)
+		{
+			$value = floatval($value);
+		}
+		elseif ($type == kDataTypeNumber) // should not happen
+		{
+			if ($columnStructure->hasProperty(kStructureDecimalCount))
+			{
+				if ($columnStructure->getProperty (kStructureDecimalCount) > 0)
+					$value = floatval($value);
+				else
+					$value = intval($value);
+			}
+		}
+		elseif ($type == kDataTypeBoolean)
 		{
 			$value = boolval($value);
 		}
@@ -1238,7 +1263,7 @@ class Record implements \ArrayAccess, \IteratorAggregate
 	{
 		if ($unserialize)
 		{
-			$value = static::unserializeColumn($f, $value);
+			$value = static::unserializeColumn($this->getTable()->getDatasource(), $f, $value);
 		}
 		elseif ($f->getProperty(kStructureDatatype) & kDataTypeNumber)
 		{
@@ -1310,7 +1335,7 @@ class Record implements \ArrayAccess, \IteratorAggregate
 	 * @param unknown $value
 	 * @throws \Exception
 	 */
-	protected function setEphemeral($key, $value = null, $check = true)
+	public function setEphemeral($key, $value = null, $check = true)
 	{
 		if ($check)
 		{
