@@ -56,10 +56,10 @@ abstract class StatementBuilder
 
 	/**
 	 * Get the default type name for a given data type
-	 * @param integer $dataType \NoreSources\SQL Data type constant
+	 * @param TableColumnStructure $column Column definition
 	 * @return string The default Connection type name for the given data type
 	 */
-	abstract function getColumnTymeName($dataType = K::DATATYPE_UNDEFINED);
+	abstract function getColumnTymeName(TableColumnStructure $column);
 
 	/**
 	 * Get syntax keyword.
@@ -134,11 +134,9 @@ abstract class StatementBuilder
 	 */
 	public function getColumnDescription(TableColumnStructure $column, StatementContext $context)
 	{
-		$type = $column->getProperty(K::COLUMN_PROPERTY_DATA_TYPE);
-
 		$s = $this->escapeIdentifier($column->getName());
 
-		$s .= ' ' . $this->getColumnTymeName($type);
+		$s .= ' ' . $this->getColumnTymeName($column);
 		if ($column->hasProperty(K::COLUMN_PROPERTY_DATA_SIZE))
 		{
 			$s .= '(' . $column->getProperty(K::COLUMN_PROPERTY_DATA_SIZE) . ')';
@@ -151,9 +149,7 @@ abstract class StatementBuilder
 
 		if ($column->hasProperty(K::COLUMN_PROPERTY_DEFAULT_VALUE))
 		{
-			$v = $context->evaluateExpression(
-					$column->getProperty(K::COLUMN_PROPERTY_DEFAULT_VALUE)
-					);
+			$v = $context->evaluateExpression($column->getProperty(K::COLUMN_PROPERTY_DEFAULT_VALUE));
 
 			$s .= ' DEFAULT ' . $v->buildExpression($context);
 		}
@@ -455,8 +451,12 @@ class GenericStatementBuilder extends StatementBuilder
 		return '$' . $name;
 	}
 
-	public function getColumnTymeName ($dataType = K::DATATYPE_UNDEFINED)
+	function getColumnTymeName(TableColumnStructure $column)
 	{
+		$dataType = K::DATATYPE_UNDEFINED;
+		if ($column->hasProperty(K::COLUMN_PROPERTY_DATA_TYPE))
+			$dataType = $column->getProperty(K::COLUMN_PROPERTY_DATA_TYPE);
+		
 		switch ($dataType) {
 			case K::DATATYPE_BINARY: return 'BLOB';
 			case K::DATATYPE_BOOLEAN: return 'BOOL';
