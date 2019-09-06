@@ -60,6 +60,7 @@ class StatementContextParameterMap extends \ArrayObject
 
 class StatementContext
 {
+
 	/**
 	 * @var integer
 	 */
@@ -167,6 +168,25 @@ class StatementContext
 		return $this->parameters;
 	}
 
+	/**
+	 * @param array $constraints Array of Evaluable
+	 * @return string
+	 */
+	public function buildConstraintExpression ($constraints)
+	{
+		$c = null;
+		foreach ($constraints as $constraint)
+		{
+			$e = $this->evaluateExpression($constraint);
+			if ($c instanceof Expression)
+				$c = new BinaryOperatorExpression(' AND ', $c, $e);
+				else
+					$c = $e;
+		}
+		
+		return $c->buildExpression($this);
+	}
+	
 	/**
 	 * Attemp to call StatementBuilder or StructureResolver method
 	 * @param string $method Method name

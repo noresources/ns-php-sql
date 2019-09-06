@@ -334,13 +334,13 @@ class SelectQuery extends Statement
 		$where = '';
 		if ($this->parts[self::PART_WHERE] && ns\Container::count($this->parts[self::PART_WHERE]))
 		{
-			$where = $this->buildConstraints($this->parts[self::PART_WHERE], $context);
+			$where = $context->buildConstraintExpression($this->parts[self::PART_WHERE], $context);
 		}
 
 		$having = '';
 		if ($this->parts[self::PART_HAVING] && ns\Container::count($this->parts[self::PART_HAVING]))
 		{
-			$having = $this->buildConstraints($this->parts[self::PART_HAVING], $context);
+			$having = $context->buildConstraintExpression($this->parts[self::PART_HAVING], $context);
 		}
 
 		$groupBy = '';
@@ -476,21 +476,6 @@ class SelectQuery extends Statement
 		{
 			$context->evaluateExpression($clause['expression'])->traverse($callable, $context, $flags);
 		}
-	}
-
-	protected function buildConstraints($constraints, StatementContext $context)
-	{
-		$c = null;
-		foreach ($constraints as $constraint)
-		{
-			$e = $context->evaluateExpression($constraint);
-			if ($c instanceof Expression)
-				$c = new BinaryOperatorExpression(' AND ', $c, $e);
-			else
-				$c = $e;
-		}
-
-		return $c->buildExpression($context);
 	}
 
 	protected function resolveResultColumns(StatementContext $context)
