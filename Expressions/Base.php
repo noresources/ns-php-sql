@@ -111,8 +111,14 @@ class KeywordExpression implements Expression
 class LiteralExpression implements Expression
 {
 
+	/**
+	 * @var mixed
+	 */
 	public $value;
 
+	/**
+	 * @var integer Literal type
+	 */
 	public $type;
 
 	public function __construct($value, $type = K::DATATYPE_STRING)
