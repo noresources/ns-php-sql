@@ -18,8 +18,16 @@ class ExpressionEvaluationException extends \ErrorException
 /**
  * Any type that can be evaluated by the ExpressionEvaluator
  */
-interface Evaluable
-{}
+class Evaluable
+{
+
+	public $value;
+
+	public function __construct($value)
+	{
+		$this->value = $value;
+	}
+}
 
 class ExpressionEvaluator
 {
@@ -138,6 +146,11 @@ class ExpressionEvaluator
 	 */
 	public function evaluate($expression)
 	{
+		if ($expression instanceof Evaluable)
+		{
+			$expression = $expression->value;
+		}
+
 		if (\is_object($expression))
 		{
 			if ($expression instanceof Expression)
@@ -863,15 +876,16 @@ class ExpressionEvaluator
 		});
 
 		$likeOperation = new Loco\ConcParser(array (
-			'expression',
-			'space',
-			self::negatableKeywordParser('like', 'LIKE', 'NOT LIKE'),
-			'space',
-			'string'
-		), function ($e, $_s1, $o, $_s2, $s) {
+				'expression',
+				'space',
+				self::negatableKeywordParser('like', 'LIKE', 'NOT LIKE'),
+				'space',
+				'string'
+		), function ($e, $_s1, $o, $_s2, $s)
+		{
 			return new BinaryOperatorExpression($o, $e, $s);
 		});
-		
+
 		$inOperation = new Loco\ConcParser(array (
 				'expression',
 				'space',
