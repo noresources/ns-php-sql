@@ -171,6 +171,10 @@ class Constants
 	 * @var integer
 	 */
 	const KEYWORD_NULL = 1;
+	
+	const KEYWORD_TRUE = 2;
+	
+	const KEYWORD_FALSE = 3;
 
 	/**
 	 * Ascending ORDER BY
