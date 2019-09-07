@@ -4,6 +4,7 @@ namespace NoreSources\SQL;
 
 use NoreSources as ns;
 use NoreSources\SQL\Constants as K;
+use NoreSources\TypeDescription;
 
 /**
  * Build a SQL statement string to be used in a SQL engine
@@ -75,9 +76,13 @@ abstract class StatementBuilder
 				return 'CURRENT_TIMESTAMP';
 			case K::KEYWORD_NULL:
 				return 'NULL';
+			case K::KEYWORD_TRUE:
+				return 'TRUE';
+			case K::KEYWORD_FALSE:
+				return 'FALSE';
 		}
 
-		throw new \InvalidArgumentException($keyword);
+		throw new \InvalidArgumentException('Keyword ' . $keyword . ' is not available');
 	}
 
 	/**
@@ -293,43 +298,49 @@ abstract class StatementBuilder
 	{
 		if ($type == K::DATATYPE_NULL)
 			return $this->getKeyword(K::KEYWORD_NULL);
-		
-		if (ns\Container::isArray($value))
-		{
-			$dateTimeKeys = array (
-					'date',
-					'timezone',
-					'timezone_type'
-			);
-			$matchingKeys = 0;
-			if (ns\Container::count($value) == 3)
-			{
-				foreach ($dateTimeKeys as $key)
-				{
-					if (in_array($key, $value))
-						$matchingKeys++;
-					else
-						break;
-				}
 
-				if ($matchingKeys == 3)
-				{
-					$value = \DateTime::__set_state($value);
-				}
-			}
+		if ($type == K::DATATYPE_BOOLEAN)
+			return $this->getKeyword(($value) ? K::KEYWORD_TRUE : K::KEYWORD_FALSE);
+
+		if (ns\DateTime::isDateTimeStateArray($value))
+		{
+			$value = ns\DateTIme::createFromArray($value);
 		}
 
 		if ($value instanceof \DateTime)
 		{
 			if ($type & K::DATATYPE_NUMBER)
-				$value = $value->getTimestamp();
+			{
+				$ts = $value->getTimestamp();
+				if ($type == K::DATATYPE_FLOAT)
+				{
+					$u = intval($value->format('u'));
+					$ts += ($u / 1000000);
+				}
+				$value = $ts;
+			}
 			else
 			{
 				$value = $value->format($this->getTimestampFormat());
 			}
 		}
 
-		if ($type & K::DATATYPE_NUMBER)
+		if ($type & K::DATATYPE_TIMESTAMP)
+		{
+			if (\is_float($value))
+			{
+				$d = new \DateTime();
+				$d->setTimestamp(jdtounix($value));
+				$value = $d->format($this->getTimestampFormat());
+			}
+			elseif (\is_int($value))
+			{
+				$d = new \DateTime();
+				$d->setTimestamp($value);
+				$value = $d->format($this->getTimestampFormat());
+			}
+		}
+		elseif ($type & K::DATATYPE_NUMBER)
 		{
 			if ($type & K::DATATYPE_INTEGER == K::DATATYPE_INTEGER)
 				$value = intval($value);

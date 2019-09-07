@@ -18,7 +18,7 @@ final class InsertTest extends TestCase
 
 	public function testInsertBasic()
 	{
-		$structure = $this->datasources->get ('types');
+		$structure = $this->datasources->get('types');
 		$t = $structure['ns_unittests']['types'];
 		$this->assertInstanceOf(TableStructure::class, $t);
 
@@ -34,6 +34,7 @@ final class InsertTest extends TestCase
 		{
 			$builder = new GenericStatementBuilder($flags);
 			$context = new StatementContext($builder);
+			$context->setPivot($t);
 			$sql = $q->buildExpression($context);
 
 			$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, $key, 'sql');
@@ -49,30 +50,47 @@ final class InsertTest extends TestCase
 		$context = new StatementContext($builder);
 
 		$tests = array (
-				'empty' => array (),
-				'literals' => array (
-						'name' => X::literal('Test task'),
-						'creationDateTime' => X::literal(\DateTime::createFromFormat(\DateTime::ISO8601, '2012-01-16T16:35:26+0100'))
-				),
-				'polish' => [
-						'name' => X::literal('Random priority'),
-						'priority' => ['rand()' => [1, 10]]
-				], 'expression' => [
-					'creator' => 1,
-					'name' => "substr ('Lorem ipsum', 0, 5)"
+			'empty' => array (),
+			'literals' => [
+				'name' => [ 
+					X::literal('Test task'), 
+					null 
+				],
+				'creationDateTime' => [
+					X::literal(\DateTime::createFromFormat(\DateTime::ISO8601, '2012-01-16T16:35:26+0100')),
+					null
 				]
+			],
+			'polish' => [
+				'name' => [ 
+					X::literal('Random priority'), 
+					null
+				],
+				'priority' => [
+					['rand()' => [1, 10]], 
+					null
+				]
+			], 
+			'expression' => [
+				'creator' => [1 , true],
+				'name' => [ "substr (
+					'Lorem ipsum', 0, 5)", 
+					true
+				]
+			]
 		);
 
 		foreach ($tests as $key => $values)
 		{
 			$q = new InsertQuery($tableStructure);
+			$context->setPivot($tableStructure);
 
 			foreach ($values as $column => $value)
 			{
 				if ($value instanceof Expression)
 					$q[$column] = $value;
 				else
-					$q->set($column, $value);
+					$q->set($column, $value[0], $value[1]);
 			}
 
 			$sql = $q->buildExpression($context);
@@ -86,10 +104,7 @@ final class InsertTest extends TestCase
 	 */
 	private $datasources;
 
-	
-
 	/**
-	 * 
 	 * @var DerivedFileManager
 	 */
 	private $derivedFileManager;

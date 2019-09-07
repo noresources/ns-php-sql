@@ -14,16 +14,15 @@ class UpdateQuery extends Statement implements \ArrayAccess
 
 	/**
 	 * @param TableSetStructure|string $table
-	 * @param string $alias
 	 */
-	public function __construct($table, $alias = null)
+	public function __construct($table)
 	{
 		if ($table instanceof TableStructure)
 		{
 			$table = $table->getPath();
 		}
 
-		$this->table = new TableReference($table, $alias);
+		$this->table = new TableReference($table);
 		$this->columnValues = new \ArrayObject();
 		$this->whereConstraints = new \ArrayObject();
 	}
@@ -31,15 +30,29 @@ class UpdateQuery extends Statement implements \ArrayAccess
 	/**
 	 * @param string $columnName
 	 * @param mixed $columnValue
-	 * @param boolean $evaluable If @c true, the value will be evaluated at build stage. Otherwise, the value is considered as a
-	 *        literal of the same type as the column data type.
+	 * @param boolean $evaluate If @c true, the value will be evaluated at build stage. Otherwise, the value is considered as a
+	 *        literal of the same type as the column data type..
+	 *        If @c null, the
 	 * @return \NoreSources\SQL\UpdateQuery
 	 */
-	public function set($columnName, $columnValue, $evaluable = true)
+	public function set($columnName, $columnValue, $evaluate = null)
 	{
+		if ($evaluate === false)
+		{
+			if ($columnValue instanceof Evaluable)
+			{
+				throw new \BadMethodCallException('Column value is an Evaluable but $evaluate = false');
+			}
+		}
+
+		if ($evaluate === null)
+		{
+			$evaluate = ($columnValue instanceof Evaluable) || (ns\Container::isArray($columnValue));
+		}
+		
 		$this->columnValues->offsetSet($columnName, [
 				'value' =>$columnValue,
-				'evaluate' => $evaluable
+				'evaluate' => $evaluate
 		]);
 		return $this;
 	}
@@ -81,11 +94,15 @@ class UpdateQuery extends Statement implements \ArrayAccess
 
 	/**
 	 * @param string $offset Column name
-	 * @param Evaluable $value Column value
+	 * @param mixed $value Column value.
 	 */
 	public function offsetSet($offset, $value)
 	{
-		$this->set($offset, $value, true);
+		$evaluate = false;
+		if ($value instanceof Evaluable)
+			$evaluate = true;
+
+		$this->set($offset, $value, $evaluate);
 	}
 
 	public function offsetUnset($offset)
@@ -110,12 +127,12 @@ class UpdateQuery extends Statement implements \ArrayAccess
 		{
 			if (!$tableStructure->offsetExists($columnName))
 				throw new StatementException($this, 'Invalid column "' . $columnName . '"');
-			
+
 			$column = $tableStructure->offsetGet($columnName);
 			/**
 			 * @var TableColumnStructure $column
 			 */
-			
+
 			$x = null;
 			$v = $value['value'];
 			if ($v instanceof Expression)
@@ -131,10 +148,10 @@ class UpdateQuery extends Statement implements \ArrayAccess
 				$t = K::DATATYPE_UNDEFINED;
 				if ($column->hasProperty(K::COLUMN_PROPERTY_DATA_TYPE))
 					$t = $column->getProperty(K::COLUMN_PROPERTY_DATA_TYPE);
-				
+
 				$x = new LiteralExpression($v, $t);
 			}
-			
+
 			$s .= ' SET ' . $context->escapeIdentifier($columnName) . '=' . $x->buildExpression($context);
 		}
 

@@ -12,98 +12,80 @@ use NoreSources\SQL\ExpressionEvaluator as X;
 class InsertQuery extends Statement implements \ArrayAccess
 {
 
-	public function __construct(TableStructure $structure = null)
+	public function __construct($table, $alias = null)
 	{
-		$this->structure = $structure;
+		if ($table instanceof TableStructure)
+		{
+			$table = $table->getPath();
+		}
+
+		$this->table = new TableReference($table);
 		$this->columnValues = new \ArrayObject();
 	}
 
 	/**
-	 * @property-read \NoreSources\SQL\TableStructure
-	 * @param mixed $member
-	 * @return \NoreSources\SQL\TableStructure|unknown
-	 */
-	public function __get($member)
-	{
-		if ($member == 'structure')
-			return $this->structure;
-
-		return $this->structure->$member;
-	}
-
-	/**
-	 * Set a column value with a basic type
-	 * @param string $columnName Table column name
-	 * @param mixed $columnValue Column value.
-	 *        Literal type will be the same as the column data type
-	 * @throws StatementException
-	 * @return \NoreSources\SQL\InsertQuery
-	 */
-	public function setLiteral($columnName, $columnValue)
-	{
-		if (!($this->structure->offsetExists($columnName)))
-			throw new StatementException($this, 'Invalid column ' . $columnName);
-
-		$column = $this->structure->offsetGet($columnName);
-		$this->columnValues->offsetSet($columnName, X::literal($columnValue, $column->getProperty(K::COLUMN_PROPERTY_DATA_TYPE)));
-
-		return $this;
-	}
-
-	/**
-	 * Set a column value with a complex expression.
 	 * @param string $columnName
-	 * @param Evaluable $columnExpression
-	 * @return \NoreSources\SQL\InsertQuery
+	 * @param mixed $columnValue
+	 * @param boolean $evaluate If @c true, the value will be evaluated at build stage. Otherwise, the value is considered as a
+	 *        literal of the same type as the column data type..
+	 *        If @c null, the
+	 * @return \NoreSources\SQL\UpdateQuery
 	 */
-	public function set($columnName, $columnExpression)
+	public function set($columnName, $columnValue, $evaluate = false)
 	{
-		$this->offsetSet($columnName, $columnExpression);
+		if ($evaluate === false)
+		{
+			if ($columnValue instanceof Evaluable)
+			{
+				throw new \BadMethodCallException('Column value is an Evaluable but $evaluate = false');
+			}
+		}
+
+		if ($evaluate === null)
+		{
+			$evaluate = ($columnValue instanceof Evaluable) || (ns\Container::isArray($columnValue));
+		}
+		
+		$this->columnValues->offsetSet($columnName, [
+				'value' =>$columnValue,
+				'evaluate' => $evaluate
+		]);
 		return $this;
 	}
 
 	/**
-	 * Indicates if the given column exists in table structure
-	 * @param string $offset column name
+	 * @param string Column name
+	 * @return boolean
 	 */
 	public function offsetExists($offset)
 	{
-		return $this->structure->offsetExists($offset);
+		return $this->columnValues->offsetExists($offset);
 	}
 
 	/**
 	 * Get current column value
+	 * @param string Column name
+	 *       
+	 * @return mixed Column current value or @c null if not set
 	 */
 	public function offsetGet($offset)
 	{
-		if ($this->columnValues->offsetExists($offset))
-			return $this->offsetGet($offset);
-
-		if (!$this->structure->offsetExists($offset))
-			throw new StatementException($this, 'Invalid column name ' . $offset);
-
-		$column = $this->structure->offsetGet($offset);
-		/**
-		 * @var TableColumnStructure $column
-		 */
-
-		if ($column->hasProperty(TableColumnStructure::DEFAULT_VALUE))
-			return $column->getProperty(TableColumnStructure::DEFAULT_VALUE);
-
+		if ($this->columnValues->offsetExists($index))
+			return $this->columnValues[$offset]['value'];
 		return null;
 	}
 
 	/**
-	 * Set column value
-	 * @param string $opffset Column name
-	 * @param Expression $value Column value
+	 * @param string $offset Column name
+	 * @param mixed $value Column value.
 	 */
 	public function offsetSet($offset, $value)
 	{
-		if (!$this->structure->offsetExists($offset))
-			throw new StatementException($this, 'Invalid column name ' . $offset);
+		$evaluate = false;
+		if ($value instanceof Evaluable)
+			$evaluate = true;
 
-		$this->columnValues->offsetSet($offset, $value);
+		$this->set($offset, $value, $evaluate);
 	}
 
 	public function offsetUnset($offset)
@@ -113,7 +95,17 @@ class InsertQuery extends Statement implements \ArrayAccess
 
 	public function buildExpression(StatementContext $context)
 	{
-		$s = 'INSERT INTO ' . $context->getCanonicalName($this->structure);
+		$tableStructure = $context->findTable($this->table->path);
+		/**
+		 * @var TableStructure $tableStructure
+		 */
+
+		$s = 'INSERT INTO ' . $context->getCanonicalName($tableStructure);
+		if ($this->table->alias)
+		{
+			$s .= ' AS ' . $context->escapeIdentifier($this->table->alias);
+		}
+
 		$columns = array ();
 		$values = array ();
 		$c = $this->columnValues->count();
@@ -124,16 +116,42 @@ class InsertQuery extends Statement implements \ArrayAccess
 			return $s;
 		}
 
-		foreach ($this->columnValues as $column => $value)
+		foreach ($this->columnValues as $columnName => $value)
 		{
-			$columns[] = $context->escapeIdentifier($column);
-			$x = $context->evaluateExpression($value);
+			if (!$tableStructure->offsetExists($columnName))
+				throw new StatementException($this, 'Invalid column "' . $columnName . '"');
+
+			$columns[] = $context->escapeIdentifier($columnName);
+			$column = $tableStructure->offsetGet($columnName);
+			/**
+			 * @var TableColumnStructure $column
+			 */
+
+			$x = null;
+			$v = $value['value'];
+			if ($v instanceof Expression)
+			{
+				$x = $v;
+			}
+			elseif ($value['evaluate'])
+			{
+				$x = $context->evaluateExpression($v);
+			}
+			else
+			{
+				$t = K::DATATYPE_UNDEFINED;
+				if ($column->hasProperty(K::COLUMN_PROPERTY_DATA_TYPE))
+					$t = $column->getProperty(K::COLUMN_PROPERTY_DATA_TYPE);
+
+				$x = new LiteralExpression($v, $t);
+			}
+
 			$values[] = $x->buildExpression($context);
 		}
 
 		if ($c == 0)
 		{
-			foreach ($this->structure as $name => $column)
+			foreach ($tableStructure as $name => $column)
 			{
 				/**
 				 * @var TableColumnStructure $column
@@ -170,18 +188,22 @@ class InsertQuery extends Statement implements \ArrayAccess
 	public function traverse($callable, StatementContext $context, $flags = 0)
 	{
 		call_user_func($callable, $this, $context, $flags);
+		foreach ($this->columnValues as $column => $value)
+		{
+			if ($value['value'] instanceof Expression)
+				call_user_func($callable, $value, $context, $flags);
+		}
 	}
 
 	/**
-	 * @var TableStructure
+	 * @var TableReference
 	 */
-	private $structure;
-	
+	private $table;
+
 	/**
-	 * 
-	 * @var \ArrayObject Associative array where 
-	 * keys are column names 
-	 * and values are \NoreSources\SQL\Expression
+	 * @var \ArrayObject Associative array where
+	 *      keys are column names
+	 *      and values are \NoreSources\SQL\Expression
 	 */
 	private $columnValues;
 }

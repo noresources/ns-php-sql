@@ -126,7 +126,7 @@ class DerivedFileManager extends TestCase
 		$method = str_replace($cls, '', $m[2]);
 
 		if (\is_string($suffix) && strlen($suffix))
-			$method .= '_' . $suffix;
+			$method .= '_' . preg_replace ('/[^a-zA-Z0-9._-]/', '_', $suffix);
 		return __DIR__ . '/' . $directory . '/' . $cls . '_' . $method . '.' . $extension;
 	}
 

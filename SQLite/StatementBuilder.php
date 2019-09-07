@@ -68,4 +68,15 @@ class StatementBuilder extends sql\StatementBuilder
 
 		return 'TEXT';
 	}
+
+	public function getKeyword($keyword)
+	{
+		switch ($keyword)
+		{
+			case K::KEYWORD_TRUE: return 1;
+			case K::KEYWORD_FALSE: return 0;
+		}
+		
+		return parent::getKeyword($keyword);
+	}
 }
