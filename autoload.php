@@ -66,16 +66,16 @@ spl_autoload_register(function($className) {
 		require_once(__DIR__ . '/Structure/Structures.php');
 	} elseif ($className == 'NoreSources\SQL\DatasourceStructure') {
 		require_once(__DIR__ . '/Structure/Structures.php');
-	} elseif ($className == 'NoreSources\SQL\StructureResolverException') {
-		require_once(__DIR__ . '/Structure/Structures.php');
-	} elseif ($className == 'NoreSources\SQL\StructureResolver') {
-		require_once(__DIR__ . '/Structure/Structures.php');
 	} elseif ($className == 'NoreSources\SQL\StructureSerializer') {
 		require_once(__DIR__ . '/Structure/Serializers.php');
 	} elseif ($className == 'NoreSources\SQL\JSONStructureSerializer') {
 		require_once(__DIR__ . '/Structure/Serializers.php');
 	} elseif ($className == 'NoreSources\SQL\XMLStructureSerializer') {
 		require_once(__DIR__ . '/Structure/Serializers.php');
+	} elseif ($className == 'NoreSources\SQL\StructureResolverException') {
+		require_once(__DIR__ . '/Structure/Resolver.php');
+	} elseif ($className == 'NoreSources\SQL\StructureResolver') {
+		require_once(__DIR__ . '/Structure/Resolver.php');
 	} elseif ($className == 'NoreSources\SQL\TableConstraint') {
 		require_once(__DIR__ . '/Structure/TableConstraints.php');
 	} elseif ($className == 'NoreSources\SQL\ColumnTableConstraint') {
