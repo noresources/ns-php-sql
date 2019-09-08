@@ -67,6 +67,11 @@ class ParameterArray implements \IteratorAggregate
 abstract class PreparedStatement
 {
 
+	/**
+	 * 
+	 * @param StatementContext $context Context used to build the statement. 
+	 * Used to retrieve the statement parameters. 
+	 */
 	public function __construct (StatementContext $context)
 	{
 		$this->parameters = $context->getParameters();

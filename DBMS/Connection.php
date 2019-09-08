@@ -103,6 +103,23 @@ class ConnectionHelper
 		return $connection;
 	}
 
+	public static function createStatementContext ($connection)
+	{
+		if ($connection instanceof Connection)
+		{
+			return new StatementContext($connection->getStatementBuilder());
+		}
+		elseif (\is_string ($connection))
+		{
+			$className = __NAMESPACE__ . '\\' . $connection . '\\StatementBuilder';
+			if (\class_exists($className))
+			{
+				$cls = new \ReflectionClass($o->className);
+				return new StatementContext($cls->newInstance());
+			}
+		}
+	}
+	
 	/**
 	 * @param Connection $connection
 	 * @param Statement $statement

@@ -1,21 +1,13 @@
 <?php
 spl_autoload_register(function($className) {
-	if ($className == 'NoreSources\SQL\SQLite\Constants') {
-		require_once(__DIR__ . '/SQLite/Constants.php');
-	} elseif ($className == 'NoreSources\SQL\SQLite\StatementBuilder') {
-		require_once(__DIR__ . '/SQLite/StatementBuilder.php');
-	} elseif ($className == 'NoreSources\SQL\SQLite\Connection') {
-		require_once(__DIR__ . '/SQLite/Connection.php');
-	} elseif ($className == 'NoreSources\SQL\SQLite\PreparedStatement') {
-		require_once(__DIR__ . '/SQLite/PreparedStatement.php');
-	} elseif ($className == 'NoreSources\SQL\SQLite\Recordset') {
-		require_once(__DIR__ . '/SQLite/Recordset.php');
-	} elseif ($className == 'NoreSources\SQL\StatementException') {
+	if ($className == 'NoreSources\SQL\StatementException') {
 		require_once(__DIR__ . '/Statements/Base.php');
 	} elseif ($className == 'NoreSources\SQL\TableReference') {
 		require_once(__DIR__ . '/Statements/Base.php');
 	} elseif ($className == 'NoreSources\SQL\Statement') {
 		require_once(__DIR__ . '/Statements/Base.php');
+	} elseif ($className == 'NoreSources\SQL\DropTableQuery') {
+		require_once(__DIR__ . '/Statements/DropTable.php');
 	} elseif ($className == 'NoreSources\SQL\StatementContextParameter') {
 		require_once(__DIR__ . '/Statements/Context.php');
 	} elseif ($className == 'NoreSources\SQL\StatementContextParameterMap') {
@@ -34,24 +26,34 @@ spl_autoload_register(function($className) {
 		require_once(__DIR__ . '/Statements/Builder.php');
 	} elseif ($className == 'NoreSources\SQL\InsertQuery') {
 		require_once(__DIR__ . '/Statements/Insert.php');
-	} elseif ($className == 'NoreSources\SQL\DropTableQuery') {
-		require_once(__DIR__ . '/Statements/Drop.php');
 	} elseif ($className == 'NoreSources\SQL\UpdateQuery') {
 		require_once(__DIR__ . '/Statements/Update.php');
 	} elseif ($className == 'NoreSources\SQL\CreateTableQuery') {
 		require_once(__DIR__ . '/Statements/CreateTable.php');
-	} elseif ($className == 'NoreSources\SQL\ParameterArray') {
-		require_once(__DIR__ . '/Statements/PreparedStatement.php');
-	} elseif ($className == 'NoreSources\SQL\PreparedStatement') {
-		require_once(__DIR__ . '/Statements/PreparedStatement.php');
+	} elseif ($className == 'NoreSources\SQL\DeleteQuery') {
+		require_once(__DIR__ . '/Statements/Delete.php');
 	} elseif ($className == 'NoreSources\SQL\Constants') {
 		require_once(__DIR__ . '/Constants.php');
+	} elseif ($className == 'NoreSources\SQL\SQLite\Constants') {
+		require_once(__DIR__ . '/DBMS/SQLite/Constants.php');
+	} elseif ($className == 'NoreSources\SQL\SQLite\StatementBuilder') {
+		require_once(__DIR__ . '/DBMS/SQLite/StatementBuilder.php');
+	} elseif ($className == 'NoreSources\SQL\SQLite\Connection') {
+		require_once(__DIR__ . '/DBMS/SQLite/Connection.php');
+	} elseif ($className == 'NoreSources\SQL\SQLite\PreparedStatement') {
+		require_once(__DIR__ . '/DBMS/SQLite/PreparedStatement.php');
+	} elseif ($className == 'NoreSources\SQL\SQLite\Recordset') {
+		require_once(__DIR__ . '/DBMS/SQLite/Recordset.php');
 	} elseif ($className == 'NoreSources\SQL\ConnectionException') {
-		require_once(__DIR__ . '/Connection.php');
+		require_once(__DIR__ . '/DBMS/Connection.php');
 	} elseif ($className == 'NoreSources\SQL\Connection') {
-		require_once(__DIR__ . '/Connection.php');
+		require_once(__DIR__ . '/DBMS/Connection.php');
 	} elseif ($className == 'NoreSources\SQL\ConnectionHelper') {
-		require_once(__DIR__ . '/Connection.php');
+		require_once(__DIR__ . '/DBMS/Connection.php');
+	} elseif ($className == 'NoreSources\SQL\ParameterArray') {
+		require_once(__DIR__ . '/DBMS/PreparedStatement.php');
+	} elseif ($className == 'NoreSources\SQL\PreparedStatement') {
+		require_once(__DIR__ . '/DBMS/PreparedStatement.php');
 	} elseif ($className == 'NoreSources\SQL\StructureException') {
 		require_once(__DIR__ . '/Structure/Structures.php');
 	} elseif ($className == 'NoreSources\SQL\StructureElement') {
