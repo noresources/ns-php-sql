@@ -21,7 +21,7 @@ final class SelectTest extends TestCase
 		$structure = $this->datasources->get('Company');
 		$tableStructure = $structure['ns_unittests']['Employees'];
 		$this->assertInstanceOf(TableStructure::class, $tableStructure);
-		$builder = new GenericStatementBuilder();
+		$builder = new Reference\StatementBuilder();
 		$context = new StatementContext($builder);
 		$context->setPivot($tableStructure);
 		$q = new SelectQuery($tableStructure, 't');
@@ -41,7 +41,7 @@ final class SelectTest extends TestCase
 		$structure = $this->datasources->get('Company');
 		$tableStructure = $structure['ns_unittests']['Tasks'];
 		$this->assertInstanceOf(TableStructure::class, $tableStructure);
-		$builder = new GenericStatementBuilder();
+		$builder = new Reference\StatementBuilder();
 		$context = new StatementContext($builder);
 		$context->setPivot($tableStructure);
 		$q = new SelectQuery($tableStructure, 't');

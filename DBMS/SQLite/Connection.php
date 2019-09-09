@@ -42,6 +42,12 @@ class Connection implements sql\Connection
 		$this->connection = null;
 	}
 
+	public function __destruct ()
+	{
+		if ($this->connection instanceof \SQLite3)
+			$this->disconnect();
+	}
+	
 	public function beginTransation()
 	{}
 

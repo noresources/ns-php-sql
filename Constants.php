@@ -59,13 +59,14 @@ class Constants
 	 */
 	const DATATYPE_BINARY = 0x40;
 
-	// DBMS types
-	const CONNECTION_TYPE_VIRTUAL = 'virtual';
-	const CONNECTION_TYPE_SQLITE = 'sqlite';
-	const CONNECTION_TYPE_MYSQL = 'mysql';
-	const CONNECTION_TYPE_POSTGRESQL = 'pgsql';
-
 	// DBMS connection settings
+
+	/**
+	 * DBMS type
+	 * @var string DBMS Connection class name or
+	 *      one of the types registered using ConnectionHelper::registerConnectionClass()
+	 */
+	const CONNECTION_PARAMETER_TYPE = 'type';
 
 	/**
 	 * DBMS hostname, IP address or databalse file(s) path
@@ -171,9 +172,7 @@ class Constants
 	 * @var integer
 	 */
 	const KEYWORD_NULL = 1;
-	
 	const KEYWORD_TRUE = 2;
-	
 	const KEYWORD_FALSE = 3;
 
 	/**

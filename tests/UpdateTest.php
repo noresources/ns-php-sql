@@ -21,7 +21,10 @@ final class UpdateTest extends TestCase
 		$structure = $this->datasources->get('types');
 		$tableStructure = $structure['ns_unittests']['types'];
 		$this->assertInstanceOf(TableStructure::class, $tableStructure);
-		$builder = new GenericStatementBuilder();
+		
+		$connection = ConnectionHelper::createConnection('reference');
+		
+		$builder = $connection->getStatementBuilder();
 		$context = new StatementContext($builder);
 		$context->setPivot($tableStructure);
 		
@@ -65,7 +68,7 @@ final class UpdateTest extends TestCase
 		$structure = $this->datasources->get('Company');
 		$tableStructure = $structure['ns_unittests']['Employees'];
 		$this->assertInstanceOf(TableStructure::class, $tableStructure);
-		$builder = new GenericStatementBuilder();
+		$builder = new Reference\StatementBuilder();
 		$context = new StatementContext($builder);
 		$context->setPivot($tableStructure);
 		$q = new UpdateQuery($tableStructure);

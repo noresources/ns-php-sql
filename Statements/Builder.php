@@ -4,7 +4,6 @@ namespace NoreSources\SQL;
 
 use NoreSources as ns;
 use NoreSources\SQL\Constants as K;
-use NoreSources\TypeDescription;
 
 /**
  * Build a SQL statement string to be used in a SQL engine
@@ -423,62 +422,4 @@ abstract class StatementBuilder
 	 * @var ExpressionEvaluator
 	 */
 	private $evaluator;
-}
-
-/**
- */
-class GenericStatementBuilder extends StatementBuilder
-{
-
-	public function __construct($flags = 0)
-	{
-		parent::__construct($flags);
-		$this->parameters = new \ArrayObject();
-		$this->setExpressionEvaluator(new ExpressionEvaluator());
-	}
-
-	public function escapeString($value)
-	{
-		return str_replace("'", "''", $value);
-	}
-
-	public function escapeIdentifier($identifier)
-	{
-		return '[' . $identifier . ']';
-	}
-
-	public function isValidParameterName($name)
-	{
-		return true;
-	}
-
-	public function normalizeParameterName($name, StatementContext $context)
-	{
-		return $name;
-	}
-
-	public function getParameter($name, $index = -1)
-	{
-		return '$' . $name;
-	}
-
-	function getColumnTymeName(TableColumnStructure $column)
-	{
-		$dataType = K::DATATYPE_UNDEFINED;
-		if ($column->hasProperty(K::COLUMN_PROPERTY_DATA_TYPE))
-			$dataType = $column->getProperty(K::COLUMN_PROPERTY_DATA_TYPE);
-		
-		switch ($dataType) {
-			case K::DATATYPE_BINARY: return 'BLOB';
-			case K::DATATYPE_BOOLEAN: return 'BOOL';
-			case K::DATATYPE_INTEGER: return 'INTEGER';
-			case K::DATATYPE_NUMBER:
-			case K::DATATYPE_FLOAT: 
-				return 'REAL';
-			
-		}
-		
-		return 'TEXT';
-	}
-
 }

@@ -77,17 +77,32 @@ class ConnectionHelper
 	 */
 	public static function createConnection($settings)
 	{
+		if (!ns\Container::isArray($settings))
+			$settings = array (
+					K::CONNECTION_PARAMETER_TYPE => $settings
+			);
+
+		$type = ns\Container::keyValue($settings, K::CONNECTION_PARAMETER_TYPE, 'Reference');
 		$connection = null;
-		$type = ns\Container::keyValue($settings, K::CONNECTION_TYPE_SQLITE, K::CONNECTION_TYPE_VIRTUAL);
-		if ($type == K::CONNECTION_TYPE_SQLITE)
+		$className = null;
+
+		$classNames = array (
+				$type,
+				__NAMESPACE__ . '\\' . $type . '\\Connection'
+		);
+
+		if (self::$connectionClassMap->offsetExists($type))
 		{
-			if (class_exists('\SQLIte3'))
+			array_unshift($classNames, self::$connectionClassMap->offsetGet($type));
+		}
+
+		foreach ($classNames as $className)
+		{
+			if (class_exists($className) && \is_subclass_of($className, Connection::class, true))
 			{
-				$connection = new SQLite\Connection();
-			}
-			else
-			{
-				throw new ConnectionException('SQLite3 extension not loaded');
+				$cls = new \ReflectionClass($className);
+				$connection = $cls->newInstance();
+				break;
 			}
 		}
 
@@ -103,23 +118,6 @@ class ConnectionHelper
 		return $connection;
 	}
 
-	public static function createStatementContext ($connection)
-	{
-		if ($connection instanceof Connection)
-		{
-			return new StatementContext($connection->getStatementBuilder());
-		}
-		elseif (\is_string ($connection))
-		{
-			$className = __NAMESPACE__ . '\\' . $connection . '\\StatementBuilder';
-			if (\class_exists($className))
-			{
-				$cls = new \ReflectionClass($o->className);
-				return new StatementContext($cls->newInstance());
-			}
-		}
-	}
-	
 	/**
 	 * @param Connection $connection
 	 * @param Statement $statement
@@ -134,4 +132,23 @@ class ConnectionHelper
 		$sql = $statement->buildExpression($context);
 		return $connection->prepare($sql, $context);
 	}
+
+	public static function registerConnectionClass($type, $className)
+	{
+		self::$connectionClassMap->offsetSet($type, $className);
+	}
+
+	public static function initialize()
+	{
+		if (!(self::$connectionClassMap instanceof \ArrayObject))
+			self::$connectionClassMap = new \ArrayObject();
+	}
+	
+	/**
+	 * 
+	 * @var \ArrayObject
+	 */
+	private static $connectionClassMap;
 }
+
+ConnectionHelper::initialize();

@@ -1,136 +1,78 @@
 <?php
 spl_autoload_register(function($className) {
-	if ($className == 'NoreSources\SQL\StatementException') {
-		require_once(__DIR__ . '/Statements/Base.php');
-	} elseif ($className == 'NoreSources\SQL\TableReference') {
-		require_once(__DIR__ . '/Statements/Base.php');
-	} elseif ($className == 'NoreSources\SQL\Statement') {
-		require_once(__DIR__ . '/Statements/Base.php');
-	} elseif ($className == 'NoreSources\SQL\DropTableQuery') {
-		require_once(__DIR__ . '/Statements/DropTable.php');
-	} elseif ($className == 'NoreSources\SQL\StatementContextParameter') {
-		require_once(__DIR__ . '/Statements/Context.php');
-	} elseif ($className == 'NoreSources\SQL\StatementContextParameterMap') {
-		require_once(__DIR__ . '/Statements/Context.php');
-	} elseif ($className == 'NoreSources\SQL\StatementContext') {
-		require_once(__DIR__ . '/Statements/Context.php');
-	} elseif ($className == 'NoreSources\SQL\ResultColumnReference') {
-		require_once(__DIR__ . '/Statements/Select.php');
-	} elseif ($className == 'NoreSources\SQL\JoinClause') {
-		require_once(__DIR__ . '/Statements/Select.php');
-	} elseif ($className == 'NoreSources\SQL\SelectQuery') {
-		require_once(__DIR__ . '/Statements/Select.php');
-	} elseif ($className == 'NoreSources\SQL\StatementBuilder') {
-		require_once(__DIR__ . '/Statements/Builder.php');
-	} elseif ($className == 'NoreSources\SQL\GenericStatementBuilder') {
-		require_once(__DIR__ . '/Statements/Builder.php');
-	} elseif ($className == 'NoreSources\SQL\InsertQuery') {
-		require_once(__DIR__ . '/Statements/Insert.php');
-	} elseif ($className == 'NoreSources\SQL\UpdateQuery') {
-		require_once(__DIR__ . '/Statements/Update.php');
-	} elseif ($className == 'NoreSources\SQL\CreateTableQuery') {
-		require_once(__DIR__ . '/Statements/CreateTable.php');
-	} elseif ($className == 'NoreSources\SQL\DeleteQuery') {
-		require_once(__DIR__ . '/Statements/Delete.php');
-	} elseif ($className == 'NoreSources\SQL\Constants') {
-		require_once(__DIR__ . '/Constants.php');
-	} elseif ($className == 'NoreSources\SQL\SQLite\Constants') {
-		require_once(__DIR__ . '/DBMS/SQLite/Constants.php');
-	} elseif ($className == 'NoreSources\SQL\SQLite\StatementBuilder') {
-		require_once(__DIR__ . '/DBMS/SQLite/StatementBuilder.php');
-	} elseif ($className == 'NoreSources\SQL\SQLite\Connection') {
-		require_once(__DIR__ . '/DBMS/SQLite/Connection.php');
-	} elseif ($className == 'NoreSources\SQL\SQLite\PreparedStatement') {
-		require_once(__DIR__ . '/DBMS/SQLite/PreparedStatement.php');
-	} elseif ($className == 'NoreSources\SQL\SQLite\Recordset') {
-		require_once(__DIR__ . '/DBMS/SQLite/Recordset.php');
-	} elseif ($className == 'NoreSources\SQL\ConnectionException') {
-		require_once(__DIR__ . '/DBMS/Connection.php');
-	} elseif ($className == 'NoreSources\SQL\Connection') {
-		require_once(__DIR__ . '/DBMS/Connection.php');
-	} elseif ($className == 'NoreSources\SQL\ConnectionHelper') {
-		require_once(__DIR__ . '/DBMS/Connection.php');
-	} elseif ($className == 'NoreSources\SQL\ParameterArray') {
-		require_once(__DIR__ . '/DBMS/PreparedStatement.php');
-	} elseif ($className == 'NoreSources\SQL\PreparedStatement') {
-		require_once(__DIR__ . '/DBMS/PreparedStatement.php');
-	} elseif ($className == 'NoreSources\SQL\StructureException') {
-		require_once(__DIR__ . '/Structure/Structures.php');
-	} elseif ($className == 'NoreSources\SQL\StructureElement') {
-		require_once(__DIR__ . '/Structure/Structures.php');
-	} elseif ($className == 'NoreSources\SQL\TableColumnStructure') {
-		require_once(__DIR__ . '/Structure/Structures.php');
-	} elseif ($className == 'NoreSources\SQL\TableStructure') {
-		require_once(__DIR__ . '/Structure/Structures.php');
-	} elseif ($className == 'NoreSources\SQL\TableSetStructure') {
-		require_once(__DIR__ . '/Structure/Structures.php');
-	} elseif ($className == 'NoreSources\SQL\DatasourceStructure') {
-		require_once(__DIR__ . '/Structure/Structures.php');
-	} elseif ($className == 'NoreSources\SQL\StructureSerializer') {
-		require_once(__DIR__ . '/Structure/Serializers.php');
-	} elseif ($className == 'NoreSources\SQL\JSONStructureSerializer') {
-		require_once(__DIR__ . '/Structure/Serializers.php');
-	} elseif ($className == 'NoreSources\SQL\XMLStructureSerializer') {
-		require_once(__DIR__ . '/Structure/Serializers.php');
-	} elseif ($className == 'NoreSources\SQL\StructureResolverException') {
-		require_once(__DIR__ . '/Structure/Resolver.php');
-	} elseif ($className == 'NoreSources\SQL\StructureResolver') {
-		require_once(__DIR__ . '/Structure/Resolver.php');
-	} elseif ($className == 'NoreSources\SQL\TableConstraint') {
-		require_once(__DIR__ . '/Structure/TableConstraints.php');
-	} elseif ($className == 'NoreSources\SQL\ColumnTableConstraint') {
-		require_once(__DIR__ . '/Structure/TableConstraints.php');
-	} elseif ($className == 'NoreSources\SQL\PrimaryKeyTableConstraint') {
-		require_once(__DIR__ . '/Structure/TableConstraints.php');
-	} elseif ($className == 'NoreSources\SQL\UniqueTableConstraint') {
-		require_once(__DIR__ . '/Structure/TableConstraints.php');
-	} elseif ($className == 'NoreSources\SQL\ForeignKeyTableConstraint') {
-		require_once(__DIR__ . '/Structure/TableConstraints.php');
-	} elseif ($className == 'NoreSources\SQL\Expression') {
-		require_once(__DIR__ . '/Expressions/Base.php');
-	} elseif ($className == 'NoreSources\SQL\PreformattedExpression') {
-		require_once(__DIR__ . '/Expressions/Base.php');
-	} elseif ($className == 'NoreSources\SQL\KeywordExpression') {
-		require_once(__DIR__ . '/Expressions/Base.php');
-	} elseif ($className == 'NoreSources\SQL\LiteralExpression') {
-		require_once(__DIR__ . '/Expressions/Base.php');
-	} elseif ($className == 'NoreSources\SQL\ParameterExpression') {
-		require_once(__DIR__ . '/Expressions/Base.php');
-	} elseif ($className == 'NoreSources\SQL\ColumnExpression') {
-		require_once(__DIR__ . '/Expressions/Base.php');
-	} elseif ($className == 'NoreSources\SQL\TableExpression') {
-		require_once(__DIR__ . '/Expressions/Base.php');
-	} elseif ($className == 'NoreSources\SQL\CaseOptionExpression') {
-		require_once(__DIR__ . '/Expressions/Case.php');
-	} elseif ($className == 'NoreSources\SQL\CaseExpression') {
-		require_once(__DIR__ . '/Expressions/Case.php');
-	} elseif ($className == 'NoreSources\SQL\FunctionExpression') {
-		require_once(__DIR__ . '/Expressions/Functions.php');
-	} elseif ($className == 'NoreSources\SQL\ExpressionEvaluationException') {
-		require_once(__DIR__ . '/Expressions/Evaluator.php');
-	} elseif ($className == 'NoreSources\SQL\Evaluable') {
-		require_once(__DIR__ . '/Expressions/Evaluator.php');
-	} elseif ($className == 'NoreSources\SQL\ExpressionEvaluator') {
-		require_once(__DIR__ . '/Expressions/Evaluator.php');
-	} elseif ($className == 'NoreSources\SQL\PolishNotationOperation') {
-		require_once(__DIR__ . '/Expressions/Evaluator.php');
-	} elseif ($className == 'NoreSources\SQL\BinaryPolishNotationOperation') {
-		require_once(__DIR__ . '/Expressions/Evaluator.php');
-	} elseif ($className == 'NoreSources\SQL\UnaryPolishNotationOperation') {
-		require_once(__DIR__ . '/Expressions/Evaluator.php');
-	} elseif ($className == 'NoreSources\SQL\ListExpression') {
-		require_once(__DIR__ . '/Expressions/Chunks.php');
-	} elseif ($className == 'NoreSources\SQL\ParenthesisExpression') {
-		require_once(__DIR__ . '/Expressions/Chunks.php');
-	} elseif ($className == 'NoreSources\SQL\UnaryOperatorExpression') {
-		require_once(__DIR__ . '/Expressions/Chunks.php');
-	} elseif ($className == 'NoreSources\SQL\BinaryOperatorExpression') {
-		require_once(__DIR__ . '/Expressions/Chunks.php');
-	} elseif ($className == 'NoreSources\SQL\InOperatorExpression') {
-		require_once(__DIR__ . '/Expressions/Chunks.php');
-	} elseif ($className == 'NoreSources\SQL\BetweenExpression') {
-		require_once(__DIR__ . '/Expressions/Chunks.php');
-	} elseif ($className == 'NoreSources\SQL\Recordset') {
-		require_once(__DIR__ . '/Recordset.php');
+	$className = strtolower ($className);
+	$classMap = array (
+		'noresources\sql\statementexception' => 'Statements/Base.php',
+		'noresources\sql\tablereference' => 'Statements/Base.php',
+		'noresources\sql\statement' => 'Statements/Base.php',
+		'noresources\sql\droptablequery' => 'Statements/DropTable.php',
+		'noresources\sql\statementcontextparameter' => 'Statements/Context.php',
+		'noresources\sql\statementcontextparametermap' => 'Statements/Context.php',
+		'noresources\sql\statementcontext' => 'Statements/Context.php',
+		'noresources\sql\resultcolumnreference' => 'Statements/Select.php',
+		'noresources\sql\joinclause' => 'Statements/Select.php',
+		'noresources\sql\selectquery' => 'Statements/Select.php',
+		'noresources\sql\statementbuilder' => 'Statements/Builder.php',
+		'noresources\sql\insertquery' => 'Statements/Insert.php',
+		'noresources\sql\updatequery' => 'Statements/Update.php',
+		'noresources\sql\createtablequery' => 'Statements/CreateTable.php',
+		'noresources\sql\deletequery' => 'Statements/Delete.php',
+		'noresources\sql\constants' => 'Constants.php',
+		'noresources\sql\sqlite\constants' => 'DBMS/SQLite/Constants.php',
+		'noresources\sql\sqlite\statementbuilder' => 'DBMS/SQLite/StatementBuilder.php',
+		'noresources\sql\sqlite\connection' => 'DBMS/SQLite/Connection.php',
+		'noresources\sql\sqlite\preparedstatement' => 'DBMS/SQLite/PreparedStatement.php',
+		'noresources\sql\sqlite\recordset' => 'DBMS/SQLite/Recordset.php',
+		'noresources\sql\reference\statementbuilder' => 'DBMS/Reference/Builder.php',
+		'noresources\sql\reference\connection' => 'DBMS/Reference/Connection.php',
+		'noresources\sql\reference\preparedstatement' => 'DBMS/Reference/PreparedStatement.php',
+		'noresources\sql\connectionexception' => 'DBMS/Connection.php',
+		'noresources\sql\connection' => 'DBMS/Connection.php',
+		'noresources\sql\connectionhelper' => 'DBMS/Connection.php',
+		'noresources\sql\parameterarray' => 'DBMS/PreparedStatement.php',
+		'noresources\sql\preparedstatement' => 'DBMS/PreparedStatement.php',
+		'noresources\sql\structureexception' => 'Structure/Structures.php',
+		'noresources\sql\structureelement' => 'Structure/Structures.php',
+		'noresources\sql\tablecolumnstructure' => 'Structure/Structures.php',
+		'noresources\sql\tablestructure' => 'Structure/Structures.php',
+		'noresources\sql\tablesetstructure' => 'Structure/Structures.php',
+		'noresources\sql\datasourcestructure' => 'Structure/Structures.php',
+		'noresources\sql\structureserializer' => 'Structure/Serializers.php',
+		'noresources\sql\jsonstructureserializer' => 'Structure/Serializers.php',
+		'noresources\sql\xmlstructureserializer' => 'Structure/Serializers.php',
+		'noresources\sql\structureresolverexception' => 'Structure/Resolver.php',
+		'noresources\sql\structureresolver' => 'Structure/Resolver.php',
+		'noresources\sql\tableconstraint' => 'Structure/TableConstraints.php',
+		'noresources\sql\columntableconstraint' => 'Structure/TableConstraints.php',
+		'noresources\sql\primarykeytableconstraint' => 'Structure/TableConstraints.php',
+		'noresources\sql\uniquetableconstraint' => 'Structure/TableConstraints.php',
+		'noresources\sql\foreignkeytableconstraint' => 'Structure/TableConstraints.php',
+		'noresources\sql\expression' => 'Expressions/Base.php',
+		'noresources\sql\preformattedexpression' => 'Expressions/Base.php',
+		'noresources\sql\keywordexpression' => 'Expressions/Base.php',
+		'noresources\sql\literalexpression' => 'Expressions/Base.php',
+		'noresources\sql\parameterexpression' => 'Expressions/Base.php',
+		'noresources\sql\columnexpression' => 'Expressions/Base.php',
+		'noresources\sql\tableexpression' => 'Expressions/Base.php',
+		'noresources\sql\caseoptionexpression' => 'Expressions/Case.php',
+		'noresources\sql\caseexpression' => 'Expressions/Case.php',
+		'noresources\sql\functionexpression' => 'Expressions/Functions.php',
+		'noresources\sql\expressionevaluationexception' => 'Expressions/Evaluator.php',
+		'noresources\sql\evaluable' => 'Expressions/Evaluator.php',
+		'noresources\sql\expressionevaluator' => 'Expressions/Evaluator.php',
+		'noresources\sql\polishnotationoperation' => 'Expressions/Evaluator.php',
+		'noresources\sql\binarypolishnotationoperation' => 'Expressions/Evaluator.php',
+		'noresources\sql\unarypolishnotationoperation' => 'Expressions/Evaluator.php',
+		'noresources\sql\listexpression' => 'Expressions/Chunks.php',
+		'noresources\sql\parenthesisexpression' => 'Expressions/Chunks.php',
+		'noresources\sql\unaryoperatorexpression' => 'Expressions/Chunks.php',
+		'noresources\sql\binaryoperatorexpression' => 'Expressions/Chunks.php',
+		'noresources\sql\inoperatorexpression' => 'Expressions/Chunks.php',
+		'noresources\sql\betweenexpression' => 'Expressions/Chunks.php',
+		'noresources\sql\recordset' => 'Recordset.php'
+	); // classMap
+
+	if (\array_key_exists ($className, $classMap)) {
+		require_once(__DIR__ . '/' . $classMap[$className]);
 	}
 });

@@ -32,7 +32,7 @@ final class InsertTest extends TestCase
 
 		foreach ($builderFlags as $key => $flags)
 		{
-			$builder = new GenericStatementBuilder($flags);
+			$builder = new Reference\StatementBuilder($flags);
 			$context = new StatementContext($builder);
 			$context->setPivot($t);
 			$sql = $q->buildExpression($context);
@@ -46,7 +46,7 @@ final class InsertTest extends TestCase
 		$structure = $this->datasources->get('Company');
 		$tableStructure = $structure['ns_unittests']['Tasks'];
 		$this->assertInstanceOf(TableStructure::class, $tableStructure);
-		$builder = new GenericStatementBuilder();
+		$builder = new Reference\StatementBuilder();
 		$context = new StatementContext($builder);
 
 		$tests = array (

@@ -76,14 +76,11 @@ class StatementContext
 	 */
 	public $resolver;
 
-	public function __construct(StatementBuilder $builder, StructureResolver $resolver = null)
+	public function __construct(StatementBuilder $builder, StructureElement $pivot = null)
 	{
 		$this->flags = 0;
 		$this->builder = $builder;
-		if ($resolver instanceof StructureResolver)
-			$this->resolver = $resolver;
-		else
-			$this->resolver = new StructureResolver();
+		$this->resolver = new StructureResolver($pivot);
 		$this->parameters = new StatementContextParameterMap();
 		$this->parameterCount = 0;
 		$this->aliases = new \ArrayObject();
