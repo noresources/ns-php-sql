@@ -1169,7 +1169,16 @@ class Record implements \ArrayAccess, \IteratorAggregate
 			if (\is_string ($value) && strlen ($value))
 			{
 				$format = $datasource->getDatasourceString(Datasource::kStringTimestampFormat);
-				$value = \DateTime::createFromFormat($format, $value);
+				$d = \DateTime::createFromFormat($format, $value);
+				if ($value instanceof \DateTime)
+				{
+					$value = $d;
+				}
+				else
+				{
+					ns\Reporter::warning(__CLASS__, $columnStructure->getName() . ': Invalid timestamp "' . var_export ($value, true) . '" for format "'.$format. '"');
+				}
+				
 			}
 		}
 		elseif ($type == kDataTypeInteger)

@@ -33,6 +33,8 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 	{
 		parent::__construct($a_structure);
 		$this->setDatasourceString(self::kStringImplementationTypeKey, basename(__DIR__));
+		// timestamp with timezone
+		//$this->setDatasourceString(self::kStringTimestampFormat, \DateTIme::ISO8601);
 		
 		$this->activeTableSetName = self::kDefaultTableSetName;
 		
