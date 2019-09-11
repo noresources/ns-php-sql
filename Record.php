@@ -412,7 +412,7 @@ class Record implements \ArrayAccess, \IteratorAggregate
 			$s->where->addAndExpression($column->equalityExpression($data));
 		}
 		
-		ns\Reporter::debug(get_called_class(), class_exists('\SqlFormatter') ? \SqlFormatter::format ($s->expressionString(), false) : $s->expressionString());
+		//ns\Reporter::debug(get_called_class(), class_exists('\SqlFormatter') ? \SqlFormatter::format ($s->expressionString(), false) : $s->expressionString());
 		
 		if ($flags & self::QUERY_SQL) return $s;
 		
@@ -608,7 +608,7 @@ class Record implements \ArrayAccess, \IteratorAggregate
 			}
 		}
 		
-		ns\Reporter::debug($className, $s->expressionString());
+		//ns\Reporter::debug($className, $s->expressionString());
 		
 		if ($flags & self::QUERY_SQL)
 		{
