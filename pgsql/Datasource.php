@@ -32,9 +32,7 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 	public function __construct(DatasourceStructure $a_structure = null)
 	{
 		parent::__construct($a_structure);
-		$this->setDatasourceString(self::kStringImplementationTypeKey, basename(__DIR__));
-		// timestamp with timezone
-		//$this->setDatasourceString(self::kStringTimestampFormat, \DateTIme::ISO8601);
+		$this->setDatasourceString(self::kStringTimestampFormat, \DateTIme::ISO8601);
 		
 		$this->activeTableSetName = self::kDefaultTableSetName;
 		
@@ -313,6 +311,16 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 		return (pg_escape_bytea($this->resource, $data));
 	}
 
+	public function unserializeTimestamp ($time)
+	{
+		if (\is_string ($time))
+		{
+			$time = preg_replace (chr (1) . '(.*)((\+|-)[0-9]{2})$' . chr (1), '\1\200', $time);
+		}
+		
+		return parent::unserializeTimestamp($time);
+	}
+	
 	public function unserializeBinaryData($data)
 	{
 		return pg_unescape_bytea($data);

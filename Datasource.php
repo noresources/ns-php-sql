@@ -492,6 +492,84 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 	}
 
 	/**
+	 * @param TableColumnStructure $column
+	 * @param unknown $value
+	 * @return NULL|unknown|number|string|\DateTime
+	 */
+	public function unserializeColumn (TableColumnStructure $column, $value)
+	{
+		$type = kDataTypeString;
+		if ($column->hasProperty(kStructureDatatype))
+		{
+			$type = $column->getProperty(kStructureDatatype);
+		}
+		
+		return $this->unserializeValue($type, $value);
+	}
+	
+	/**
+	 * @param integer $type
+	 * @param mixed $value
+	 * @return string|\DateTime|number|unknown|NULL
+	 */
+	public function unserializeValue ($type, $value)
+	{
+		switch ($type)
+		{
+			case kDataTypeTimestamp: return $this->unserializeTimestamp($value);
+			case kDataTypeBinary: return $this->unserializeBinaryData($value);
+			case kDataTypeNull: return null;			
+			case kDataTypeInteger:
+				return intval ($value);
+			case kDataTypeDecimal:
+				return floatval($value);
+			case kDataTypeNumber:
+				$i = intval ($value);
+				$f = floatval($value);
+				return ($i == $f) ? $i : $f;
+			case kDataTypeBoolean:
+				return boolval($value);
+		}
+
+		return $value;
+	}
+
+	/**
+	 * @param unknown $time
+	 * @throws \InvalidArgumentException
+	 * @return \DateTime|string
+	 */
+	public function unserializeTimestamp ($time)
+	{
+		if ($time instanceof \DateTime)
+		{
+			return $time;
+		}
+		if (\is_int($time))
+		{
+			$value = new \DateTime();
+			$value->setTimestamp($time);
+			return fvalue;
+		}
+
+		if (\is_float($time))
+		{
+			$value = new \DateTime();
+			$value->setTimestamp(unixtojd($time));
+			return $value;
+		}
+
+		$format = $this->getDatasourceString(self::kStringTimestampFormat);
+		$value = \DateTime::createFromFormat($format, $time);
+		if ($value instanceof \DateTime)
+		{
+			return $value;
+		}
+		
+		throw new \InvalidArgumentException('Invalid timestamp "'.var_export ($time, true).'"');
+	}
+	
+	/**
 	 * Unserialize binary data extracted from data storage.
 	 *
 	 * @param string $data Data to unserialze
@@ -505,10 +583,11 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 	/**
 	 * Get the default type name for a standard type
 	 *
-	 * @param enum $a_sqlType one of the kDataType*
+	 * @param enum $a_sqlType
+	 *        	one of the kDataType*
 	 * @return string
 	 */
-	public final function getDefaultTypeName($a_sqlType)
+	public final function getDefaultTypeName ($a_sqlType)
 	{
 		$table = self::$m_defaultTypeNames[get_called_class()];
 		if (\array_key_exists($a_sqlType, $table))

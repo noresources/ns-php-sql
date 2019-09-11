@@ -1149,68 +1149,31 @@ class Record implements \ArrayAccess, \IteratorAggregate
 	 * @param mixed $column Column name
 	 * @param mixed $value Value to unserialize
 	 * @return mixed
+	 * 
+	 * @deprecated Use unserializeColumn
 	 */
 	public static function unserializeValue($column, $value)
 	{
 		return $value;
 	}
 
+	/**
+	 * @param Datasource $datasource
+	 * @param TableColumnStructure $columnStructure
+	 * @param unknown $value
+	 * @return NULL|\NoreSources\SQL\unknown|number|string|DateTime
+	 */
 	public static function unserializeColumn(Datasource $datasource, TableColumnStructure $columnStructure, $value)
 	{
-		if (!$columnStructure->hasProperty(kStructureDatatype))
-		{
-			return static::unserializeValue($columnStructure->getName(), $value);
-		}
-		
-		$type = $columnStructure->getProperty(kStructureDatatype);
-		
-		if ($type == kDataTypeTimestamp)
-		{
-			if (\is_string ($value) && strlen ($value))
-			{
-				$format = $datasource->getDatasourceString(Datasource::kStringTimestampFormat);
-				$d = \DateTime::createFromFormat($format, $value);
-				if ($value instanceof \DateTime)
-				{
-					$value = $d;
-				}
-				else
-				{
-					ns\Reporter::warning(__CLASS__, $columnStructure->getName() . ': Invalid timestamp "' . var_export ($value, true) . '" for format "'.$format. '"');
-				}
-				
-			}
-		}
-		elseif ($type == kDataTypeInteger)
-		{
-			$value = intval($value);
-		}
-		elseif ($type == kDataTypeDecimal)
-		{
-			$value = floatval($value);
-		}
-		elseif ($type == kDataTypeNumber) // should not happen
-		{
-			if ($columnStructure->hasProperty(kStructureDecimalCount))
-			{
-				if ($columnStructure->getProperty (kStructureDecimalCount) > 0)
-					$value = floatval($value);
-				else
-					$value = intval($value);
-			}
-		}
-		elseif ($type == kDataTypeBoolean)
-		{
-			$value = boolval($value);
-		}
-		
-		return static::unserializeValue($columnStructure->getName(), $value);
+		return $datasource->unserializeColumn($columnStructure, $value);
 	}
 
 	/**
 	 *
 	 * @param Recordset $records
 	 * @return array
+	 * 
+	 * @deprecated unserializeValue is deprecated
 	 */
 	public static function recordsetToArray(Recordset $records)
 	{
