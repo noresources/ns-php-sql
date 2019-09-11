@@ -566,7 +566,7 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 			return $value;
 		}
 		
-		throw new \InvalidArgumentException('Invalid timestamp "'.var_export ($time, true).'"');
+		throw new \InvalidArgumentException('Invalid timestamp "'.var_export ($time, true).'", expect "'.$format.'" format');
 	}
 	
 	/**

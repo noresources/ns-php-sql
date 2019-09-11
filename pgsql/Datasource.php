@@ -32,7 +32,7 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 	public function __construct(DatasourceStructure $a_structure = null)
 	{
 		parent::__construct($a_structure);
-		$this->setDatasourceString(self::kStringTimestampFormat, \DateTIme::ISO8601);
+		$this->setDatasourceString(self::kStringTimestampFormat, 'Y-m-d H:i:sO');
 		
 		$this->activeTableSetName = self::kDefaultTableSetName;
 		
@@ -313,9 +313,10 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 
 	public function unserializeTimestamp ($time)
 	{
-		if (\is_string ($time))
+		$pattern = '(.*)((\+|-)[0-9][0-9])$';
+		if (\preg_match(chr(1) . $pattern . chr(1), $time))
 		{
-			$time = preg_replace (chr (1) . '(.*)((\+|-)[0-9]{2})$' . chr (1), '\1\200', $time);
+			$time = $time . '00';
 		}
 		
 		return parent::unserializeTimestamp($time);
