@@ -313,10 +313,13 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 
 	public function unserializeTimestamp ($time)
 	{
-		$pattern = '(.*)((\+|-)[0-9][0-9])$';
-		if (\preg_match(chr(1) . $pattern . chr(1), $time))
+		if (\is_string ($time))
 		{
-			$time = $time . '00';
+			$pattern = '(.*)((\+|-)[0-9][0-9])$';
+			if (\preg_match(chr(1) . $pattern . chr(1), $time))
+			{
+				$time = $time . '00';
+			}
 		}
 		
 		return parent::unserializeTimestamp($time);
