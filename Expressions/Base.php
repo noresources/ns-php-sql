@@ -119,22 +119,22 @@ class LiteralExpression implements Expression
 	/**
 	 * @var integer Literal type
 	 */
-	public $type;
+	public $targetType;
 
 	public function __construct($value, $type = K::DATATYPE_STRING)
 	{
 		$this->value = $value;
-		$this->type = $type;
+		$this->targetType = $type;
 	}
 
 	function buildExpression(StatementContext $context)
 	{
-		return $context->getLiteral($this->value, $this->type);
+		return $context->getLiteral($this->value, $this->targetType);
 	}
 
 	function getExpressionDataType()
 	{
-		return $this->type;
+		return $this->targetType;
 	}
 
 	public function traverse($callable, StatementContext $context, $flags = 0)

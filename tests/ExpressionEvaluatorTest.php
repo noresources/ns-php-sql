@@ -82,7 +82,7 @@ final class ExpressionEvaluatorTest extends TestCase
 			$this->assertInstanceOf(LiteralExpression::class, $e, $label);
 			if ($e instanceof LiteralExpression)
 			{
-				$this->assertEquals($e->type, $test[1], $label);
+				$this->assertEquals($e->targetType, $test[1], $label);
 			}
 		}
 	}
