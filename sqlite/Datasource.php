@@ -228,7 +228,6 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 		
 		if ($a_mode & kObjectQueryDatasource)
 		{
-			die ('test');
 			$a = $this->getTableSetStructure($this, false);
 			$result = ($result && (($a instanceof TableSetStructure) && $a->offsetExists($a_name) && ($a[$a_name] instanceof TableStructure)));
 		}
@@ -374,8 +373,8 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 			return ns\Reporter::error($this, __METHOD__ . '(): Unable to connect to database ' . basename($fileName) . ': ' . $errorMessage, __FILE__, __LINE__);
 		}
 		
-		$fkState = ns\ArrayUtil::keyValue($a_aParameters, kConnectionParameterForeignKeySupport, true) ? 'ON' : 'OFF';
-		$this->resultlessQuery('PRAGMA foreign_keys = ' . $fkState . ';');
+		$fkState = ns\ArrayUtil::keyValue($a_aParameters, kConnectionParameterForeignKeySupport, true) ? 'on' : 'off';
+		$this->resultlessQuery('pragma foreign_keys=' . $fkState);
 		
 		// Use attach rather than open
 		if ($this->m_databaseName != self::kDatabaseNameDefault)
@@ -441,6 +440,7 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 
 	public function executeQuery($a_strQuery)
 	{
+		//ns\Reporter::debug ($this, $a_strQuery);
 		$errorMessage = '';
 		$result = null;
 		if ($this->m_implementation == self::kImplementationSQLite3)
@@ -768,6 +768,7 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 	 */
 	public function resultlessQuery($a_strQuery)
 	{
+		//ns\Reporter::debug ($this, $a_strQuery);
 		$errorMessage = '';
 		$result = null;
 		if ($this->m_implementation == self::kImplementationSQLite3)
