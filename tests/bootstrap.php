@@ -162,7 +162,12 @@ class DerivedFileManager extends TestCase
 
 		if (\is_string($suffix) && strlen($suffix))
 			$method .= '_' . preg_replace('/[^a-zA-Z0-9._-]/', '_', $suffix);
-		return __DIR__ . '/' . $directory . '/' . $cls . '_' . $method . '.' . $extension;
+		
+		$name = $cls . '_' . $method . '.' . $extension;
+		$name = preg_replace ('/_+/', '_', $name);
+			
+		
+		return __DIR__ . '/' . $directory . '/' . $name;
 	}
 
 	private function createDirectoryPath($filepath)

@@ -17,23 +17,35 @@ class DropTableQuery extends Statement
 		{
 			$table = $table->getPath();
 		}
-		
+
 		$this->table = new TableReference($table);
 	}
 
 	public function tokenize(TokenStream &$stream, StatementContext $context)
 	{
+		$builderFlags = $context->getBuilderFlags(K::BUILDER_DOMAIN_GENERIC);
+		$builderFlags |= $context->getBuilderFlags(K::BUILDER_DOMAIN_DROP_TABLE);
+
 		$tableStructure = $context->findTable($this->table->path);
-		/**
-		 * @todo IF EXISTS (if available)
-		 */
-		
-		return $stream->keyword('drop')->space()->keyword('table')->space()->identifier($context->getCanonicalName($tableStructure));
+
+		$stream->keyword('drop')
+			->space()
+			->keyword('table');
+		if ($builderFlags & K::BUILDER_IF_EXISTS)
+		{
+			$stream->space()
+				->keyword('if')
+				->space()
+				->keyword('exists');
+		}
+
+		return $stream->space()
+			->identifier($context->getCanonicalName($tableStructure));
 	}
-	
+
 	public function traverse($callable, StatementContext $context, $flags = 0)
 	{
-		call_user_func($this, $context, $flags);	
+		call_user_func($this, $context, $flags);
 	}
 
 	/**

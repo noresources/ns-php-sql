@@ -91,6 +91,10 @@ final class SQLiteTest extends TestCase
 		
 		$this->assertInstanceOf(PreparedStatement::class, $statement);
 
+		$sql = strval($statement);
+		$sql = \SqlFormatter::format(strval($sql), false);
+		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, 'create', 'sql');
+		
 		$this->connection->executeStatement($statement);
 
 		return true;

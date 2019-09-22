@@ -34,6 +34,9 @@ class CreateTableQuery extends Statement
 
 	public function tokenize(TokenStream &$stream, StatementContext $context)
 	{
+		$builderFlags = $context->getBuilderFlags(K::BUILDER_DOMAIN_GENERIC);
+		$builderFlags |= $context->getBuilderFlags(K::BUILDER_DOMAIN_CREATE_TABLE);
+
 		$structure = $this->structure;
 		if (!($structure instanceof TableStructure))
 		{
@@ -51,8 +54,19 @@ class CreateTableQuery extends Statement
 
 		$stream->keyword('create')
 			->space()
-			->keyword('table')
-			->space()
+			->keyword('table');
+
+		if ($builderFlags & K::BUILDER_IF_NOT_EXISTS)
+		{
+			$stream->space()
+				->keyword('if')
+				->space()
+				->keyword('not')
+				->space()
+				->keyword('exists');
+		}
+
+		$stream->space()
 			->identifier($context->getCanonicalName($this->structure))
 			->space()
 			->text('(');
@@ -73,7 +87,7 @@ class CreateTableQuery extends Statement
 			$stream->identifier($context->escapeIdentifier($column->getName()))
 				->space()
 				->identifier($context->getColumnTypeName($column));
-			
+
 			if ($column->hasProperty(K::COLUMN_PROPERTY_DATA_SIZE))
 			{
 				/**
@@ -83,7 +97,7 @@ class CreateTableQuery extends Statement
 					->literal($column->getProperty(K::COLUMN_PROPERTY_DATA_SIZE))
 					->text(')');
 			}
-			
+
 			if (!$column->getProperty(K::COLUMN_PROPERTY_NULL))
 			{
 				$stream->space()
