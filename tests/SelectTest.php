@@ -43,7 +43,7 @@ final class SelectTest extends TestCase
 		$structure = $this->datasources->get('Company');
 		$tableStructure = $structure['ns_unittests']['Tasks'];
 		$this->assertInstanceOf(TableStructure::class, $tableStructure);
-		$builder = new Reference\StatementBuilder(K::BUILDER_EXTENDED_RESULTCOLUMN_ALIAS_RESOLUTION);
+		$builder = new Reference\StatementBuilder(K::BUILDER_SELECT_EXTENDED_RESULTCOLUMN_ALIAS_RESOLUTION);
 		$context = new StatementContext($builder);
 		$context->setPivot($tableStructure);
 		$q = new SelectQuery($tableStructure, 't');

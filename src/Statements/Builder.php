@@ -14,18 +14,26 @@ abstract class StatementBuilder
 	/**
 	 * @param number $flags Builder flags
 	 */
-	public function __construct($flags = 0)
+	public function __construct()
 	{
-		$this->builderFlags = $flags;
+		$this->builderFlags = array (
+				K::BUILDER_DOMAIN_GENERIC => 0,
+				K::BUILDER_DOMAIN_SELECT => 0,
+				K::BUILDER_DOMAIN_INSERT => 0,
+				K::BUILDER_DOMAIN_UPDATE => 0,
+				K::BUILDER_DOMAIN_DELETE => 0,
+				K::BUILDER_DOMAIN_DROP_TABLE => 0,
+				K::BUILDER_DOMAIN_CREATE_TABLE => 0
+		);
 		$this->evaluator = null;
 	}
 
 	/**
 	 * @return number
 	 */
-	public function getBuilderFlags()
+	public function getBuilderFlags($domain = K::BUILDER_DOMAIN_GENERIC)
 	{
-		return $this->builderFlags;
+		return $this->builderFlags[$domain];
 	}
 
 	/**
@@ -343,31 +351,31 @@ abstract class StatementBuilder
 		return $s;
 	}
 
-	public function buildStatementData (TokenStream $stream)
+	public function buildStatementData(TokenStream $stream)
 	{
 		$data = new StatementData();
-		foreach ($stream as $token) 
+		foreach ($stream as $token)
 		{
 			$value = $token[TokenStream::INDEX_TOKEN];
 			$type = $token[TokenStream::INDEX_TYPE];
 			if ($type == K::TOKEN_PARAMETER)
 			{
-				$value = strval ($value);
-				$position = $data->parameters->count();				
+				$value = strval($value);
+				$position = $data->parameters->count();
 				$name = $this->getParameter($value, $position);
-				
-				if (!$data->parameters->offsetExists ($value))
+
+				if (!$data->parameters->offsetExists($value))
 				{
 					$data->parameters->offsetSet($value, $name);
 				}
-				
-				$data->parameters->offsetSet ($position, $name);
-				
+
+				$data->parameters->offsetSet($position, $name);
+
 				$value = $name;
 			}
 			$data->sql .= $value;
 		}
-		
+
 		return $data;
 	}
 
@@ -391,7 +399,7 @@ abstract class StatementBuilder
 		}
 		return 'NO ACTION';
 	}
-	
+
 	/**
 	 * @param ExpressionEvaluator $evaluator
 	 * @return \NoreSources\SQL\StatementBuilder
@@ -402,8 +410,13 @@ abstract class StatementBuilder
 		return $this;
 	}
 
+	protected function setBuilderFlags($domain, $flags)
+	{
+		$this->builderFlags[$domain] = $flags;
+	}
+
 	/**
-	 * @var integer
+	 * @var array
 	 */
 	private $builderFlags;
 

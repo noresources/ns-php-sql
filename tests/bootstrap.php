@@ -51,18 +51,11 @@ class DerivedFileManager extends TestCase
 
 	public function __construct()
 	{
-		$this->success = true;
 		$this->derivedDataFiles = new \ArrayObject();
 	}
 
 	public function __destruct()
 	{
-		if (!$this->success)
-		{
-			echo ('Skip derived data deletion due to failed assert' . PHP_EOL);
-			return;
-		}
-
 		if (count($this->derivedDataFiles))
 		{
 			foreach ($this->derivedDataFiles as $path => $persistent)
@@ -86,9 +79,8 @@ class DerivedFileManager extends TestCase
 	 * @param unknown $suffix
 	 * @param unknown $extension
 	 */
-	public function assertDerivedFile($data, $method, $suffix, $extension, $label = '', $eol = 'lf')
+	public function assertDerivedFile($data, $method, $suffix, $extension, $label = '', $eol = null)
 	{
-		$this->success = false;
 		$reference = $this->buildFilename(self::DIRECTORY_REFERENCE, $method, $suffix, $extension);
 		$derived = $this->buildFilename(self::DIRECTORY_DERIVED, $method, $suffix, $extension);
 		$label = (strlen($label) ? ($label . ': ') : '');
@@ -97,15 +89,6 @@ class DerivedFileManager extends TestCase
 
 		if ($result)
 		{
-			if ($eol == 'lf')
-			{
-				$data = str_replace("\r", "", $data);
-			}
-			elseif ($eol == 'crlf')
-			{
-				$data = str_replace("\n", "\r\n", str_replace("\r\n", "\n", $data));
-			}
-
 			$result = file_put_contents($derived, $data);
 			$this->assertNotFalse($result, $label . 'Write derived data');
 			$this->assertFileExists($derived, $label . 'Derived file exists');
@@ -118,7 +101,10 @@ class DerivedFileManager extends TestCase
 
 		if (\is_file($reference))
 		{
-			$this->assertFileEquals($reference, $derived, $label . 'Compare with reference');
+			$this->derivedDataFiles->offsetSet($derived, true);
+			//$this->assertFileEquals($reference, $derived, $label . 'Compare with reference');
+			$this->assertEquals($this->loadFile($reference, 'lf'), $this->convertEndOfLine($data, 'lf'));
+			$this->derivedDataFiles->offsetSet($derived, false);
 		}
 		else
 		{
@@ -132,7 +118,6 @@ class DerivedFileManager extends TestCase
 				$this->assertFileExists($reference, $label . 'Reference file exists');
 			}
 		}
-		$this->success = true;
 	}
 
 	public function setPersistent($path, $value)
@@ -190,10 +175,30 @@ class DerivedFileManager extends TestCase
 		return $result;
 	}
 
+	private function loadFile($file, $eol)
+	{
+		return $this->convertEndOfLine(file_get_contents($file), $eol);
+	}
+
+	private function convertEndOfLine($data, $eol)
+	{
+		$data = str_replace("\r\n", "\n", $data);
+		$data = str_replace("\r", "\n", $data);
+
+		if ($eol == 'crlf')
+		{
+			$data = str_replace("\n", "\r\n", $data);
+		}
+		elseif ($eol == 'cr')
+		{
+			$data = str_replace("\n", "\r", str_replace("\r\n", "\n", $data));
+		}
+
+		return $data;
+	}
+
 	/**
 	 * @var array
 	 */
 	private $derivedDataFiles;
-
-	private $success;
 }

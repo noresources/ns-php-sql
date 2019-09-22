@@ -218,23 +218,41 @@ class Constants
 	 */
 	const FOREIGN_KEY_ACTION_RESTRICT = 'restrict';
 
+	const BUILDER_DOMAIN_GENERIC = 0;
+	
+	const BUILDER_IF_EXISTS = 0x01;
+	
+	const BUILDER_IF_NOT_EXISTS = 0x02;
+	
+	const BUILDER_DOMAIN_SELECT = 'select';
+	
 	/**
 	 * Allow result column alias resolution in WHERE, HAVING and GROUP BY
 	 * @var integer
 	 */
-	const BUILDER_EXTENDED_RESULTCOLUMN_ALIAS_RESOLUTION = 0x01;
+	const BUILDER_SELECT_EXTENDED_RESULTCOLUMN_ALIAS_RESOLUTION = 0x01000000;
 
+	const BUILDER_DOMAIN_INSERT = 'insert';
+	
 	/**
 	 * INSERT INTO {table} DEFAULT VALUES syntax support
 	 * @var integer
 	 */
-	const BUILDER_INSERT_DEFAULT_VALUES = 0x02;
+	const BUILDER_INSERT_DEFAULT_VALUES = 0x01000000;
 	
 	/**
 	 * INSERT INTO {table} ({column}) VALUES (DEFAULT) syntax support
 	 * @var integer
 	 */
-	const BUILDER_INSERT_DEFAULT_KEYWORD = 0x04;
+	const BUILDER_INSERT_DEFAULT_KEYWORD = 0x02000000;
+		
+	const BUILDER_DOMAIN_UPDATE = 'update';
+	
+	const BUILDER_DOMAIN_DELETE = 'delete';
+	
+	const BUILDER_DOMAIN_DROP_TABLE = 'droptable';
+	
+	const BUILDER_DOMAIN_CREATE_TABLE = 'createtable';
 	
 	// Tokens
 	const TOKEN_SPACE = 0;

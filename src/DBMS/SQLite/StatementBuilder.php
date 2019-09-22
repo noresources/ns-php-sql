@@ -14,7 +14,12 @@ class StatementBuilder extends sql\StatementBuilder
 
 	public function __construct(sql\ExpressionEvaluator $evaluator = null)
 	{
-		parent::__construct(K::BUILDER_EXTENDED_RESULTCOLUMN_ALIAS_RESOLUTION | K::BUILDER_INSERT_DEFAULT_KEYWORD);
+		parent::__construct();
+
+		$this->setBuilderFlags(K::BUILDER_DOMAIN_GENERIC, K::BUILDER_IF_EXISTS |
+			K::BUILDER_IF_NOT_EXISTS);
+		$this->setBuilderFlags(K::BUILDER_DOMAIN_SELECT, K::BUILDER_SELECT_EXTENDED_RESULTCOLUMN_ALIAS_RESOLUTION);
+		$this->setBuilderFlags(K::BUILDER_DOMAIN_INSERT, K::BUILDER_INSERT_DEFAULT_KEYWORD);
 
 		if (!($evaluator instanceof sql\ExpressionEvaluator))
 			$evaluator = new sql\ExpressionEvaluator();
@@ -33,7 +38,7 @@ class StatementBuilder extends sql\StatementBuilder
 
 	public function getParameter($name, $position)
 	{
-		return (':' . preg_replace ('/[^a-zA-Z0-9_]/', '_', $name));
+		return (':' . preg_replace('/[^a-zA-Z0-9_]/', '_', $name));
 	}
 
 	public function getColumnTypeName(TableColumnStructure $column)

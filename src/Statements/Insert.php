@@ -119,6 +119,9 @@ class InsertQuery extends Statement implements \ArrayAccess
 
 	public function tokenize(TokenStream &$stream, StatementContext $context)
 	{
+		$builderFlags = $context->getBuilderFlags (K::BUILDER_DOMAIN_GENERIC);
+		$builderFlags |= $context->getBuilderFlags (K::BUILDER_DOMAIN_INSERT);
+		
 		$tableStructure = $context->findTable($this->table->path);
 		/**
 		 * @var TableStructure $tableStructure
@@ -141,7 +144,7 @@ class InsertQuery extends Statement implements \ArrayAccess
 		$values = array ();
 		$c = $this->columnValues->count();
 
-		if (($c == 0) && ($context->getBuilderFlags() & K::BUILDER_INSERT_DEFAULT_VALUES))
+		if (($c == 0) && ($builderFlags & K::BUILDER_INSERT_DEFAULT_VALUES))
 		{
 			return $stream->space()
 				->keyword('DEFAULT VALUES');
@@ -192,7 +195,7 @@ class InsertQuery extends Statement implements \ArrayAccess
 				{
 					$c++;
 					$columns[] = $context->escapeIdentifier($name);
-					if ($context->getBuilderFlags() & K::BUILDER_INSERT_DEFAULT_KEYWORD)
+					if ($builderFlags & K::BUILDER_INSERT_DEFAULT_KEYWORD)
 					{
 						$values[] = new KeywordExpression(K::KEYWORD_DEFAULT);
 					}

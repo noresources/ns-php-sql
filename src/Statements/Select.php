@@ -310,6 +310,9 @@ class SelectQuery extends Statement
 
 	public function tokenize(TokenStream &$stream, StatementContext $context)
 	{
+		$builderFlags = $context->getBuilderFlags (K::BUILDER_DOMAIN_GENERIC);
+		$builderFlags |= $context->getBuilderFlags (K::BUILDER_DOMAIN_SELECT);
+		
 		$tableStructure = $context->findTable($this->parts[self::PART_TABLE]->path);
 
 		# Resolve and build table-related parts
@@ -350,7 +353,7 @@ class SelectQuery extends Statement
 				->expression($join, $context);
 		}
 
-		if ($context->getBuilderFlags() & K::BUILDER_EXTENDED_RESULTCOLUMN_ALIAS_RESOLUTION)
+		if ($builderFlags & K::BUILDER_SELECT_EXTENDED_RESULTCOLUMN_ALIAS_RESOLUTION)
 		{
 			$this->resolveResultColumns($context);
 		}
@@ -377,8 +380,7 @@ class SelectQuery extends Statement
 		}
 
 		# Resolve columns (inf not yet)
-		if (!($context->getBuilderFlags() &
-			K::BUILDER_EXTENDED_RESULTCOLUMN_ALIAS_RESOLUTION))
+		if (!($builderFlags & K::BUILDER_SELECT_EXTENDED_RESULTCOLUMN_ALIAS_RESOLUTION))
 		{
 			$this->resolveResultColumns($context);
 		}
