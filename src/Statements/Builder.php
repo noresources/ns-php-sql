@@ -52,7 +52,7 @@ abstract class StatementBuilder
 	 * @param TableColumnStructure $column Column definition
 	 * @return string The default Connection type name for the given data type
 	 */
-	abstract function getColumnTymeName(TableColumnStructure $column);
+	abstract function getColumnTypeName(TableColumnStructure $column);
 
 	/**
 	 * Get syntax keyword.

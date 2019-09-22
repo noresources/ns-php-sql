@@ -36,7 +36,7 @@ class StatementBuilder extends sql\StatementBuilder
 		return (':' . preg_replace ('/[^a-zA-Z0-9_]/', '_', $name));
 	}
 
-	public function getColumnTymeName(TableColumnStructure $column)
+	public function getColumnTypeName(TableColumnStructure $column)
 	{
 		$dataType = K::DATATYPE_UNDEFINED;
 		if ($column->hasProperty(K::COLUMN_PROPERTY_DATA_TYPE))

@@ -72,7 +72,7 @@ class CreateTableQuery extends Statement
 
 			$stream->identifier($context->escapeIdentifier($column->getName()))
 				->space()
-				->identifier($context->getColumnTymeName($column));
+				->identifier($context->getColumnTypeName($column));
 			
 			if ($column->hasProperty(K::COLUMN_PROPERTY_DATA_SIZE))
 			{
