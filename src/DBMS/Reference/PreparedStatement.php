@@ -7,6 +7,7 @@ namespace NoreSources\SQL\Reference;
 use NoreSources as ns;
 use NoreSources\SQL as sql;
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\StatementData;
 
 /**
  * SQLite3 implementation of NoreSources\SQL\PreparedStatement
@@ -14,22 +15,19 @@ use NoreSources\SQL\Constants as K;
 class PreparedStatement extends sql\PreparedStatement
 {
 
-	public function __construct(sql\StatementContext $context, $sql)
+	/**
+	 * @param StatementData|string $data
+	 */
+	public function __construct($data)
 	{
-		parent::__construct($context);
-		$this->sql = $sql;
+		parent::__construct($data);
+		$this->sql = strval ($data);
 	}
 
 	public function getStatement()
 	{
 		return $this->sql;
 	}
-
-	public function getParameterCount()
-	{
-		return $this->sqliteStatement->paramCount();
-	}
-
 
 	/**
 	 * @var string

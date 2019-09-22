@@ -13,9 +13,10 @@ use NoreSources\SQL\Constants as K;
  */
 class Connection implements sql\Connection
 {
+
 	public function __construct()
 	{
-		$this->builder = new StatementBuilder (new sql\ExpressionEvaluator());
+		$this->builder = new StatementBuilder(new sql\ExpressionEvaluator());
 	}
 
 	public function beginTransation()
@@ -28,12 +29,10 @@ class Connection implements sql\Connection
 	{}
 
 	public function connect($parameters)
-	{
-	}
+	{}
 
 	public function disconnect()
-	{
-	}
+	{}
 
 	public function getStatementBuilder()
 	{
@@ -46,12 +45,11 @@ class Connection implements sql\Connection
 	}
 
 	/**
-	 * {@inheritdoc}
-	 * @see \NoreSources\SQL\Connection::prepare()
+	 * @param StatementData|string $statement #return \NoreSources\SQL\Reference\PreparedStatement
 	 */
-	public function prepare($statement, sql\StatementContext $context)
+	public function prepareStatement($statement)
 	{
-		return new PreparedStatement($context, $statement);
+		return new PreparedStatement($statement);
 	}
 
 	/**

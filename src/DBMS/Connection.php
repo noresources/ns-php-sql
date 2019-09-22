@@ -10,10 +10,24 @@ use NoreSources\SQL\Constants as K;
 class ConnectionException extends \Exception
 {
 
-	public function __construct($message)
+	public function __construct(Connection $connection, $message)
 	{
 		parent::__construct($message);
+		$this->connection = $connection;
 	}
+
+	/**
+	 * @return \NoreSources\SQL\Connection
+	 */
+	public function getConnection()
+	{
+		return $this->connection;
+	}
+
+	/**
+	 * @var Connection
+	 */
+	private $connection;
 }
 
 /**
@@ -54,10 +68,10 @@ interface Connection
 	function getStatementBuilder();
 
 	/**
-	 * @param string $statement
-	 * @param StatementContext $context Context used to build SQL statement
+	 * @param StatementData|string $statement
+	 * @return PreparedStatement
 	 */
-	function prepare($statement, StatementContext $context);
+	function prepareStatement($statement);
 
 	/**
 	 * @param PreparedStatement|string $statement
@@ -127,12 +141,13 @@ class ConnectionHelper
 	public static function prepareStatement(Connection $connection, Statement $statement, StructureElement $reference = null)
 	{
 		$builder = $connection->getStatementBuilder();
-		$resolver = new StructureResolver($reference);
-		$context = new StatementContext($builder, $resolver);
+		$context = new StatementContext($builder);
+		if ($reference instanceof StructureElement)
+			$context->setPivot ($reference);
 		$stream = new TokenStream();
 		$statement->tokenize($stream, $context);
-		$sql = $builder->buildStatementData($stream);
-		return $connection->prepare($sql, $context);
+		$data = $builder->buildStatementData($stream);
+		return $connection->prepareStatement($data);
 	}
 
 	public static function registerConnectionClass($type, $className)

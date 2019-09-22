@@ -5,8 +5,7 @@ namespace NoreSources\SQL;
 use NoreSources as ns;
 use NoreSources\SQL\Constants as K;
 
-
-class ParameterArray implements \IteratorAggregate
+class ParameterArray implements \IteratorAggregate, \Countable
 {
 	const VALUE = 'value';
 	const TYPE = 'type';
@@ -14,6 +13,11 @@ class ParameterArray implements \IteratorAggregate
 	public function getIterator()
 	{
 		return $this->table->getIterator();
+	}
+	
+	public function count()
+	{
+		return $this->table->count();
 	}
 
 	public function set($parameter, $value, $type = K::DATATYPE_UNDEFINED)
@@ -24,7 +28,7 @@ class ParameterArray implements \IteratorAggregate
 			if (is_bool($value))
 				$type = K::DATATYPE_BOOLEAN;
 			elseif (is_float($value))
-			$type = K::DATATYPE_FLOAT;
+				$type = K::DATATYPE_FLOAT;
 			elseif (is_int($value))
 				$type = K::DATATYPE_INTEGER;
 			elseif (is_null($value))
@@ -54,7 +58,7 @@ class ParameterArray implements \IteratorAggregate
 				$type = ns\Container::keyValue($value, self::TYPE, K::DATATYPE_UNDEFINED);
 				$value = ns\Container::keyValue($value, self::VALUE, null);
 			}
-			
+
 			$this->set($key, $value, $tyoe);
 		}
 	}
@@ -69,28 +73,36 @@ abstract class PreparedStatement
 {
 
 	/**
-	 * 
-	 * @param StatementContext $context Context used to build the statement. 
-	 * Used to retrieve the statement parameters. 
+	 * @param string|StatementData $data
 	 */
-	public function __construct (StatementContext $context)
+	public function __construct($data)
 	{
-		$this->parameters = $context->getParameters();
+		if ($data instanceof StatementData)
+			$this->parameters = $data->parameters;
+		else
+			$this->parameters = new StatementParameterMap();
 	}
-	
+
 	public function __toString()
 	{
 		return $this->getStatement();
 	}
-	
-	/**
-	 * @return array Array of NoreSources\SQL\StatementParameter
-	 */
+
 	public function getParameters()
 	{
 		return $this->parameters;
 	}
-	
+
+	/**
+	 * @param StatementParameterMap $parameters
+	 * @return \NoreSources\SQL\PreparedStatement
+	 */
+	public function setParameters(StatementParameterMap $parameters)
+	{
+		$this->parameters = $parameters;
+		return $this;
+	}
+
 	/**
 	 * @return string SQL statement string
 	 */
@@ -101,13 +113,11 @@ abstract class PreparedStatement
 	 */
 	public function getParameterCount()
 	{
-		$c = 0;
-		foreach ($this->parameters as $p) 
-		{
-			$c += ns\Container::count ($p->indexes);
-		}
-		return $c;
+		return $this->parameters->count();
 	}
-	
-	private $parameters;	
+
+	/**
+	 * @var StatementParameterMap
+	 */
+	private $parameters;
 }

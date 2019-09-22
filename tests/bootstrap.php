@@ -2,6 +2,7 @@
 
 namespace NoreSources\SQL;
 
+use NoreSources as ns;
 use PHPUnit\Framework\TestCase;
 
 require_once (__DIR__ . '/../autoload.php');
@@ -31,9 +32,9 @@ class DatasourceManager extends TestCase
 				$serializer->structureElement,
 				$name . ' datasource loading'
 		);
-		
+
 		$this->datasources->offsetSet($name, $serializer->structureElement);
-		
+
 		return $serializer->structureElement;
 	}
 
@@ -56,13 +57,22 @@ class DerivedFileManager extends TestCase
 
 	public function __destruct()
 	{
-		if (!$this->success) return;
-		
+		if (!$this->success)
+		{
+			echo ('Skip derived data deletion due to failed assert' . PHP_EOL);
+			return;
+		}
+
 		if (count($this->derivedDataFiles))
 		{
-			foreach ($this->derivedDataFiles as $path)
+			foreach ($this->derivedDataFiles as $path => $persistent)
 			{
-				unlink($path);
+				if ($persistent)
+					continue;
+				if (file_exists($path))
+				{
+					unlink($path);
+				}
 			}
 
 			@rmdir(__DIR__ . '/' . self::DIRECTORY_DERIVED);
@@ -95,14 +105,14 @@ class DerivedFileManager extends TestCase
 			{
 				$data = str_replace("\n", "\r\n", str_replace("\r\n", "\n", $data));
 			}
-			
+
 			$result = file_put_contents($derived, $data);
 			$this->assertNotFalse($result, $label . 'Write derived data');
 			$this->assertFileExists($derived, $label . 'Derived file exists');
 
 			if ($result)
 			{
-				$this->derivedDataFiles[] = $derived;
+				$this->derivedDataFiles->offsetSet($derived, false);
 			}
 		}
 
@@ -117,21 +127,56 @@ class DerivedFileManager extends TestCase
 			if ($result)
 			{
 				$result = file_put_contents($reference, $data);
-				$this->assertNotFalse($result, $label . 'Write reference data to ' . $reference);
+				$this->assertNotFalse($result, $label . 'Write reference data to ' .
+					$reference);
 				$this->assertFileExists($reference, $label . 'Reference file exists');
 			}
 		}
 		$this->success = true;
 	}
 
+	public function setPersistent($path, $value)
+	{
+		if ($this->derivedDataFiles->offsetExists($path))
+			$this->derivedDataFiles->offsetSet($path, $value);
+	}
+
+	public function registerDerivedFile($subDirectory, $method, $suffix, $extension)
+	{
+		$directory = self::DIRECTORY_DERIVED;
+
+		$path = self::buildFilename($directory, $method, $suffix, $extension);
+
+		if (\is_string($subDirectory) && strlen($subDirectory))
+		{
+			$pi = pathinfo($path);
+			$path = $pi['dirname'] . '/' . $subDirectory . '/' . $pi['basename'];
+			$directory .= '/' . $subDirectory;
+		}
+
+		self::createDirectoryPath($path);
+		$this->derivedDataFiles->offsetSet($path, false);
+
+		return $path;
+	}
+
 	private function buildFilename($directory, $method, $suffix, $extension)
 	{
-		preg_match('/.*\\\\(.*?)Test::test(.*)$/', $method, $m);
-		$cls = $m[1];
-		$method = str_replace($cls, '', $m[2]);
+		if (preg_match('/.*\\\\(.*?)Test::test(.*)$/', $method, $m))
+		{
+			$cls = $m[1];
+			$method = str_replace($cls, '', $m[2]);
+		}
+		elseif (preg_match('/.*\\\\(.*?)Test::(.*)$/', $method, $m))
+		{
+			$cls = $m[1];
+			$method = '';
+		}
+		else
+			throw new \Exception('Invalid method ' . $method);
 
 		if (\is_string($suffix) && strlen($suffix))
-			$method .= '_' . preg_replace ('/[^a-zA-Z0-9._-]/', '_', $suffix);
+			$method .= '_' . preg_replace('/[^a-zA-Z0-9._-]/', '_', $suffix);
 		return __DIR__ . '/' . $directory . '/' . $cls . '_' . $method . '.' . $extension;
 	}
 
@@ -149,6 +194,6 @@ class DerivedFileManager extends TestCase
 	 * @var array
 	 */
 	private $derivedDataFiles;
-	
+
 	private $success;
 }

@@ -31,7 +31,7 @@ class StatementBuilder extends sql\StatementBuilder
 		return '"' . $identifier . '"';
 	}
 
-	public function getParameter($name, $distinctPosition, $position)
+	public function getParameter($name, $position)
 	{
 		return (':' . preg_replace ('/[^a-zA-Z0-9_]/', '_', $name));
 	}

@@ -7,6 +7,7 @@ namespace NoreSources\SQL\SQLite;
 use NoreSources as ns;
 use NoreSources\SQL as sql;
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\StatementData;
 
 /**
  * SQLite3 implementation of NoreSources\SQL\PreparedStatement
@@ -14,18 +15,46 @@ use NoreSources\SQL\Constants as K;
 class PreparedStatement extends sql\PreparedStatement
 {
 
-	public function __construct(sql\StatementContext $context, \SQLite3Stmt $statement, $sql = null)
+	public function __construct(\SQLite3Stmt $statement, $data = null)
 	{
-		parent::__construct($context);
+		parent::__construct($data);
+		$this->sql = null;
 		$this->sqliteStatement = $statement;
-		$this->sql = $sql;
+		
+		if (version_compare(PHP_VERSION, '7.4.0') < 0) // stmp->getSQL
+		{
+			if ($data instanceof sql\StatementData || \is_string($data))
+			{
+				$this->sql = strval($data);
+			}
+			else
+			{
+				throw new \Exception('Unable to get SQL string from SQLite statement nor StatementData');
+			}
+		}
+
+		if ($data instanceof sql\StatementData)
+		{
+			if ($data->parameters->namedParameterCount != $statement->paramCount())
+			{
+				throw new \BadMethodCallException('SQLite statement and StatementData parameter mismatch');
+			}
+		}
 	}
 
 	public function getStatement()
 	{
-		if (is_string($this->sql))
+		if (\is_string($this->sql))
+		{
 			return $this->sql;
-		return $this->sqliteStatement->getSQL();
+		}
+
+		if (\method_exists($this->sqliteStatement, 'getSQL'))
+		{
+			return $this->sqliteStatement->getSQL(false);
+		}
+
+		return '';
 	}
 
 	public function getParameterCount()
@@ -34,7 +63,7 @@ class PreparedStatement extends sql\PreparedStatement
 	}
 
 	/**
-	 * @return SQLite3Stmt
+	 * @return \SQLite3Stmt
 	 */
 	public function getSQLite3Stmt()
 	{

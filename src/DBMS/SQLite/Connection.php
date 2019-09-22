@@ -6,8 +6,8 @@ namespace NoreSources\SQL\SQLite;
 // Aliases
 use NoreSources as ns;
 use NoreSources\SQL as sql;
-use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\StatementBuilder;
+use NoreSources\SQL\SQLite\Constants as K;
+use NoreSources\SQL\ConnectionException;
 
 /**
  * SQLite connection
@@ -16,20 +16,20 @@ class Connection implements sql\Connection
 {
 	/**
 	 * Special in-memory database name
-	 * 
+	 *
 	 * @see https://www.sqlite.org/inmemorydb.html
-	 * 
+	 *
 	 * @var string
 	 */
 	const SOURCE_MEMORY = ':memory:';
-	
+
 	/**
 	 * Temporary database.
 	 * @see https://www.sqlite.org/inmemorydb.html
 	 * @var string
 	 */
 	const SOURCE_TEMPORARY = '';
-	
+
 	/**
 	 * The default tableset name
 	 * @var string
@@ -42,12 +42,12 @@ class Connection implements sql\Connection
 		$this->connection = null;
 	}
 
-	public function __destruct ()
+	public function __destruct()
 	{
 		if ($this->connection instanceof \SQLite3)
 			$this->disconnect();
 	}
-	
+
 	public function beginTransation()
 	{}
 
@@ -83,14 +83,14 @@ class Connection implements sql\Connection
 
 		$this->connection = null;
 
-		$defaultTablesetName = ns\ArrayUtil::keyValue($parameters, K::CONNECTION_PARAMETER_DATABASE, self::TABLESET_NAME_DEFAULT);
+		$defaultTablesetName = ns\Container::keyValue($parameters, K::CONNECTION_PARAMETER_DATABASE, self::TABLESET_NAME_DEFAULT);
 
-		$sources = ns\ArrayUtil::keyValue($parameters, K::CONNECTION_PARAMETER_SOURCE, array (
+		$sources = ns\Container::keyValue($parameters, K::CONNECTION_PARAMETER_SOURCE, array (
 				$defaultTablesetName => self::SOURCE_MEMORY
 		));
 
 		$flags = 0;
-		if (ns\ArrayUtil::keyValue($parameters, K::CONNECTION_PARAMETER_READONLY, false))
+		if (ns\Container::keyValue($parameters, K::CONNECTION_PARAMETER_READONLY, false))
 		{
 			$flags |= \SQLITE3_OPEN_READONLY;
 		}
@@ -99,20 +99,20 @@ class Connection implements sql\Connection
 			$flags |= \SQLITE3_OPEN_READWRITE;
 		}
 
-		if (ns\ArrayUtil::keyValue($parameters, K::CONNECTION_PARAMETER_CREATE, false))
+		if (ns\Container::keyValue($parameters, K::CONNECTION_PARAMETER_CREATE, false))
 		{
 			if ($flags & \SQLITE3_OPEN_READONLY)
 			{
-				throw new sql\ConnectionException('Unable to set Auto-create and Read only flags at the same time');
+				throw new sql\ConnectionException($this, 'Unable to set Auto-create and Read only flags at the same time');
 			}
 
 			$flags |= \SQLITE3_OPEN_CREATE;
 		}
 
-		if (is_string($sources))
+		if (\is_string($sources))
 		{
 			$sources = array (
-					$defaultTablesetName => $source
+					$defaultTablesetName => $sources
 			);
 		}
 
@@ -123,13 +123,14 @@ class Connection implements sql\Connection
 
 			if (\in_array($name, $names))
 			{
-				throw new ConnectionException('Duplicated tableset name ' . $name);
+				throw new ConnectionException($this, 'Duplicated tableset name ' . $name);
 			}
 
 			$names[] = $name;
 
 			$attach = false;
-			$sql = 'ATTACH DATABASE \'' . $this->builder->escapeString($source) . '\' AS ' . $this->builder->escapeIdentifier($name);
+			$sql = 'ATTACH DATABASE \'' . $this->builder->escapeString($source) . '\' AS ' .
+				$this->builder->escapeIdentifier($name);
 
 			if ($this->connection instanceof \SQLite3)
 			{
@@ -137,7 +138,7 @@ class Connection implements sql\Connection
 			}
 			else
 			{
-				$key = ns\ArrayUtil::keyValue($parameters, K::CONNECTION_PARAMETER_ENCRYPTION_KEY, null);
+				$key = ns\Container::keyValue($parameters, K::CONNECTION_PARAMETER_ENCRYPTION_KEY, null);
 				if ($name == self::TABLESET_NAME_DEFAULT)
 				{
 					$this->connection = new \SQLite3($source, $flags, $key);
@@ -154,14 +155,12 @@ class Connection implements sql\Connection
 				$this->connection->exec($sql);
 			}
 		}
-
-		$this->connection = new \SQLite3(self::SOURCE_MEMORY);
 	}
 
 	public function disconnect()
 	{
 		if (!($this->connection instanceof \SQLite3))
-			throw new sql\ConnectionException('Not connected');
+			throw new sql\ConnectionException($this, 'Not connected');
 		$this->connection->close();
 	}
 
@@ -171,47 +170,80 @@ class Connection implements sql\Connection
 	}
 
 	/**
-	 * 
-	 * {@inheritDoc}
-	 * @see \NoreSources\SQL\Connection::executeStatement()
+	 * @param sql\StatementData|string $statement
+	 * @return \NoreSources\SQL\SQLite\PreparedStatement
+	 */
+	public function prepareStatement($statement)
+	{
+		if (!($this->connection instanceof \SQLite3))
+			throw new sql\ConnectionException($this, 'Not connected');
+
+		$stmt = $this->connection->prepare($statement);
+		if (!($stmt instanceof \SQLite3Stmt))
+			throw new sql\ConnectionException($this, 'Unable to create SQLite statement');
+
+		return new PreparedStatement($stmt, $statement);
+	}
+
+	/**
+	 * @param PreparedStatement|string SQL statement
+	 * @param \NoreSources\SQL\ParameterArray $parameters
 	 */
 	public function executeStatement($statement, sql\ParameterArray $parameters = null)
 	{
 		if (!($this->connection instanceof \SQLite3))
-			throw new sql\ConnectionException('Not connected');
-
-		if (is_string($statement) && ns\ArrayUtil::count($parameters))
-		{
-			$statement = $this->prepare($statement, null);
-		}
+			throw new sql\ConnectionException($this, 'Not connected');
 
 		$result = null;
 
-		if ($statement instanceof PreparedStatement)
+		if ($parameters instanceof sql\ParameterArray && $parameters->count())
 		{
-			$stmt = $statement->getSQLite3Stmt();
-			$stmt->clear();
-			$stmt->reset();
-			if ($parameters instanceof sql\ParameterArray)
+			$stmt = null;
+			if ($statement instanceof PreparedStatement)
 			{
-				foreach ($parameters as $key => $entry)
+				$stmt = $statement->getSQLite3Stmt();
+				$stmt->clear();
+				$stmt->reset();
+			}
+			else
+			{
+				$stmt = $this->connection->prepare($statement);
+			}
+
+			foreach ($parameters as $key => $entry)
+			{
+				$name = $key;
+				if ($statement instanceof PreparedStatement)
 				{
-					$key = $this->builder->getParameter($key);
-					$value = ns\ArrayUtil::keyValue($entry, sql\ParameterArray::VALUE, null);
-					$type = ns\ArrayUtil::keyValue($entry, sql\ParameterArray::TYPE, K::DATATYPE_UNDEFINED);
-					
-					$type = self::getSQLiteDataType($type);
-					$bindResult = $stmt->bindValue($key, $value, $type);
-					if (!$bindResult)
-						throw new sql\ConnectionException('Failed to bind ' . $key);
+					if ($statement->getParameters()
+						->offsetExists($key))
+						$name = $statement->getParameters()
+							->offsetGet($key);
+					else
+						throw new ConnectionException($this, 'Parameter "' . $key .
+							'" not found in prepared statement');
 				}
+				else
+				{
+					$name = $this->getStatementBuilder()
+						->getParameter($key, -1);
+				}
+
+				$value = ns\Container::keyValue($entry, sql\ParameterArray::VALUE, null);
+				$type = ns\Container::keyValue($entry, sql\ParameterArray::TYPE, K::DATATYPE_UNDEFINED);
+
+				$type = self::getSQLiteDataType($type);
+				$bindResult = $stmt->bindValue($name, $value, $type);
+				if (!$bindResult)
+					throw new sql\ConnectionException($this, 'Failed to bind "' . $name .
+						'"');
 			}
 
 			$result = $stmt->execute();
 		}
 		else
 		{
-			$result = $this->connection->query($statement);
+			$result = $this->connection->query(strval($statement));
 		}
 
 		if ($result instanceof \SQLite3Result)
@@ -219,27 +251,10 @@ class Connection implements sql\Connection
 			return new Recordset($result);
 		}
 
-		throw new sql\ConnectionException('Failed to execute');
+		throw new sql\ConnectionException($this, 'Failed to execute');
 	}
 
 	/**
-	 * {@inheritdoc}
-	 * @see \NoreSources\SQL\Connection::prepare()
-	 */
-	public function prepare($statement, sql\StatementContext $context)
-	{
-		if (!($this->connection instanceof \SQLite3))
-			throw new sql\ConnectionException('Not connected');
-
-		$stmt = $this->connection->prepare($statement);
-		if (!($stmt instanceof \SQLite3Stmt))
-			throw new sql\ConnectionException('Unable to create SQLite statement');
-
-		return new PreparedStatement($context, $stmt, $statement);
-	}
-
-	/**
-	 * 
 	 * @param integer $sqlType
 	 * @return integer The SQLITE_* type corresponding to the given \NoreSOurce\SQL data type
 	 */
@@ -262,14 +277,14 @@ class Connection implements sql\Connection
 
 	/**
 	 * Get a tableset name for the given database source
-	 * 
+	 *
 	 * @param mixed $name User-defined name
 	 * @param string $source Database source
 	 * @return string
 	 */
 	private static function getTablesetName($name, $source)
 	{
-		if (is_string($name) && strlen ($name))
+		if (is_string($name) && strlen($name))
 			return $name;
 
 		if ($source == self::SOURCE_MEMORY || $source == self::SOURCE_TEMPORARY)
