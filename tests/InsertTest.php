@@ -1,5 +1,4 @@
 <?php
-
 namespace NoreSources\SQL;
 
 use PHPUnit\Framework\TestCase;
@@ -16,7 +15,7 @@ final class InsertTest extends TestCase
 		$this->derivedFileManager = new DerivedFileManager();
 	}
 
-	public function testInsertBasic()
+		public function testInsertBasic()
 	{
 		$structure = $this->datasources->get('types');
 		$t = $structure['ns_unittests']['types'];
@@ -24,18 +23,22 @@ final class InsertTest extends TestCase
 
 		$q = new InsertQuery($t);
 
-		$builderFlags = array (
-				'no_default' => 0,
-				'default_values' => K::BUILDER_INSERT_DEFAULT_VALUES,
-				'default_keyword' => K::BUILDER_INSERT_DEFAULT_KEYWORD
+		$builderFlags = array(
+			'no_default' => 0,
+			'default_values' => K::BUILDER_INSERT_DEFAULT_VALUES,
+			'default_keyword' => K::BUILDER_INSERT_DEFAULT_KEYWORD
 		);
 
-		foreach ($builderFlags as $key => $flags)
-		{
+		foreach ($builderFlags as $key => $flags) {
 			$builder = new Reference\StatementBuilder($flags);
 			$context = new StatementContext($builder);
 			$context->setPivot($t);
-			$sql = $q->buildExpression($context);
+			
+			$stream = new TokenStream();
+			$q->tokenize($stream, $context);
+			$sql = $builder->buildStatementData($stream);
+			
+			//$sql = $q->buildExpression($context);
 
 			$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, $key, 'sql');
 		}
@@ -80,31 +83,34 @@ final class InsertTest extends TestCase
 			]
 		);
 
-		foreach ($tests as $key => $values)
-		{
+		foreach ($tests as $key => $values) {
 			$q = new InsertQuery($tableStructure);
 			$context->setPivot($tableStructure);
 
-			foreach ($values as $column => $value)
-			{
+			foreach ($values as $column => $value) {
 				if ($value instanceof Expression)
 					$q[$column] = $value;
 				else
 					$q->set($column, $value[0], $value[1]);
 			}
 
-			$sql = $q->buildExpression($context);
+			$stream = new TokenStream();
+			$q->tokenize($stream, $context);
+			$sql = $builder->buildStatementData($stream);
+			//$sql = $q->buildExpression($context);
 
 			$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, $key, 'sql');
 		}
 	}
 
 	/**
+	 *
 	 * @var DatasourceManager
 	 */
 	private $datasources;
 
 	/**
+	 *
 	 * @var DerivedFileManager
 	 */
 	private $derivedFileManager;

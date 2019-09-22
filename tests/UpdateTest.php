@@ -57,8 +57,10 @@ final class UpdateTest extends TestCase
 				$q->set($column, $value[0], $value[1]);
 			}
 
-			$sql = $q->buildExpression($context);
-			$sql = \SqlFormatter::format($sql, false);
+			$stream = new TokenStream();
+			$q->tokenize($stream, $context);
+			$sql = $builder->buildStatementData($stream);
+			$sql = \SqlFormatter::format(strval ($sql), false);
 			$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, $set, 'sql');
 		}
 	}
@@ -76,7 +78,9 @@ final class UpdateTest extends TestCase
 		$q->set('salary', 'salary * 2', true);
 		$q->where('id=1');
 
-		$sql = $q->buildExpression($context);
+		$stream = new TokenStream();
+		$q->tokenize($stream, $context);
+		$sql = $builder->buildStatementData($stream);
 
 		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, null, 'sql');
 	}

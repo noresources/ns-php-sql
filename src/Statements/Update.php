@@ -9,10 +9,13 @@ use NoreSources\ArrayUtil;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\ExpressionEvaluator as X;
 
-class InsertQuery extends Statement implements \ArrayAccess
+class UpdateQuery extends Statement implements \ArrayAccess
 {
 
-	public function __construct($table, $alias = null)
+	/**
+	 * @param TableSetStructure|string $table
+	 */
+	public function __construct($table)
 	{
 		if ($table instanceof TableStructure)
 		{
@@ -21,6 +24,7 @@ class InsertQuery extends Statement implements \ArrayAccess
 
 		$this->table = new TableReference($table);
 		$this->columnValues = new \ArrayObject();
+		$this->whereConstraints = new \ArrayObject();
 	}
 
 	/**
@@ -31,7 +35,7 @@ class InsertQuery extends Statement implements \ArrayAccess
 	 *        If @c null, the
 	 * @return \NoreSources\SQL\UpdateQuery
 	 */
-	public function set($columnName, $columnValue, $evaluate = false)
+	public function set($columnName, $columnValue, $evaluate = null)
 	{
 		if ($evaluate === false)
 		{
@@ -43,13 +47,27 @@ class InsertQuery extends Statement implements \ArrayAccess
 
 		if ($evaluate === null)
 		{
-			$evaluate = ($columnValue instanceof Evaluable) || (ns\Container::isArray($columnValue));
+			$evaluate = ($columnValue instanceof Evaluable) ||
+				(ns\Container::isArray($columnValue));
 		}
 		
 		$this->columnValues->offsetSet($columnName, [
 				'value' =>$columnValue,
 				'evaluate' => $evaluate
 		]);
+		return $this;
+	}
+
+	/**
+	 * WHERE constraints
+	 * @param Evaluable ...
+	 */
+	public function where()
+	{
+		$c = func_num_args();
+		for ($i = 0; $i < $c; $i++)
+			$this->whereConstraints->append(func_get_arg($i));
+
 		return $this;
 	}
 
@@ -93,35 +111,27 @@ class InsertQuery extends Statement implements \ArrayAccess
 		$this->columnValues->offsetUnset($offset);
 	}
 
-	public function buildExpression(StatementContext $context)
+	public function tokenize(TokenStream &$stream, StatementContext $context)
 	{
+		if ($this->columnValues->count() == 0)
+		{
+			throw new StatementException($this, 'No column value');
+		}
+
 		$tableStructure = $context->findTable($this->table->path);
 		/**
 		 * @var TableStructure $tableStructure
 		 */
 
-		$s = 'INSERT INTO ' . $context->getCanonicalName($tableStructure);
-		if ($this->table->alias)
-		{
-			$s .= ' AS ' . $context->escapeIdentifier($this->table->alias);
-		}
-
-		$columns = array ();
-		$values = array ();
-		$c = $this->columnValues->count();
-
-		if (($c == 0) && ($context->getBuilderFlags() & K::BUILDER_INSERT_DEFAULT_VALUES))
-		{
-			$s .= ' DEFAULT VALUES';
-			return $s;
-		}
+		$stream->keyword('update')
+			->space()
+			->identifier($context->getCanonicalName($tableStructure));
 
 		foreach ($this->columnValues as $columnName => $value)
 		{
 			if (!$tableStructure->offsetExists($columnName))
 				throw new StatementException($this, 'Invalid column "' . $columnName . '"');
 
-			$columns[] = $context->escapeIdentifier($columnName);
 			$column = $tableStructure->offsetGet($columnName);
 			/**
 			 * @var TableColumnStructure $column
@@ -146,39 +156,22 @@ class InsertQuery extends Statement implements \ArrayAccess
 				$x = new LiteralExpression($v, $t);
 			}
 
-			$values[] = $x->buildExpression($context);
+			$stream->space()->keyword('set')
+				->space()
+				->identifier($context->escapeIdentifier($columnName))
+				->text ('=')
+				->expression($x, $context);
 		}
 
-		if ($c == 0)
+		if ($this->whereConstraints->count())
 		{
-			foreach ($tableStructure as $name => $column)
-			{
-				/**
-				 * @var TableColumnStructure $column
-				 */
-
-				if ($column->hasProperty(K::COLUMN_PROPERTY_DEFAULT_VALUE))
-				{
-					$c++;
-					$columns[] = $context->escapeIdentifier($name);
-					if ($context->getBuilderFlags() & K::BUILDER_INSERT_DEFAULT_KEYWORD)
-					{
-						$values[] = 'DEFAULT';
-					}
-					else
-					{
-
-						$x = $context->evaluateExpression($column->getProperty(K::COLUMN_PROPERTY_DEFAULT_VALUE));
-						$values[] = $x->buildExpression($context);
-					}
-				}
-			}
+			$stream->space()
+				->keyword('where')
+				->space()
+				->constraints($this->whereConstraints, $context);
 		}
 
-		if ($c == 0)
-			throw new StatementException($this, 'No column value');
-
-		return $s . '(' . implode(', ', $columns) . ') VALUES (' . implode(', ', $values) . ')';
+		return $stream;
 	}
 
 	/**
@@ -206,4 +199,10 @@ class InsertQuery extends Statement implements \ArrayAccess
 	 *      and values are \NoreSources\SQL\Expression
 	 */
 	private $columnValues;
+
+	/**
+	 * WHERE conditions
+	 * @var \ArrayObject
+	 */
+	private $whereConstraints;
 }

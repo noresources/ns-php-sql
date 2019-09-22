@@ -30,8 +30,10 @@ final class SelectTest extends TestCase
 				2, 4, 6, 8
 		]), "name like 'Jean%'");
 
-		$sql = $q->buildExpression($context);
-		$sql = \SqlFormatter::format($sql, false);
+		$stream = new TokenStream();
+		$q->tokenize($stream, $context);
+		$sql = $builder->buildStatementData($stream);
+		$sql = \SqlFormatter::format(strval ($sql), false);
 
 		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, null, 'sql');
 	}
@@ -41,7 +43,7 @@ final class SelectTest extends TestCase
 		$structure = $this->datasources->get('Company');
 		$tableStructure = $structure['ns_unittests']['Tasks'];
 		$this->assertInstanceOf(TableStructure::class, $tableStructure);
-		$builder = new Reference\StatementBuilder();
+		$builder = new Reference\StatementBuilder(K::BUILDER_EXTENDED_RESULTCOLUMN_ALIAS_RESOLUTION);
 		$context = new StatementContext($builder);
 		$context->setPivot($tableStructure);
 		$q = new SelectQuery($tableStructure, 't');
@@ -62,8 +64,10 @@ final class SelectTest extends TestCase
 		// Limit
 		limit(5, 3);
 
-		$sql = $q->buildExpression($context);
-		$sql = \SqlFormatter::format($sql, false);
+		$stream = new TokenStream();
+		$q->tokenize($stream, $context);
+		$sql = $builder->buildStatementData($stream);
+		$sql = \SqlFormatter::format(strval ($sql), false);
 		
 		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, null, 'sql');
 	}

@@ -4,7 +4,6 @@
 namespace NoreSources\SQL;
 
 // Aliases
-use NoreSources\ArrayUtil;
 use NoreSources\Creole\PreformattedBlock;
 use NoreSources\SQL\Constants as K;
 
@@ -28,6 +27,37 @@ class StatementException extends \Exception
 	private $statement;
 }
 
+class StatementParameterMap extends \ArrayObject
+{
+
+}
+
+class StatementData
+{
+
+	/**
+	 * @var string
+	 */
+	public $sql;
+
+	/**
+	 * @var StatementParameterMap Array of StatementParameter
+	 *      The entry key is the parameter name as it appears in the Statement.
+	 */
+	public $parameters;
+
+	public function __construct()
+	{
+		$this->sql = '';
+		$this->parameters = new StatementParameterMap();
+	}
+
+	public function __toString()
+	{
+		return $this->sql;
+	}
+}
+
 /**
  * SQL Table reference in a SQL query
  */
@@ -45,20 +75,15 @@ class TableReference extends TableExpression
 		$this->alias = $alias;
 	}
 
-	function buildExpression(StatementContext $context)
-	{
-		$s = parent::buildExpression($builder, $resolver);
-		if ($this->alias)
-		{
-			$s .= ' AS ' . $context->escapeIdentifier($this->alias);
-		}
-
-		return $s;
-	}
 }
 
 abstract class Statement implements Expression
 {
+	/**
+	 * Most of statement does not provide return values
+	 * {@inheritDoc}
+	 * @see \NoreSources\SQL\Expression::getExpressionDataType()
+	 */
 	public function getExpressionDataType()
 	{
 		return K::DATATYPE_UNDEFINED;

@@ -13,6 +13,6 @@ GROUP BY
   [N], 
   [ns_unittests].[Tasks].[id] 
 ORDER BY 
-  substr([N], 3) ASC 
+  SUBSTR([N], 3) ASC 
 LIMIT 
   5 OFFSET 3

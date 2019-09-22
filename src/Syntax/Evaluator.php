@@ -75,16 +75,6 @@ class ExpressionEvaluator
 		return new ParameterExpression($name);
 	}
 
-	/**
-	 * Create a preformatted expression
-	 * @param mixed $value
-	 * @return \NoreSources\SQL\PreformattedExpression
-	 */
-	public static function pre($value)
-	{
-		return new PreformattedExpression($value);
-	}
-
 	// Patterns
 	const PATTERN_IDENTIFIER = 'identifier';
 	const PATTERN_FUNCTION_NAME = 'function';

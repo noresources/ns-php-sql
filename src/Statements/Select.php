@@ -42,42 +42,55 @@ class JoinClause implements Expression
 	 */
 	public $subject;
 
-	public $constraints;
-
-	public function __construct($operator = null, $subject = null, $constraints = null)
+	public function __construct($operator = null, TableReference $subject = null /*, on ...*/)
 	{
 		$this->operator = $operator;
 		$this->subject = $subject;
-		$this->constraints = $constraints;
+		$this->constraints = new \ArrayObject();
+
+		$args = func_get_args();
+		array_shift($args);
+		array_shift($args);
+
+		call_user_func_array(array (
+				$this,
+				'on'
+		), $args);
 	}
 
-	public function buildExpression(StatementContext $context)
+	public function tokenize(TokenStream &$stream, StatementContext $context)
 	{
-		$s = $context->getJoinOperator($this->operator);
+		$stream->keyword($context->getJoinOperator($this->operator));
+
 		if ($this->subject instanceof TableReference)
 		{
 			$ts = $context->findTable($this->subject->path);
-			$s .= ' ' . $context->getCanonicalName($ts);
+
+			$stream->space()
+				->identifier($context->getCanonicalName($ts));
 			if ($this->subject->alias)
 			{
-				$s .= ' AS ' . $context->escapeIdentifier($this->subject->alias);
+				$stream->space()
+					->keyword('as')
+					->space()
+					->identifier($context->escapeIdentifier($this->subject->alias));
 			}
 		}
 		elseif ($this->subject instanceof Expression)
 		{
-			$s .= ' ' . $this->subject->buildExpression($context);
+			$stream->space()
+				->expression($this->subject, $context);
 		}
 
-		if ($this->constraints !== null)
+		if ($this->constraints->count())
 		{
-			$e = $this->constraints;
-			if (!($e instanceof Expression))
-				$e = $context->evaluateExpression($e);
-
-			$s .= ' ON ' . $e->buildExpression($context);
+			$stream->space()
+				->keyword('on')
+				->space()
+				->constraints($this->constraints, $context);
 		}
 
-		return $s;
+		return $stream;
 	}
 
 	public function getExpressionDataType()
@@ -93,9 +106,21 @@ class JoinClause implements Expression
 
 		if ($this->constraints !== null)
 		{
-			$context->evaluateExpression($this->constraints)->traverse($callable, $context, $flags);
+			$context->evaluateExpression($this->constraints)
+				->traverse($callable, $context, $flags);
 		}
 	}
+
+	public function on()
+	{
+		$c = func_num_args();
+		for ($i = 0; $i < $c; $i++)
+			$this->constraints->append(func_get_arg($i));
+
+		return $this;
+	}
+
+	private $constraints;
 }
 
 /**
@@ -177,7 +202,7 @@ class SelectQuery extends Statement
 	 * @param mixed $constraints
 	 * @return \NoreSources\SQL\SelectQuery
 	 */
-	public function join($operatorOrJoin, $subject = null, $constraints = null)
+	public function join($operatorOrJoin, $subject = null /*, $constraints */)
 	{
 		if ($operatorOrJoin instanceof JoinClause)
 		{
@@ -185,12 +210,10 @@ class SelectQuery extends Statement
 		}
 		else
 		{
-			$j = new JoinClause();
-			$j->operator = $operatorOrJoin;
 
 			if (is_string($subject))
 			{
-				$j->subject = new TableReference($subject);
+				$subject = new TableReference($subject);
 			}
 			elseif (ns\Container::isArray($subject))
 			{
@@ -207,10 +230,15 @@ class SelectQuery extends Statement
 					$alias = ns\Container::keyValue(1, $subject, null);
 				}
 
-				$j->subject = new TableReference($name, $alias);
+				$subject = new TableReference($name, $alias);
 			}
 
-			$j->constraints = $constraints;
+			$j = new JoinClause($operatorOrJoin, $subject);
+			$c = func_num_args();
+			for ($i = 2; $i < $c; $i++)
+			{
+				$j->on(func_get_arg($i));
+			}
 
 			$this->parts[self::PART_JOINS]->append($j);
 		}
@@ -280,7 +308,7 @@ class SelectQuery extends Statement
 		return $this;
 	}
 
-	public function buildExpression(StatementContext $context)
+	public function tokenize(TokenStream &$stream, StatementContext $context)
 	{
 		$tableStructure = $context->findTable($this->parts[self::PART_TABLE]->path);
 
@@ -306,18 +334,20 @@ class SelectQuery extends Statement
 			}
 		}
 
-		$table = $context->getCanonicalName($tableStructure);
-		//$table = $tableStructure->getName();
-		$tableAlias = $this->parts[self::PART_TABLE]->alias;
-		if ($tableAlias)
+		$tableAndJoins = new TokenStream();
+		$tableAndJoins->identifier($context->getCanonicalName($tableStructure));
+		if ($this->parts[self::PART_TABLE]->alias)
 		{
-			$table .= ' AS ' . $context->escapeIdentifier($tableAlias);
+			$tableAndJoins->space()
+				->keyword('as')
+				->space()
+				->identifier($context->escapeIdentifier($this->parts[self::PART_TABLE]->alias));
 		}
 
-		$joins = '';
 		foreach ($this->parts[self::PART_JOINS] as $join)
 		{
-			$joins .= ' ' . $join->buildExpression($context);
+			$tableAndJoins->space()
+				->expression($join, $context);
 		}
 
 		if ($context->getBuilderFlags() & K::BUILDER_EXTENDED_RESULTCOLUMN_ALIAS_RESOLUTION)
@@ -325,61 +355,63 @@ class SelectQuery extends Statement
 			$this->resolveResultColumns($context);
 		}
 
-		# Resolve and build column related parts 
-		if (!($context->getBuilderFlags() & K::BUILDER_EXTENDED_RESULTCOLUMN_ALIAS_RESOLUTION))
+		$where = new TokenStream();
+
+		if ($this->parts[self::PART_WHERE] &&
+			ns\Container::count($this->parts[self::PART_WHERE]))
+		{
+			$where->space()
+				->keyword('where')
+				->space()
+				->constraints($this->parts[self::PART_WHERE], $context);
+		}
+
+		$having = new TokenStream();
+		if ($this->parts[self::PART_HAVING] &&
+			ns\Container::count($this->parts[self::PART_HAVING]))
+		{
+			$having->space()
+				->keyword('having')
+				->space()
+				->constraints($this->parts[self::PART_HAVING], $context);
+		}
+
+		# Resolve columns (inf not yet)
+		if (!($context->getBuilderFlags() &
+			K::BUILDER_EXTENDED_RESULTCOLUMN_ALIAS_RESOLUTION))
 		{
 			$this->resolveResultColumns($context);
 		}
 
-		$where = '';
-		if ($this->parts[self::PART_WHERE] && ns\Container::count($this->parts[self::PART_WHERE]))
-		{
-			$where = $context->buildConstraintExpression($this->parts[self::PART_WHERE], $context);
-		}
+		// SELECT columns
 
-		$having = '';
-		if ($this->parts[self::PART_HAVING] && ns\Container::count($this->parts[self::PART_HAVING]))
-		{
-			$having = $context->buildConstraintExpression($this->parts[self::PART_HAVING], $context);
-		}
-
-		$groupBy = '';
-		if ($this->parts[self::PART_GROUPBY]->count())
-		{
-			$groupBy = ' GROUP BY ';
-			$a = array ();
-			foreach ($this->parts[self::PART_GROUPBY] as $column)
-			{
-				$a[] = $column->buildExpression($context);
-			}
-
-			$groupBy .= implode(', ', $a);
-		}
-
-		$s = 'SELECT';
+		$stream->keyword('select');
 		if ($this->parts[self::PART_DISTINCT])
 		{
-			$s .= ' DISTINCT';
+			$stream->space()
+				->keyword('DISTINCT');
 		}
 
 		if ($this->parts[self::PART_COLUMNS]->count())
 		{
-			$s .= ' ';
-			$index = 0;
+			$stream->space();
+			$c = 0;
 			foreach ($this->parts[self::PART_COLUMNS] as $column)
 			{
-				if ($index > 0)
-					$s .= ', ';
+				if ($c++ > 0)
+					$stream->text(',')
+						->space();
 
-				$expression = $context->evaluateExpression($column->expression);
-				$s .= $expression->buildExpression($context);
+				$x = $context->evaluateExpression($column->expression);
+				$stream->expression($x, $context);
 
 				if ($column->alias)
 				{
-					$s .= ' AS ' . $context->escapeIdentifier($column->alias);
+					$stream->space()
+						->keyword('as')
+						->space()
+						->identifier($context->escapeIdentifier($column->alias));
 				}
-
-				$index++;
 			}
 		}
 		else
@@ -387,60 +419,76 @@ class SelectQuery extends Statement
 			/**
 			 * @todo
 			 */
-			$s .= ' *';
+			$stream->space()
+				->keyword('*');
 		}
 
-		$s .= ' FROM ' . $table;
+		$stream->space()
+			->keyword('from')
+			->space()
+			->stream($tableAndJoins);
 
-		// JOIN
-		if (strlen($joins))
-		{
-			$s .= ' ' . $joins;
-		}
-
-		// WHERE
-		if (strlen($where))
-		{
-			$s .= ' WHERE ' . $where;
-		}
+		$stream->stream($where);
 
 		// GROUP BY
-		if (strlen($groupBy))
+		if ($this->parts[self::PART_GROUPBY] &&
+			ns\Container::count($this->parts[self::PART_GROUPBY]))
 		{
-			$s .= ' ' . $groupBy;
-			if (strlen($having))
+
+			$stream->space()
+				->keyword('group by')
+				->space();
+
+			$c = 0;
+			foreach ($this->parts[self::PART_GROUPBY] as $column)
 			{
-				$s .= ' ' . $having;
+				if ($c++ > 0)
+					$stream->text(',')
+						->space();
+				$stream->expression($column, $context);
 			}
 		}
+
+		$stream->stream($having);
 
 		// ORDER BY
 		if ($this->parts[self::PART_ORDERBY]->count())
 		{
-			$s .= ' ORDER BY ';
-			$o = array ();
+			$stream->space()
+				->keyword('order by')
+				->space();
+			$c = 0;
 			foreach ($this->parts[self::PART_ORDERBY] as $clause)
 			{
-				$expression = $context->evaluateExpression($clause['expression']);
+				if ($c++ > 0)
+					$stream->text(',')
+						->space();
 
-				$o[] = $expression->buildExpression($context) . ' ' . ($clause['direction'] == K::ORDERING_ASC ? 'ASC' : 'DESC');
+				$x = $context->evaluateExpression($clause['expression']);
+				$stream->expression($x, $context)
+					->space()
+					->keyword($clause['direction'] == K::ORDERING_ASC ? 'ASC' : 'DESC');
 			}
-
-			$s .= implode(', ', $o);
 		}
 
 		// LIMIT
 		if ($this->parts[self::PART_LIMIT]['count'] > 0)
 		{
-			$s .= ' LIMIT ' . ($this->parts[self::PART_LIMIT]['count']);
+			$stream->space()
+				->keyword('limit')
+				->space()
+				->literal($this->parts[self::PART_LIMIT]['count']);
 
 			if ($this->parts[self::PART_LIMIT]['offset'] > 0)
 			{
-				$s .= ' OFFSET ' . ($this->parts[self::PART_LIMIT]['offset']);
+				$stream->space()
+					->keyword('offset')
+					->space()
+					->literal($this->parts[self::PART_LIMIT]['offset']);
 			}
 		}
 
-		return $s;
+		return $stream;
 	}
 
 	public function traverse($callable, StatementContext $context, $flags = 0)
@@ -449,7 +497,8 @@ class SelectQuery extends Statement
 
 		foreach ($this->parts[self::PART_COLUMNS] as $resultColumn)
 		{
-			$context->evaluateExpression($resultColumn->expression)->traverse($callable, $context, $flags);
+			$context->evaluateExpression($resultColumn->expression)
+				->traverse($callable, $context, $flags);
 		}
 
 		foreach ($this->parts[self::PART_JOINS] as $join)
@@ -474,7 +523,8 @@ class SelectQuery extends Statement
 
 		foreach ($this->parts[self::PART_ORDERBY] as $clause)
 		{
-			$context->evaluateExpression($clause['expression'])->traverse($callable, $context, $flags);
+			$context->evaluateExpression($clause['expression'])
+				->traverse($callable, $context, $flags);
 		}
 	}
 

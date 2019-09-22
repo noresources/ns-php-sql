@@ -21,16 +21,16 @@ class DropTableQuery extends Statement
 		$this->table = new TableReference($table);
 	}
 
-	public function buildExpression(StatementContext $context)
+	public function tokenize(TokenStream &$stream, StatementContext $context)
 	{
 		$tableStructure = $context->findTable($this->table->path);
-		
 		/**
 		 * @todo IF EXISTS (if available)
 		 */
-		return 'DROP TABLE ' . $context->getCanonicalName($tableStructure);
+		
+		return $stream->keyword('drop')->space()->keyword('table')->space()->identifier($context->getCanonicalName($tableStructure));
 	}
-
+	
 	public function traverse($callable, StatementContext $context, $flags = 0)
 	{
 		call_user_func($this, $context, $flags);	

@@ -129,7 +129,9 @@ class ConnectionHelper
 		$builder = $connection->getStatementBuilder();
 		$resolver = new StructureResolver($reference);
 		$context = new StatementContext($builder, $resolver);
-		$sql = $statement->buildExpression($context);
+		$stream = new TokenStream();
+		$statement->tokenize($stream, $context);
+		$sql = $builder->buildStatementData($stream);
 		return $connection->prepare($sql, $context);
 	}
 

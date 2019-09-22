@@ -30,12 +30,12 @@ class CaseOptionExpression
 		$this->then = $then;
 	}
 
-	function buildExpression(StatementContext $context)
+	public function tokenize(TokenStream &$stream, StatementContext $context)
 	{
-		return 'WHEN ' . $this->when->buildExpression($context) . ' THEN ' . $this->then->buildExpression($context);
+		return $stream->keyword('when')->space()->expression($this->when, $context)->space()->keyword('then')->space()->expression($this->then, $context);
 	}
 
-	function getExpressionDataType()
+	public function getExpressionDataType()
 	{
 		return $this->then->getExpressionDataType();
 	}
@@ -74,6 +74,21 @@ class CaseExpression implements Expression
 		$this->subject = $subject;
 		$this->options = new \ArrayObject();
 		$this->else = null;
+	}
+
+	public function tokenize(TokenStream &$stream, StatementContext $context)
+	{
+		$stream->keyword('case')->space()->expression($this->subject, $context);
+		foreach ($this->options as $option)
+		{
+			$stream->space()->expression($option, $context);
+		}
+		if ($this->else instanceof Expression)
+		{
+			$stream->space()->keyword('else')->space()->expression($this->else, $context);
+		}
+
+		return $stream;
 	}
 
 	public function buildExpression(StatementContext $context)

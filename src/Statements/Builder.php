@@ -41,18 +41,11 @@ abstract class StatementBuilder
 	abstract function escapeIdentifier($identifier);
 
 	/**
-	 * Indicates if the given name is a valid parameter name
-	 * @param mixed $name
+	 * Get a DBMS-compliant parameter name
+	 * @param string $name Parameter name
+	 * @param integer $position Total number of parameter
 	 */
-	abstract function isValidParameterName($name);
-
-	/**
-	 * @param mixed $name
-	 * @param StatementContext $context
-	 */
-	abstract function normalizeParameterName($name, StatementContext $context);
-
-	abstract function getParameter($name, $index = -1);
+	abstract function getParameter($name, $position);
 
 	/**
 	 * Get the default type name for a given data type
@@ -71,6 +64,8 @@ abstract class StatementBuilder
 	{
 		switch ($keyword)
 		{
+			case K::KEYWORD_AUTOINCREMENT:
+				return 'AUTO INCREMENT';
 			case K::KEYWORD_CURRENT_TIMESTAMP:
 				return 'CURRENT_TIMESTAMP';
 			case K::KEYWORD_NULL:
@@ -79,6 +74,8 @@ abstract class StatementBuilder
 				return 'TRUE';
 			case K::KEYWORD_FALSE:
 				return 'FALSE';
+			case K::KEYWORD_DEFAULT:
+				return 'DEFAULT';
 		}
 
 		throw new \InvalidArgumentException('Keyword ' . $keyword . ' is not available');
@@ -132,36 +129,6 @@ abstract class StatementBuilder
 	}
 
 	/**
-	 * Get a table column description to be used in CREATE TABLE query
-	 * @param TableColumnStructure $column
-	 * @return string
-	 */
-	public function getColumnDescription(TableColumnStructure $column, StatementContext $context)
-	{
-		$s = $this->escapeIdentifier($column->getName());
-
-		$s .= ' ' . $this->getColumnTymeName($column);
-		if ($column->hasProperty(K::COLUMN_PROPERTY_DATA_SIZE))
-		{
-			$s .= '(' . $column->getProperty(K::COLUMN_PROPERTY_DATA_SIZE) . ')';
-		}
-
-		if (!$column->getProperty(K::COLUMN_PROPERTY_NULL))
-		{
-			$s .= ' NOT NULL';
-		}
-
-		if ($column->hasProperty(K::COLUMN_PROPERTY_DEFAULT_VALUE))
-		{
-			$v = $context->evaluateExpression($column->getProperty(K::COLUMN_PROPERTY_DEFAULT_VALUE));
-
-			$s .= ' DEFAULT ' . $v->buildExpression($context);
-		}
-
-		return $s;
-	}
-
-	/**
 	 * Build a partial SQL statement describing a table constraint in a CREATE TABLE statement.
 	 * @param TableStructure $structure
 	 * @param TableConstraint $constraint
@@ -172,7 +139,8 @@ abstract class StatementBuilder
 		$s = '';
 		if (strlen($constraint->constraintName))
 		{
-			$s .= 'CONSTRAINT ' . $this->escapeIdentifier($constraint->constraintName) . ' ';
+			$s .= 'CONSTRAINT ' . $this->escapeIdentifier($constraint->constraintName) .
+				' ';
 		}
 
 		if ($constraint instanceof ColumnTableConstraint)
@@ -229,16 +197,11 @@ abstract class StatementBuilder
 
 	/**
 	 * @param string $expression
-	 * @return \NoreSources\SQL\Expression|\NoreSources\SQL\PreformattedExpression
+	 * @return \NoreSources\SQL\LiteralExpression|\NoreSources\SQL\BinaryOperatorExpression|array|\NoreSources\SQL\Expression|NULL|mixed
 	 */
 	public function evaluateExpression($expression)
 	{
-		if ($this->evaluator instanceof ExpressionEvaluator)
-		{
-			return $this->evaluator->evaluate($expression);
-		}
-
-		return new PreformattedExpression($expression);
+		return $this->evaluator->evaluate($expression);
 	}
 
 	/**
@@ -380,14 +343,32 @@ abstract class StatementBuilder
 		return $s;
 	}
 
-	/**
-	 * @param ExpressionEvaluator $evaluator
-	 * @return \NoreSources\SQL\StatementBuilder
-	 */
-	protected function setExpressionEvaluator(ExpressionEvaluator $evaluator)
+	public function buildStatementData (TokenStream $stream)
 	{
-		$this->evaluator = $evaluator;
-		return $this;
+		$data = new StatementData();
+		foreach ($stream as $token) 
+		{
+			$value = $token[TokenStream::INDEX_TOKEN];
+			$type = $token[TokenStream::INDEX_TYPE];
+			if ($type == K::TOKEN_PARAMETER)
+			{
+				$value = strval ($value);
+				$position = $data->parameters->count();				
+				$name = $this->getParameter($value, $position);
+				
+				if (!$data->parameters->offsetExists ($value))
+				{
+					$data->parameters->offsetSet($value, $name);
+				}
+				
+				$data->parameters->offsetSet ($position, $name);
+				
+				$value = $name;
+			}
+			$data->sql .= $value;
+		}
+		
+		return $data;
 	}
 
 	/**
@@ -395,7 +376,7 @@ abstract class StatementBuilder
 	 * @param string $action
 	 * @return string
 	 */
-	private function getForeignKeyAction($action)
+	public function getForeignKeyAction($action)
 	{
 		switch ($action)
 		{
@@ -409,6 +390,16 @@ abstract class StatementBuilder
 				'SET NULL';
 		}
 		return 'NO ACTION';
+	}
+	
+	/**
+	 * @param ExpressionEvaluator $evaluator
+	 * @return \NoreSources\SQL\StatementBuilder
+	 */
+	protected function setExpressionEvaluator(ExpressionEvaluator $evaluator)
+	{
+		$this->evaluator = $evaluator;
+		return $this;
 	}
 
 	/**

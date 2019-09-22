@@ -5,6 +5,7 @@ namespace NoreSources\SQL;
 use NoreSources as ns;
 use NoreSources\SQL\Constants as K;
 
+
 class ParameterArray implements \IteratorAggregate
 {
 	const VALUE = 'value';
@@ -83,7 +84,7 @@ abstract class PreparedStatement
 	}
 	
 	/**
-	 * @return array Array of NoreSources\SQL\StatementContextParameter
+	 * @return array Array of NoreSources\SQL\StatementParameter
 	 */
 	public function getParameters()
 	{

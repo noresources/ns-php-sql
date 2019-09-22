@@ -50,11 +50,14 @@ class DerivedFileManager extends TestCase
 
 	public function __construct()
 	{
+		$this->success = true;
 		$this->derivedDataFiles = new \ArrayObject();
 	}
 
 	public function __destruct()
 	{
+		if (!$this->success) return;
+		
 		if (count($this->derivedDataFiles))
 		{
 			foreach ($this->derivedDataFiles as $path)
@@ -75,6 +78,7 @@ class DerivedFileManager extends TestCase
 	 */
 	public function assertDerivedFile($data, $method, $suffix, $extension, $label = '', $eol = 'lf')
 	{
+		$this->success = false;
 		$reference = $this->buildFilename(self::DIRECTORY_REFERENCE, $method, $suffix, $extension);
 		$derived = $this->buildFilename(self::DIRECTORY_DERIVED, $method, $suffix, $extension);
 		$label = (strlen($label) ? ($label . ': ') : '');
@@ -117,6 +121,7 @@ class DerivedFileManager extends TestCase
 				$this->assertFileExists($reference, $label . 'Reference file exists');
 			}
 		}
+		$this->success = true;
 	}
 
 	private function buildFilename($directory, $method, $suffix, $extension)
@@ -144,4 +149,6 @@ class DerivedFileManager extends TestCase
 	 * @var array
 	 */
 	private $derivedDataFiles;
+	
+	private $success;
 }

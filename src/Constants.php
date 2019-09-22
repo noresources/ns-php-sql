@@ -174,7 +174,10 @@ class Constants
 	const KEYWORD_NULL = 1;
 	const KEYWORD_TRUE = 2;
 	const KEYWORD_FALSE = 3;
-
+	const KEYWORD_DEFAULT = 4;
+	
+	const KEYWORD_AUTOINCREMENT = 5;
+	
 	/**
 	 * Ascending ORDER BY
 	 * @var string
@@ -232,7 +235,15 @@ class Constants
 	 * @var integer
 	 */
 	const BUILDER_INSERT_DEFAULT_KEYWORD = 0x04;
-
+	
+	// Tokens
+	const TOKEN_SPACE = 0;
+	const TOKEN_LITERAL = 1;
+	const TOKEN_IDENTIFIER = 2;
+	const TOKEN_KEYWORD = 3;
+	const TOKEN_TEXT = 4;
+	const TOKEN_PARAMETER = 5;
+	
 	// Recordset flags
 
 	/**

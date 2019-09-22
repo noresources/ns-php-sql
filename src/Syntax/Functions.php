@@ -37,12 +37,12 @@ class FunctionExpression implements Expression
 		$this->arguments = new ListExpression($arguments);
 	}
 
-	function buildExpression(StatementContext $context)
+	public function tokenize(TokenStream &$stream, StatementContext $context)
 	{
-		return ($this->name . '(' . $this->arguments->buildExpression($context) . ')');
+		return $stream->keyword($this->name)->text ('(')->expression($this->arguments, $context)->text (')');	
 	}
-
-	function getExpressionDataType()
+		
+	public function getExpressionDataType()
 	{
 		return $this->returnType;
 	}

@@ -38,18 +38,25 @@ class DeleteQuery extends Statement
 			$this->whereConstraints->append(func_get_arg($i));
 	}
 
-	public function buildExpression(StatementContext $context)
+	public function tokenize(TokenStream &$stream, StatementContext $context)
 	{
 		$tableStructure = $context->findTable($this->table->path);
 
-		$s = 'DELETE FROM ' . $context->getCanonicalName($tableStructure);
+		$stream->keyword('delete')
+			->space()
+			->keyword('from')
+			->space()
+			->identifier($context->getCanonicalName($tableStructure));
 
 		if ($this->whereConstraints->count())
 		{
-			$s .= ' WHERE ' . $context->buildConstraintExpression($this->whereConstraints);
+			$stream->space()
+				->keyword('where')
+				->space()
+				->constraints($this->whereConstraints, $context);
 		}
 
-		return $s;
+		return $stream;
 	}
 
 	/**

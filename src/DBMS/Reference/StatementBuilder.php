@@ -29,19 +29,9 @@ class StatementBuilder extends sql\StatementBuilder
 		return '[' . $identifier . ']';
 	}
 
-	public function isValidParameterName($name)
+	public function getParameter($name, $position)
 	{
-		return true;
-	}
-
-	public function normalizeParameterName($name, sql\StatementContext $context)
-	{
-		return $name;
-	}
-
-	public function getParameter($name, $index = -1)
-	{
-		return '$' . $name;
+		return ('$' . preg_replace ('/[^a-zA-Z0-9_]/', '_', $name));
 	}
 
 	function getColumnTymeName(sql\TableColumnStructure $column)

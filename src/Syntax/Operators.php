@@ -8,85 +8,6 @@ use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\ExpressionEvaluator as X;
 
 /**
- * Comma separated list of Expression
- */
-class ListExpression extends \ArrayObject implements Expression
-{
-
-	public function __construct($array)
-	{
-		parent::__construct();
-		if (ns\Container::isArray($array))
-		{
-			$this->exchangeArray($array);
-		}
-		else
-		{
-			$this->exchangeArray(ns\Container::createArray($array));
-		}
-	}
-
-	public function buildExpression(StatementContext $context)
-	{
-		return ns\Container::implodeValues($this, ', ', function ($v) use ($context)
-		{
-			return $context->evaluateExpression($v)->buildExpression($context);
-		});
-	}
-
-	public function getExpressionDataType()
-	{
-		foreach ($this as $value)
-		{
-			return $value->getExpressionDataType();
-		}
-
-		return K::DATATYPE_UNDEFINED;
-	}
-
-	public function traverse($callable, StatementContext $context, $flags = 0)
-	{
-		call_user_func($callable, $this, $context, $flags);
-		foreach ($this as $value)
-		{
-			$value->traverse($callable, $context, $flags);
-		}
-	}
-}
-
-/**
- */
-class ParenthesisExpression implements Expression
-{
-
-	/**
-	 * @var Expression
-	 */
-	public $expression;
-
-	public function __construct(Expression $expression)
-	{
-		$this->expression;
-	}
-
-	function buildExpression(StatementContext $context)
-	{
-		return '(' . $this->expression->buildExpression($context) . ')';
-	}
-
-	function getExpressionDataType()
-	{
-		return $this->expression->getExpressionDataType();
-	}
-
-	public function traverse($callable, StatementContext $context, $flags = 0)
-	{
-		call_user_func($callable, $this, $context, $flags);
-		$this->expression->traverse($callable, $context, $flags);
-	}
-}
-
-/**
  * Unary operator
  */
 class UnaryOperatorExpression implements Expression
@@ -111,9 +32,11 @@ class UnaryOperatorExpression implements Expression
 		$this->type = $type;
 	}
 
-	function buildExpression(StatementContext $context)
+	public function tokenize(TokenStream &$stream, StatementContext $context)
 	{
-		return $this->operator . ' ' . $this->operand->buildExpression($context);
+		return $stream->text($this->operator)
+			->space()
+			->expression($this->operand, $context);
 	}
 
 	function getExpressionDataType()
@@ -163,9 +86,13 @@ class BinaryOperatorExpression implements Expression
 		$this->type = $type;
 	}
 
-	function buildExpression(StatementContext $context)
+	public function tokenize(TokenStream &$stream, StatementContext $context)
 	{
-		return $this->leftOperand->buildExpression($context) . ' ' . $this->operator . ' ' . $this->rightOperand->buildExpression($context);
+		return $stream->expression($this->leftOperand, $context)
+			->space()
+			->text($this->operator)
+			->space()
+			->expression($this->rightOperand, $context);
 	}
 
 	public function getExpressionDataType()
@@ -224,6 +151,17 @@ class InOperatorExpression extends ListExpression
 		return parent::getExpressionDataType();
 	}
 
+	public function tokenize(TokenStream &$stream, StatementContext $context)
+	{
+		$stream->expression($this->leftOperand, $context)->space();
+		if (!$this->include)
+			$stream->keyword('not')->space();
+		
+		$stream->keyword('in')->text ('(');
+		parent::tokenize($stream, $context);
+		return $stream->text(')');			
+	}
+	
 	public function buildExpression(StatementContext $context)
 	{
 		$s = $this->leftOperand->buildExpression($context);
@@ -297,13 +235,25 @@ class BetweenExpression implements Expression
 		$this->maxBoundary = $max;
 	}
 
+	public function tokenize(TokenStream &$stream, StatementContext $context)
+	{
+		$stream->expression($this->leftOperand, $context)->space();
+		if (!$this->inside)
+			$stream->keyword('not')->space();
+		return $stream->keyword('between')->space()->expression($this->minBoudary, $context)->space()
+		->expression($this->maxBoundary, $context);
+	}
+	
 	/**
 	 * {@inheritdoc}
 	 * @see \NoreSources\SQL\Expression::buildExpression()
 	 */
 	public function buildExpression(StatementContext $context)
 	{
-		return $this->leftOperand->buildExpression($context) . ($this->inside ? '' : ' NOT') . ' BETWEEN ' . $this->minBoudary->buildExpression($context) . ' AND ' . $this->maxBoudary->buildExpression($context);
+		return $this->leftOperand->buildExpression($context) .
+			($this->inside ? '' : ' NOT') . ' BETWEEN ' .
+			$this->minBoudary->buildExpression($context) . ' AND ' .
+			$this->maxBoudary->buildExpression($context);
 	}
 
 	/**
