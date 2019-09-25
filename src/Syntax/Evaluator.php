@@ -75,21 +75,13 @@ class ExpressionEvaluator
 		return new ParameterExpression($name);
 	}
 
-	// Patterns
-	const PATTERN_IDENTIFIER = 'identifier';
-	const PATTERN_FUNCTION_NAME = 'function';
-	const PATTERN_PARAMETER_NAME = 'parameter';
-	const PATTERN_SPACE = 'space';
-	const PATTERN_WHITESPACE = 'whitespace';
-	const PATTERN_NUMBER = 'number';
-	const DATETIME_FORMAT = 'Y-m-d\TH:i:s.uO';
-
 	public function __construct()
 	{
-		$this->builderFlags = 0;
+		$this->evaluatorFlags = 0;
 		$this->operators = array (
 				1 => array (
-						'not' => new UnaryPolishNotationOperation('NOT', PolishNotationOperation::KEYWORD | PolishNotationOperation::POST_SPACE),
+						'not' => new UnaryPolishNotationOperation('NOT', PolishNotationOperation::KEYWORD |
+						PolishNotationOperation::POST_SPACE),
 						'!' => new UnaryPolishNotationOperation('NOT', PolishNotationOperation::KEYWORD),
 						'-' => new UnaryPolishNotationOperation('-'),
 						'~' => new UnaryPolishNotationOperation('~')
@@ -113,8 +105,10 @@ class ExpressionEvaluator
 						'*' => new BinaryPolishNotationOperation('*'),
 						'/' => new BinaryPolishNotationOperation('/'),
 						'%' => new BinaryPolishNotationOperation('%'),
-						'and' => new BinaryPolishNotationOperation('AND', PolishNotationOperation::KEYWORD | PolishNotationOperation::SPACE),
-						'or' => new BinaryPolishNotationOperation('OR', PolishNotationOperation::KEYWORD | PolishNotationOperation::SPACE)
+						'and' => new BinaryPolishNotationOperation('AND', PolishNotationOperation::KEYWORD |
+						PolishNotationOperation::SPACE),
+						'or' => new BinaryPolishNotationOperation('OR', PolishNotationOperation::KEYWORD |
+						PolishNotationOperation::SPACE)
 				)
 		);
 	}
@@ -124,91 +118,150 @@ class ExpressionEvaluator
 	 * @param string|mixed $string
 	 * @return \NoreSources\SQL\Expression|NULL|mixed
 	 */
-	public function __invoke($expression)
+	public function __invoke($evaluable)
 	{
-		return $this->evaluate($expression);
+		return $this->evaluate($evaluable);
+	}
+
+	/**
+	 * @method Expression evaluate ($evaluable)
+	 *        
+	 * @param string $name
+	 * @param array $args
+	 *
+	 * @return Expression
+	 *
+	 * @throws \BadMethodCallException
+	 */
+	public function __call($name, $args)
+	{
+		if ($name == 'evaluate')
+		{
+			return call_user_func_array(array (
+					$this,
+					'evaluateEvaluable'
+			), $args);
+		}
+
+		throw new \BadMethodCallException($name . ' is not a valid method name');
+	}
+
+	/**
+	 * @method Expression evaluate ($evaluable)
+	 *        
+	 * @param string $name
+	 * @param array $args
+	 *
+	 * @return Expression
+	 *
+	 * @throws \BadMethodCallException
+	 */
+	public static function __callStatic($name, $args)
+	{
+		if ($name == 'evaluate')
+		{
+			if (!(self::$instance instanceof ExpressionEvaluator))
+			{
+				self::$instance = new ExpressionEvaluator();
+			}
+
+			return call_user_func_array(array (
+					self::$instance,
+					'evaluateEvaluable'
+			), $args);
+		}
+
+		throw new \BadMethodCallException($name . ' is not a valid method name');
 	}
 
 	// bm3
 	/**
-	 * @param string|array $expression
+	 * @param string|array $evaluable
 	 */
-	public function evaluate($expression)
+	public function evaluateEvaluable($evaluable)
 	{
-		if ($expression instanceof Evaluable)
+		if ($evaluable instanceof Evaluable)
 		{
-			$expression = $expression->value;
+			$evaluable = $evaluable->value;
 		}
 
-		if (\is_object($expression))
+		if (\is_object($evaluable))
 		{
-			if ($expression instanceof Expression)
+			if ($evaluable instanceof Expression)
 			{
-				return $expression;
+				return $evaluable;
 			}
-			elseif ($expression instanceof \DateTime)
+			elseif ($evaluable instanceof \DateTime)
 			{
-				return new LiteralExpression($expression, K::DATATYPE_TIMESTAMP);
+				return new LiteralExpression($evaluable, K::DATATYPE_TIMESTAMP);
 			}
 		}
-		elseif (\is_null($expression))
+		elseif (\is_null($evaluable))
 		{
-			return new LiteralExpression($expression, K::DATATYPE_NULL);
+			return new LiteralExpression($evaluable, K::DATATYPE_NULL);
 		}
-		elseif (\is_bool($expression))
+		elseif (\is_bool($evaluable))
 		{
-			return new LiteralExpression($expression, K::DATATYPE_BOOLEAN);
+			return new LiteralExpression($evaluable, K::DATATYPE_BOOLEAN);
 		}
-		elseif (is_int($expression))
+		elseif (is_int($evaluable))
 		{
-			return new LiteralExpression($expression, K::DATATYPE_INTEGER);
+			return new LiteralExpression($evaluable, K::DATATYPE_INTEGER);
 		}
-		elseif (is_float($expression))
+		elseif (is_float($evaluable))
 		{
-			return new LiteralExpression($expression, K::DATATYPE_FLOAT);
+			return new LiteralExpression($evaluable, K::DATATYPE_FLOAT);
 		}
-		elseif (\is_numeric($expression))
+		elseif (\is_numeric($evaluable))
 		{
-			$i = \intval($expression);
-			$f = \floatval($expression);
+			$i = \intval($evaluable);
+			$f = \floatval($evaluable);
 			if ($i == $f)
 				return new LiteralExpression($i, K::DATATYPE_INTEGER);
 			else
 				return new LiteralExpression($f, K::DATATYPE_FLOAT);
 		}
-		elseif (is_string($expression))
+		elseif (is_string($evaluable))
 		{
-			return $this->evaluateString($expression);
+			return $this->evaluateString($evaluable);
 		}
-		elseif (ns\Container::isArray($expression))
+		elseif (ns\Container::isArray($evaluable))
 		{
-			if (ns\Container::isAssociative($expression))
+			if (ns\Container::isAssociative($evaluable))
 			{
-				if (\count($expression) == 1)
+				if (\count($evaluable) == 1)
 				{
-					reset($expression);
-					list ( $a, $b ) = each($expression);
+					reset($evaluable);
+					list ( $a, $b ) = each($evaluable);
 					if (!\is_array($b))
 					{
 						return new BinaryOperatorExpression('=', $this->evaluate($a), $this->evaluate($b));
 					}
 				}
 
-				return $this->evaluatePolishNotation($expression);
+				return $this->evaluatePolishNotation($evaluable);
 			}
 			else
 			{
 				return array_map(array (
 						$this,
-						'evaluate'
+						'evaluateEvaluable'
 				), $expression);
 			}
 		}
 
-		$t = is_object($expression) ? get_class($expression) : gettype($expression);
+		$t = is_object($evaluable) ? get_class($evaluable) : gettype($evaluable);
 		throw new ExpressionEvaluationException('Invalid argument type/class ' . $t);
 	}
 
+	/**
+	 * Private method
+	 *
+	 * @param string $keyword
+	 * @param boolean $positiveCallable
+	 * @param boolean $negativeCallable
+	 * @return \Ferno\Loco\LazyAltParser
+	 */
 	public static function negatableKeywordParser($keyword, $positiveCallable = true, $negativeCallable = false)
 	{
 		$nc = $negativeCallable;
@@ -230,6 +283,12 @@ class ExpressionEvaluator
 		));
 	}
 
+	/**
+	 * Private method
+	 * @param string $keyword
+	 * @param callable $callable
+	 * @return \Ferno\Loco\LazyAltParser
+	 */
 	public static function keywordParser($keyword, $callable = null)
 	{
 		$c = $callable;
@@ -269,7 +328,8 @@ class ExpressionEvaluator
 			$o = ns\Container::keyValue($this->operators['*'], $key, false);
 
 		if (!($o instanceof PolishNotationOperation))
-			throw new ExpressionEvaluationException('Unable to evalate Polish notation ' . $key . ' => ');
+			throw new ExpressionEvaluationException('Unable to evalate Polish notation ' .
+				$key . ' => ');
 
 		$cls = new \ReflectionClass($o->className);
 		return $cls->newInstanceArgs(array_merge(array (
@@ -288,14 +348,15 @@ class ExpressionEvaluator
 			$key = strtolower($key);
 			$operands = array_map(array (
 					$this,
-					'evaluate'
+					'evaluateEvaluable'
 			), $operands);
 
 			$expression = $this->evaluatePolishNotationElement($key, $operands);
 
 			if (!($expression instanceof Expression))
 			{
-				throw new ExpressionEvaluationException('Unable to create expression (got ' . var_export($expression, true) . ')');
+				throw new ExpressionEvaluationException('Unable to create expression (got ' .
+					var_export($expression, true) . ')');
 			}
 
 			if ($result instanceof Expression)
@@ -320,7 +381,7 @@ class ExpressionEvaluator
 	 */
 	private function evaluateString($string)
 	{
-		if (!($this->builderFlags & self::GRAMMAR_BUILT))
+		if (!($this->evaluatorFlags & self::GRAMMAR_BUILT))
 		{
 			$this->buildGrammar();
 		}
@@ -347,22 +408,27 @@ class ExpressionEvaluator
 		);
 
 		$any = new Loco\Utf8Parser();
-		$whitespace = new Loco\RegexParser(chr(1) . '^(' . $rx[self::PATTERN_WHITESPACE] . ')' . chr(1), function ()
+		$whitespace = new Loco\RegexParser(chr(1) . '^(' . $rx[self::PATTERN_WHITESPACE] .
+			')' . chr(1), function ()
 		{
 			return '';
 		});
 
-		$space = new Loco\RegexParser(chr(1) . '^(' . $rx[self::PATTERN_SPACE] . ')' . chr(1), function ()
+		$space = new Loco\RegexParser(chr(1) . '^(' . $rx[self::PATTERN_SPACE] . ')' .
+			chr(1), function ()
 		{
 			return '';
 		});
 
-		$parameterName = new Loco\RegexParser(chr(1) . '^:(' . $rx[self::PATTERN_PARAMETER_NAME] . ')' . chr(1), function ($full, $name)
+		$parameterName = new Loco\RegexParser(chr(1) . '^:(' .
+			$rx[self::PATTERN_PARAMETER_NAME] . ')' . chr(1), function ($full, $name)
 		{
 			return new ParameterExpression($name);
 		});
-		$functionName = new Loco\RegexParser(chr(1) . '^(' . $rx[self::PATTERN_FUNCTION_NAME] . ')' . chr(1));
-		$identifier = new Loco\RegexParser(chr(1) . '^(' . $rx[self::PATTERN_IDENTIFIER] . ')' . chr(1), function ($all, $name)
+		$functionName = new Loco\RegexParser(chr(1) . '^(' .
+			$rx[self::PATTERN_FUNCTION_NAME] . ')' . chr(1));
+		$identifier = new Loco\RegexParser(chr(1) . '^(' . $rx[self::PATTERN_IDENTIFIER] .
+			')' . chr(1), function ($all, $name)
 		{
 			return $name;
 		});
@@ -778,7 +844,8 @@ class ExpressionEvaluator
 
 			if (ns\Container::keyExists($dt, 'hour'))
 			{
-				$time = $dt['hour'] . ':' . $dt['minute'] . ':' . $dt['second'] . '.' . $dt['microsecond'];
+				$time = $dt['hour'] . ':' . $dt['minute'] . ':' . $dt['second'] . '.' .
+					$dt['microsecond'];
 			}
 
 			if (ns\Container::keyExists($dt, 'year'))
@@ -797,7 +864,8 @@ class ExpressionEvaluator
 			return new LiteralExpression($dateTime, K::DATATYPE_TIMESTAMP);
 		});
 
-		$number = new Loco\RegexParser(chr(1) . '^(' . $rx[self::PATTERN_NUMBER] . ')' . chr(1), function ($full, $v)
+		$number = new Loco\RegexParser(chr(1) . '^(' . $rx[self::PATTERN_NUMBER] . ')' .
+			chr(1), function ($full, $v)
 		{
 			$i = \intval($v);
 			$f = \floatval($v);
@@ -956,46 +1024,40 @@ class ExpressionEvaluator
 				'space' => $space
 		)); // grammar
 
-		$this->builderFlags |= self::GRAMMAR_BUILT;
+		$this->evaluatorFlags |= self::GRAMMAR_BUILT;
 	}
 
 	/**
-	 * @param string $key Lower-case operator name
-	 * @param string $sql SQL operator
-	 * @param integer|'*' $operandCount Number of operands
-	 * @param string $className Expression class
-	 *       
-	 * @throws \InvalidArgumentException
+	 * Indicates Grammar is built
+	 * @var integer
 	 */
-	protected function setOperator($key, $sql, $operandCount, $className = null)
-	{
-		if (!\is_string($className))
-		{
-			if ($operandCount == 1)
-			{
-				$className = UnaryOperatorExpression::class;
-			}
-			elseif ($operandCount == 2)
-			{
-				$className = BinaryOperatorExpression::class;
-			}
-		}
-		
-		if (!is_subclass_of($className, Expression::class, true))
-			throw new ExpressionEvaluationException('Invalid class name ' . strval($className));
-
-		if (!ns\Container::keyExists($this->operators, $operandCount))
-			$this->operators[$operandCount] = array ();
-
-		$this->operators[$operandCount][$key] = new PolishNotationOperation($sql, $className);
-	}
 	const GRAMMAR_BUILT = 0x01;
 
+	// Patterns
+	const PATTERN_IDENTIFIER = 'identifier';
+	const PATTERN_FUNCTION_NAME = 'function';
+	const PATTERN_PARAMETER_NAME = 'parameter';
+	const PATTERN_SPACE = 'space';
+	const PATTERN_WHITESPACE = 'whitespace';
+	const PATTERN_NUMBER = 'number';
+	const DATETIME_FORMAT = 'Y-m-d\TH:i:s.uO';
+
+	/**
+	 * @var Loco\Grammar Syntax grammar
+	 */
 	private $grammar;
 
-	private $builderFlags;
+	/**
+	 * @var integer
+	 */
+	private $evaluatorFlags;
 
+	/**
+	 * @var array of PolishNotationOperation
+	 */
 	private $operators;
+
+	private static $instance;
 }
 
 class PolishNotationOperation
