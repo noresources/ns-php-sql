@@ -24,7 +24,6 @@ class StatementBuilder extends sql\StatementBuilder
 			$this->setBuilderFlags($domain, $flags);
 
 		$this->parameters = new \ArrayObject();
-		$this->setExpressionEvaluator(new sql\ExpressionEvaluator());
 	}
 
 	public function escapeString($value)

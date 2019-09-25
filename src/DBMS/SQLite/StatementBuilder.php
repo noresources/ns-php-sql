@@ -12,7 +12,7 @@ use NoreSources\SQL\TableColumnStructure;
 class StatementBuilder extends sql\StatementBuilder
 {
 
-	public function __construct(sql\ExpressionEvaluator $evaluator = null)
+	public function __construct()
 	{
 		parent::__construct();
 
@@ -20,10 +20,6 @@ class StatementBuilder extends sql\StatementBuilder
 			K::BUILDER_IF_NOT_EXISTS);
 		$this->setBuilderFlags(K::BUILDER_DOMAIN_SELECT, K::BUILDER_SELECT_EXTENDED_RESULTCOLUMN_ALIAS_RESOLUTION);
 		$this->setBuilderFlags(K::BUILDER_DOMAIN_INSERT, K::BUILDER_INSERT_DEFAULT_KEYWORD);
-
-		if (!($evaluator instanceof sql\ExpressionEvaluator))
-			$evaluator = new sql\ExpressionEvaluator();
-		$this->setExpressionEvaluator($evaluator);
 	}
 
 	public function escapeString($value)

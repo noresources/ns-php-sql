@@ -25,7 +25,6 @@ abstract class StatementBuilder
 				K::BUILDER_DOMAIN_DROP_TABLE => 0,
 				K::BUILDER_DOMAIN_CREATE_TABLE => 0
 		);
-		$this->evaluator = null;
 	}
 
 	/**
@@ -204,12 +203,12 @@ abstract class StatementBuilder
 	}
 
 	/**
-	 * @param string $expression
+	 * @param string $evaluable
 	 * @return \NoreSources\SQL\LiteralExpression|\NoreSources\SQL\BinaryOperatorExpression|array|\NoreSources\SQL\Expression|NULL|mixed
 	 */
-	public function evaluateExpression($expression)
+	public function evaluateExpression($evaluable)
 	{
-		return $this->evaluator->evaluate($expression);
+		return ExpressionEvaluator::evaluate ($evaluable);
 	}
 
 	/**
@@ -398,16 +397,6 @@ abstract class StatementBuilder
 				'SET NULL';
 		}
 		return 'NO ACTION';
-	}
-
-	/**
-	 * @param ExpressionEvaluator $evaluator
-	 * @return \NoreSources\SQL\StatementBuilder
-	 */
-	protected function setExpressionEvaluator(ExpressionEvaluator $evaluator)
-	{
-		$this->evaluator = $evaluator;
-		return $this;
 	}
 
 	protected function setBuilderFlags($domain, $flags)
