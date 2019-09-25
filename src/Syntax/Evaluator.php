@@ -84,10 +84,9 @@ class ExpressionEvaluator
 	const PATTERN_NUMBER = 'number';
 	const DATETIME_FORMAT = 'Y-m-d\TH:i:s.uO';
 
-	public function __construct($patterns = array())
+	public function __construct()
 	{
 		$this->builderFlags = 0;
-		$this->patterns = array ();
 		$this->operators = array (
 				1 => array (
 						'not' => new UnaryPolishNotationOperation('NOT', PolishNotationOperation::KEYWORD | PolishNotationOperation::POST_SPACE),
@@ -253,7 +252,7 @@ class ExpressionEvaluator
 	 * @param string $key Lower case operator or function name
 	 * @param array $operands
 	 */
-	protected function evaluatePolishNotationElement($key, $operands)
+	private function evaluatePolishNotationElement($key, $operands)
 	{
 		$length = strlen($key);
 		if (strpos($key, '()') == ($length - 2))
@@ -336,17 +335,6 @@ class ExpressionEvaluator
 		}
 	}
 
-	/**
-	 * Override default PCRE patterns
-	 * @param string $key
-	 * @param string $pattern
-	 */
-	public function setPattern($key, $pattern)
-	{
-		$this->patterns[$key] = $pattern;
-		$this->builderFlags &= ~self::GRAMMAR_BUILT;
-	}
-
 	private function buildGrammar()
 	{
 		$rx = array (
@@ -357,11 +345,6 @@ class ExpressionEvaluator
 				self::PATTERN_WHITESPACE => '[ \n\r\t]*',
 				self::PATTERN_NUMBER => '-?(0|[1-9][0-9]*)(\.[0-9]+)?([eE][-+]?[0-9]+)?'
 		);
-
-		foreach ($this->patterns as $key => $pattern)
-		{
-			$rx[$key] = $pattern;
-		}
 
 		$any = new Loco\Utf8Parser();
 		$whitespace = new Loco\RegexParser(chr(1) . '^(' . $rx[self::PATTERN_WHITESPACE] . ')' . chr(1), function ()
@@ -1009,8 +992,6 @@ class ExpressionEvaluator
 	const GRAMMAR_BUILT = 0x01;
 
 	private $grammar;
-
-	private $patterns;
 
 	private $builderFlags;
 
