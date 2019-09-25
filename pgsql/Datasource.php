@@ -311,7 +311,14 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 		return (pg_escape_bytea($this->resource, $data));
 	}
 
-	public function unserializeTimestamp ($time)
+	/**
+	 * PostgreSQL use a non-standard, nearly ISO8601 format. 
+	 * 
+	 * This method recognize this form, transform the time to ISO 8601 and call the parent method
+	 * 
+	 * @return \DateTime
+	 */
+	public function unserializeTimestamp ($time, $extended = true)
 	{
 		if (\is_string ($time))
 		{
@@ -322,7 +329,7 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 			}
 		}
 		
-		return parent::unserializeTimestamp($time);
+		return parent::unserializeTimestamp($time, $extended);
 	}
 	
 	public function unserializeBinaryData($data)

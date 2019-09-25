@@ -12,6 +12,7 @@
 namespace NoreSources\SQL;
 
 use NoreSources as ns;
+use NoreSources\TypeUtil;
 
 require_once (__DIR__ . '/base.php');
 
@@ -440,9 +441,9 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 		{
 			return ns\Reporter::error($this, __METHOD__ . '(): Unable to find type', __FILE__, __LINE__);
 		}
-		
+
 		$structure = getStructure($dataType);
-		
+
 		if ($sqlType == kDataTypeNull)
 		{
 			return new NullData($this, $structure);
@@ -467,7 +468,7 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 		{
 			return new BinaryData($this, $structure);
 		}
-		
+
 		return null;
 	}
 	
@@ -480,6 +481,33 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 		return preg_replace("/'/", "''", -StringData);
 	}
 
+	public function serializeTimestamp ($data)
+	{
+		$fmt = $this->getDatasourceString(self::kStringTimestampFormat);
+		if (!($data instanceof \DateTime))
+		{
+			try 
+			{
+				$data = ns\TypeUtil::toDateTime($data);
+			} catch (\Exception $e) {
+				if (\is_string($data)) {
+					$d = \DateTime::createFromFormat($fmt, $data);
+					if ($d instanceof \DateTest) $data = $d;
+				}
+			}
+		}
+		
+		if ($data instanceof \DateTime)
+		{
+			return $this->serializeStringData( $data->format ($fmt));
+		}
+		else
+		{
+			ns\Reporter::warning($this, 'Timestamp serialization was unable to convert input to DateTime.');
+			return $this->serializeStringData($data);
+		}
+	}
+		
 	/**
 	 * Serialize binary data to be inserted into the data store
 	 * @param string $data Binary data as a list of character
@@ -506,8 +534,9 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 		
 		return $this->unserializeValue($type, $value);
 	}
-	
+
 	/**
+	 *
 	 * @param integer $type
 	 * @param mixed $value
 	 * @return string|\DateTime|number|unknown|NULL
@@ -516,15 +545,18 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 	{
 		switch ($type)
 		{
-			case kDataTypeTimestamp: return $this->unserializeTimestamp($value);
-			case kDataTypeBinary: return $this->unserializeBinaryData($value);
-			case kDataTypeNull: return null;			
+			case kDataTypeTimestamp:
+				return $this->unserializeTimestamp($value);
+			case kDataTypeBinary:
+				return $this->unserializeBinaryData($value);
+			case kDataTypeNull:
+				return null;
 			case kDataTypeInteger:
-				return intval ($value);
+				return intval($value);
 			case kDataTypeDecimal:
 				return floatval($value);
 			case kDataTypeNumber:
-				$i = intval ($value);
+				$i = intval($value);
 				$f = floatval($value);
 				return ($i == $f) ? $i : $f;
 			case kDataTypeBoolean:
@@ -535,38 +567,45 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 	}
 
 	/**
-	 * @param unknown $time
+	 * Unserialize Timestamp column from column to \DateTime
+	 *
+	 * This method also recognize timestamp of various types
+	 * for convenience. 
+	 *
+	 * @param mixed $time
 	 * @throws \InvalidArgumentException
 	 * @return \DateTime|string
 	 */
-	public function unserializeTimestamp ($time)
+	public function unserializeTimestamp ($time, $extended = true)
 	{
+		$format = $this->getDatasourceString(self::kStringTimestampFormat);
+		if (\is_string ($time))
+		{
+			try {
+				$time = ns\TypeUtil::toDateTime([
+						'format' => $format,
+						'time' => $time
+				]);
+			} catch (\Exception $e) {
+				// Fallback to ISO format below				
+			}
+		}
+				
 		if ($time instanceof \DateTime)
 		{
 			return $time;
 		}
-		if (\is_int($time))
+		elseif ($extended)
 		{
-			$value = new \DateTime();
-			$value->setTimestamp($time);
-			return fvalue;
-		}
-
-		if (\is_float($time))
-		{
-			$value = new \DateTime();
-			$value->setTimestamp(unixtojd($time));
-			return $value;
-		}
-
-		$format = $this->getDatasourceString(self::kStringTimestampFormat);
-		$value = \DateTime::createFromFormat($format, $time);
-		if ($value instanceof \DateTime)
-		{
-			return $value;
+			$time = ns\TypeUtil::toDateTime($time);
 		}
 		
-		throw new \InvalidArgumentException('Invalid timestamp "'.var_export ($time, true).'", expect "'.$format.'" format');
+		if (!($time instanceof \DateTime))
+		{
+			throw new \Exception('Unable to unserialize timestamp. Expect ' . $format);
+		}
+		
+		return $time;
 	}
 	
 	/**
