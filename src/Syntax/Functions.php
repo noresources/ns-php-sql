@@ -34,10 +34,10 @@ class FunctionExpression implements Expression
 
 	public function __construct($name, $arguments = [])
 	{
-		$this->name = $name;
-		$this->returnType = K::DATATYPE_UNDEFINED;
-		$this->arguments = new ListExpression($arguments);
-	}
+	$this->name = $name;
+	$this->returnType = K::DATATYPE_UNDEFINED;
+	$this->arguments = new ListExpression($arguments);
+}
 
 	public function tokenize(TokenStream &$stream, StatementContext $context)
 	{

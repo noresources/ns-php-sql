@@ -49,20 +49,20 @@ class ParameterArray implements \IteratorAggregate, \Countable
 
 	public function __construct($table = [])
 	{
-		$this->table = new \ArrayObject();
+	$this->table = new \ArrayObject();
 
-		foreach ($table as $key => $value)
+	foreach ($table as $key => $value)
+	{
+		$tyoe = K::DATATYPE_UNDEFINED;
+		if (ns\Container::isArray($value))
 		{
-			$tyoe = K::DATATYPE_UNDEFINED;
-			if (ns\Container::isArray($value))
-			{
-				$type = ns\Container::keyValue($value, self::TYPE, K::DATATYPE_UNDEFINED);
-				$value = ns\Container::keyValue($value, self::VALUE, null);
-			}
-
-			$this->set($key, $value, $tyoe);
+			$type = ns\Container::keyValue($value, self::TYPE, K::DATATYPE_UNDEFINED);
+			$value = ns\Container::keyValue($value, self::VALUE, null);
 		}
+
+		$this->set($key, $value, $tyoe);
 	}
+}
 
 	/**
 	 *

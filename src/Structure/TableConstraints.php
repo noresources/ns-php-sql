@@ -42,9 +42,9 @@ class ColumnTableConstraint extends TableConstraint implements \ArrayAccess, \It
 	 */
 	protected function __construct($columns = [], $name = null)
 	{
-		parent::__construct($name);
-		$this->columns = new \ArrayObject($columns);
-	}
+	parent::__construct($name);
+	$this->columns = new \ArrayObject($columns);
+}
 
 	/**
 	 *
