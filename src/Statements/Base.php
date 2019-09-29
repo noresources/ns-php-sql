@@ -18,6 +18,7 @@ class StatementException extends \Exception
 	}
 
 	/**
+	 *
 	 * @return \NoreSources\SQL\Statement
 	 */
 	public function getStatement()
@@ -59,13 +60,14 @@ class NamedStatementParameterIterator implements \Iterator
 	{
 		return $this->iterator->valid();
 	}
-	
+
 	public function rewind()
 	{
 		$this->iterator->rewind();
 	}
 
 	/**
+	 *
 	 * @var \Iterator
 	 */
 	public $iterator;
@@ -75,14 +77,16 @@ class StatementParameterMap extends \ArrayObject
 {
 
 	/**
+	 *
 	 * @return \NoreSources\SQL\NamedStatementParameterIterator
 	 */
 	public function getNamedParameterIterator()
 	{
 		return (new NamedStatementParameterIterator($this));
 	}
-	
+
 	/**
+	 *
 	 * @property-read integer $namedParameterCount
 	 * @param string $member
 	 * @throws \InvalidArgumentException
@@ -141,11 +145,13 @@ class StatementData
 {
 
 	/**
+	 *
 	 * @var string
 	 */
 	public $sql;
 
 	/**
+	 *
 	 * @var StatementParameterMap Array of StatementParameter
 	 *      The entry key is the parameter name as it appears in the Statement.
 	 */
@@ -170,6 +176,7 @@ class TableReference extends TableExpression
 {
 
 	/**
+	 *
 	 * @var string
 	 */
 	public $alias;
@@ -183,9 +190,11 @@ class TableReference extends TableExpression
 
 abstract class Statement implements Expression
 {
+
 	/**
 	 * Most of statement does not provide return values
-	 * {@inheritDoc}
+	 *
+	 * {@inheritdoc}
 	 * @see \NoreSources\SQL\Expression::getExpressionDataType()
 	 */
 	public function getExpressionDataType()

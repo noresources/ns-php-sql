@@ -1,5 +1,4 @@
 <?php
-
 namespace NoreSources\SQL;
 
 use PHPUnit\Framework\TestCase;
@@ -21,9 +20,9 @@ final class UpdateTest extends TestCase
 		$structure = $this->datasources->get('types');
 		$tableStructure = $structure['ns_unittests']['types'];
 		$this->assertInstanceOf(TableStructure::class, $tableStructure);
-		
+
 		$connection = ConnectionHelper::createConnection('reference');
-		
+
 		$builder = $connection->getStatementBuilder();
 		$context = new StatementContext($builder);
 		$context->setPivot($tableStructure);
@@ -60,7 +59,7 @@ final class UpdateTest extends TestCase
 			$stream = new TokenStream();
 			$q->tokenize($stream, $context);
 			$sql = $builder->buildStatementData($stream);
-			$sql = \SqlFormatter::format(strval ($sql), false);
+			$sql = \SqlFormatter::format(strval($sql), false);
 			$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, $set, 'sql');
 		}
 	}
@@ -86,11 +85,13 @@ final class UpdateTest extends TestCase
 	}
 
 	/**
+	 *
 	 * @var DatasourceManager
 	 */
 	private $datasources;
 
 	/**
+	 *
 	 * @var DerivedFileManager
 	 */
 	private $derivedFileManager;

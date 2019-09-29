@@ -12,7 +12,9 @@ class CreateTableQuery extends Statement
 {
 
 	/**
-	 * @param TableStructure $structure Table structire to create
+	 *
+	 * @param TableStructure $structure
+	 *        	Table structire to create
 	 */
 	public function __construct(TableStructure $structure = null)
 	{
@@ -20,6 +22,7 @@ class CreateTableQuery extends Statement
 	}
 
 	/**
+	 *
 	 * @property-read \NoreSources\SQL\TableStructure
 	 * @param mixed $member
 	 * @return \NoreSources\SQL\TableStructure|unknown
@@ -49,6 +52,7 @@ class CreateTableQuery extends Statement
 		}
 
 		/**
+		 *
 		 * @todo IF NOT EXISTS (if available)
 		 */
 
@@ -77,12 +81,12 @@ class CreateTableQuery extends Statement
 		foreach ($this->structure as $name => $column)
 		{
 			/**
+			 *
 			 * @var TableColumnStructure $column
 			 */
 
 			if ($c++ > 0)
-				$stream->text(',')
-					->space();
+				$stream->text(',')->space();
 
 			$stream->identifier($context->escapeIdentifier($column->getName()))
 				->space()
@@ -91,6 +95,7 @@ class CreateTableQuery extends Statement
 			if ($column->hasProperty(K::COLUMN_PROPERTY_DATA_SIZE))
 			{
 				/**
+				 *
 				 * @todo only if supported
 				 */
 				$stream->text('(')
@@ -108,7 +113,8 @@ class CreateTableQuery extends Statement
 
 			if ($column->hasProperty(K::COLUMN_PROPERTY_DEFAULT_VALUE))
 			{
-				$v = $context->evaluateExpression($column->getProperty(K::COLUMN_PROPERTY_DEFAULT_VALUE));
+				$v = $context->evaluateExpression(
+					$column->getProperty(K::COLUMN_PROPERTY_DEFAULT_VALUE));
 				$stream->space()
 					->keyword('DEFAULT')
 					->space()
@@ -118,8 +124,7 @@ class CreateTableQuery extends Statement
 			if ($column->hasProperty(K::COLUMN_PROPERTY_AUTOINCREMENT) &&
 				$column->getProperty(K::COLUMN_PROPERTY_AUTOINCREMENT))
 			{
-				$stream->space()
-					->keyword($context->getKeyword(K::KEYWORD_AUTOINCREMENT));
+				$stream->space()->keyword($context->getKeyword(K::KEYWORD_AUTOINCREMENT));
 			}
 		}
 
@@ -127,12 +132,12 @@ class CreateTableQuery extends Statement
 		foreach ($structure->constraints as $constraint)
 		{
 			/**
+			 *
 			 * @var TableConstraint $constraint
 			 */
 
 			if ($c++ > 0)
-				$stream->text(',')
-					->space();
+				$stream->text(',')->space();
 
 			if (strlen($constraint->constraintName))
 			{
@@ -148,14 +153,12 @@ class CreateTableQuery extends Statement
 				elseif ($constraint instanceof UniqueTableConstraint)
 					$stream->keyword('unique');
 
-				$stream->space()
-					->text('(');
+				$stream->space()->text('(');
 				$i = 0;
 				foreach ($constraint as $column)
 				{
 					if ($i++ > 0)
-						$stream->text(',')
-							->space();
+						$stream->text(',')->space();
 
 					$stream->identifier($context->escapeIdentifier($column->getName()));
 				}
@@ -171,8 +174,7 @@ class CreateTableQuery extends Statement
 				foreach ($constraint as $column => $reference)
 				{
 					if ($i++ > 0)
-						$stream->text(',')
-							->space();
+						$stream->text(',')->space();
 
 					$stream->identifier($context->escapeIdentifier($column));
 				}
@@ -189,8 +191,7 @@ class CreateTableQuery extends Statement
 				foreach ($constraint as $column => $reference)
 				{
 					if ($i++ > 0)
-						$stream->text(',')
-							->space();
+						$stream->text(',')->space();
 					$stream->identifier($context->escapeIdentifier($reference));
 				}
 				$stream->text(')');
@@ -217,6 +218,7 @@ class CreateTableQuery extends Statement
 	}
 
 	/**
+	 *
 	 * {@inheritdoc}
 	 * @see \NoreSources\SQL\Expression::traverse()
 	 */
@@ -226,6 +228,7 @@ class CreateTableQuery extends Statement
 	}
 
 	/**
+	 *
 	 * @var TableStructure
 	 */
 	private $structure;

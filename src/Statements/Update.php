@@ -13,6 +13,7 @@ class UpdateQuery extends Statement implements \ArrayAccess
 {
 
 	/**
+	 *
 	 * @param TableSetStructure|string $table
 	 */
 	public function __construct($table)
@@ -28,11 +29,13 @@ class UpdateQuery extends Statement implements \ArrayAccess
 	}
 
 	/**
+	 *
 	 * @param string $columnName
 	 * @param mixed $columnValue
-	 * @param boolean $evaluate If @c true, the value will be evaluated at build stage. Otherwise, the value is considered as a
-	 *        literal of the same type as the column data type..
-	 *        If @c null, the
+	 * @param boolean $evaluate
+	 *        	If @c true, the value will be evaluated at build stage. Otherwise, the value is considered as a
+	 *        	literal of the same type as the column data type..
+	 *        	If @c null, the
 	 * @return \NoreSources\SQL\UpdateQuery
 	 */
 	public function set($columnName, $columnValue, $evaluate = null)
@@ -41,14 +44,14 @@ class UpdateQuery extends Statement implements \ArrayAccess
 		{
 			if ($columnValue instanceof Evaluable)
 			{
-				throw new \BadMethodCallException('Column value is an Evaluable but $evaluate = false');
+				throw new \BadMethodCallException(
+					'Column value is an Evaluable but $evaluate = false');
 			}
 		}
 
 		if ($evaluate === null)
 		{
-			$evaluate = ($columnValue instanceof Evaluable) ||
-				(ns\Container::isArray($columnValue));
+			$evaluate = ($columnValue instanceof Evaluable) || (ns\Container::isArray($columnValue));
 		}
 		
 		$this->columnValues->offsetSet($columnName, [
@@ -60,7 +63,9 @@ class UpdateQuery extends Statement implements \ArrayAccess
 
 	/**
 	 * WHERE constraints
-	 * @param Evaluable ...
+	 *
+	 * @param
+	 *        	Evaluable ...
 	 */
 	public function where()
 	{
@@ -72,7 +77,9 @@ class UpdateQuery extends Statement implements \ArrayAccess
 	}
 
 	/**
-	 * @param string Column name
+	 *
+	 * @param
+	 *        	string Column name
 	 * @return boolean
 	 */
 	public function offsetExists($offset)
@@ -82,8 +89,10 @@ class UpdateQuery extends Statement implements \ArrayAccess
 
 	/**
 	 * Get current column value
-	 * @param string Column name
-	 *       
+	 *
+	 * @param
+	 *        	string Column name
+	 *        	
 	 * @return mixed Column current value or @c null if not set
 	 */
 	public function offsetGet($offset)
@@ -94,8 +103,11 @@ class UpdateQuery extends Statement implements \ArrayAccess
 	}
 
 	/**
-	 * @param string $offset Column name
-	 * @param mixed $value Column value.
+	 *
+	 * @param string $offset
+	 *        	Column name
+	 * @param mixed $value
+	 *        	Column value.
 	 */
 	public function offsetSet($offset, $value)
 	{
@@ -120,6 +132,7 @@ class UpdateQuery extends Statement implements \ArrayAccess
 
 		$tableStructure = $context->findTable($this->table->path);
 		/**
+		 *
 		 * @var TableStructure $tableStructure
 		 */
 
@@ -134,6 +147,7 @@ class UpdateQuery extends Statement implements \ArrayAccess
 
 			$column = $tableStructure->offsetGet($columnName);
 			/**
+			 *
 			 * @var TableColumnStructure $column
 			 */
 
@@ -156,10 +170,11 @@ class UpdateQuery extends Statement implements \ArrayAccess
 				$x = new LiteralExpression($v, $t);
 			}
 
-			$stream->space()->keyword('set')
+			$stream->space()
+				->keyword('set')
 				->space()
 				->identifier($context->escapeIdentifier($columnName))
-				->text ('=')
+				->text('=')
 				->expression($x, $context);
 		}
 
@@ -175,6 +190,7 @@ class UpdateQuery extends Statement implements \ArrayAccess
 	}
 
 	/**
+	 *
 	 * {@inheritdoc}
 	 * @see \NoreSources\SQL\Expression::traverse()
 	 */
@@ -189,11 +205,13 @@ class UpdateQuery extends Statement implements \ArrayAccess
 	}
 
 	/**
+	 *
 	 * @var TableReference
 	 */
 	private $table;
 
 	/**
+	 *
 	 * @var \ArrayObject Associative array where
 	 *      keys are column names
 	 *      and values are \NoreSources\SQL\Expression
@@ -202,6 +220,7 @@ class UpdateQuery extends Statement implements \ArrayAccess
 
 	/**
 	 * WHERE conditions
+	 *
 	 * @var \ArrayObject
 	 */
 	private $whereConstraints;

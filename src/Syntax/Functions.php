@@ -1,5 +1,4 @@
 <?php
-
 namespace NoreSources\SQL;
 
 use NoreSources as ns;
@@ -15,17 +14,20 @@ class FunctionExpression implements Expression
 
 	/**
 	 * Function name
+	 *
 	 * @var string
 	 */
 	public $name;
 
 	/**
+	 *
 	 * @var ListExpression
 	 */
 	public $arguments;
 
 	/**
 	 * Function return type
+	 *
 	 * @var integer
 	 */
 	public $returnType;
@@ -39,9 +41,12 @@ class FunctionExpression implements Expression
 
 	public function tokenize(TokenStream &$stream, StatementContext $context)
 	{
-		return $stream->keyword($this->name)->text ('(')->expression($this->arguments, $context)->text (')');	
+		return $stream->keyword($this->name)
+			->text('(')
+			->expression($this->arguments, $context)
+			->text(')');
 	}
-		
+
 	public function getExpressionDataType()
 	{
 		return $this->returnType;

@@ -1,5 +1,4 @@
 <?php
-
 namespace NoreSources\SQL;
 
 use NoreSources as ns;
@@ -15,11 +14,13 @@ class CaseOptionExpression
 {
 
 	/**
+	 *
 	 * @var Expression
 	 */
 	public $when;
 
 	/**
+	 *
 	 * @var Expression
 	 */
 	public $then;
@@ -32,7 +33,13 @@ class CaseOptionExpression
 
 	public function tokenize(TokenStream &$stream, StatementContext $context)
 	{
-		return $stream->keyword('when')->space()->expression($this->when, $context)->space()->keyword('then')->space()->expression($this->then, $context);
+		return $stream->keyword('when')
+			->space()
+			->expression($this->when, $context)
+			->space()
+			->keyword('then')
+			->space()
+			->expression($this->then, $context);
 	}
 
 	public function getExpressionDataType()
@@ -55,16 +62,19 @@ class CaseExpression implements Expression
 {
 
 	/**
+	 *
 	 * @var Expression
 	 */
 	public $subject;
 
 	/**
+	 *
 	 * @var \ArrayObject
 	 */
 	public $options;
 
 	/**
+	 *
 	 * @var Expression
 	 */
 	public $else;
@@ -78,14 +88,19 @@ class CaseExpression implements Expression
 
 	public function tokenize(TokenStream &$stream, StatementContext $context)
 	{
-		$stream->keyword('case')->space()->expression($this->subject, $context);
+		$stream->keyword('case')
+			->space()
+			->expression($this->subject, $context);
 		foreach ($this->options as $option)
 		{
 			$stream->space()->expression($option, $context);
 		}
 		if ($this->else instanceof Expression)
 		{
-			$stream->space()->keyword('else')->space()->expression($this->else, $context);
+			$stream->space()
+				->keyword('else')
+				->space()
+				->expression($this->else, $context);
 		}
 
 		return $stream;

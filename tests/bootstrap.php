@@ -1,10 +1,8 @@
 <?php
-
 namespace NoreSources\SQL;
 
 use NoreSources as ns;
 use PHPUnit\Framework\TestCase;
-
 require_once (__DIR__ . '/../autoload.php');
 
 class DatasourceManager extends TestCase
@@ -39,6 +37,7 @@ class DatasourceManager extends TestCase
 	}
 
 	/**
+	 *
 	 * @var \ArrayObject
 	 */
 	private $datasources;
@@ -46,7 +45,9 @@ class DatasourceManager extends TestCase
 
 class DerivedFileManager extends TestCase
 {
+
 	const DIRECTORY_REFERENCE = 'reference';
+
 	const DIRECTORY_DERIVED = 'derived';
 
 	public function __construct()
@@ -103,7 +104,8 @@ class DerivedFileManager extends TestCase
 		{
 			$this->derivedDataFiles->offsetSet($derived, true);
 			//$this->assertFileEquals($reference, $derived, $label . 'Compare with reference');
-			$this->assertEquals($this->loadFile($reference, 'lf'), $this->convertEndOfLine($data, 'lf'));
+			$this->assertEquals($this->loadFile($reference, 'lf'),
+				$this->convertEndOfLine($data, 'lf'));
 			$this->derivedDataFiles->offsetSet($derived, false);
 		}
 		else
@@ -113,8 +115,7 @@ class DerivedFileManager extends TestCase
 			if ($result)
 			{
 				$result = file_put_contents($reference, $data);
-				$this->assertNotFalse($result, $label . 'Write reference data to ' .
-					$reference);
+				$this->assertNotFalse($result, $label . 'Write reference data to ' . $reference);
 				$this->assertFileExists($reference, $label . 'Reference file exists');
 			}
 		}
@@ -162,11 +163,10 @@ class DerivedFileManager extends TestCase
 
 		if (\is_string($suffix) && strlen($suffix))
 			$method .= '_' . preg_replace('/[^a-zA-Z0-9._-]/', '_', $suffix);
-		
+
 		$name = $cls . '_' . $method . '.' . $extension;
-		$name = preg_replace ('/_+/', '_', $name);
-			
-		
+		$name = preg_replace('/_+/', '_', $name);
+
 		return __DIR__ . '/' . $directory . '/' . $name;
 	}
 
@@ -203,6 +203,7 @@ class DerivedFileManager extends TestCase
 	}
 
 	/**
+	 *
 	 * @var array
 	 */
 	private $derivedDataFiles;

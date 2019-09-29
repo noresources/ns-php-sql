@@ -1,11 +1,11 @@
 <?php
-
 namespace NoreSources\SQL;
 
 use NoreSources as ns;
 use NoreSources\SQL\Constants as K;
 
 /**
+ *
  * @see https://www.sqlite.org/syntax/foreign-key-clause.html
  *
  */
@@ -13,12 +13,15 @@ class TableConstraint
 {
 
 	/**
+	 *
 	 * @var string
 	 */
 	public $constraintName;
 
 	/**
-	 * @param string $name Constraint name
+	 *
+	 * @param string $name
+	 *        	Constraint name
 	 */
 	public function __construct($name = null)
 	{
@@ -26,12 +29,16 @@ class TableConstraint
 	}
 }
 
-class ColumnTableConstraint extends TableConstraint implements \ArrayAccess, \IteratorAggregate, \Countable
+class ColumnTableConstraint extends TableConstraint implements \ArrayAccess, \IteratorAggregate,
+	\Countable
 {
 
 	/**
-	 * @param array $columns Column names on which the key applies.
-	 * @param unknown $name Constraint name
+	 *
+	 * @param array $columns
+	 *        	Column names on which the key applies.
+	 * @param unknown $name
+	 *        	Constraint name
 	 */
 	protected function __construct($columns = array (), $name = null)
 	{
@@ -40,6 +47,7 @@ class ColumnTableConstraint extends TableConstraint implements \ArrayAccess, \It
 	}
 
 	/**
+	 *
 	 * @property-read \ArrayObject $columns Column names on which the key applies.
 	 * @param string $member
 	 * @throws \InvalidArgumentException
@@ -59,6 +67,7 @@ class ColumnTableConstraint extends TableConstraint implements \ArrayAccess, \It
 
 	/**
 	 * Get an interator on columns
+	 *
 	 * {@inheritdoc}
 	 * @see IteratorAggregate::getIterator()
 	 */
@@ -89,6 +98,7 @@ class ColumnTableConstraint extends TableConstraint implements \ArrayAccess, \It
 
 	/**
 	 * Column names on which the key applies.
+	 *
 	 * @var \ArrayObject
 	 */
 	private $columns;
@@ -96,36 +106,43 @@ class ColumnTableConstraint extends TableConstraint implements \ArrayAccess, \It
 
 class PrimaryKeyTableConstraint extends ColumnTableConstraint
 {
-	/*
-	* @param array $columns Column names on which the key applies.
-	* @param unknown $name Constraint name
-	*/
-	public function __construct($columns = array (), $name = null)
-	{
-		parent::__construct ($columns, $name);
-	}
-}
 
-class UniqueTableConstraint extends ColumnTableConstraint
-{
 	/*
 	 * @param array $columns Column names on which the key applies.
 	 * @param unknown $name Constraint name
 	 */
 	public function __construct($columns = array (), $name = null)
 	{
-		parent::__construct ($columns, $name);
+		parent::__construct($columns, $name);
+	}
+}
+
+class UniqueTableConstraint extends ColumnTableConstraint
+{
+
+	/*
+	 * @param array $columns Column names on which the key applies.
+	 * @param unknown $name Constraint name
+	 */
+	public function __construct($columns = array (), $name = null)
+	{
+		parent::__construct($columns, $name);
 	}
 }
 
 /**
+ *
  * @see https://www.sqlite.org/syntax/foreign-key-clause.html
  */
 class ForeignKeyTableConstraint extends TableConstraint implements \IteratorAggregate, \Countable
 {
+
 	const ACTION_SET_NULL = K::FOREIGN_KEY_ACTION_SET_NULL;
+
 	const ACTION_SET_DEFAULT = K::FOREIGN_KEY_ACTION_SET_DEFAULT;
+
 	const ACTION_CASCADE = K::FOREIGN_KEY_ACTION_CASCADE;
+
 	const ACTION_RESTRICT = K::FOREIGN_KEY_ACTION_RESTRICT;
 
 	/**
@@ -148,6 +165,7 @@ class ForeignKeyTableConstraint extends TableConstraint implements \IteratorAggr
 	}
 
 	/**
+	 *
 	 * @param string $member
 	 * @property-read TableStructure $foreignTable
 	 * @property-read \ArrayObject $columns
@@ -164,11 +182,11 @@ class ForeignKeyTableConstraint extends TableConstraint implements \IteratorAggr
 		throw new \InvalidArgumentException($member);
 	}
 
-	public function count ()
+	public function count()
 	{
 		return $this->columns->count();
 	}
-	
+
 	public function getIterator()
 	{
 		return $this->columns->getIterator();
@@ -180,12 +198,14 @@ class ForeignKeyTableConstraint extends TableConstraint implements \IteratorAggr
 	}
 
 	/**
+	 *
 	 * @var TableStructure
 	 */
 	private $foreignTable;
 
 	/**
 	 * Key-value pairs (column names => foreign table column name)
+	 *
 	 * @var \ArrayObject
 	 */
 	private $columns;

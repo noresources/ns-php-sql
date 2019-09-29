@@ -1,5 +1,4 @@
 <?php
-
 namespace NoreSources\SQL;
 
 use PHPUnit\Framework\TestCase;
@@ -26,7 +25,7 @@ final class CreateTableTest extends TestCase
 		$stream = new TokenStream();
 		$q->tokenize($stream, $context);
 		$sql = $builder->buildStatementData($stream);
-		$sql = \SqlFormatter::format(strval ($sql), false);
+		$sql = \SqlFormatter::format(strval($sql), false);
 		//$sql = $q->buildExpression($context);
 		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, null, 'sql', 'Create task');
 	}

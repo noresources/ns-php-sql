@@ -1,5 +1,4 @@
 <?php
-
 namespace NoreSources\SQL;
 
 use NoreSources as ns;
@@ -12,22 +11,25 @@ abstract class StatementBuilder
 {
 
 	/**
-	 * @param number $flags Builder flags
+	 *
+	 * @param number $flags
+	 *        	Builder flags
 	 */
 	public function __construct()
 	{
-		$this->builderFlags = array (
-				K::BUILDER_DOMAIN_GENERIC => 0,
-				K::BUILDER_DOMAIN_SELECT => 0,
-				K::BUILDER_DOMAIN_INSERT => 0,
-				K::BUILDER_DOMAIN_UPDATE => 0,
-				K::BUILDER_DOMAIN_DELETE => 0,
-				K::BUILDER_DOMAIN_DROP_TABLE => 0,
-				K::BUILDER_DOMAIN_CREATE_TABLE => 0
+		$this->builderFlags = array(
+			K::BUILDER_DOMAIN_GENERIC => 0,
+			K::BUILDER_DOMAIN_SELECT => 0,
+			K::BUILDER_DOMAIN_INSERT => 0,
+			K::BUILDER_DOMAIN_UPDATE => 0,
+			K::BUILDER_DOMAIN_DELETE => 0,
+			K::BUILDER_DOMAIN_DROP_TABLE => 0,
+			K::BUILDER_DOMAIN_CREATE_TABLE => 0
 		);
 	}
 
 	/**
+	 *
 	 * @return number
 	 */
 	public function getBuilderFlags($domain = K::BUILDER_DOMAIN_GENERIC)
@@ -37,32 +39,40 @@ abstract class StatementBuilder
 
 	/**
 	 * Escape text string to be inserted in a SQL statement.
+	 *
 	 * @param string $value
 	 */
 	abstract function escapeString($value);
 
 	/**
 	 * Escape SQL identifier to be inserted in a SQL statement.
+	 *
 	 * @param string $identifier
 	 */
 	abstract function escapeIdentifier($identifier);
 
 	/**
 	 * Get a DBMS-compliant parameter name
-	 * @param string $name Parameter name
-	 * @param integer $position Total number of parameter
+	 *
+	 * @param string $name
+	 *        	Parameter name
+	 * @param integer $position
+	 *        	Total number of parameter
 	 */
 	abstract function getParameter($name, $position);
 
 	/**
 	 * Get the default type name for a given data type
-	 * @param TableColumnStructure $column Column definition
+	 *
+	 * @param TableColumnStructure $column
+	 *        	Column definition
 	 * @return string The default Connection type name for the given data type
 	 */
 	abstract function getColumnTypeName(TableColumnStructure $column);
 
 	/**
 	 * Get syntax keyword.
+	 *
 	 * @param integer $keyword
 	 * @throws \InvalidArgumentException
 	 * @return string
@@ -89,7 +99,9 @@ abstract class StatementBuilder
 	}
 
 	/**
-	 * @param integer $joinTypeFlags JOIN type flags
+	 *
+	 * @param integer $joinTypeFlags
+	 *        	JOIN type flags
 	 * @return string
 	 */
 	public function getJoinOperator($joinTypeFlags)
@@ -106,28 +118,32 @@ abstract class StatementBuilder
 				$s .= 'OUTER ';
 			}
 		}
-		else if (($joinTypeFlags & K::JOIN_RIGHT) == K::JOIN_RIGHT)
-		{
-			$s . 'RIGHT ';
-			if (($joinTypeFlags & K::JOIN_OUTER) == K::JOIN_OUTER)
+		else 
+			if (($joinTypeFlags & K::JOIN_RIGHT) == K::JOIN_RIGHT)
 			{
-				$s .= 'OUTER ';
+				$s . 'RIGHT ';
+				if (($joinTypeFlags & K::JOIN_OUTER) == K::JOIN_OUTER)
+				{
+					$s .= 'OUTER ';
+				}
 			}
-		}
-		else if (($joinTypeFlags & K::JOIN_CROSS) == K::JOIN_CROSS)
-		{
-			$s .= 'CROSS ';
-		}
-		else if (($joinTypeFlags & K::JOIN_INNER) == K::JOIN_INNER)
-		{
-			$s .= 'INNER ';
-		}
+			else 
+				if (($joinTypeFlags & K::JOIN_CROSS) == K::JOIN_CROSS)
+				{
+					$s .= 'CROSS ';
+				}
+				else 
+					if (($joinTypeFlags & K::JOIN_INNER) == K::JOIN_INNER)
+					{
+						$s .= 'INNER ';
+					}
 
 		return ($s . 'JOIN');
 	}
 
 	/**
 	 * Get the \DateTime timestamp format accepted by the Connection
+	 *
 	 * @return string \DateTime format string
 	 */
 	public function getTimestampFormat()
@@ -137,17 +153,18 @@ abstract class StatementBuilder
 
 	/**
 	 * Build a partial SQL statement describing a table constraint in a CREATE TABLE statement.
+	 *
 	 * @param TableStructure $structure
 	 * @param TableConstraint $constraint
 	 * @return string
 	 */
-	public function getTableConstraintDescription(TableStructure $structure, TableConstraint $constraint)
+	public function getTableConstraintDescription(TableStructure $structure,
+		TableConstraint $constraint)
 	{
 		$s = '';
 		if (strlen($constraint->constraintName))
 		{
-			$s .= 'CONSTRAINT ' . $this->escapeIdentifier($constraint->constraintName) .
-				' ';
+			$s .= 'CONSTRAINT ' . $this->escapeIdentifier($constraint->constraintName) . ' ';
 		}
 
 		if ($constraint instanceof ColumnTableConstraint)
@@ -156,7 +173,7 @@ abstract class StatementBuilder
 				$s .= 'PRIMARY KEY';
 			elseif ($constraint instanceof UniqueTableConstraint)
 				$v .= 'UNIQUE';
-			$columns = array ();
+			$columns = array();
 
 			foreach ($constraint as $column)
 			{
@@ -171,20 +188,22 @@ abstract class StatementBuilder
 			if ($constraint->count())
 			{
 				$s .= ' (';
-				$s .= ns\Container::implodeKeys($constraint->columns, ', ', array (
+				$s .= ns\Container::implodeKeys($constraint->columns, ', ',
+					array(
 						$this,
 						'escapeIdentifier'
-				));
+					));
 				$s .= ')';
 			}
 			$s .= ' REFERENCES ' . $this->getCanonicalName($constraint->foreignTable);
 			if ($constraint->count())
 			{
 				$s .= ' (';
-				$s .= ns\Container::implodeValues($constraint->columns, ', ', array (
+				$s .= ns\Container::implodeValues($constraint->columns, ', ',
+					array(
 						$this,
 						'escapeIdentifier'
-				));
+					));
 				$s .= ')';
 			}
 
@@ -203,16 +222,18 @@ abstract class StatementBuilder
 	}
 
 	/**
+	 *
 	 * @param string $evaluable
 	 * @return \NoreSources\SQL\LiteralExpression|\NoreSources\SQL\BinaryOperatorExpression|array|\NoreSources\SQL\Expression|NULL|mixed
 	 */
 	public function evaluateExpression($evaluable)
 	{
-		return ExpressionEvaluator::evaluate ($evaluable);
+		return ExpressionEvaluator::evaluate($evaluable);
 	}
 
 	/**
 	 * Find the kind of data returned by the given expression.
+	 *
 	 * @param Expression $expression
 	 * @param StructureResolver $resolver
 	 * @return number|boolean|number|NULL|string|string
@@ -230,28 +251,29 @@ abstract class StatementBuilder
 			$column = $resolver->findColumn($expression->path);
 			return $column->getProperty(TableColumnStructure::DATATYPE);
 		}
-		else if ($expression instanceof UnaryOperatorExpression)
-		{
-			$operator = strtolower(trim($expression->operator));
-			switch ($operator)
+		else 
+			if ($expression instanceof UnaryOperatorExpression)
 			{
-				case 'not':
-				case 'is':
-					return K::DATATYPE_BOOLEAN;
+				$operator = strtolower(trim($expression->operator));
+				switch ($operator)
+				{
+					case 'not':
+					case 'is':
+						return K::DATATYPE_BOOLEAN;
+				}
 			}
-		}
-		elseif ($expression instanceof BinaryOperatorExpression)
-		{
-			$operator = strtolower(trim($expression->operator));
-			switch ($operator)
+			elseif ($expression instanceof BinaryOperatorExpression)
 			{
-				case '==':
-				case '=':
-				case '!=':
-				case '<>':
-					return K::DATATYPE_BOOLEAN;
+				$operator = strtolower(trim($expression->operator));
+				switch ($operator)
+				{
+					case '==':
+					case '=':
+					case '!=':
+					case '<>':
+						return K::DATATYPE_BOOLEAN;
+				}
 			}
-		}
 
 		return $type;
 	}
@@ -259,8 +281,10 @@ abstract class StatementBuilder
 	/**
 	 * Escape literal value
 	 *
-	 * @param mixed $value Literal value
-	 * @param integer $type Value type
+	 * @param mixed $value
+	 *        	Literal value
+	 * @param integer $type
+	 *        	Value type
 	 * @return string
 	 */
 	public function getLiteral($value, $type)
@@ -322,18 +346,21 @@ abstract class StatementBuilder
 	}
 
 	/**
+	 *
 	 * @param array $path
 	 * @return string
 	 */
 	public function escapeIdentifierPath($path)
 	{
-		return ns\Container::implode($path, '.', ns\Container::IMPLODE_VALUES, array (
+		return ns\Container::implode($path, '.', ns\Container::IMPLODE_VALUES,
+			array(
 				$this,
 				'escapeIdentifier'
-		));
+			));
 	}
 
 	/**
+	 *
 	 * @param StructureElement $structure
 	 * @return string
 	 */
@@ -380,6 +407,7 @@ abstract class StatementBuilder
 
 	/**
 	 * GET the SQL keyword associated to the given foreign key action
+	 *
 	 * @param string $action
 	 * @return string
 	 */
@@ -405,6 +433,7 @@ abstract class StatementBuilder
 	}
 
 	/**
+	 *
 	 * @var array
 	 */
 	private $builderFlags;
@@ -412,6 +441,7 @@ abstract class StatementBuilder
 	/**
 	 *
 	 * Expression evaluator
+	 *
 	 * @var ExpressionEvaluator
 	 */
 	private $evaluator;

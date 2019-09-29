@@ -9,8 +9,11 @@ use NoreSources\SQL\Constants as K;
 
 abstract class Recordset implements \Iterator
 {
+
 	const FETCH_ASSOCIATIVE = K::RECORDSET_FETCH_ASSOCIATIVE;
+
 	const FETCH_INDEXED = K::RECORDSET_FETCH_INDEXED;
+
 	const FETCH_BOTH = K::RECORDSET_FETCH_BOTH;
 
 	abstract function getColumnCount();
@@ -30,6 +33,7 @@ abstract class Recordset implements \Iterator
 	}
 
 	/**
+	 *
 	 * @return \ArrayObject
 	 */
 	public function current()
@@ -53,6 +57,7 @@ abstract class Recordset implements \Iterator
 	}
 
 	/**
+	 *
 	 * @return boolean
 	 */
 	public function valid()
@@ -74,8 +79,11 @@ abstract class Recordset implements \Iterator
 
 	// Internal flags
 	const PUBLIC_FLAGS = 0x03;
+
 	const POSITION_BEGIN = 0x10;
+
 	const POSITION_END = 0x20;
+
 	const POSITION_FLAGS = 0x30;
 
 	protected function setPosition($index, $positionFlag)
@@ -87,16 +95,19 @@ abstract class Recordset implements \Iterator
 	}
 
 	/**
+	 *
 	 * @var integer
 	 */
 	protected $flags;
 
 	/**
+	 *
 	 * @var integer
 	 */
 	protected $rowIndex;
-	
+
 	/**
+	 *
 	 * @var \ArrayObject
 	 */
 	protected $record;

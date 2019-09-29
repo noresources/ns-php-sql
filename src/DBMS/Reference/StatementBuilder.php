@@ -1,5 +1,4 @@
 <?php
-
 namespace NoreSources\SQL\Reference;
 
 use NoreSources as ns;
@@ -16,8 +15,8 @@ class StatementBuilder extends sql\StatementBuilder
 		parent::__construct();
 
 		if (!\is_array($domainFlags))
-			$domainFlags = array (
-					K::BUILDER_DOMAIN_GENERIC => $domainFlags
+			$domainFlags = array(
+				K::BUILDER_DOMAIN_GENERIC => $domainFlags
 			);
 
 		foreach ($domainFlags as $domain => $flags)

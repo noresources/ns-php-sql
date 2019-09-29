@@ -1,5 +1,4 @@
 <?php
-
 namespace NoreSources\SQL;
 
 use PHPUnit\Framework\TestCase;
@@ -33,7 +32,7 @@ final class SelectTest extends TestCase
 		$stream = new TokenStream();
 		$q->tokenize($stream, $context);
 		$sql = $builder->buildStatementData($stream);
-		$sql = \SqlFormatter::format(strval ($sql), false);
+		$sql = \SqlFormatter::format(strval($sql), false);
 
 		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, null, 'sql');
 	}
@@ -43,7 +42,8 @@ final class SelectTest extends TestCase
 		$structure = $this->datasources->get('Company');
 		$tableStructure = $structure['ns_unittests']['Tasks'];
 		$this->assertInstanceOf(TableStructure::class, $tableStructure);
-		$builder = new Reference\StatementBuilder(K::BUILDER_SELECT_EXTENDED_RESULTCOLUMN_ALIAS_RESOLUTION);
+		$builder = new Reference\StatementBuilder(
+			K::BUILDER_SELECT_EXTENDED_RESULTCOLUMN_ALIAS_RESOLUTION);
 		$context = new StatementContext($builder);
 		$context->setPivot($tableStructure);
 		$q = new SelectQuery($tableStructure, 't');
@@ -58,26 +58,30 @@ final class SelectTest extends TestCase
 			// Conditions
 			->where('category = :userDefinedCategory')->
 		// Grouping
-		groupBy('N', 'id')->
+		groupBy('N', 'id')
+			->
 		// 	Ordery
-		orderBy('substr(N, 3)')->
+		orderBy('substr(N, 3)')
+			->
 		// Limit
 		limit(5, 3);
 
 		$stream = new TokenStream();
 		$q->tokenize($stream, $context);
 		$sql = $builder->buildStatementData($stream);
-		$sql = \SqlFormatter::format(strval ($sql), false);
-		
+		$sql = \SqlFormatter::format(strval($sql), false);
+
 		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, null, 'sql');
 	}
 
 	/**
+	 *
 	 * @var DatasourceManager
 	 */
 	private $datasources;
 
 	/**
+	 *
 	 * @var DerivedFileManager
 	 */
 	private $derivedFileManager;

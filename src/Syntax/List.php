@@ -1,5 +1,4 @@
 <?php
-
 namespace NoreSources\SQL;
 
 use NoreSources as ns;
@@ -32,8 +31,7 @@ class ListExpression extends \ArrayObject implements Expression
 		foreach ($this as $value)
 		{
 			if ($c++ > 0)
-				$stream->text(',')
-					->space();
+				$stream->text(',')->space();
 
 			$stream->expression($context->evaluateExpression($value), $context);
 		}

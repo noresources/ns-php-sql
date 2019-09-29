@@ -1,5 +1,4 @@
 <?php
-
 namespace NoreSources\SQL;
 
 use PHPUnit\Framework\TestCase;
@@ -31,17 +30,19 @@ final class DeleteTest extends TestCase
 		$stream = new TokenStream();
 		$q->tokenize($stream, $context);
 		$sql = $builder->buildStatementData($stream);
-		$sql = \SqlFormatter::format(strval ($sql), false);
+		$sql = \SqlFormatter::format(strval($sql), false);
 
 		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, null, 'sql');
 	}
 
 	/**
+	 *
 	 * @var DatasourceManager
 	 */
 	private $datasources;
 
 	/**
+	 *
 	 * @var DerivedFileManager
 	 */
 	private $derivedFileManager;

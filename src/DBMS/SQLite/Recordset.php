@@ -23,6 +23,7 @@ class Recordset extends sql\Recordset
 	}
 
 	/**
+	 *
 	 * {@inheritdoc}
 	 * @see Iterator::next()
 	 */
@@ -54,6 +55,7 @@ class Recordset extends sql\Recordset
 	}
 
 	/**
+	 *
 	 * @var \SQLite3Result
 	 */
 	private $result;

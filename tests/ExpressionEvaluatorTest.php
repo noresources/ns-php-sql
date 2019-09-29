@@ -1,5 +1,4 @@
 <?php
-
 namespace NoreSources\SQL;
 
 use PHPUnit\Framework\TestCase;
@@ -125,7 +124,8 @@ final class ExpressionEvaluatorTest extends TestCase
 			for ($i = 2; $i < $test[1]; $i++)
 			{
 				$index = $i - 2;
-				$this->assertInstanceOf($test[$i], $e->arguments[$index], $label . ' type of argument ' . $index);
+				$this->assertInstanceOf($test[$i], $e->arguments[$index],
+					$label . ' type of argument ' . $index);
 			}
 		}
 	}
@@ -155,7 +155,7 @@ final class ExpressionEvaluatorTest extends TestCase
 				'expression' => '#13:37:39.256#'
 			]
 		];
-		
+
 		$evaluator = new ExpressionEvaluator();
 		foreach ($timestamps as $label => $timestamp)
 		{
@@ -168,7 +168,7 @@ final class ExpressionEvaluatorTest extends TestCase
 		}
 	}
 
-	public function testPolishNotation ()
+	public function testPolishNotation()
 	{
 		$expressions = [
 			'shortest' => [
@@ -189,10 +189,10 @@ final class ExpressionEvaluatorTest extends TestCase
 					'args' => [LiteralExpression::class, ColumnExpression::class, LiteralExpression::class],
 			]
 		];
-		
+
 		$evaluator = new ExpressionEvaluator();
-		
-		foreach ($expressions as $label => $test) 
+
+		foreach ($expressions as $label => $test)
 		{
 			$x = $evaluator($test['expression']);
 			$this->assertInstanceOf($test['main'], $x, $label . ' main');
@@ -207,10 +207,11 @@ final class ExpressionEvaluatorTest extends TestCase
 			{
 				if (\array_key_exists('args', $test))
 				{
-					$this->assertCount(count ($test['args']), $x->arguments);
-					for ($i = 0; $i < count ($test['args']); $i++)
+					$this->assertCount(count($test['args']), $x->arguments);
+					for ($i = 0; $i < count($test['args']); $i++)
 					{
-						$this->assertInstanceOf($test['args'][$i], $x->arguments[$i], $label . ' arg ' . $i);
+						$this->assertInstanceOf($test['args'][$i], $x->arguments[$i],
+							$label . ' arg ' . $i);
 					}
 				}
 			}
@@ -218,6 +219,7 @@ final class ExpressionEvaluatorTest extends TestCase
 	}
 
 	/**
+	 *
 	 * @var DatasourceManager
 	 */
 	private $datasources;

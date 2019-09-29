@@ -13,6 +13,7 @@ class DeleteQuery extends Statement
 {
 
 	/**
+	 *
 	 * @param TableStructure|string $table
 	 */
 	public function __construct($table)
@@ -29,7 +30,9 @@ class DeleteQuery extends Statement
 
 	/**
 	 * WHERE constraints
-	 * @param Evaluable ...
+	 *
+	 * @param
+	 *        	Evaluable ...
 	 */
 	public function where()
 	{
@@ -60,6 +63,7 @@ class DeleteQuery extends Statement
 	}
 
 	/**
+	 *
 	 * {@inheritdoc}
 	 * @see \NoreSources\SQL\Expression::traverse()
 	 */
@@ -74,12 +78,14 @@ class DeleteQuery extends Statement
 	}
 
 	/**
+	 *
 	 * @var TableReference
 	 */
 	private $table;
-		
+
 	/**
 	 * WHERE conditions
+	 *
 	 * @var \ArrayObject
 	 */
 	private $whereConstraints;

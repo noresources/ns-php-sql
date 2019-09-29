@@ -16,9 +16,10 @@ class StatementBuilder extends sql\StatementBuilder
 	{
 		parent::__construct();
 
-		$this->setBuilderFlags(K::BUILDER_DOMAIN_GENERIC, K::BUILDER_IF_EXISTS |
-			K::BUILDER_IF_NOT_EXISTS);
-		$this->setBuilderFlags(K::BUILDER_DOMAIN_SELECT, K::BUILDER_SELECT_EXTENDED_RESULTCOLUMN_ALIAS_RESOLUTION);
+		$this->setBuilderFlags(K::BUILDER_DOMAIN_GENERIC,
+			K::BUILDER_IF_EXISTS | K::BUILDER_IF_NOT_EXISTS);
+		$this->setBuilderFlags(K::BUILDER_DOMAIN_SELECT,
+			K::BUILDER_SELECT_EXTENDED_RESULTCOLUMN_ALIAS_RESOLUTION);
 		$this->setBuilderFlags(K::BUILDER_DOMAIN_INSERT, K::BUILDER_INSERT_DEFAULT_KEYWORD);
 	}
 
@@ -64,10 +65,12 @@ class StatementBuilder extends sql\StatementBuilder
 	{
 		switch ($keyword)
 		{
-			case K::KEYWORD_TRUE: return 1;
-			case K::KEYWORD_FALSE: return 0;
+			case K::KEYWORD_TRUE:
+				return 1;
+			case K::KEYWORD_FALSE:
+				return 0;
 		}
-		
+
 		return parent::getKeyword($keyword);
 	}
 }

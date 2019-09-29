@@ -1,5 +1,4 @@
 <?php
-
 namespace NoreSources\SQL;
 
 use NoreSources\SQL\SQLite as SQLite;
@@ -27,8 +26,8 @@ final class SQLiteTest extends TestCase
 
 		$this->assertTrue($this->createDatabase(), 'Create SQLite file');
 
-		$this->assertTrue($this->createTable($tableStructure), 'Create table ' .
-			$tableStructure->getPath());
+		$this->assertTrue($this->createTable($tableStructure),
+			'Create table ' . $tableStructure->getPath());
 
 		//$this->assertTrue(false, 'Abort');
 
@@ -37,7 +36,8 @@ final class SQLiteTest extends TestCase
 		$statement('name', ':nameValue');
 		$statement('salary', ':salaryValue');
 
-		$statement = ConnectionHelper::prepareStatement($this->connection, $statement, $tableStructure);
+		$statement = ConnectionHelper::prepareStatement($this->connection, $statement,
+			$tableStructure);
 		
 		$this->assertInstanceOf(PreparedStatement::class, $statement);
 
@@ -58,7 +58,8 @@ final class SQLiteTest extends TestCase
 
 		$statement = new SelectQuery($tableStructure);
 		$statement->columns('name', 'gender', 'salary');
-		$statement = ConnectionHelper::prepareStatement($this->connection, $statement, $tableStructure);
+		$statement = ConnectionHelper::prepareStatement($this->connection, $statement,
+			$tableStructure);
 		$result = $this->connection->executeStatement($statement);
 		$this->assertInstanceOf(Recordset::class, $result);
 		
@@ -72,8 +73,7 @@ final class SQLiteTest extends TestCase
 		{
 			foreach ($expected[$index] as $name => $value)
 			{
-				$this->assertEquals($value, $row[$name], 'Row ' . $index . ' column ' .
-					$name);
+				$this->assertEquals($value, $row[$name], 'Row ' . $index . ' column ' . $name);
 			}
 
 			$index++;
@@ -94,7 +94,7 @@ final class SQLiteTest extends TestCase
 		$sql = strval($statement);
 		$sql = \SqlFormatter::format(strval($sql), false);
 		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, 'create', 'sql');
-		
+
 		$this->connection->executeStatement($statement);
 
 		return true;
@@ -105,7 +105,8 @@ final class SQLiteTest extends TestCase
 		if ($this->connection instanceof Connection)
 			return true;
 
-		$sqliteFile = $this->derivedFileManager->registerDerivedFile('SQLite', __METHOD__, 'db', 'sqlite');
+		$sqliteFile = $this->derivedFileManager->registerDerivedFile('SQLite', __METHOD__, 'db',
+			'sqlite');
 
 		if (\file_exists($sqliteFile))
 			unlink($sqliteFile);
@@ -126,21 +127,25 @@ final class SQLiteTest extends TestCase
 	}
 
 	/**
+	 *
 	 * @var DatasourceManager
 	 */
 	private $datasources;
 
 	/**
+	 *
 	 * @var DerivedFileManager
 	 */
 	private $derivedFileManager;
 
 	/**
+	 *
 	 * @var \ArrayObject
 	 */
 	private $createdTables;
 
 	/**
+	 *
 	 * @var Connection
 	 */
 	private $connection;

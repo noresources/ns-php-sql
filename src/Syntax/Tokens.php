@@ -1,5 +1,4 @@
 <?php
-
 namespace NoreSources\SQL;
 
 use NoreSources as ns;
@@ -9,6 +8,7 @@ interface Tokenizable
 {
 
 	/**
+	 *
 	 * {@inheritdoc}
 	 * @see \NoreSources\SQL\Tokenizable::tokenize()
 	 * @return TokenStream
@@ -18,7 +18,9 @@ interface Tokenizable
 
 class TokenStream implements \IteratorAggregate, \Countable
 {
+
 	const INDEX_TOKEN = 0;
+
 	const INDEX_TYPE = 1;
 
 	public function __construct()
@@ -63,6 +65,7 @@ class TokenStream implements \IteratorAggregate, \Countable
 	}
 
 	/**
+	 *
 	 * @param array|\Traversable $constraints
 	 * @param StatementContext $context
 	 * @return \NoreSources\SQL\TokenStream|unknown
@@ -93,21 +96,22 @@ class TokenStream implements \IteratorAggregate, \Countable
 
 	public function append($token, $type)
 	{
-		$this->tokens->append(array (
-				self::INDEX_TOKEN => $token,
-				self::INDEX_TYPE => $type
+		$this->tokens->append(array(
+			self::INDEX_TOKEN => $token,
+			self::INDEX_TYPE => $type
 		));
 		return $this;
 	}
 
-	public function stream (TokenStream $stream)
+	public function stream(TokenStream $stream)
 	{
-		foreach ($stream as $token) {
+		foreach ($stream as $token)
+		{
 			$this->tokens->append($token);
 		}
 		return $this;
 	}
-	
+
 	public function count()
 	{
 		return $this->tokens->count();
@@ -117,9 +121,9 @@ class TokenStream implements \IteratorAggregate, \Countable
 	{
 		return $this->tokens->getIterator();
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @var \ArrayObject Token stream
 	 */
 	private $tokens;

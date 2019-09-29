@@ -1,5 +1,4 @@
 <?php
-
 namespace NoreSources\SQL;
 
 use NoreSources as ns;
@@ -7,14 +6,16 @@ use NoreSources\SQL\Constants as K;
 
 class ParameterArray implements \IteratorAggregate, \Countable
 {
+
 	const VALUE = 'value';
+
 	const TYPE = 'type';
 
 	public function getIterator()
 	{
 		return $this->table->getIterator();
 	}
-	
+
 	public function count()
 	{
 		return $this->table->count();
@@ -35,15 +36,15 @@ class ParameterArray implements \IteratorAggregate, \Countable
 				$type = K::DATATYPE_NULL;
 		}
 
-		$this->table->offsetSet($parameter, array (
-				self::VALUE => $value,
-				self::TYPE => $type
+		$this->table->offsetSet($parameter, array(
+			self::VALUE => $value,
+			self::TYPE => $type
 		));
 	}
 
 	public function clear()
 	{
-		$this->table->exchangeArray(array ());
+		$this->table->exchangeArray(array());
 	}
 
 	public function __construct($table = array ())
@@ -64,6 +65,7 @@ class ParameterArray implements \IteratorAggregate, \Countable
 	}
 
 	/**
+	 *
 	 * @var \ArrayObject
 	 */
 	private $table;
@@ -73,6 +75,7 @@ abstract class PreparedStatement
 {
 
 	/**
+	 *
 	 * @param string|StatementData $data
 	 */
 	public function __construct($data)
@@ -94,6 +97,7 @@ abstract class PreparedStatement
 	}
 
 	/**
+	 *
 	 * @param StatementParameterMap $parameters
 	 * @return \NoreSources\SQL\PreparedStatement
 	 */
@@ -104,11 +108,13 @@ abstract class PreparedStatement
 	}
 
 	/**
+	 *
 	 * @return string SQL statement string
 	 */
 	abstract function getStatement();
 
 	/**
+	 *
 	 * @return integer Number of parameters
 	 */
 	public function getParameterCount()
@@ -117,6 +123,7 @@ abstract class PreparedStatement
 	}
 
 	/**
+	 *
 	 * @var StatementParameterMap
 	 */
 	private $parameters;

@@ -1,5 +1,4 @@
 <?php
-
 namespace NoreSources\SQL;
 
 use NoreSources as ns;
@@ -14,11 +13,13 @@ class UnaryOperatorExpression implements Expression
 {
 
 	/**
+	 *
 	 * @var string
 	 */
 	public $operator;
 
 	/**
+	 *
 	 * @var Expression
 	 */
 	public $operand;
@@ -62,11 +63,13 @@ class BinaryOperatorExpression implements Expression
 	public $operator;
 
 	/**
+	 *
 	 * @var Expression
 	 */
 	public $leftOperand;
 
 	/**
+	 *
 	 * @var Expression
 	 */
 	public $rightOperand;
@@ -74,11 +77,13 @@ class BinaryOperatorExpression implements Expression
 	public $type;
 
 	/**
+	 *
 	 * @param string $operator
 	 * @param Expression $left
 	 * @param Expression $right
 	 */
-	public function __construct($operator, Expression $left = null, Expression $right = null, $type = K::DATATYPE_UNDEFINED)
+	public function __construct($operator, Expression $left = null, Expression $right = null,
+		$type = K::DATATYPE_UNDEFINED)
 	{
 		$this->operator = $operator;
 		$this->leftOperand = $left;
@@ -122,16 +127,19 @@ class InOperatorExpression extends ListExpression
 {
 
 	/**
+	 *
 	 * @var Expression
 	 */
 	public $leftOperand;
 
 	/**
+	 *
 	 * @var boolean
 	 */
 	public $include;
 
 	/**
+	 *
 	 * @param Expression $left
 	 * @param array|\ArrayObject $list
 	 * @param boolean $include
@@ -156,12 +164,12 @@ class InOperatorExpression extends ListExpression
 		$stream->expression($this->leftOperand, $context)->space();
 		if (!$this->include)
 			$stream->keyword('not')->space();
-		
-		$stream->keyword('in')->text ('(');
+
+		$stream->keyword('in')->text('(');
 		parent::tokenize($stream, $context);
-		return $stream->text(')');			
+		return $stream->text(')');
 	}
-	
+
 	public function buildExpression(StatementContext $context)
 	{
 		$s = $this->leftOperand->buildExpression($context);
@@ -190,6 +198,7 @@ class InOperatorExpression extends ListExpression
 	}
 
 	/**
+	 *
 	 * @var \ArrayObject
 	 */
 	private $elements;
@@ -202,30 +211,38 @@ class BetweenExpression implements Expression
 {
 
 	/**
+	 *
 	 * @var boolean
 	 */
 	public $inside;
 
 	/**
 	 * Left operand
+	 *
 	 * @var Expression
 	 */
 	public $leftOperand;
 
 	/**
+	 *
 	 * @var Expression
 	 */
 	public $minBoudary;
 
 	/**
+	 *
 	 * @var Expression
 	 */
 	public $maxBoundary;
 
 	/**
-	 * @param Expression $left Left operand
-	 * @param Expression $min Minimum boundary
-	 * @param Expression $max Maximum boundary
+	 *
+	 * @param Expression $left
+	 *        	Left operand
+	 * @param Expression $min
+	 *        	Minimum boundary
+	 * @param Expression $max
+	 *        	Maximum boundary
 	 */
 	public function __construct(Expression $left = null, Expression $min = null, Expression $max = null)
 	{
@@ -240,23 +257,27 @@ class BetweenExpression implements Expression
 		$stream->expression($this->leftOperand, $context)->space();
 		if (!$this->inside)
 			$stream->keyword('not')->space();
-		return $stream->keyword('between')->space()->expression($this->minBoudary, $context)->space()
-		->expression($this->maxBoundary, $context);
+		return $stream->keyword('between')
+			->space()
+			->expression($this->minBoudary, $context)
+			->space()
+			->expression($this->maxBoundary, $context);
 	}
-	
+
 	/**
+	 *
 	 * {@inheritdoc}
 	 * @see \NoreSources\SQL\Expression::buildExpression()
 	 */
 	public function buildExpression(StatementContext $context)
 	{
-		return $this->leftOperand->buildExpression($context) .
-			($this->inside ? '' : ' NOT') . ' BETWEEN ' .
-			$this->minBoudary->buildExpression($context) . ' AND ' .
+		return $this->leftOperand->buildExpression($context) . ($this->inside ? '' : ' NOT') .
+			' BETWEEN ' . $this->minBoudary->buildExpression($context) . ' AND ' .
 			$this->maxBoudary->buildExpression($context);
 	}
 
 	/**
+	 *
 	 * {@inheritdoc}
 	 * @see \NoreSources\SQL\Expression::getExpressionDataType()
 	 */
@@ -266,6 +287,7 @@ class BetweenExpression implements Expression
 	}
 
 	/**
+	 *
 	 * {@inheritdoc}
 	 * @see \NoreSources\SQL\Expression::traverse()
 	 */

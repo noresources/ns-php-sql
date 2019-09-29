@@ -16,12 +16,13 @@ class PreparedStatement extends sql\PreparedStatement
 {
 
 	/**
+	 *
 	 * @param StatementData|string $data
 	 */
 	public function __construct($data)
 	{
 		parent::__construct($data);
-		$this->sql = strval ($data);
+		$this->sql = strval($data);
 	}
 
 	public function getStatement()
@@ -30,6 +31,7 @@ class PreparedStatement extends sql\PreparedStatement
 	}
 
 	/**
+	 *
 	 * @var string
 	 */
 	private $sql;

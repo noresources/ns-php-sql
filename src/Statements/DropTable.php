@@ -39,8 +39,7 @@ class DropTableQuery extends Statement
 				->keyword('exists');
 		}
 
-		return $stream->space()
-			->identifier($context->getCanonicalName($tableStructure));
+		return $stream->space()->identifier($context->getCanonicalName($tableStructure));
 	}
 
 	public function traverse($callable, StatementContext $context, $flags = 0)
@@ -49,6 +48,7 @@ class DropTableQuery extends Statement
 	}
 
 	/**
+	 *
 	 * @var TableReference
 	 */
 	private $table;

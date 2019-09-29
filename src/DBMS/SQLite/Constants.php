@@ -8,12 +8,14 @@ class Constants extends \NoreSources\SQL\Constants
 
 	/**
 	 * SQLite file encryption key
+	 *
 	 * @var string
 	 */
 	const CONNECTION_PARAMETER_ENCRYPTION_KEY = 'encryptionkey';
 
 	/**
 	 * ROLLBACK conflict class
+	 *
 	 * @var string
 	 * @see https://sqlite.org/lang_conflict.html
 	 */
@@ -21,6 +23,7 @@ class Constants extends \NoreSources\SQL\Constants
 
 	/**
 	 * ABORT conflict class
+	 *
 	 * @var string
 	 * @see https://sqlite.org/lang_conflict.html
 	 */
@@ -28,6 +31,7 @@ class Constants extends \NoreSources\SQL\Constants
 
 	/**
 	 * FAIL conflict class
+	 *
 	 * @var string
 	 * @see https://sqlite.org/lang_conflict.html
 	 */
@@ -35,6 +39,7 @@ class Constants extends \NoreSources\SQL\Constants
 
 	/**
 	 * IGNORE conflict class
+	 *
 	 * @var string
 	 * @see https://sqlite.org/lang_conflict.html
 	 */
@@ -42,6 +47,7 @@ class Constants extends \NoreSources\SQL\Constants
 
 	/**
 	 * REPLACEconflict class
+	 *
 	 * @var string
 	 * @see https://sqlite.org/lang_conflict.html
 	 */

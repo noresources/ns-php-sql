@@ -45,7 +45,9 @@ class Connection implements sql\Connection
 	}
 
 	/**
-	 * @param StatementData|string $statement #return \NoreSources\SQL\Reference\PreparedStatement
+	 *
+	 * @param StatementData|string $statement
+	 *        	#return \NoreSources\SQL\Reference\PreparedStatement
 	 */
 	public function prepareStatement($statement)
 	{
@@ -53,6 +55,7 @@ class Connection implements sql\Connection
 	}
 
 	/**
+	 *
 	 * @var StatementBuilder
 	 */
 	private $builder;

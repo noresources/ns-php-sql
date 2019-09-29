@@ -20,7 +20,7 @@ class PreparedStatement extends sql\PreparedStatement
 		parent::__construct($data);
 		$this->sql = null;
 		$this->sqliteStatement = $statement;
-		
+
 		if (version_compare(PHP_VERSION, '7.4.0') < 0) // stmp->getSQL
 		{
 			if ($data instanceof sql\StatementData || \is_string($data))
@@ -29,7 +29,8 @@ class PreparedStatement extends sql\PreparedStatement
 			}
 			else
 			{
-				throw new \Exception('Unable to get SQL string from SQLite statement nor StatementData');
+				throw new \Exception(
+					'Unable to get SQL string from SQLite statement nor StatementData');
 			}
 		}
 
@@ -37,7 +38,8 @@ class PreparedStatement extends sql\PreparedStatement
 		{
 			if ($data->parameters->namedParameterCount != $statement->paramCount())
 			{
-				throw new \BadMethodCallException('SQLite statement and StatementData parameter mismatch');
+				throw new \BadMethodCallException(
+					'SQLite statement and StatementData parameter mismatch');
 			}
 		}
 	}
@@ -63,6 +65,7 @@ class PreparedStatement extends sql\PreparedStatement
 	}
 
 	/**
+	 *
 	 * @return \SQLite3Stmt
 	 */
 	public function getSQLite3Stmt()
@@ -71,6 +74,7 @@ class PreparedStatement extends sql\PreparedStatement
 	}
 
 	/**
+	 *
 	 * @var \SQLite3Stmt
 	 */
 	private $sqliteStatement;

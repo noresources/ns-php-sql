@@ -5,6 +5,7 @@
  * Distributed under the terms of the MIT License, see LICENSE
  */
 /**
+ *
  * @package SQL
  */
 namespace NoreSources\SQL;
@@ -25,17 +26,20 @@ class StructureResolver
 {
 
 	/**
-	 * @param StructureElement $pivot Reference element
+	 *
+	 * @param StructureElement $pivot
+	 *        	Reference element
 	 */
 	public function __construct(StructureElement $pivot = null)
 	{
-		$this->cache = new \ArrayObject(array (
+		$this->cache = new \ArrayObject(
+			array(
 				'aliases' => new \ArrayObject(),
 				'columns' => new \ArrayObject(),
 				'tables' => new \ArrayObject(),
 				'tablesets' => new \ArrayObject(),
 				'datasource' => new \ArrayObject()
-		));
+			));
 
 		$this->structureAliases = new \ArrayObject();
 
@@ -47,13 +51,14 @@ class StructureResolver
 
 	/**
 	 * Define the reference node and reset cache
+	 *
 	 * @param StructureElement $pivot
 	 */
 	public function setPivot(StructureElement $pivot)
 	{
 		foreach ($this->cache as $key => &$table)
 		{
-			$table->exchangeArray(array ());
+			$table->exchangeArray(array());
 		}
 
 		$this->pivot = $pivot;
@@ -69,6 +74,7 @@ class StructureResolver
 	}
 
 	/**
+	 *
 	 * @return \NoreSources\SQL\StructureElement
 	 */
 	public function getPivot()
@@ -77,6 +83,7 @@ class StructureResolver
 	}
 
 	/**
+	 *
 	 * @param string $path
 	 * @throws StructureResolverException
 	 * @return \NoreSources\SQL\TableColumnStructure
@@ -129,6 +136,7 @@ class StructureResolver
 	}
 
 	/**
+	 *
 	 * @param string $path
 	 * @throws StructureResolverException
 	 * @return \NoreSources\SQL\TableStructure
@@ -150,10 +158,11 @@ class StructureResolver
 		{
 			$tableset = $this->getDefaultTableset();
 		}
-		else if ($c == 2)
-		{
-			$tableset = $this->findTableset($x[0]);
-		}
+		else 
+			if ($c == 2)
+			{
+				$tableset = $this->findTableset($x[0]);
+			}
 
 		$table = ($tableset instanceof TableSetStructure) ? $tableset->offsetGet($name) : null;
 
@@ -170,6 +179,7 @@ class StructureResolver
 	}
 
 	/**
+	 *
 	 * @param string $path
 	 * @throws StructureResolverException
 	 * @return \NoreSources\SQL\TableSetStructure
@@ -201,6 +211,7 @@ class StructureResolver
 	}
 
 	/**
+	 *
 	 * @param string $alias
 	 * @param StructureElement $structure
 	 */
@@ -275,16 +286,19 @@ class StructureResolver
 	}
 
 	/**
+	 *
 	 * @var StructureElement
 	 */
 	private $pivot;
 
 	/**
+	 *
 	 * @var \ArrayObject
 	 */
 	private $cache;
 
 	/**
+	 *
 	 * @var \ArrayObject
 	 */
 	private $structureAliases;

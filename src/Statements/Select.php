@@ -32,12 +32,14 @@ class JoinClause implements Expression
 {
 
 	/**
+	 *
 	 * @var integer
 	 */
 	public $operator;
 
 	/**
 	 * Table or subquery
+	 *
 	 * @var TableReference|SelectQuery
 	 */
 	public $subject;
@@ -52,9 +54,9 @@ class JoinClause implements Expression
 		array_shift($args);
 		array_shift($args);
 
-		call_user_func_array(array (
-				$this,
-				'on'
+		call_user_func_array(array(
+			$this,
+			'on'
 		), $args);
 	}
 
@@ -66,8 +68,7 @@ class JoinClause implements Expression
 		{
 			$ts = $context->findTable($this->subject->path);
 
-			$stream->space()
-				->identifier($context->getCanonicalName($ts));
+			$stream->space()->identifier($context->getCanonicalName($ts));
 			if ($this->subject->alias)
 			{
 				$stream->space()
@@ -78,8 +79,7 @@ class JoinClause implements Expression
 		}
 		elseif ($this->subject instanceof Expression)
 		{
-			$stream->space()
-				->expression($this->subject, $context);
+			$stream->space()->expression($this->subject, $context);
 		}
 
 		if ($this->constraints->count())
@@ -106,8 +106,7 @@ class JoinClause implements Expression
 
 		if ($this->constraints !== null)
 		{
-			$context->evaluateExpression($this->constraints)
-				->traverse($callable, $context, $flags);
+			$context->evaluateExpression($this->constraints)->traverse($callable, $context, $flags);
 		}
 	}
 
@@ -130,7 +129,9 @@ class SelectQuery extends Statement
 {
 
 	/**
-	 * @param TableStructure|string $table Table structure path
+	 *
+	 * @param TableStructure|string $table
+	 *        	Table structure path
 	 * @param string|null $alias
 	 */
 	public function __construct($table, $alias = null)
@@ -140,23 +141,24 @@ class SelectQuery extends Statement
 			$table = $table->getPath();
 		}
 
-		$this->parts = array (
-				self::PART_DISTINCT => false,
-				self::PART_COLUMNS => new \ArrayObject(),
-				self::PART_TABLE => new TableReference($table, $alias),
-				self::PART_JOINS => new \ArrayObject(),
-				self::PART_WHERE => null,
-				self::PART_GROUPBY => new \ArrayObject(),
-				self::PART_HAVING => null,
-				self::PART_ORDERBY => new \ArrayObject(),
-				self::PART_LIMIT => array (
-						'count' => 0,
-						'offset' => 0
-				)
+		$this->parts = array(
+			self::PART_DISTINCT => false,
+			self::PART_COLUMNS => new \ArrayObject(),
+			self::PART_TABLE => new TableReference($table, $alias),
+			self::PART_JOINS => new \ArrayObject(),
+			self::PART_WHERE => null,
+			self::PART_GROUPBY => new \ArrayObject(),
+			self::PART_HAVING => null,
+			self::PART_ORDERBY => new \ArrayObject(),
+			self::PART_LIMIT => array(
+				'count' => 0,
+				'offset' => 0
+			)
 		);
 	}
 
 	/**
+	 *
 	 * @return \NoreSources\SQL\SelectQuery
 	 */
 	public function columns(/*...*/ )
@@ -176,7 +178,7 @@ class SelectQuery extends Statement
 				{
 					if (ns\Container::isAssociative($arg))
 					{
-						list ( $expression, $alias ) = each($arg);
+						list ($expression, $alias) = each($arg);
 					}
 					else
 					{
@@ -189,7 +191,8 @@ class SelectQuery extends Statement
 					$expression = $arg;
 				}
 
-				$this->parts[self::PART_COLUMNS]->append(new ResultColumnReference($expression, $alias));
+				$this->parts[self::PART_COLUMNS]->append(
+					new ResultColumnReference($expression, $alias));
 			}
 		}
 
@@ -197,6 +200,7 @@ class SelectQuery extends Statement
 	}
 
 	/**
+	 *
 	 * @param integer|JoinClause $operatorOrJoin
 	 * @param string|TableReference|SelectQuery $subject
 	 * @param mixed $constraints
@@ -222,7 +226,7 @@ class SelectQuery extends Statement
 
 				if (ns\Container::count($subject) == 1)
 				{
-					list ( $name, $alias ) = each($subject);
+					list ($name, $alias) = each($subject);
 				}
 				else
 				{
@@ -267,7 +271,9 @@ class SelectQuery extends Statement
 	}
 
 	/**
-	 * @param string (variadic) List of result columns
+	 *
+	 * @param
+	 *        	string (variadic) List of result columns
 	 * @return \NoreSources\SQL\SelectQuery
 	 */
 	public function groupBy()
@@ -281,22 +287,26 @@ class SelectQuery extends Statement
 	}
 
 	/**
-	 * @param string $reference Result column reference
+	 *
+	 * @param string $reference
+	 *        	Result column reference
 	 * @param integer $direction
 	 * @param mixed $collation
 	 * @return \NoreSources\SQL\SelectQuery
 	 */
 	public function orderBy($reference, $direction = K::ORDERING_ASC, $collation = null)
 	{
-		$this->parts[self::PART_ORDERBY]->offsetSet($reference, array (
+		$this->parts[self::PART_ORDERBY]->offsetSet($reference,
+			array(
 				'expression' => $reference,
 				'direction' => $direction,
 				'collation' => $collation
-		));
+			));
 		return $this;
 	}
 
 	/**
+	 *
 	 * @param integer $count
 	 * @param integer $offset
 	 * @return \NoreSources\SQL\SelectQuery
@@ -310,9 +320,9 @@ class SelectQuery extends Statement
 
 	public function tokenize(TokenStream &$stream, StatementContext $context)
 	{
-		$builderFlags = $context->getBuilderFlags (K::BUILDER_DOMAIN_GENERIC);
-		$builderFlags |= $context->getBuilderFlags (K::BUILDER_DOMAIN_SELECT);
-		
+		$builderFlags = $context->getBuilderFlags(K::BUILDER_DOMAIN_GENERIC);
+		$builderFlags |= $context->getBuilderFlags(K::BUILDER_DOMAIN_SELECT);
+
 		$tableStructure = $context->findTable($this->parts[self::PART_TABLE]->path);
 
 		# Resolve and build table-related parts
@@ -325,6 +335,7 @@ class SelectQuery extends Statement
 		foreach ($this->parts[self::PART_JOINS] as $join)
 		{
 			/**
+			 *
 			 * @var JoinClause $join
 			 */
 			if ($join->subject instanceof TableReference)
@@ -349,8 +360,7 @@ class SelectQuery extends Statement
 
 		foreach ($this->parts[self::PART_JOINS] as $join)
 		{
-			$tableAndJoins->space()
-				->expression($join, $context);
+			$tableAndJoins->space()->expression($join, $context);
 		}
 
 		if ($builderFlags & K::BUILDER_SELECT_EXTENDED_RESULTCOLUMN_ALIAS_RESOLUTION)
@@ -360,8 +370,7 @@ class SelectQuery extends Statement
 
 		$where = new TokenStream();
 
-		if ($this->parts[self::PART_WHERE] &&
-			ns\Container::count($this->parts[self::PART_WHERE]))
+		if ($this->parts[self::PART_WHERE] && ns\Container::count($this->parts[self::PART_WHERE]))
 		{
 			$where->space()
 				->keyword('where')
@@ -370,8 +379,7 @@ class SelectQuery extends Statement
 		}
 
 		$having = new TokenStream();
-		if ($this->parts[self::PART_HAVING] &&
-			ns\Container::count($this->parts[self::PART_HAVING]))
+		if ($this->parts[self::PART_HAVING] && ns\Container::count($this->parts[self::PART_HAVING]))
 		{
 			$having->space()
 				->keyword('having')
@@ -390,8 +398,7 @@ class SelectQuery extends Statement
 		$stream->keyword('select');
 		if ($this->parts[self::PART_DISTINCT])
 		{
-			$stream->space()
-				->keyword('DISTINCT');
+			$stream->space()->keyword('DISTINCT');
 		}
 
 		if ($this->parts[self::PART_COLUMNS]->count())
@@ -401,8 +408,7 @@ class SelectQuery extends Statement
 			foreach ($this->parts[self::PART_COLUMNS] as $column)
 			{
 				if ($c++ > 0)
-					$stream->text(',')
-						->space();
+					$stream->text(',')->space();
 
 				$x = $context->evaluateExpression($column->expression);
 				$stream->expression($x, $context);
@@ -419,10 +425,10 @@ class SelectQuery extends Statement
 		else
 		{
 			/**
+			 *
 			 * @todo
 			 */
-			$stream->space()
-				->keyword('*');
+			$stream->space()->keyword('*');
 		}
 
 		$stream->space()
@@ -433,8 +439,8 @@ class SelectQuery extends Statement
 		$stream->stream($where);
 
 		// GROUP BY
-		if ($this->parts[self::PART_GROUPBY] &&
-			ns\Container::count($this->parts[self::PART_GROUPBY]))
+		if ($this->parts[self::PART_GROUPBY] && ns\Container::count(
+			$this->parts[self::PART_GROUPBY]))
 		{
 
 			$stream->space()
@@ -445,8 +451,7 @@ class SelectQuery extends Statement
 			foreach ($this->parts[self::PART_GROUPBY] as $column)
 			{
 				if ($c++ > 0)
-					$stream->text(',')
-						->space();
+					$stream->text(',')->space();
 				$stream->expression($column, $context);
 			}
 		}
@@ -463,8 +468,7 @@ class SelectQuery extends Statement
 			foreach ($this->parts[self::PART_ORDERBY] as $clause)
 			{
 				if ($c++ > 0)
-					$stream->text(',')
-						->space();
+					$stream->text(',')->space();
 
 				$x = $context->evaluateExpression($clause['expression']);
 				$stream->expression($x, $context)
@@ -499,8 +503,8 @@ class SelectQuery extends Statement
 
 		foreach ($this->parts[self::PART_COLUMNS] as $resultColumn)
 		{
-			$context->evaluateExpression($resultColumn->expression)
-				->traverse($callable, $context, $flags);
+			$context->evaluateExpression($resultColumn->expression)->traverse($callable, $context,
+				$flags);
 		}
 
 		foreach ($this->parts[self::PART_JOINS] as $join)
@@ -525,8 +529,8 @@ class SelectQuery extends Statement
 
 		foreach ($this->parts[self::PART_ORDERBY] as $clause)
 		{
-			$context->evaluateExpression($clause['expression'])
-				->traverse($callable, $context, $flags);
+			$context->evaluateExpression($clause['expression'])->traverse($callable, $context,
+				$flags);
 		}
 	}
 
@@ -542,13 +546,22 @@ class SelectQuery extends Statement
 	}
 
 	private $parts;
+
 	const PART_DISTINCT = 'distinct';
+
 	const PART_COLUMNS = 'columns';
+
 	const PART_TABLE = 'table';
+
 	const PART_JOINS = 'joins';
+
 	const PART_WHERE = 'where';
+
 	const PART_GROUPBY = 'groupby';
+
 	const PART_HAVING = 'having';
+
 	const PART_ORDERBY = 'orderby';
+
 	const PART_LIMIT = 'limit';
 }

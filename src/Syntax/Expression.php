@@ -1,5 +1,4 @@
 <?php
-
 namespace NoreSources\SQL;
 
 use NoreSources as ns;
@@ -8,15 +7,19 @@ use NoreSources\SQL\ExpressionEvaluator as X;
 
 interface Expression extends Tokenizable
 {
+
 	/**
+	 *
 	 * @return integer
 	 */
 	function getExpressionDataType();
 
 	/**
-	 * @param callable $callable Callable with the following prototype:: callable ($expression, StatementContext, $flags)
-	 *       
-	 *        The expression should call the @c $callable then invoke the @c traverse method of all nested Expression
+	 *
+	 * @param callable $callable
+	 *        	Callable with the following prototype:: callable ($expression, StatementContext, $flags)
+	 *        	
+	 *        	The expression should call the @c $callable then invoke the @c traverse method of all nested Expression
 	 */
 	function traverse($callable, StatementContext $context, $flags = 0);
 }
@@ -38,6 +41,7 @@ class KeywordExpression implements Expression
 	public $keyword;
 
 	/**
+	 *
 	 * @param integer $keyword
 	 */
 	public function __construct($keyword)
@@ -45,11 +49,11 @@ class KeywordExpression implements Expression
 		$this->keyword = $keyword;
 	}
 
-	public function tokenize (TokenStream &$stream, StatementContext $context)
+	public function tokenize(TokenStream &$stream, StatementContext $context)
 	{
-		return $stream->keyword ($context->getKeyword ($this->keyword));	
+		return $stream->keyword($context->getKeyword($this->keyword));
 	}
-	
+
 	public function getExpressionDataType()
 	{
 		return K::DATATYPE_UNDEFINED;
@@ -68,11 +72,13 @@ class LiteralExpression implements Expression
 {
 
 	/**
+	 *
 	 * @var mixed
 	 */
 	public $value;
 
 	/**
+	 *
 	 * @var integer Literal type
 	 */
 	public $targetType;
@@ -83,11 +89,11 @@ class LiteralExpression implements Expression
 		$this->targetType = $type;
 	}
 
-	public function tokenize (TokenStream &$stream, StatementContext $context)
+	public function tokenize(TokenStream &$stream, StatementContext $context)
 	{
-		return $stream->literal($context->getLiteral ($this->value, $this->targetType));
+		return $stream->literal($context->getLiteral($this->value, $this->targetType));
 	}
-	
+
 	public function getExpressionDataType()
 	{
 		return $this->targetType;
@@ -112,11 +118,11 @@ class ParameterExpression implements Expression
 		$this->name = $name;
 	}
 
-	public function tokenize (TokenStream &$stream, StatementContext $context)
+	public function tokenize(TokenStream &$stream, StatementContext $context)
 	{
-		return $stream->parameter($this->name);	
+		return $stream->parameter($this->name);
 	}
-	
+
 	public function getExpressionDataType()
 	{
 		return K::DATATYPE_UNDEFINED;
@@ -135,6 +141,7 @@ class ColumnExpression implements Expression
 {
 
 	/**
+	 *
 	 * @var string
 	 */
 	public $path;
@@ -144,7 +151,7 @@ class ColumnExpression implements Expression
 		$this->path = $path;
 	}
 
-	public function tokenize (TokenStream &$stream, StatementContext $context)
+	public function tokenize(TokenStream &$stream, StatementContext $context)
 	{
 		$target = $context->findColumn($this->path);
 		if ($target instanceof TableColumnStructure)
@@ -155,15 +162,16 @@ class ColumnExpression implements Expression
 				if ($context->isAlias($part))
 					return $stream->identifier($context->escapeIdentifierPath($parts));
 			}
-			
+
 			return $stream->identifier($context->getCanonicalName($target));
 		}
 		else
 			return $stream->identifier($context->escapeIdentifier($this->path));
 	}
-	
+
 	/**
 	 * Column data type will be resolved by StructureResolver
+	 *
 	 * {@inheritdoc}
 	 * @see \NoreSources\SQL\Expression::getExpressionDataType()
 	 */
@@ -180,6 +188,7 @@ class ColumnExpression implements Expression
 
 /**
  * Table path
+ *
  * @author renaud
  *        
  */
@@ -187,6 +196,7 @@ class TableExpression implements Expression
 {
 
 	/**
+	 *
 	 * @var string
 	 */
 	public $path;
@@ -196,10 +206,10 @@ class TableExpression implements Expression
 		$this->path = $path;
 	}
 
-	public function tokenize (TokenStream &$stream, StatementContext $context)
+	public function tokenize(TokenStream &$stream, StatementContext $context)
 	{
 		$target = $context->findTable($this->path);
-		
+
 		if ($target instanceof TableStructure)
 		{
 			$parts = explode('.', $this->path);
@@ -208,13 +218,13 @@ class TableExpression implements Expression
 				if ($context->isAlias($part))
 					return $stream->identifier($context->escapeIdentifierPath($parts));
 			}
-			
+
 			return $stream->identifier($context->getCanonicalName($target));
 		}
 		else
 			return $stream->identifier($context->escapeIdentifier($this->path));
 	}
-	
+
 	public function getExpressionDataType()
 	{
 		return K::DATATYPE_UNDEFINED;

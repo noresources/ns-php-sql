@@ -23,11 +23,13 @@ class InsertQuery extends Statement implements \ArrayAccess
 	}
 
 	/**
+	 *
 	 * @param string $columnName
 	 * @param mixed $columnValue
-	 * @param boolean $evaluate If @c true, the value will be evaluated at build stage. Otherwise, the value is considered as a
-	 *        literal of the same type as the column data type..
-	 *        If @c null, the
+	 * @param boolean $evaluate
+	 *        	If @c true, the value will be evaluated at build stage. Otherwise, the value is considered as a
+	 *        	literal of the same type as the column data type..
+	 *        	If @c null, the
 	 * @return \NoreSources\SQL\UpdateQuery
 	 */
 	public function set($columnName, $columnValue, $evaluate = null)
@@ -36,14 +38,14 @@ class InsertQuery extends Statement implements \ArrayAccess
 		{
 			if ($columnValue instanceof Evaluable)
 			{
-				throw new \BadMethodCallException('Column value is an Evaluable but $evaluate = false');
+				throw new \BadMethodCallException(
+					'Column value is an Evaluable but $evaluate = false');
 			}
 		}
 
 		if ($evaluate === null)
 		{
-			$evaluate = ($columnValue instanceof Evaluable) ||
-				(ns\Container::isArray($columnValue));
+			$evaluate = ($columnValue instanceof Evaluable) || (ns\Container::isArray($columnValue));
 		}
 		
 		$this->columnValues->offsetSet($columnName, [
@@ -56,9 +58,11 @@ class InsertQuery extends Statement implements \ArrayAccess
 	/**
 	 * Set a column value with an evaluable value
 	 *
-	 * @param string Column name
-	 * @param Evaluable Evaluable expression
-	 *       
+	 * @param
+	 *        	string Column name
+	 * @param
+	 *        	Evaluable Evaluable expression
+	 *        	
 	 * @throws \BadMethodCallException
 	 * @throws \InvalidArgumentException
 	 */
@@ -66,18 +70,18 @@ class InsertQuery extends Statement implements \ArrayAccess
 	{
 		$args = func_get_args();
 		if (count($args) != 2)
-			throw new \BadMethodCallException(__CLASS__ .
-				' invokation expects exactly 2 arguments');
+			throw new \BadMethodCallException(__CLASS__ . ' invokation expects exactly 2 arguments');
 
 		if (!\is_string($args[0]))
-			throw new \InvalidArgumentException(__CLASS__ .
-				'() first argument expects string');
+			throw new \InvalidArgumentException(__CLASS__ . '() first argument expects string');
 
 		$this->set($args[0], $args[1], true);
 	}
 
 	/**
-	 * @param string Column name
+	 *
+	 * @param
+	 *        	string Column name
 	 * @return boolean
 	 */
 	public function offsetExists($offset)
@@ -88,8 +92,9 @@ class InsertQuery extends Statement implements \ArrayAccess
 	/**
 	 * Get current column value
 	 *
-	 * @param string Column name
-	 *       
+	 * @param
+	 *        	string Column name
+	 *        	
 	 * @return mixed Column current value or @c null if not set
 	 */
 	public function offsetGet($offset)
@@ -100,8 +105,11 @@ class InsertQuery extends Statement implements \ArrayAccess
 	}
 
 	/**
-	 * @param string $offset Column name
-	 * @param mixed $value Column value.
+	 *
+	 * @param string $offset
+	 *        	Column name
+	 * @param mixed $value
+	 *        	Column value.
 	 */
 	public function offsetSet($offset, $value)
 	{
@@ -119,11 +127,12 @@ class InsertQuery extends Statement implements \ArrayAccess
 
 	public function tokenize(TokenStream &$stream, StatementContext $context)
 	{
-		$builderFlags = $context->getBuilderFlags (K::BUILDER_DOMAIN_GENERIC);
-		$builderFlags |= $context->getBuilderFlags (K::BUILDER_DOMAIN_INSERT);
-		
+		$builderFlags = $context->getBuilderFlags(K::BUILDER_DOMAIN_GENERIC);
+		$builderFlags |= $context->getBuilderFlags(K::BUILDER_DOMAIN_INSERT);
+
 		$tableStructure = $context->findTable($this->table->path);
 		/**
+		 *
 		 * @var TableStructure $tableStructure
 		 */
 
@@ -140,14 +149,13 @@ class InsertQuery extends Statement implements \ArrayAccess
 				->identifier($context->escapeIdentifier($this->table->alias));
 		}
 
-		$columns = array ();
-		$values = array ();
+		$columns = array();
+		$values = array();
 		$c = $this->columnValues->count();
 
 		if (($c == 0) && ($builderFlags & K::BUILDER_INSERT_DEFAULT_VALUES))
 		{
-			return $stream->space()
-				->keyword('DEFAULT VALUES');
+			return $stream->space()->keyword('DEFAULT VALUES');
 		}
 
 		foreach ($this->columnValues as $columnName => $value)
@@ -158,6 +166,7 @@ class InsertQuery extends Statement implements \ArrayAccess
 			$columns[] = $context->escapeIdentifier($columnName);
 			$column = $tableStructure->offsetGet($columnName);
 			/**
+			 *
 			 * @var TableColumnStructure $column
 			 */
 
@@ -188,6 +197,7 @@ class InsertQuery extends Statement implements \ArrayAccess
 			foreach ($tableStructure as $name => $column)
 			{
 				/**
+				 *
 				 * @var TableColumnStructure $column
 				 */
 
@@ -201,7 +211,8 @@ class InsertQuery extends Statement implements \ArrayAccess
 					}
 					else
 					{
-						$x = $context->evaluateExpression($column->getProperty(K::COLUMN_PROPERTY_DEFAULT_VALUE));
+						$x = $context->evaluateExpression(
+							$column->getProperty(K::COLUMN_PROPERTY_DEFAULT_VALUE));
 						$values[] = $x;
 					}
 				}
@@ -211,18 +222,16 @@ class InsertQuery extends Statement implements \ArrayAccess
 		if ($c == 0)
 			throw new StatementException($this, 'No column value');
 
-		$stream->space()
-			->text('(');
+		$stream->space()->text('(');
 		$c = 0;
 		foreach ($columns as $column)
 		{
 			if ($c)
-				$stream->text(',')
-					->space();
+				$stream->text(',')->space();
 			$stream->identifier($column);
 			$c++;
 		}
-		
+
 		$stream->text(')')
 			->space()
 			->keyword('VALUES')
@@ -232,17 +241,17 @@ class InsertQuery extends Statement implements \ArrayAccess
 		foreach ($values as $value)
 		{
 			if ($c)
-				$stream->text(',')
-					->space();
-			
+				$stream->text(',')->space();
+
 			$stream->expression($value, $context);
 			$c++;
 		}
-			
+
 		return $stream->text(')');
 	}
 
 	/**
+	 *
 	 * {@inheritdoc}
 	 * @see \NoreSources\SQL\Expression::traverse()
 	 */
@@ -257,11 +266,13 @@ class InsertQuery extends Statement implements \ArrayAccess
 	}
 
 	/**
+	 *
 	 * @var TableReference
 	 */
 	private $table;
 
 	/**
+	 *
 	 * @var \ArrayObject Associative array where
 	 *      keys are column names
 	 *      and values are \NoreSources\SQL\Expression

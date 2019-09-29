@@ -1,5 +1,4 @@
 <?php
-
 namespace NoreSources\SQL;
 
 use NoreSources as ns;
@@ -11,16 +10,19 @@ class StatementContext
 {
 
 	/**
+	 *
 	 * @var integer
 	 */
 	public $flags;
 
 	/**
+	 *
 	 * @var StatementBuilder
 	 */
 	public $builder;
 
 	/**
+	 *
 	 * @var StructureResolver
 	 */
 	public $resolver;
@@ -34,6 +36,7 @@ class StatementContext
 	}
 
 	/**
+	 *
 	 * {@inheritdoc}
 	 * @see \NoreSources\SQL\StructureResolver::findColumn()
 	 */
@@ -46,6 +49,7 @@ class StatementContext
 	}
 
 	/**
+	 *
 	 * @param string $alias
 	 * @param StructureElement|TableReference|ResultColumnReference $reference
 	 *
@@ -64,39 +68,44 @@ class StatementContext
 	}
 
 	/**
+	 *
 	 * {@inheritdoc}
 	 * @see \NoreSources\SQL\StructureResolver::isAlias()
 	 */
 	public function isAlias($identifier)
 	{
-		return ns\Container::keyExists($this->aliases, $identifier) || $this->resolver->isAlias($identifier);
+		return ns\Container::keyExists($this->aliases, $identifier) ||
+			$this->resolver->isAlias($identifier);
 	}
 
 	/**
 	 * Attemp to call StatementBuilder or StructureResolver method
-	 * @param string $method Method name
-	 * @param array $args Arguments
+	 *
+	 * @param string $method
+	 *        	Method name
+	 * @param array $args
+	 *        	Arguments
 	 * @throws \BadMethodCallException
 	 * @return mixed
-	 * 
+	 *
 	 * @method string getColumnDescription(TableColumnStructure $column)
 	 * @method string getTableConstraintDescription(TableStructure, TableConstraint)
-	 * 
+	 *        
 	 */
 	public function __call($method, $args)
 	{
 		if (\method_exists($this->builder, $method))
 		{
-			return call_user_func_array(array (
-					$this->builder,
-					$method
+			return call_user_func_array(array(
+				$this->builder,
+				$method
 			), $args);
 		}
 		elseif (\method_exists($this->resolver, $method))
 		{
-			return call_user_func_array(array (
-					$this->resolver,
-					$method
+			return call_user_func_array(array(
+				$this->resolver,
+				$method
 			), $args);
 		}
 
@@ -104,7 +113,7 @@ class StatementContext
 	}
 
 	/**
-	 * 
+	 *
 	 * @var \ArrayObject
 	 */
 	private $aliases;

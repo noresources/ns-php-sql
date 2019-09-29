@@ -1,5 +1,4 @@
 <?php
-
 namespace NoreSources\SQL;
 
 use NoreSources as ns;
@@ -13,6 +12,7 @@ class ParenthesisExpression implements Expression
 {
 
 	/**
+	 *
 	 * @var Expression
 	 */
 	public $expression;
@@ -24,7 +24,9 @@ class ParenthesisExpression implements Expression
 
 	public function tokenize(TokenStream &$stream, StatementContext $context)
 	{
-		return $stream->text('(')->expression($this->expression, $context)->text(')');
+		return $stream->text('(')
+			->expression($this->expression, $context)
+			->text(')');
 	}
 
 	public function getExpressionDataType()

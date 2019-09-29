@@ -1,5 +1,4 @@
 <?php
-
 namespace NoreSources\SQL;
 
 use NoreSources as ns;
@@ -15,6 +14,7 @@ abstract class StructureSerializer implements \Serializable
 	}
 
 	/**
+	 *
 	 * @property-read StructureElement $structureElement
 	 * @param string $member
 	 * @throws \InvalidArgumentException
@@ -31,6 +31,7 @@ abstract class StructureSerializer implements \Serializable
 	}
 
 	/**
+	 *
 	 * @var StructureElement
 	 */
 	protected $structureElement;
@@ -40,6 +41,7 @@ class JSONStructureSerializer extends StructureSerializer
 {
 
 	/**
+	 *
 	 * @var integer
 	 */
 	public $jsonSerializeFlags;
@@ -84,10 +86,10 @@ class JSONStructureSerializer extends StructureSerializer
 
 	private function serializeDatasource(DatasourceStructure $structure)
 	{
-		$properties = array (
-				'name' => $structure->getName(),
-				'kind' => 'datasource',
-				'tablesets' => array ()
+		$properties = array(
+			'name' => $structure->getName(),
+			'kind' => 'datasource',
+			'tablesets' => array()
 		);
 
 		foreach ($structure as $tableName => $table)
@@ -100,8 +102,8 @@ class JSONStructureSerializer extends StructureSerializer
 
 	private function serializeTableSet(TableSetStructure $structure)
 	{
-		$properties = array (
-				'tables' => array ()
+		$properties = array(
+			'tables' => array()
 		);
 
 		foreach ($structure as $tableName => $table)
@@ -111,10 +113,11 @@ class JSONStructureSerializer extends StructureSerializer
 
 		if (!($structure->parent() instanceof DatasourceStructure))
 		{
-			$properties = array_merge(array (
+			$properties = array_merge(
+				array(
 					'name' => $structure->getName(),
 					'kind' => 'tableset'
-			), $properties);
+				), $properties);
 		}
 
 		return $properties;
@@ -122,8 +125,8 @@ class JSONStructureSerializer extends StructureSerializer
 
 	private function serializeTable(TableStructure $structure)
 	{
-		$properties = array (
-				'columns' => array ()
+		$properties = array(
+			'columns' => array()
 		);
 
 		foreach ($structure as $columnName => $column)
@@ -133,9 +136,9 @@ class JSONStructureSerializer extends StructureSerializer
 
 		if (!($structure->parent() instanceof TableSetStructure))
 		{
-			$properties = array_merge(array (
-					'name' => $structure->getName(),
-					'kind' => 'table'
+			$properties = array_merge(array(
+				'name' => $structure->getName(),
+				'kind' => 'table'
 			), $properties);
 		}
 
@@ -144,16 +147,16 @@ class JSONStructureSerializer extends StructureSerializer
 
 	private function serializeTableColumn(TableColumnStructure $structure)
 	{
-		$properties = array ();
+		$properties = array();
 		foreach ($structure->getProperties() as $key => $value)
 		{
 			$properties[$key] = $value;
 		}
 		if (!($structure->parent() instanceof TableStructure))
 		{
-			$properties = array_merge(array (
-					'name' => $structure->getName(),
-					'kind' => 'column'
+			$properties = array_merge(array(
+				'name' => $structure->getName(),
+				'kind' => 'column'
 			), $properties);
 		}
 
@@ -175,9 +178,11 @@ class XMLStructureSerializer extends StructureSerializer
 			throw new StructureException('Nothing to serialize');
 
 		$impl = new \DOMImplementation();
-		$document = $impl->createDocument(K::XML_NAMESPACE_URI, self::XSLT_NAMESPACE_PREFIX . ':' . self::getXmlNodeName($this->structureElement));
+		$document = $impl->createDocument(K::XML_NAMESPACE_URI,
+			self::XSLT_NAMESPACE_PREFIX . ':' . self::getXmlNodeName($this->structureElement));
 
 		/**
+		 *
 		 * @todo
 		 */
 
@@ -203,22 +208,26 @@ class XMLStructureSerializer extends StructureSerializer
 
 		if ($document->documentElement->localName == K::XML_ELEMENT_DATASOURCE)
 		{
-			$this->structureElement = new DatasourceStructure($document->documentElement->getAttribute('name'));
+			$this->structureElement = new DatasourceStructure(
+				$document->documentElement->getAttribute('name'));
 			$this->unserializeDatasource($this->structureElement, $document->documentElement);
 		}
 		elseif ($document->documentElement->localName == K::XML_ELEMENT_TABLESET)
 		{
-			$this->structureElement = new TableSetStructure($document->documentElement->getAttribute('name'));
+			$this->structureElement = new TableSetStructure(
+				$document->documentElement->getAttribute('name'));
 			$this->unserializeTableset($this->structureElement, $document->documentElement);
 		}
 		elseif ($document->documentElement->localName == K::XML_ELEMENT_TABLE)
 		{
-			$this->structureElement = new TableStructure($document->documentElement->getAttribute('name'));
+			$this->structureElement = new TableStructure(
+				$document->documentElement->getAttribute('name'));
 			$this->unserializeTable($this->structureElement, $document->documentElement);
 		}
 		elseif ($document->documentElement->localName == K::XML_ELEMENT_COLUMN)
 		{
-			$this->structureElement = new TableColumnStructure($document->documentElement->getAttribute('name'));
+			$this->structureElement = new TableColumnStructure(
+				$document->documentElement->getAttribute('name'));
 			$this->unserializeTableColumn($this->structureElement, $document->documentElement);
 		}
 
@@ -290,7 +299,8 @@ class XMLStructureSerializer extends StructureSerializer
 				$name = $columnNode->getAttribute('name');
 				if (!$structure->offsetExists($name))
 				{
-					throw new StructureException('Invalid primary column "' . $name . '"', $structure);
+					throw new StructureException('Invalid primary column "' . $name . '"',
+						$structure);
 				}
 				$constraint->offsetSet($name, $structure->offsetGet($name));
 			}
@@ -301,9 +311,9 @@ class XMLStructureSerializer extends StructureSerializer
 		$fkNodes = $node->getElementsByTagNameNS(K::XML_NAMESPACE_URI, K::XML_ELEMENT_FOREIGN_KEY);
 		foreach ($fkNodes as $fkNode)
 		{
-			$this->foreignKeys->append(array (
-					'table' => $structure,
-					'node' => $fkNode
+			$this->foreignKeys->append(array(
+				'table' => $structure,
+				'node' => $fkNode
 			));
 		}
 	}
@@ -319,12 +329,12 @@ class XMLStructureSerializer extends StructureSerializer
 		$dataTypeNode = self::getSingleElementByTagName($node, 'datatype');
 		if ($dataTypeNode instanceof \DOMElement)
 		{
-			$a = array (
-					'binary' => K::DATATYPE_BINARY,
-					'boolean' => K::DATATYPE_BOOLEAN,
-					'numeric' => K::DATATYPE_NUMBER,
-					'timestamp' => K::DATATYPE_TIMESTAMP,
-					'string' => K::DATATYPE_STRING
+			$a = array(
+				'binary' => K::DATATYPE_BINARY,
+				'boolean' => K::DATATYPE_BOOLEAN,
+				'numeric' => K::DATATYPE_NUMBER,
+				'timestamp' => K::DATATYPE_TIMESTAMP,
+				'string' => K::DATATYPE_STRING
 			);
 
 			foreach ($a as $k => $v)
@@ -347,7 +357,8 @@ class XMLStructureSerializer extends StructureSerializer
 			}
 			if ($typeNode->hasAttribute('length'))
 			{
-				$structure->setProperty(K::COLUMN_PROPERTY_DATA_SIZE, intval($typeNode->getAttribute('length')));
+				$structure->setProperty(K::COLUMN_PROPERTY_DATA_SIZE,
+					intval($typeNode->getAttribute('length')));
 			}
 			if ($typeNode->hasAttribute('decimals'))
 			{
@@ -366,16 +377,16 @@ class XMLStructureSerializer extends StructureSerializer
 		$defaultNode = self::getSingleElementByTagName($node, 'default');
 		if ($defaultNode instanceof \DOMElement)
 		{
-			$nodeNames = array (
-					'integer',
-					'boolean',
-					'datetime', // deprecated
-					'timestamp',
-					'string',
-					'null',
-					'number',
-					'base64Binary',
-					'hexBinary'
+			$nodeNames = array(
+				'integer',
+				'boolean',
+				'datetime', // deprecated
+				'timestamp',
+				'string',
+				'null',
+				'number',
+				'base64Binary',
+				'hexBinary'
 			);
 
 			foreach ($nodeNames as $name)
@@ -391,23 +402,23 @@ class XMLStructureSerializer extends StructureSerializer
 					case 'integer':
 						$value = intval($value);
 						$valueType = K::DATATYPE_INTEGER;
-						break;
+					break;
 					case 'boolean':
 						$value = ($value == 'true' ? true : false);
 						$valueType = K::DATATYPE_BOOLEAN;
-						break;
+					break;
 					case 'timestamp':
-					case 'datetime': 
-						$valueType = K::DATATYPE_TIMESTAMP;// deprecated
-						if (strlen ($value))
+					case 'datetime':
+						$valueType = K::DATATYPE_TIMESTAMP; // deprecated
+						if (strlen($value))
 							$value = \DateTime::createFromFormat(\DateTime::ISO8601, $value);
 						else
 							$value = new KeywordExpression(K::KEYWORD_CURRENT_TIMESTAMP);
-						break;
+					break;
 					case 'null':
 						$valueType = K::DATATYPE_NULL;
 						$value = null;
-						break;
+					break;
 					case 'number':
 						$ivalue = intval($value);
 						$value = floatval($value);
@@ -417,24 +428,24 @@ class XMLStructureSerializer extends StructureSerializer
 							$valueType = K::DATATYPE_INTEGER;
 							$value = $ivalue;
 						}
-						break;
+					break;
 					case 'base64Binary':
 						$valueType = K::DATATYPE_BINARY;
 						$value = base64_decode($value);
-						break;
+					break;
 					case 'hexBinary':
 						$valueType = K::DATATYPE_BINARY;
 						$value = hex2bin($value);
-						break;
+					break;
 					default:
-						break;
+					break;
 				}
-				
+
 				if (!($value instanceof Expression))
 				{
-					$value = X::literal($value, $valueType);					
+					$value = X::literal($value, $valueType);
 				}
-				
+
 				$structure->setProperty(K::COLUMN_PROPERTY_DEFAULT_VALUE, $value);
 
 				break;
@@ -455,12 +466,14 @@ class XMLStructureSerializer extends StructureSerializer
 		throw new \InvalidArgumentException();
 	}
 
-	private static function getSingleElementByTagName(\DOMElement $element, $localName, $required = false)
+	private static function getSingleElementByTagName(\DOMElement $element, $localName,
+		$required = false)
 	{
 		$list = $element->getElementsByTagNameNS(K::XML_NAMESPACE_URI, $localName);
 
 		if ($list->length > 1)
-			throw new StructureException('Invalid number of ' . $localName . ' nodes. At most 1 expected');
+			throw new StructureException(
+				'Invalid number of ' . $localName . ' nodes. At most 1 expected');
 		if ($list->length == 0)
 		{
 			if ($required)
@@ -474,6 +487,7 @@ class XMLStructureSerializer extends StructureSerializer
 
 	/**
 	 * Resolve foreign key constaints
+	 *
 	 * @throws StructureException
 	 */
 	private function userializePostprocess(\DOMDocument $document)
@@ -534,34 +548,36 @@ class XMLStructureSerializer extends StructureSerializer
 
 				if (!$structure->offsetExists($name))
 				{
-					throw new StructureException('Invalid foreign key column "' . $name . '"', $structure);
+					throw new StructureException('Invalid foreign key column "' . $name . '"',
+						$structure);
 				}
 
 				if (!$foreignTable->offsetExists($foreignColumnName))
 				{
-					throw new StructureException('Invalid foreign key column "' . $foreignColumnName . '"', $foreignTable);
+					throw new StructureException(
+						'Invalid foreign key column "' . $foreignColumnName . '"', $foreignTable);
 				}
 
 				$fk->addColumn($name, $foreignColumnName);
 
-				$events = array (
-						'onUpdate',
-						'onDelete'
+				$events = array(
+					'onUpdate',
+					'onDelete'
 				);
-				
-				$actions = array (
-						'cascade' => K::FOREIGN_KEY_ACTION_CASCADE,
-						'restrict' => K::FOREIGN_KEY_ACTION_RESTRICT,
-						'default' => K::FOREIGN_KEY_ACTION_SET_DEFAULT,
-						'null' => K::FOREIGN_KEY_ACTION_SET_NULL
+
+				$actions = array(
+					'cascade' => K::FOREIGN_KEY_ACTION_CASCADE,
+					'restrict' => K::FOREIGN_KEY_ACTION_RESTRICT,
+					'default' => K::FOREIGN_KEY_ACTION_SET_DEFAULT,
+					'null' => K::FOREIGN_KEY_ACTION_SET_NULL
 				);
-				
+
 				foreach ($events as $event)
 				{
 					$eventNode = self::getSingleElementByTagName($fkNode, strtolower($event));
 					if ($eventNode)
 					{
-						$action = $eventNode->getAttribute ('action');
+						$action = $eventNode->getAttribute('action');
 						if (ns\Container::keyExists($actions, $action))
 						{
 							$fk->$event = $actions[$action];
@@ -575,6 +591,7 @@ class XMLStructureSerializer extends StructureSerializer
 	}
 
 	/**
+	 *
 	 * @var \ArrayObject
 	 */
 	private $foreignKeys;

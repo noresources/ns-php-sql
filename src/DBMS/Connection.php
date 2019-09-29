@@ -17,6 +17,7 @@ class ConnectionException extends \Exception
 	}
 
 	/**
+	 *
 	 * @return \NoreSources\SQL\Connection
 	 */
 	public function getConnection()
@@ -25,6 +26,7 @@ class ConnectionException extends \Exception
 	}
 
 	/**
+	 *
 	 * @var Connection
 	 */
 	private $connection;
@@ -53,7 +55,9 @@ interface Connection
 
 	/**
 	 * Connect to DBMS
-	 * @param \ArrayAccess $parameters Connection parameters
+	 *
+	 * @param \ArrayAccess $parameters
+	 *        	Connection parameters
 	 */
 	function connect($parameters);
 
@@ -63,17 +67,20 @@ interface Connection
 	function disconnect();
 
 	/**
+	 *
 	 * @return StatementBuilder
 	 */
 	function getStatementBuilder();
 
 	/**
+	 *
 	 * @param StatementData|string $statement
 	 * @return PreparedStatement
 	 */
 	function prepareStatement($statement);
 
 	/**
+	 *
 	 * @param PreparedStatement|string $statement
 	 * @param ParameterArray $parameters
 	 * @return Recordset|integer|boolean
@@ -85,24 +92,26 @@ class ConnectionHelper
 {
 
 	/**
-	 * @param array|\ArrayObject $settings Connection settings
+	 *
+	 * @param array|\ArrayObject $settings
+	 *        	Connection settings
 	 * @throws ConnectionException
 	 * @return \NoreSources\SQL\SQLite\Connection
 	 */
 	public static function createConnection($settings)
 	{
 		if (!ns\Container::isArray($settings))
-			$settings = array (
-					K::CONNECTION_PARAMETER_TYPE => $settings
+			$settings = array(
+				K::CONNECTION_PARAMETER_TYPE => $settings
 			);
 
 		$type = ns\Container::keyValue($settings, K::CONNECTION_PARAMETER_TYPE, 'Reference');
 		$connection = null;
 		$className = null;
 
-		$classNames = array (
-				$type,
-				__NAMESPACE__ . '\\' . $type . '\\Connection'
+		$classNames = array(
+			$type,
+			__NAMESPACE__ . '\\' . $type . '\\Connection'
 		);
 
 		if (self::$connectionClassMap->offsetExists($type))
@@ -126,24 +135,27 @@ class ConnectionHelper
 		}
 		else
 		{
-			throw new ConnectionException('Unable to create a Connection with settings ' . var_export($settings, true));
+			throw new ConnectionException(
+				'Unable to create a Connection with settings ' . var_export($settings, true));
 		}
 
 		return $connection;
 	}
 
 	/**
+	 *
 	 * @param Connection $connection
 	 * @param Statement $statement
 	 * @param StructureElement $reference
 	 * @return PreparedStatement
 	 */
-	public static function prepareStatement(Connection $connection, Statement $statement, StructureElement $reference = null)
+	public static function prepareStatement(Connection $connection, Statement $statement,
+		StructureElement $reference = null)
 	{
 		$builder = $connection->getStatementBuilder();
 		$context = new StatementContext($builder);
 		if ($reference instanceof StructureElement)
-			$context->setPivot ($reference);
+			$context->setPivot($reference);
 		$stream = new TokenStream();
 		$statement->tokenize($stream, $context);
 		$data = $builder->buildStatementData($stream);
@@ -160,9 +172,9 @@ class ConnectionHelper
 		if (!(self::$connectionClassMap instanceof \ArrayObject))
 			self::$connectionClassMap = new \ArrayObject();
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @var \ArrayObject
 	 */
 	private static $connectionClassMap;

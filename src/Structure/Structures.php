@@ -5,6 +5,7 @@
  * Distributed under the terms of the MIT License, see LICENSE
  */
 /**
+ *
  * @package SQL
  */
 namespace NoreSources\SQL;
@@ -27,6 +28,7 @@ class StructureException extends \Exception
 	}
 
 	/**
+	 *
 	 * @var StructureElement
 	 */
 	private $structure;
@@ -36,17 +38,20 @@ abstract class StructureElement implements \ArrayAccess, \IteratorAggregate, \Co
 {
 
 	/**
-	 * @param string $name StructureElement
+	 *
+	 * @param string $name
+	 *        	StructureElement
 	 * @param StructureElement $parent
 	 */
 	protected function __construct($name, $parent = null)
 	{
 		if (!(is_string($name) && strlen($name)))
-			throw new StructureException('Invalid element name (' . ns\TypeDescription::getName($name) . ')');
+			throw new StructureException(
+				'Invalid element name (' . ns\TypeDescription::getName($name) . ')');
 		$this->elementName = $name;
 		$this->parentElement = $parent;
 
-		$this->subElements = new \ArrayObject(array ());
+		$this->subElements = new \ArrayObject(array());
 	}
 
 	// Countable
@@ -94,6 +99,7 @@ abstract class StructureElement implements \ArrayAccess, \IteratorAggregate, \Co
 	}
 
 	/**
+	 *
 	 * @param unknown $tree
 	 * @return \NoreSources\SQL\StructureElement
 	 */
@@ -114,6 +120,7 @@ abstract class StructureElement implements \ArrayAccess, \IteratorAggregate, \Co
 	}
 
 	/**
+	 *
 	 * @return string
 	 */
 	public function getName()
@@ -122,6 +129,7 @@ abstract class StructureElement implements \ArrayAccess, \IteratorAggregate, \Co
 	}
 
 	/**
+	 *
 	 * @param StatementBuilder $builder
 	 * @return string
 	 */
@@ -131,7 +139,8 @@ abstract class StructureElement implements \ArrayAccess, \IteratorAggregate, \Co
 		$p = $this->parent();
 		while ($p && !($p instanceof DatasourceStructure))
 		{
-			$s = (($builder instanceof StatementBuilder) ? $builder->escapeIdentifier($p->getName()) : $p->getName()) . '.' . $s;
+			$s = (($builder instanceof StatementBuilder) ? $builder->escapeIdentifier($p->getName()) : $p->getName()) .
+				'.' . $s;
 			$p = $p->parent();
 		}
 
@@ -140,6 +149,7 @@ abstract class StructureElement implements \ArrayAccess, \IteratorAggregate, \Co
 
 	/**
 	 * Get ancestor
+	 *
 	 * @param number $depth
 	 * @return \NoreSources\SQL\StructureElement
 	 */
@@ -156,6 +166,7 @@ abstract class StructureElement implements \ArrayAccess, \IteratorAggregate, \Co
 	}
 
 	/**
+	 *
 	 * @return array
 	 */
 	public function children()
@@ -164,6 +175,7 @@ abstract class StructureElement implements \ArrayAccess, \IteratorAggregate, \Co
 	}
 
 	/**
+	 *
 	 * @param StructureElement $a_child
 	 * @return StructureElement
 	 */
@@ -178,10 +190,11 @@ abstract class StructureElement implements \ArrayAccess, \IteratorAggregate, \Co
 
 	protected function clear()
 	{
-		$this->subElements->exchangeArray(array ());
+		$this->subElements->exchangeArray(array());
 	}
 
 	/**
+	 *
 	 * @return StructureElement
 	 */
 	protected function root()
@@ -207,16 +220,19 @@ abstract class StructureElement implements \ArrayAccess, \IteratorAggregate, \Co
 	}
 
 	/**
+	 *
 	 * @var string
 	 */
 	private $elementName;
 
 	/**
+	 *
 	 * @var StructureElement
 	 */
 	private $parentElement;
 
 	/**
+	 *
 	 * @var \ArrayObject
 	 */
 	private $subElements;
@@ -227,56 +243,64 @@ abstract class StructureElement implements \ArrayAccess, \IteratorAggregate, \Co
  */
 class TableColumnStructure extends StructureElement
 {
+
 	const DATATYPE = K::COLUMN_PROPERTY_DATA_TYPE;
+
 	const AUTO_INCREMENT = K::COLUMN_PROPERTY_AUTOINCREMENT;
+
 	const ACCEPT_NULL = K::COLUMN_PROPERTY_NULL;
+
 	const DATA_SIZE = K::COLUMN_PROPERTY_DATA_SIZE;
+
 	const FRACTION_DIGIT_COUNT = K::COLUMN_PROPERTY_FRACTION_DIGIT_COUNT;
+
 	const ENUMERATION = K::COLUMN_PROPERTY_ENUMERATION;
+
 	const DEFAULT_VALUE = K::COLUMN_PROPERTY_DEFAULT_VALUE;
 
 	public function __construct(/*TableStructure */$a_tableStructure, $name)
 	{
 		parent::__construct($name, $a_tableStructure);
-		$this->m_columnProperties = array (
-				self::ACCEPT_NULL => array (
-						'set' => true,
-						'value' => true
-				),
-				self::AUTO_INCREMENT => array (
-						'set' => true,
-						'value' => false
-				),
-				self::FRACTION_DIGIT_COUNT => array (
-						'set' => true,
-						'value' => 0
-				),
-				self::DATA_SIZE => array (
-						'set' => false,
-						'value' => 0
-				),
-				self::DATATYPE => array (
-						'set' => true,
-						'value' => K::DATATYPE_STRING
-				),
-				self::ENUMERATION => array (
-						'set' => false,
-						'value' => null
-				),
-				self::DEFAULT_VALUE => array (
-						'set' => false,
-						'value' => null
-				)
+		$this->m_columnProperties = array(
+			self::ACCEPT_NULL => array(
+				'set' => true,
+				'value' => true
+			),
+			self::AUTO_INCREMENT => array(
+				'set' => true,
+				'value' => false
+			),
+			self::FRACTION_DIGIT_COUNT => array(
+				'set' => true,
+				'value' => 0
+			),
+			self::DATA_SIZE => array(
+				'set' => false,
+				'value' => 0
+			),
+			self::DATATYPE => array(
+				'set' => true,
+				'value' => K::DATATYPE_STRING
+			),
+			self::ENUMERATION => array(
+				'set' => false,
+				'value' => null
+			),
+			self::DEFAULT_VALUE => array(
+				'set' => false,
+				'value' => null
+			)
 		);
 	}
 
 	/**
 	 * Get column properties
+	 *
 	 * @return array
 	 */
 	public function getProperties()
 	{
-		$a = array ();
+		$a = array();
 		foreach ($this->m_columnProperties as $key => $property)
 		{
 			if ($property['set'])
@@ -287,12 +311,14 @@ class TableColumnStructure extends StructureElement
 	}
 
 	/**
+	 *
 	 * @param string $key
 	 * @return boolean
 	 */
 	public function hasProperty($key)
 	{
-		return (\array_key_exists($key, $this->m_columnProperties) && $this->m_columnProperties[$key]['set']);
+		return (\array_key_exists($key, $this->m_columnProperties) &&
+			$this->m_columnProperties[$key]['set']);
 	}
 
 	public function getProperty($key)
@@ -310,6 +336,7 @@ class TableColumnStructure extends StructureElement
 	}
 
 	/**
+	 *
 	 * @var array
 	 */
 	private $m_columnProperties;
@@ -324,7 +351,7 @@ class TableStructure extends StructureElement
 {
 
 	/**
-	 * 
+	 *
 	 * @param TableSetStructure $a_tablesetStructure
 	 * @param string $name
 	 */
@@ -336,6 +363,7 @@ class TableStructure extends StructureElement
 	}
 
 	/**
+	 *
 	 * @property-read \ArrayObject $constraints Table constraints
 	 * @param string $member
 	 * @throws \InvalidArgumentException
@@ -353,8 +381,10 @@ class TableStructure extends StructureElement
 
 	/**
 	 * Add table constraint
-	 * @param TableConstraint $constraint Constraint to add. If The constraint is the primary key constraint, it will replace
-	 *        the existing one.
+	 *
+	 * @param TableConstraint $constraint
+	 *        	Constraint to add. If The constraint is the primary key constraint, it will replace
+	 *        	the existing one.
 	 * @throws StructureException
 	 */
 	public function addConstraint(TableConstraint $constraint)
@@ -369,19 +399,21 @@ class TableStructure extends StructureElement
 				}
 			}
 		}
-		
+
 		$this->constraints->append($constraint);
 	}
-	
+
 	public function removeConstraint($constraint)
 	{
 		foreach ($this->constraints as $i => $c)
 		{
-			if ($c === $constraint) $this->constraints->offsetUnset($i);
+			if ($c === $constraint)
+				$this->constraints->offsetUnset($i);
 		}
 	}
 
 	/**
+	 *
 	 * @var \ArrayObject
 	 */
 	private $constraints;
@@ -411,7 +443,9 @@ class DatasourceStructure extends StructureElement
 {
 
 	/**
-	 * @param string $name Datasource class name
+	 *
+	 * @param string $name
+	 *        	Datasource class name
 	 */
 	public function __construct($name = 'datasource')
 	{
