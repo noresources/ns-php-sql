@@ -13,7 +13,7 @@ class StatementContext
 	 *
 	 * @var integer
 	 */
-	public $flags;
+	public $contextFlags;
 
 	/**
 	 *
@@ -29,10 +29,10 @@ class StatementContext
 
 	public function __construct(StatementBuilder $builder, StructureElement $pivot = null)
 	{
-		$this->flags = 0;
+		$this->contextFlags = 0;
 		$this->builder = $builder;
 		$this->resolver = new StructureResolver($pivot);
-		$this->aliases = new \ArrayObject();
+		$this->resultColumnAliases = new \ArrayObject();
 	}
 
 	/**
@@ -42,8 +42,8 @@ class StatementContext
 	 */
 	public function findColumn($path)
 	{
-		if (ns\Container::keyExists($this->aliases, $path))
-			return $this->aliases[$path];
+		if (ns\Container::keyExists($this->resultColumnAliases, $path))
+			return $this->resultColumnAliases[$path];
 
 		return $this->resolver->findColumn($path);
 	}
@@ -63,7 +63,7 @@ class StatementContext
 		}
 		else
 		{
-			$this->aliases[$alias] = $reference;
+			$this->resultColumnAliases[$alias] = $reference;
 		}
 	}
 
@@ -74,7 +74,7 @@ class StatementContext
 	 */
 	public function isAlias($identifier)
 	{
-		return ns\Container::keyExists($this->aliases, $identifier) ||
+		return ns\Container::keyExists($this->resultColumnAliases, $identifier) ||
 			$this->resolver->isAlias($identifier);
 	}
 
@@ -116,5 +116,5 @@ class StatementContext
 	 *
 	 * @var \ArrayObject
 	 */
-	private $aliases;
+	private $resultColumnAliases;
 }

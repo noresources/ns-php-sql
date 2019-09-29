@@ -48,7 +48,7 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/noresources/ns-php-core",
-                "reference": "0152d731c4f7f2115e039437252d96433b0e2323"
+                "reference": "069d835b5535d5293dcab0af880f8afc4e10d6a3"
             },
             "require": {
                 "php": ">= 5.4"
@@ -81,7 +81,7 @@
             "support": {
                 "issues": "https://github.com/noresources/ns-php-core/issues"
             },
-            "time": "2019-09-29T15:38:24+00:00"
+            "time": "2019-09-29T20:24:24+00:00"
         }
     ],
     "packages-dev": [
