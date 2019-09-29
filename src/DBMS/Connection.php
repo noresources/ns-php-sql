@@ -101,18 +101,18 @@ class ConnectionHelper
 	public static function createConnection($settings)
 	{
 		if (!ns\Container::isArray($settings))
-			$settings = array(
+			$settings = [
 				K::CONNECTION_PARAMETER_TYPE => $settings
-			);
+			];
 
 		$type = ns\Container::keyValue($settings, K::CONNECTION_PARAMETER_TYPE, 'Reference');
 		$connection = null;
 		$className = null;
 
-		$classNames = array(
+		$classNames = [
 			$type,
 			__NAMESPACE__ . '\\' . $type . '\\Connection'
-		);
+		];
 
 		if (self::$connectionClassMap->offsetExists($type))
 		{

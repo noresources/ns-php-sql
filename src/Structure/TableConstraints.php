@@ -40,7 +40,7 @@ class ColumnTableConstraint extends TableConstraint implements \ArrayAccess, \It
 	 * @param unknown $name
 	 *        	Constraint name
 	 */
-	protected function __construct($columns = array (), $name = null)
+	protected function __construct($columns = [], $name = null)
 	{
 		parent::__construct($name);
 		$this->columns = new \ArrayObject($columns);
@@ -111,7 +111,7 @@ class PrimaryKeyTableConstraint extends ColumnTableConstraint
 	 * @param array $columns Column names on which the key applies.
 	 * @param unknown $name Constraint name
 	 */
-	public function __construct($columns = array (), $name = null)
+	public function __construct($columns = [], $name = null)
 	{
 		parent::__construct($columns, $name);
 	}
@@ -124,7 +124,7 @@ class UniqueTableConstraint extends ColumnTableConstraint
 	 * @param array $columns Column names on which the key applies.
 	 * @param unknown $name Constraint name
 	 */
-	public function __construct($columns = array (), $name = null)
+	public function __construct($columns = [], $name = null)
 	{
 		parent::__construct($columns, $name);
 	}

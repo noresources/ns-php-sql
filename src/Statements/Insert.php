@@ -149,8 +149,8 @@ class InsertQuery extends Statement implements \ArrayAccess
 				->identifier($context->escapeIdentifier($this->table->alias));
 		}
 
-		$columns = array();
-		$values = array();
+		$columns = [];
+		$values = [];
 		$c = $this->columnValues->count();
 
 		if (($c == 0) && ($builderFlags & K::BUILDER_INSERT_DEFAULT_VALUES))

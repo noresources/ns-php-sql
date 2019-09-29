@@ -36,18 +36,18 @@ class ParameterArray implements \IteratorAggregate, \Countable
 				$type = K::DATATYPE_NULL;
 		}
 
-		$this->table->offsetSet($parameter, array(
+		$this->table->offsetSet($parameter, [
 			self::VALUE => $value,
 			self::TYPE => $type
-		));
+		]);
 	}
 
 	public function clear()
 	{
-		$this->table->exchangeArray(array());
+		$this->table->exchangeArray([]);
 	}
 
-	public function __construct($table = array ())
+	public function __construct($table = [])
 	{
 		$this->table = new \ArrayObject();
 

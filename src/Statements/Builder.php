@@ -17,7 +17,7 @@ abstract class StatementBuilder
 	 */
 	public function __construct()
 	{
-		$this->builderFlags = array(
+		$this->builderFlags = [
 			K::BUILDER_DOMAIN_GENERIC => 0,
 			K::BUILDER_DOMAIN_SELECT => 0,
 			K::BUILDER_DOMAIN_INSERT => 0,
@@ -25,7 +25,7 @@ abstract class StatementBuilder
 			K::BUILDER_DOMAIN_DELETE => 0,
 			K::BUILDER_DOMAIN_DROP_TABLE => 0,
 			K::BUILDER_DOMAIN_CREATE_TABLE => 0
-		);
+		];
 	}
 
 	/**
@@ -173,7 +173,7 @@ abstract class StatementBuilder
 				$s .= 'PRIMARY KEY';
 			elseif ($constraint instanceof UniqueTableConstraint)
 				$v .= 'UNIQUE';
-			$columns = array();
+			$columns = [];
 
 			foreach ($constraint as $column)
 			{
@@ -188,22 +188,20 @@ abstract class StatementBuilder
 			if ($constraint->count())
 			{
 				$s .= ' (';
-				$s .= ns\Container::implodeKeys($constraint->columns, ', ',
-					array(
+				$s .= ns\Container::implodeKeys($constraint->columns, ', ',[
 						$this,
 						'escapeIdentifier'
-					));
+					]);
 				$s .= ')';
 			}
 			$s .= ' REFERENCES ' . $this->getCanonicalName($constraint->foreignTable);
 			if ($constraint->count())
 			{
 				$s .= ' (';
-				$s .= ns\Container::implodeValues($constraint->columns, ', ',
-					array(
+				$s .= ns\Container::implodeValues($constraint->columns, ', ',[
 						$this,
 						'escapeIdentifier'
-					));
+					]);
 				$s .= ')';
 			}
 
@@ -352,11 +350,10 @@ abstract class StatementBuilder
 	 */
 	public function escapeIdentifierPath($path)
 	{
-		return ns\Container::implode($path, '.', ns\Container::IMPLODE_VALUES,
-			array(
+		return ns\Container::implode($path, '.', ns\Container::IMPLODE_VALUES,[
 				$this,
 				'escapeIdentifier'
-			));
+			]);
 	}
 
 	/**

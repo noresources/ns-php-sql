@@ -10,14 +10,14 @@ use NoreSources\SQL\Constants as K;
 class StatementBuilder extends sql\StatementBuilder
 {
 
-	public function __construct($domainFlags = array())
+	public function __construct($domainFlags = [])
 	{
 		parent::__construct();
 
 		if (!\is_array($domainFlags))
-			$domainFlags = array(
+			$domainFlags = [
 				K::BUILDER_DOMAIN_GENERIC => $domainFlags
-			);
+			];
 
 		foreach ($domainFlags as $domain => $flags)
 			$this->setBuilderFlags($domain, $flags);

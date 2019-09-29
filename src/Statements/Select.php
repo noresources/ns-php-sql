@@ -54,10 +54,10 @@ class JoinClause implements Expression
 		array_shift($args);
 		array_shift($args);
 
-		call_user_func_array(array(
+		call_user_func_array([
 			$this,
 			'on'
-		), $args);
+		], $args);
 	}
 
 	public function tokenize(TokenStream &$stream, StatementContext $context)
@@ -141,7 +141,7 @@ class SelectQuery extends Statement
 			$table = $table->getPath();
 		}
 
-		$this->parts = array(
+		$this->parts = [
 			self::PART_DISTINCT => false,
 			self::PART_COLUMNS => new \ArrayObject(),
 			self::PART_TABLE => new TableReference($table, $alias),
@@ -150,11 +150,11 @@ class SelectQuery extends Statement
 			self::PART_GROUPBY => new \ArrayObject(),
 			self::PART_HAVING => null,
 			self::PART_ORDERBY => new \ArrayObject(),
-			self::PART_LIMIT => array(
+			self::PART_LIMIT => [
 				'count' => 0,
 				'offset' => 0
-			)
-		);
+			]
+		];
 	}
 
 	/**
@@ -296,12 +296,11 @@ class SelectQuery extends Statement
 	 */
 	public function orderBy($reference, $direction = K::ORDERING_ASC, $collation = null)
 	{
-		$this->parts[self::PART_ORDERBY]->offsetSet($reference,
-			array(
+		$this->parts[self::PART_ORDERBY]->offsetSet($reference,[
 				'expression' => $reference,
 				'direction' => $direction,
 				'collation' => $collation
-			));
+			]);
 		return $this;
 	}
 

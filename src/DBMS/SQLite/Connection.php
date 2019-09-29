@@ -91,10 +91,9 @@ class Connection implements sql\Connection
 		$defaultTablesetName = ns\Container::keyValue($parameters, K::CONNECTION_PARAMETER_DATABASE,
 			self::TABLESET_NAME_DEFAULT);
 
-		$sources = ns\Container::keyValue($parameters, K::CONNECTION_PARAMETER_SOURCE,
-			array(
+		$sources = ns\Container::keyValue($parameters, K::CONNECTION_PARAMETER_SOURCE, [
 				$defaultTablesetName => self::SOURCE_MEMORY
-			));
+			]);
 
 		$flags = 0;
 		if (ns\Container::keyValue($parameters, K::CONNECTION_PARAMETER_READONLY, false))
@@ -119,12 +118,12 @@ class Connection implements sql\Connection
 
 		if (\is_string($sources))
 		{
-			$sources = array(
+			$sources = [
 				$defaultTablesetName => $sources
-			);
+			];
 		}
 
-		$names = array();
+		$names = [];
 		foreach ($sources as $name => $source)
 		{
 			$name = self::getTablesetName($name, $source);

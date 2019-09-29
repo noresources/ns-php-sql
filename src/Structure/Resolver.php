@@ -32,14 +32,13 @@ class StructureResolver
 	 */
 	public function __construct(StructureElement $pivot = null)
 	{
-		$this->cache = new \ArrayObject(
-			array(
+		$this->cache = new \ArrayObject([
 				'aliases' => new \ArrayObject(),
 				'columns' => new \ArrayObject(),
 				'tables' => new \ArrayObject(),
 				'tablesets' => new \ArrayObject(),
 				'datasource' => new \ArrayObject()
-			));
+			]);
 
 		$this->structureAliases = new \ArrayObject();
 
@@ -58,7 +57,7 @@ class StructureResolver
 	{
 		foreach ($this->cache as $key => &$table)
 		{
-			$table->exchangeArray(array());
+			$table->exchangeArray([]);
 		}
 
 		$this->pivot = $pivot;

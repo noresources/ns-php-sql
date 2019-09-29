@@ -32,7 +32,7 @@ class FunctionExpression implements Expression
 	 */
 	public $returnType;
 
-	public function __construct($name, $arguments = array())
+	public function __construct($name, $arguments = [])
 	{
 		$this->name = $name;
 		$this->returnType = K::DATATYPE_UNDEFINED;

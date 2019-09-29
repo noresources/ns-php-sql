@@ -86,11 +86,11 @@ class JSONStructureSerializer extends StructureSerializer
 
 	private function serializeDatasource(DatasourceStructure $structure)
 	{
-		$properties = array(
+		$properties = [
 			'name' => $structure->getName(),
 			'kind' => 'datasource',
-			'tablesets' => array()
-		);
+			'tablesets' => []
+		];
 
 		foreach ($structure as $tableName => $table)
 		{
@@ -102,9 +102,9 @@ class JSONStructureSerializer extends StructureSerializer
 
 	private function serializeTableSet(TableSetStructure $structure)
 	{
-		$properties = array(
-			'tables' => array()
-		);
+		$properties = [
+			'tables' => []
+		];
 
 		foreach ($structure as $tableName => $table)
 		{
@@ -113,11 +113,10 @@ class JSONStructureSerializer extends StructureSerializer
 
 		if (!($structure->parent() instanceof DatasourceStructure))
 		{
-			$properties = array_merge(
-				array(
+			$properties = array_merge([
 					'name' => $structure->getName(),
 					'kind' => 'tableset'
-				), $properties);
+				], $properties);
 		}
 
 		return $properties;
@@ -125,9 +124,9 @@ class JSONStructureSerializer extends StructureSerializer
 
 	private function serializeTable(TableStructure $structure)
 	{
-		$properties = array(
-			'columns' => array()
-		);
+		$properties = [
+			'columns' => []
+		];
 
 		foreach ($structure as $columnName => $column)
 		{
@@ -136,10 +135,10 @@ class JSONStructureSerializer extends StructureSerializer
 
 		if (!($structure->parent() instanceof TableSetStructure))
 		{
-			$properties = array_merge(array(
+			$properties = array_merge([
 				'name' => $structure->getName(),
 				'kind' => 'table'
-			), $properties);
+			], $properties);
 		}
 
 		return $properties;
@@ -147,17 +146,17 @@ class JSONStructureSerializer extends StructureSerializer
 
 	private function serializeTableColumn(TableColumnStructure $structure)
 	{
-		$properties = array();
+		$properties = [];
 		foreach ($structure->getProperties() as $key => $value)
 		{
 			$properties[$key] = $value;
 		}
 		if (!($structure->parent() instanceof TableStructure))
 		{
-			$properties = array_merge(array(
+			$properties = array_merge([
 				'name' => $structure->getName(),
 				'kind' => 'column'
-			), $properties);
+			], $properties);
 		}
 
 		return $properties;
@@ -311,10 +310,10 @@ class XMLStructureSerializer extends StructureSerializer
 		$fkNodes = $node->getElementsByTagNameNS(K::XML_NAMESPACE_URI, K::XML_ELEMENT_FOREIGN_KEY);
 		foreach ($fkNodes as $fkNode)
 		{
-			$this->foreignKeys->append(array(
+			$this->foreignKeys->append([
 				'table' => $structure,
 				'node' => $fkNode
-			));
+			]);
 		}
 	}
 
@@ -329,13 +328,13 @@ class XMLStructureSerializer extends StructureSerializer
 		$dataTypeNode = self::getSingleElementByTagName($node, 'datatype');
 		if ($dataTypeNode instanceof \DOMElement)
 		{
-			$a = array(
+			$a = [
 				'binary' => K::DATATYPE_BINARY,
 				'boolean' => K::DATATYPE_BOOLEAN,
 				'numeric' => K::DATATYPE_NUMBER,
 				'timestamp' => K::DATATYPE_TIMESTAMP,
 				'string' => K::DATATYPE_STRING
-			);
+			];
 
 			foreach ($a as $k => $v)
 			{
@@ -377,7 +376,7 @@ class XMLStructureSerializer extends StructureSerializer
 		$defaultNode = self::getSingleElementByTagName($node, 'default');
 		if ($defaultNode instanceof \DOMElement)
 		{
-			$nodeNames = array(
+			$nodeNames = [
 				'integer',
 				'boolean',
 				'datetime', // deprecated
@@ -387,7 +386,7 @@ class XMLStructureSerializer extends StructureSerializer
 				'number',
 				'base64Binary',
 				'hexBinary'
-			);
+			];
 
 			foreach ($nodeNames as $name)
 			{
@@ -560,17 +559,17 @@ class XMLStructureSerializer extends StructureSerializer
 
 				$fk->addColumn($name, $foreignColumnName);
 
-				$events = array(
+				$events = [
 					'onUpdate',
 					'onDelete'
-				);
+				];
 
-				$actions = array(
+				$actions = [
 					'cascade' => K::FOREIGN_KEY_ACTION_CASCADE,
 					'restrict' => K::FOREIGN_KEY_ACTION_RESTRICT,
 					'default' => K::FOREIGN_KEY_ACTION_SET_DEFAULT,
 					'null' => K::FOREIGN_KEY_ACTION_SET_NULL
-				);
+				];
 
 				foreach ($events as $event)
 				{

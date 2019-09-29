@@ -51,7 +51,7 @@ abstract class StructureElement implements \ArrayAccess, \IteratorAggregate, \Co
 		$this->elementName = $name;
 		$this->parentElement = $parent;
 
-		$this->subElements = new \ArrayObject(array());
+		$this->subElements = new \ArrayObject([]);
 	}
 
 	// Countable
@@ -190,7 +190,7 @@ abstract class StructureElement implements \ArrayAccess, \IteratorAggregate, \Co
 
 	protected function clear()
 	{
-		$this->subElements->exchangeArray(array());
+		$this->subElements->exchangeArray([]);
 	}
 
 	/**
@@ -261,36 +261,36 @@ class TableColumnStructure extends StructureElement
 	public function __construct(/*TableStructure */$a_tableStructure, $name)
 	{
 		parent::__construct($name, $a_tableStructure);
-		$this->m_columnProperties = array(
-			self::ACCEPT_NULL => array(
+		$this->m_columnProperties = [
+			self::ACCEPT_NULL => [
 				'set' => true,
 				'value' => true
-			),
-			self::AUTO_INCREMENT => array(
+			],
+			self::AUTO_INCREMENT => [
 				'set' => true,
 				'value' => false
-			),
-			self::FRACTION_DIGIT_COUNT => array(
+			],
+			self::FRACTION_DIGIT_COUNT => [
 				'set' => true,
 				'value' => 0
-			),
-			self::DATA_SIZE => array(
+			],
+			self::DATA_SIZE => [
 				'set' => false,
 				'value' => 0
-			),
-			self::DATATYPE => array(
+			],
+			self::DATATYPE => [
 				'set' => true,
 				'value' => K::DATATYPE_STRING
-			),
-			self::ENUMERATION => array(
+			],
+			self::ENUMERATION => [
 				'set' => false,
 				'value' => null
-			),
-			self::DEFAULT_VALUE => array(
+			],
+			self::DEFAULT_VALUE => [
 				'set' => false,
 				'value' => null
-			)
-		);
+			]
+		];
 	}
 
 	/**
@@ -300,7 +300,7 @@ class TableColumnStructure extends StructureElement
 	 */
 	public function getProperties()
 	{
-		$a = array();
+		$a = [];
 		foreach ($this->m_columnProperties as $key => $property)
 		{
 			if ($property['set'])
