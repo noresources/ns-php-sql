@@ -130,6 +130,8 @@ class InsertQuery extends Statement implements \ArrayAccess
 		$builderFlags = $context->getBuilderFlags(K::BUILDER_DOMAIN_GENERIC);
 		$builderFlags |= $context->getBuilderFlags(K::BUILDER_DOMAIN_INSERT);
 
+		$context->pushAliasContext();
+		
 		$tableStructure = $context->findTable($this->table->path);
 		/**
 		 *
@@ -155,7 +157,9 @@ class InsertQuery extends Statement implements \ArrayAccess
 
 		if (($c == 0) && ($builderFlags & K::BUILDER_INSERT_DEFAULT_VALUES))
 		{
-			return $stream->space()->keyword('DEFAULT VALUES');
+			$stream->space()->keyword('DEFAULT VALUES');
+			$context->popAliasContext();
+			return $stream;
 		}
 
 		foreach ($this->columnValues as $columnName => $value)
@@ -247,7 +251,10 @@ class InsertQuery extends Statement implements \ArrayAccess
 			$c++;
 		}
 
-		return $stream->text(')');
+		$stream->text(')');
+		
+		$context->popAliasContext();
+		return $stream;
 	}
 
 	/**

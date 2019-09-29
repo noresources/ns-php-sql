@@ -51,6 +51,8 @@ class CreateTableQuery extends Statement
 			throw new StatementException($this, 'Missing or invalid table structure');
 		}
 
+		$context->pushAliasContext();
+		
 		/**
 		 *
 		 * @todo IF NOT EXISTS (if available)
@@ -214,7 +216,9 @@ class CreateTableQuery extends Statement
 			}
 		} // constraints
 
-		return $stream->text(')');
+		$stream->text(')');
+		$context->popAliasContext();
+		return $stream;
 	}
 
 	/**

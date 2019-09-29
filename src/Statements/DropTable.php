@@ -26,6 +26,8 @@ class DropTableQuery extends Statement
 		$builderFlags = $context->getBuilderFlags(K::BUILDER_DOMAIN_GENERIC);
 		$builderFlags |= $context->getBuilderFlags(K::BUILDER_DOMAIN_DROP_TABLE);
 
+		$context->pushAliasContext();
+
 		$tableStructure = $context->findTable($this->table->path);
 
 		$stream->keyword('drop')
@@ -39,7 +41,9 @@ class DropTableQuery extends Statement
 				->keyword('exists');
 		}
 
-		return $stream->space()->identifier($context->getCanonicalName($tableStructure));
+		$stream->space()->identifier($context->getCanonicalName($tableStructure));
+		$context->popAliasContext();
+		return $stream;
 	}
 
 	public function traverse($callable, StatementContext $context, $flags = 0)

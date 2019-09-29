@@ -32,7 +32,7 @@ class StatementContext
 		$this->contextFlags = 0;
 		$this->builder = $builder;
 		$this->resolver = new StructureResolver($pivot);
-		$this->resultColumnAliases = new \ArrayObject();
+		$this->resultColumnAliases = new ns\Stack();
 	}
 
 	/**
@@ -42,8 +42,11 @@ class StatementContext
 	 */
 	public function findColumn($path)
 	{
-		if (ns\Container::keyExists($this->resultColumnAliases, $path))
-			return $this->resultColumnAliases[$path];
+		if ($this->resultColumnAliases->isEmpty())
+			$this->resultColumnAliases->push(new \ArrayObject());
+
+		if ($this->resultColumnAliases->offsetExists($path))
+			return $this->resultColumnAliases->offsetGet($path);
 
 		return $this->resolver->findColumn($path);
 	}
@@ -63,7 +66,10 @@ class StatementContext
 		}
 		else
 		{
-			$this->resultColumnAliases[$alias] = $reference;
+			if ($this->resultColumnAliases->isEmpty())
+				$this->resultColumnAliases->push(new \ArrayObject());
+
+			$this->resultColumnAliases->offsetSet($alias, $reference);
 		}
 	}
 
@@ -74,10 +80,27 @@ class StatementContext
 	 */
 	public function isAlias($identifier)
 	{
-		return ns\Container::keyExists($this->resultColumnAliases, $identifier) ||
-			$this->resolver->isAlias($identifier);
+		if ($this->resultColumnAliases->count())
+		{
+			if ($this->resultColumnAliases->offsetExists($identifier))
+				return true;
+		}
+
+		return $this->resolver->isAlias($identifier);
 	}
 
+	public function pushAliasContext()
+	{
+		$this->resultColumnAliases->push(new \ArrayObject());
+		$this->resolver->pushAliasContext();
+	}
+	
+	public function popAliasContext()
+	{
+		$this->resultColumnAliases->pop();
+		$this->resolver->popAliasContext();
+	}
+	
 	/**
 	 * Attemp to call StatementBuilder or StructureResolver method
 	 *
@@ -114,7 +137,7 @@ class StatementContext
 
 	/**
 	 *
-	 * @var \ArrayObject
+	 * @var \Noresources\Stack Stack of \ArrayObject
 	 */
 	private $resultColumnAliases;
 }

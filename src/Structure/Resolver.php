@@ -40,7 +40,7 @@ class StructureResolver
 				'datasource' => new \ArrayObject()
 			]);
 
-		$this->structureAliases = new \ArrayObject();
+		$this->structureAliases = new ns\Stack();
 
 		if ($pivot instanceof StructureElement)
 		{
@@ -55,9 +55,11 @@ class StructureResolver
 	 */
 	public function setPivot(StructureElement $pivot)
 	{
-		foreach ($this->cache as $key => &$table)
+		$this->structureAliases = new ns\Stack();
+		
+		foreach ($this->cache as $key => &$structure)
 		{
-			$table->exchangeArray([]);
+			$structure->exchangeArray([]);
 		}
 
 		$this->pivot = $pivot;
@@ -217,14 +219,30 @@ class StructureResolver
 	public function setAlias($alias, $reference)
 	{
 		$this->cache[self::getKey($reference)]->offsetSet($alias, $reference);
+		if ($this->structureAliases->isEmpty())
+			$this->pushAliasContext();
+		
 		$this->structureAliases->offsetSet($alias, $reference);
 	}
-
+	
 	public function isAlias($identifier)
 	{
+		if ($this->structureAliases->isEmpty())
+			$this->pushAliasContext();
+		
 		return $this->structureAliases->offsetExists($identifier);
 	}
 
+	public function pushAliasContext()
+	{
+		$this->structureAliases->push (new \ArrayObject());
+	}
+	
+	public function popAliasContext()
+	{
+		return $this->structureAliases->pop();
+	}
+	
 	private static function getKey($item)
 	{
 		if ($item instanceof TableColumnStructure)
@@ -298,7 +316,7 @@ class StructureResolver
 
 	/**
 	 *
-	 * @var \ArrayObject
+	 * @var \NoreSources\Stack Stack of \ArrayObject
 	 */
 	private $structureAliases;
 }
