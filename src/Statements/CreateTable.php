@@ -52,7 +52,7 @@ class CreateTableQuery extends Statement
 		}
 
 		$context->pushAliasContext();
-		
+
 		/**
 		 *
 		 * @todo IF NOT EXISTS (if available)
@@ -115,7 +115,7 @@ class CreateTableQuery extends Statement
 
 			if ($column->hasProperty(K::COLUMN_PROPERTY_DEFAULT_VALUE))
 			{
-				$v = $context->evaluateExpression(
+				$v = ExpressionEvaluator::evaluate(
 					$column->getProperty(K::COLUMN_PROPERTY_DEFAULT_VALUE));
 				$stream->space()
 					->keyword('DEFAULT')

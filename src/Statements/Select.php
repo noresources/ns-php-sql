@@ -106,7 +106,7 @@ class JoinClause implements Expression
 
 		if ($this->constraints !== null)
 		{
-			$context->evaluateExpression($this->constraints)->traverse($callable, $context, $flags);
+			ExpressionEvaluator::evaluate($this->constraints)->traverse($callable, $context, $flags);
 		}
 	}
 
@@ -323,7 +323,7 @@ class SelectQuery extends Statement
 		$builderFlags |= $context->getBuilderFlags(K::BUILDER_DOMAIN_SELECT);
 
 		$context->pushAliasContext();
-		
+
 		$tableStructure = $context->findTable($this->parts[self::PART_TABLE]->path);
 
 		# Resolve and build table-related parts
@@ -411,7 +411,7 @@ class SelectQuery extends Statement
 				if ($c++ > 0)
 					$stream->text(',')->space();
 
-				$x = $context->evaluateExpression($column->expression);
+				$x = ExpressionEvaluator::evaluate($column->expression);
 				$stream->expression($x, $context);
 
 				if ($column->alias)
@@ -440,8 +440,8 @@ class SelectQuery extends Statement
 		$stream->stream($where);
 
 		// GROUP BY
-		if ($this->parts[self::PART_GROUPBY] &&
-			ns\Container::count($this->parts[self::PART_GROUPBY]))
+		if ($this->parts[self::PART_GROUPBY] && ns\Container::count(
+			$this->parts[self::PART_GROUPBY]))
 		{
 
 			$stream->space()
@@ -471,7 +471,7 @@ class SelectQuery extends Statement
 				if ($c++ > 0)
 					$stream->text(',')->space();
 
-				$x = $context->evaluateExpression($clause['expression']);
+				$x = ExpressionEvaluator::evaluate($clause['expression']);
 				$stream->expression($x, $context)
 					->space()
 					->keyword($clause['direction'] == K::ORDERING_ASC ? 'ASC' : 'DESC');
@@ -505,7 +505,7 @@ class SelectQuery extends Statement
 
 		foreach ($this->parts[self::PART_COLUMNS] as $resultColumn)
 		{
-			$context->evaluateExpression($resultColumn->expression)->traverse($callable, $context,
+			ExpressionEvaluator::evaluate($resultColumn->expression)->traverse($callable, $context,
 				$flags);
 		}
 
@@ -531,7 +531,7 @@ class SelectQuery extends Statement
 
 		foreach ($this->parts[self::PART_ORDERBY] as $clause)
 		{
-			$context->evaluateExpression($clause['expression'])->traverse($callable, $context,
+			ExpressionEvaluator::evaluate($clause['expression'])->traverse($callable, $context,
 				$flags);
 		}
 	}
@@ -542,7 +542,8 @@ class SelectQuery extends Statement
 		{
 			if ($column->alias)
 			{
-				$context->setAlias($column->alias, $context->evaluateExpression($column->expression));
+				$context->setAlias($column->alias,
+					ExpressionEvaluator::evaluate($column->expression));
 			}
 		}
 	}

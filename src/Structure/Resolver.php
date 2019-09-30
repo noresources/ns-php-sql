@@ -56,7 +56,7 @@ class StructureResolver
 	public function setPivot(StructureElement $pivot)
 	{
 		$this->structureAliases = new ns\Stack();
-		
+
 		foreach ($this->cache as $key => &$structure)
 		{
 			$structure->exchangeArray([]);
@@ -221,28 +221,28 @@ class StructureResolver
 		$this->cache[self::getKey($reference)]->offsetSet($alias, $reference);
 		if ($this->structureAliases->isEmpty())
 			$this->pushAliasContext();
-		
+
 		$this->structureAliases->offsetSet($alias, $reference);
 	}
-	
+
 	public function isAlias($identifier)
 	{
 		if ($this->structureAliases->isEmpty())
 			$this->pushAliasContext();
-		
+
 		return $this->structureAliases->offsetExists($identifier);
 	}
 
 	public function pushAliasContext()
 	{
-		$this->structureAliases->push (new \ArrayObject());
+		$this->structureAliases->push(new \ArrayObject());
 	}
-	
+
 	public function popAliasContext()
 	{
 		return $this->structureAliases->pop();
 	}
-	
+
 	private static function getKey($item)
 	{
 		if ($item instanceof TableColumnStructure)

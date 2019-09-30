@@ -23,12 +23,10 @@ final class ExpressionEvaluatorTest extends TestCase
 			'parenthesis' => ['(12)', ParenthesisExpression::class ],
 		];
 
-		$evaluator = new ExpressionEvaluator();
-
 		foreach ($list as $label => $test)
 		{
 			$label = $label . ' ' . strval($test[0]);
-			$e = $evaluator($test[0]);
+			$e = ExpressionEvaluator::evaluate($test[0]);
 			$this->assertInstanceOf($test[1], $e);
 		}
 	}
@@ -46,12 +44,10 @@ final class ExpressionEvaluatorTest extends TestCase
 				'like' => [ "fps like 'DOOM%'", BinaryOperatorExpression::class ]
 		];
 
-		$evaluator = new ExpressionEvaluator();
-
 		foreach ($list as $label => $test)
 		{
 			$label = $label . ' ' . strval($test[0]);
-			$e = $evaluator($test[0]);
+			$e = ExpressionEvaluator::evaluate($test[0]);
 			$this->assertInstanceOf($test[1], $e);
 		}
 	}
@@ -72,12 +68,10 @@ final class ExpressionEvaluatorTest extends TestCase
 				'timestamp' => ['#2012-12-24T16:30:58+01:00#', K::DATATYPE_TIMESTAMP]
 		];
 
-		$evaluator = new ExpressionEvaluator();
-
 		foreach ($list as $label => $test)
 		{
 			$label = $label . ' ' . strval($test[0]);
-			$e = $evaluator($test[0]);
+			$e = ExpressionEvaluator::evaluate($test[0]);
 			$this->assertInstanceOf(LiteralExpression::class, $e, $label);
 			if ($e instanceof LiteralExpression)
 			{
@@ -109,12 +103,10 @@ final class ExpressionEvaluatorTest extends TestCase
 			],
 		];
 
-		$evaluator = new ExpressionEvaluator();
-
 		foreach ($list as $label => $test)
 		{
 			$label = $label . ' ' . strval($test[0]);
-			$e = $evaluator($test[0]);
+			$e = ExpressionEvaluator::evaluate($test[0]);
 			$this->assertInstanceOf(FunctionExpression::class, $e, $label);
 			if ($e instanceof FunctionExpression)
 			{
@@ -156,10 +148,9 @@ final class ExpressionEvaluatorTest extends TestCase
 			]
 		];
 
-		$evaluator = new ExpressionEvaluator();
 		foreach ($timestamps as $label => $timestamp)
 		{
-			$x = $evaluator($timestamp['expression']);
+			$x = ExpressionEvaluator::evaluate($timestamp['expression']);
 			$this->assertInstanceOf(LiteralExpression::class, $x, $label . ' class');
 			if ($x instanceof LiteralExpression)
 			{
@@ -187,15 +178,18 @@ final class ExpressionEvaluatorTest extends TestCase
 					'expression' => ["func()" => [2, 'column', X::literal ('string')]],
 					'main' => FunctionExpression::class,
 					'args' => [LiteralExpression::class, ColumnExpression::class, LiteralExpression::class],
+			],
+			'in' => [
+				'expression' => ["in" => [2, 128, ':param']],
+				'main' => InOperatorExpression::class,
+				'args' => [LiteralExpression::class, LiteralExpression::class, ParameterExpression::class],
 			]
 		];
 
-		$evaluator = new ExpressionEvaluator();
-
 		foreach ($expressions as $label => $test)
 		{
-			$x = $evaluator($test['expression']);
-			$this->assertInstanceOf($test['main'], $x, $label . ' main');
+			$x = ExpressionEvaluator::evaluate($test['expression']);
+			$this->assertInstanceOf($test['main'], $x, "'" . $label . '\' main class');
 			if ($x instanceof BinaryOperatorExpression)
 			{
 				if (\array_key_exists('left', $test))
@@ -207,7 +201,7 @@ final class ExpressionEvaluatorTest extends TestCase
 			{
 				if (\array_key_exists('args', $test))
 				{
-					$this->assertCount(count($test['args']), $x->arguments);
+					$this->assertCount(count($test['args']), $x->arguments, $label . ' number of arguments');
 					for ($i = 0; $i < count($test['args']); $i++)
 					{
 						$this->assertInstanceOf($test['args'][$i], $x->arguments[$i],

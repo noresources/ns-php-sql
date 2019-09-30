@@ -131,7 +131,7 @@ class InsertQuery extends Statement implements \ArrayAccess
 		$builderFlags |= $context->getBuilderFlags(K::BUILDER_DOMAIN_INSERT);
 
 		$context->pushAliasContext();
-		
+
 		$tableStructure = $context->findTable($this->table->path);
 		/**
 		 *
@@ -182,7 +182,7 @@ class InsertQuery extends Statement implements \ArrayAccess
 			}
 			elseif ($value['evaluate'])
 			{
-				$x = $context->evaluateExpression($v);
+				$x = ExpressionEvaluator::evaluate($v);
 			}
 			else
 			{
@@ -215,7 +215,7 @@ class InsertQuery extends Statement implements \ArrayAccess
 					}
 					else
 					{
-						$x = $context->evaluateExpression(
+						$x = ExpressionEvaluator::evaluate(
 							$column->getProperty(K::COLUMN_PROPERTY_DEFAULT_VALUE));
 						$values[] = $x;
 					}
@@ -252,7 +252,7 @@ class InsertQuery extends Statement implements \ArrayAccess
 		}
 
 		$stream->text(')');
-		
+
 		$context->popAliasContext();
 		return $stream;
 	}

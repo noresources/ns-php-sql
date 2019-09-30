@@ -44,7 +44,7 @@ class DeleteQuery extends Statement
 	public function tokenize(TokenStream &$stream, StatementContext $context)
 	{
 		$context->pushAliasContext();
-		
+
 		$tableStructure = $context->findTable($this->table->path);
 
 		$stream->keyword('delete')

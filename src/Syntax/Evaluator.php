@@ -113,6 +113,9 @@ class ExpressionEvaluator
 						PolishNotationOperation::SPACE),
 						'or' => new BinaryPolishNotationOperation('OR', PolishNotationOperation::KEYWORD |
 						PolishNotationOperation::SPACE)
+				],
+				'*' => [
+					'in' => new BinaryPolishNotationOperation('in', PolishNotationOperation::PRE_SPACE | PolishNotationOperation::POST_WHITESPACE, InOperatorExpression::class)
 				]
 		];
 	}
@@ -326,8 +329,10 @@ class ExpressionEvaluator
 	 */
 	private function evaluatePolishNotationElement($key, $operands)
 	{
+		$key = trim ($key);
 		$length = strlen($key);
-		if (strpos($key, '()') == ($length - 2))
+		
+		if (strpos($key, '()') === ($length - 2))
 		{
 			return new FunctionExpression(substr($key, 0, $length - 2), $operands);
 		}
@@ -342,12 +347,23 @@ class ExpressionEvaluator
 
 		if (!($o instanceof PolishNotationOperation))
 			throw new ExpressionEvaluationException(
-				'Unable to evalate Polish notation ' . $key . ' => ');
+				'Unable to evalate Polish notation ' . $key . ' => [' . $c . ' argument(s)... ]');
 
-		$cls = new \ReflectionClass($o->className);
-		return $cls->newInstanceArgs(array_merge([
-			$o->operator
-		], $operands));
+		if ($o->className === InOperatorExpression::class)
+		{
+			$left = array_shift($operands);
+			$include = true;
+			if (strpos($o->operator, '!') == 0) $include = false;
+			elseif (strpos($o->operator, 'not ') == 0) $include = false;
+			return new InOperatorExpression($left, $operands, $include);
+		}
+		else
+		{
+			$cls = new \ReflectionClass($o->className);
+			return $cls->newInstanceArgs(array_merge([
+				$o->operator
+			], $operands));
+		}
 	}
 
 	/**
@@ -410,7 +426,7 @@ class ExpressionEvaluator
 			throw new ExpressionEvaluationException($e->getMessage());
 		}
 	}
-
+	
 	private function buildGrammar()
 	{
 		$rx = [
@@ -1160,7 +1176,7 @@ class PolishNotationOperation
 	}
 }
 
-class BinaryPolishNotationOperation extends PolishNotationOperation
+final class BinaryPolishNotationOperation extends PolishNotationOperation
 {
 
 	public function __construct($key, $flags = PolishNotationOperation::WHITESPACE, $className = null)
@@ -1169,7 +1185,7 @@ class BinaryPolishNotationOperation extends PolishNotationOperation
 	}
 }
 
-class UnaryPolishNotationOperation extends PolishNotationOperation
+final class UnaryPolishNotationOperation extends PolishNotationOperation
 {
 
 	public function __construct($key, $flags = PolishNotationOperation::POST_WHITESPACE, $className = null)

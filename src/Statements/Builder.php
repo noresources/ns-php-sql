@@ -220,16 +220,6 @@ abstract class StatementBuilder
 	}
 
 	/**
-	 *
-	 * @param string $evaluable
-	 * @return \NoreSources\SQL\LiteralExpression|\NoreSources\SQL\BinaryOperatorExpression|array|\NoreSources\SQL\Expression|NULL|mixed
-	 */
-	public function evaluateExpression($evaluable)
-	{
-		return ExpressionEvaluator::evaluate($evaluable);
-	}
-
-	/**
 	 * Find the kind of data returned by the given expression.
 	 *
 	 * @param Expression $expression

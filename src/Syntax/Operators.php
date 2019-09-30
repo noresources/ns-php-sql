@@ -123,7 +123,7 @@ class BinaryOperatorExpression implements Expression
  * <expressio> IN (<expression-list>)
  * or <expression IN (SelectQuery)
  */
-class InOperatorExpression extends ListExpression
+class InOperatorExpression extends ListExpression implements \IteratorAggregate
 {
 
 	/**
@@ -244,7 +244,8 @@ class BetweenExpression implements Expression
 	 * @param Expression $max
 	 *        	Maximum boundary
 	 */
-	public function __construct(Expression $left = null, Expression $min = null, Expression $max = null)
+	public function __construct(Expression $left = null, Expression $min = null,
+		Expression $max = null)
 	{
 		$this->inside = true;
 		$this->leftOperand = $left;

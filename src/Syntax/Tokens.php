@@ -75,7 +75,7 @@ class TokenStream implements \IteratorAggregate, \Countable
 		$c = null;
 		foreach ($constraints as $constraint)
 		{
-			$e = $context->evaluateExpression($constraint);
+			$e = ExpressionEvaluator::evaluate($constraint);
 			if ($c instanceof Expression)
 				$c = new BinaryOperatorExpression('AND', $c, $e);
 			else
@@ -90,7 +90,7 @@ class TokenStream implements \IteratorAggregate, \Countable
 
 	public function evaluable(Evaluable $evaluable, StatementContext $context)
 	{
-		$x = $context->evaluateExpression($evaluable);
+		$x = ExpressionEvaluator::evaluate($evaluable);
 		return $this->expression($x, $context);
 	}
 

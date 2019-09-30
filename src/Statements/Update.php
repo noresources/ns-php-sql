@@ -131,7 +131,7 @@ class UpdateQuery extends Statement implements \ArrayAccess
 		}
 
 		$context->pushAliasContext();
-		
+
 		$tableStructure = $context->findTable($this->table->path);
 		/**
 		 *
@@ -161,7 +161,7 @@ class UpdateQuery extends Statement implements \ArrayAccess
 			}
 			elseif ($value['evaluate'])
 			{
-				$x = $context->evaluateExpression($v);
+				$x = ExpressionEvaluator::evaluate($v);
 			}
 			else
 			{

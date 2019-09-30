@@ -94,13 +94,13 @@ class StatementContext
 		$this->resultColumnAliases->push(new \ArrayObject());
 		$this->resolver->pushAliasContext();
 	}
-	
+
 	public function popAliasContext()
 	{
 		$this->resultColumnAliases->pop();
 		$this->resolver->popAliasContext();
 	}
-	
+
 	/**
 	 * Attemp to call StatementBuilder or StructureResolver method
 	 *

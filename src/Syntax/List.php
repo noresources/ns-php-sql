@@ -33,7 +33,7 @@ class ListExpression extends \ArrayObject implements Expression
 			if ($c++ > 0)
 				$stream->text(',')->space();
 
-			$stream->expression($context->evaluateExpression($value), $context);
+			$stream->expression(ExpressionEvaluator::evaluate($value), $context);
 		}
 
 		return $stream;

@@ -75,11 +75,19 @@ final class UpdateTest extends TestCase
 		$q = new UpdateQuery($tableStructure);
 
 		$q->set('salary', 'salary * 2', true);
-		$q->where('id=1');
+
+		$sub = new SelectQuery('Employees', 'e');
+		$sub->columns('id');
+		$sub->where('id > 2');
+
+		$q->where([
+			'in' => ['id', $sub]
+		]);
 
 		$stream = new TokenStream();
 		$q->tokenize($stream, $context);
 		$sql = $builder->buildStatementData($stream);
+		$sql = \SqlFormatter::format($sql, false);
 
 		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, null, 'sql');
 	}
