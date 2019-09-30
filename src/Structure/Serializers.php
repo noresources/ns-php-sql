@@ -322,6 +322,12 @@ class XMLStructureSerializer extends StructureSerializer
 		if ($node->hasAttribute('id'))
 			$this->identifiedElements->offsetSet($node->getAttribute('id'), $structure);
 
+		$notNullNode = self::getSingleElementByTagName($node, 'notnull');
+		if ($notNullNode instanceof \DOMNode)
+		{
+			$structure->setProperty(K::COLUMN_PROPERTY_NULL, false);
+		}
+					
 		$type = K::DATATYPE_UNDEFINED;
 		$typeNode = null;
 

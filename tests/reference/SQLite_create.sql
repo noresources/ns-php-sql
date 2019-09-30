@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS "ns_unittests"."Employees" (
-  "id" INTEGER, 
+  "id" INTEGER NOT NULL, 
   "name" TEXT, 
   "gender" TEXT, 
   "salary" REAL(7), 
