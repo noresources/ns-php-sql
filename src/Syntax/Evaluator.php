@@ -112,10 +112,14 @@ class ExpressionEvaluator
 						'and' => new BinaryPolishNotationOperation('AND', PolishNotationOperation::KEYWORD |
 						PolishNotationOperation::SPACE),
 						'or' => new BinaryPolishNotationOperation('OR', PolishNotationOperation::KEYWORD |
+						PolishNotationOperation::SPACE),
+						'like' => new BinaryPolishNotationOperation('LIKE', PolishNotationOperation::KEYWORD |
 						PolishNotationOperation::SPACE)
 				],
 				'*' => [
-					'in' => new BinaryPolishNotationOperation('in', PolishNotationOperation::PRE_SPACE | PolishNotationOperation::POST_WHITESPACE, InOperatorExpression::class)
+					'in' => new BinaryPolishNotationOperation('in', PolishNotationOperation::PRE_SPACE | PolishNotationOperation::POST_WHITESPACE, InOperatorExpression::class),
+					'!in' => new BinaryPolishNotationOperation('in', PolishNotationOperation::PRE_SPACE | PolishNotationOperation::POST_WHITESPACE, InOperatorExpression::class),
+					'not in' => new BinaryPolishNotationOperation('in', PolishNotationOperation::PRE_SPACE | PolishNotationOperation::POST_WHITESPACE, InOperatorExpression::class)
 				]
 		];
 	}
@@ -353,8 +357,10 @@ class ExpressionEvaluator
 		{
 			$left = array_shift($operands);
 			$include = true;
-			if (strpos($o->operator, '!') == 0) $include = false;
-			elseif (strpos($o->operator, 'not ') == 0) $include = false;
+			if (strpos($key, '!') === 0) 
+				$include = false;
+			elseif (strpos($key, 'not ') === 0) 
+			$include = false;
 			return new InOperatorExpression($left, $operands, $include);
 		}
 		else
@@ -917,7 +923,6 @@ class ExpressionEvaluator
 		/**
 		 *
 		 * @todo Operator with restricted operand types
-		 *       like
 		 *       glob
 		 *       match
 		 *       regexp
@@ -930,17 +935,6 @@ class ExpressionEvaluator
 			],
 			function ($left, $o, $right) {
 				return new BinaryOperatorExpression($o, $left, $right);
-			});
-
-		$likeOperation = new Loco\ConcParser([
-				'expression',
-				'space',
-				self::negatableKeywordParser('like', 'LIKE', 'NOT LIKE'),
-				'space',
-				'string'
-			],
-			function ($e, $_s1, $o, $_s2, $s) {
-				return new BinaryOperatorExpression($o, $e, $s);
 			});
 
 		$inOperation = new Loco\ConcParser([
@@ -989,7 +983,6 @@ class ExpressionEvaluator
 					[
 						'between',
 						'in-operation',
-						'like-operation',
 						'binary-operation',
 						'unary-operation',
 						'case',
@@ -1012,7 +1005,6 @@ class ExpressionEvaluator
 				'parenthesis' => $parenthesis,
 				'unary-operation' => $unaryOperation,
 				'in-operation' => $inOperation,
-				'like-operation' => $likeOperation,
 				'binary-operation' => $binaryOperation,
 				'between' => $between,
 				'identifier' => $identifier,

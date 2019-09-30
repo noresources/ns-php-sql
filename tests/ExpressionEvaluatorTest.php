@@ -41,7 +41,7 @@ final class ExpressionEvaluatorTest extends TestCase
 			'not-between' => [ 'peace not between 1940 and 1945', BetweenExpression::class ],
 			'in' => [ 'even in (0, 2, 4, 6, 8, 10)', InOperatorExpression::class ],
 			'not iin' => [ 'odd not in (0, 2, 4, 6, 8, 10)', InOperatorExpression::class ],
-				'like' => [ "fps like 'DOOM%'", BinaryOperatorExpression::class ]
+			'like' => [ "fps like 'DOOM%'", BinaryOperatorExpression::class ]
 		];
 
 		foreach ($list as $label => $test)
