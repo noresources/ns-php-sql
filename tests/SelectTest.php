@@ -74,6 +74,34 @@ final class SelectTest extends TestCase
 		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, null, 'sql');
 	}
 
+	public function testSubQueriesAndAliases()
+	{
+		$structure = $this->datasources->get('Company');
+		$tablesetStructure = $structure['ns_unittests'];
+		$this->assertInstanceOf(TableSetStructure::class, $tablesetStructure);
+		$builder = new Reference\StatementBuilder();
+		$context = new StatementContext($builder);
+		$context->setPivot ($tablesetStructure);
+		
+		$q = new SelectQuery('Employees', 'E');
+		$q->columns(['id' => 'I'], ['name' => 'N']);
+		
+		$sub = new SelectQuery('Hierarchy', 'E');
+		$sub->columns(['manageeId' => 'N']);
+		$sub->where([
+			'<' => [ 'managerId', 10 ]
+		]);
+		
+		$q->where (['gender' => "'M'"], ['in' => ['id', $sub]]);
+		
+		$stream = new TokenStream();
+		$q->tokenize($stream, $context);
+		$sql = $builder->buildStatementData($stream);
+		$sql = \SqlFormatter::format(strval($sql), false);
+		
+		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, null, 'sql');
+	}
+	
 	/**
 	 *
 	 * @var DatasourceManager

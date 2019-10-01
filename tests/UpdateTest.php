@@ -82,6 +82,8 @@ final class UpdateTest extends TestCase
 
 		$q->where([
 			'in' => ['id', $sub]
+		], [
+			'!in' => ['id', 4, 5]
 		]);
 
 		$stream = new TokenStream();

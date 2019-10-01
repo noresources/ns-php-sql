@@ -322,10 +322,10 @@ class SelectQuery extends Statement
 		$builderFlags = $context->getBuilderFlags(K::BUILDER_DOMAIN_GENERIC);
 		$builderFlags |= $context->getBuilderFlags(K::BUILDER_DOMAIN_SELECT);
 
-		$context->pushAliasContext();
-
 		$tableStructure = $context->findTable($this->parts[self::PART_TABLE]->path);
-
+		
+		$context->pushResolverContext($tableStructure);
+		
 		# Resolve and build table-related parts
 
 		if ($this->parts[self::PART_TABLE]->alias)
@@ -495,7 +495,7 @@ class SelectQuery extends Statement
 			}
 		}
 
-		$context->popAliasContext();
+		$context->popResolverContext();
 		return $stream;
 	}
 

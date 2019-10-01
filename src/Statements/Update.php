@@ -130,9 +130,8 @@ class UpdateQuery extends Statement implements \ArrayAccess
 			throw new StatementException($this, 'No column value');
 		}
 
-		$context->pushAliasContext();
-
 		$tableStructure = $context->findTable($this->table->path);
+		$context->pushResolverContext($tableStructure);
 		/**
 		 *
 		 * @var TableStructure $tableStructure
@@ -188,7 +187,7 @@ class UpdateQuery extends Statement implements \ArrayAccess
 				->constraints($this->whereConstraints, $context);
 		}
 
-		$context->popAliasContext();
+		$context->popResolverContext();
 		return $stream;
 	}
 

@@ -56,7 +56,7 @@ class StatementContext
 	 * @param string $alias
 	 * @param StructureElement|TableReference|ResultColumnReference $reference
 	 *
-	 * @see \NoreSources\SQL\StructureResolver::setAlias()
+	 * @see \NoreSources\SQL\StructureResolver::Alias()
 	 */
 	public function setAlias($alias, $reference)
 	{
@@ -89,16 +89,16 @@ class StatementContext
 		return $this->resolver->isAlias($identifier);
 	}
 
-	public function pushAliasContext()
+	public function pushResolverContext(StructureElement $pivot = null)
 	{
 		$this->resultColumnAliases->push(new \ArrayObject());
-		$this->resolver->pushAliasContext();
+		$this->resolver->pushResolverContext($pivot);
 	}
 
-	public function popAliasContext()
+	public function popResolverContext()
 	{
 		$this->resultColumnAliases->pop();
-		$this->resolver->popAliasContext();
+		$this->resolver->popResolverContext();
 	}
 
 	/**

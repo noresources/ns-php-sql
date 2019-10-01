@@ -12,6 +12,7 @@ namespace NoreSources\SQL;
 
 use NoreSources as ns;
 use NoreSources\SQL\Constants as K;
+use NoreSources\Stack;
 
 class StructureResolverException extends \Exception
 {
@@ -19,6 +20,50 @@ class StructureResolverException extends \Exception
 	public function __construct($path)
 	{
 		parent::__construct($path . ' not found');
+	}
+}
+
+class StructureResolverContext
+{
+
+	/**
+	 *
+	 * @var StructureElement
+	 */
+	public $pivot;
+
+	/**
+	 *
+	 * @var \ArrayObject
+	 */
+	public $cache;
+
+	/**
+	 *
+	 * @var \ArrayObject
+	 */
+	public $aliases;
+
+	public function __construct(StructureElement $pivot)
+	{
+		$this->pivot = $pivot;
+		$this->cache = new \ArrayObject([
+			TableColumnStructure::class => new \ArrayObject(),
+			TableStructure::class => new \ArrayObject(),
+			TableSetStructure::class => new \ArrayObject(),
+			DatasourceStructure::class => new \ArrayObject()
+		]);
+		$this->aliases = new \ArrayObject();
+
+		$key = get_class($pivot);
+		$this->cache[$key]->offsetSet($pivot->getName(), $pivot);
+		$this->cache[$key]->offsetSet($pivot->getPath(), $pivot);
+		$p = $pivot->parent();
+		while ($p instanceof StructureElement)
+		{
+			$this->cache[get_class($p)]->offsetSet($p->getName(), $p);
+			$p = $p->parent();
+		}
 	}
 }
 
@@ -32,20 +77,31 @@ class StructureResolver
 	 */
 	public function __construct(StructureElement $pivot = null)
 	{
-		$this->cache = new \ArrayObject([
-				'aliases' => new \ArrayObject(),
-				'columns' => new \ArrayObject(),
-				'tables' => new \ArrayObject(),
-				'tablesets' => new \ArrayObject(),
-				'datasource' => new \ArrayObject()
-			]);
-
-		$this->structureAliases = new ns\Stack();
+		$this->contextStack = new Stack();
 
 		if ($pivot instanceof StructureElement)
 		{
-			$this->setPivot($pivot);
+			$this->contextStack->push(new StructureResolverContext($pivot));
 		}
+	}
+
+	public function __get($member)
+	{
+		if (!$this->contextStack->isEmpty())
+			return $this->contextStack->$member;
+
+		throw new \RuntimeException('Context stack not initialized');
+	}
+
+	public function __set($member, $value)
+	{
+		if (!$this->contextStack->isEmpty())
+		{
+			$this->contextStack->$member = $value;
+			return;
+		}
+
+		throw new \RuntimeException('Context stack not initialized');
 	}
 
 	/**
@@ -55,23 +111,10 @@ class StructureResolver
 	 */
 	public function setPivot(StructureElement $pivot)
 	{
-		$this->structureAliases = new ns\Stack();
-
-		foreach ($this->cache as $key => &$structure)
-		{
-			$structure->exchangeArray([]);
-		}
+		if ($this->contextStack->isEmpty())
+			$this->contextStack->push(new StructureResolverContext($pivot));
 
 		$this->pivot = $pivot;
-		$key = self::getKey($pivot);
-		$this->cache[$key]->offsetSet($pivot->getName(), $pivot);
-		$this->cache[$key]->offsetSet($pivot->getPath(), $pivot);
-		$p = $pivot->parent();
-		while ($p instanceof StructureElement)
-		{
-			$this->cache[self::getKey($p)]->offsetSet($p->getName(), $p);
-			$p = $p->parent();
-		}
 	}
 
 	/**
@@ -91,9 +134,9 @@ class StructureResolver
 	 */
 	public function findColumn($path)
 	{
-		if ($this->cache['columns']->offsetExists($path))
+		if ($this->cache[TableColumnStructure::class]->offsetExists($path))
 		{
-			return $this->cache['columns'][$path];
+			return $this->cache[TableColumnStructure::class][$path];
 		}
 
 		$x = explode('.', $path);
@@ -126,7 +169,7 @@ class StructureResolver
 
 		if ($column instanceof TableColumnStructure)
 		{
-			$this->cache['columns']->offsetSet($path, $column);
+			$this->cache[TableColumnStructure::class]->offsetSet($path, $column);
 		}
 		else
 		{
@@ -144,9 +187,9 @@ class StructureResolver
 	 */
 	public function findTable($path)
 	{
-		if ($this->cache['tables']->offsetExists($path))
+		if ($this->cache[TableStructure::class]->offsetExists($path))
 		{
-			return $this->cache['tables'][$path];
+			return $this->cache[TableStructure::class][$path];
 		}
 
 		$x = explode('.', $path);
@@ -169,7 +212,7 @@ class StructureResolver
 
 		if ($table instanceof TableStructure)
 		{
-			$this->cache['tables']->offsetSet($path, $table);
+			$this->cache[TableStructure::class]->offsetSet($path, $table);
 		}
 		else
 		{
@@ -187,9 +230,9 @@ class StructureResolver
 	 */
 	public function findTableset($path)
 	{
-		if ($this->cache['tablesets']->offsetExists($path))
+		if ($this->cache[TableSetStructure::class]->offsetExists($path))
 		{
-			return $this->cache['tablesets'][$path];
+			return $this->cache[TableSetStructure::class][$path];
 		}
 
 		$datasource = $this->pivot;
@@ -202,7 +245,7 @@ class StructureResolver
 
 		if ($tableset instanceof TableSetStructure)
 		{
-			$this->cache['tablesets']->offsetSet($path, $tableset);
+			$this->cache[TableSetStructure::class]->offsetSet($path, $tableset);
 		}
 		else
 		{
@@ -216,51 +259,26 @@ class StructureResolver
 	 * @param string $alias
 	 * @param StructureElement $structure
 	 */
-	public function setAlias($alias, $reference)
+	public function setAlias($alias, StructureElement $reference)
 	{
-		$this->cache[self::getKey($reference)]->offsetSet($alias, $reference);
-		if ($this->structureAliases->isEmpty())
-			$this->pushAliasContext();
-
-		$this->structureAliases->offsetSet($alias, $reference);
+		$this->cache[get_class($reference)]->offsetSet($alias, $reference);
+		$this->aliases->offsetSet($alias, $reference);
 	}
 
 	public function isAlias($identifier)
 	{
-		if ($this->structureAliases->isEmpty())
-			$this->pushAliasContext();
-
-		return $this->structureAliases->offsetExists($identifier);
+		return $this->aliases->offsetExists($identifier);
 	}
 
-	public function pushAliasContext()
+	public function pushResolverContext(StructureElement $pivot = null)
 	{
-		$this->structureAliases->push(new \ArrayObject());
+		$this->contextStack->push(
+			new StructureResolverContext(($pivot instanceof StructureElement) ? $pivot : $pivot));
 	}
 
-	public function popAliasContext()
+	public function popResolverContext()
 	{
-		return $this->structureAliases->pop();
-	}
-
-	private static function getKey($item)
-	{
-		if ($item instanceof TableColumnStructure)
-		{
-			return 'columns';
-		}
-		elseif ($item instanceof TableStructure)
-		{
-			return 'tables';
-		}
-		elseif ($item instanceof TableSetStructure)
-		{
-			return 'tablesets';
-		}
-		elseif ($item instanceof DatasourceStructure)
-		{
-			return 'datasource';
-		}
+		return $this->contextStack->pop();
 	}
 
 	private function getDefaultTableset()
@@ -303,20 +321,8 @@ class StructureResolver
 	}
 
 	/**
-	 *
-	 * @var StructureElement
+	 * 
+	 * @var \NoreSources\Stack
 	 */
-	private $pivot;
-
-	/**
-	 *
-	 * @var \ArrayObject
-	 */
-	private $cache;
-
-	/**
-	 *
-	 * @var \NoreSources\Stack Stack of \ArrayObject
-	 */
-	private $structureAliases;
+	private $contextStack;
 }

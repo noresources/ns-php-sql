@@ -39,6 +39,45 @@
 			<sql:column name="name" />
 		</sql:index>
 
+		<sql:table name="Hierarchy">
+			<sql:column name="managerId">
+				<sql:datatype>
+					<sql:numeric />
+				</sql:datatype>
+				<sql:notnull />
+			</sql:column>
+			<sql:column name="manageeId">
+				<sql:datatype>
+					<sql:numeric />
+				</sql:datatype>
+				<sql:notnull />
+			</sql:column>
+
+			<sql:primarykey>
+				<sql:column name="managerId" />
+				<sql:column name="manageeId" />
+			</sql:primarykey>
+
+			<sql:foreignkey>
+				<sql:column name="managerId" />
+				<sql:reference>
+					<sql:tableref id="nsut.tables.Employees" />
+					<sql:column name="id" />
+					<sql:onupdate action="cascade" />
+					<sql:ondelete action="cascade" />
+				</sql:reference>
+			</sql:foreignkey>
+			<sql:foreignkey>
+				<sql:column name="manageeId" />
+				<sql:reference>
+					<sql:tableref name="Employees" />
+					<sql:column name="id" />
+					<sql:onupdate action="cascade" />
+					<sql:ondelete action="cascade" />
+				</sql:reference>
+			</sql:foreignkey>
+		</sql:table>
+
 		<sql:table name="Tasks">
 			<sql:column name="id">
 				<sql:datatype>

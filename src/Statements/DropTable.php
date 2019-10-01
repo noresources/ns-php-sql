@@ -26,9 +26,9 @@ class DropTableQuery extends Statement
 		$builderFlags = $context->getBuilderFlags(K::BUILDER_DOMAIN_GENERIC);
 		$builderFlags |= $context->getBuilderFlags(K::BUILDER_DOMAIN_DROP_TABLE);
 
-		$context->pushAliasContext();
-
 		$tableStructure = $context->findTable($this->table->path);
+		
+		$context->pushResolverContext($tableStructure);
 
 		$stream->keyword('drop')
 			->space()
@@ -42,7 +42,7 @@ class DropTableQuery extends Statement
 		}
 
 		$stream->space()->identifier($context->getCanonicalName($tableStructure));
-		$context->popAliasContext();
+		$context->popResolverContext();
 		return $stream;
 	}
 
