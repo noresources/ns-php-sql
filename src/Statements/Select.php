@@ -323,9 +323,9 @@ class SelectQuery extends Statement
 		$builderFlags |= $context->getBuilderFlags(K::BUILDER_DOMAIN_SELECT);
 
 		$tableStructure = $context->findTable($this->parts[self::PART_TABLE]->path);
-		
+
 		$context->pushResolverContext($tableStructure);
-		
+
 		# Resolve and build table-related parts
 
 		if ($this->parts[self::PART_TABLE]->alias)
@@ -440,8 +440,8 @@ class SelectQuery extends Statement
 		$stream->stream($where);
 
 		// GROUP BY
-		if ($this->parts[self::PART_GROUPBY] && ns\Container::count(
-			$this->parts[self::PART_GROUPBY]))
+		if ($this->parts[self::PART_GROUPBY] &&
+			ns\Container::count($this->parts[self::PART_GROUPBY]))
 		{
 
 			$stream->space()

@@ -327,7 +327,7 @@ class XMLStructureSerializer extends StructureSerializer
 		{
 			$structure->setProperty(K::COLUMN_PROPERTY_NULL, false);
 		}
-					
+
 		$type = K::DATATYPE_UNDEFINED;
 		$typeNode = null;
 

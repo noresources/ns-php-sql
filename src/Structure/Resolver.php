@@ -321,7 +321,7 @@ class StructureResolver
 	}
 
 	/**
-	 * 
+	 *
 	 * @var \NoreSources\Stack
 	 */
 	private $contextStack;

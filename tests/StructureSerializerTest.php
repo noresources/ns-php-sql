@@ -24,6 +24,17 @@ final class StructureSerializerTest extends TestCase
 		$this->assertArrayHasKey('tablesets', $a);
 	}
 
+	public function testBinarySerialize()
+	{
+		$serializer = new XMLStructureSerializer();
+		$serializer->unserialize($this->getStructureFileContent('types'));
+		$this->assertInstanceOf(DatasourceStructure::class, $serializer->structureElement);
+
+		$serialized = \serialize($serializer->structureElement);
+		$unserialized = \unserialize($serialized);
+		$this->assertInstanceOf(DatasourceStructure::class, $unserialized);
+	}
+
 	private function getStructureFileContent($name)
 	{
 		return file_get_contents(__DIR__ . '/data/structures/' . $name . '.xml');

@@ -131,12 +131,12 @@ class InsertQuery extends Statement implements \ArrayAccess
 		$builderFlags |= $context->getBuilderFlags(K::BUILDER_DOMAIN_INSERT);
 
 		$tableStructure = $context->findTable($this->table->path);
-				
+
 		/**
 		 *
 		 * @var TableStructure $tableStructure
 		 */
-		
+
 		$context->pushResolverContext($tableStructure);
 
 		$stream->keyword('insert')

@@ -27,7 +27,7 @@ class DropTableQuery extends Statement
 		$builderFlags |= $context->getBuilderFlags(K::BUILDER_DOMAIN_DROP_TABLE);
 
 		$tableStructure = $context->findTable($this->table->path);
-		
+
 		$context->pushResolverContext($tableStructure);
 
 		$stream->keyword('drop')
