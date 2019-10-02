@@ -221,10 +221,10 @@ class ColumnValueFilter implements RecordQueryOption
 				}
 				else
 				{
-					$v = call_user_func(array(
-							$className,
-							'serializeValue'
-					), $column->getName(), $value);
+					/**
+					 * @todo serialize ? 
+					 */
+					$v = $value;
 					$e = new ns\BinaryOperatorExpression('=', $column, $column->importData($v));
 				}
 
@@ -235,10 +235,9 @@ class ColumnValueFilter implements RecordQueryOption
 			case 'in':
 				if (!($value instanceof ns\IExpression))
 				{
-					$value = call_user_func(array(
-							$className,
-							'unserializeColumn'
-					), $column->getDatasource(), $column->getStructure(), $value);
+					/**
+					 * @todo serialize ? 
+					 */
 				}
 				return new SQLSmartEquality($column, $value, $positive);
 				break;
@@ -253,15 +252,11 @@ class ColumnValueFilter implements RecordQueryOption
 					throw new RecordException(null, 'Invalid between filter (2 element expected)');
 				}
 
-				$min = call_user_func(array(
-						$className,
-						'serializeValue'
-				), $column->getName(), $value[0]);
-
-				$max = call_user_func(array(
-						$className,
-						'serializeValue'
-				), $column->getName(), $value[1]);
+				/**
+				 * @todo serialize
+				 */
+				$min = $value[0];
+				$max = $value[1];
 
 				$e = new SQLBetween($column, $min, $max);
 				if (!$positive)
@@ -273,11 +268,10 @@ class ColumnValueFilter implements RecordQueryOption
 
 				break;
 			case '&':
-				$v = call_user_func(array(
-						$className,
-						'serializeValue'
-				), $column->getName(), $value);
-
+				$v = $value;
+				/**
+				 * @todo serialize ?
+				 */
 				$e = new ns\BinaryOperatorExpression('&', $column, $column->importData($v));
 				$e->protect = true;
 				$e = new ns\BinaryOperatorExpression('=', $e, $column->importData($v));
@@ -293,10 +287,10 @@ class ColumnValueFilter implements RecordQueryOption
 			case '>':
 			case '>=':
 			case 'like':
-				$v = call_user_func(array(
-						$className,
-						'serializeValue'
-				), $column->getName(), $value);
+				/**
+				 * @todo serialize ?
+				 */
+				$v = $value;
 				$e = new ns\BinaryOperatorExpression(strtoupper($operator), $column, $column->importData($v));
 				if (!$positive)
 				{
