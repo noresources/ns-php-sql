@@ -271,6 +271,7 @@ function timestampToDateTime($value, \DateTimeZone $timezone = null, Datasource 
 		$d = \DateTime::createFromFormat($format, $value, $timezone);
 		if ($d instanceof \DateTime)
 			return $d;
+		else return (new \DateTime($value, $timezone));
 	}
 	
 	$now = new \DateTime('now', $timezone);

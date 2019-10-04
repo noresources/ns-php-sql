@@ -493,6 +493,7 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 				if (\is_string($data)) {
 					$d = \DateTime::createFromFormat($fmt, $data);
 					if ($d instanceof \DateTest) $data = $d;
+					else $data = new \DateTime ($data);
 				}
 			}
 		}

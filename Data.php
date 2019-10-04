@@ -527,10 +527,10 @@ class TimestampData extends Data
 				$d = \DateTime::createFromFormat($this->m_datasource->getDatasourceString(Datasource::kStringTimestampFormat),
 						$data);
 				if ($d instanceof \DateTime)
-				{
 					$data = $d;
-					$valid = true;
-				}
+				else /* @todo warning */
+					$data = new \DateTime ($data);
+				$valid = true;
 			}
 		}
 

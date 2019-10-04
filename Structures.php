@@ -621,7 +621,9 @@ class TableColumnStructure extends StructureElement
 						$value = ($value == 'true' ? true : false);
 						break;
 					case 'datetime':
-						$value = \DateTime::createFromFormat(\DateTime::ISO8601, $value);
+						$d = \DateTime::createFromFormat(\DateTime::ISO8601, $value);
+						if ($d instanceof \DateTime) $value = $d;
+						else $value = new \DateTime ($value);
 						break;
 					case 'null':
 						$value = null;
