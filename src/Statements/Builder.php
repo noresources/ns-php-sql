@@ -340,7 +340,7 @@ abstract class StatementBuilder
 	 */
 	public function escapeIdentifierPath($path)
 	{
-		return ns\Container::implode($path, '.', ns\Container::IMPLODE_VALUES,[
+		return ns\Container::implodeValues($path, '.', [
 				$this,
 				'escapeIdentifier'
 			]);
@@ -364,6 +364,12 @@ abstract class StatementBuilder
 		return $s;
 	}
 
+	/**
+	 *
+	 * @param TokenStream $stream
+	 *        	Statement tokens
+	 * @return \NoreSources\SQL\StatementData
+	 */
 	public function buildStatementData(TokenStream $stream)
 	{
 		$data = new StatementData();
