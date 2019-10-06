@@ -4,6 +4,10 @@ namespace NoreSources\SQL;
 use NoreSources as ns;
 use NoreSources\SQL\Constants as K;
 
+/**
+ * A list of parameter values to pass to the Connection::executeStatement() method
+ * alongside a statement with parameters
+ */
 class ParameterArray implements \IteratorAggregate, \Countable
 {
 
@@ -16,6 +20,9 @@ class ParameterArray implements \IteratorAggregate, \Countable
 		return $this->table->getIterator();
 	}
 
+	/**
+	 * @return integer Number of parameter values
+	 */
 	public function count()
 	{
 		return $this->table->count();
@@ -71,12 +78,14 @@ class ParameterArray implements \IteratorAggregate, \Countable
 	private $table;
 }
 
+/**
+ * Pre-built statement
+ */
 abstract class PreparedStatement
 {
 
 	/**
-	 *
-	 * @param string|StatementData $data
+	 * @param string|StatementData Statement data
 	 */
 	public function __construct($data)
 	{
@@ -86,6 +95,9 @@ abstract class PreparedStatement
 			$this->parameters = new StatementParameterMap();
 	}
 
+	/**
+	 * @retur string SQL statement string
+	 */
 	public function __toString()
 	{
 		return $this->getStatement();
