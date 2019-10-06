@@ -38,7 +38,7 @@ class StatementBuilder extends sql\StatementBuilder
 		return (':' . preg_replace('/[^a-zA-Z0-9_]/', '_', $name));
 	}
 
-	public function getColumnTypeName(TableColumnStructure $column)
+	public static function getSQLiteColumnTypeName(TableColumnStructure $column)
 	{
 		$dataType = K::DATATYPE_UNDEFINED;
 		if ($column->hasProperty(K::COLUMN_PROPERTY_DATA_TYPE))
@@ -59,6 +59,11 @@ class StatementBuilder extends sql\StatementBuilder
 		}
 
 		return 'TEXT';
+	}
+
+	public function getColumnTypeName(TableColumnStructure $column)
+	{
+		return self::getSQLiteColumnTypeName($column);
 	}
 
 	public function getKeyword($keyword)
