@@ -7,6 +7,28 @@ namespace NoreSources\SQL;
 use NoreSources as ns;
 use NoreSources\SQL\Constants as K;
 
+class RecordsetException extends \ErrorException
+{
+
+	/**
+	 *
+	 * @var Recordset
+	 */
+	public $recordset;
+
+	/**
+	 *
+	 * @param Recordset $recordset
+	 * @param string $message
+	 * @param integer $code
+	 */
+	public function __construct(Recordset $recordset, $message, $code = null)
+	{
+		parent::__construct($message, $code);
+		$this->recordset = $recordset;
+	}
+}
+
 abstract class Recordset implements \Iterator
 {
 
@@ -15,6 +37,22 @@ abstract class Recordset implements \Iterator
 	const FETCH_INDEXED = K::RECORDSET_FETCH_INDEXED;
 
 	const FETCH_BOTH = K::RECORDSET_FETCH_BOTH;
+
+	/**
+	 *
+	 * @property-read string $rowIndex Current row index
+	 * @param string $member
+	 * @throws \InvalidArgumentException
+	 * @return number
+	 */
+	public function __get($member)
+	{
+		if ($member == 'rowIndex')
+			return $this->rowIndex;
+
+		throw new \InvalidArgumentException(
+			$member . ' is not a property of ' . \get_called_class());
+	}
 
 	abstract function getColumnCount();
 
@@ -29,6 +67,8 @@ abstract class Recordset implements \Iterator
 
 	public function key()
 	{
+		if ($this->flags & self::POSITION_FLAGS)
+			return -1;
 		return $this->rowIndex;
 	}
 
@@ -53,7 +93,7 @@ abstract class Recordset implements \Iterator
 			return $this->record;
 		}
 
-		return FALSE;
+		return false;
 	}
 
 	/**
@@ -102,13 +142,13 @@ abstract class Recordset implements \Iterator
 
 	/**
 	 *
-	 * @var integer
-	 */
-	protected $rowIndex;
-
-	/**
-	 *
 	 * @var \ArrayObject
 	 */
 	protected $record;
+
+	/**
+	 *
+	 * @var integer
+	 */
+	private $rowIndex;
 }
