@@ -133,7 +133,7 @@ class Connection implements sql\Connection
 		if (!($pdo instanceof \PDOStatement))
 			throw new sql\ConnectionException($this, 'Failed to prepare statement');
 
-			return new PreparedStatement($pdo, $statement);
+		return new PreparedStatement($pdo, $statement);
 	}
 
 	/**
@@ -196,9 +196,9 @@ class Connection implements sql\Connection
 			$pdo = $this->connection->query($statement);
 			if ($pdo === false)
 				throw new sql\ConnectionException($this, 'Failed to execute');
-				$statement = new PreparedStatement ($pdo, $statement);
+			$statement = new PreparedStatement($pdo, $statement);
 		}
-		
+
 		return (new Recordset($statement));
 	}
 

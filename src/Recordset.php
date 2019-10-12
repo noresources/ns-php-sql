@@ -32,15 +32,39 @@ class RecordsetException extends \ErrorException
 abstract class Recordset implements \Iterator
 {
 
+	/**
+	 * Fetch record row to an associative array
+	 *
+	 * @var integer
+	 */
 	const FETCH_ASSOCIATIVE = K::RECORDSET_FETCH_ASSOCIATIVE;
 
+	/**
+	 * Fetch record row to a indexed array
+	 *
+	 * @var integer
+	 */
 	const FETCH_INDEXED = K::RECORDSET_FETCH_INDEXED;
 
+	/**
+	 * Fetch record row to an array with both indexed and associative key
+	 *
+	 * @var integer
+	 */
 	const FETCH_BOTH = K::RECORDSET_FETCH_BOTH;
+
+	/**
+	 * Convert row values to the most accurate PHP object
+	 * according result column type
+	 *
+	 * @var integer
+	 */
+	const FETCH_UNSERIALIZE = K::RECORDSET_FETCH_UBSERIALIZE;
 
 	/**
 	 *
 	 * @property-read string $rowIndex Current row index
+	 * @property-read integer $flags Recordset flags
 	 * @param string $member
 	 * @throws \InvalidArgumentException
 	 * @return number
@@ -49,13 +73,26 @@ abstract class Recordset implements \Iterator
 	{
 		if ($member == 'rowIndex')
 			return $this->rowIndex;
+		
+		if ($member == 'flags')
+			return $this->flags;
 
 		throw new \InvalidArgumentException(
 			$member . ' is not a property of ' . \get_called_class());
 	}
 
+	/**
+	 * Get the number of column in a result row
+	 *
+	 * @return integer
+	 */
 	abstract function getColumnCount();
 
+	/**
+	 * Set recordset public flags
+	 *
+	 * @param integer $flags
+	 */
 	public function setFlags($flags)
 	{
 		$this->flags &= ~self::PUBLIC_FLAGS;
@@ -65,6 +102,11 @@ abstract class Recordset implements \Iterator
 		$this->flags |= $flags;
 	}
 
+	/**
+	 * Row index
+	 *
+	 * @return integer Current row index or -1 if iterator is not initialized or at end of recordset
+	 */
 	public function key()
 	{
 		if ($this->flags & self::POSITION_FLAGS)
@@ -118,7 +160,7 @@ abstract class Recordset implements \Iterator
 	}
 
 	// Internal flags
-	const PUBLIC_FLAGS = 0x03;
+	const PUBLIC_FLAGS = 0x07;
 
 	const POSITION_BEGIN = 0x10;
 
@@ -134,11 +176,6 @@ abstract class Recordset implements \Iterator
 		$this->flags |= $positionFlag;
 	}
 
-	/**
-	 *
-	 * @var integer
-	 */
-	protected $flags;
 
 	/**
 	 *
@@ -151,4 +188,10 @@ abstract class Recordset implements \Iterator
 	 * @var integer
 	 */
 	private $rowIndex;
+	
+	/**
+	 *
+	 * @var integer
+	 */
+	private $flags;
 }

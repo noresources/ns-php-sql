@@ -12,6 +12,7 @@ class PreparedStatement extends sql\PreparedStatement
 {
 
 	/**
+	 *
 	 * @param \PDOStatement $statement
 	 * @param string|sql\StatementData $data
 	 */
@@ -61,11 +62,11 @@ class PreparedStatement extends sql\PreparedStatement
 		$this->statementOwner = null;
 	}
 
-	public function isPDOStatementAcquired ()
+	public function isPDOStatementAcquired()
 	{
 		return ($this->statementOwner !== null);
 	}
-	
+
 	public function getPDOStatement()
 	{
 		return $this->statement;

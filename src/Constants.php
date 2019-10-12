@@ -329,6 +329,14 @@ class Constants
 	const RECORDSET_FETCH_BOTH = 0x03;
 
 	/**
+	 * Convert row values to the most accurate PHP object
+	 * according result column type
+	 *
+	 * @var integer
+	 */
+	const RECORDSET_FETCH_UBSERIALIZE = 0x04;
+
+	/**
 	 * SQL structure description XML namespace URI
 	 *
 	 * @var string
