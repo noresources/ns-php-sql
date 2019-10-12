@@ -29,7 +29,7 @@ class RecordsetException extends \ErrorException
 	}
 }
 
-abstract class Recordset implements \Iterator
+abstract class Recordset implements \Iterator, QueryResult
 {
 
 	/**
