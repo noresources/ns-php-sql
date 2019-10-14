@@ -366,32 +366,29 @@ abstract class StatementBuilder
 		return $s;
 	}
 
-	public function finalize(TokenStream $stream, StatementContext &$context = null)
+	public function finalize(TokenStream $stream, StatementContext &$context)
 	{
-		$data = new StatementData();
+		$context->sql = '';
+
 		foreach ($stream as $token)
 		{
 			$value = $token[TokenStream::INDEX_TOKEN];
 			$type = $token[TokenStream::INDEX_TYPE];
+
 			if ($type == K::TOKEN_PARAMETER)
 			{
 				$value = strval($value);
-				$position = $data->parameters->count();
+				$position = $context->getParameterCount();
 				$name = $this->getParameter($value, $position);
 
-				if (!$data->parameters->offsetExists($value))
-				{
-					$data->parameters->offsetSet($value, $name);
-				}
-
-				$data->parameters->offsetSet($position, $name);
-
+				$context->setParameter($position, $value, $name);
 				$value = $name;
 			}
-			$data->sql .= $value;
+
+			$context->sql .= $value;
 		}
 
-		return $data;
+		return $context;
 	}
 
 	/**

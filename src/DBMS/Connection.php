@@ -83,7 +83,7 @@ interface Connection
 
 	/**
 	 *
-	 * @param StatementData|string $statement
+	 * @param StatementContext|string $statement
 	 * @return PreparedStatement
 	 */
 	function prepareStatement($statement);
@@ -167,9 +167,8 @@ class ConnectionHelper
 			$context->setPivot($reference);
 		$stream = new TokenStream();
 		$statement->tokenize($stream, $context);
-		$data = $builder->finalize($stream);
-		$prepared = $connection->prepareStatement($data);
-		$prepared->setParameters($data->parameters);
+		$builder->finalize($stream, $context);
+		$prepared = $connection->prepareStatement($context);
 		return $prepared;
 	}
 

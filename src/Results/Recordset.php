@@ -34,6 +34,8 @@ class RecordsetException extends \ErrorException
 abstract class Recordset implements \Iterator, QueryResult
 {
 
+	use StatementOutputData;
+
 	/**
 	 * Fetch record row to an associative array
 	 *
@@ -84,16 +86,6 @@ abstract class Recordset implements \Iterator, QueryResult
 	}
 
 	/**
-	 * Get the number of column in a result row
-	 *
-	 * @return integer
-	 */
-	public function getColumnCount()
-	{
-		return $this->recordColumns->count();
-	}
-
-	/**
 	 * Set recordset public flags
 	 *
 	 * @param integer $flags
@@ -107,21 +99,9 @@ abstract class Recordset implements \Iterator, QueryResult
 		$this->flags |= $flags;
 	}
 
-	/**
-	 *
-	 * @param integer|string $column
-	 *        	Column index or name
-	 * @throws RecordsetException
-	 * @return ResultColumn
-	 */
-	public function getColumn($column)
-	{
-		return $this->recordColumns->getColumn($column);
-	}
-
 	public function setResultColumns(ResultColumnMap $columns)
 	{
-		$this->recordColumns = $columns;
+		$this->resultColumns = $columns;
 	}
 
 	/**
@@ -176,10 +156,12 @@ abstract class Recordset implements \Iterator, QueryResult
 
 	protected function __construct()
 	{
+		$this->resultColumns = new ResultColumnMap();
+		$this->statementType = K::QUERY_SELECT;
+
 		$this->flags = self::FETCH_BOTH;
 		$this->record = new \ArrayObject();
 		$this->setIteratorPosition(-1, self::POSITION_BEGIN);
-		$this->recordColumns = new ResultColumnMap();
 	}
 
 	// Internal flags
@@ -221,5 +203,5 @@ abstract class Recordset implements \Iterator, QueryResult
 	 *
 	 * @var ResultColumnMap
 	 */
-	private $recordColumns;
+	private $resultColumns;
 }

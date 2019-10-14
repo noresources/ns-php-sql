@@ -26,24 +26,57 @@ final class UpdateTest extends TestCase
 		$builder = $connection->getStatementBuilder();
 		$context = new StatementContext($builder);
 		$context->setPivot($tableStructure);
-		
+
 		$sets = [
 			'literals' => [
-					'base' => [ 'abc', false ],
-					'binary' => [ '456', false ],
-					'boolean' => [false, false],
-					'float' => [ 987.789, false ],
-					'timestamp' => [0, false]
+				'base' => [
+					'abc',
+					false
+				],
+				'binary' => [
+					'456',
+					false
+				],
+				'boolean' => [
+					false,
+					false
+				],
+				'float' => [
+					987.789,
+					false
+				],
+				'timestamp' => [
+					0,
+					false
+				]
 			],
 			'literals 2' => [
-					'boolean' => ['1', false],
-					'float' => [ '987.789', false ],
-					'timestamp' => ['2019-09-07 15:16:17+0300', false]
+				'boolean' => [
+					'1',
+					false
+				],
+				'float' => [
+					'987.789',
+					false
+				],
+				'timestamp' => [
+					'2019-09-07 15:16:17+0300',
+					false
+				]
 			],
 			'timestamp to pod' => [
-					'base' => [ new \DateTime ('2017-12-07 08:10:13.256+0700'), false ],
-					'int' => [ new \DateTime ('2017-12-07 08:10:13.256+0700'), false ],
-					'float' => [ new \DateTime ('2017-12-07 08:10:13.256+0700'), false ]
+				'base' => [
+					new \DateTime('2017-12-07 08:10:13.256+0700'),
+					false
+				],
+				'int' => [
+					new \DateTime('2017-12-07 08:10:13.256+0700'),
+					false
+				],
+				'float' => [
+					new \DateTime('2017-12-07 08:10:13.256+0700'),
+					false
+				]
 			]
 		];
 
@@ -58,7 +91,7 @@ final class UpdateTest extends TestCase
 
 			$stream = new TokenStream();
 			$q->tokenize($stream, $context);
-			$sql = $builder->finalize($stream);
+			$sql = $builder->finalize($stream, $context);
 			$sql = \SqlFormatter::format(strval($sql), false);
 			$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, $set, 'sql');
 		}
@@ -81,14 +114,21 @@ final class UpdateTest extends TestCase
 		$sub->where('id > 2');
 
 		$q->where([
-			'in' => ['id', $sub]
+			'in' => [
+				'id',
+				$sub
+			]
 		], [
-			'!in' => ['id', 4, 5]
+			'!in' => [
+				'id',
+				4,
+				5
+			]
 		]);
 
 		$stream = new TokenStream();
 		$q->tokenize($stream, $context);
-		$sql = $builder->finalize($stream);
+		$sql = $builder->finalize($stream, $context);
 		$sql = \SqlFormatter::format($sql, false);
 
 		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, null, 'sql');

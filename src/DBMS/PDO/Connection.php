@@ -119,7 +119,7 @@ class Connection implements sql\Connection
 
 	/**
 	 *
-	 * @param sql\StatementData|string $statement
+	 * @param sql\StatementContext|string $statement
 	 * @return \NoreSources\SQL\PDO\PreparedStatement
 	 */
 	public function prepareStatement($statement)

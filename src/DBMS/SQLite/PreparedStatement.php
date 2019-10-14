@@ -15,6 +15,13 @@ use NoreSources\SQL\StatementData;
 class PreparedStatement extends sql\PreparedStatement
 {
 
+	/**
+	 *
+	 * @param \SQLite3Stmt $statement
+	 * @param sql\StatementContext|string $data
+	 * @throws \Exception
+	 * @throws \BadMethodCallException
+	 */
 	public function __construct(\SQLite3Stmt $statement, $data = null)
 	{
 		parent::__construct($data);
@@ -23,18 +30,18 @@ class PreparedStatement extends sql\PreparedStatement
 
 		if (version_compare(PHP_VERSION, '7.4.0') < 0) // stmp->getSQL
 		{
-			if ($data instanceof sql\StatementData || \is_string($data))
+			if ($data instanceof sql\StatementContext || \is_string($data))
 			{
 				$this->sql = strval($data);
 			}
 			else
 			{
 				throw new \Exception(
-					'Unable to get SQL string from SQLite statement nor StatementData');
+					'Unable to get SQL string from SQLite statement nor StatementInputData');
 			}
 		}
 
-		if ($data instanceof sql\StatementData)
+		if ($data instanceof sql\StatementInputData)
 		{
 			if ($data->parameters->namedParameterCount != $statement->paramCount())
 			{

@@ -91,7 +91,8 @@ class Connection implements sql\Connection
 		$defaultTablesetName = ns\Container::keyValue($parameters, K::CONNECTION_PARAMETER_DATABASE,
 			self::TABLESET_NAME_DEFAULT);
 
-		$sources = ns\Container::keyValue($parameters, K::CONNECTION_PARAMETER_SOURCE, [
+		$sources = ns\Container::keyValue($parameters, K::CONNECTION_PARAMETER_SOURCE,
+			[
 				$defaultTablesetName => self::SOURCE_MEMORY
 			]);
 
@@ -179,7 +180,7 @@ class Connection implements sql\Connection
 
 	/**
 	 *
-	 * @param sql\StatementData|string $statement
+	 * @param sql\StatementContext|string $statement
 	 * @return \NoreSources\SQL\SQLite\PreparedStatement
 	 */
 	public function prepareStatement($statement)
@@ -226,11 +227,12 @@ class Connection implements sql\Connection
 				$name = $key;
 				if ($statement instanceof PreparedStatement)
 				{
-					if ($statement->getParameters()->offsetExists($key))
-						$name = $statement->getParameters()->offsetGet($key);
+					if ($statement->hasParameter($key))
+						$name = $statement->getParameter($key);
 					else
 						throw new ConnectionException($this,
-							'Parameter "' . $key . '" not found in prepared statement');
+							'Parameter "' . $key . '" not found in prepared statement (with ' .
+							$statement->getParameterCount() . ' parameter(s))');
 				}
 				else
 				{

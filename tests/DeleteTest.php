@@ -29,7 +29,7 @@ final class DeleteTest extends TestCase
 
 		$stream = new TokenStream();
 		$q->tokenize($stream, $context);
-		$sql = $builder->finalize($stream);
+		$sql = $builder->finalize($stream, $context);
 		$sql = \SqlFormatter::format(strval($sql), false);
 
 		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, null, 'sql');

@@ -38,8 +38,10 @@ final class SQLiteTest extends TestCase
 
 		$statement = ConnectionHelper::prepareStatement($this->connection, $statement,
 			$tableStructure);
-		
+
 		$this->assertInstanceOf(PreparedStatement::class, $statement);
+		$this->assertEquals(2, $statement->getParameterCount(),
+			'Number of parameters in prepared statement');
 
 		$sql = strval($statement);
 		$sql = \SqlFormatter::format(strval($sql), false);
@@ -62,10 +64,18 @@ final class SQLiteTest extends TestCase
 			$tableStructure);
 		$result = $this->connection->executeStatement($statement);
 		$this->assertInstanceOf(Recordset::class, $result);
-		
+
 		$expected = [
-				['name' => 'Bob', 'gender' => 'M', 'salary' => 2000.],
-				['name' => 'Ron', 'gender' => 'M', 'salary' => 2000.]
+			[
+				'name' => 'Bob',
+				'gender' => 'M',
+				'salary' => 2000.
+			],
+			[
+				'name' => 'Ron',
+				'gender' => 'M',
+				'salary' => 2000.
+			]
 		];
 
 		$index = 0;
@@ -88,7 +98,7 @@ final class SQLiteTest extends TestCase
 
 		$q = new CreateTableQuery($tableStructure);
 		$statement = ConnectionHelper::prepareStatement($this->connection, $q);
-		
+
 		$this->assertInstanceOf(PreparedStatement::class, $statement);
 
 		$sql = strval($statement);
@@ -110,7 +120,7 @@ final class SQLiteTest extends TestCase
 
 		if (\file_exists($sqliteFile))
 			unlink($sqliteFile);
-			
+
 		$this->connection = ConnectionHelper::createConnection([
 				K::CONNECTION_PARAMETER_CREATE => true,
 				K::CONNECTION_PARAMETER_SOURCE => [
@@ -118,7 +128,7 @@ final class SQLiteTest extends TestCase
 				],
 				K::CONNECTION_PARAMETER_TYPE => SQLite\Connection::class
 		]);
-		
+
 		$this->assertInstanceOf(SQLite\Connection::class, $this->connection, 'Create connection');
 
 		$this->derivedFileManager->setPersistent($sqliteFile, true);

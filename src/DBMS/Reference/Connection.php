@@ -46,7 +46,7 @@ class Connection implements sql\Connection
 
 	/**
 	 *
-	 * @param StatementData|string $statement
+	 * @param sql\StatementContext|string $statement
 	 *        	#return \NoreSources\SQL\Reference\PreparedStatement
 	 */
 	public function prepareStatement($statement)

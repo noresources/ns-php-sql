@@ -17,8 +17,12 @@ final class CreateTableTest extends TestCase
 	{
 		$structure = $this->datasources->get('Company');
 		$builder = new Reference\StatementBuilder();
-		
-		foreach (['Employees', 'Hierarchy', 'Tasks'] as $tableName)
+
+		foreach ([
+			'Employees',
+			'Hierarchy',
+			'Tasks'
+		] as $tableName)
 		{
 			$tableStructure = $structure['ns_unittests'][$tableName];
 			$this->assertInstanceOf(TableStructure::class, $tableStructure, 'Finding ' . $tableName);
@@ -27,9 +31,10 @@ final class CreateTableTest extends TestCase
 			$q = new CreateTableQuery($tableStructure);
 			$stream = new TokenStream();
 			$q->tokenize($stream, $context);
-			$sql = $builder->finalize($stream);
+			$sql = $builder->finalize($stream, $context);
 			$sql = \SqlFormatter::format(strval($sql), false);
-			$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, $tableName, 'sql', $tableName . ' SQL');
+			$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, $tableName, 'sql',
+				$tableName . ' SQL');
 		}
 	}
 

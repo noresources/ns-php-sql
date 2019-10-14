@@ -34,7 +34,7 @@ final class SelectTest extends TestCase
 
 		$stream = new TokenStream();
 		$q->tokenize($stream, $context);
-		$sql = $builder->finalize($stream);
+		$sql = $builder->finalize($stream, $context);
 		$sql = \SqlFormatter::format(strval($sql), false);
 
 		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, null, 'sql');
@@ -85,13 +85,12 @@ final class SelectTest extends TestCase
 
 		$stream = new TokenStream();
 		$q->tokenize($stream, $context);
-		$data = $builder->finalize($stream);
+		$builder->finalize($stream, $context);
 
-		$this->assertInstanceOf(StatementData::class,$data);
 		$this->assertEquals(K::QUERY_SELECT, $context->statementType, 'Statement type');
 		$this->assertCount(4, $context->resultColumns, 'Number of result columns');
 
-		$sql = \SqlFormatter::format(strval($data), false);
+		$sql = \SqlFormatter::format(strval($context), false);
 
 		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, null, 'sql');
 	}
@@ -134,7 +133,7 @@ final class SelectTest extends TestCase
 
 		$stream = new TokenStream();
 		$q->tokenize($stream, $context);
-		$sql = $builder->finalize($stream);
+		$sql = $builder->finalize($stream, $context);
 		$sql = \SqlFormatter::format(strval($sql), false);
 
 		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, null, 'sql');

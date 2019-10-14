@@ -5,6 +5,15 @@ use NoreSources as ns;
 
 class StatementContext
 {
+	use StatementInputData;
+	use StatementOutputData;
+
+	/**
+	 * SQL statement string
+	 *
+	 * @var string
+	 */
+	public $sql;
 
 	/**
 	 *
@@ -31,11 +40,25 @@ class StatementContext
 	 */
 	public function __construct(StatementBuilder $builder, StructureElement $pivot = null)
 	{
+		$this->parameters = new StatementParameterMap();
+
+		$this->statementType = 0;
+		$this->resultColumns = new ResultColumnMap();
+
+		$this->sql = '';
 		$this->contextFlags = 0;
 		$this->builder = $builder;
 		$this->resolver = new StructureResolver($pivot);
 		$this->resultColumnAliases = new ns\Stack();
-		$this->resultColumns = new ResultColumnMap();
+	}
+
+	/**
+	 *
+	 * @return string SQL statement string
+	 */
+	public function __toString()
+	{
+		return $this->sql;
 	}
 
 	/**
@@ -191,16 +214,4 @@ class StatementContext
 	 * @var \Noresources\Stack Stack of \ArrayObject
 	 */
 	private $resultColumnAliases;
-
-	/**
-	 *
-	 * @var ResultColumnMap
-	 */
-	private $resultColumns;
-
-	/**
-	 *
-	 * @var integer
-	 */
-	private $statementType;
 }

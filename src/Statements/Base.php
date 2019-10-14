@@ -240,32 +240,95 @@ class ResultColumnMap implements \Countable, \IteratorAggregate
 	private $columns;
 }
 
-class StatementData
+trait StatementInputData
 {
+
+	public function getParameterCount()
+	{
+		return $this->parameters->count();
+	}
+
+	public function hasParameter($key)
+	{
+		return $this->parameters->offsetExists($key);
+	}
+
+	public function getParameter($key)
+	{
+		return $this->parameters->offsetGet($key);
+	}
+
+	public function getParameters()
+	{
+		return $this->parameters;
+	}
 
 	/**
 	 *
-	 * @var string
+	 * @param integer $position
+	 *        	Parameter position in the statement
+	 * @param string $key
+	 *        	Logical parameter name
+	 * @param string $dbmsName
+	 *        	DMBS representation
 	 */
-	public $sql;
+	public function setParameter($position, $key, $dbmsName)
+	{
+		$this->parameters->offsetSet(intval($position), $dbmsName);
+		$this->parameters->offsetSet(strval($key), $dbmsName);
+	}
 
 	/**
 	 *
 	 * @var StatementParameterMap Array of StatementParameter
 	 *      The entry key is the parameter name as it appears in the Statement.
 	 */
-	public $parameters;
+	private $parameters;
+}
 
-	public function __construct()
+trait StatementOutputData
+{
+
+	public function getStatementType()
 	{
-		$this->sql = '';
-		$this->parameters = new StatementParameterMap();
+		return $this->statementType;
 	}
 
-	public function __toString()
+	/**
+	 *
+	 * @return number
+	 */
+	public function getResultColumnCount()
 	{
-		return $this->sql;
+		return $this->resultColumns->count();
 	}
+
+	public function getResultColumn($key)
+	{
+		return $this->resultColumns->getColumn($key);
+	}
+
+	public function getResultColumns()
+	{
+		return $this->resultColumns;
+	}
+
+	public function getResultColumnIterator()
+	{
+		return $this->resultColumns->getIterator();
+	}
+
+	/**
+	 *
+	 * @var integer
+	 */
+	private $statementType;
+
+	/**
+	 *
+	 * @var ResultColumnMap
+	 */
+	private $resultColumns;
 }
 
 /**

@@ -37,7 +37,7 @@ final class InsertTest extends TestCase
 
 			$stream = new TokenStream();
 			$q->tokenize($stream, $context);
-			$sql = $builder->finalize($stream);
+			$sql = $builder->finalize($stream, $context);
 
 			//$sql = $q->buildExpression($context);
 
@@ -53,32 +53,42 @@ final class InsertTest extends TestCase
 		$builder = new Reference\StatementBuilder();
 		$context = new StatementContext($builder);
 
-		$tests = array (
-			'empty' => array (),
+		$tests = array(
+			'empty' => array(),
 			'literals' => [
-				'name' => [ 
-					X::literal('Test task'), 
-					null 
+				'name' => [
+					X::literal('Test task'),
+					null
 				],
 				'creationDateTime' => [
-					X::literal(\DateTime::createFromFormat(\DateTime::ISO8601, '2012-01-16T16:35:26+0100')),
+					X::literal(
+						\DateTime::createFromFormat(\DateTime::ISO8601, '2012-01-16T16:35:26+0100')),
 					null
 				]
 			],
 			'polish' => [
-				'name' => [ 
-					X::literal('Random priority'), 
+				'name' => [
+					X::literal('Random priority'),
 					null
 				],
 				'priority' => [
-					['rand()' => [1, 10]], 
+					[
+						'rand()' => [
+							1,
+							10
+						]
+					],
 					null
 				]
-			], 
+			],
 			'expression' => [
-				'creator' => [1 , true],
-				'name' => [ "substr (
-					'Lorem ipsum', 0, 5)", 
+				'creator' => [
+					1,
+					true
+				],
+				'name' => [
+					"substr (
+					'Lorem ipsum', 0, 5)",
 					true
 				]
 			]
@@ -99,7 +109,7 @@ final class InsertTest extends TestCase
 
 			$stream = new TokenStream();
 			$q->tokenize($stream, $context);
-			$sql = $builder->finalize($stream);
+			$sql = $builder->finalize($stream, $context);
 			//$sql = $q->buildExpression($context);
 
 			$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, $key, 'sql');

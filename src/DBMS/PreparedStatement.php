@@ -21,6 +21,7 @@ class ParameterArray implements \IteratorAggregate, \Countable
 	}
 
 	/**
+	 *
 	 * @return integer Number of parameter values
 	 */
 	public function count()
@@ -56,20 +57,20 @@ class ParameterArray implements \IteratorAggregate, \Countable
 
 	public function __construct($table = [])
 	{
-	$this->table = new \ArrayObject();
+		$this->table = new \ArrayObject();
 
-	foreach ($table as $key => $value)
-	{
-		$tyoe = K::DATATYPE_UNDEFINED;
-		if (ns\Container::isArray($value))
+		foreach ($table as $key => $value)
 		{
-			$type = ns\Container::keyValue($value, self::TYPE, K::DATATYPE_UNDEFINED);
-			$value = ns\Container::keyValue($value, self::VALUE, null);
-		}
+			$tyoe = K::DATATYPE_UNDEFINED;
+			if (ns\Container::isArray($value))
+			{
+				$type = ns\Container::keyValue($value, self::TYPE, K::DATATYPE_UNDEFINED);
+				$value = ns\Container::keyValue($value, self::VALUE, null);
+			}
 
-		$this->set($key, $value, $tyoe);
+			$this->set($key, $value, $tyoe);
+		}
 	}
-}
 
 	/**
 	 *
@@ -84,28 +85,37 @@ class ParameterArray implements \IteratorAggregate, \Countable
 abstract class PreparedStatement
 {
 
+	use StatementInputData;
+	use StatementOutputData;
+
 	/**
-	 * @param string|StatementData Statement data
+	 *
+	 * @param
+	 *        	string|StatementContext Statement data
 	 */
 	public function __construct($data)
 	{
-		if ($data instanceof StatementData)
-			$this->parameters = $data->parameters;
+		if ($data instanceof StatementContext)
+		{
+			$this->statementType = $data->getStatementType();
+			$this->resultColumns = $data->getResultColumns();
+			$this->parameters = $data->getParameters();
+		}
 		else
+		{
 			$this->parameters = new StatementParameterMap();
+			$this->statementType = 0;
+			$this->resultColumns = new ResultColumnMap();
+		}
 	}
 
 	/**
+	 *
 	 * @retur string SQL statement string
 	 */
 	public function __toString()
 	{
 		return $this->getStatement();
-	}
-
-	public function getParameters()
-	{
-		return $this->parameters;
 	}
 
 	/**
@@ -124,15 +134,6 @@ abstract class PreparedStatement
 	 * @return string SQL statement string
 	 */
 	abstract function getStatement();
-
-	/**
-	 *
-	 * @return integer Number of parameters
-	 */
-	public function getParameterCount()
-	{
-		return $this->parameters->count();
-	}
 
 	/**
 	 *
