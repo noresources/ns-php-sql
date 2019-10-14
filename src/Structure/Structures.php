@@ -10,8 +10,8 @@
  */
 namespace NoreSources\SQL;
 
-use NoreSources as ns;
 use NoreSources\SQL\Constants as K;
+use NoreSources as ns;
 
 class StructureException extends \Exception
 {
@@ -100,7 +100,7 @@ abstract class StructureElement implements \ArrayAccess, \IteratorAggregate, \Co
 
 	/**
 	 *
-	 * @param unknown $tree
+	 * @param StructureElement $tree
 	 * @return \NoreSources\SQL\StructureElement
 	 */
 	public function findDescendant($tree)

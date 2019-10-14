@@ -18,7 +18,7 @@ interface Expression extends Tokenizable
 	 *
 	 * @param callable $callable
 	 *        	Callable with the following prototype:: callable ($expression, StatementContext, $flags)
-	 *        	
+	 *
 	 *        	The expression should call the @c $callable then invoke the @c traverse method of all nested Expression
 	 */
 	function traverse($callable, StatementContext $context, $flags = 0);
@@ -190,7 +190,7 @@ class ColumnExpression implements Expression
  * Table path
  *
  * @author renaud
- *        
+ *
  */
 class TableExpression implements Expression
 {

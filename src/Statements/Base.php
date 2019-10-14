@@ -4,9 +4,7 @@
 namespace NoreSources\SQL;
 
 // Aliases
-use NoreSources\Creole\PreformattedBlock;
 use NoreSources\SQL\Constants as K;
-use phpDocumentor\Reflection\Types\Integer;
 
 class StatementException extends \Exception
 {
@@ -139,6 +137,107 @@ class StatementParameterMap extends \ArrayObject
 	}
 
 	private $namedParameterCount;
+}
+
+/**
+ * Record column description
+ */
+class ResultColumn
+{
+
+	/**
+	 *
+	 * @var integer
+	 */
+	public $dataType;
+
+	/**
+	 *
+	 * @var string
+	 */
+	public $name;
+
+	/**
+	 *
+	 * @var TableColumnStructure
+	 */
+	public $column;
+
+	/**
+	 *
+	 * @param integer|TableColumnStructure $data
+	 */
+	public function __construct($data)
+	{
+		$this->dataType = K::DATATYPE_UNDEFINED;
+		$this->column = null;
+		$this->name = null;
+		if ($data instanceof TableColumnStructure)
+		{
+			$this->column = $data;
+			$this->name = $data->getName();
+			if ($data->hasProperty(K::COLUMN_PROPERTY_DATA_TYPE))
+			{
+				$this->dataType = $data->getProperty(K::COLUMN_PROPERTY_DATA_TYPE);
+			}
+		}
+		elseif (\is_integer($data))
+			$this->dataType = $data;
+	}
+}
+
+/**
+ */
+class ResultColumnMap implements \Countable, \IteratorAggregate
+{
+
+	public function __construct()
+	{
+		$this->columns = new \ArrayObject();
+	}
+
+	public function __get($key)
+	{
+		return $this->getColumn($key);
+	}
+
+	public function getIterator()
+	{
+		return $this->columns->getIterator();
+	}
+
+	public function count()
+	{
+		return $this->columns->count();
+	}
+
+	public function getColumn($key)
+	{
+		if (!$this->columns->offsetExists($key))
+		{
+			foreach ($this->columns as $column)
+			{
+				if ($column->name == $key)
+					return $column;
+			}
+
+			throw new \InvalidArgumentException($key);
+		}
+
+		return $this->columns->offsetGet($key);
+	}
+
+	public function setColumn($index, $data)
+	{
+		$d = new ResultColumn($data);
+		$this->columns->offsetSet($index, $d);
+	}
+
+	/**
+	 *
+	 * @var \ArrayObject
+	 */
+	private $columns;
 }
 
 class StatementData

@@ -15,9 +15,9 @@
 	},
 	"autoload": {
 		"psr-4": {
-			"NoreSources\\SQL\\": "./src",
-			"NoreSources\\SQL\\SQLite\\":"./src/DBMS/SQLite",
-			"NoreSources\\SQL\\PDO\\":"./src/DBMS/PDO"
+			"NoreSources\\SQL\\": "src/",
+			"NoreSources\\SQL\\SQLite\\":"src/DBMS/SQLite/",
+			"NoreSources\\SQL\\PDO\\":"src/DBMS/PDO/"
 		}
 	},
 	"scripts": {

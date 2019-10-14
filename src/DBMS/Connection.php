@@ -167,7 +167,7 @@ class ConnectionHelper
 			$context->setPivot($reference);
 		$stream = new TokenStream();
 		$statement->tokenize($stream, $context);
-		$data = $builder->buildStatementData($stream);
+		$data = $builder->finalize($stream);
 		$prepared = $connection->prepareStatement($data);
 		$prepared->setParameters($data->parameters);
 		return $prepared;

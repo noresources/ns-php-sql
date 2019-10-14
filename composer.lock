@@ -48,7 +48,7 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/noresources/ns-php-core",
-                "reference": "f0cf284bb291772c98d32fbc8e406c133817e323"
+                "reference": "c8a3bee6fbaf9b0956ce65b2b80f8f747ee1164b"
             },
             "require": {
                 "php": ">= 5.4"
@@ -59,8 +59,11 @@
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "NoreSources\\": "./src"
-                }
+                    "NoreSources\\": "src/"
+                },
+                "files": [
+                    "autoload.php"
+                ]
             },
             "scripts": {
                 "tests": [
@@ -81,7 +84,7 @@
             "support": {
                 "issues": "https://github.com/noresources/ns-php-core/issues"
             },
-            "time": "2019-09-29T23:06:06+00:00"
+            "time": "2019-10-12T22:11:57+00:00"
         }
     ],
     "packages-dev": [

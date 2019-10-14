@@ -172,7 +172,7 @@ class Constants
 	 */
 	const COLUMN_PROPERTY_DEFAULT_VALUE = 'default';
 
-	// JOIN operator 
+	// JOIN operator
 	const JOIN_NATURAL = 0x01;
 
 	const JOIN_LEFT = 0x10;
@@ -304,6 +304,17 @@ class Constants
 	const TOKEN_TEXT = 4;
 
 	const TOKEN_PARAMETER = 5;
+
+	// Query types
+	const QUERY_SELECT = 0x01;
+
+	const QUERY_INSERT = 0x02;
+
+	const QUERY_UPDATE = 0x04;
+
+	const QUERY_DELETE = 0x08;
+
+	const QUERY_FAMILY_ROWMODIFICATION = 0x0C;
 
 	// Recordset flags
 

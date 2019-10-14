@@ -1,7 +1,6 @@
 <?php
 namespace NoreSources\SQL;
 
-use NoreSources as ns;
 use NoreSources\SQL\Constants as K;
 
 /**
@@ -37,14 +36,14 @@ class ColumnTableConstraint extends TableConstraint implements \ArrayAccess, \It
 	 *
 	 * @param array $columns
 	 *        	Column names on which the key applies.
-	 * @param unknown $name
+	 * @param string $name
 	 *        	Constraint name
 	 */
 	protected function __construct($columns = [], $name = null)
 	{
-	parent::__construct($name);
-	$this->columns = new \ArrayObject($columns);
-}
+		parent::__construct($name);
+		$this->columns = new \ArrayObject($columns);
+	}
 
 	/**
 	 *
@@ -109,7 +108,7 @@ class PrimaryKeyTableConstraint extends ColumnTableConstraint
 
 	/*
 	 * @param array $columns Column names on which the key applies.
-	 * @param unknown $name Constraint name
+	 * @param string $name Constraint name
 	 */
 	public function __construct($columns = [], $name = null)
 	{
@@ -122,7 +121,7 @@ class UniqueTableConstraint extends ColumnTableConstraint
 
 	/*
 	 * @param array $columns Column names on which the key applies.
-	 * @param unknown $name Constraint name
+	 * @param string $name Constraint name
 	 */
 	public function __construct($columns = [], $name = null)
 	{

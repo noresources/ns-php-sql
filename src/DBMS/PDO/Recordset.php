@@ -4,8 +4,8 @@
 namespace NoreSources\SQL\PDO;
 
 // Aliases
-use NoreSources as ns;
 use NoreSources\SQL as sql;
+use NoreSources as ns;
 use NoreSources\SQL\Constants as K;
 
 class Recordset extends sql\Recordset
@@ -37,6 +37,30 @@ class Recordset extends sql\Recordset
 	public function __destruct()
 	{
 		$this->statement->releasePDOStatement($this);
+	}
+
+	/**
+	 *
+	 * @see https://www.php.net/manual/en/pdostatement.getcolumnmeta.php
+	 */
+	public function setResultColumns(sql\ResultColumnMap $columns)
+	{
+		parent::setResultColumns($columns);
+		try
+		{
+			foreach ($columns as $index => &$column)
+			{
+				$meta = $this->statement->getPDOStatement()->getColumnMeta($index);
+				$columns->name = $meta['name'];
+				if ($columns->type == K::DATATYPE_UNDEFINED)
+				{
+					$columns->type = Connection::getDataTypeFromPDOType(
+						ns\Container::keyValue($meta, 'pdo_type', \PDO::PARAM_STR));
+				}
+			}
+		}
+		catch (\ErrorException $e)
+		{}
 	}
 
 	public function getColumnCount()
@@ -74,21 +98,21 @@ class Recordset extends sql\Recordset
 		if ($this->cache->offsetExists($newIndex))
 		{
 			$this->record->exchangeArray($this->cache->offsetGet($newIndex));
-			$this->setPosition($newIndex, 0);
+			$this->setIteratorPosition($newIndex, 0);
 			return;
 		}
 
 		$a = $pdo->fetch($fetchStyle, $orientation);
 		if ($a === FALSE)
 		{
-			$this->setPosition(-1, self::POSITION_END);
+			$this->setIteratorPosition(-1, self::POSITION_END);
 		}
 		else
 		{
 			if (($this->pdoFlags & self::PDO_SCROLLABLE) == 0)
 				$this->cache[$newIndex] = $a;
 			$this->record->exchangeArray($a);
-			$this->setPosition($newIndex, 0);
+			$this->setIteratorPosition($newIndex, 0);
 		}
 	}
 
@@ -98,9 +122,9 @@ class Recordset extends sql\Recordset
 			return;
 
 		if ($this->pdoFlags & self::PDO_SCROLLABLE)
-			$this->setPosition(0, self::POSITION_BEGIN);
+			$this->setIteratorPosition(0, self::POSITION_BEGIN);
 		else
-			$this->setPosition(-1, self::POSITION_BEGIN);
+			$this->setIteratorPosition(-1, self::POSITION_BEGIN);
 	}
 
 	/**
@@ -109,7 +133,15 @@ class Recordset extends sql\Recordset
 	 */
 	private $statement;
 
+	/**
+	 *
+	 * @var integer
+	 */
 	private $pdoFlags;
 
+	/**
+	 *
+	 * @var \ArrayObject
+	 */
 	private $cache;
 }

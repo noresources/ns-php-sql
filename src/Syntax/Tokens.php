@@ -1,7 +1,6 @@
 <?php
 namespace NoreSources\SQL;
 
-use NoreSources as ns;
 use NoreSources\SQL\Constants as K;
 
 interface Tokenizable
@@ -68,7 +67,7 @@ class TokenStream implements \IteratorAggregate, \Countable
 	 *
 	 * @param array|\Traversable $constraints
 	 * @param StatementContext $context
-	 * @return \NoreSources\SQL\TokenStream|unknown
+	 * @return \NoreSources\SQL\TokenStream
 	 */
 	public function constraints($constraints, StatementContext $context)
 	{

@@ -118,7 +118,7 @@ abstract class StatementBuilder
 				$s .= 'OUTER ';
 			}
 		}
-		else 
+		else
 			if (($joinTypeFlags & K::JOIN_RIGHT) == K::JOIN_RIGHT)
 			{
 				$s . 'RIGHT ';
@@ -127,12 +127,12 @@ abstract class StatementBuilder
 					$s .= 'OUTER ';
 				}
 			}
-			else 
+			else
 				if (($joinTypeFlags & K::JOIN_CROSS) == K::JOIN_CROSS)
 				{
 					$s .= 'CROSS ';
 				}
-				else 
+				else
 					if (($joinTypeFlags & K::JOIN_INNER) == K::JOIN_INNER)
 					{
 						$s .= 'INNER ';
@@ -188,7 +188,8 @@ abstract class StatementBuilder
 			if ($constraint->count())
 			{
 				$s .= ' (';
-				$s .= ns\Container::implodeKeys($constraint->columns, ', ',[
+				$s .= ns\Container::implodeKeys($constraint->columns, ', ',
+					[
 						$this,
 						'escapeIdentifier'
 					]);
@@ -198,7 +199,8 @@ abstract class StatementBuilder
 			if ($constraint->count())
 			{
 				$s .= ' (';
-				$s .= ns\Container::implodeValues($constraint->columns, ', ',[
+				$s .= ns\Container::implodeValues($constraint->columns, ', ',
+					[
 						$this,
 						'escapeIdentifier'
 					]);
@@ -239,7 +241,7 @@ abstract class StatementBuilder
 			$column = $resolver->findColumn($expression->path);
 			return $column->getProperty(TableColumnStructure::DATATYPE);
 		}
-		else 
+		else
 			if ($expression instanceof UnaryOperatorExpression)
 			{
 				$operator = strtolower(trim($expression->operator));
@@ -341,9 +343,9 @@ abstract class StatementBuilder
 	public function escapeIdentifierPath($path)
 	{
 		return ns\Container::implodeValues($path, '.', [
-				$this,
-				'escapeIdentifier'
-			]);
+			$this,
+			'escapeIdentifier'
+		]);
 	}
 
 	/**
@@ -364,13 +366,7 @@ abstract class StatementBuilder
 		return $s;
 	}
 
-	/**
-	 *
-	 * @param TokenStream $stream
-	 *        	Statement tokens
-	 * @return \NoreSources\SQL\StatementData
-	 */
-	public function buildStatementData(TokenStream $stream)
+	public function finalize(TokenStream $stream, StatementContext &$context = null)
 	{
 		$data = new StatementData();
 		foreach ($stream as $token)

@@ -58,7 +58,7 @@ final class UpdateTest extends TestCase
 
 			$stream = new TokenStream();
 			$q->tokenize($stream, $context);
-			$sql = $builder->buildStatementData($stream);
+			$sql = $builder->finalize($stream);
 			$sql = \SqlFormatter::format(strval($sql), false);
 			$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, $set, 'sql');
 		}
@@ -88,7 +88,7 @@ final class UpdateTest extends TestCase
 
 		$stream = new TokenStream();
 		$q->tokenize($stream, $context);
-		$sql = $builder->buildStatementData($stream);
+		$sql = $builder->finalize($stream);
 		$sql = \SqlFormatter::format($sql, false);
 
 		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, null, 'sql');

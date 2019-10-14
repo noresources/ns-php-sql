@@ -47,11 +47,12 @@ class InsertQuery extends Statement implements \ArrayAccess
 		{
 			$evaluate = ($columnValue instanceof Evaluable) || (ns\Container::isArray($columnValue));
 		}
-		
-		$this->columnValues->offsetSet($columnName, [
-				'value' =>$columnValue,
+
+		$this->columnValues->offsetSet($columnName,
+			[
+				'value' => $columnValue,
 				'evaluate' => $evaluate
-		]);
+			]);
 		return $this;
 	}
 
@@ -62,7 +63,7 @@ class InsertQuery extends Statement implements \ArrayAccess
 	 *        	string Column name
 	 * @param
 	 *        	Evaluable Evaluable expression
-	 *        	
+	 *
 	 * @throws \BadMethodCallException
 	 * @throws \InvalidArgumentException
 	 */
@@ -94,7 +95,7 @@ class InsertQuery extends Statement implements \ArrayAccess
 	 *
 	 * @param
 	 *        	string Column name
-	 *        	
+	 *
 	 * @return mixed Column current value or @c null if not set
 	 */
 	public function offsetGet($offset)
@@ -131,6 +132,7 @@ class InsertQuery extends Statement implements \ArrayAccess
 		$builderFlags |= $context->getBuilderFlags(K::BUILDER_DOMAIN_INSERT);
 
 		$tableStructure = $context->findTable($this->table->path);
+		$context->setStatementType(K::QUERY_INSERT);
 
 		/**
 		 *

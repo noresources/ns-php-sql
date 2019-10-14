@@ -46,6 +46,7 @@ class DeleteQuery extends Statement
 		$tableStructure = $context->findTable($this->table->path);
 
 		$context->pushResolverContext($tableStructure);
+		$context->setStatementType(K::QUERY_DELETE);
 
 		$stream->keyword('delete')
 			->space()

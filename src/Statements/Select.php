@@ -296,7 +296,8 @@ class SelectQuery extends Statement
 	 */
 	public function orderBy($reference, $direction = K::ORDERING_ASC, $collation = null)
 	{
-		$this->parts[self::PART_ORDERBY]->offsetSet($reference,[
+		$this->parts[self::PART_ORDERBY]->offsetSet($reference,
+			[
 				'expression' => $reference,
 				'direction' => $direction,
 				'collation' => $collation
@@ -325,6 +326,7 @@ class SelectQuery extends Statement
 		$tableStructure = $context->findTable($this->parts[self::PART_TABLE]->path);
 
 		$context->pushResolverContext($tableStructure);
+		$context->setStatementType(K::QUERY_SELECT);
 
 		# Resolve and build table-related parts
 
@@ -408,11 +410,23 @@ class SelectQuery extends Statement
 			$c = 0;
 			foreach ($this->parts[self::PART_COLUMNS] as $column)
 			{
+				$columnIndex = $c;
+
 				if ($c++ > 0)
 					$stream->text(',')->space();
 
 				$x = ExpressionEvaluator::evaluate($column->expression);
 				$stream->expression($x, $context);
+
+				if ($x instanceof ColumnExpression)
+				{
+					$structure = $context->findColumn($x->path);
+					$context->setResultColumn($columnIndex, $structure);
+				}
+				else
+				{
+					$context->setResultColumn($columnIndex, $x->getExpressionDataType());
+				}
 
 				if ($column->alias)
 				{
@@ -440,8 +454,8 @@ class SelectQuery extends Statement
 		$stream->stream($where);
 
 		// GROUP BY
-		if ($this->parts[self::PART_GROUPBY] &&
-			ns\Container::count($this->parts[self::PART_GROUPBY]))
+		if ($this->parts[self::PART_GROUPBY] && ns\Container::count(
+			$this->parts[self::PART_GROUPBY]))
 		{
 
 			$stream->space()

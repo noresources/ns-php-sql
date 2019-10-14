@@ -4,7 +4,6 @@
 namespace NoreSources\SQL;
 
 // Aliases
-use NoreSources as ns;
 use NoreSources\SQL\Constants as K;
 
 class RecordsetException extends \ErrorException
@@ -29,6 +28,9 @@ class RecordsetException extends \ErrorException
 	}
 }
 
+/**
+ * Recordset query result
+ */
 abstract class Recordset implements \Iterator, QueryResult
 {
 
@@ -73,7 +75,7 @@ abstract class Recordset implements \Iterator, QueryResult
 	{
 		if ($member == 'rowIndex')
 			return $this->rowIndex;
-		
+
 		if ($member == 'flags')
 			return $this->flags;
 
@@ -86,7 +88,10 @@ abstract class Recordset implements \Iterator, QueryResult
 	 *
 	 * @return integer
 	 */
-	abstract function getColumnCount();
+	public function getColumnCount()
+	{
+		return $this->recordColumns->count();
+	}
 
 	/**
 	 * Set recordset public flags
@@ -100,6 +105,23 @@ abstract class Recordset implements \Iterator, QueryResult
 
 		$this->rowIndex = -1;
 		$this->flags |= $flags;
+	}
+
+	/**
+	 *
+	 * @param integer|string $column
+	 *        	Column index or name
+	 * @throws RecordsetException
+	 * @return ResultColumn
+	 */
+	public function getColumn($column)
+	{
+		return $this->recordColumns->getColumn($column);
+	}
+
+	public function setResultColumns(ResultColumnMap $columns)
+	{
+		$this->recordColumns = $columns;
 	}
 
 	/**
@@ -149,14 +171,15 @@ abstract class Recordset implements \Iterator, QueryResult
 
 	public function rewind()
 	{
-		$this->setPosition(-1, self::POSITION_BEGIN);
+		$this->setIteratorPosition(-1, self::POSITION_BEGIN);
 	}
 
 	protected function __construct()
 	{
 		$this->flags = self::FETCH_BOTH;
 		$this->record = new \ArrayObject();
-		$this->setPosition(-1, self::POSITION_BEGIN);
+		$this->setIteratorPosition(-1, self::POSITION_BEGIN);
+		$this->recordColumns = new ResultColumnMap();
 	}
 
 	// Internal flags
@@ -168,14 +191,13 @@ abstract class Recordset implements \Iterator, QueryResult
 
 	const POSITION_FLAGS = 0x30;
 
-	protected function setPosition($index, $positionFlag)
+	protected function setIteratorPosition($index, $positionFlag)
 	{
 		$this->rowIndex = $index;
 		$this->flags &= ~self::POSITION_FLAGS;
 		$positionFlag &= self::POSITION_FLAGS;
 		$this->flags |= $positionFlag;
 	}
-
 
 	/**
 	 *
@@ -188,10 +210,16 @@ abstract class Recordset implements \Iterator, QueryResult
 	 * @var integer
 	 */
 	private $rowIndex;
-	
+
 	/**
 	 *
 	 * @var integer
 	 */
 	private $flags;
+
+	/**
+	 *
+	 * @var ResultColumnMap
+	 */
+	private $recordColumns;
 }

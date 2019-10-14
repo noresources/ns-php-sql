@@ -25,8 +25,8 @@ class DatasourceManager extends TestCase
 		$content = file_get_contents($filename);
 		$serializer = new XMLStructureSerializer();
 		$serializer->unserialize($filename);
-		
-		$this->assertInstanceOf(DatasourceStructure::class, 
+
+		$this->assertInstanceOf(DatasourceStructure::class,
 				$serializer->structureElement,
 				$name . ' datasource loading'
 		);

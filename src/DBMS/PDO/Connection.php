@@ -74,7 +74,7 @@ class Connection implements sql\Connection
 	 *        	<li>CONNECTION_PARAMETER_PASSWORD</li>
 	 *        	<li>CONNECTION_PARAMETER_OPTIONS</li>
 	 *        	</ul>
-	 *        	
+	 *
 	 */
 	public function connect($parameters)
 	{
@@ -208,6 +208,22 @@ class Connection implements sql\Connection
 			throw new sql\ConnectionException($this, 'Not connected');
 
 		return $this->connection->getAttribute($attribute);
+	}
+
+	public static function getDataTypeFromPDOType($pdoType)
+	{
+		switch ($pdoType)
+		{
+			case \PDO::PARAM_BOOL:
+				return K::DATATYPE_BOOLEAN;
+			case \PDO::PARAM_NULL:
+				return K::DATATYPE_NULL;
+			case \PDO::PARAM_INT:
+				return K::DATATYPE_INTEGER;
+			case \PDO::PARAM_STR:
+				return K::DATATYPE_STRING;
+		}
+		return K::DATATYPE_UNDEFINED;
 	}
 
 	/**

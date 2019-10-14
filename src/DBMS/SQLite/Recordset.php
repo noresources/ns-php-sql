@@ -4,9 +4,7 @@
 namespace NoreSources\SQL\SQLite;
 
 // Aliases
-use NoreSources as ns;
 use NoreSources\SQL as sql;
-use NoreSources\SQL\Constants as K;
 
 class Recordset extends sql\Recordset
 {
@@ -15,6 +13,20 @@ class Recordset extends sql\Recordset
 	{
 		parent::__construct();
 		$this->result = $result;
+	}
+
+	public function __destruct()
+	{
+		$this->result->finalize();
+	}
+
+	public function setResultColumns(sql\ResultColumnMap $columns)
+	{
+		parent::setResultColumns($columns);
+		foreach ($columns as $index => &$column)
+		{
+			$columns->name = $this->result->columnName($index);
+		}
 	}
 
 	public function getColumnCount()
@@ -39,19 +51,19 @@ class Recordset extends sql\Recordset
 
 		if ($a === FALSE)
 		{
-			$this->setPosition(-1, self::POSITION_END);
+			$this->setIteratorPosition(-1, self::POSITION_END);
 		}
 		else
 		{
 			$this->record->exchangeArray($a);
-			$this->setPosition($this->rowIndex + 1, 0);
+			$this->setIteratorPosition($this->rowIndex + 1, 0);
 		}
 	}
 
 	public function rewind()
 	{
 		$r = $this->result->reset();
-		$this->setPosition(-1, ($r ? self::POSITION_BEGIN : self::POSITION_END));
+		$this->setIteratorPosition(-1, ($r ? self::POSITION_BEGIN : self::POSITION_END));
 	}
 
 	/**

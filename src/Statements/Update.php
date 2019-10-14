@@ -53,11 +53,12 @@ class UpdateQuery extends Statement implements \ArrayAccess
 		{
 			$evaluate = ($columnValue instanceof Evaluable) || (ns\Container::isArray($columnValue));
 		}
-		
-		$this->columnValues->offsetSet($columnName, [
-				'value' =>$columnValue,
+
+		$this->columnValues->offsetSet($columnName,
+			[
+				'value' => $columnValue,
 				'evaluate' => $evaluate
-		]);
+			]);
 		return $this;
 	}
 
@@ -92,7 +93,7 @@ class UpdateQuery extends Statement implements \ArrayAccess
 	 *
 	 * @param
 	 *        	string Column name
-	 *        	
+	 *
 	 * @return mixed Column current value or @c null if not set
 	 */
 	public function offsetGet($offset)
@@ -132,6 +133,7 @@ class UpdateQuery extends Statement implements \ArrayAccess
 
 		$tableStructure = $context->findTable($this->table->path);
 		$context->pushResolverContext($tableStructure);
+		$context->setStatementType(K::QUERY_UPDATE);
 		/**
 		 *
 		 * @var TableStructure $tableStructure

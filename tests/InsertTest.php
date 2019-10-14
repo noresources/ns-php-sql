@@ -37,7 +37,7 @@ final class InsertTest extends TestCase
 
 			$stream = new TokenStream();
 			$q->tokenize($stream, $context);
-			$sql = $builder->buildStatementData($stream);
+			$sql = $builder->finalize($stream);
 
 			//$sql = $q->buildExpression($context);
 
@@ -99,7 +99,7 @@ final class InsertTest extends TestCase
 
 			$stream = new TokenStream();
 			$q->tokenize($stream, $context);
-			$sql = $builder->buildStatementData($stream);
+			$sql = $builder->finalize($stream);
 			//$sql = $q->buildExpression($context);
 
 			$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, $key, 'sql');

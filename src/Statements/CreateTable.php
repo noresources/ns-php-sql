@@ -4,8 +4,6 @@
 namespace NoreSources\SQL;
 
 // Aliases
-use NoreSources as ns;
-use NoreSources\ArrayUtil;
 use NoreSources\SQL\Constants as K;
 
 class CreateTableQuery extends Statement
@@ -25,7 +23,7 @@ class CreateTableQuery extends Statement
 	 *
 	 * @property-read \NoreSources\SQL\TableStructure
 	 * @param mixed $member
-	 * @return \NoreSources\SQL\TableStructure|unknown
+	 * @return \NoreSources\SQL\TableStructure
 	 */
 	public function __get($member)
 	{

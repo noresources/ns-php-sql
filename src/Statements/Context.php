@@ -2,9 +2,6 @@
 namespace NoreSources\SQL;
 
 use NoreSources as ns;
-use NoreSources\Container;
-use NoreSources\Creole\PreformattedBlock;
-use NoreSources\SQL\Constants as K;
 
 class StatementContext
 {
@@ -27,12 +24,48 @@ class StatementContext
 	 */
 	public $resolver;
 
+	/**
+	 *
+	 * @param StatementBuilder $builder
+	 * @param StructureElement $pivot
+	 */
 	public function __construct(StatementBuilder $builder, StructureElement $pivot = null)
 	{
 		$this->contextFlags = 0;
 		$this->builder = $builder;
 		$this->resolver = new StructureResolver($pivot);
 		$this->resultColumnAliases = new ns\Stack();
+		$this->resultColumns = new ResultColumnMap();
+	}
+
+	/**
+	 * Set a SELECT statement result column
+	 *
+	 * @param integer $index
+	 * @param integer|TableColumnStructure $data
+	 *
+	 * @note A result column can only be set on top-level context
+	 */
+	public function setResultColumn($index, $data)
+	{
+		if ($this->resultColumnAliases->count() > 1)
+			return;
+
+		$this->resultColumns->setColumn($index, $data);
+	}
+
+	/**
+	 * Set the statement type
+	 *
+	 * @param integer $type
+	 *
+	 * @note The statement type can only be set on top-level context
+	 */
+	public function setStatementType($type)
+	{
+		if ($this->resultColumnAliases->count() > 1)
+			return;
+		$this->statementType = $type;
 	}
 
 	/**
@@ -102,6 +135,24 @@ class StatementContext
 	}
 
 	/**
+	 *
+	 * @property-read integer $statementType
+	 * @property-read ResultColumnMap $resultColumns
+	 * @param string $member
+	 * @throws \InvalidArgumentException
+	 * @return number|\NoreSources\SQL\ResultColumnMap
+	 */
+	public function __get($member)
+	{
+		if ($member == 'statementType')
+			return $this->statementType;
+		elseif ($member == 'resultColumns')
+			return $this->resultColumns;
+
+		throw new \InvalidArgumentException($member);
+	}
+
+	/**
 	 * Attemp to call StatementBuilder or StructureResolver method
 	 *
 	 * @param string $method
@@ -113,7 +164,7 @@ class StatementContext
 	 *
 	 * @method string getColumnDescription(TableColumnStructure $column)
 	 * @method string getTableConstraintDescription(TableStructure, TableConstraint)
-	 *        
+	 *
 	 */
 	public function __call($method, $args)
 	{
@@ -140,4 +191,16 @@ class StatementContext
 	 * @var \Noresources\Stack Stack of \ArrayObject
 	 */
 	private $resultColumnAliases;
+
+	/**
+	 *
+	 * @var ResultColumnMap
+	 */
+	private $resultColumns;
+
+	/**
+	 *
+	 * @var integer
+	 */
+	private $statementType;
 }
