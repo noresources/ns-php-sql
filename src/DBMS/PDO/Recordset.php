@@ -15,12 +15,13 @@ class Recordset extends sql\Recordset
 
 	public function __construct(PreparedStatement $statement)
 	{
-		parent::__construct();
+		parent::__construct($statement);
 		$this->statement = $statement;
 		$this->statement->acquirePDOStatement($this);
 		$this->cache = new \ArrayObject();
 		$this->pdoFlags = 0;
 		$pdo = $statement->getPDOStatement();
+
 		try
 		{
 			if ($pdo->getAttribute(\PDO::ATTR_CURSOR) == \PDO::CURSOR_SCROLL)

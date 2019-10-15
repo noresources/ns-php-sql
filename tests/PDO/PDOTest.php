@@ -3,11 +3,10 @@ namespace NoreSources\SQL;
 
 use PHPUnit\Framework\TestCase;
 use NoreSources\SQL\PDO\Constants as K;
-
 $sqliteConnectionParameters = [
 	K::CONNECTION_PARAMETER_SOURCE => [
 		'sqlite',
-		 realpath (__DIR__  . '/../data/Company.sqlite')
+		realpath(__DIR__ . '/../data/Company.sqlite')
 	]
 ];
 
@@ -26,27 +25,36 @@ final class PDOTest extends TestCase
 	public function testBuildDSN()
 	{
 		$tests = [
-			'sqlite:path/to/file.sqlite' => ['sqlite', 'path/to/file.sqlite'],
-			'pgsql:dbname=Foo' => ['pgsql', 'dbname' => 'Foo']
+			'sqlite:path/to/file.sqlite' => [
+				'sqlite',
+				'path/to/file.sqlite'
+			],
+			'pgsql:dbname=Foo' => [
+				'pgsql',
+				'dbname' => 'Foo'
+			]
 		];
-		
+
 		foreach ($tests as $expected => $array)
 		{
-			$actual = PDO\Connection::buildDSN ($array);
+			$actual = PDO\Connection::buildDSN($array);
 			$this->assertEquals($expected, $actual);
 		}
 	}
-	
+
 	public function testBase()
 	{
 		$drivers = \PDO::getAvailableDrivers();
 		$localMethodName = preg_replace(',.*::test(.*),', '\1', __METHOD__);
-		
+
 		foreach ($drivers as $driver)
 		{
 			$driverMethod = 'subtest' . $driver . $localMethodName;
 			if (\method_exists($this, $driverMethod))
-				call_user_func ([$this, $driverMethod]);
+				call_user_func([
+					$this,
+					$driverMethod
+				]);
 		}
 	}
 
@@ -55,23 +63,26 @@ final class PDOTest extends TestCase
 		global $sqliteConnectionParameters;
 		$connection = new PDO\Connection();
 		$connection->connect($sqliteConnectionParameters);
-		
+
 		$recordset = $connection->executeStatement('select * from employees');
-		
+		$this->assertInstanceOf(PDO\Recordset::class, $recordset);
+
 		$expectedRowCount = 4;
-		
+
 		$a = 0;
-		foreach ($recordset as $row) {
+		foreach ($recordset as $row)
+		{
 			$a++;
 		}
-		
+
 		$this->assertEquals($expectedRowCount, $a, 'First pass, row count');
-		
+
 		$b = 0;
-		foreach ($recordset as $row) {
+		foreach ($recordset as $row)
+		{
 			$b++;
 		}
-		
+
 		$this->assertEquals($expectedRowCount, $b, 'Second pass, row count');
 	}
 

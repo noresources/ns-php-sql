@@ -31,10 +31,10 @@ class RecordsetException extends \ErrorException
 /**
  * Recordset query result
  */
-abstract class Recordset implements \Iterator, QueryResult
+abstract class Recordset implements \Iterator, StatementOutputData, QueryResult
 {
 
-	use StatementOutputData;
+	use StatementOutputDataTrait;
 
 	/**
 	 * Fetch record row to an associative array
@@ -165,7 +165,7 @@ abstract class Recordset implements \Iterator, QueryResult
 	}
 
 	// Internal flags
-	const PUBLIC_FLAGS = 0x07;
+	const PUBLIC_FLAGS = K::RECORDSET_PUBLIC_FLAGS;
 
 	const POSITION_BEGIN = 0x10;
 

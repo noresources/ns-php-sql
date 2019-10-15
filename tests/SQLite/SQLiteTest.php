@@ -36,14 +36,14 @@ final class SQLiteTest extends TestCase
 		$statement('name', ':nameValue');
 		$statement('salary', ':salaryValue');
 
-		$statement = ConnectionHelper::prepareStatement($this->connection, $statement,
+		$prepared = ConnectionHelper::prepareStatement($this->connection, $statement,
 			$tableStructure);
 
-		$this->assertInstanceOf(PreparedStatement::class, $statement);
-		$this->assertEquals(2, $statement->getParameterCount(),
+		$this->assertInstanceOf(PreparedStatement::class, $prepared);
+		$this->assertEquals(2, $prepared->getParameterCount(),
 			'Number of parameters in prepared statement');
 
-		$sql = strval($statement);
+		$sql = strval($prepared);
 		$sql = \SqlFormatter::format(strval($sql), false);
 		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, 'insert', 'sql');
 
@@ -51,18 +51,19 @@ final class SQLiteTest extends TestCase
 
 		$p->set('nameValue', 'Bob');
 		$p->set('salaryValue', 2000);
-		$result = $this->connection->executeStatement($statement, $p);
+		$result = $this->connection->executeStatement($prepared, $p);
 		$this->assertInstanceOf(Recordset::class, $result);
 
 		$p->set('nameValue', 'Ron');
-		$result = $this->connection->executeStatement($statement, $p);
+		$result = $this->connection->executeStatement($prepared, $p);
 		$this->assertInstanceOf(Recordset::class, $result);
 
 		$statement = new SelectQuery($tableStructure);
 		$statement->columns('name', 'gender', 'salary');
-		$statement = ConnectionHelper::prepareStatement($this->connection, $statement,
+
+		$prepared = ConnectionHelper::prepareStatement($this->connection, $statement,
 			$tableStructure);
-		$result = $this->connection->executeStatement($statement);
+		$result = $this->connection->executeStatement($prepared);
 		$this->assertInstanceOf(Recordset::class, $result);
 
 		$expected = [
@@ -97,15 +98,15 @@ final class SQLiteTest extends TestCase
 			return true;
 
 		$q = new CreateTableQuery($tableStructure);
-		$statement = ConnectionHelper::prepareStatement($this->connection, $q);
+		$prepared = ConnectionHelper::prepareStatement($this->connection, $q);
 
-		$this->assertInstanceOf(PreparedStatement::class, $statement);
+		$this->assertInstanceOf(PreparedStatement::class, $prepared);
 
-		$sql = strval($statement);
+		$sql = strval($prepared);
 		$sql = \SqlFormatter::format(strval($sql), false);
 		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, 'create', 'sql');
 
-		$this->connection->executeStatement($statement);
+		$this->connection->executeStatement($prepared);
 
 		return true;
 	}

@@ -347,6 +347,8 @@ class Constants
 	 */
 	const RECORDSET_FETCH_UBSERIALIZE = 0x04;
 
+	const RECORDSET_PUBLIC_FLAGS = 0x07;
+
 	/**
 	 * SQL structure description XML namespace URI
 	 *

@@ -7,7 +7,6 @@ namespace NoreSources\SQL\SQLite;
 use NoreSources as ns;
 use NoreSources\SQL as sql;
 use NoreSources\SQL\SQLite\Constants as K;
-use NoreSources\SQL\ConnectionException;
 
 /**
  * SQLite connection
@@ -131,7 +130,7 @@ class Connection implements sql\Connection
 
 			if (\in_array($name, $names))
 			{
-				throw new ConnectionException($this, 'Duplicated tableset name ' . $name);
+				throw new sql\ConnectionException($this, 'Duplicated tableset name ' . $name);
 			}
 
 			$names[] = $name;
@@ -230,7 +229,7 @@ class Connection implements sql\Connection
 					if ($statement->hasParameter($key))
 						$name = $statement->getParameter($key);
 					else
-						throw new ConnectionException($this,
+						throw new sql\ConnectionException($this,
 							'Parameter "' . $key . '" not found in prepared statement (with ' .
 							$statement->getParameterCount() . ' parameter(s))');
 				}
@@ -258,7 +257,12 @@ class Connection implements sql\Connection
 
 		if ($result instanceof \SQLite3Result)
 		{
-			return new Recordset($result);
+			$recordset = new Recordset($result);
+			if ($statement instanceof sql\StatementOutputData)
+			{
+				$recordset->initializeStatementOutputData($statement);
+			}
+			return $recordset;
 		}
 
 		throw new sql\ConnectionException($this, 'Failed to execute');

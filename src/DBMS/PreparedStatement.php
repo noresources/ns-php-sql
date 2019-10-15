@@ -82,11 +82,11 @@ class ParameterArray implements \IteratorAggregate, \Countable
 /**
  * Pre-built statement
  */
-abstract class PreparedStatement
+abstract class PreparedStatement implements StatementInputData, StatementOutputData
 {
 
-	use StatementInputData;
-	use StatementOutputData;
+	use StatementInputDataTrait;
+	use StatementOutputDataTrait;
 
 	/**
 	 *
@@ -95,18 +95,15 @@ abstract class PreparedStatement
 	 */
 	public function __construct($data)
 	{
-		if ($data instanceof StatementContext)
-		{
-			$this->statementType = $data->getStatementType();
-			$this->resultColumns = $data->getResultColumns();
-			$this->parameters = $data->getParameters();
-		}
+		if ($data instanceof StatementInputData)
+			$this->initializeStatementInputData($data);
 		else
-		{
-			$this->parameters = new StatementParameterMap();
-			$this->statementType = 0;
-			$this->resultColumns = new ResultColumnMap();
-		}
+			$this->initializeStatementInputData(null);
+
+		if ($data instanceof StatementOutputData)
+			$this->initializeStatementOutputData($data);
+		else
+			$this->initializeStatementOutputData(null);
 	}
 
 	/**
@@ -116,17 +113,6 @@ abstract class PreparedStatement
 	public function __toString()
 	{
 		return $this->getStatement();
-	}
-
-	/**
-	 *
-	 * @param StatementParameterMap $parameters
-	 * @return \NoreSources\SQL\PreparedStatement
-	 */
-	public function setParameters(StatementParameterMap $parameters)
-	{
-		$this->parameters = $parameters;
-		return $this;
 	}
 
 	/**

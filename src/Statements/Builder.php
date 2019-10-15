@@ -369,6 +369,7 @@ abstract class StatementBuilder
 	public function finalize(TokenStream $stream, StatementContext &$context)
 	{
 		$context->sql = '';
+		$context->initializeStatementInputData(null);
 
 		foreach ($stream as $token)
 		{
@@ -380,8 +381,7 @@ abstract class StatementBuilder
 				$value = strval($value);
 				$position = $context->getParameterCount();
 				$name = $this->getParameter($value, $position);
-
-				$context->setParameter($position, $value, $name);
+				$context->registerParameter($position, $value, $name);
 				$value = $name;
 			}
 

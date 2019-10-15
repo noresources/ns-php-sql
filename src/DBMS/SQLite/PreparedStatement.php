@@ -25,6 +25,7 @@ class PreparedStatement extends sql\PreparedStatement
 	public function __construct(\SQLite3Stmt $statement, $data = null)
 	{
 		parent::__construct($data);
+
 		$this->sql = null;
 		$this->sqliteStatement = $statement;
 
@@ -43,10 +44,13 @@ class PreparedStatement extends sql\PreparedStatement
 
 		if ($data instanceof sql\StatementInputData)
 		{
-			if ($data->parameters->namedParameterCount != $statement->paramCount())
+			if ($data->getNamedParameterCount() != $statement->paramCount())
 			{
+				echo ($data . PHP_EOL);
 				throw new \BadMethodCallException(
-					'SQLite statement and StatementData parameter mismatch');
+					'SQLite statement and StatementInputData parameter mismatch. Got ' .
+					$data->getNamedParameterCount() . ' for StatementInputData and ' .
+					$statement->paramCount() . ' for SQLiteStmt');
 			}
 		}
 	}

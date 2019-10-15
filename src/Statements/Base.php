@@ -27,12 +27,13 @@ class StatementException extends \Exception
 	private $statement;
 }
 
-class NamedStatementParameterIterator implements \Iterator
+class StatementParameterIterator implements \Iterator
 {
 
-	public function __construct(StatementParameterMap $map)
+	public function __construct(StatementParameterMap $map, $type)
 	{
 		$this->iterator = $map->getIterator();
+		$this->keyType = $type;
 	}
 
 	public function current()
@@ -51,7 +52,7 @@ class NamedStatementParameterIterator implements \Iterator
 		{
 			$this->iterator->next();
 		}
-		while ($this->iterator->valid() && \is_integer($this->iterator->key()));
+		while ($this->iterator->valid() && ns\TypeDescription::getName($key) != $this->keyType);
 	}
 
 	public function valid()
@@ -68,19 +69,26 @@ class NamedStatementParameterIterator implements \Iterator
 	 *
 	 * @var \Iterator
 	 */
-	public $iterator;
+	private $iterator;
+
+	private $keyType;
 }
 
 class StatementParameterMap extends \ArrayObject
 {
 
+	public function getNamedParameterCount()
+	{
+		return $this->namedParameterCount;
+	}
+
 	/**
 	 *
-	 * @return \NoreSources\SQL\NamedStatementParameterIterator
+	 * @return \NoreSources\SQL\StatementParameterIterator
 	 */
 	public function getNamedParameterIterator()
 	{
-		return (new NamedStatementParameterIterator($this));
+		return (new StatementParameterIterator($this, 'string'));
 	}
 
 	/**
@@ -96,6 +104,16 @@ class StatementParameterMap extends \ArrayObject
 			return $this->namedParameterCount;
 
 		throw new \InvalidArgumentException($member);
+	}
+
+	/**
+	 * Number of parameter occurences
+	 *
+	 * @return integer Total number of parameter occurences
+	 */
+	public function count()
+	{
+		return (parent::count() - $this->namedParameterCount);
 	}
 
 	public function offsetSet($index, $newval)
@@ -240,8 +258,67 @@ class ResultColumnMap implements \Countable, \IteratorAggregate
 	private $columns;
 }
 
-trait StatementInputData
+interface StatementInputData
 {
+
+	/**
+	 *
+	 * @return integer
+	 */
+	function getNamedParameterCount();
+
+	/**
+	 *
+	 * @return integer Total number of parameter occurences
+	 */
+	function getParameterCount();
+
+	/**
+	 *
+	 * @param integer|string $key
+	 *        	Parameter position or name
+	 * @return boolean
+	 */
+	function hasParameter($key);
+
+	/**
+	 *
+	 * @param integer|string $key
+	 *        	Parameter name or index
+	 * @return string DBMS representation of the parameter name
+	 */
+	function getParameter($key);
+
+	/**
+	 *
+	 * @return StatementParameterMap
+	 */
+	function getParameters();
+
+	/**
+	 *
+	 * @param integer $position
+	 *        	Parameter position in the statement
+	 * @param string $key
+	 *        	Parameter name
+	 * @param string $dbmsName
+	 *        	DBMS representation of the parameter name
+	 */
+	function registerParameter($position, $key, $dbmsName);
+
+	function initializeStatementInputData(StatementInputData $data = null);
+}
+
+/**
+ * Implementation of StatementInputData
+ */
+trait StatementInputDataTrait
+{
+
+	public function getNamedParameterCount()
+	{
+		return $this->parameters->getNamedParameterCount();
+	}
 
 	public function getParameterCount()
 	{
@@ -263,19 +340,18 @@ trait StatementInputData
 		return $this->parameters;
 	}
 
-	/**
-	 *
-	 * @param integer $position
-	 *        	Parameter position in the statement
-	 * @param string $key
-	 *        	Logical parameter name
-	 * @param string $dbmsName
-	 *        	DMBS representation
-	 */
-	public function setParameter($position, $key, $dbmsName)
+	public function registerParameter($position, $key, $dbmsName)
 	{
 		$this->parameters->offsetSet(intval($position), $dbmsName);
 		$this->parameters->offsetSet(strval($key), $dbmsName);
+	}
+
+	public function initializeStatementInputData(StatementInputData $data = null)
+	{
+		if ($data)
+			$this->parameters = $data->getParameters();
+		else
+			$this->parameters = new StatementParameterMap();
 	}
 
 	/**
@@ -286,7 +362,51 @@ trait StatementInputData
 	private $parameters;
 }
 
-trait StatementOutputData
+interface StatementOutputData
+{
+
+	/**
+	 *
+	 * @return integer
+	 */
+	function getStatementType();
+
+	/**
+	 *
+	 * @return integer
+	 */
+	function getResultColumnCount();
+
+	/**
+	 *
+	 * @param string $key
+	 * @return ResultColumn
+	 */
+	function getResultColumn($key);
+
+	/**
+	 *
+	 * @return ResultColumnMap
+	 */
+	function getResultColumns();
+
+	/**
+	 *
+	 * @return \ArrayIterator
+	 */
+	function getResultColumnIterator();
+
+	/**
+	 *
+	 * @param StatementOutputData $data
+	 */
+	function initializeStatementOutputData(StatementOutputData $data = null);
+}
+
+/**
+ * Implementation of StatementOutputData
+ */
+trait StatementOutputDataTrait
 {
 
 	public function getStatementType()
@@ -316,6 +436,20 @@ trait StatementOutputData
 	public function getResultColumnIterator()
 	{
 		return $this->resultColumns->getIterator();
+	}
+
+	public function initializeStatementOutputData(StatementOutputData $data = null)
+	{
+		if ($data)
+		{
+			$this->statementType = $data->getStatementType();
+			$this->resultColumns = $data->getResultColumns();
+		}
+		else
+		{
+			$this->statementType = 0;
+			$this->resultColumns = new ResultColumnMap();
+		}
 	}
 
 	/**

@@ -131,7 +131,11 @@ class Connection implements sql\Connection
 			\PDO::ATTR_CURSOR => \PDO::CURSOR_SCROLL
 		]);
 		if (!($pdo instanceof \PDOStatement))
-			throw new sql\ConnectionException($this, 'Failed to prepare statement');
+		{
+			$error = $this->connection->errorInfo();
+			$message = 'Error ' . $error[0] . ' at line ' . $error[1] . ' ' . $error[2];
+			throw new sql\ConnectionException($this, 'Failed to prepare statement. ' . $message);
+		}
 
 		return new PreparedStatement($pdo, $statement);
 	}
@@ -191,15 +195,22 @@ class Connection implements sql\Connection
 			if ($result === false)
 				throw new sql\ConnectionException($this, 'Failed to execute');
 		}
-		else
+		else // Basic case
 		{
 			$pdo = $this->connection->query($statement);
 			if ($pdo === false)
 				throw new sql\ConnectionException($this, 'Failed to execute');
+
 			$statement = new PreparedStatement($pdo, $statement);
 		}
 
-		return (new Recordset($statement));
+		$recordset = (new Recordset($statement));
+		if ($statement instanceof sql\StatementOutputData)
+		{
+			$recordset->initializeStatementOutputData($statement);
+		}
+
+		return $recordset;
 	}
 
 	public function getPDOAttribute($attribute)
