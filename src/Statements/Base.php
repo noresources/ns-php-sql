@@ -497,4 +497,49 @@ abstract class Statement implements Expression
 	{
 		return K::DATATYPE_UNDEFINED;
 	}
+
+	public static function statementTypeFromData($data)
+	{
+		if (\is_object($data))
+		{
+			if ($data instanceof SelectQuery)
+				return K::QUERY_SELECT;
+			elseif ($data instanceof InsertionQuery)
+				return K::QUERY_INSERT;
+			elseif ($data instanceof UpdateQuery)
+				return K::QUERY_UPDATE;
+			elseif ($data instanceof DeleteQuery)
+				return K::QUERY_DELETE;
+
+			$type = 0;
+			if ($type instanceof StatementOutputData)
+				$type = $data->getExpressionDataType();
+
+			if ($type != 0)
+				return $type;
+
+			if ($data instanceof PreparedStatement)
+				$data = $data->getStatement();
+			elseif ($data instanceof StatementContext)
+				$data = strval($data);
+		}
+
+		if (\is_string($data))
+		{
+			$regex = [
+				'/^select\s/i' => K::QUERY_SELECT,
+				'/^insert\s/i' => K::QUERY_INSERT,
+				'/^update\s/i' => K::QUERY_UPDATE,
+				'/^delete\s/i' => K::QUERY_DELETE
+			];
+
+			foreach ($regex as $r => $t)
+			{
+				if (preg_match($r, $data))
+					return $t;
+			}
+		}
+
+		return 0;
+	}
 }
