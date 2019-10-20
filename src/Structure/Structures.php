@@ -54,6 +54,16 @@ abstract class StructureElement implements \ArrayAccess, \IteratorAggregate, \Co
 		$this->subElements = new \ArrayObject([]);
 	}
 
+	public function __clone()
+	{
+		foreach ($this->subElements as $key => $value)
+		{
+			$e = clone $value;
+			$e->setParent($this);
+			$this->subElements->offsetSet($key, $e);
+		}
+	}
+
 	// Countable
 	public function count()
 	{
@@ -181,11 +191,19 @@ abstract class StructureElement implements \ArrayAccess, \IteratorAggregate, \Co
 	 */
 	public function appendChild(StructureElement $a_child)
 	{
-		$parent = $this->parent();
 		$key = $a_child->getName();
+		$a_child->setParent($this);
 		$this->subElements->offsetSet($key, $a_child);
 
 		return $a_child;
+	}
+
+	/**
+	 * Detach element from its parent
+	 */
+	public function detach()
+	{
+		$this->parentElement = null;
 	}
 
 	protected function clear()
@@ -217,6 +235,11 @@ abstract class StructureElement implements \ArrayAccess, \IteratorAggregate, \Co
 		{
 			$e->postprocess();
 		}
+	}
+
+	public function setParent(StructureElement $parent = null)
+	{
+		$this->parentElement = $parent;
 	}
 
 	/**
@@ -294,6 +317,18 @@ class TableColumnStructure extends StructureElement
 	}
 
 	/**
+	 * Clone default value if any.
+	 */
+	public function __clone()
+	{
+		parent::__clone();
+		if ($this->hasProperty(self::DEFAULT_VALUE))
+		{
+			$this->setProperty(self::DEFAULT_VALUE, clone $this->getProperty(self::DEFAULT_VALUE));
+		}
+	}
+
+	/**
 	 * Get column properties
 	 *
 	 * @return array
@@ -321,6 +356,12 @@ class TableColumnStructure extends StructureElement
 			$this->m_columnProperties[$key]['set']);
 	}
 
+	/**
+	 *
+	 * @param integer $key
+	 *        	Property
+	 * @return boolean|number|NULL|string
+	 */
 	public function getProperty($key)
 	{
 		return $this->m_columnProperties[$key]['value'];
