@@ -3,7 +3,7 @@ spl_autoload_register(function($className) {
 	$className = strtolower ($className);
 	$classMap = array (
 		'noresources\sql\statementexception' => 'src/Statements/Base.php',
-		'noresources\sql\namedstatementparameteriterator' => 'src/Statements/Base.php',
+		'noresources\sql\statementparameteriterator' => 'src/Statements/Base.php',
 		'noresources\sql\statementparametermap' => 'src/Statements/Base.php',
 		'noresources\sql\resultcolumn' => 'src/Statements/Base.php',
 		'noresources\sql\resultcolumnmap' => 'src/Statements/Base.php',
@@ -13,6 +13,7 @@ spl_autoload_register(function($className) {
 		'noresources\sql\statementoutputdatatrait' => 'src/Statements/Base.php',
 		'noresources\sql\tablereference' => 'src/Statements/Base.php',
 		'noresources\sql\statement' => 'src/Statements/Base.php',
+		'noresources\sql\columnvaluetrait' => 'src/Statements/Base.php',
 		'noresources\sql\droptablequery' => 'src/Statements/DropTable.php',
 		'noresources\sql\statementcontext' => 'src/Statements/Context.php',
 		'noresources\sql\resultcolumnreference' => 'src/Statements/Select.php',
@@ -85,6 +86,8 @@ spl_autoload_register(function($className) {
 		'noresources\sql\queryresult' => 'src/Results/QuesyResults.php',
 		'noresources\sql\rowmodificationqueryresult' => 'src/Results/QuesyResults.php',
 		'noresources\sql\insertionqueryresult' => 'src/Results/QuesyResults.php',
+		'noresources\sql\genericrowmodificationqueryresult' => 'src/Results/QuesyResults.php',
+		'noresources\sql\genericinsertionqueryresult' => 'src/Results/QuesyResults.php',
 		'noresources\sql\recordsetexception' => 'src/Results/Recordset.php',
 		'noresources\sql\recordset' => 'src/Results/Recordset.php'
 	); // classMap

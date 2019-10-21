@@ -152,6 +152,31 @@ class ConnectionHelper
 	}
 
 	/**
+	 * Get the DBMS-specific SQL string representation of the given statement
+	 *
+	 * @param Connection $connection
+	 *        	DBMS connection
+	 * @param Statement $statement
+	 *        	Statement to convert to string
+	 * @return string SQL string in the DBMS dialect
+	 *
+	 * @note This method does not provide any informations about statement parameters or result column types.
+	 * Tf these information are needed, use ConnectionHelper::prepareStatement()
+	 */
+	public static function getStatementSQL($connection, Statement $statement,
+		StructureElement $reference = null)
+	{
+		$builder = $connection->getStatementBuilder();
+		$context = new StatementContext($builder);
+		if ($reference instanceof StructureElement)
+			$context->setPivot($reference);
+		$stream = new TokenStream();
+		$statement->tokenize($stream, $context);
+		$builder->finalize($stream, $context);
+		return strval($context);
+	}
+
+	/**
 	 *
 	 * @param Connection $connection
 	 * @param Statement $statement

@@ -7,6 +7,7 @@ namespace NoreSources\SQL\PDO;
 use NoreSources as ns;
 use NoreSources\SQL as sql;
 use NoreSources\SQL\PDO\Constants as K;
+use NoreSources\SQL\ConnectionHelper;
 
 /**
  * PDO connection
@@ -127,13 +128,19 @@ class Connection implements sql\Connection
 		if (!($this->connection instanceof \PDO))
 			throw new sql\ConnectionException($this, 'Not connected');
 
-		$pdo = $this->connection->prepare($statement, [
-			\PDO::ATTR_CURSOR => \PDO::CURSOR_SCROLL
-		]);
+		$type = sql\Statement::statementTypeFromData($statement);
+		$attributes = [];
+		if ($type == K::QUERY_SELECT)
+			$attributes[\PDO::ATTR_CURSOR] = \PDO::CURSOR_SCROLL;
+
+		$pdo = $this->connection->prepare($statement, $attributes);
+		if (!($pdo instanceof \PDOStatement))
+			$pdo = $this->connection->prepare($statement);
+
 		if (!($pdo instanceof \PDOStatement))
 		{
 			$error = $this->connection->errorInfo();
-			$message = 'Error ' . $error[0] . ' at line ' . $error[1] . ' ' . $error[2];
+			$message = self::getErrorMessage($error);
 			throw new sql\ConnectionException($this, 'Failed to prepare statement. ' . $message);
 		}
 
@@ -150,6 +157,11 @@ class Connection implements sql\Connection
 	{
 		if (!($this->connection instanceof \PDO))
 			throw new sql\ConnectionException($this, 'Not connected');
+
+		if (!(\is_string($statement) || ($statement instanceof PreparedStatement)))
+			throw new \InvalidArgumentException(
+				'Invalid type ' . ns\TypeDescription::getName($statement) .
+				' for statement argument. string or PDO\PreparedStatement expected');
 
 		if ($parameters instanceof sql\ParameterArray && $parameters->count())
 		{
@@ -179,7 +191,7 @@ class Connection implements sql\Connection
 					if ($statement->getParameters()->offsetExists($key))
 						$name = $statement->getParameters()->offsetGet($key);
 					else
-						throw new ConnectionException($this,
+						throw new sql\ConnectionException($this,
 							'Parameter "' . $key . '" not found in prepared statement');
 				}
 				else
@@ -191,9 +203,13 @@ class Connection implements sql\Connection
 				$pdo->bindValue($name, $value);
 			}
 
-			$result = $statement->execute();
+			$result = $pdo->execute();
 			if ($result === false)
+			{
+				$error = $pdo->errorInfo();
+				$message = self::getErrorMessage($error);
 				throw new sql\ConnectionException($this, 'Failed to execute');
+			}
 		}
 		else // Basic case
 		{
@@ -204,13 +220,43 @@ class Connection implements sql\Connection
 			$statement = new PreparedStatement($pdo, $statement);
 		}
 
-		$recordset = (new Recordset($statement));
-		if ($statement instanceof sql\StatementOutputData)
+		/**
+		 *
+		 * @var PreparedStatement $statement
+		 */
+
+		$result = true;
+		$type = sql\Statement::statementTypeFromData($statement);
+
+		if ($type == K::QUERY_SELECT)
 		{
-			$recordset->initializeStatementOutputData($statement);
+			$result = (new Recordset($statement));
+		}
+		elseif ($type == K::QUERY_INSERT)
+		{
+			$result = new sql\GenericInsertionQueryResult($this->connection->lastInsertId());
+		}
+		elseif ($type & K::QUERY_FAMILY_ROWMODIFICATION)
+		{
+			$result = new sql\GenericRowModificationQueryResult(
+				$statement->getPDOStatement()->rowCount());
 		}
 
-		return $recordset;
+		return $result;
+	}
+
+	public static function getErrorMessage($error)
+	{
+		return ns\Container::implode($error, ', ',
+			function ($k, $v) {
+				if (strlen($v) == 0)
+					return false;
+				if ($k == 0) // SQLSTATE
+					return 'Error code ' . $v;
+				elseif ($k == 2) // Error message
+					return $v;
+				return false;
+			});
 	}
 
 	public function getPDOAttribute($attribute)

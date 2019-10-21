@@ -2,6 +2,7 @@
 namespace NoreSources\SQL;
 
 use PHPUnit\Framework\TestCase;
+use NoreSources as ns;
 use NoreSources\SQL\PDO\Constants as K;
 $sqliteConnectionParameters = [
 	K::CONNECTION_PARAMETER_SOURCE => [
@@ -16,10 +17,8 @@ final class PDOTest extends TestCase
 	public function __construct()
 	{
 		parent::__construct();
-		$this->connection = null;
 		$this->derivedFileManager = new DerivedFileManager();
 		$this->datasources = new DatasourceManager();
-		$this->createdTables = new \ArrayObject();
 	}
 
 	public function testBuildDSN()
@@ -86,6 +85,133 @@ final class PDOTest extends TestCase
 		$this->assertEquals($expectedRowCount, $b, 'Second pass, row count');
 	}
 
+	public function testSQLiteCreateInsertUpdateDelete()
+	{
+		$settings = [
+			K::CONNECTION_PARAMETER_SOURCE => [
+				'sqlite',
+				':memory:'
+			]
+		];
+
+		$structure = $this->datasources->get('Company');
+
+		$tableStructure = $structure['ns_unittests']['Employees'];
+		$this->assertInstanceOf(TableStructure::class, $tableStructure);
+
+		// Detach table from tableset to avoid invalid tableset name
+		$detachedTable = clone $tableStructure;
+		$detachedTable->detach();
+
+		$connection = new PDO\Connection();
+		$connection->connect($settings);
+
+		$create = new CreateTableQuery($detachedTable);
+		$sql = ConnectionHelper::getStatementSQL($connection, $create);
+
+		$this->derivedFileManager->assertDerivedFile(\SqlFormatter::format($sql, false), __METHOD__,
+			'create', 'sql');
+		$connection->executeStatement($sql);
+
+		$insert = new InsertQuery($detachedTable);
+		$insert('name', ':name');
+		$insert('gender', ':gender');
+		$insert('salary', ':salary');
+
+		$prepared = ConnectionHelper::prepareStatement($connection, $insert, $detachedTable);
+		$this->assertInstanceOf(PDO\PreparedStatement::class, $prepared);
+		$sql = strval($prepared);
+		$this->derivedFileManager->assertDerivedFile(\SqlFormatter::format($sql, false), __METHOD__,
+			'insert', 'sql');
+
+		$employees = [
+			[
+				'name' => 'John Doe',
+				'gender' => 'M',
+				'salary' => 4096
+			],
+			[
+				'name' => 'Angelina Jolie',
+				'gender' => 'F',
+				'salary' => 32768
+			],
+			[
+				'name' => 'Joan of Arc',
+				'gender' => 'F',
+				'salary' => 0
+			],
+			[
+				'name' => 'Bob Lennon',
+				'gender' => 'M',
+				'salary' => 1048576
+			]
+		];
+
+		foreach ($employees as $index => $employee)
+		{
+			$connection->executeStatement($prepared, new ParameterArray($employee));
+		}
+
+		$select = new SelectQuery($detachedTable);
+		$select->where([
+			'>' => [
+				'salary',
+				5000
+			]
+		]);
+		$select->orderBy('id');
+
+		$preparedSelect = ConnectionHelper::prepareStatement($connection, $select, $detachedTable);
+		$this->assertInstanceOf(PDO\PreparedStatement::class, $preparedSelect);
+		$sql = strval($preparedSelect);
+		$this->derivedFileManager->assertDerivedFile(\SqlFormatter::format($sql, false), __METHOD__,
+			'select', 'sql');
+
+		$result = $connection->executeStatement($preparedSelect);
+		$this->assertInstanceOf(Recordset::class, $result);
+
+		$expected = [
+			$employees[1],
+			$employees[3]
+		];
+
+		$c = 0;
+		foreach ($result as $index => $row)
+		{
+			foreach ($expected[$index] as $name => $value)
+			{
+				$this->assertEquals($value, $row[$name], '# ' . $index . ' value of ' . $name);
+			}
+		}
+
+		$update = new UpdateQuery($detachedTable);
+		$update('salary', 'salary + 10000');
+		$update->where('salary < 5000');
+
+		$prepared = ConnectionHelper::prepareStatement($connection, $update, $detachedTable);
+		$this->assertInstanceOf(PDO\PreparedStatement::class, $prepared);
+		$sql = strval($prepared);
+		$this->derivedFileManager->assertDerivedFile(\SqlFormatter::format($sql, false), __METHOD__,
+			'update', 'sql');
+
+		$result = $connection->executeStatement($prepared);
+		$this->assertInstanceOf(RowModificationQueryResult::class, $result);
+
+		$result = $connection->executeStatement($preparedSelect);
+		$this->assertInstanceOf(Recordset::class, $result);
+
+		$c = 0;
+		foreach ($result as $index => $row)
+		{
+			foreach ($employees[$index] as $name => $value)
+			{
+				if ($name == 'salary' && ($value < 5000))
+					$value += 10000;
+				$this->assertEquals($value, $row[$name], '# ' . $index . ' value of ' . $name);
+			}
+		}
+	}
+
 	private function subtestPgsqlBase()
 	{
 		return;
@@ -123,16 +249,4 @@ final class PDOTest extends TestCase
 	 * @var DerivedFileManager
 	 */
 	private $derivedFileManager;
-
-	/**
-	 *
-	 * @var \ArrayObject
-	 */
-	private $createdTables;
-
-	/**
-	 *
-	 * @var Connection
-	 */
-	private $connection;
 }
