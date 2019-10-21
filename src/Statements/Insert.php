@@ -74,27 +74,16 @@ class InsertQuery extends Statement implements \ArrayAccess
 			 *
 			 * @var TableColumnStructure $column
 			 */
-
-			$x = null;
-			$v = $value['value'];
-			if ($v instanceof Expression)
+			if (!($value instanceof Expression))
 			{
-				$x = $v;
-			}
-			elseif ($value['evaluate'])
-			{
-				$x = ExpressionEvaluator::evaluate($v);
-			}
-			else
-			{
-				$t = K::DATATYPE_UNDEFINED;
+				$type = K::DATATYPE_UNDEFINED;
 				if ($column->hasProperty(K::COLUMN_PROPERTY_DATA_TYPE))
-					$t = $column->getProperty(K::COLUMN_PROPERTY_DATA_TYPE);
+					$type = $column->getProperty(K::COLUMN_PROPERTY_DATA_TYPE);
 
-				$x = new LiteralExpression($v, $t);
+				$value = new LiteralExpression($value, $type);
 			}
 
-			$values[] = $x;
+			$values[] = $value;
 		}
 
 		if ($c == 0)

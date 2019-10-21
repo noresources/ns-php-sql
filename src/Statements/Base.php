@@ -586,25 +586,13 @@ trait ColumnValueTrait
 	 */
 	public function set($columnName, $columnValue, $evaluate = null)
 	{
-		if ($evaluate === false)
-		{
-			if ($columnValue instanceof Evaluable)
-			{
-				throw new \BadMethodCallException(
-					'Column value is an Evaluable but $evaluate = false');
-			}
-		}
-
 		if ($evaluate === null)
-		{
 			$evaluate = ($columnValue instanceof Evaluable) || (ns\Container::isArray($columnValue));
-		}
 
-		$this->columnValues->offsetSet($columnName,
-			[
-				'value' => $columnValue,
-				'evaluate' => $evaluate
-			]);
+		if ($evaluate)
+			$columnValue = ExpressionEvaluator::evaluate($columnValue);
+
+		$this->columnValues->offsetSet($columnName, $columnValue);
 		return $this;
 	}
 
