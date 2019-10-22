@@ -40,7 +40,13 @@ class UpdateQuery extends Statement implements \ArrayAccess
 	{
 		$c = func_num_args();
 		for ($i = 0; $i < $c; $i++)
-			$this->whereConstraints->append(func_get_arg($i));
+		{
+			$x = func_get_arg($i);
+			if (!($x instanceof Expression))
+				$x = ExpressionEvaluator::evaluate($x);
+
+			$this->whereConstraints->append($x);
+		}
 
 		return $this;
 	}
@@ -112,11 +118,9 @@ class UpdateQuery extends Statement implements \ArrayAccess
 	public function traverse($callable, StatementContext $context, $flags = 0)
 	{
 		call_user_func($callable, $this, $context, $flags);
-		foreach ($this->columnValues as $column => $value)
-		{
-			if ($value['value'] instanceof Expression)
-				call_user_func($callable, $value, $context, $flags);
-		}
+		$this->traverseColumnValues($callable, $context, $flags);
+		foreach ($this->whereConstraints as $x)
+			$x->traverse($callable, $context, $flags);
 	}
 
 	/**

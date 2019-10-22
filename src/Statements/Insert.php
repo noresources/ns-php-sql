@@ -155,11 +155,7 @@ class InsertQuery extends Statement implements \ArrayAccess
 	public function traverse($callable, StatementContext $context, $flags = 0)
 	{
 		call_user_func($callable, $this, $context, $flags);
-		foreach ($this->columnValues as $column => $value)
-		{
-			if ($value['value'] instanceof Expression)
-				call_user_func($callable, $value, $context, $flags);
-		}
+		$this->traverseColumnValues($callable, $context, $flags);
 	}
 
 	/**

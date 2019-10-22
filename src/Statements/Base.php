@@ -643,6 +643,15 @@ trait ColumnValueTrait
 		$this->columnValues->offsetUnset($offset);
 	}
 
+	protected function traverseColumnValues($callable, StatementContext $context, $flags = 0)
+	{
+		foreach ($this->columnValues as $column => $value)
+		{
+			if ($value instanceof Expression)
+				$value->traverse($callable, $context, $flags);
+		}
+	}
+
 	/**
 	 *
 	 * @var \ArrayObject Associative array where

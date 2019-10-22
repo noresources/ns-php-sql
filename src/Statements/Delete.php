@@ -38,7 +38,13 @@ class DeleteQuery extends Statement
 	{
 		$c = func_num_args();
 		for ($i = 0; $i < $c; $i++)
-			$this->whereConstraints->append(func_get_arg($i));
+		{
+			$x = func_get_arg($i);
+			if (!($x instanceof Expression))
+				$x = ExpressionEvaluator::evaluate($x);
+
+			$this->whereConstraints->append($x);
+		}
 	}
 
 	public function tokenize(TokenStream &$stream, StatementContext $context)
@@ -74,11 +80,9 @@ class DeleteQuery extends Statement
 	public function traverse($callable, StatementContext $context, $flags = 0)
 	{
 		call_user_func($callable, $this, $context, $flags);
+
 		foreach ($this->whereConstraints as $e)
-		{
-			if ($e instanceof Expression)
-				call_user_func($callable, $e, $context, $flags);
-		}
+			$e->traverse($callable, $context, $flags);
 	}
 
 	/**
