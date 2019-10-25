@@ -8,7 +8,7 @@ use NoreSources\SQL\Constants as K;
  * A list of parameter values to pass to the Connection::executeStatement() method
  * alongside a statement with parameters
  */
-class ParameterArray implements \IteratorAggregate, \Countable
+class ParameterArray implements \IteratorAggregate, \ArrayAccess, \Countable
 {
 
 	const VALUE = 'value';
@@ -27,6 +27,26 @@ class ParameterArray implements \IteratorAggregate, \Countable
 	public function count()
 	{
 		return $this->table->count();
+	}
+
+	public function offsetExists($name)
+	{
+		return $this->table->offsetExists($name);
+	}
+
+	public function offsetGet($name)
+	{
+		return $this->table->offsetGet($name);
+	}
+
+	public function offsetSet($name, $value)
+	{
+		$this->set($name, $value);
+	}
+
+	public function offsetUnset($name)
+	{
+		$this->table->offsetUnset($name);
 	}
 
 	public function set($parameter, $value, $type = K::DATATYPE_UNDEFINED)
