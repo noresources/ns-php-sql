@@ -52,11 +52,11 @@ final class SQLiteTest extends TestCase
 		$p->set('nameValue', 'Bob');
 		$p->set('salaryValue', 2000);
 		$result = $this->connection->executeStatement($prepared, $p);
-		$this->assertInstanceOf(Recordset::class, $result);
+		$this->assertInstanceOf(InsertionQueryResult::class, $result);
 
 		$p->set('nameValue', 'Ron');
 		$result = $this->connection->executeStatement($prepared, $p);
-		$this->assertInstanceOf(Recordset::class, $result);
+		$this->assertInstanceOf(InsertionQueryResult::class, $result);
 
 		$statement = new SelectQuery($tableStructure);
 		$statement->columns('name', 'gender', 'salary');

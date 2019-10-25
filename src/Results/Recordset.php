@@ -156,6 +156,7 @@ abstract class Recordset implements \Iterator, StatementOutputData, QueryResult
 
 	protected function __construct()
 	{
+		$this->initializeStatementOutputData();
 		$this->resultColumns = new ResultColumnMap();
 		$this->statementType = K::QUERY_SELECT;
 

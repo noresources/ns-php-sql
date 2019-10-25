@@ -206,6 +206,7 @@ class Connection implements sql\Connection
 			throw new sql\ConnectionException($this, 'Not connected');
 
 		$result = null;
+		$statementType = sql\Statement::statementTypeFromData($statement);
 
 		if ($parameters instanceof sql\ParameterArray && $parameters->count())
 		{
@@ -242,7 +243,7 @@ class Connection implements sql\Connection
 				$type = ns\Container::keyValue($entry, sql\ParameterArray::TYPE,
 					K::DATATYPE_UNDEFINED);
 
-				$type = self::getSQLiteDataType($type);
+				$type = self::sqliteDataTypeFromDataType($type);
 				$bindResult = $stmt->bindValue($name, $value, $type);
 				if (!$bindResult)
 					throw new sql\ConnectionException($this, 'Failed to bind "' . $name . '"');
@@ -252,20 +253,61 @@ class Connection implements sql\Connection
 		}
 		else
 		{
-			$result = $this->connection->query(strval($statement));
+			if ($statementType != K::QUERY_SELECT)
+				$result = $this->connection->exec(strval($statement));
+			else
+				$result = $this->connection->query(strval($statement));
 		}
 
-		if ($result instanceof \SQLite3Result)
+		if ($statementType & K::QUERY_FAMILY_ROWMODIFICATION)
 		{
-			$recordset = new Recordset($result);
-			if ($statement instanceof sql\StatementOutputData)
+			if (($result instanceof \SQLite3Result) || $result)
 			{
-				$recordset->initializeStatementOutputData($statement);
+				return new sql\GenericRowModificationQueryResult($this->connection->changes());
 			}
-			return $recordset;
+		}
+		elseif ($statementType == K::QUERY_INSERT)
+		{
+			if (($result instanceof \SQLite3Result) || $result)
+			{
+				return new sql\GenericInsertionQueryResult($this->connection->lastInsertRowID());
+			}
+		}
+		elseif ($statementType == K::QUERY_SELECT)
+		{
+			if ($result instanceof \SQLite3Result)
+			{
+				$recordset = new Recordset($result);
+				if ($statement instanceof sql\StatementOutputData)
+					$recordset->initializeStatementOutputData($statement);
+				else
+				{
+					$map = new sql\ResultColumnMap();
+					for ($i = 0; $i < $result->numColumns(); $i++)
+					{
+						$column = new sql\ResultColumn($data);
+						$column->name = $result->columnName($i);
+						$column->dataType = self::dataTypeFromSQLiteDataType(
+							$result->columnType($i));
+						$map->setColumn($i, $column);
+					}
+					$recordset->setResultColumns($map);
+				}
+				return $recordset;
+			}
+		}
+		else
+		{
+			return (($result instanceof \SQLite3Result) || $result);
 		}
 
-		throw new sql\ConnectionException($this, 'Failed to execute');
+		$info = [
+			'Statement type' => $statementType,
+			'code' => $this->connection->lastErrorCode(),
+			'error' => $this->connection->lastErrorMsg()
+		];
+
+		throw new sql\ConnectionException($this, 'Failed to execute: ' . var_export($info, true));
 	}
 
 	/**
@@ -273,7 +315,7 @@ class Connection implements sql\Connection
 	 * @param integer $sqlType
 	 * @return integer The SQLITE_* type corresponding to the given \NoreSOurce\SQL data type
 	 */
-	public static function getSQLiteDataType($sqlType)
+	public static function sqliteDataTypeFromDataType($sqlType)
 	{
 		switch ($sqlType)
 		{
@@ -288,6 +330,23 @@ class Connection implements sql\Connection
 				return \SQLITE3_INTEGER;
 		}
 		return \SQLITE3_TEXT;
+	}
+
+	public static function dataTypeFromSQLiteDataType($sqliteType)
+	{
+		switch ($sqliteType)
+		{
+			case \SQLITE3_BLOB:
+				return K::DATATYPE_BINARY;
+			case \SQLITE3_FLOAT:
+				return K::DATATYPE_FLOAT;
+			case \SQLITE3_INTEGER:
+				return K::DATATYPE_INTEGER;
+			case \SQLITE3_NULL:
+				return K::DATATYPE_NULL;
+		}
+
+		return K::DATATYPE_STRING;
 	}
 
 	/**
