@@ -531,7 +531,8 @@ abstract class Statement implements Expression
 				'/^select\s/i' => K::QUERY_SELECT,
 				'/^insert\s/i' => K::QUERY_INSERT,
 				'/^update\s/i' => K::QUERY_UPDATE,
-				'/^delete\s/i' => K::QUERY_DELETE
+				'/^delete\s/i' => K::QUERY_DELETE,
+				'/^create\s/i' => K::QUERY_FAMILY_CREATE
 			];
 
 			foreach ($regex as $r => $t)
