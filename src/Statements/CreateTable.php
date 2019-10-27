@@ -50,6 +50,7 @@ class CreateTableQuery extends Statement
 		}
 
 		$context->pushResolverContext($structure);
+		$context->setStatementType(K::QUERY_CREATE_TABLE);
 
 		/**
 		 *

@@ -316,6 +316,12 @@ class Constants
 
 	const QUERY_FAMILY_ROWMODIFICATION = 0x0C;
 
+	const QUERY_CREATE_TABLE = 0x10;
+
+	const QUERY_CREATE_INDEX = 0x20;
+
+	const QUERY_FAMILY_CREATE = 0x30;
+
 	// Recordset flags
 
 	/**
