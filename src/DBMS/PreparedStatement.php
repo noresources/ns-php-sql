@@ -140,10 +140,5 @@ abstract class PreparedStatement implements StatementInputData, StatementOutputD
 	 * @return string SQL statement string
 	 */
 	abstract function getStatement();
-
-	/**
-	 *
-	 * @var StatementParameterMap
-	 */
-	private $parameters;
 }
+
