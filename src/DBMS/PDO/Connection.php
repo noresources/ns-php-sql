@@ -158,46 +158,47 @@ class Connection implements sql\Connection
 		if (!($this->connection instanceof \PDO))
 			throw new sql\ConnectionException($this, 'Not connected');
 
-		if (!(\is_string($statement) || ($statement instanceof PreparedStatement)))
+		if (!(\is_string($statement) || ($statement instanceof PreparedStatement) ||
+			(\is_bbject($statement) && \method_exists($statement, '__toString'))))
 			throw new \InvalidArgumentException(
 				'Invalid type ' . ns\TypeDescription::getName($statement) .
 				' for statement argument. string or PDO\PreparedStatement expected');
 
+		$pdo = null;
+		$prepared = null;
+
 		if ($parameters instanceof sql\ParameterArray && $parameters->count())
 		{
-			$checkParameters = false;
-
 			if ($statement instanceof PreparedStatement)
 			{
 				if ($statement->isPDOStatementAcquired())
 					throw new sql\ConnectionException($this,
 						'Prepared statement is acquired by another object');
 
-				$checkParameters = true;
+				$prepared = $statement;
 			}
 			else
 			{
-				$statement = $this->prepareStatement($statement);
+				$prepared = $this->prepareStatement($statement);
 			}
 
-			$pdo = $statement->getPDOStatement();
+			$pdo = $prepared->getPDOStatement();
 			$pdo->closeCursor();
 
 			foreach ($parameters as $key => $entry)
 			{
 				$name = '';
-				if ($checkParameters)
+				if ($statement instanceof sql\StatementInputData)
 				{
-					if ($statement->getParameters()->offsetExists($key))
-						$name = $statement->getParameters()->offsetGet($key);
+					if ($statement->hasParameter($key))
+						$name = $statement->getParameter($key);
 					else
 						throw new sql\ConnectionException($this,
-							'Parameter "' . $key . '" not found in prepared statement');
+							'Parameter "' . $key . '" not found in prepared statement (with ' .
+							$statement->getParameterCount() . ' parameter(s))');
 				}
 				else
-				{
 					$name = ':' . $key;
-				}
 
 				$value = ns\Container::keyValue($entry, sql\ParameterArray::VALUE, null);
 				$pdo->bindValue($name, $value);
@@ -217,20 +218,20 @@ class Connection implements sql\Connection
 			if ($pdo === false)
 				throw new sql\ConnectionException($this, 'Failed to execute');
 
-			$statement = new PreparedStatement($pdo, $statement);
+			$prepared = new PreparedStatement($pdo, $statement);
 		}
 
 		/**
 		 *
-		 * @var PreparedStatement $statement
+		 * @var PreparedStatement $prepared
 		 */
 
 		$result = true;
-		$type = sql\Statement::statementTypeFromData($statement);
+		$type = sql\Statement::statementTypeFromData($prepared);
 
 		if ($type == K::QUERY_SELECT)
 		{
-			$result = (new Recordset($statement));
+			$result = (new Recordset($prepared));
 		}
 		elseif ($type == K::QUERY_INSERT)
 		{
@@ -238,8 +239,7 @@ class Connection implements sql\Connection
 		}
 		elseif ($type & K::QUERY_FAMILY_ROWMODIFICATION)
 		{
-			$result = new sql\GenericRowModificationQueryResult(
-				$statement->getPDOStatement()->rowCount());
+			$result = new sql\GenericRowModificationQueryResult($pdo->rowCount());
 		}
 
 		return $result;
