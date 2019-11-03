@@ -4,6 +4,7 @@
 namespace NoreSources\SQL;
 
 // Aliases
+use NoreSources as ns;
 use NoreSources\SQL\Constants as K;
 
 class RecordsetException extends \ErrorException
@@ -31,39 +32,39 @@ class RecordsetException extends \ErrorException
 /**
  * Recordset query result
  */
-abstract class Recordset implements \Iterator, StatementOutputData, QueryResult
+abstract class Recordset implements \Iterator, StatementOutputData, QueryResult, ns\ArrayConversion
 {
 
 	use StatementOutputDataTrait;
 
-	/**
-	 * Fetch record row to an associative array
-	 *
-	 * @var integer
-	 */
-	const FETCH_ASSOCIATIVE = K::RECORDSET_FETCH_ASSOCIATIVE;
+/**
+ * Fetch record row to an associative array
+ *
+ * @var integer
+ */
+const FETCH_ASSOCIATIVE = K::RECORDSET_FETCH_ASSOCIATIVE;
 
-	/**
-	 * Fetch record row to a indexed array
-	 *
-	 * @var integer
-	 */
-	const FETCH_INDEXED = K::RECORDSET_FETCH_INDEXED;
+/**
+ * Fetch record row to a indexed array
+ *
+ * @var integer
+ */
+const FETCH_INDEXED = K::RECORDSET_FETCH_INDEXED;
 
-	/**
-	 * Fetch record row to an array with both indexed and associative key
-	 *
-	 * @var integer
-	 */
-	const FETCH_BOTH = K::RECORDSET_FETCH_BOTH;
+/**
+ * Fetch record row to an array with both indexed and associative key
+ *
+ * @var integer
+ */
+const FETCH_BOTH = K::RECORDSET_FETCH_BOTH;
 
-	/**
-	 * Convert row values to the most accurate PHP object
-	 * according result column type
-	 *
-	 * @var integer
-	 */
-	const FETCH_UNSERIALIZE = K::RECORDSET_FETCH_UBSERIALIZE;
+/**
+ * Convert row values to the most accurate PHP object
+ * according result column type
+ *
+ * @var integer
+ */
+const FETCH_UNSERIALIZE = K::RECORDSET_FETCH_UBSERIALIZE;
 
 	/**
 	 *
@@ -102,6 +103,17 @@ abstract class Recordset implements \Iterator, StatementOutputData, QueryResult
 	public function setResultColumns(ResultColumnMap $columns)
 	{
 		$this->resultColumns = $columns;
+	}
+
+	public function getArrayCopy()
+	{
+		$rows = [];
+		foreach ($this as $index => $row) {
+			/** @todo fix valid() */
+			if ($row === false) continue;
+			$rows[$index] = $row;
+		}
+		return $rows;
 	}
 
 	/**
