@@ -8,7 +8,7 @@ use NoreSources\SQL\Constants as K;
  * A list of parameter values to pass to the Connection::executeStatement() method
  * alongside a statement with parameters
  */
-class ParameterArray implements \IteratorAggregate, \ArrayAccess, \Countable
+class ParameterArray implements \IteratorAggregate, \ArrayAccess, \Countable, ns\ArrayConversion
 {
 
 	const VALUE = 'value';
@@ -49,6 +49,11 @@ class ParameterArray implements \IteratorAggregate, \ArrayAccess, \Countable
 		$this->table->offsetUnset($name);
 	}
 
+	public function getArrayCopy()
+	{
+		return $this->table->getArrayCopy();
+	}
+
 	public function set($parameter, $value, $type = K::DATATYPE_UNDEFINED)
 	{
 		if ($type == K::DATATYPE_UNDEFINED)
@@ -77,20 +82,20 @@ class ParameterArray implements \IteratorAggregate, \ArrayAccess, \Countable
 
 	public function __construct($table = [])
 	{
-		$this->table = new \ArrayObject();
+	$this->table = new \ArrayObject();
 
-		foreach ($table as $key => $value)
+	foreach ($table as $key => $value)
+	{
+		$tyoe = K::DATATYPE_UNDEFINED;
+		if (ns\Container::isArray($value))
 		{
-			$tyoe = K::DATATYPE_UNDEFINED;
-			if (ns\Container::isArray($value))
-			{
-				$type = ns\Container::keyValue($value, self::TYPE, K::DATATYPE_UNDEFINED);
-				$value = ns\Container::keyValue($value, self::VALUE, null);
-			}
-
-			$this->set($key, $value, $tyoe);
+			$type = ns\Container::keyValue($value, self::TYPE, K::DATATYPE_UNDEFINED);
+			$value = ns\Container::keyValue($value, self::VALUE, null);
 		}
+
+		$this->set($key, $value, $tyoe);
 	}
+}
 
 	/**
 	 *

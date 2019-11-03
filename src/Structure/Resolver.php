@@ -202,7 +202,7 @@ class StructureResolver
 		{
 			$tableset = $this->getDefaultTableset();
 		}
-		else 
+		else
 			if ($c == 2)
 			{
 				$tableset = $this->findTableset($x[0]);
