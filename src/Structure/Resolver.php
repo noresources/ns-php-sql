@@ -136,7 +136,9 @@ class StructureResolver
 	{
 		if ($this->cache[TableColumnStructure::class]->offsetExists($path))
 		{
-			return $this->cache[TableColumnStructure::class][$path];
+			return $this->cache[TableColumnStructure::class][
+				$path
+			];
 		}
 
 		$x = explode('.', $path);
@@ -189,7 +191,9 @@ class StructureResolver
 	{
 		if ($this->cache[TableStructure::class]->offsetExists($path))
 		{
-			return $this->cache[TableStructure::class][$path];
+			return $this->cache[TableStructure::class][
+				$path
+			];
 		}
 
 		$x = explode('.', $path);
@@ -232,7 +236,9 @@ class StructureResolver
 	{
 		if ($this->cache[TableSetStructure::class]->offsetExists($path))
 		{
-			return $this->cache[TableSetStructure::class][$path];
+			return $this->cache[TableSetStructure::class][
+				$path
+			];
 		}
 
 		$datasource = $this->pivot;

@@ -8,6 +8,7 @@ use NoreSources as ns;
 use NoreSources\SQL as sql;
 use NoreSources\SQL\PDO\Constants as K;
 use NoreSources\SQL\ConnectionHelper;
+use NoreSources\TypeDescription;
 
 /**
  * PDO connection
@@ -75,7 +76,7 @@ class Connection implements sql\Connection
 	 *        	<li>CONNECTION_PARAMETER_PASSWORD</li>
 	 *        	<li>CONNECTION_PARAMETER_OPTIONS</li>
 	 *        	</ul>
-	 *
+	 *        	
 	 */
 	public function connect($parameters)
 	{
@@ -158,11 +159,13 @@ class Connection implements sql\Connection
 		if (!($this->connection instanceof \PDO))
 			throw new sql\ConnectionException($this, 'Not connected');
 
-		if (!(\is_string($statement) || ($statement instanceof PreparedStatement) ||
-			(\is_bbject($statement) && \method_exists($statement, '__toString'))))
+		if (!(($statement instanceof PreparedStatetement) ||
+			TypeDescription::hasStringConversion($statement)))
+		{
 			throw new \InvalidArgumentException(
 				'Invalid type ' . ns\TypeDescription::getName($statement) .
 				' for statement argument. string or PDO\PreparedStatement expected');
+		}
 
 		$pdo = null;
 		$prepared = null;

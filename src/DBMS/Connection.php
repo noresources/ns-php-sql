@@ -159,7 +159,7 @@ class ConnectionHelper
 	 * @param Statement $statement
 	 *        	Statement to convert to string
 	 * @return string SQL string in the DBMS dialect
-	 *
+	 *        
 	 * @note This method does not provide any informations about statement parameters or result column types.
 	 * Tf these information are needed, use ConnectionHelper::prepareStatement()
 	 */

@@ -291,7 +291,8 @@ class ExpressionEvaluator
 
 		return new Loco\LazyAltParser(
 			[
-				new Loco\ConcParser([
+				new Loco\ConcParser(
+					[
 						self::keywordParser('not'),
 						'space',
 						self::keywordParser($keyword)
@@ -333,9 +334,9 @@ class ExpressionEvaluator
 	 */
 	private function evaluatePolishNotationElement($key, $operands)
 	{
-		$key = trim ($key);
+		$key = trim($key);
 		$length = strlen($key);
-		
+
 		if (strpos($key, '()') === ($length - 2))
 		{
 			return new FunctionExpression(substr($key, 0, $length - 2), $operands);
@@ -357,10 +358,10 @@ class ExpressionEvaluator
 		{
 			$left = array_shift($operands);
 			$include = true;
-			if (strpos($key, '!') === 0) 
+			if (strpos($key, '!') === 0)
 				$include = false;
-			elseif (strpos($key, 'not ') === 0) 
-			$include = false;
+			elseif (strpos($key, 'not ') === 0)
+				$include = false;
 			return new InOperatorExpression($left, $operands, $include);
 		}
 		else
@@ -432,7 +433,7 @@ class ExpressionEvaluator
 			throw new ExpressionEvaluationException($e->getMessage());
 		}
 	}
-	
+
 	private function buildGrammar()
 	{
 		$rx = [
@@ -475,8 +476,10 @@ class ExpressionEvaluator
 			return $dot . $identifier;
 		});
 
-		$path = new Loco\LazyAltParser([
-				new Loco\ConcParser([
+		$path = new Loco\LazyAltParser(
+			[
+				new Loco\ConcParser(
+					[
 						'identifier',
 						new Loco\GreedyMultiParser($subpath, 1, 3,
 							function () {
@@ -501,12 +504,15 @@ class ExpressionEvaluator
 
 		$commaExpressionList = new Loco\GreedyMultiParser('comma-expression', 1, null);
 
-		$expressionList = new Loco\LazyAltParser([
+		$expressionList = new Loco\LazyAltParser(
+			[
 				new Loco\ConcParser([
 					'expression',
 					'comma-expression-list'
 				], function ($first, $others) {
-					$a = [$first];
+					$a = [
+						$first
+					];
 					return array_merge($a, $others);
 				}),
 				'expression',
@@ -516,11 +522,14 @@ class ExpressionEvaluator
 				if (\is_null($a))
 					return [];
 				elseif ($a instanceof Expression)
-					return [$a];
+					return [
+						$a
+					];
 				return $a;
 			});
 
-		$procedure = new Loco\ConcParser([
+		$procedure = new Loco\ConcParser(
+			[
 				'function-name',
 				'whitespace',
 				new Loco\StringParser('('),
@@ -533,7 +542,8 @@ class ExpressionEvaluator
 				return new FunctionExpression($name, $args);
 			});
 
-		$parenthesis = new Loco\ConcParser([
+		$parenthesis = new Loco\ConcParser(
+			[
 				new Loco\StringParser('('),
 				'whitespace',
 				'complex-expression',
@@ -543,7 +553,8 @@ class ExpressionEvaluator
 				return new ParenthesisExpression(func_get_arg(2));
 			});
 
-		$whenThen = new Loco\ConcParser([
+		$whenThen = new Loco\ConcParser(
+			[
 				self::keywordParser('when'),
 				'space',
 				'expression',
@@ -564,15 +575,16 @@ class ExpressionEvaluator
 			}), 0, null);
 
 		$else = new Loco\ConcParser([
-				'space',
-				self::keywordParser('else'),
-				'space',
-				'expression'
-			], function () {
-				return func_get_arg(3);
-			});
+			'space',
+			self::keywordParser('else'),
+			'space',
+			'expression'
+		], function () {
+			return func_get_arg(3);
+		});
 
-		$case = new Loco\ConcParser([
+		$case = new Loco\ConcParser(
+			[
 				self::keywordParser('case'),
 				'space',
 				'expression',
@@ -597,7 +609,8 @@ class ExpressionEvaluator
 			});
 
 		$stringContent = new Loco\GreedyStarParser(
-			new Loco\LazyAltParser([
+			new Loco\LazyAltParser(
+				[
 					new Loco\Utf8Parser([
 						"'"
 					]),
@@ -608,7 +621,8 @@ class ExpressionEvaluator
 				return implode('', func_get_args());
 			});
 
-		$string = new Loco\ConcParser([
+		$string = new Loco\ConcParser(
+			[
 				new Loco\StringParser("'"),
 				$stringContent,
 				new Loco\StringParser("'")
@@ -619,15 +633,18 @@ class ExpressionEvaluator
 		// Date & Time
 
 		$year = new Loco\RegexParser(chr(1) . '^(\+|-)?[0-9]{1,4}' . chr(1));
-		$month = new Loco\LazyAltParser([
+		$month = new Loco\LazyAltParser(
+			[
 				new Loco\RegexParser(chr(1) . '^1[0-2]' . chr(1)),
 				new Loco\RegexParser(chr(1) . '^0[0-9]' . chr(1))
 			]);
-		$day = new Loco\LazyAltParser([
+		$day = new Loco\LazyAltParser(
+			[
 				new Loco\RegexParser(chr(1) . '^3[0-1]' . chr(1)),
 				new Loco\RegexParser(chr(1) . '^[0-2][0-9]' . chr(1))
 			]);
-		$hour = new Loco\LazyAltParser([
+		$hour = new Loco\LazyAltParser(
+			[
 				new Loco\RegexParser(chr(1) . '^2[0-3]' . chr(1)),
 				new Loco\RegexParser(chr(1) . '^[0-1][0-9]' . chr(1))
 			]);
@@ -636,7 +653,8 @@ class ExpressionEvaluator
 
 		$seconds = new Loco\LazyAltParser(
 			[
-				new Loco\ConcParser([
+				new Loco\ConcParser(
+					[
 						$minutes,
 						new Loco\StringParser('.'),
 						new Loco\RegexParser(chr(1) . '^[0-1][0-9][0-9]' . chr(1))
@@ -670,11 +688,10 @@ class ExpressionEvaluator
 			});
 
 		$dateSeparator = new Loco\StringParser('-');
-		$optionalDateSeparator = new Loco\LazyAltParser(
-			[
-				$dateSeparator,
-				new Loco\EmptyParser()
-			]);
+		$optionalDateSeparator = new Loco\LazyAltParser([
+			$dateSeparator,
+			new Loco\EmptyParser()
+		]);
 		$date = new Loco\LazyAltParser(
 			[
 				new Loco\ConcParser(
@@ -706,7 +723,8 @@ class ExpressionEvaluator
 						];
 					}),
 				// --MM-DD
-				new Loco\ConcParser([
+				new Loco\ConcParser(
+					[
 						new Loco\StringParser('--'),
 						$month,
 						$optionalDateSeparator,
@@ -728,8 +746,10 @@ class ExpressionEvaluator
 			]);
 
 		// .sss
-		$optionalTimeFraction = new Loco\LazyAltParser([
-				new Loco\ConcParser([
+		$optionalTimeFraction = new Loco\LazyAltParser(
+			[
+				new Loco\ConcParser(
+					[
 						new Loco\LazyAltParser(
 							[
 								new Loco\StringParser('.'),
@@ -746,9 +766,11 @@ class ExpressionEvaluator
 				})
 			]);
 
-		$time = new Loco\LazyAltParser([
+		$time = new Loco\LazyAltParser(
+			[
 				// hh:mm:ss[.sss]
-				new Loco\ConcParser([
+				new Loco\ConcParser(
+					[
 						$hour,
 						$optionalTimeSeparator,
 						$minutes,
@@ -792,7 +814,8 @@ class ExpressionEvaluator
 					})
 			]);
 
-		$timezone = new Loco\LazyAltParser([
+		$timezone = new Loco\LazyAltParser(
+			[
 				// Z (UTC)
 				new Loco\StringParser('Z', function () {
 					return [
@@ -816,9 +839,9 @@ class ExpressionEvaluator
 					new Loco\RegexParser(chr(1) . '^\+|-' . chr(1)),
 					$hour
 				], function ($s, $h) {
-						return [
-							'timezone' => $s . $h . '00'
-						];
+					return [
+						'timezone' => $s . $h . '00'
+					];
 				})
 			]);
 
@@ -928,7 +951,8 @@ class ExpressionEvaluator
 		 *       regexp
 		 */
 
-		$binaryOperation = new Loco\ConcParser([
+		$binaryOperation = new Loco\ConcParser(
+			[
 				'expression',
 				'binary-operator-literal',
 				'expression'
@@ -937,7 +961,8 @@ class ExpressionEvaluator
 				return new BinaryOperatorExpression($o, $left, $right);
 			});
 
-		$inOperation = new Loco\ConcParser([
+		$inOperation = new Loco\ConcParser(
+			[
 				'expression',
 				'space',
 				self::negatableKeywordParser('in'),
@@ -952,7 +977,8 @@ class ExpressionEvaluator
 				return new InOperatorExpression($left, $right, $include);
 			});
 
-		$between = new Loco\ConcParser([
+		$between = new Loco\ConcParser(
+			[
 				'expression',
 				'space',
 				self::negatableKeywordParser('between'),
@@ -969,7 +995,8 @@ class ExpressionEvaluator
 				return $x;
 			});
 
-		$literal = new Loco\LazyAltParser([
+		$literal = new Loco\LazyAltParser(
+			[
 				'timestamp',
 				'number',
 				'string',
@@ -978,7 +1005,8 @@ class ExpressionEvaluator
 				'null'
 			]);
 
-		$this->grammar = new Loco\Grammar('complex-expression',[
+		$this->grammar = new Loco\Grammar('complex-expression',
+			[
 				'complex-expression' => new Loco\LazyAltParser(
 					[
 						'between',
@@ -1171,7 +1199,8 @@ class PolishNotationOperation
 final class BinaryPolishNotationOperation extends PolishNotationOperation
 {
 
-	public function __construct($key, $flags = PolishNotationOperation::WHITESPACE, $className = null)
+	public function __construct($key, $flags = PolishNotationOperation::WHITESPACE,
+		$className = null)
 	{
 		parent::__construct($key, ($flags | PolishNotationOperation::WHITESPACE), ($className ? $className : BinaryOperatorExpression::class));
 	}
@@ -1180,7 +1209,8 @@ final class BinaryPolishNotationOperation extends PolishNotationOperation
 final class UnaryPolishNotationOperation extends PolishNotationOperation
 {
 
-	public function __construct($key, $flags = PolishNotationOperation::POST_WHITESPACE, $className = null)
+	public function __construct($key, $flags = PolishNotationOperation::POST_WHITESPACE,
+		$className = null)
 	{
 		parent::__construct($key, ($flags | PolishNotationOperation::POST_WHITESPACE), ($className ? $className : UnaryOperatorExpression::class));
 	}

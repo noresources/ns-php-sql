@@ -93,11 +93,16 @@ const FETCH_UNSERIALIZE = K::RECORDSET_FETCH_UBSERIALIZE;
 	 */
 	public function setFlags($flags)
 	{
+		$previousFlags = $this->flags;
+
 		$this->flags &= ~self::PUBLIC_FLAGS;
 		$flags &= self::PUBLIC_FLAGS;
 
 		$this->rowIndex = -1;
 		$this->flags |= $flags;
+
+		if ($previousFlags != $this->flags)
+			$this->updateRecord();
 	}
 
 	public function setResultColumns(ResultColumnMap $columns)
@@ -152,6 +157,18 @@ const FETCH_UNSERIALIZE = K::RECORDSET_FETCH_UBSERIALIZE;
 		return false;
 	}
 
+	public function next()
+	{
+		$this->internalRecord = $this->fetch($this->rowIndex + 1);
+
+		if ($this->internalRecord)
+			$this->setIteratorPosition($this->rowIndex + 1, 0);
+		else
+			$this->setIteratorPosition(-1, self::POSITION_END);
+
+		$this->updateRecord();
+	}
+
 	/**
 	 *
 	 * @return boolean
@@ -163,17 +180,33 @@ const FETCH_UNSERIALIZE = K::RECORDSET_FETCH_UBSERIALIZE;
 
 	public function rewind()
 	{
+		$r = $this->reset();
 		$this->setIteratorPosition(-1, self::POSITION_BEGIN);
+
+		if ($r === true)
+		{
+			$this->next();
+		}
+		elseif (\is_array($r))
+		{
+			$this->internalRecord = $r;
+			$this->setIteratorPosition(0, 0);
+			$this->updateRecord();
+		}
+		else
+		{
+			$this->setIteratorPosition(-1, self::POSITION_END);
+			$this->updateRecord();
+		}
 	}
 
-	protected function __construct()
+	protected function __construct($data = null)
 	{
-		$this->initializeStatementOutputData();
-		$this->resultColumns = new ResultColumnMap();
-		$this->statementType = K::QUERY_SELECT;
+		$this->initializeStatementOutputData($data);
 
 		$this->flags = self::FETCH_BOTH;
 		$this->record = new \ArrayObject();
+		$this->internalRecord = false;
 		$this->setIteratorPosition(-1, self::POSITION_BEGIN);
 	}
 
@@ -186,6 +219,22 @@ const FETCH_UNSERIALIZE = K::RECORDSET_FETCH_UBSERIALIZE;
 
 	const POSITION_FLAGS = 0x30;
 
+	/**
+	 * Fetch a row from the DBMS recordset
+	 *
+	 * @param integer $index
+	 *        	The expected row to fetch
+	 * @return array|false Indexed array of column values or @c false if no mre column can be retreived
+	 */
+	abstract protected function fetch($index);
+
+	/**
+	 * Reset internal recordset
+	 *
+	 * @return array|boolean On success, return first row or @c true. On error, @c false
+	 */
+	abstract protected function reset();
+
 	protected function setIteratorPosition($index, $positionFlag)
 	{
 		$this->rowIndex = $index;
@@ -194,11 +243,53 @@ const FETCH_UNSERIALIZE = K::RECORDSET_FETCH_UBSERIALIZE;
 		$this->flags |= $positionFlag;
 	}
 
+	private function updateRecord()
+	{
+		$d = [];
+		if ($this->internalRecord)
+		{
+			$fetchFlags = self::FETCH_BOTH | self::FETCH_UNSERIALIZE;
+
+			if (($this->flags & $fetchFlags) == self::FETCH_INDEXED)
+			{
+				$this->record->exchangeArray($this->internalRecord);
+				return;
+			}
+
+			foreach ($this->internalRecord as $index => $value)
+			{
+				if ($this->flags & self::FETCH_UNSERIALIZE)
+				{
+				/**
+				 *
+				 * @todo unserialize if needed
+				 */
+				}
+
+				if ($this->flags & self::FETCH_INDEXED)
+					$d[$index] = $value;
+				if ($this->flags & self::FETCH_ASSOCIATIVE)
+				{
+					$column = $this->resultColumns->getColumn($index);
+					$d[$column->name] = $value;
+				}
+			}
+		}
+
+		$this->record->exchangeArray($d);
+	}
+
 	/**
 	 *
 	 * @var \ArrayObject
 	 */
-	protected $record;
+	private $record;
+
+	/**
+	 *
+	 * @var array|NULL
+	 */
+	private $internalRecord;
 
 	/**
 	 *

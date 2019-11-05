@@ -118,7 +118,7 @@ abstract class StatementBuilder
 				$s .= 'OUTER ';
 			}
 		}
-		else
+		else 
 			if (($joinTypeFlags & K::JOIN_RIGHT) == K::JOIN_RIGHT)
 			{
 				$s . 'RIGHT ';
@@ -127,12 +127,12 @@ abstract class StatementBuilder
 					$s .= 'OUTER ';
 				}
 			}
-			else
+			else 
 				if (($joinTypeFlags & K::JOIN_CROSS) == K::JOIN_CROSS)
 				{
 					$s .= 'CROSS ';
 				}
-				else
+				else 
 					if (($joinTypeFlags & K::JOIN_INNER) == K::JOIN_INNER)
 					{
 						$s .= 'INNER ';
@@ -241,7 +241,7 @@ abstract class StatementBuilder
 			$column = $resolver->findColumn($expression->path);
 			return $column->getProperty(TableColumnStructure::DATATYPE);
 		}
-		else
+		else 
 			if ($expression instanceof UnaryOperatorExpression)
 			{
 				$operator = strtolower(trim($expression->operator));
@@ -366,6 +366,13 @@ abstract class StatementBuilder
 		return $s;
 	}
 
+	/**
+	 * Finalize statement building
+	 *
+	 * @param TokenStream $stream
+	 * @param StatementContext $context
+	 * @return \NoreSources\SQL\StatementContext
+	 */
 	public function finalize(TokenStream $stream, StatementContext &$context)
 	{
 		$context->sql = '';

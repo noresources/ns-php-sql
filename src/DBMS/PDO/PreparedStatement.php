@@ -7,6 +7,7 @@ namespace NoreSources\SQL\PDO;
 use NoreSources as ns;
 use NoreSources\SQL as sql;
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\ResultColumn;
 
 class PreparedStatement extends sql\PreparedStatement
 {
@@ -21,6 +22,47 @@ class PreparedStatement extends sql\PreparedStatement
 		parent::__construct($data);
 		$this->statement = $statement;
 		$this->statementOwner = null;
+
+		if ($this->getStatementType() == 0)
+			$this->statementType = sql\Statement::statementTypeFromData($data);
+
+		if ($this->getStatementType() == K::QUERY_SELECT)
+		{
+			if ($this->getResultColumnCount() > $statement->columnCount())
+				throw new \Exception(
+					'Incorrect number of result column. Should be ' . $statement->columnCount() .
+					', got ' . $this->getResultColumnCount());
+
+			$map = $this->getResultColumns();
+			try
+			{
+				for ($i = 0; $i < $statement->columnCount(); $i++)
+				{
+					$meta = $statement->getColumnMeta($i);
+
+					$column = null;
+					if ($i < $map->count())
+						$column = $map->getColumn($i);
+					else
+					{
+						$column = new sql\ResultColumn(K::DATATYPE_UNDEFINED);
+						$column->name = $meta['name'];
+					}
+
+					if ($column->dataType == K::DATATYPE_UNDEFINED)
+					{
+						$column->dataType = Connection::getDataTypeFromPDOType(
+							ns\Container::keyValue($meta, 'pdo_type', \PDO::PARAM_STR));
+						$map->setColumn($i, $column);
+					}
+
+					if ($i >= $map->count())
+						$map->setColumn($i, $column);
+				}
+			}
+			catch (\Exception $e)
+			{}
+		}
 	}
 
 	public function __destruct()

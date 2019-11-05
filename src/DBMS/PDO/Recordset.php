@@ -40,33 +40,43 @@ class Recordset extends sql\Recordset
 		$this->statement->releasePDOStatement($this);
 	}
 
-	/**
-	 *
-	 * @see https://www.php.net/manual/en/pdostatement.getcolumnmeta.php
-	 */
-	public function setResultColumns(sql\ResultColumnMap $columns)
-	{
-		parent::setResultColumns($columns);
-		try
-		{
-			foreach ($columns as $index => &$column)
-			{
-				$meta = $this->statement->getPDOStatement()->getColumnMeta($index);
-				$columns->name = $meta['name'];
-				if ($columns->type == K::DATATYPE_UNDEFINED)
-				{
-					$columns->type = Connection::getDataTypeFromPDOType(
-						ns\Container::keyValue($meta, 'pdo_type', \PDO::PARAM_STR));
-				}
-			}
-		}
-		catch (\ErrorException $e)
-		{}
-	}
-
 	public function getColumnCount()
 	{
 		return $this->statement->getPDOStatement()->columnCount();
+	}
+
+	protected function fetch($index)
+	{
+		if ($this->cache->offsetExists($index))
+		{
+			return $this->cache->offsetGet($index);
+		}
+
+		$pdo = $this->statement->getPDOStatement();
+		$data = $pdo->fetch(\PDO::FETCH_NUM, \PDO::FETCH_ORI_NEXT);
+
+		if ($data === false)
+			return false;
+
+		if ($index >= 0)
+			$this->cache->offsetSet($index, $data);
+
+		return $data;
+	}
+
+	public function reset()
+	{
+		if (($this->flags & self::POSITION_FLAGS) == self::POSITION_BEGIN)
+			return true;
+
+		$pdo = $this->statement->getPDOStatement();
+		$data = $pdo->fetch(\PDO::FETCH_NUM, \PDO::FETCH_ORI_FIRST);
+
+		if ($data === false)
+			return false;
+
+		$this->cache->offsetSet(0, $data);
+		return $data;
 	}
 
 	/**
@@ -74,7 +84,7 @@ class Recordset extends sql\Recordset
 	 * {@inheritdoc}
 	 * @see Iterator::next()
 	 */
-	public function next()
+	public function _next()
 	{
 		$pdo = $this->statement->getPDOStatement();
 

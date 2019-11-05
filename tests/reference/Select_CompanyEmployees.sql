@@ -1,5 +1,6 @@
 SELECT 
-  * 
+  [ns_unittests].[Employees].[id] AS [identifier], 
+  [ns_unittests].[Employees].[name] 
 FROM 
   [ns_unittests].[Employees] AS [t] 
 WHERE 

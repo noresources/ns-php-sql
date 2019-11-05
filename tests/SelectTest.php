@@ -25,6 +25,12 @@ final class SelectTest extends TestCase
 		$context->setPivot($tableStructure);
 		$q = new SelectQuery($tableStructure, 't');
 
+		$q->columns([
+			'id',
+			'identifier'
+		]);
+		$q->columns('name');
+
 		$q->where(new InOperatorExpression(X::column('id'), [
 			2,
 			4,
@@ -34,8 +40,17 @@ final class SelectTest extends TestCase
 
 		$stream = new TokenStream();
 		$q->tokenize($stream, $context);
-		$sql = $builder->finalize($stream, $context);
-		$sql = \SqlFormatter::format(strval($sql), false);
+
+		$this->assertEquals(2, $context->getResultColumnCount(),
+			'Number of result column (after Builder::tokenize())');
+
+		$result = $builder->finalize($stream, $context);
+		$this->assertEquals($context, $result, 'Builder::finalzie() result');
+
+		$this->assertEquals(2, $context->getResultColumnCount(),
+			'Number of result column (after Builder::finalize())');
+
+		$sql = \SqlFormatter::format(strval($result), false);
 
 		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, null, 'sql');
 	}

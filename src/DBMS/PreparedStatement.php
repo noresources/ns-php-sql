@@ -125,10 +125,7 @@ abstract class PreparedStatement implements StatementInputData, StatementOutputD
 		else
 			$this->initializeStatementInputData(null);
 
-		if ($data instanceof StatementOutputData)
-			$this->initializeStatementOutputData($data);
-		else
-			$this->initializeStatementOutputData(null);
+		$this->initializeStatementOutputData($data);
 	}
 
 	/**

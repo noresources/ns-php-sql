@@ -114,9 +114,9 @@ class JSONStructureSerializer extends StructureSerializer
 		if (!($structure->parent() instanceof DatasourceStructure))
 		{
 			$properties = array_merge([
-					'name' => $structure->getName(),
-					'kind' => 'tableset'
-				], $properties);
+				'name' => $structure->getName(),
+				'kind' => 'tableset'
+			], $properties);
 		}
 
 		return $properties;

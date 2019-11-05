@@ -277,23 +277,7 @@ class Connection implements sql\Connection
 		{
 			if ($result instanceof \SQLite3Result)
 			{
-				$recordset = new Recordset($result);
-				if ($statement instanceof sql\StatementOutputData)
-					$recordset->initializeStatementOutputData($statement);
-				else
-				{
-					$map = new sql\ResultColumnMap();
-					for ($i = 0; $i < $result->numColumns(); $i++)
-					{
-						$column = new sql\ResultColumn($data);
-						$column->name = $result->columnName($i);
-						$column->dataType = self::dataTypeFromSQLiteDataType(
-							$result->columnType($i));
-						$map->setColumn($i, $column);
-					}
-					$recordset->setResultColumns($map);
-				}
-				return $recordset;
+				return new Recordset($result, $statement);
 			}
 		}
 		else

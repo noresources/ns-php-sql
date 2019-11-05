@@ -486,8 +486,8 @@ class SelectQuery extends Statement
 		$stream->stream($where);
 
 		// GROUP BY
-		if ($this->parts[self::PART_GROUPBY] && ns\Container::count(
-			$this->parts[self::PART_GROUPBY]))
+		if ($this->parts[self::PART_GROUPBY] &&
+			ns\Container::count($this->parts[self::PART_GROUPBY]))
 		{
 
 			$stream->space()

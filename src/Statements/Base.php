@@ -200,8 +200,6 @@ class ResultColumn
 				$this->dataType = $data->getProperty(K::COLUMN_PROPERTY_DATA_TYPE);
 			}
 		}
-		elseif (\is_integer($data))
-			$this->dataType = $data;
 	}
 }
 
@@ -230,6 +228,12 @@ class ResultColumnMap implements \Countable, \IteratorAggregate
 		return $this->columns->count();
 	}
 
+	/**
+	 *
+	 * @param integer|string $key
+	 * @throws \InvalidArgumentException
+	 * @return ResultColumn
+	 */
 	public function getColumn($key)
 	{
 		if (!$this->columns->offsetExists($key))
@@ -240,7 +244,8 @@ class ResultColumnMap implements \Countable, \IteratorAggregate
 					return $column;
 			}
 
-			throw new \InvalidArgumentException($key);
+			throw new \InvalidArgumentException(
+				ns\TypeDescription::getName($key) . ' ' . $key . ' is not a valid result column key');
 		}
 
 		return $this->columns->offsetGet($key);
@@ -248,8 +253,9 @@ class ResultColumnMap implements \Countable, \IteratorAggregate
 
 	public function setColumn($index, $data)
 	{
-		$d = new ResultColumn($data);
-		$this->columns->offsetSet($index, $d);
+		if (!($data instanceof ResultColumn))
+			$data = new ResultColumn($data);
+		$this->columns->offsetSet($index, $data);
 	}
 
 	/**
@@ -401,7 +407,7 @@ interface StatementOutputData
 	 *
 	 * @param StatementOutputData $data
 	 */
-	function initializeStatementOutputData(StatementOutputData $data = null);
+	function initializeStatementOutputData($data = null);
 }
 
 /**
@@ -439,16 +445,16 @@ trait StatementOutputDataTrait
 		return $this->resultColumns->getIterator();
 	}
 
-	public function initializeStatementOutputData(StatementOutputData $data = null)
+	public function initializeStatementOutputData($data = null)
 	{
-		if ($data)
+		if ($data instanceof StatementOutputData)
 		{
 			$this->statementType = $data->getStatementType();
 			$this->resultColumns = $data->getResultColumns();
 		}
 		else
 		{
-			$this->statementType = 0;
+			$this->statementType = Statement::statementTypeFromData($data);
 			$this->resultColumns = new ResultColumnMap();
 		}
 	}
@@ -457,7 +463,7 @@ trait StatementOutputDataTrait
 	 *
 	 * @var integer
 	 */
-	private $statementType;
+	protected $statementType;
 
 	/**
 	 *
@@ -528,11 +534,11 @@ abstract class Statement implements Expression
 		if (\is_string($data))
 		{
 			$regex = [
-				'/^select\s/i' => K::QUERY_SELECT,
-				'/^insert\s/i' => K::QUERY_INSERT,
-				'/^update\s/i' => K::QUERY_UPDATE,
-				'/^delete\s/i' => K::QUERY_DELETE,
-				'/^create\s/i' => K::QUERY_FAMILY_CREATE
+				'/^select\s+/i' => K::QUERY_SELECT,
+				'/^insert\s+/i' => K::QUERY_INSERT,
+				'/^update\s+/i' => K::QUERY_UPDATE,
+				'/^delete\s+/i' => K::QUERY_DELETE,
+				'/^create\s+/i' => K::QUERY_FAMILY_CREATE
 			];
 
 			foreach ($regex as $r => $t)
@@ -559,7 +565,7 @@ trait ColumnValueTrait
 	 *        	string Column name
 	 * @param
 	 *        	Evaluable Evaluable expression
-	 *
+	 *        	
 	 * @throws \BadMethodCallException
 	 * @throws \InvalidArgumentException
 	 */
@@ -613,7 +619,7 @@ trait ColumnValueTrait
 	 *
 	 * @param
 	 *        	string Column name
-	 *
+	 *        	
 	 * @return mixed Column current value or @c null if not set
 	 */
 	public function offsetGet($offset)

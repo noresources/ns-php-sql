@@ -12,18 +12,18 @@ class StatementBuilder extends sql\StatementBuilder
 
 	public function __construct($domainFlags = [])
 	{
-	parent::__construct();
+		parent::__construct();
 
-	if (!\is_array($domainFlags))
-		$domainFlags = [
+		if (!\is_array($domainFlags))
+			$domainFlags = [
 				K::BUILDER_DOMAIN_GENERIC => $domainFlags
 			];
 
-	foreach ($domainFlags as $domain => $flags)
-		$this->setBuilderFlags($domain, $flags);
+		foreach ($domainFlags as $domain => $flags)
+			$this->setBuilderFlags($domain, $flags);
 
-	$this->parameters = new \ArrayObject();
-}
+		$this->parameters = new \ArrayObject();
+	}
 
 	public function escapeString($value)
 	{

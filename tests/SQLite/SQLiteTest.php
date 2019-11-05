@@ -63,31 +63,105 @@ final class SQLiteTest extends TestCase
 
 		$prepared = ConnectionHelper::prepareStatement($this->connection, $statement,
 			$tableStructure);
-		$result = $this->connection->executeStatement($prepared);
-		$this->assertInstanceOf(Recordset::class, $result);
 
-		$expected = [
-			[
-				'name' => 'Bob',
-				'gender' => 'M',
-				'salary' => 2000.
-			],
-			[
-				'name' => 'Ron',
-				'gender' => 'M',
-				'salary' => 2000.
-			]
+		$this->assertInstanceOf(SQLite\PreparedStatement::class, $prepared);
+		$this->assertEquals(3, $prepared->getResultColumnCount(),
+			'Prepared statement result columns count');
+
+		// Testing the nicely crafted query
+		// and the ugly hard-coded one
+		$statements = [
+			$prepared,
+			'select name, gender, salary from Employees'
 		];
 
-		$index = 0;
-		foreach ($result as $row)
+		foreach ($statements as $statement)
 		{
-			foreach ($expected[$index] as $name => $value)
+
+			$result = $this->connection->executeStatement($statement);
+			$this->assertInstanceOf(Recordset::class, $result);
+
+			$this->assertEquals(3, $result->getResultColumnCount(), 'Recordset result columns count');
+
+			$expected = [
+				[
+					'name' => 'Bob',
+					'gender' => 'M',
+					'salary' => 2000.
+				],
+				[
+					'name' => 'Ron',
+					'gender' => 'M',
+					'salary' => 2000.
+				]
+			];
+
+			list ($_, $expectedResultColumnKeys) = each($expected);
+			$index = 0;
+			foreach ($expectedResultColumnKeys as $name => $_)
 			{
-				$this->assertEquals($value, $row[$name], 'Row ' . $index . ' column ' . $name);
+				$byIndex = $result->getResultColumn($index);
+				$this->assertEquals($name, $byIndex->name, 'Recordset result column #' . $index);
+				$byName = $result->getResultColumn($name);
+				$this->assertEquals($name, $byName->name, 'Recordset result column ' . $name);
+				$index++;
 			}
 
-			$index++;
+			$index = 0;
+			foreach ($result as $row)
+			{
+				foreach ($expected[$index] as $name => $value)
+				{
+					$this->assertEquals($value, $row[$name], 'Row ' . $index . ' column ' . $name);
+				}
+
+				$index++;
+			}
+		}
+
+		// Same with parameters
+
+		$statements = [
+			'select name, salary from employees where name > :param'
+		];
+
+		foreach ($statements as $statement)
+		{
+
+			$tests = [
+				'Bob only' => [
+					'param' => 'Bob',
+					'rows' => [
+						[
+							'name' => 'Bob',
+							'gender' => 'M',
+							'salary' => 2000
+						]
+					]
+				],
+				'Empty' => [
+					'param' => 'Zob',
+					'rows' => []
+				]
+			];
+
+			foreach ($tests as $testName => $test)
+			{
+				$params = new ParameterArray();
+				$params->set('param', $test['param']);
+				$result = $this->connection->executeStatement($statement, $params);
+
+				$this->assertInstanceOf(Recordset::class, $result, $testName . ' result object');
+
+				$index = 0;
+				foreach ($result as $row)
+				{
+					$this->assertArrayHasKey($index, $test['rows'], 'Rows of ' . $testName);
+					$index++;
+				}
+
+				$this->assertEquals(count($test['rows']), $index, 'Number of row of ' . $testName);
+			}
 		}
 	}
 

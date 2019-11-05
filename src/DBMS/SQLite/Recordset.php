@@ -5,14 +5,38 @@ namespace NoreSources\SQL\SQLite;
 
 // Aliases
 use NoreSources\SQL as sql;
+use NoreSources\SQL\SQLite\Constants as K;
 
 class Recordset extends sql\Recordset
 {
 
-	public function __construct(\SQLite3Result $result)
+	public function __construct(\SQLite3Result $result, $data = null)
 	{
-		parent::__construct();
+		parent::__construct($data);
 		$this->result = $result;
+		if (!($data instanceof sql\StatementOutputData))
+		{
+
+			$map = $this->getResultColumns();
+			for ($i = 0; $i < $result->numColumns(); $i++)
+			{
+				$column = null;
+				if ($i < $map->count())
+					$column = $map->getColumn($i);
+				else
+				{
+					$column = new sql\ResultColumn(K::DATATYPE_UNDEFINED);
+					$column->name = $result->columnName($i);
+				}
+
+				if ($column->dataType == K::DATATYPE_UNDEFINED)
+					$column->dataType = Connection::dataTypeFromSQLiteDataType(
+						$result->columnType($i));
+
+				if ($i >= $map->count())
+					$map->setColumn($i, $column);
+			}
+		}
 	}
 
 	public function __destruct()
@@ -34,18 +58,28 @@ class Recordset extends sql\Recordset
 		return $this->result->numColumns();
 	}
 
+	protected function fetch($index)
+	{
+		return $this->result->fetchArray(\SQLITE3_NUM);
+	}
+
+	public function reset()
+	{
+		return $this->result->reset();
+	}
+
 	/**
 	 *
 	 * {@inheritdoc}
 	 * @see Iterator::next()
 	 */
-	public function next()
+	public function _next()
 	{
 		$mode = 0;
 		if ($this->flags & self::FETCH_ASSOCIATIVE)
 			$mode |= \SQLITE3_ASSOC;
 		if ($this->flags | self::FETCH_INDEXED)
-			$mode |= \SQLITE3_NULL;
+			$mode |= \SQLITE3_NUM;
 
 		$a = $this->result->fetchArray($mode);
 
@@ -58,12 +92,6 @@ class Recordset extends sql\Recordset
 			$this->record->exchangeArray($a);
 			$this->setIteratorPosition($this->rowIndex + 1, 0);
 		}
-	}
-
-	public function rewind()
-	{
-		$r = $this->result->reset();
-		$this->setIteratorPosition(-1, ($r ? self::POSITION_BEGIN : self::POSITION_END));
 	}
 
 	/**

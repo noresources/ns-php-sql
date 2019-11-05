@@ -128,8 +128,11 @@ final class UpdateTest extends TestCase
 
 		$stream = new TokenStream();
 		$q->tokenize($stream, $context);
-		$sql = $builder->finalize($stream, $context);
-		$sql = \SqlFormatter::format($sql, false);
+		$result = $builder->finalize($stream, $context);
+
+		$this->assertEquals($context, $result, 'builder::finalize() result');
+
+		$sql = \SqlFormatter::format($result, false);
 
 		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, null, 'sql');
 	}
