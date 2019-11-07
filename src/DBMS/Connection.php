@@ -188,6 +188,8 @@ class ConnectionHelper
 	 *        	DBMS connection
 	 * @param Statement $statement
 	 *        	Statement to convert to string
+	 * @param StructureElement $reference
+	 *        	Pivot StructureElement
 	 * @return string SQL string in the DBMS dialect
 	 *
 	 * @note This method does not provide any informations about statement parameters or result column types.
@@ -196,6 +198,7 @@ class ConnectionHelper
 	public static function getStatementSQL($connection, Statement $statement,
 		StructureElement $reference = null)
 	{
+		$reference = ($reference instanceof StructureElement) ? $reference : $connection->getStructure();
 		$builder = $connection->getStatementBuilder();
 		$context = new StatementContext($builder);
 		if ($reference instanceof StructureElement)
@@ -216,6 +219,7 @@ class ConnectionHelper
 	public static function prepareStatement(Connection $connection, Statement $statement,
 		StructureElement $reference = null)
 	{
+		$reference = ($reference instanceof StructureElement) ? $reference : $connection->getStructure();
 		$builder = $connection->getStatementBuilder();
 		$context = new StatementContext($builder);
 		if ($reference instanceof StructureElement)
