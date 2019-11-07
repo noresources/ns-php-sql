@@ -130,6 +130,13 @@ class Constants
 	const CONNECTION_PARAMETER_READONLY = 'readonly';
 
 	/**
+	 * StructureElement or file path of a strcture description
+	 *
+	 * @var string
+	 */
+	const CONNECTION_PARAMETER_STRUCTURE = 'structure';
+
+	/**
 	 * The type of Datasource column.
 	 * Value type: integer
 	 */

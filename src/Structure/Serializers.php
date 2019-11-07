@@ -5,8 +5,30 @@ use NoreSources as ns;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\ExpressionEvaluator as X;
 
+/**
+ */
 abstract class StructureSerializer implements \Serializable
 {
+
+	/**
+	 * Unserialize from file
+	 *
+	 * @param string $filename
+	 */
+	public function userializeFromFile($filename)
+	{
+		return $this->unserialize(file_get_contents($filename));
+	}
+
+	/**
+	 * Serialize to file
+	 *
+	 * @param string $filename
+	 */
+	public function serializeToFile($filename)
+	{
+		return file_put_contents($filename, $this->serialize());
+	}
 
 	public function __construct(StructureElement $element = null)
 	{
@@ -37,7 +59,7 @@ abstract class StructureSerializer implements \Serializable
 	protected $structureElement;
 }
 
-class JSONStructureSerializer extends StructureSerializer
+class JSONStructureSerializer extends StructureSerializer implements \JsonSerializable
 {
 
 	/**
@@ -63,25 +85,29 @@ class JSONStructureSerializer extends StructureSerializer
 
 	public function serialize()
 	{
-		$data = null;
+		return json_encode($this->jsonSerialize(), $this->jsonSerializeFlags);
+	}
+
+	public function jsonSerialize()
+	{
 		if ($this->structureElement instanceof DatasourceStructure)
 		{
-			$data = $this->serializeDatasource($this->structureElement);
+			return $this->serializeDatasource($this->structureElement);
 		}
 		elseif ($this->structureElement instanceof TableSetStructure)
 		{
-			$data = $this->serializeTableSet($this->structureElement);
+			return $this->serializeTableSet($this->structureElement);
 		}
 		elseif ($this->structureElement instanceof TableStructure)
 		{
-			$data = $this->serializeTable($this->structureElement);
+			return $this->serializeTable($this->structureElement);
 		}
 		elseif ($this->structureElement instanceof TableColumnStructure)
 		{
-			$data = $this->serializeTableColumn($this->structureElement);
+			return $this->serializeTableColumn($this->structureElement);
 		}
 
-		return json_encode($data, $this->jsonSerializeFlags);
+		return array();
 	}
 
 	private function serializeDatasource(DatasourceStructure $structure)
@@ -188,18 +214,30 @@ class XMLStructureSerializer extends StructureSerializer
 		return $document->saveXML();
 	}
 
+	public function unserializeFromFile($filename)
+	{
+		$document = new \DOMDocument('1.0', 'utf-8');
+		$document->load($filename, LIBXML_XINCLUDE);
+		return $this->unserialize($document);
+	}
+
+	/**
+	 *
+	 * @param \DOMDocument|string $serialized
+	 *        	Serialized structure
+	 */
 	public function unserialize($serialized)
 	{
 		$this->foreignKeys = new \ArrayObject();
 		$this->identifiedElements = new \ArrayObject();
-		$document = new \DOMDocument('1.0', 'utf-8');
 
-		if (is_file($serialized))
-		{
-			$document->load($serialized, LIBXML_XINCLUDE);
-		}
+		$document = null;
+
+		if ($serialized instanceof \DOMDocument)
+			$document = $serialized;
 		else
 		{
+			$document = new \DOMDocument('1.0', 'utf-8');
 			$document->loadXML($serialized, LIBXML_XINCLUDE);
 		}
 
@@ -604,3 +642,90 @@ class XMLStructureSerializer extends StructureSerializer
 	private $identifiedElements;
 }
 
+class StructureSerializerFactory
+{
+
+	/**
+	 *
+	 * @param string $filename
+	 *        	Structure description file path
+	 */
+	/**
+	 *
+	 * @param string $filename
+	 * @throws StructureException
+	 * @return StructureElement
+	 */
+	public static function structureFromFile($filename)
+	{
+		if (!file_exists($filename))
+			throw new StructureException('Structure definition file not found');
+
+		$type = mime_content_type($filename);
+
+		$serializerClass = self::getSerializeClassForFile($filename);
+		$serializer = $serializerClass->newInstance();
+		$serializer->unserializeFromFile($filename);
+		return $serializer->structureElement;
+	}
+
+	/**
+	 *
+	 * @param StructureElement $structure
+	 * @param string $filename
+	 */
+	public static function structureToFile(StructureElement $structure, $filename)
+	{
+		$serializerClass = self::getSerializeClassForFile($filename);
+		$serializer = $serializerClass->newInstance($structure);
+		$serializer->serializeToFile($filename);
+	}
+
+	/**
+	 *
+	 * @param string $filename
+	 * @throws StructureException
+	 * @return \ReflectionClass
+	 */
+	public static function getSerializeClassForFile($filename)
+	{
+		if (\is_file($filename))
+		{
+			$type = mime_content_type($filename);
+			if (ns\Container::keyExists(self::$mimeTypeClassMap, $type))
+				return new \ReflectionClass(self::$mimeTypeClassMap[$type]);
+		}
+
+		$x = pathinfo($filename, \PATHINFO_EXTENSION);
+		if (ns\Container::keyExists(self::$fileExtensionClassMap, $x))
+			return new \ReflectionClass(self::$fileExtensionClassMap[$x]);
+
+		throw new StructureException(
+			'Unable to find a StructureSerializer for file ' . basename($filename));
+	}
+
+	public static function initialize()
+	{
+		if (!\is_array(self::$mimeTypeClassMap))
+		{
+			self::$mimeTypeClassMap = [
+				'text/xml' => XMLStructureSerializer::class,
+				'application/json' => JSONStructureSerializer::class
+			];
+		}
+
+		if (!\is_array(self::$fileExtensionClassMap))
+		{
+			self::$fileExtensionClassMap = [
+				'xml' => XMLStructureSerializer::class,
+				'json' => JSONStructureSerializer::class
+			];
+		}
+	}
+
+	private static $mimeTypeClassMap;
+
+	private static $fileExtensionClassMap;
+}
+
+StructureSerializerFactory::initialize();

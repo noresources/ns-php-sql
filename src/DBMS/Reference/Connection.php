@@ -13,6 +13,7 @@ use NoreSources\SQL\Constants as K;
  */
 class Connection implements sql\Connection
 {
+	use sql\ConnectionStructureTrait;
 
 	public function __construct()
 	{
@@ -29,7 +30,10 @@ class Connection implements sql\Connection
 	{}
 
 	public function connect($parameters)
-	{}
+	{
+		if (ns\Container::keyExists($parameters, K::CONNECTION_PARAMETER_STRUCTURE))
+			$this->setStructure($structure)[K::CONNECTION_PARAMETER_STRUCTURE];
+	}
 
 	public function disconnect()
 	{}

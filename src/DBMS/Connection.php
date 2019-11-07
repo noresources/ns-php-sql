@@ -95,6 +95,36 @@ interface Connection
 	 * @return Recordset|integer|boolean
 	 */
 	function executeStatement($statement, ParameterArray $parameters = null);
+
+	/**
+	 * Get the structure of the connected database
+	 *
+	 * @return StructureElement
+	 */
+	function getStructure();
+}
+
+trait ConnectionStructureTrait
+{
+
+	public function getStructure()
+	{
+		return $this->connectionStructure;
+	}
+
+	protected function setStructure($structure)
+	{
+		if ($structure instanceof StructureElement)
+			$this->connectionStructure = $structure;
+		elseif (is_file($structure))
+			$this->connectionStructure = StructureSerializerFactory::structureFromFile($filename);
+		else
+			throw new \InvalidArgumentException(
+				ns\TypeDescription::getName($structure) .
+				' is not a valid argument. Instance of StructureElement or filename expected');
+	}
+
+	private $connectionStructure;
 }
 
 class ConnectionHelper
@@ -159,7 +189,7 @@ class ConnectionHelper
 	 * @param Statement $statement
 	 *        	Statement to convert to string
 	 * @return string SQL string in the DBMS dialect
-	 *        
+	 *
 	 * @note This method does not provide any informations about statement parameters or result column types.
 	 * Tf these information are needed, use ConnectionHelper::prepareStatement()
 	 */

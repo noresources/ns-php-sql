@@ -9,12 +9,14 @@ use NoreSources\SQL as sql;
 use NoreSources\SQL\PDO\Constants as K;
 use NoreSources\SQL\ConnectionHelper;
 use NoreSources\TypeDescription;
+use NoreSources\SQL\ConnectionStructureTrait;
 
 /**
  * PDO connection
  */
 class Connection implements sql\Connection
 {
+	use sql\ConnectionStructureTrait;
 
 	const DRIVER_MYSQL = 'mysql';
 
@@ -76,7 +78,7 @@ class Connection implements sql\Connection
 	 *        	<li>CONNECTION_PARAMETER_PASSWORD</li>
 	 *        	<li>CONNECTION_PARAMETER_OPTIONS</li>
 	 *        	</ul>
-	 *        	
+	 *
 	 */
 	public function connect($parameters)
 	{
@@ -107,6 +109,10 @@ class Connection implements sql\Connection
 		{
 			throw new sql\ConnectionException($this, $e->getMessage(), $e->getCode());
 		}
+
+		if (ns\Container::keyExists($parameters, K::CONNECTION_PARAMETER_STRUCTURE))
+			$this->setStructure($structure)[K::CONNECTION_PARAMETER_STRUCTURE];
+		;
 	}
 
 	public function disconnect()

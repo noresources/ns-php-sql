@@ -22,18 +22,16 @@ class DatasourceManager extends TestCase
 
 		$this->assertFileExists($filename, $name . ' datasource loading');
 
-		$content = file_get_contents($filename);
-		$serializer = new XMLStructureSerializer();
-		$serializer->unserialize($filename);
+		$structure = StructureSerializerFactory::structureFromFile($filename);
 
 		$this->assertInstanceOf(DatasourceStructure::class,
-				$serializer->structureElement,
+				$structure,
 				$name . ' datasource loading'
 		);
 
-		$this->datasources->offsetSet($name, $serializer->structureElement);
+		$this->datasources->offsetSet($name, $structure);
 
-		return $serializer->structureElement;
+		return $structure;
 	}
 
 	/**

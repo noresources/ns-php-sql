@@ -13,6 +13,7 @@ use NoreSources\SQL\SQLite\Constants as K;
  */
 class Connection implements sql\Connection
 {
+	use sql\ConnectionStructureTrait;
 
 	/**
 	 * Special in-memory database name
@@ -163,6 +164,9 @@ class Connection implements sql\Connection
 				$this->connection->exec($sql);
 			}
 		}
+
+		if (ns\Container::keyExists($parameters, K::CONNECTION_PARAMETER_STRUCTURE))
+			$this->setStructure($structure)[K::CONNECTION_PARAMETER_STRUCTURE];
 	}
 
 	public function disconnect()
