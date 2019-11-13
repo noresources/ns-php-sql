@@ -373,7 +373,7 @@ class GroupingOption implements RecordQueryOption
 
 const kRecordForeignKeyColumnFormat = '(.+?)::(.+)';
 
-class Record implements \ArrayAccess, \IteratorAggregate
+class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 {
 
 	const QUERY_MULTIPLE = kRecordQueryMultiple;
@@ -940,6 +940,11 @@ class Record implements \ArrayAccess, \IteratorAggregate
 		}
 
 		$this->offsetSet($member, $value);
+	}
+	
+	public function jsonSerialize()
+	{
+		return $this->toArray();
 	}
 
 	/**
