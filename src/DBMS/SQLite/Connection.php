@@ -15,29 +15,29 @@ class Connection implements sql\Connection
 {
 	use sql\ConnectionStructureTrait;
 
-	/**
-	 * Special in-memory database name
-	 *
-	 * @see https://www.sqlite.org/inmemorydb.html
-	 *
-	 * @var string
-	 */
-	const SOURCE_MEMORY = ':memory:';
+/**
+ * Special in-memory database name
+ *
+ * @see https://www.sqlite.org/inmemorydb.html
+ *
+ * @var string
+ */
+const SOURCE_MEMORY = ':memory:';
 
-	/**
-	 * Temporary database.
-	 *
-	 * @see https://www.sqlite.org/inmemorydb.html
-	 * @var string
-	 */
-	const SOURCE_TEMPORARY = '';
+/**
+ * Temporary database.
+ *
+ * @see https://www.sqlite.org/inmemorydb.html
+ * @var string
+ */
+const SOURCE_TEMPORARY = '';
 
-	/**
-	 * The default tableset name
-	 *
-	 * @var string
-	 */
-	const TABLESET_NAME_DEFAULT = 'main';
+/**
+ * The default tableset name
+ *
+ * @var string
+ */
+const TABLESET_NAME_DEFAULT = 'main';
 
 	public function __construct()
 	{
@@ -90,7 +90,8 @@ class Connection implements sql\Connection
 
 		$pragmas = ns\Container::keyValue($parameters, K::CONNECTION_PARAMETER_SQLITE_PRAGMAS,
 			[
-				'foreign_keys' => 1
+				'foreign_keys' => 1,
+				'busy_timeout' => 5000
 			]);
 
 		$defaultTablesetName = ns\Container::keyValue($parameters, K::CONNECTION_PARAMETER_DATABASE,
@@ -184,6 +185,7 @@ class Connection implements sql\Connection
 		if (!($this->connection instanceof \SQLite3))
 			throw new sql\ConnectionException($this, 'Not connected');
 		$this->connection->close();
+		$this->connection = null;
 	}
 
 	public function getStatementBuilder()
