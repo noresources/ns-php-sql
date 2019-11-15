@@ -471,10 +471,13 @@ class SelectQuery extends Statement
 		}
 		else
 		{
-			/**
-			 *
-			 * @todo
-			 */
+			$columnIndex = 0;
+			foreach ($tableStructure as $name => $column)
+			{
+				$context->setResultColumn($columnIndex, $column);
+				$columnIndex++;
+			}
+
 			$stream->space()->keyword('*');
 		}
 
@@ -486,8 +489,8 @@ class SelectQuery extends Statement
 		$stream->stream($where);
 
 		// GROUP BY
-		if ($this->parts[self::PART_GROUPBY] &&
-			ns\Container::count($this->parts[self::PART_GROUPBY]))
+		if ($this->parts[self::PART_GROUPBY] && ns\Container::count(
+			$this->parts[self::PART_GROUPBY]))
 		{
 
 			$stream->space()

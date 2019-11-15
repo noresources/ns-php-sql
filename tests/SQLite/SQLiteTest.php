@@ -58,6 +58,17 @@ final class SQLiteTest extends TestCase
 		$result = $this->connection->executeStatement($prepared, $p);
 		$this->assertInstanceOf(InsertionQueryResult::class, $result);
 
+		// Statement without column specs -> *
+		$statement = new SelectQuery($tableStructure);
+
+		$prepared = ConnectionHelper::prepareStatement($this->connection, $statement,
+			$tableStructure);
+
+		$this->assertInstanceOf(SQLite\PreparedStatement::class, $prepared);
+
+		$this->assertEquals(4, $prepared->getResultColumnCount(),
+			'Prepared statement result columns count');
+
 		$statement = new SelectQuery($tableStructure);
 		$statement->columns('name', 'gender', 'salary');
 
@@ -77,7 +88,6 @@ final class SQLiteTest extends TestCase
 
 		foreach ($statements as $statement)
 		{
-
 			$result = $this->connection->executeStatement($statement);
 			$this->assertInstanceOf(Recordset::class, $result);
 

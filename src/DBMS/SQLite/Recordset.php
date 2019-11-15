@@ -16,7 +16,6 @@ class Recordset extends sql\Recordset
 		$this->result = $result;
 		if (!($data instanceof sql\StatementOutputData))
 		{
-
 			$map = $this->getResultColumns();
 			for ($i = 0; $i < $result->numColumns(); $i++)
 			{

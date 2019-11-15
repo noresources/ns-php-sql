@@ -28,10 +28,20 @@ class PreparedStatement extends sql\PreparedStatement
 
 		if ($this->getStatementType() == K::QUERY_SELECT)
 		{
-			if ($this->getResultColumnCount() > $statement->columnCount())
-				throw new \Exception(
-					'Incorrect number of result column. Should be ' . $statement->columnCount() .
-					', got ' . $this->getResultColumnCount());
+			/**
+			 * From PHP documentation
+			 * If the PDOStatement object was returned from PDO::prepare(),
+			 * an accurate column count will not be available
+			 * until you invoke PDOStatement::execute().
+			 */
+
+			if ($statement->columnCount() > 0)
+			{
+				if ($this->getResultColumnCount() > $statement->columnCount())
+					throw new \Exception(
+						'Incorrect number of result column. Should be ' . $statement->columnCount() .
+						', got ' . $this->getResultColumnCount());
+			}
 
 			$map = $this->getResultColumns();
 			try
