@@ -14,6 +14,15 @@ class Constants extends \NoreSources\SQL\Constants
 	const CONNECTION_PARAMETER_ENCRYPTION_KEY = 'encryptionkey';
 
 	/**
+	 * An associative array of SQLite pragma and their values
+	 *
+	 * @seeconst CONNECTION_PARAMETER_ENCRYPTION_KEY = 'encryptionkey';
+	 *
+	 * @var string
+	 */
+	const CONNECTION_PARAMETER_SQLITE_PRAGMAS = 'pragmas';
+
+	/**
 	 * ROLLBACK conflict class
 	 *
 	 * @var string

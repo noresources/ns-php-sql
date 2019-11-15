@@ -88,6 +88,11 @@ class Connection implements sql\Connection
 
 		$this->connection = null;
 
+		$pragmas = ns\Container::keyValue($parameters, K::CONNECTION_PARAMETER_SQLITE_PRAGMAS,
+			[
+				'foreign_keys' => 1
+			]);
+
 		$defaultTablesetName = ns\Container::keyValue($parameters, K::CONNECTION_PARAMETER_DATABASE,
 			self::TABLESET_NAME_DEFAULT);
 
@@ -163,6 +168,11 @@ class Connection implements sql\Connection
 			{
 				$this->connection->exec($sql);
 			}
+		}
+
+		foreach ($pragmas as $pragma => $value)
+		{
+			$this->connection->exec('PRAGMA ' . $pragma . '=' . $value);
 		}
 
 		if (ns\Container::keyExists($parameters, K::CONNECTION_PARAMETER_STRUCTURE))
