@@ -70,10 +70,16 @@ class UpdateQuery extends Statement implements \ArrayAccess
 			->space()
 			->identifier($context->getCanonicalName($tableStructure));
 
+		if ($this->columnValues->count())
+			$stream->space()->keyword('set')->space();
+
+		$index = 0;
 		foreach ($this->columnValues as $columnName => $value)
 		{
 			if (!$tableStructure->offsetExists($columnName))
 				throw new StatementException($this, 'Invalid column "' . $columnName . '"');
+
+			if ($index > 0) $stream->text (',')->space();
 
 			$column = $tableStructure->offsetGet($columnName);
 			/**
@@ -90,12 +96,11 @@ class UpdateQuery extends Statement implements \ArrayAccess
 				$value = new LiteralExpression($value, $type);
 			}
 
-			$stream->space()
-				->keyword('set')
-				->space()
-				->identifier($context->escapeIdentifier($columnName))
+			$stream->identifier($context->escapeIdentifier($columnName))
 				->text('=')
 				->expression($value, $context);
+
+			$index++;
 		}
 
 		if ($this->whereConstraints->count())
