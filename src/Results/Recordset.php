@@ -32,7 +32,11 @@ class RecordsetException extends \ErrorException
 /**
  * Recordset query result
  */
-abstract class Recordset implements \Iterator, StatementOutputData, QueryResult, ns\ArrayConversion
+abstract class Recordset implements \Iterator,
+	StatementOutputData,
+	QueryResult,
+	ns\ArrayConversion,
+	\JsonSerializable
 {
 
 	use StatementOutputDataTrait;
@@ -205,7 +209,7 @@ const FETCH_UNSERIALIZE = K::RECORDSET_FETCH_UBSERIALIZE;
 		$this->initializeStatementOutputData($data);
 
 		$this->flags = self::FETCH_BOTH;
-		$this->record = new \ArrayObject();
+		$this->record = [];
 		$this->internalRecord = false;
 		$this->setIteratorPosition(-1, self::POSITION_BEGIN);
 	}
@@ -245,14 +249,14 @@ const FETCH_UNSERIALIZE = K::RECORDSET_FETCH_UBSERIALIZE;
 
 	private function updateRecord()
 	{
-		$d = [];
+		$this->record = [];
 		if ($this->internalRecord)
 		{
 			$fetchFlags = self::FETCH_BOTH | self::FETCH_UNSERIALIZE;
 
 			if (($this->flags & $fetchFlags) == self::FETCH_INDEXED)
 			{
-				$this->record->exchangeArray($this->internalRecord);
+				$this->record = $this->internalRecord;
 				return;
 			}
 
@@ -267,16 +271,14 @@ const FETCH_UNSERIALIZE = K::RECORDSET_FETCH_UBSERIALIZE;
 				}
 
 				if ($this->flags & self::FETCH_INDEXED)
-					$d[$index] = $value;
+					$this->record[$index] = $value;
 				if ($this->flags & self::FETCH_ASSOCIATIVE)
 				{
 					$column = $this->resultColumns->getColumn($index);
-					$d[$column->name] = $value;
+					$this->record[$column->name] = $value;
 				}
 			}
 		}
-
-		$this->record->exchangeArray($d);
 	}
 
 	/**
