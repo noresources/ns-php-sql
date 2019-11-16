@@ -32,43 +32,40 @@ class RecordsetException extends \ErrorException
 /**
  * Recordset query result
  */
-abstract class Recordset implements \Iterator,
-	StatementOutputData,
-	QueryResult,
-	ns\ArrayConversion,
+abstract class Recordset implements \Iterator, StatementOutputData, QueryResult, ns\ArrayConversion,
 	\JsonSerializable
 {
 
 	use StatementOutputDataTrait;
 
-/**
- * Fetch record row to an associative array
- *
- * @var integer
- */
-const FETCH_ASSOCIATIVE = K::RECORDSET_FETCH_ASSOCIATIVE;
+	/**
+	 * Fetch record row to an associative array
+	 *
+	 * @var integer
+	 */
+	const FETCH_ASSOCIATIVE = K::RECORDSET_FETCH_ASSOCIATIVE;
 
-/**
- * Fetch record row to a indexed array
- *
- * @var integer
- */
-const FETCH_INDEXED = K::RECORDSET_FETCH_INDEXED;
+	/**
+	 * Fetch record row to a indexed array
+	 *
+	 * @var integer
+	 */
+	const FETCH_INDEXED = K::RECORDSET_FETCH_INDEXED;
 
-/**
- * Fetch record row to an array with both indexed and associative key
- *
- * @var integer
- */
-const FETCH_BOTH = K::RECORDSET_FETCH_BOTH;
+	/**
+	 * Fetch record row to an array with both indexed and associative key
+	 *
+	 * @var integer
+	 */
+	const FETCH_BOTH = K::RECORDSET_FETCH_BOTH;
 
-/**
- * Convert row values to the most accurate PHP object
- * according result column type
- *
- * @var integer
- */
-const FETCH_UNSERIALIZE = K::RECORDSET_FETCH_UBSERIALIZE;
+	/**
+	 * Convert row values to the most accurate PHP object
+	 * according result column type
+	 *
+	 * @var integer
+	 */
+	const FETCH_UNSERIALIZE = K::RECORDSET_FETCH_UBSERIALIZE;
 
 	/**
 	 *
@@ -117,12 +114,22 @@ const FETCH_UNSERIALIZE = K::RECORDSET_FETCH_UBSERIALIZE;
 	public function getArrayCopy()
 	{
 		$rows = [];
-		foreach ($this as $index => $row) {
-			/** @todo fix valid() */
-			if ($row === false) continue;
+		foreach ($this as $index => $row)
+		{
+			/**
+			 *
+			 * @todo fix valid()
+			 */
+			if ($row === false)
+				continue;
 			$rows[$index] = $row;
 		}
 		return $rows;
+	}
+
+	public function jsonSerialize()
+	{
+		return $this->getArrayCopy();
 	}
 
 	/**
