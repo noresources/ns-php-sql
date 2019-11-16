@@ -22,7 +22,7 @@ class TableConstraint
 	 * @param string $name
 	 *        	Constraint name
 	 */
-	public function __construct($name = null)
+	protected function __construct($name = null)
 	{
 		$this->constraintName = $name;
 	}
