@@ -161,14 +161,10 @@ class StatementParameterMap extends \ArrayObject
 /**
  * Record column description
  */
-class ResultColumn
+class ResultColumn implements ColumnPropertyMap
 {
 
-	/**
-	 *
-	 * @var integer
-	 */
-	public $dataType;
+	use ColumnPropertyMapTrait;
 
 	/**
 	 *
@@ -178,9 +174,42 @@ class ResultColumn
 
 	/**
 	 *
-	 * @var TableColumnStructure
+	 * @property-read integer $dataType
+	 * @param string $member
+	 * @throws \InvalidArgumentException
+	 * @return boolean|number|NULL|string|string
 	 */
-	public $column;
+	public function __get($member)
+	{
+		if ($member == 'dataType')
+		{
+			if ($this->hasColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE))
+				return $this->getColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE);
+			return k::DATATYPE_UNDEFINED;
+		}
+
+		throw new \InvalidArgumentException(
+			$member . ' is not a member of ' . ns\TypeDescription::getName($this));
+	}
+
+	/**
+	 *
+	 * @property-write integer $dataType
+	 * @param string $member
+	 * @param mixed $value
+	 * @throws \InvalidArgumentException
+	 */
+	public function __set($member, $value)
+	{
+		if ($member == 'dataType')
+		{
+			$this->setColumnProperty(k::COLUMN_PROPERTY_DATA_TYPE, $value);
+			return;
+		}
+
+		throw new \InvalidArgumentException(
+			$member . ' is not a member of ' . ns\TypeDescription::getName($this));
+	}
 
 	/**
 	 *
@@ -188,18 +217,17 @@ class ResultColumn
 	 */
 	public function __construct($data)
 	{
-		$this->dataType = K::DATATYPE_UNDEFINED;
-		$this->column = null;
-		$this->name = null;
+		if ($data instanceof TableColumnStructure)
+			$this->name = $data->getName();
+		elseif (ns\TypeDescription::hasStringConversion($data))
+			$this->name = ns\TypeConversion::toString($data);
+
 		if ($data instanceof TableColumnStructure)
 		{
-			$this->column = $data;
-			$this->name = $data->getName();
-			if ($data->hasColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE))
-			{
-				$this->dataType = $data->getColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE);
-			}
+			$this->initializeColumnProperties($data->getColumnProperties());
 		}
+		else
+			$this->initializeColumnProperties();
 	}
 }
 
@@ -565,7 +593,7 @@ trait ColumnValueTrait
 	 *        	string Column name
 	 * @param
 	 *        	Evaluable Evaluable expression
-	 *        	
+	 *
 	 * @throws \BadMethodCallException
 	 * @throws \InvalidArgumentException
 	 */
@@ -619,7 +647,7 @@ trait ColumnValueTrait
 	 *
 	 * @param
 	 *        	string Column name
-	 *        	
+	 *
 	 * @return mixed Column current value or @c null if not set
 	 */
 	public function offsetGet($offset)
