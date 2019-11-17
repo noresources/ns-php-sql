@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<sql:datasource version="1.0" xmlns:sql="http://xsd.nore.fr/sql">
-	<sql:database name="ns_unittests">
+<sql:datasource xmlns:sql="http://xsd.nore.fr/sql/2.0">
+	<sql:tableset name="ns_unittests">
 		<sql:table name="types">
 			<sql:column name="base"></sql:column>
 			<sql:column name="binary">
@@ -38,18 +38,21 @@
 			</sql:column>
 			<sql:column name="timestamp">
 				<sql:datatype>
-					<sql:timestamp />
+					<sql:timestamp>
+						<sql:date/>
+						<sql:time/>
+					</sql:timestamp>
 				</sql:datatype>
 				<sql:default>
-					<sql:datetime>2010-11-12T13:14:15+01:00</sql:datetime>
+					<sql:timestamp>2010-11-12T13:14:15+01:00</sql:timestamp>
 				</sql:default>
 			</sql:column>
 			<sql:column name="timestamp_tz">
 				<sql:datatype>
-					<sql:timestamp timezone="yes" />
+					<sql:timestamp />
 				</sql:datatype>
 				<sql:default>
-					<sql:datetime>2010-11-12T13:14:15+01:00</sql:datetime>
+					<sql:timestamp>2010-11-12T13:14:15+01:00</sql:timestamp>
 				</sql:default>
 			</sql:column>
 			<sql:primarykey name="pk_types">
@@ -57,5 +60,5 @@
 				<sql:column name="int" />
 			</sql:primarykey>
 		</sql:table>
-	</sql:database>
+	</sql:tableset>
 </sql:datasource>

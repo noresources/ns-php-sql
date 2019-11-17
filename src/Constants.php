@@ -395,7 +395,7 @@ class Constants
 	 *
 	 * @var string
 	 */
-	const XML_NAMESPACE_URI = 'http://xsd.nore.fr/sql';
+	const XML_NAMESPACE_BASEURI = 'http://xsd.nore.fr/sql';
 
 	/**
 	 * The XML namespace prefix used internally to reference the
@@ -404,48 +404,6 @@ class Constants
 	 * @var string
 	 */
 	const XML_NAMESPACE_PREFIX = 'sql';
-
-	/**
-	 * XML local name of the DatasourceStructure
-	 *
-	 * @var string
-	 */
-	const XML_ELEMENT_DATASOURCE = 'datasource';
-
-	/**
-	 * XML local name of the TableSetStructure
-	 *
-	 * @var string
-	 */
-	const XML_ELEMENT_TABLESET = 'database';
-
-	/**
-	 * XML local name of the TableStructure
-	 *
-	 * @var string
-	 */
-	const XML_ELEMENT_TABLE = 'table';
-
-	/**
-	 * XML local name of the TableColumnStructure
-	 *
-	 * @var string
-	 */
-	const XML_ELEMENT_COLUMN = 'column';
-
-	/**
-	 * Foreign key XML node name
-	 *
-	 * @var string
-	 */
-	const XML_ELEMENT_FOREIGN_KEY = 'foreignkey';
-
-	/**
-	 * Primary key XML node name
-	 *
-	 * @var string
-	 */
-	const XML_ELEMENT_PRIMARY_KEY = 'primarykey';
 
 	/**
 	 * Index XML node name

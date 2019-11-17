@@ -1,7 +1,7 @@
 CREATE TABLE [ns_unittests].[Tasks] (
   [id] INTEGER AUTO INCREMENT, 
   [name] TEXT, 
-  [creationDateTime] TEXT DEFAULT CURRENT_TIMESTAMP, 
+  [creationDateTime] TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
   [priority] INTEGER, 
   [category] INTEGER, 
   [creator] INTEGER DEFAULT NULL, 

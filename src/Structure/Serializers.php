@@ -196,6 +196,7 @@ class XMLStructureSerializer extends StructureSerializer
 	{
 		parent::__construct($element);
 		$this->schemaVersion = new ns\SemanticVersion('2.0.0');
+		$this->schemaNamespaceURI = K::XML_NAMESPACE_BASEURI . '/2.0';
 	}
 
 	public function serialize()
@@ -204,7 +205,7 @@ class XMLStructureSerializer extends StructureSerializer
 			throw new StructureException('Nothing to serialize');
 
 		$impl = new \DOMImplementation();
-		$document = $impl->createDocument(K::XML_NAMESPACE_URI,
+		$document = $impl->createDocument($this->schemaNamespaceURI,
 			self::XSLT_NAMESPACE_PREFIX . ':' . self::getXmlNodeName($this->structureElement));
 
 		/**
@@ -248,38 +249,44 @@ class XMLStructureSerializer extends StructureSerializer
 		$validDocument = false;
 		foreach ($xpath->query('namespace::*', $document->documentElement) as $node)
 		{
-			if (strpos($node->nodeValue, K::XML_NAMESPACE_URI) === 0)
+			if (strpos($node->nodeValue, K::XML_NAMESPACE_BASEURI) === 0)
 			{
+				$this->schemaNamespaceURI = $node->nodeValue;
+
 				$validDocument = true;
-				$version = trim(trim(substr($node->nodeValue, strlen(K::XML_NAMESPACE_URI))), '/');
+				$version = trim(trim(substr($node->nodeValue, strlen(K::XML_NAMESPACE_BASEURI))),
+					'/');
 				if (strlen($version) == 0)
 					$version = '1.0.0';
 				$this->schemaVersion = new ns\SemanticVersion($version);
 			}
 		}
 
+		$versionNumber = $this->schemaVersion->getIntegerValue();
+
 		if (!$validDocument)
 			throw new StructureException('Invalid XML document. Schema namespace not found');
 
-		if ($document->documentElement->localName == K::XML_ELEMENT_DATASOURCE)
+		if ($document->documentElement->localName == 'datasource')
 		{
 			$this->structureElement = new DatasourceStructure(
 				$document->documentElement->getAttribute('name'));
 			$this->unserializeDatasource($this->structureElement, $document->documentElement);
 		}
-		elseif ($document->documentElement->localName == K::XML_ELEMENT_TABLESET)
+		elseif (($schemaVersion < 20000 && $document->documentElement->localName == 'database') ||
+			($schemaVersion >= 20000 && $document->documentElement->localName == 'tableset'))
 		{
 			$this->structureElement = new TableSetStructure(
 				$document->documentElement->getAttribute('name'));
 			$this->unserializeTableset($this->structureElement, $document->documentElement);
 		}
-		elseif ($document->documentElement->localName == K::XML_ELEMENT_TABLE)
+		elseif ($document->documentElement->localName == 'table')
 		{
 			$this->structureElement = new TableStructure(
 				$document->documentElement->getAttribute('name'));
 			$this->unserializeTable($this->structureElement, $document->documentElement);
 		}
-		elseif ($document->documentElement->localName == K::XML_ELEMENT_COLUMN)
+		elseif ($document->documentElement->localName == 'column')
 		{
 			$this->structureElement = new TableColumnStructure(
 				$document->documentElement->getAttribute('name'));
@@ -295,9 +302,10 @@ class XMLStructureSerializer extends StructureSerializer
 			$this->identifiedElements->offsetSet($node->getAttribute('id'), $structure);
 
 		$xpath = new \DOMXPath($node->ownerDocument);
-		$xpath->registerNamespace(K::XML_NAMESPACE_PREFIX, K::XML_NAMESPACE_URI);
+		$xpath->registerNamespace(K::XML_NAMESPACE_PREFIX, $this->schemaNamespaceURI);
 
-		$nodeName = K::XML_NAMESPACE_PREFIX . ':' . K::XML_ELEMENT_TABLESET;
+		$nodeName = ($this->schemaVersion->getIntegerValue() < 20000) ? 'database' : 'tableset';
+		$nodeName = K::XML_NAMESPACE_PREFIX . ':' . $nodeName;
 		$tablesetNodes = $xpath->query($nodeName);
 		foreach ($tablesetNodes as $tablesetNode)
 		{
@@ -313,9 +321,9 @@ class XMLStructureSerializer extends StructureSerializer
 			$this->identifiedElements->offsetSet($node->getAttribute('id'), $structure);
 
 		$xpath = new \DOMXPath($node->ownerDocument);
-		$xpath->registerNamespace(K::XML_NAMESPACE_PREFIX, K::XML_NAMESPACE_URI);
+		$xpath->registerNamespace(K::XML_NAMESPACE_PREFIX, $this->schemaNamespaceURI);
 
-		$nodeName = K::XML_NAMESPACE_PREFIX . ':' . K::XML_ELEMENT_TABLE;
+		$nodeName = K::XML_NAMESPACE_PREFIX . ':' . 'table';
 		$tableNodes = $xpath->query($nodeName, $node);
 		foreach ($tableNodes as $tableNode)
 		{
@@ -331,9 +339,9 @@ class XMLStructureSerializer extends StructureSerializer
 			$this->identifiedElements->offsetSet($node->getAttribute('id'), $structure);
 
 		$xpath = new \DOMXPath($node->ownerDocument);
-		$xpath->registerNamespace(K::XML_NAMESPACE_PREFIX, K::XML_NAMESPACE_URI);
+		$xpath->registerNamespace(K::XML_NAMESPACE_PREFIX, $this->schemaNamespaceURI);
 
-		$columnNodeName = K::XML_NAMESPACE_PREFIX . ':' . K::XML_ELEMENT_COLUMN;
+		$columnNodeName = K::XML_NAMESPACE_PREFIX . ':' . 'column';
 		$columnNodes = $xpath->query($columnNodeName, $node);
 		foreach ($columnNodes as $columnNode)
 		{
@@ -342,7 +350,7 @@ class XMLStructureSerializer extends StructureSerializer
 			$this->unserializeTableColumn($column, $columnNode);
 		}
 
-		$pkNode = self::getSingleElementByTagName($node, K::XML_ELEMENT_PRIMARY_KEY);
+		$pkNode = self::getSingleElementByTagName($this->schemaNamespaceURI, $node, 'primarykey');
 		if ($pkNode instanceof \DOMElement)
 		{
 			$constraint = new PrimaryKeyTableConstraint();
@@ -363,7 +371,7 @@ class XMLStructureSerializer extends StructureSerializer
 			$structure->addConstraint($constraint);
 		}
 
-		$fkNodes = $node->getElementsByTagNameNS(K::XML_NAMESPACE_URI, K::XML_ELEMENT_FOREIGN_KEY);
+		$fkNodes = $node->getElementsByTagNameNS($this->schemaNamespaceURI, 'foreignkey');
 		foreach ($fkNodes as $fkNode)
 		{
 			$this->foreignKeys->append([
@@ -378,7 +386,7 @@ class XMLStructureSerializer extends StructureSerializer
 		if ($node->hasAttribute('id'))
 			$this->identifiedElements->offsetSet($node->getAttribute('id'), $structure);
 
-		$notNullNode = self::getSingleElementByTagName($node, 'notnull');
+		$notNullNode = self::getSingleElementByTagName($this->schemaNamespaceURI, $node, 'notnull');
 		if ($notNullNode instanceof \DOMNode)
 		{
 			$structure->setColumnProperty(K::COLUMN_PROPERTY_ACCEPT_NULL, false);
@@ -387,7 +395,7 @@ class XMLStructureSerializer extends StructureSerializer
 		$type = K::DATATYPE_UNDEFINED;
 		$typeNode = null;
 
-		$dataTypeNode = self::getSingleElementByTagName($node, 'datatype');
+		$dataTypeNode = self::getSingleElementByTagName($this->schemaNamespaceURI, $node, 'datatype');
 		if ($dataTypeNode instanceof \DOMElement)
 		{
 			$a = [
@@ -400,7 +408,8 @@ class XMLStructureSerializer extends StructureSerializer
 
 			foreach ($a as $k => $v)
 			{
-				$typeNode = self::getSingleElementByTagName($dataTypeNode, $k);
+				$typeNode = self::getSingleElementByTagName($this->schemaNamespaceURI, $dataTypeNode,
+					$k);
 				if ($typeNode instanceof \DOMElement)
 				{
 					$type = $v;
@@ -409,7 +418,49 @@ class XMLStructureSerializer extends StructureSerializer
 			}
 		}
 
-		if ($type & K::DATATYPE_NUMBER)
+		if ($type & K::DATATYPE_TIMESTAMP)
+		{
+			if ($this->schemaVersion->getIntegerValue() < 20000)
+			{
+				if (!$typeNode->hasAttribute('timezone'))
+				{
+					$type &= ~K::DATATYPE_TIMEZONE;
+				}
+
+				if ($typeNode->hasAttribute('type'))
+				{
+					$timestampType = $typeNode->getAttribute('type');
+					$type &= ~K::DATATYPE_DATETIME;
+					if ($timestampType == 'date')
+						$type |= K::DATATYPE_DATE;
+					elseif ($timestampType == 'time')
+						$type |= K::DATATYPE_TIME;
+					elseif ($timestampType == 'datetime')
+						$type |= K::DATATYPE_DATETIME;
+				}
+			}
+			else
+			{
+				$dateNode = self::getSingleElementByTagName($this->schemaNamespaceURI, $typeNode,
+					'date');
+				$timeNode = self::getSingleElementByTagName($this->schemaNamespaceURI, $typeNode,
+					'time');
+				if ($dateNode instanceof \DOMElement || $timeNode instanceof \DOMElement)
+				{
+					$type = 0;
+				}
+
+				if ($dateNode instanceof \DOMElement)
+					$type |= K::DATATYPE_DATE;
+				if ($timeNode instanceof \DOMElement)
+				{
+					$type |= K::DATATYPE_TIME;
+					if ($timeNode->hasAttribute('timezone'))
+						$type |= K::DATATYPE_TIMEZONE;
+				}
+			}
+		}
+		elseif ($type & K::DATATYPE_NUMBER)
 		{
 			$type = K::DATATYPE_INTEGER;
 			if ($typeNode->hasAttribute('autoincrement'))
@@ -435,14 +486,12 @@ class XMLStructureSerializer extends StructureSerializer
 		if ($type != K::DATATYPE_UNDEFINED)
 			$structure->setColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE, $type);
 
-		$defaultNode = self::getSingleElementByTagName($node, 'default');
+		$defaultNode = self::getSingleElementByTagName($this->schemaNamespaceURI, $node, 'default');
 		if ($defaultNode instanceof \DOMElement)
 		{
 			$nodeNames = [
 				'integer',
 				'boolean',
-				'datetime', // deprecated
-				'timestamp',
 				'string',
 				'null',
 				'number',
@@ -450,9 +499,18 @@ class XMLStructureSerializer extends StructureSerializer
 				'hexBinary'
 			];
 
+			if ($this->schemaVersion->getIntegerValue() < 20000)
+				$nodeNames[] = 'datetime';
+			else
+			{
+				$nodeNames[] = 'timestamp';
+				$nodeNames[] = 'now';
+			}
+
 			foreach ($nodeNames as $name)
 			{
-				$valueNode = self::getSingleElementByTagName($defaultNode, $name);
+				$valueNode = self::getSingleElementByTagName($this->schemaNamespaceURI, $defaultNode,
+					$name);
 				if (!($valueNode instanceof \DOMNode))
 					continue;
 
@@ -469,6 +527,7 @@ class XMLStructureSerializer extends StructureSerializer
 						$valueType = K::DATATYPE_BOOLEAN;
 					break;
 					case 'timestamp':
+					case 'now':
 					case 'datetime':
 						$valueType = K::DATATYPE_TIMESTAMP; // deprecated
 						if (strlen($value))
@@ -517,20 +576,24 @@ class XMLStructureSerializer extends StructureSerializer
 	public function getXmlNodeName(StructureElement $element)
 	{
 		if ($element instanceof DatasourceStructure)
-			return K::XML_ELEMENT_DATASOURCE;
+			return 'datasource';
 		elseif ($element instanceof TableSetStructure)
-			return K::XML_ELEMENT_TABLESET;
+		{
+			if ($this->schemaVersion->getIntegerValue() < 20000)
+				return 'database';
+			return 'tableset';
+		}
 		elseif ($element instanceof TableStructure)
-			return K::XML_ELEMENT_TABLE;
+			return 'table';
 		elseif ($element instanceof TableColumnStructure)
-			return K::XML_ELEMENT_COLUMN;
+			return 'column';
 		throw new \InvalidArgumentException();
 	}
 
-	private static function getSingleElementByTagName(\DOMElement $element, $localName,
+	private static function getSingleElementByTagName($namespace, \DOMElement $element, $localName,
 		$required = false)
 	{
-		$list = $element->getElementsByTagNameNS(K::XML_NAMESPACE_URI, $localName);
+		$list = $element->getElementsByTagNameNS($namespace, $localName);
 
 		if ($list->length > 1)
 			throw new StructureException(
@@ -556,9 +619,9 @@ class XMLStructureSerializer extends StructureSerializer
 		$resolver = new StructureResolver(null);
 
 		$xpath = new \DOMXPath($document);
-		$xpath->registerNamespace(K::XML_NAMESPACE_PREFIX, K::XML_NAMESPACE_URI);
+		$xpath->registerNamespace(K::XML_NAMESPACE_PREFIX, $this->schemaNamespaceURI);
 
-		$columnNodeName = K::XML_NAMESPACE_PREFIX . ':' . K::XML_ELEMENT_COLUMN;
+		$columnNodeName = K::XML_NAMESPACE_PREFIX . ':' . 'column';
 
 		foreach ($this->foreignKeys as $entry)
 		{
@@ -566,10 +629,12 @@ class XMLStructureSerializer extends StructureSerializer
 			$fkNode = $entry['node'];
 			$resolver->setPivot($structure);
 
-			$referenceNode = self::getSingleElementByTagName($fkNode, 'reference', true);
+			$referenceNode = self::getSingleElementByTagName($this->schemaNamespaceURI, $fkNode,
+				'reference', true);
 			$columnNodes = $xpath->query($columnNodeName, $fkNode);
 
-			$referenceTableNode = self::getSingleElementByTagName($referenceNode, 'tableref', true);
+			$referenceTableNode = self::getSingleElementByTagName($this->schemaNamespaceURI,
+				$referenceNode, 'tableref', true);
 			$foreignTable = null;
 
 			if ($referenceTableNode->hasAttribute('id'))
@@ -635,7 +700,8 @@ class XMLStructureSerializer extends StructureSerializer
 
 				foreach ($events as $event)
 				{
-					$eventNode = self::getSingleElementByTagName($fkNode, strtolower($event));
+					$eventNode = self::getSingleElementByTagName($this->schemaNamespaceURI, $fkNode,
+						strtolower($event));
 					if ($eventNode)
 					{
 						$action = $eventNode->getAttribute('action');
@@ -664,6 +730,8 @@ class XMLStructureSerializer extends StructureSerializer
 	 * @var \NoreSources\SemanticVersion
 	 */
 	private $schemaVersion;
+
+	private $schemaNamespaceURI;
 }
 
 class StructureSerializerFactory

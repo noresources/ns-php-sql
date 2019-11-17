@@ -48,6 +48,15 @@ class StatementBuilder extends sql\StatementBuilder
 
 		switch ($dataType)
 		{
+			case K::DATATYPE_TIMESTAMP:
+				return 'TIMESTAMP';
+			case K::DATATYPE_DATE:
+				return 'DATE';
+			case K::DATATYPE_TIME:
+			case K::DATATYPE_TIMEZONE:
+				return 'TIME';
+			case K::DATATYPE_DATETIME:
+				return 'DATETIME';
 			case K::DATATYPE_BINARY:
 				return 'BLOB';
 			case K::DATATYPE_BOOLEAN:

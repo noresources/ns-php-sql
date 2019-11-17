@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<sql:datasource version="1.0" xmlns:sql="http://xsd.nore.fr/sql" xmlns:xi="http://www.w3.org/2001/XInclude">
-	<sql:database name="ns_unittests">
+<sql:datasource xmlns:sql="http://xsd.nore.fr/sql/2.0" xmlns:xi="http://www.w3.org/2001/XInclude">
+	<sql:tableset name="ns_unittests">
 		<sql:table name="Employees" id="nsut.tables.Employees">
 			<sql:comment>Company employees</sql:comment>
 			<sql:column name="id">
@@ -95,8 +95,7 @@
 					<sql:timestamp />
 				</sql:datatype>
 				<sql:default>
-					<!-- Empty value = NOW / CURRENT_TIMESTAMP -->
-					<sql:datetime />
+					<sql:now />
 				</sql:default>
 			</sql:column>
 			<sql:column name="priority">
@@ -137,8 +136,8 @@
 				<sql:reference>
 					<sql:tableref id="nsut.tables.Employees" />
 					<sql:column name="id" />
-					<sql:ondelete action="cascade" />
 					<sql:onupdate action="cascade" />
+					<sql:ondelete action="cascade" />
 				</sql:reference>
 			</sql:foreignkey>
 
@@ -147,13 +146,13 @@
 				<sql:reference>
 					<sql:tableref name="Employees" />
 					<sql:column name="id" />
-					<sql:ondelete action="cascade" />
 					<sql:onupdate action="cascade" />
+					<sql:ondelete action="cascade" />
 				</sql:reference>
 			</sql:foreignkey>
 		</sql:table>
 
-		<xi:include href="./types.xml" xpointer="xmlns(sql=http://xsd.nore.fr/sql) xpointer(//sql:table)" />
+		<xi:include href="./types.xml" xpointer="xmlns(sql=http://xsd.nore.fr/sql/2.0) xpointer(//sql:table)" />
 
-	</sql:database>
+	</sql:tableset>
 </sql:datasource>
