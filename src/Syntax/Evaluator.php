@@ -61,7 +61,7 @@ class ExpressionEvaluator
 	{
 		if ($type instanceof TableColumnStructure)
 		{
-			$type = $type->getProperty(K::COLUMN_PROPERTY_DATA_TYPE);
+			$type = $type->getColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE);
 		}
 
 		return new LiteralExpression($value, $type);

@@ -195,9 +195,9 @@ class ResultColumn
 		{
 			$this->column = $data;
 			$this->name = $data->getName();
-			if ($data->hasProperty(K::COLUMN_PROPERTY_DATA_TYPE))
+			if ($data->hasColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE))
 			{
-				$this->dataType = $data->getProperty(K::COLUMN_PROPERTY_DATA_TYPE);
+				$this->dataType = $data->getColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE);
 			}
 		}
 	}

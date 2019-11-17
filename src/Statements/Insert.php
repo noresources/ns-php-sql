@@ -77,8 +77,8 @@ class InsertQuery extends Statement implements \ArrayAccess
 			if (!($value instanceof Expression))
 			{
 				$type = K::DATATYPE_UNDEFINED;
-				if ($column->hasProperty(K::COLUMN_PROPERTY_DATA_TYPE))
-					$type = $column->getProperty(K::COLUMN_PROPERTY_DATA_TYPE);
+				if ($column->hasColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE))
+					$type = $column->getColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE);
 
 				$value = new LiteralExpression($value, $type);
 			}
@@ -95,7 +95,7 @@ class InsertQuery extends Statement implements \ArrayAccess
 				 * @var TableColumnStructure $column
 				 */
 
-				if ($column->hasProperty(K::COLUMN_PROPERTY_DEFAULT_VALUE))
+				if ($column->hasColumnProperty(K::COLUMN_PROPERTY_DEFAULT_VALUE))
 				{
 					$c++;
 					$columns[] = $context->escapeIdentifier($name);
@@ -106,7 +106,7 @@ class InsertQuery extends Statement implements \ArrayAccess
 					else
 					{
 						$x = ExpressionEvaluator::evaluate(
-							$column->getProperty(K::COLUMN_PROPERTY_DEFAULT_VALUE));
+							$column->getColumnProperty(K::COLUMN_PROPERTY_DEFAULT_VALUE));
 						$values[] = $x;
 					}
 				}

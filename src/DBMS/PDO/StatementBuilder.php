@@ -54,8 +54,8 @@ class StatementBuilder extends sql\StatementBuilder
 	public function getColumnTypeName(sql\TableColumnStructure $column)
 	{
 		$dataType = K::DATATYPE_UNDEFINED;
-		if ($column->hasProperty(K::COLUMN_PROPERTY_DATA_TYPE))
-			$dataType = $column->getProperty(K::COLUMN_PROPERTY_DATA_TYPE);
+		if ($column->hasColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE))
+			$dataType = $column->getColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE);
 
 		switch ($dataType)
 		{

@@ -93,18 +93,18 @@ class CreateTableQuery extends Statement
 				->space()
 				->identifier($context->getColumnTypeName($column));
 
-			if ($column->hasProperty(K::COLUMN_PROPERTY_DATA_SIZE))
+			if ($column->hasColumnProperty(K::COLUMN_PROPERTY_DATA_SIZE))
 			{
 				/**
 				 *
 				 * @todo only if supported
 				 */
 				$stream->text('(')
-					->literal($column->getProperty(K::COLUMN_PROPERTY_DATA_SIZE))
+					->literal($column->getColumnProperty(K::COLUMN_PROPERTY_DATA_SIZE))
 					->text(')');
 			}
 
-			if (!$column->getProperty(K::COLUMN_PROPERTY_NULL))
+			if (!$column->getColumnProperty(K::COLUMN_PROPERTY_ACCEPT_NULL))
 			{
 				$stream->space()
 					->keyword('NOT')
@@ -112,18 +112,18 @@ class CreateTableQuery extends Statement
 					->keyword('NULL');
 			}
 
-			if ($column->hasProperty(K::COLUMN_PROPERTY_DEFAULT_VALUE))
+			if ($column->hasColumnProperty(K::COLUMN_PROPERTY_DEFAULT_VALUE))
 			{
 				$v = ExpressionEvaluator::evaluate(
-					$column->getProperty(K::COLUMN_PROPERTY_DEFAULT_VALUE));
+					$column->getColumnProperty(K::COLUMN_PROPERTY_DEFAULT_VALUE));
 				$stream->space()
 					->keyword('DEFAULT')
 					->space()
 					->expression($v, $context);
 			}
 
-			if ($column->hasProperty(K::COLUMN_PROPERTY_AUTOINCREMENT) &&
-				$column->getProperty(K::COLUMN_PROPERTY_AUTOINCREMENT))
+			if ($column->hasColumnProperty(K::COLUMN_PROPERTY_AUTO_INCREMENT) &&
+				$column->getColumnProperty(K::COLUMN_PROPERTY_AUTO_INCREMENT))
 			{
 				$stream->space()->keyword($context->getKeyword(K::KEYWORD_AUTOINCREMENT));
 			}

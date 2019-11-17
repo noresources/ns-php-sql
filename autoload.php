@@ -54,6 +54,8 @@ spl_autoload_register(function($className) {
 		'noresources\sql\jsonstructureserializer' => 'src/Structure/Serializers.php',
 		'noresources\sql\xmlstructureserializer' => 'src/Structure/Serializers.php',
 		'noresources\sql\structureserializerfactory' => 'src/Structure/Serializers.php',
+		'noresources\sql\columnpropertymap' => 'src/Structure/ColumnProperty.php',
+		'noresources\sql\columnpropertymaptrait' => 'src/Structure/ColumnProperty.php',
 		'noresources\sql\structureresolverexception' => 'src/Structure/Resolver.php',
 		'noresources\sql\structureresolvercontext' => 'src/Structure/Resolver.php',
 		'noresources\sql\structureresolver' => 'src/Structure/Resolver.php',

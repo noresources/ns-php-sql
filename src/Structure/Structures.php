@@ -264,14 +264,14 @@ abstract class StructureElement implements \ArrayAccess, \IteratorAggregate, \Co
 /**
  * Table column properties
  */
-class TableColumnStructure extends StructureElement
+class TableColumnStructure extends StructureElement implements ColumnPropertyMap
 {
 
 	const DATATYPE = K::COLUMN_PROPERTY_DATA_TYPE;
 
-	const AUTO_INCREMENT = K::COLUMN_PROPERTY_AUTOINCREMENT;
+	const AUTO_INCREMENT = K::COLUMN_PROPERTY_AUTO_INCREMENT;
 
-	const ACCEPT_NULL = K::COLUMN_PROPERTY_NULL;
+	const ACCEPT_NULL = K::COLUMN_PROPERTY_ACCEPT_NULL;
 
 	const DATA_SIZE = K::COLUMN_PROPERTY_DATA_SIZE;
 
@@ -281,39 +281,12 @@ class TableColumnStructure extends StructureElement
 
 	const DEFAULT_VALUE = K::COLUMN_PROPERTY_DEFAULT_VALUE;
 
+	use ColumnPropertyMapTrait;
+
 	public function __construct(/*TableStructure */$a_tableStructure, $name)
 	{
 		parent::__construct($name, $a_tableStructure);
-		$this->m_columnProperties = [
-			self::ACCEPT_NULL => [
-				'set' => true,
-				'value' => true
-			],
-			self::AUTO_INCREMENT => [
-				'set' => true,
-				'value' => false
-			],
-			self::FRACTION_DIGIT_COUNT => [
-				'set' => true,
-				'value' => 0
-			],
-			self::DATA_SIZE => [
-				'set' => false,
-				'value' => 0
-			],
-			self::DATATYPE => [
-				'set' => true,
-				'value' => K::DATATYPE_STRING
-			],
-			self::ENUMERATION => [
-				'set' => false,
-				'value' => null
-			],
-			self::DEFAULT_VALUE => [
-				'set' => false,
-				'value' => null
-			]
-		];
+		$this->initializeColumnProperties();
 	}
 
 	/**
@@ -322,65 +295,12 @@ class TableColumnStructure extends StructureElement
 	public function __clone()
 	{
 		parent::__clone();
-		if ($this->hasProperty(self::DEFAULT_VALUE))
+		if ($this->hasColumnProperty(self::DEFAULT_VALUE))
 		{
-			$this->setProperty(self::DEFAULT_VALUE, clone $this->getProperty(self::DEFAULT_VALUE));
+			$this->setColumnProperty(self::DEFAULT_VALUE,
+				clone $this->getColumnProperty(self::DEFAULT_VALUE));
 		}
 	}
-
-	/**
-	 * Get column properties
-	 *
-	 * @return array
-	 */
-	public function getProperties()
-	{
-		$a = [];
-		foreach ($this->m_columnProperties as $key => $property)
-		{
-			if ($property['set'])
-				$a[$key] = $property['value'];
-		}
-
-		return $a;
-	}
-
-	/**
-	 *
-	 * @param string $key
-	 * @return boolean
-	 */
-	public function hasProperty($key)
-	{
-		return (\array_key_exists($key, $this->m_columnProperties) &&
-			$this->m_columnProperties[$key]['set']);
-	}
-
-	/**
-	 *
-	 * @param integer $key
-	 *        	Property
-	 * @return boolean|number|NULL|string
-	 */
-	public function getProperty($key)
-	{
-		return $this->m_columnProperties[$key]['value'];
-	}
-
-	public function setProperty($key, $a_value)
-	{
-		if (\array_key_exists($key, $this->m_columnProperties))
-		{
-			$this->m_columnProperties[$key]['set'] = true;
-			$this->m_columnProperties[$key]['value'] = $a_value;
-		}
-	}
-
-	/**
-	 *
-	 * @var array
-	 */
-	private $m_columnProperties;
 }
 
 /**

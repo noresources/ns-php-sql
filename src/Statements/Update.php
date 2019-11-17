@@ -90,8 +90,8 @@ class UpdateQuery extends Statement implements \ArrayAccess
 			if (!($value instanceof Expression))
 			{
 				$type = K::DATATYPE_UNDEFINED;
-				if ($column->hasProperty(K::COLUMN_PROPERTY_DATA_TYPE))
-					$type = $column->getProperty(K::COLUMN_PROPERTY_DATA_TYPE);
+				if ($column->hasColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE))
+					$type = $column->getColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE);
 
 				$value = new LiteralExpression($value, $type);
 			}

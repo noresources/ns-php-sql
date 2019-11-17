@@ -173,7 +173,7 @@ class JSONStructureSerializer extends StructureSerializer implements \JsonSerial
 	private function serializeTableColumn(TableColumnStructure $structure)
 	{
 		$properties = [];
-		foreach ($structure->getProperties() as $key => $value)
+		foreach ($structure->getColumnProperties() as $key => $value)
 		{
 			$properties[$key] = $value;
 		}
@@ -195,6 +195,7 @@ class XMLStructureSerializer extends StructureSerializer
 	public function __construct(StructureElement $element = null)
 	{
 		parent::__construct($element);
+		$this->schemaVersion = new ns\SemanticVersion('2.0.0');
 	}
 
 	public function serialize()
@@ -242,6 +243,23 @@ class XMLStructureSerializer extends StructureSerializer
 		}
 
 		$document->xinclude();
+
+		$xpath = new \DOMXPath($document);
+		$validDocument = false;
+		foreach ($xpath->query('namespace::*', $document->documentElement) as $node)
+		{
+			if (strpos($node->nodeValue, K::XML_NAMESPACE_URI) === 0)
+			{
+				$validDocument = true;
+				$version = trim(trim(substr($node->nodeValue, strlen(K::XML_NAMESPACE_URI))), '/');
+				if (strlen($version) == 0)
+					$version = '1.0.0';
+				$this->schemaVersion = new ns\SemanticVersion($version);
+			}
+		}
+
+		if (!$validDocument)
+			throw new StructureException('Invalid XML document. Schema namespace not found');
 
 		if ($document->documentElement->localName == K::XML_ELEMENT_DATASOURCE)
 		{
@@ -363,7 +381,7 @@ class XMLStructureSerializer extends StructureSerializer
 		$notNullNode = self::getSingleElementByTagName($node, 'notnull');
 		if ($notNullNode instanceof \DOMNode)
 		{
-			$structure->setProperty(K::COLUMN_PROPERTY_NULL, false);
+			$structure->setColumnProperty(K::COLUMN_PROPERTY_ACCEPT_NULL, false);
 		}
 
 		$type = K::DATATYPE_UNDEFINED;
@@ -396,17 +414,17 @@ class XMLStructureSerializer extends StructureSerializer
 			$type = K::DATATYPE_INTEGER;
 			if ($typeNode->hasAttribute('autoincrement'))
 			{
-				$structure->setProperty(K::COLUMN_PROPERTY_AUTOINCREMENT, true);
+				$structure->setColumnProperty(K::COLUMN_PROPERTY_AUTO_INCREMENT, true);
 			}
 			if ($typeNode->hasAttribute('length'))
 			{
-				$structure->setProperty(K::COLUMN_PROPERTY_DATA_SIZE,
+				$structure->setColumnProperty(K::COLUMN_PROPERTY_DATA_SIZE,
 					intval($typeNode->getAttribute('length')));
 			}
 			if ($typeNode->hasAttribute('decimals'))
 			{
 				$count = intval($typeNode->getAttribute('decimals'));
-				$structure->setProperty(K::COLUMN_PROPERTY_FRACTION_DIGIT_COUNT, $count);
+				$structure->setColumnProperty(K::COLUMN_PROPERTY_FRACTION_DIGIT_COUNT, $count);
 				if ($count > 0)
 				{
 					$type = K::DATATYPE_FLOAT;
@@ -415,7 +433,7 @@ class XMLStructureSerializer extends StructureSerializer
 		}
 
 		if ($type != K::DATATYPE_UNDEFINED)
-			$structure->setProperty(K::COLUMN_PROPERTY_DATA_TYPE, $type);
+			$structure->setColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE, $type);
 
 		$defaultNode = self::getSingleElementByTagName($node, 'default');
 		if ($defaultNode instanceof \DOMElement)
@@ -489,7 +507,7 @@ class XMLStructureSerializer extends StructureSerializer
 					$value = X::literal($value, $valueType);
 				}
 
-				$structure->setProperty(K::COLUMN_PROPERTY_DEFAULT_VALUE, $value);
+				$structure->setColumnProperty(K::COLUMN_PROPERTY_DEFAULT_VALUE, $value);
 
 				break;
 			} // for each default value type
@@ -640,6 +658,12 @@ class XMLStructureSerializer extends StructureSerializer
 	private $foreignKeys;
 
 	private $identifiedElements;
+
+	/**
+	 *
+	 * @var \NoreSources\SemanticVersion
+	 */
+	private $schemaVersion;
 }
 
 class StructureSerializerFactory

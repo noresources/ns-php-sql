@@ -239,7 +239,7 @@ abstract class StatementBuilder
 		if ($expression instanceof ColumnExpression)
 		{
 			$column = $resolver->findColumn($expression->path);
-			return $column->getProperty(TableColumnStructure::DATATYPE);
+			return $column->getColumnProperty(TableColumnStructure::DATATYPE);
 		}
 		else 
 			if ($expression instanceof UnaryOperatorExpression)

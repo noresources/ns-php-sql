@@ -49,25 +49,53 @@ class Constants
 	const DATATYPE_NUMBER = 0x0c;
 
 	/**
+	 * Date part of a timestamp type
+	 *
+	 * @var integer
+	 */
+	const DATATYPE_DATE = 0x10;
+
+	/**
+	 * Time part or a timestamp type
+	 *
+	 * @var integer
+	 */
+	const DATATYPE_TIME = 0x20;
+
+	/**
+	 * Date & time part of a timestamp
+	 *
+	 * @var integer
+	 */
+	const DATATYPE_DATETIME = 0x30;
+
+	/**
+	 * Time with timezone
+	 *
+	 * @var integer
+	 */
+	const DATATYPE_TIMEZONE = 0x60;
+
+	/**
 	 * A string representing a Time stamp
 	 *
 	 * @var integer
 	 */
-	const DATATYPE_TIMESTAMP = 0x10;
+	const DATATYPE_TIMESTAMP = 0x70;
 
 	/**
 	 * Boolean value type
 	 *
 	 * @var integer
 	 */
-	const DATATYPE_BOOLEAN = 0x20;
+	const DATATYPE_BOOLEAN = 0x80;
 
 	/**
 	 * Binary value type
 	 *
 	 * @var integer
 	 */
-	const DATATYPE_BINARY = 0x40;
+	const DATATYPE_BINARY = 0x100;
 
 	// DBMS connection settings
 
@@ -146,13 +174,13 @@ class Constants
 	 * The column value is auto-incremented (integer column type only).
 	 * Value type: boolean
 	 */
-	const COLUMN_PROPERTY_AUTOINCREMENT = 'autoincrement';
+	const COLUMN_PROPERTY_AUTO_INCREMENT = 'autoincrement';
 
 	/**
 	 * The column accepts null values.
 	 * Value type: boolean
 	 */
-	const COLUMN_PROPERTY_NULL = 'null';
+	const COLUMN_PROPERTY_ACCEPT_NULL = 'null';
 
 	/**
 	 * Data size.
@@ -363,7 +391,7 @@ class Constants
 	const RECORDSET_PUBLIC_FLAGS = 0x07;
 
 	/**
-	 * SQL structure description XML namespace URI
+	 * SQL structure description XML namespace URI prefix
 	 *
 	 * @var string
 	 */
