@@ -8,6 +8,21 @@ use NoreSources as ns;
 use NoreSources\SQL as sql;
 use NoreSources\SQL\SQLite\Constants as K;
 
+class ConnectionException extends sql\ConnectionException
+{
+
+	public function __construct(Connection $connection, $message, $code = null)
+	{
+		if ($code === null)
+		{
+			$code = $connection->sqliteConnection->lastErrorCode();
+			if ($code != 0)
+				$message .= ' (' . $connection->sqliteConnection->lastErrorMsg() . ')';
+		}
+		parent::__construct($connection, $message, $code);
+	}
+}
+
 /**
  * SQLite connection
  */
@@ -15,29 +30,29 @@ class Connection implements sql\Connection
 {
 	use sql\ConnectionStructureTrait;
 
-/**
- * Special in-memory database name
- *
- * @see https://www.sqlite.org/inmemorydb.html
- *
- * @var string
- */
-const SOURCE_MEMORY = ':memory:';
+	/**
+	 * Special in-memory database name
+	 *
+	 * @see https://www.sqlite.org/inmemorydb.html
+	 *
+	 * @var string
+	 */
+	const SOURCE_MEMORY = ':memory:';
 
-/**
- * Temporary database.
- *
- * @see https://www.sqlite.org/inmemorydb.html
- * @var string
- */
-const SOURCE_TEMPORARY = '';
+	/**
+	 * Temporary database.
+	 *
+	 * @see https://www.sqlite.org/inmemorydb.html
+	 * @var string
+	 */
+	const SOURCE_TEMPORARY = '';
 
-/**
- * The default tableset name
- *
- * @var string
- */
-const TABLESET_NAME_DEFAULT = 'main';
+	/**
+	 * The default tableset name
+	 *
+	 * @var string
+	 */
+	const TABLESET_NAME_DEFAULT = 'main';
 
 	public function __construct()
 	{
@@ -49,6 +64,14 @@ const TABLESET_NAME_DEFAULT = 'main';
 	{
 		if ($this->connection instanceof \SQLite3)
 			$this->disconnect();
+	}
+
+	public function __get($member)
+	{
+		if ($member == 'sqliteConnection')
+			return $this->connection;
+
+		return parent::__get($key);
 	}
 
 	public function beginTransation()
@@ -167,13 +190,17 @@ const TABLESET_NAME_DEFAULT = 'main';
 
 			if ($attach)
 			{
-				$this->connection->exec($sql);
+				$result = @$this->connection->exec($sql);
+				if ($result === false)
+					throw new ConnectionException($this, 'Failed to attach database');
 			}
 		}
 
 		foreach ($pragmas as $pragma => $value)
 		{
-			$this->connection->exec('PRAGMA ' . $pragma . '=' . $value);
+			$result = $this->connection->exec('PRAGMA ' . $pragma . '=' . $value);
+			if ($result === false)
+				throw new ConnectionException($this, 'Failed to set ' . $pragma . ' pragma');
 		}
 
 		if (ns\Container::keyExists($parameters, K::CONNECTION_PARAMETER_STRUCTURE))
@@ -265,15 +292,19 @@ const TABLESET_NAME_DEFAULT = 'main';
 					throw new sql\ConnectionException($this, 'Failed to bind "' . $name . '"');
 			}
 
-			$result = $stmt->execute();
+			$result = @$stmt->execute();
 		}
 		else
 		{
 			if ($statementType != K::QUERY_SELECT)
-				$result = $this->connection->exec(strval($statement));
+				$result = @$this->connection->exec(strval($statement));
 			else
-				$result = $this->connection->query(strval($statement));
+				$result = @$this->connection->query(strval($statement));
 		}
+
+		if ($result === false)
+			throw new ConnectionException($this,
+				'Failed to execute statement of type ' . $statementType);
 
 		if ($statementType & K::QUERY_FAMILY_ROWMODIFICATION)
 		{
@@ -301,13 +332,7 @@ const TABLESET_NAME_DEFAULT = 'main';
 			return (($result instanceof \SQLite3Result) || $result);
 		}
 
-		$info = [
-			'Statement type' => $statementType,
-			'code' => $this->connection->lastErrorCode(),
-			'error' => $this->connection->lastErrorMsg()
-		];
-
-		throw new sql\ConnectionException($this, 'Failed to execute: ' . var_export($info, true));
+		throw new ConnectionException($this, 'Failed to execute statement of type ' . $statementType);
 	}
 
 	/**
