@@ -105,6 +105,7 @@ final class UpdateTest extends TestCase
 		$builder = new Reference\StatementBuilder();
 		$context = new StatementContext($builder);
 		$context->setPivot($tableStructure);
+
 		$q = new UpdateQuery($tableStructure);
 
 		$q->set('salary', 'salary * 2', true);
@@ -123,6 +124,38 @@ final class UpdateTest extends TestCase
 				'id',
 				4,
 				5
+			]
+		]);
+
+		$stream = new TokenStream();
+		$q->tokenize($stream, $context);
+		$result = $builder->finalize($stream, $context);
+
+		$this->assertEquals($context, $result, 'builder::finalize() result');
+
+		$sql = \SqlFormatter::format($result, false);
+
+		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, null, 'sql');
+	}
+
+	public function testUpdateCompanyEmployees2()
+	{
+		$structure = $this->datasources->get('Company');
+		$tableStructure = $structure['ns_unittests']['Employees'];
+		$this->assertInstanceOf(TableStructure::class, $tableStructure);
+		$builder = new Reference\StatementBuilder();
+		$context = new StatementContext($builder);
+		$context->setPivot($tableStructure);
+
+		$q = new UpdateQuery($tableStructure);
+
+		$q('salary', 'salary + 100');
+		$q->where([
+			'gender' => "'F'"
+		], [
+			'<' => [
+				'salary',
+				1000
 			]
 		]);
 
