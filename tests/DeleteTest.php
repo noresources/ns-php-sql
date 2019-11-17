@@ -25,7 +25,10 @@ final class DeleteTest extends TestCase
 		$context->setPivot($tableStructure);
 		$q = new DeleteQuery($tableStructure);
 
-		$q->where('id=1', "name='to be deleted'");
+		$q->where([
+			// Short form
+			'id' => 1
+		], "name='to be deleted'");
 
 		$stream = new TokenStream();
 		$q->tokenize($stream, $context);

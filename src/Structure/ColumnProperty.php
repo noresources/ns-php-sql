@@ -32,6 +32,13 @@ interface ColumnPropertyMap
 	 * @param mixed $value
 	 */
 	function setColumnProperty($key, $value);
+
+	/**
+	 * Remove a column property
+	 *
+	 * @param string $key
+	 */
+	function removeColumnProperty($key);
 }
 
 trait ColumnPropertyMapTrait
@@ -106,6 +113,17 @@ trait ColumnPropertyMapTrait
 		{
 			$this->columnProperties[$key]['set'] = true;
 			$this->columnProperties[$key]['value'] = $value;
+		}
+		else
+			throw new \DomainException('Invalid column property key ' . $key);
+	}
+
+	public function removeColumnProperty($key)
+	{
+		if (ns\Container::keyExists($this->columnProperties, $key))
+		{
+			$this->columnProperties[$key]['set'] = false;
+			$this->columnProperties[$key]['value'] = null;
 		}
 		else
 			throw new \DomainException('Invalid column property key ' . $key);
