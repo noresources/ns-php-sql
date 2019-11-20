@@ -685,23 +685,34 @@ class XMLStructureSerializer extends StructureSerializer
 				}
 
 				$fk->addColumn($name, $foreignColumnName);
+			}
 
-				$events = [
-					'onUpdate',
-					'onDelete'
-				];
+			$events = [
+				'onUpdate',
+				'onDelete'
+			];
 
-				$actions = [
-					'cascade' => K::FOREIGN_KEY_ACTION_CASCADE,
-					'restrict' => K::FOREIGN_KEY_ACTION_RESTRICT,
-					'default' => K::FOREIGN_KEY_ACTION_SET_DEFAULT,
-					'null' => K::FOREIGN_KEY_ACTION_SET_NULL
-				];
+			$actions = [
+				'cascade' => K::FOREIGN_KEY_ACTION_CASCADE,
+				'restrict' => K::FOREIGN_KEY_ACTION_RESTRICT,
+				'default' => K::FOREIGN_KEY_ACTION_SET_DEFAULT,
+				'null' => K::FOREIGN_KEY_ACTION_SET_NULL
+			];
 
+			$actionsNode = $referenceNode;
+			if ($this->schemaVersion->getIntegerValue() >= 20000)
+			{
+				$actionsNode = self::getSingleElementByTagName($this->schemaNamespaceURI, $fkNode,
+					'actions');
+			}
+
+			if ($actionsNode)
+			{
 				foreach ($events as $event)
 				{
-					$eventNode = self::getSingleElementByTagName($this->schemaNamespaceURI, $fkNode,
-						strtolower($event));
+
+					$eventNode = self::getSingleElementByTagName($this->schemaNamespaceURI,
+						$actionsNode, strtolower($event));
 					if ($eventNode)
 					{
 						$action = $eventNode->getAttribute('action');

@@ -31,8 +31,8 @@ final class CreateTableTest extends TestCase
 			$q = new CreateTableQuery($tableStructure);
 			$stream = new TokenStream();
 			$q->tokenize($stream, $context);
-			$sql = $builder->finalize($stream, $context);
-			$sql = \SqlFormatter::format(strval($sql), false);
+			$result = $builder->finalize($stream, $context);
+			$sql = \SqlFormatter::format(strval($result), false);
 			$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, $tableName, 'sql',
 				$tableName . ' SQL');
 		}

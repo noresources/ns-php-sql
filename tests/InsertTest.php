@@ -2,6 +2,7 @@
 namespace NoreSources\SQL;
 
 use PHPUnit\Framework\TestCase;
+use NoreSources as ns;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\ExpressionEvaluator as X;
 
@@ -37,11 +38,9 @@ final class InsertTest extends TestCase
 
 			$stream = new TokenStream();
 			$q->tokenize($stream, $context);
-			$sql = $builder->finalize($stream, $context);
-
-			//$sql = $q->buildExpression($context);
-
-			$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, $key, 'sql');
+			$result = $builder->finalize($stream, $context);
+			$this->assertInstanceOf(StatementOutputData::class, $result, 'Result is (at least) a StatementOutputData');
+			$this->derivedFileManager->assertDerivedFile(strval($result), __METHOD__, $key, 'sql');
 		}
 	}
 
@@ -109,10 +108,8 @@ final class InsertTest extends TestCase
 
 			$stream = new TokenStream();
 			$q->tokenize($stream, $context);
-			$sql = $builder->finalize($stream, $context);
-			//$sql = $q->buildExpression($context);
-
-			$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, $key, 'sql');
+			$result = $builder->finalize($stream, $context);
+			$this->derivedFileManager->assertDerivedFile(strval($result), __METHOD__, $key, 'sql');
 		}
 	}
 
