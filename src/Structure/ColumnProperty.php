@@ -126,23 +126,11 @@ class ColumnPropertyDefault
 		self::$defaultValues = [
 			K::COLUMN_PROPERTY_ACCEPT_NULL => true,
 			K::COLUMN_PROPERTY_AUTO_INCREMENT => false,
-			K::COLUMN_PROPERTY_FRACTION_DIGIT_COUNT => [
-				'set' => true,
-				'value' => 0
-			],
-			K::COLUMN_PROPERTY_DATA_SIZE => [
-				'set' => false,
-				'value' => 0
-			],
+			K::COLUMN_PROPERTY_FRACTION_DIGIT_COUNT => 0,
+			K::COLUMN_PROPERTY_DATA_SIZE => 0,
 			K::COLUMN_PROPERTY_DATA_TYPE => K::DATATYPE_STRING,
-			K::COLUMN_PROPERTY_ENUMERATION => [
-				'set' => false,
-				'value' => null
-			],
-			K::COLUMN_PROPERTY_DEFAULT_VALUE => [
-				'set' => false,
-				'value' => null
-			]
+			K::COLUMN_PROPERTY_ENUMERATION => null,
+			K::COLUMN_PROPERTY_DEFAULT_VALUE => null
 		];
 	}
 
