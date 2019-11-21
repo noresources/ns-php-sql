@@ -78,7 +78,7 @@ class Connection implements sql\Connection
 	 *        	<li>CONNECTION_PARAMETER_PASSWORD</li>
 	 *        	<li>CONNECTION_PARAMETER_OPTIONS</li>
 	 *        	</ul>
-	 *
+	 *        	
 	 */
 	public function connect($parameters)
 	{

@@ -191,7 +191,7 @@ class ConnectionHelper
 	 * @param StructureElement $reference
 	 *        	Pivot StructureElement
 	 * @return string SQL string in the DBMS dialect
-	 *
+	 *        
 	 * @note This method does not provide any informations about statement parameters or result column types.
 	 * Tf these information are needed, use ConnectionHelper::prepareStatement()
 	 */
