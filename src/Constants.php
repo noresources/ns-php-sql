@@ -207,6 +207,13 @@ class Constants
 	 */
 	const COLUMN_PROPERTY_DEFAULT_VALUE = 'default';
 
+	/**
+	 * Define a custom deta unserializer for a column
+	 *
+	 * @var string
+	 */
+	const COLUMN_PROPERTY_UNSERIALIZER = 'unserializer';
+
 	// JOIN operator
 	const JOIN_NATURAL = 0x01;
 

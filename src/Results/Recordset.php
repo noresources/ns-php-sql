@@ -33,7 +33,7 @@ class RecordsetException extends \ErrorException
  * Recordset query result
  */
 abstract class Recordset implements \Iterator, StatementOutputData, QueryResult, ns\ArrayConversion,
-	\JsonSerializable
+	\JsonSerializable, DataUnserializer
 {
 
 	use StatementOutputDataTrait;
@@ -211,6 +211,29 @@ abstract class Recordset implements \Iterator, StatementOutputData, QueryResult,
 		}
 	}
 
+	public function unserializeData($column, $data)
+	{
+		$type = K::DATATYPE_UNDEFINED;
+		if ($column->hasColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE))
+			$type = $column->getColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE);
+
+		if ($type == K::DATATYPE_BOOLEAN)
+			$data = ns\TypeConversion::toBoolean($data);
+		elseif ($type & K::DATATYPE_TIMESTAMP)
+			$data = ns\TypeConversion::toDateTime($data);
+		elseif ($type & K::DATATYPE_NUMBER)
+		{
+			if ($type & K::DATATYPE_FLOAT)
+				$data = ns\TypeConversion::toFloat($data);
+			else
+				$data = ns\TypeConversion::toInteger($data);
+		}
+		elseif ($type == K::DATATYPE_NULL)
+			$data = null;
+
+		return $data;
+	}
+
 	protected function __construct($data = null)
 	{
 		$this->initializeStatementOutputData($data);
@@ -269,21 +292,19 @@ abstract class Recordset implements \Iterator, StatementOutputData, QueryResult,
 
 			foreach ($this->internalRecord as $index => $value)
 			{
+				$column = $this->resultColumns->getColumn($index);
 				if ($this->flags & self::FETCH_UNSERIALIZE)
 				{
-				/**
-				 *
-				 * @todo unserialize if needed
-				 */
+					$u = $this;
+					if ($column->hasColumnProperty(K::COLUMN_PROPERTY_UNSERIALIZER))
+						$u = $column->getColumnProperty(K::COLUMN_PROPERTY_UNSERIALIZER);
+					$value = $u->unserializeData($column, $value);
 				}
 
 				if ($this->flags & self::FETCH_INDEXED)
 					$this->record[$index] = $value;
 				if ($this->flags & self::FETCH_ASSOCIATIVE)
-				{
-					$column = $this->resultColumns->getColumn($index);
 					$this->record[$column->name] = $value;
-				}
 			}
 		}
 	}

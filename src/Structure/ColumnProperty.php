@@ -80,7 +80,7 @@ trait ColumnPropertyMapTrait
 
 	public function setColumnProperty($key, $value)
 	{
-		if (!ColumnPropertyDefault::isValid($key))
+		if (!ColumnPropertyDefault::isValidKey($key))
 			throw new \DomainException('Invalid column property key ' . $key);
 
 		$this->columnProperties[$key] = $value;
@@ -102,12 +102,30 @@ trait ColumnPropertyMapTrait
 class ColumnPropertyDefault
 {
 
-	public static function isValid($key)
+	public static function isValidKey($key)
 	{
 		if (self::$defaultValues == null)
 			self::initialize();
 
 		return \array_key_exists($key, self::$defaultValues);
+	}
+
+	public static function isValidValue($key, $value)
+	{
+		if (self::$defaultValues == null)
+			self::initialize();
+
+		switch ($key)
+		{
+			case K::COLUMN_PROPERTY_UNSERIALIZER:
+				return ($value instanceof DataUnserializer);
+			case K::COLUMN_PROPERTY_DATA_TYPE:
+			case K::COLUMN_PROPERTY_DATA_SIZE:
+			case K::COLUMN_PROPERTY_FRACTION_DIGIT_COUNT:
+				return is_int($value);
+		}
+
+		return true;
 	}
 
 	public static function get($key)

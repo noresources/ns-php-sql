@@ -5,6 +5,7 @@ use NoreSources\SQL\SQLite as SQLite;
 use PHPUnit\Framework\TestCase;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\ExpressionEvaluator as X;
+use NoreSources as ns;
 
 final class SQLiteTest extends TestCase
 {
@@ -18,6 +19,49 @@ final class SQLiteTest extends TestCase
 		$this->createdTables = new \ArrayObject();
 	}
 
+	public function testUnserialize()
+	{
+		$structure = $this->datasources->get('types');
+		$tableStructure = $structure['ns_unittests']['types'];
+		$this->assertInstanceOf(TableStructure::class, $tableStructure);
+
+		$this->assertTrue($this->createDatabase(), 'Create SQLite file');
+
+		$this->assertTrue($this->createTable($tableStructure),
+			'Create table ' . $tableStructure->getPath());
+
+		// Default values
+		$statement = new InsertQuery($tableStructure);
+
+		$prepared = ConnectionHelper::prepareStatement($this->connection, $statement,
+			$tableStructure);
+
+		$sql = \SqlFormatter::format(strval(strval($prepared)), false);
+		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, 'insert', 'sql');
+
+		$result = $this->connection->executeStatement($prepared);
+		$this->assertInstanceOf(InsertionQueryResult::class, $result);
+
+		$selectStatement = new SelectQuery($tableStructure);
+		$selectPrepared = ConnectionHelper::prepareStatement($this->connection, $selectStatement,
+			$tableStructure);
+
+		$result = $this->connection->executeStatement($selectPrepared);
+		$this->assertInstanceOf(Recordset::class, $result);
+
+		$result->setFlags(Recordset::FETCH_ASSOCIATIVE | Recordset::FETCH_UNSERIALIZE);
+		$records = $result->getArrayCopy();
+
+		$this->assertCount(1, $records);
+
+		$record = $records[0];
+
+		$this->assertEquals('integer', ns\TypeDescription::getName($record['int']));
+		$this->assertEquals('double', ns\TypeDescription::getName($record['float']));
+		$this->assertInstanceOf(\DateTime::class, $record['timestamp']);
+		$this->assertEquals('boolean', ns\TypeDescription::getName($record['boolean']));
+	}
+
 	public function testParametersEmployees()
 	{
 		$structure = $this->datasources->get('Company');
@@ -28,8 +72,6 @@ final class SQLiteTest extends TestCase
 
 		$this->assertTrue($this->createTable($tableStructure),
 			'Create table ' . $tableStructure->getPath());
-
-		//$this->assertTrue(false, 'Abort');
 
 		$statement = new InsertQuery($tableStructure);
 		$statement['gender'] = 'M';
@@ -58,7 +100,6 @@ final class SQLiteTest extends TestCase
 		$result = $this->connection->executeStatement($prepared, $p);
 		$this->assertInstanceOf(InsertionQueryResult::class, $result);
 
-		// Statement without column specs -> *
 		$statement = new SelectQuery($tableStructure);
 
 		$prepared = ConnectionHelper::prepareStatement($this->connection, $statement,
@@ -188,7 +229,8 @@ final class SQLiteTest extends TestCase
 
 		$sql = strval($prepared);
 		$sql = \SqlFormatter::format(strval($sql), false);
-		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, 'create', 'sql');
+		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__,
+			'create_' . $tableStructure->getName(), 'sql');
 
 		$this->connection->executeStatement($prepared);
 

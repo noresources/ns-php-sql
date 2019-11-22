@@ -248,6 +248,13 @@ class Connection implements sql\Connection
 		if (!($this->connection instanceof \SQLite3))
 			throw new sql\ConnectionException($this, 'Not connected');
 
+		if (!($statement instanceof PreparedStatement ||
+			ns\TypeDescription::hasStringConversion($statement)))
+			throw new sql\ConnectionException($this,
+				'Invalid statement type ' . ns\TypeDescription::getName($statement) .
+				'. Expect PreparedStatement or stringifiable');
+		;
+
 		$result = null;
 		$statementType = sql\Statement::statementTypeFromData($statement);
 
