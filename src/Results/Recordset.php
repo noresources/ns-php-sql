@@ -211,7 +211,7 @@ abstract class Recordset implements \Iterator, StatementOutputData, QueryResult,
 		}
 	}
 
-	public function unserializeData($column, $data)
+	public function unserializeColumnData(ColumnPropertyMap $column, $data)
 	{
 		$type = K::DATATYPE_UNDEFINED;
 		if ($column->hasColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE))
@@ -298,7 +298,7 @@ abstract class Recordset implements \Iterator, StatementOutputData, QueryResult,
 					$u = $this;
 					if ($column->hasColumnProperty(K::COLUMN_PROPERTY_UNSERIALIZER))
 						$u = $column->getColumnProperty(K::COLUMN_PROPERTY_UNSERIALIZER);
-					$value = $u->unserializeData($column, $value);
+					$value = $u->unserializeColumnData($column, $value);
 				}
 
 				if ($this->flags & self::FETCH_INDEXED)
