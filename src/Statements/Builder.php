@@ -118,7 +118,7 @@ abstract class StatementBuilder
 				$s .= 'OUTER ';
 			}
 		}
-		else 
+		else
 			if (($joinTypeFlags & K::JOIN_RIGHT) == K::JOIN_RIGHT)
 			{
 				$s . 'RIGHT ';
@@ -127,12 +127,12 @@ abstract class StatementBuilder
 					$s .= 'OUTER ';
 				}
 			}
-			else 
+			else
 				if (($joinTypeFlags & K::JOIN_CROSS) == K::JOIN_CROSS)
 				{
 					$s .= 'CROSS ';
 				}
-				else 
+				else
 					if (($joinTypeFlags & K::JOIN_INNER) == K::JOIN_INNER)
 					{
 						$s .= 'INNER ';
@@ -241,7 +241,7 @@ abstract class StatementBuilder
 			$column = $resolver->findColumn($expression->path);
 			return $column->getColumnProperty(TableColumnStructure::DATATYPE);
 		}
-		else 
+		else
 			if ($expression instanceof UnaryOperatorExpression)
 			{
 				$operator = strtolower(trim($expression->operator));
@@ -284,11 +284,6 @@ abstract class StatementBuilder
 
 		if ($type == K::DATATYPE_BOOLEAN)
 			return $this->getKeyword(($value) ? K::KEYWORD_TRUE : K::KEYWORD_FALSE);
-
-		if (ns\DateTime::isDateTimeStateArray($value))
-		{
-			$value = ns\DateTIme::createFromArray($value);
-		}
 
 		if ($value instanceof \DateTime)
 		{
