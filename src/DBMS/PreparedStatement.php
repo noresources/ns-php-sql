@@ -8,7 +8,7 @@ use NoreSources\SQL\Constants as K;
  * A list of parameter values to pass to the Connection::executeStatement() method
  * alongside a statement with parameters
  */
-class ParameterArray implements \IteratorAggregate, \ArrayAccess, \Countable, ns\ArrayConversion
+class ParameterArray implements \IteratorAggregate, \ArrayAccess, \Countable, ns\ArrayRepresentation
 {
 
 	const VALUE = 'value';

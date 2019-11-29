@@ -32,7 +32,7 @@ class RecordsetException extends \ErrorException
 /**
  * Recordset query result
  */
-abstract class Recordset implements \Iterator, StatementOutputData, QueryResult, ns\ArrayConversion,
+abstract class Recordset implements \Iterator, StatementOutputData, QueryResult, ns\ArrayRepresentation,
 	\JsonSerializable, DataUnserializer
 {
 
