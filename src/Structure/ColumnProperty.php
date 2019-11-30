@@ -99,6 +99,17 @@ trait ColumnPropertyMapTrait
 	private $columnProperties;
 }
 
+class ArrayColumnPropertyMap implements ColumnPropertyMap
+{
+	use ColumnPropertyMapTrait;
+
+	public function __construct($properties = array())
+	{
+		$this->initializeColumnProperties($properties);
+		;
+	}
+}
+
 class ColumnPropertyDefault
 {
 

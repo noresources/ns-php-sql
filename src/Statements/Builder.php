@@ -8,7 +8,7 @@ use NoreSources\SQL\PDO\Constants;
 /**
  * Build a SQL statement string to be used in a SQL engine
  */
-abstract class StatementBuilder
+abstract class StatementBuilder implements DataSerializer
 {
 
 	/**
@@ -242,64 +242,20 @@ abstract class StatementBuilder
 		return $s;
 	}
 
-	/**
-	 * Find the kind of data returned by the given expression.
-	 *
-	 * @param Expression $expression
-	 * @param StructureResolver $resolver
-	 * @return number|boolean|number|NULL|string|string
-	 */
-	public function resolveExpressionType(Expression $expression, StructureResolver $resolver)
+	public function serializeColumnData(ColumnPropertyMap $column, $value)
 	{
-		$type = $expression->getExpressionDataType();
-		if ($type != K::DATATYPE_UNDEFINED)
+		$type = K::DATATYPE_UNDEFINED;
+		if ($column->hasColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE))
+			$type = $column->getColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE);
+
+		$mediaType = null;
+		if ($column->hasColumnProperty(K::COLUMN_PROPERTY_MEDIA_TYPE))
 		{
-			return $type;
+			$mediaType = $column->getColumnProperty(K::COLUMN_PROPERTY_MEDIA_TYPE);
+			if (!($mediaType instanceof ns\MediaType))
+				$mediaType = new ns\MediaType($mediaType);
 		}
 
-		if ($expression instanceof ColumnExpression)
-		{
-			$column = $resolver->findColumn($expression->path);
-			return $column->getColumnProperty(TableColumnStructure::DATATYPE);
-		}
-		else
-			if ($expression instanceof UnaryOperatorExpression)
-			{
-				$operator = strtolower(trim($expression->operator));
-				switch ($operator)
-				{
-					case 'not':
-					case 'is':
-						return K::DATATYPE_BOOLEAN;
-				}
-			}
-			elseif ($expression instanceof BinaryOperatorExpression)
-			{
-				$operator = strtolower(trim($expression->operator));
-				switch ($operator)
-				{
-					case '==':
-					case '=':
-					case '!=':
-					case '<>':
-						return K::DATATYPE_BOOLEAN;
-				}
-			}
-
-		return $type;
-	}
-
-	/**
-	 * Escape literal value
-	 *
-	 * @param mixed $value
-	 *        	Literal value
-	 * @param integer $type
-	 *        	Value type
-	 * @return string
-	 */
-	public function getLiteral($value, $type)
-	{
 		if ($type == K::DATATYPE_NULL)
 			return $this->getKeyword(K::KEYWORD_NULL);
 

@@ -55,17 +55,50 @@ final class ExpressionEvaluatorTest extends TestCase
 	public function testLiterals()
 	{
 		$list = [
-				'true string' => ['true', K::DATATYPE_BOOLEAN],
-				'true' => [true, K::DATATYPE_BOOLEAN],
-				'false string' => ['false', K::DATATYPE_BOOLEAN],
-				'false' => [false, K::DATATYPE_BOOLEAN],
-				'null string' => ['null', K::DATATYPE_NULL],
-				'null' => [null, K::DATATYPE_NULL],
-				'int string' => ['123', K::DATATYPE_INTEGER],
-				'int' => [123, K::DATATYPE_INTEGER],
-				'float string' => ['456.789', K::DATATYPE_FLOAT],
-				'float' => [456.789, K::DATATYPE_FLOAT],
-				'timestamp' => ['#2012-12-24T16:30:58+01:00#', K::DATATYPE_TIMESTAMP]
+			'true string' => [
+				'true',
+				K::DATATYPE_BOOLEAN
+			],
+			'true' => [
+				true,
+				K::DATATYPE_BOOLEAN
+			],
+			'false string' => [
+				'false',
+				K::DATATYPE_BOOLEAN
+			],
+			'false' => [
+				false,
+				K::DATATYPE_BOOLEAN
+			],
+			'null string' => [
+				'null',
+				K::DATATYPE_NULL
+			],
+			'null' => [
+				null,
+				K::DATATYPE_NULL
+			],
+			'int string' => [
+				'123',
+				K::DATATYPE_INTEGER
+			],
+			'int' => [
+				123,
+				K::DATATYPE_INTEGER
+			],
+			'float string' => [
+				'456.789',
+				K::DATATYPE_FLOAT
+			],
+			'float' => [
+				456.789,
+				K::DATATYPE_FLOAT
+			],
+			'timestamp' => [
+				'#2012-12-24T16:30:58+01:00#',
+				K::DATATYPE_TIMESTAMP
+			]
 		];
 
 		foreach ($list as $label => $test)
@@ -75,7 +108,7 @@ final class ExpressionEvaluatorTest extends TestCase
 			$this->assertInstanceOf(LiteralExpression::class, $e, $label);
 			if ($e instanceof LiteralExpression)
 			{
-				$this->assertEquals($e->targetType, $test[1], $label);
+				$this->assertEquals($e->getExpressionDataType(), $test[1], $label);
 			}
 		}
 	}
@@ -91,10 +124,10 @@ final class ExpressionEvaluatorTest extends TestCase
 					LiteralExpression::class,
 					LiteralExpression::class,
 			],
-			'complex' => [ 
-					"substr(:string, strpos(:string, ','))", 2, 
-					ParameterExpression::class, 
-					FunctionExpression::class 
+			'complex' => [
+					"substr(:string, strpos(:string, ','))", 2,
+					ParameterExpression::class,
+					FunctionExpression::class
 			],
 			'complex 2' => ['expressions(#2010-07-12#, :p, (:v + 2))', 3,
 				LiteralExpression::class,
@@ -124,25 +157,32 @@ final class ExpressionEvaluatorTest extends TestCase
 
 	public function testTimestamp()
 	{
-		$timestamps = [ [
+		$timestamps = [
+			[
 				'label' => 'Extended date',
 				'expression' => '#2017-11-28#'
-			], [
+			],
+			[
 				'label' => 'Basic date',
 				'expression' => '#20171128#'
-			], [
+			],
+			[
 				'label' => 'Date & time in local timezone',
 				'expression' => '#2019-03-10 15:16:59#'
-			], [
+			],
+			[
 				'label' => 'Date & time in UTC',
 				'expression' => '#2019-03-10 15:16:59Z#'
-			], [
+			],
+			[
 				'label' => 'Date & time in a given timezone',
 				'expression' => '#2019-03-10 15:16:59-0700#'
-			], [
+			],
+			[
 				'label' => 'Hour & minutes',
 				'expression' => '#13:37#'
-			], [
+			],
+			[
 				'label' => 'Time with second fraction',
 				'expression' => '#13:37:39.256#'
 			]
@@ -201,7 +241,8 @@ final class ExpressionEvaluatorTest extends TestCase
 			{
 				if (\array_key_exists('args', $test))
 				{
-					$this->assertCount(count($test['args']), $x->arguments, $label . ' number of arguments');
+					$this->assertCount(count($test['args']), $x->arguments,
+						$label . ' number of arguments');
 					for ($i = 0; $i < count($test['args']); $i++)
 					{
 						$this->assertInstanceOf($test['args'][$i], $x->arguments[$i],

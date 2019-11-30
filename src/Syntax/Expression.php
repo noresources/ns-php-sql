@@ -18,7 +18,7 @@ interface Expression extends Tokenizable
 	 *
 	 * @param callable $callable
 	 *        	Callable with the following prototype:: callable ($expression, StatementContext, $flags)
-	 *        	
+	 *
 	 *        	The expression should call the @c $callable then invoke the @c traverse method of all nested Expression
 	 */
 	function traverse($callable, StatementContext $context, $flags = 0);
@@ -79,30 +79,46 @@ class LiteralExpression implements Expression
 
 	/**
 	 *
-	 * @var integer Literal type
+	 * @param mixed $value
+	 * @param ColumnPropertyMap|integer $type
 	 */
-	public $targetType;
-
 	public function __construct($value, $type = K::DATATYPE_STRING)
 	{
 		$this->value = $value;
-		$this->targetType = $type;
+		if ($type instanceof ColumnPropertyMap)
+			$this->target = $type;
+		elseif (\is_integer($type))
+			$this->target = new ArrayColumnPropertyMap([
+				K::COLUMN_PROPERTY_DATA_TYPE => $type
+			]);
+		else
+			throw new \InvalidArgumentException(
+				ns\TypeDescription::getName($type) . 'is not a valid target argument for ' .
+				ns\TypeDescription::getName($this));
 	}
 
 	public function tokenize(TokenStream &$stream, StatementContext $context)
 	{
-		return $stream->literal($context->getLiteral($this->value, $this->targetType));
+		return $stream->literal($context->serializeColumnData($this->target, $this->value));
 	}
 
 	public function getExpressionDataType()
 	{
-		return $this->targetType;
+		if ($this->target->hasColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE))
+			return $this->target->getColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE);
+		return K::DATATYPE_UNDEFINED;
 	}
 
 	public function traverse($callable, StatementContext $context, $flags = 0)
 	{
 		call_user_func($callable, $this, $context, $flags);
 	}
+
+	/**
+	 *
+	 * @var ColumnPropertyMap Literal type
+	 */
+	private $target;
 }
 
 /**
@@ -190,7 +206,7 @@ class ColumnExpression implements Expression
  * Table path
  *
  * @author renaud
- *        
+ *
  */
 class TableExpression implements Expression
 {
