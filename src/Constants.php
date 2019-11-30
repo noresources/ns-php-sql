@@ -214,6 +214,15 @@ class Constants
 	 */
 	const COLUMN_PROPERTY_UNSERIALIZER = 'unserializer';
 
+	/**
+	 * Column content media type as described in RFC 6838
+	 *
+	 * @see https://tools.ietf.org/html/rfc6838
+	 *
+	 * @var string
+	 */
+	const COLUMN_MEDIA_TYPE = 'mediatype';
+
 	// JOIN operator
 	const JOIN_NATURAL = 0x01;
 

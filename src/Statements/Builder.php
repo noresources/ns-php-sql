@@ -3,6 +3,7 @@ namespace NoreSources\SQL;
 
 use NoreSources as ns;
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\PDO\Constants;
 
 /**
  * Build a SQL statement string to be used in a SQL engine
@@ -144,10 +145,30 @@ abstract class StatementBuilder
 	/**
 	 * Get the \DateTime timestamp format accepted by the Connection
 	 *
+	 * @param integer $type
+	 *        	Timestamp parts. Combination of
+	 *        	<ul>
+	 *        	<li>Constants\DATATYPE_DATE</li>
+	 *        	<li>Constants\DATATYPE_TIME</li>
+	 *        	<li>Constants\DATATYPE_TIMEZONE</li>
+	 *        	</ul>
+	 *
 	 * @return string \DateTime format string
 	 */
-	public function getTimestampFormat()
+	public function getTimestampFormat($type = 0)
 	{
+		switch ($type)
+		{
+			case K::DATATYPE_DATE:
+				return 'Y-m-d';
+			case K::DATATYPE_TIME:
+				return 'H:i:s';
+			case K::DATATYPE_TIMEZONE:
+				return 'H:i:sO';
+			case K::DATATYPE_DATETIME:
+				return 'Y-m-d\TH:i:s';
+		}
+
 		return \DateTime::ISO8601;
 	}
 
@@ -298,9 +319,7 @@ abstract class StatementBuilder
 				$value = $ts;
 			}
 			else
-			{
-				$value = $value->format($this->getTimestampFormat());
-			}
+				$value = $value->format($this->getTimestampFormat($type));
 		}
 
 		if ($type & K::DATATYPE_TIMESTAMP)
@@ -309,13 +328,13 @@ abstract class StatementBuilder
 			{
 				$d = new \DateTime();
 				$d->setTimestamp(jdtounix($value));
-				$value = $d->format($this->getTimestampFormat());
+				$value = $d->format($this->getTimestampFormat($type));
 			}
 			elseif (\is_int($value))
 			{
 				$d = new \DateTime();
 				$d->setTimestamp($value);
-				$value = $d->format($this->getTimestampFormat());
+				$value = $d->format($this->getTimestampFormat($type));
 			}
 		}
 		elseif ($type & K::DATATYPE_NUMBER)
