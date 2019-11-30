@@ -221,7 +221,7 @@ class Constants
 	 *
 	 * @var string
 	 */
-	const COLUMN_MEDIA_TYPE = 'mediatype';
+	const COLUMN_PROPERTY_MEDIA_TYPE = 'mediatype';
 
 	// JOIN operator
 	const JOIN_NATURAL = 0x01;
