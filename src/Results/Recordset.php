@@ -32,8 +32,8 @@ class RecordsetException extends \ErrorException
 /**
  * Recordset query result
  */
-abstract class Recordset implements \Iterator, StatementOutputData, QueryResult, ns\ArrayRepresentation,
-	\JsonSerializable, DataUnserializer
+abstract class Recordset implements \Iterator, StatementOutputData, QueryResult,
+	ns\ArrayRepresentation, \JsonSerializable, DataUnserializer
 {
 
 	use StatementOutputDataTrait;
@@ -230,6 +230,18 @@ abstract class Recordset implements \Iterator, StatementOutputData, QueryResult,
 		}
 		elseif ($type == K::DATATYPE_NULL)
 			$data = null;
+
+		if ($column->hasColumnProperty(K::COLUMN_PROPERTY_MEDIA_TYPE))
+		{
+			$mediaType = $column->getColumnProperty(K::COLUMN_PROPERTY_MEDIA_TYPE);
+			if ($mediaType instanceof ns\MediaType)
+			{
+				if ($mediaType->getStructuredSyntax() == 'json')
+				{
+					$data = \json_decode($data, true);
+				}
+			}
+		}
 
 		return $data;
 	}

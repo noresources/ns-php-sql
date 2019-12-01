@@ -83,6 +83,28 @@ trait ColumnPropertyMapTrait
 		if (!ColumnPropertyDefault::isValidKey($key))
 			throw new \DomainException('Invalid column property key ' . $key);
 
+		switch ($key)
+		{
+			case K::COLUMN_PROPERTY_ACCEPT_NULL:
+				$value = ($value ? true : false);
+			break;
+			case K::COLUMN_PROPERTY_DATA_SIZE:
+			case K::COLUMN_PROPERTY_DATA_TYPE:
+			case K::COLUMN_PROPERTY_FRACTION_DIGIT_COUNT:
+				$value = ns\TypeConversion::toInteger($value);
+			break;
+			case K::COLUMN_PROPERTY_MEDIA_TYPE:
+				if (!($value instanceof ns\MediaType))
+					$value = new ns\MediaType($value);
+			break;
+			case K::COLUMN_PROPERTY_UNSERIALIZER:
+				if (!($value instanceof DataUnserializer))
+					throw new \InvalidArgumentException(
+						'Invalid value type ' . ns\TypeDescription::getName($value) .
+						' for property ' . $key);
+			break;
+		}
+
 		$this->columnProperties[$key] = $value;
 	}
 
