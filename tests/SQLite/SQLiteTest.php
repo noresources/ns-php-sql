@@ -89,7 +89,7 @@ final class SQLiteTest extends TestCase
 		$sql = \SqlFormatter::format(strval($sql), false);
 		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, 'insert', 'sql');
 
-		$p = new ParameterArray();
+		$p = new StatementParameterArray();
 
 		$p->set('nameValue', 'Bob');
 		$p->set('salaryValue', 2000);
@@ -198,7 +198,7 @@ final class SQLiteTest extends TestCase
 
 			foreach ($tests as $testName => $test)
 			{
-				$params = new ParameterArray();
+				$params = new StatementParameterArray();
 				$params->set('param', $test['param']);
 				$result = $this->connection->executeStatement($statement, $params);
 

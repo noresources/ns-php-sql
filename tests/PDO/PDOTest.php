@@ -149,7 +149,7 @@ final class PDOTest extends TestCase
 
 		foreach ($employees as $index => $employee)
 		{
-			$connection->executeStatement($prepared, new ParameterArray($employee));
+			$connection->executeStatement($prepared, new StatementParameterArray($employee));
 		}
 
 		$select = new SelectQuery($detachedTable);

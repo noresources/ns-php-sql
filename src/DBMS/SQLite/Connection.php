@@ -241,9 +241,9 @@ class Connection implements sql\Connection
 	 *
 	 * @param
 	 *        	PreparedStatement|string SQL statement
-	 * @param \NoreSources\SQL\ParameterArray $parameters
+	 * @param \NoreSources\SQL\StatementParameterArray $parameters
 	 */
-	public function executeStatement($statement, sql\ParameterArray $parameters = null)
+	public function executeStatement($statement, sql\StatementParameterArray $parameters = null)
 	{
 		if (!($this->connection instanceof \SQLite3))
 			throw new sql\ConnectionException($this, 'Not connected');
@@ -258,7 +258,7 @@ class Connection implements sql\Connection
 		$result = null;
 		$statementType = sql\Statement::statementTypeFromData($statement);
 
-		if ($parameters instanceof sql\ParameterArray && $parameters->count())
+		if ($parameters instanceof sql\StatementParameterArray && $parameters->count())
 		{
 			$stmt = null;
 			if ($statement instanceof PreparedStatement)
@@ -289,8 +289,8 @@ class Connection implements sql\Connection
 					$name = $this->getStatementBuilder()->getParameter($key, -1);
 				}
 
-				$value = ns\Container::keyValue($entry, sql\ParameterArray::VALUE, null);
-				$type = ns\Container::keyValue($entry, sql\ParameterArray::TYPE,
+				$value = ns\Container::keyValue($entry, sql\StatementParameterArray::VALUE, null);
+				$type = ns\Container::keyValue($entry, sql\StatementParameterArray::TYPE,
 					K::DATATYPE_UNDEFINED);
 
 				$type = self::sqliteDataTypeFromDataType($type);

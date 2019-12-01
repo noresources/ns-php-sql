@@ -78,7 +78,7 @@ class Connection implements sql\Connection
 	 *        	<li>CONNECTION_PARAMETER_PASSWORD</li>
 	 *        	<li>CONNECTION_PARAMETER_OPTIONS</li>
 	 *        	</ul>
-	 *        	
+	 *
 	 */
 	public function connect($parameters)
 	{
@@ -158,9 +158,9 @@ class Connection implements sql\Connection
 	 *
 	 * @param
 	 *        	PreparedStatement|string SQL statement
-	 * @param \NoreSources\SQL\ParameterArray $parameters
+	 * @param \NoreSources\SQL\StatementParameterArray $parameters
 	 */
-	public function executeStatement($statement, sql\ParameterArray $parameters = null)
+	public function executeStatement($statement, sql\StatementParameterArray $parameters = null)
 	{
 		if (!($this->connection instanceof \PDO))
 			throw new sql\ConnectionException($this, 'Not connected');
@@ -176,7 +176,7 @@ class Connection implements sql\Connection
 		$pdo = null;
 		$prepared = null;
 
-		if ($parameters instanceof sql\ParameterArray && $parameters->count())
+		if ($parameters instanceof sql\StatementParameterArray && $parameters->count())
 		{
 			if ($statement instanceof PreparedStatement)
 			{
@@ -209,7 +209,7 @@ class Connection implements sql\Connection
 				else
 					$name = ':' . $key;
 
-				$value = ns\Container::keyValue($entry, sql\ParameterArray::VALUE, null);
+				$value = ns\Container::keyValue($entry, sql\StatementParameterArray::VALUE, null);
 				$pdo->bindValue($name, $value);
 			}
 

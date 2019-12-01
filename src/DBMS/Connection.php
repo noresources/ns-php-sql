@@ -57,10 +57,10 @@ interface Connection
 	/**
 	 *
 	 * @param PreparedStatement|string $statement
-	 * @param ParameterArray $parameters
+	 * @param StatementParameterArray $parameters
 	 * @return Recordset|integer|boolean
 	 */
-	function executeStatement($statement, ParameterArray $parameters = null);
+	function executeStatement($statement, StatementParameterArray $parameters = null);
 
 	/**
 	 * Get the structure of the connected database

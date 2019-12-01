@@ -43,7 +43,7 @@ class Connection implements sql\Connection
 		return $this->builder;
 	}
 
-	public function executeStatement($statement, sql\ParameterArray $parameters = null)
+	public function executeStatement($statement, sql\StatementParameterArray $parameters = null)
 	{
 		return true;
 	}
