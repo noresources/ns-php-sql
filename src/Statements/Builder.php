@@ -248,19 +248,17 @@ abstract class StatementBuilder implements DataSerializer
 		if ($column->hasColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE))
 			$type = $column->getColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE);
 
-		$mediaType = null;
 		if ($column->hasColumnProperty(K::COLUMN_PROPERTY_MEDIA_TYPE))
 		{
 			$mediaType = $column->getColumnProperty(K::COLUMN_PROPERTY_MEDIA_TYPE);
-		}
-
-		if ($mediaType instanceof ns\MediaType)
-		{
-			if ($mediaType->getStructuredSyntax() == 'json')
+			if ($mediaType instanceof ns\MediaType)
 			{
-				if ($value instanceof \JsonSerializable)
-					$value = $value->jsonSerialize();
-				$value = json_encode($value);
+				if ($mediaType->getStructuredSyntax() == 'json')
+				{
+					if ($value instanceof \JsonSerializable)
+						$value = $value->jsonSerialize();
+					$value = json_encode($value);
+				}
 			}
 		}
 
