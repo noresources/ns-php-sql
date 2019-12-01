@@ -14,11 +14,9 @@
 		"issues": "https://github.com/noresources/ns-php-sql/issues"
 	},
 	"autoload": {
-		"psr-4": {
-			"NoreSources\\SQL\\": "src/",
-			"NoreSources\\SQL\\SQLite\\":"src/DBMS/SQLite/",
-			"NoreSources\\SQL\\PDO\\":"src/DBMS/PDO/"
-		}
+		"classmap": [
+			"src/"
+		]
 	},
 	"scripts": {
 		"tests": "@php  ./vendor/bin/phpunit --bootstrap tests/bootstrap.php tests"
