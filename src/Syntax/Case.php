@@ -46,13 +46,6 @@ class CaseOptionExpression
 	{
 		return $this->then->getExpressionDataType();
 	}
-
-	public function traverse($callable, StatementContext $context, $flags = 0)
-	{
-		call_user_func($callable, $this, $context, $flags);
-		$this->when->traverse($callable, $context, $flags);
-		$this->then->traverse($callable, $context, $flags);
-	}
 }
 
 /**

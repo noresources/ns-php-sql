@@ -111,16 +111,6 @@ class JoinClause implements Expression
 		return K::DATATYPE_UNDEFINED;
 	}
 
-	public function traverse($callable, StatementContext $context, $flags = 0)
-	{
-		call_user_func($callable, $this, $context, $flags);
-
-		$this->subject->traverse($callable, $context, $flags);
-
-		foreach ($this->constraints as $x)
-			$x->traverse($callable, $context, $flags);
-	}
-
 	/**
 	 *
 	 * @param
@@ -545,26 +535,6 @@ class SelectQuery extends Statement
 
 		$context->popResolverContext();
 		return $stream;
-	}
-
-	public function traverse($callable, StatementContext $context, $flags = 0)
-	{
-		call_user_func($callable, $this, $context, $flags);
-
-		foreach ($this->parts[self::PART_COLUMNS] as $resultColumn)
-			$resultColumn->expression->traverse($callable, $context, $flags);
-
-		foreach ($this->parts[self::PART_JOINS] as $join)
-			$join->traverse($callable, $context, $flags);
-
-		foreach ($this->parts[self::PART_WHERE] as $x)
-			$x->traverse($callable, $context, $flags);
-
-		foreach ($this->parts[self::PART_HAVING] as $x)
-			$x->traverse($callable, $context, $flags);
-
-		foreach ($this->parts[self::PART_ORDERBY] as $clause)
-			$clause['expression']->traverse($callable, $context, $flags);
 	}
 
 	protected function resolveResultColumns(StatementContext $context)

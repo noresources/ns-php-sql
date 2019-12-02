@@ -46,11 +46,6 @@ class DropTableQuery extends Statement
 		return $stream;
 	}
 
-	public function traverse($callable, StatementContext $context, $flags = 0)
-	{
-		call_user_func($this, $context, $flags);
-	}
-
 	/**
 	 *
 	 * @var TableReference

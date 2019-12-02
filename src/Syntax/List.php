@@ -48,13 +48,4 @@ class ListExpression extends \ArrayObject implements Expression
 
 		return K::DATATYPE_UNDEFINED;
 	}
-
-	public function traverse($callable, StatementContext $context, $flags = 0)
-	{
-		call_user_func($callable, $this, $context, $flags);
-		foreach ($this as $value)
-		{
-			$value->traverse($callable, $context, $flags);
-		}
-	}
 }

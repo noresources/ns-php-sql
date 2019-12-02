@@ -593,7 +593,7 @@ trait ColumnValueTrait
 	 *        	string Column name
 	 * @param
 	 *        	Evaluable Evaluable expression
-	 *        	
+	 *
 	 * @throws \BadMethodCallException
 	 * @throws \InvalidArgumentException
 	 */
@@ -647,7 +647,7 @@ trait ColumnValueTrait
 	 *
 	 * @param
 	 *        	string Column name
-	 *        	
+	 *
 	 * @return mixed Column current value or @c null if not set
 	 */
 	public function offsetGet($offset)
@@ -676,15 +676,6 @@ trait ColumnValueTrait
 	public function offsetUnset($offset)
 	{
 		$this->columnValues->offsetUnset($offset);
-	}
-
-	protected function traverseColumnValues($callable, StatementContext $context, $flags = 0)
-	{
-		foreach ($this->columnValues as $column => $value)
-		{
-			if ($value instanceof Expression)
-				$value->traverse($callable, $context, $flags);
-		}
 	}
 
 	/**

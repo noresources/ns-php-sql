@@ -74,19 +74,6 @@ class DeleteQuery extends Statement
 
 	/**
 	 *
-	 * {@inheritdoc}
-	 * @see \NoreSources\SQL\Expression::traverse()
-	 */
-	public function traverse($callable, StatementContext $context, $flags = 0)
-	{
-		call_user_func($callable, $this, $context, $flags);
-
-		foreach ($this->whereConstraints as $e)
-			$e->traverse($callable, $context, $flags);
-	}
-
-	/**
-	 *
 	 * @var TableReference
 	 */
 	private $table;

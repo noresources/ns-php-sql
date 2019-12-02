@@ -46,12 +46,6 @@ class UnaryOperatorExpression implements Expression
 			return $this->operand->getExpressionDataType();
 		return $this->type;
 	}
-
-	public function traverse($callable, StatementContext $context, $flags = 0)
-	{
-		call_user_func($callable, $this, $context, $flags);
-		$this->operand->traverse($callable, $context, $flags);
-	}
 }
 
 /**

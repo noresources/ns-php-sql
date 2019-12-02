@@ -51,10 +51,4 @@ class FunctionExpression implements Expression
 	{
 		return $this->returnType;
 	}
-
-	public function traverse($callable, StatementContext $context, $flags = 0)
-	{
-		call_user_func($callable, $this, $context, $flags);
-		$this->arguments->traverse($callable, $context, $flags);
-	}
 }

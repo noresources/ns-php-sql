@@ -33,10 +33,4 @@ class ParenthesisExpression implements Expression
 	{
 		return $this->expression->getExpressionDataType();
 	}
-
-	public function traverse($callable, StatementContext $context, $flags = 0)
-	{
-		call_user_func($callable, $this, $context, $flags);
-		$this->expression->traverse($callable, $context, $flags);
-	}
 }

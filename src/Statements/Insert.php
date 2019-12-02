@@ -149,17 +149,6 @@ class InsertQuery extends Statement implements \ArrayAccess
 
 	/**
 	 *
-	 * {@inheritdoc}
-	 * @see \NoreSources\SQL\Expression::traverse()
-	 */
-	public function traverse($callable, StatementContext $context, $flags = 0)
-	{
-		call_user_func($callable, $this, $context, $flags);
-		$this->traverseColumnValues($callable, $context, $flags);
-	}
-
-	/**
-	 *
 	 * @var TableReference
 	 */
 	private $table;
