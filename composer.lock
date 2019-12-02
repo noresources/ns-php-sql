@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "793cc503645737e429478db053078ee8",
+    "content-hash": "5e8bae851f7a15910830a47f4c8dc159",
     "packages": [
         {
             "name": "ferno/loco",
@@ -47,8 +47,8 @@
             "version": "2.0.x-dev",
             "source": {
                 "type": "git",
-                "url": "https://github.com/noresources/ns-php-core",
-                "reference": "3edef9db7449796d9df9da93d09f801214138e7d"
+                "url": "ssh://okami/volume1/repository/git/ns-php-core.git",
+                "reference": "278b0a00cf36c9f7faf1e87c0f987136e5af6e0e"
             },
             "require": {
                 "php": ">= 5.4"
@@ -87,7 +87,54 @@
             "support": {
                 "issues": "https://github.com/noresources/ns-php-core/issues"
             },
-            "time": "2019-11-25T22:11:15+00:00"
+            "time": "2019-12-02T13:06:37+00:00"
+        },
+        {
+            "name": "noresources/ns-php-expression",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "ssh://okami/volume1/repository/git/ns-php-expression.git",
+                "reference": "380c52ff733fb7b1c46663d7a4d0f92ba73036ba"
+            },
+            "require": {
+                "noresources/ns-php-core": "~2.0",
+                "php": ">= 5.4"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^4.8"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "NoreSources\\Expression\\": "src/"
+                }
+            },
+            "scripts": {
+                "tests": [
+                    "@php  ./vendor/bin/phpunit --bootstrap tests/bootstrap.php tests"
+                ]
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Renaud Guillard",
+                    "email": "dev@nore.fr",
+                    "role": "lead"
+                }
+            ],
+            "description": "General purpose expression system",
+            "support": {
+                "issues": "https://github.com/noresources/ns-php-expression/issues"
+            },
+            "time": "2019-12-02T15:01:14+00:00"
         }
     ],
     "packages-dev": [

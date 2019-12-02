@@ -249,7 +249,7 @@ class Connection implements sql\Connection
 			throw new sql\ConnectionException($this, 'Not connected');
 
 		if (!($statement instanceof PreparedStatement ||
-			ns\TypeDescription::hasStringConversion($statement)))
+			ns\TypeDescription::hasStringRepresentation($statement)))
 			throw new sql\ConnectionException($this,
 				'Invalid statement type ' . ns\TypeDescription::getName($statement) .
 				'. Expect PreparedStatement or stringifiable');

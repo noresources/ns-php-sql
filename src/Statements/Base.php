@@ -219,7 +219,7 @@ class ResultColumn implements ColumnPropertyMap
 	{
 		if ($data instanceof TableColumnStructure)
 			$this->name = $data->getName();
-		elseif (ns\TypeDescription::hasStringConversion($data))
+		elseif (ns\TypeDescription::hasStringRepresentation($data))
 			$this->name = ns\TypeConversion::toString($data);
 
 		if ($data instanceof TableColumnStructure)

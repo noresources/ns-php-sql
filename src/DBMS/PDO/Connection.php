@@ -166,7 +166,7 @@ class Connection implements sql\Connection
 			throw new sql\ConnectionException($this, 'Not connected');
 
 		if (!(($statement instanceof PreparedStatetement) ||
-			TypeDescription::hasStringConversion($statement)))
+			TypeDescription::hasStringRepresentation($statement)))
 		{
 			throw new \InvalidArgumentException(
 				'Invalid type ' . ns\TypeDescription::getName($statement) .
