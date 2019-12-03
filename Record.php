@@ -85,6 +85,10 @@ const kRecordDistinct = 'distinct';
 class PresentationSettings extends ns\DataTree implements RecordQueryOption
 {
 
+	const KEY_COLUMN = kRecordKeyColumn;
+	
+	const DISTINCT = kRecordDistinct;
+	
 	public function __construct ($table)
 	{
 		parent::__construct($table);
@@ -222,7 +226,8 @@ class ColumnValueFilter implements RecordQueryOption
 				else
 				{
 					/**
-					 * @todo serialize ? 
+					 *
+					 * @todo serialize ?
 					 */
 					$v = $value;
 					$e = new ns\BinaryOperatorExpression('=', $column, $column->importData($v));
@@ -235,9 +240,10 @@ class ColumnValueFilter implements RecordQueryOption
 			case 'in':
 				if (!($value instanceof ns\IExpression))
 				{
-					/**
-					 * @todo serialize ? 
-					 */
+				/**
+				 *
+				 * @todo serialize ?
+				 */
 				}
 				return new SQLSmartEquality($column, $value, $positive);
 				break;
@@ -253,6 +259,7 @@ class ColumnValueFilter implements RecordQueryOption
 				}
 
 				/**
+				 *
 				 * @todo serialize
 				 */
 				$min = $value[0];
@@ -270,6 +277,7 @@ class ColumnValueFilter implements RecordQueryOption
 			case '&':
 				$v = $value;
 				/**
+				 *
 				 * @todo serialize ?
 				 */
 				$e = new ns\BinaryOperatorExpression('&', $column, $column->importData($v));
@@ -288,6 +296,7 @@ class ColumnValueFilter implements RecordQueryOption
 			case '>=':
 			case 'like':
 				/**
+				 *
 				 * @todo serialize ?
 				 */
 				$v = $value;
@@ -913,7 +922,7 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 
 	public function getIterator ()
 	{
-		return (new \ArrayObject($this->toArray()))->getIterator();
+		return (new \ArrayObject($this->getArrayCopy()))->getIterator();
 	}
 
 	public function __get ($member)
@@ -941,10 +950,20 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 
 		$this->offsetSet($member, $value);
 	}
-	
-	public function jsonSerialize()
+
+	public function jsonSerialize ()
 	{
-		return $this->toArray();
+		return $this->getArrayCopy();
+	}
+
+	/**
+	 *
+	 * @deprecated use getArrayCopy()
+	 * @return array
+	 */
+	public function toArray ()
+	{
+		return $this->getArrayCopy();
 	}
 
 	/**
@@ -952,7 +971,7 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 	 *
 	 * @return array
 	 */
-	public function toArray ()
+	public function getArrayCopy ()
 	{
 		$x = function ($v)
 		{
