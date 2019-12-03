@@ -164,16 +164,6 @@ class InOperatorExpression extends ListExpression implements \IteratorAggregate
 		return $stream->text(')');
 	}
 
-	public function buildExpression(StatementContext $context)
-	{
-		$s = $this->leftOperand->buildExpression($context);
-		if (!$this->include)
-			$s .= ' NOT';
-		$s .= ' IN';
-
-		return ($s . '(' . parent::buildExpression($context) . ')');
-	}
-
 	public function traverse($callable, StatementContext $context, $flags = 0)
 	{
 		// Respect order
@@ -257,18 +247,6 @@ class BetweenExpression implements Expression
 			->expression($this->minBoudary, $context)
 			->space()
 			->expression($this->maxBoundary, $context);
-	}
-
-	/**
-	 *
-	 * {@inheritdoc}
-	 * @see \NoreSources\SQL\Expression::buildExpression()
-	 */
-	public function buildExpression(StatementContext $context)
-	{
-		return $this->leftOperand->buildExpression($context) . ($this->inside ? '' : ' NOT') .
-			' BETWEEN ' . $this->minBoudary->buildExpression($context) . ' AND ' .
-			$this->maxBoudary->buildExpression($context);
 	}
 
 	/**

@@ -99,22 +99,6 @@ class CaseExpression implements Expression
 		return $stream;
 	}
 
-	public function buildExpression(StatementContext $context)
-	{
-		$s = 'CASE ' . $this->subject;
-		foreach ($this->options as $option)
-		{
-			$s .= ' ' . $option->buildExpression($context);
-		}
-
-		if ($this->else instanceof Expression)
-		{
-			$s .= ' ELSE ' . $this->else->buildExpression($context);
-		}
-
-		return $s;
-	}
-
 	public function getExpressionDataType()
 	{
 		$set = false;

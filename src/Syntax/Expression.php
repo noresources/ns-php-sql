@@ -7,6 +7,10 @@ use NoreSources\SQL\ExpressionEvaluator as X;
 
 interface Expression extends Tokenizable
 {
+}
+
+interface ExpressionReturnType
+{
 
 	/**
 	 *
@@ -48,11 +52,6 @@ class KeywordExpression implements Expression
 	public function getExpressionDataType()
 	{
 		return K::DATATYPE_UNDEFINED;
-	}
-
-	public function traverse($callable, StatementContext $context, $flags = 0)
-	{
-		call_user_func($callable, $this, $context, $flags);
 	}
 }
 
@@ -100,11 +99,6 @@ class LiteralExpression implements Expression
 		return K::DATATYPE_UNDEFINED;
 	}
 
-	public function traverse($callable, StatementContext $context, $flags = 0)
-	{
-		call_user_func($callable, $this, $context, $flags);
-	}
-
 	/**
 	 *
 	 * @var ColumnPropertyMap Literal type
@@ -133,11 +127,6 @@ class ParameterExpression implements Expression
 	public function getExpressionDataType()
 	{
 		return K::DATATYPE_UNDEFINED;
-	}
-
-	public function traverse($callable, StatementContext $context, $flags = 0)
-	{
-		call_user_func($callable, $this, $context, $flags);
 	}
 }
 
@@ -186,11 +175,6 @@ class ColumnExpression implements Expression
 	{
 		return K::DATATYPE_UNDEFINED;
 	}
-
-	public function traverse($callable, StatementContext $context, $flags = 0)
-	{
-		call_user_func($callable, $this, $context, $flags);
-	}
 }
 
 /**
@@ -235,10 +219,5 @@ class TableExpression implements Expression
 	public function getExpressionDataType()
 	{
 		return K::DATATYPE_UNDEFINED;
-	}
-
-	public function traverse($callable, StatementContext $context, $flags = 0)
-	{
-		call_user_func($callable, $this, $context, $flags);
 	}
 }
