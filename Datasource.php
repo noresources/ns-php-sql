@@ -167,7 +167,7 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 		{
 			if (!file_exists($structureFile))
 			{
-				throw new \Exception('Structure file not found');
+				throw new \Exception('Structure file not found (' . $structureFile . ')');
 			}
 
 			$structure = StructureElement::createFromXmlFile($structureFile, null);
