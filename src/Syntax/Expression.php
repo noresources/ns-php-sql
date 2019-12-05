@@ -9,16 +9,6 @@ interface Expression extends Tokenizable
 {
 }
 
-interface ExpressionReturnType
-{
-
-	/**
-	 *
-	 * @return integer
-	 */
-	function getExpressionDataType();
-}
-
 /**
  * SQL Language keyword.
  *
