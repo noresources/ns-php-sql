@@ -14,20 +14,6 @@ class ExpressionEvaluationException extends \ErrorException
 	}
 }
 
-/**
- * Any type that can be evaluated by the ExpressionEvaluator
- */
-class Evaluable
-{
-
-	public $value;
-
-	public function __construct($value)
-	{
-		$this->value = $value;
-	}
-}
-
 class ExpressionEvaluator
 {
 
@@ -54,7 +40,7 @@ class ExpressionEvaluator
 	 *        	Literal value
 	 * @param integer|TableColumnStructure $type
 	 *        	Data type hint
-	 *        	
+	 *
 	 * @return \NoreSources\SQL\LiteralExpression
 	 */
 	public static function literal($value, $type = K::DATATYPE_UNDEFINED)
@@ -71,7 +57,7 @@ class ExpressionEvaluator
 	 *
 	 * @param string $name
 	 *        	Parameter name
-	 *        	
+	 *
 	 * @return \NoreSources\SQL\ParameterExpression
 	 */
 	public static function parameter($name)
@@ -138,7 +124,7 @@ class ExpressionEvaluator
 	/**
 	 *
 	 * @method Expression evaluate ($evaluable)
-	 *        
+	 *
 	 * @param string $name
 	 * @param array $args
 	 *
@@ -162,7 +148,7 @@ class ExpressionEvaluator
 	/**
 	 *
 	 * @method Expression evaluate ($evaluable)
-	 *        
+	 *
 	 * @param string $name
 	 * @param array $args
 	 *
@@ -195,11 +181,6 @@ class ExpressionEvaluator
 	 */
 	public function evaluateEvaluable($evaluable)
 	{
-		if ($evaluable instanceof Evaluable)
-		{
-			$evaluable = $evaluable->value;
-		}
-
 		if (\is_object($evaluable))
 		{
 			if ($evaluable instanceof Expression)
@@ -1141,7 +1122,7 @@ class PolishNotationOperation
 		{
 			$context = $builder[1]['class'];
 		}
-		
+
 		if (!($context && ($context == ExpressionEvaluator::class || is_subclass_of($context, self::class, true))))
 		{
 			$context = ($context ? $context : 'global');
