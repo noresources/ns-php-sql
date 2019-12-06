@@ -95,7 +95,7 @@
             "source": {
                 "type": "git",
                 "url": "ssh://okami/volume1/repository/git/ns-php-expression.git",
-                "reference": "380c52ff733fb7b1c46663d7a4d0f92ba73036ba"
+                "reference": "623bc41a9fa8309c83fe7fab2e4140716c5bb843"
             },
             "require": {
                 "noresources/ns-php-core": "~2.0",
@@ -134,7 +134,7 @@
             "support": {
                 "issues": "https://github.com/noresources/ns-php-expression/issues"
             },
-            "time": "2019-12-02T15:01:14+00:00"
+            "time": "2019-12-05T22:01:07+00:00"
         }
     ],
     "packages-dev": [

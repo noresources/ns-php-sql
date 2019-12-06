@@ -6,15 +6,13 @@ use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\ExpressionEvaluator as X;
 use phpDocumentor\Reflection\Types\Parent_;
 
-final class ExpressionEvaluatorTest extends TestCase
+final class SyntaxEEvaluatorTest extends TestCase
 {
 
 	public function __construct()
-	{
-		$this->datasources = new DatasourceManager();
-	}
+	{}
 
-	public function testBasics()
+	public function testBasicSyntaxs()
 	{
 		$list = [
 			'parameter' => [ ':p1', ParameterExpression::class ],
@@ -252,10 +250,4 @@ final class ExpressionEvaluatorTest extends TestCase
 			}
 		}
 	}
-
-	/**
-	 *
-	 * @var DatasourceManager
-	 */
-	private $datasources;
 }
