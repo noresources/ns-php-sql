@@ -5,7 +5,6 @@ namespace NoreSources\SQL;
 
 // Aliases
 use NoreSources as ns;
-use NoreSources\Container;
 use NoreSources\SQL\Constants as K;
 
 /**
@@ -195,8 +194,8 @@ class SelectQuery extends Statement
 					}
 					else // [ column expression, alias ]
 					{
-						$expression = Container::keyValue($arg, 0, null);
-						$alias = Container::keyValue($arg, 1, null);
+						$expression = ns\Container::keyValue($arg, 0, null);
+						$alias = ns\Container::keyValue($arg, 1, null);
 					}
 				}
 				else

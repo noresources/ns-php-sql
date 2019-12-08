@@ -5,7 +5,6 @@ namespace NoreSources\SQL;
 
 // Aliases
 use NoreSources as ns;
-use NoreSources\ArrayUtil;
 use NoreSources\SQL\Constants as K;
 
 class DropTableQuery extends Statement
