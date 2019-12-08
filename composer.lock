@@ -11,13 +11,13 @@
             "version": "dev-master",
             "source": {
                 "type": "git",
-                "url": "https://github.com/ferno/loco.git",
-                "reference": "75743fe66f1dedb96ed8453e0360e19815e6cd7f"
+                "url": "https://github.com/qntm/loco.git",
+                "reference": "d46e588e46830f47cc457fcf045a02ddb285c529"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ferno/loco/zipball/75743fe66f1dedb96ed8453e0360e19815e6cd7f",
-                "reference": "75743fe66f1dedb96ed8453e0360e19815e6cd7f",
+                "url": "https://api.github.com/repos/qntm/loco/zipball/d46e588e46830f47cc457fcf045a02ddb285c529",
+                "reference": "d46e588e46830f47cc457fcf045a02ddb285c529",
                 "shasum": ""
             },
             "require": {
@@ -34,13 +34,16 @@
                 ]
             },
             "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
             "homepage": "http://qntm.org/loco",
             "keywords": [
                 "lexer",
                 "parser",
                 "parsing"
             ],
-            "time": "2016-09-04T14:01:17+00:00"
+            "time": "2019-11-25T00:00:57+00:00"
         },
         {
             "name": "noresources/ns-php-core",
@@ -95,7 +98,7 @@
             "source": {
                 "type": "git",
                 "url": "ssh://okami/volume1/repository/git/ns-php-expression.git",
-                "reference": "623bc41a9fa8309c83fe7fab2e4140716c5bb843"
+                "reference": "26a9f5e693a97f4354bf4346b63ba096c12bed6f"
             },
             "require": {
                 "noresources/ns-php-core": "~2.0",
@@ -134,22 +137,22 @@
             "support": {
                 "issues": "https://github.com/noresources/ns-php-expression/issues"
             },
-            "time": "2019-12-05T22:01:07+00:00"
+            "time": "2019-12-06T20:57:23+00:00"
         }
     ],
     "packages-dev": [
         {
             "name": "doctrine/instantiator",
-            "version": "1.3.x-dev",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/instantiator.git",
-                "reference": "ae466f726242e637cebdd526a7d991b9433bacf1"
+                "reference": "eca6c638ef64433b2e36a9221826e75e39c65eb9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/instantiator/zipball/ae466f726242e637cebdd526a7d991b9433bacf1",
-                "reference": "ae466f726242e637cebdd526a7d991b9433bacf1",
+                "url": "https://api.github.com/repos/doctrine/instantiator/zipball/eca6c638ef64433b2e36a9221826e75e39c65eb9",
+                "reference": "eca6c638ef64433b2e36a9221826e75e39c65eb9",
                 "shasum": ""
             },
             "require": {
@@ -167,7 +170,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.2.x-dev"
+                    "dev-master": "1.4.x-dev"
                 }
             },
             "autoload": {
@@ -192,7 +195,7 @@
                 "constructor",
                 "instantiate"
             ],
-            "time": "2019-10-21T16:45:58+00:00"
+            "time": "2019-12-06T20:47:21+00:00"
         },
         {
             "name": "jdorn/sql-formatter",
@@ -1268,12 +1271,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/yaml.git",
-                "reference": "dab657db15207879217fc81df4f875947bf68804"
+                "reference": "1b78a23cf919e943c4730f27869bfe9b7def0e06"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/yaml/zipball/dab657db15207879217fc81df4f875947bf68804",
-                "reference": "dab657db15207879217fc81df4f875947bf68804",
+                "url": "https://api.github.com/repos/symfony/yaml/zipball/1b78a23cf919e943c4730f27869bfe9b7def0e06",
+                "reference": "1b78a23cf919e943c4730f27869bfe9b7def0e06",
                 "shasum": ""
             },
             "require": {
@@ -1319,7 +1322,7 @@
             ],
             "description": "Symfony Yaml Component",
             "homepage": "https://symfony.com",
-            "time": "2019-10-24T15:33:53+00:00"
+            "time": "2019-12-04T11:33:46+00:00"
         },
         {
             "name": "webmozart/assert",
