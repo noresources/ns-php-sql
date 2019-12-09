@@ -3,7 +3,7 @@ namespace NoreSources\SQL;
 
 use NoreSources as ns;
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\PDO\Constants;
+use NoreSources\SQL\Expression\Evaluator as X;
 
 /**
  * Build a SQL statement string to be used in a SQL engine
@@ -406,12 +406,4 @@ abstract class StatementBuilder implements DataSerializer
 	 * @var array
 	 */
 	private $builderFlags;
-
-	/**
-	 *
-	 * Expression evaluator
-	 *
-	 * @var ExpressionEvaluator
-	 */
-	private $evaluator;
 }

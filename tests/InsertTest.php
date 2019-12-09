@@ -4,7 +4,8 @@ namespace NoreSources\SQL;
 use PHPUnit\Framework\TestCase;
 use NoreSources as ns;
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\ExpressionEvaluator as X;
+use NoreSources\SQL\Expression\Expression;
+use NoreSources\SQL\Expression\Evaluator as X;
 
 final class InsertTest extends TestCase
 {

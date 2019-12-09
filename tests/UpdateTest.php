@@ -3,7 +3,7 @@ namespace NoreSources\SQL;
 
 use PHPUnit\Framework\TestCase;
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\ExpressionEvaluator as X;
+use NoreSources\SQL\Expression\Evaluator as X;
 
 final class UpdateTest extends TestCase
 {

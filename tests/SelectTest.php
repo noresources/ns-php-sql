@@ -3,7 +3,9 @@ namespace NoreSources\SQL;
 
 use PHPUnit\Framework\TestCase;
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\ExpressionEvaluator as X;
+use NoreSources\SQL\Expression\Evaluator as X;
+use NoreSources\SQL\Expression\AlternativeList;
+use NoreSources\SQL\Expression\MemberOf;
 
 final class SelectTest extends TestCase
 {
@@ -31,7 +33,7 @@ final class SelectTest extends TestCase
 		]);
 		$q->columns('name');
 
-		$q->where(new InOperatorExpression(X::column('id'), [
+		$q->where(new MemberOf(X::column('id'), [
 			2,
 			4,
 			6,

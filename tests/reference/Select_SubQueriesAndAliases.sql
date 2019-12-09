@@ -5,7 +5,7 @@ FROM
   [ns_unittests].[Employees] AS [E] 
 WHERE 
   [ns_unittests].[Employees].[gender] = 'M' 
-  AND [ns_unittests].[Employees].[id] IN(
+  AND [ns_unittests].[Employees].[id] IN (
     SELECT 
       [ns_unittests].[Hierarchy].[manageeId] AS [N] 
     FROM 

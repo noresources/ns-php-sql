@@ -5,7 +5,11 @@ namespace NoreSources\SQL;
 
 // Aliases
 use NoreSources as ns;
+use NoreSources\Expression as xpr;
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\Expression\Expression;
+use NoreSources\SQL\Expression\Column;
+use NoreSources\SQL\Expression\Evaluator;
 
 /**
  * SELECT query result column
@@ -14,8 +18,9 @@ class ResultColumnReference
 {
 
 	/**
+	 * Result column
 	 *
-	 * @var Expression Result column expression
+	 * @var Expression
 	 */
 	public $expression;
 
@@ -27,7 +32,8 @@ class ResultColumnReference
 
 	/**
 	 *
-	 * @param Expression $expression
+	 * @param
+	 *        	Expression
 	 * @param string $alias
 	 */
 	public function __construct(Expression $expression, $alias)
@@ -42,6 +48,8 @@ class ResultColumnReference
  */
 class JoinClause implements Expression
 {
+
+	use xpr\BasicExpressionVisitTrait;
 
 	/**
 	 *
@@ -123,7 +131,7 @@ class JoinClause implements Expression
 		{
 			$x = func_get_arg($i);
 			if (!($x instanceof Expression))
-				$x = ExpressionEvaluator::evaluate($x);
+				$x = Evaluator::evaluate($x);
 			$this->constraints->append($x);
 		}
 
@@ -199,12 +207,10 @@ class SelectQuery extends Statement
 					}
 				}
 				else
-				{
 					$expression = $arg;
-				}
 
 				if (!($expression instanceof Expression))
-					$expression = ExpressionEvaluator::evaluate($expression);
+					$expression = Evaluator::evaluate($expression);
 
 				$this->parts[self::PART_COLUMNS]->append(
 					new ResultColumnReference($expression, $alias));
@@ -281,7 +287,7 @@ class SelectQuery extends Statement
 		foreach ($args as $x)
 		{
 			if (!($x instanceof Expression))
-				$x = ExpressionEvaluator::evaluate($x);
+				$x = Evaluator::evaluate($x);
 			$this->parts[$part]->append($x);
 		}
 
@@ -298,7 +304,7 @@ class SelectQuery extends Statement
 	{
 		for ($i = 0; $i < func_num_args(); $i++)
 		{
-			$this->parts[self::PART_GROUPBY]->append(new ColumnExpression(func_get_arg($i)));
+			$this->parts[self::PART_GROUPBY]->append(new Column(func_get_arg($i)));
 		}
 
 		return $this;
@@ -315,7 +321,7 @@ class SelectQuery extends Statement
 	public function orderBy($reference, $direction = K::ORDERING_ASC, $collation = null)
 	{
 		if (!($reference instanceof Expression))
-			$reference = ExpressionEvaluator::evaluate($reference);
+			$reference = Evaluator::evaluate($reference);
 
 		$this->parts[self::PART_ORDERBY]->append(
 			[
@@ -438,7 +444,7 @@ class SelectQuery extends Statement
 
 				$stream->expression($column->expression, $context);
 
-				if ($column->expression instanceof ColumnExpression)
+				if ($column->expression instanceof Column)
 				{
 					$structure = $context->findColumn($column->expression->path);
 					$context->setResultColumn($columnIndex, $structure);

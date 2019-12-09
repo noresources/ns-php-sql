@@ -6,7 +6,7 @@ use NoreSources\SQL as sql;
 use Ferno\Loco as Loco;
 use NoreSources\SQL\Constants as K;
 
-class ExpressionEvaluationException extends \ErrorException
+class EvaluatorExceptioion extends \ErrorException
 {
 
 	public function __construct($message)
@@ -248,8 +248,8 @@ class Evaluator
 			}
 		}
 
-		$t = is_object($evaluable) ? get_class($evaluable) : gettype($evaluable);
-		throw new ExpressionEvaluationException('Invalid argument type/class ' . $t);
+		throw new EvaluatorExceptioion(
+			ns\TypeDescription::getName($evaluable) . ' cannot be evaluated');
 	}
 
 	/**
@@ -333,7 +333,7 @@ class Evaluator
 			$o = ns\Container::keyValue($this->operators['*'], $key, false);
 
 		if (!($o instanceof PolishNotationOperation))
-			throw new ExpressionEvaluationException(
+			throw new EvaluatorExceptioion(
 				'Unable to evalate Polish notation ' . $key . ' => [' . $c . ' argument(s)... ]');
 
 		if ($o->className === MemberOf::class)
@@ -374,7 +374,7 @@ class Evaluator
 
 			if (!($expression instanceof Expression))
 			{
-				throw new ExpressionEvaluationException(
+				throw new EvaluatorExceptioion(
 					'Unable to create expression (got ' . var_export($expression, true) . ')');
 			}
 
@@ -388,7 +388,7 @@ class Evaluator
 
 		if (!($result instanceof Expression))
 		{
-			throw new ExpressionEvaluationException('Unable to create expression');
+			throw new EvaluatorExceptioion('Unable to create expression');
 		}
 
 		return $result;
@@ -412,7 +412,7 @@ class Evaluator
 		}
 		catch (Loco\ParseFailureException $e)
 		{
-			throw new ExpressionEvaluationException($e->getMessage());
+			throw new EvaluatorExceptioion($e->getMessage());
 		}
 	}
 
@@ -1124,7 +1124,7 @@ class PolishNotationOperation
 		if (!($context && ($context == Evaluator::class || is_subclass_of($context, self::class, true))))
 		{
 			$context = ($context ? $context : 'global');
-			throw new ExpressionEvaluationException(self::class . ' is a private class of ' . Evaluator::class . ' (not allowed in ' . $context . ' context)');
+			throw new EvaluatorExceptioion(self::class . ' is a private class of ' . Evaluator::class . ' (not allowed in ' . $context . ' context)');
 		}
 
 		$this->operator = $key;

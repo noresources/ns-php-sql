@@ -17,7 +17,7 @@ class Connection implements sql\Connection
 
 	public function __construct()
 	{
-		$this->builder = new StatementBuilder(new sql\ExpressionEvaluator());
+		$this->builder = new StatementBuilder();
 	}
 
 	public function beginTransation()

@@ -5,6 +5,10 @@ namespace NoreSources\SQL;
 
 // Aliases
 use NoreSources as ns;
+use NoreSources\SQL\Expression\Expression;
+use NoreSources\SQL\Expression\Keyword;
+use NoreSources\SQL\Expression\Evaluator;
+use NoreSources\SQL\Expression\Value;
 use NoreSources\SQL\Constants as K;
 
 class InsertQuery extends Statement implements \ArrayAccess
@@ -79,7 +83,7 @@ class InsertQuery extends Statement implements \ArrayAccess
 				if ($column->hasColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE))
 					$type = $column->getColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE);
 
-				$value = new LiteralExpression($value, $type);
+				$value = new Value($value, $type);
 			}
 
 			$values[] = $value;
@@ -100,11 +104,11 @@ class InsertQuery extends Statement implements \ArrayAccess
 					$columns[] = $context->escapeIdentifier($name);
 					if ($builderFlags & K::BUILDER_INSERT_DEFAULT_KEYWORD)
 					{
-						$values[] = new KeywordExpression(K::KEYWORD_DEFAULT);
+						$values[] = new Keyword(K::KEYWORD_DEFAULT);
 					}
 					else
 					{
-						$x = ExpressionEvaluator::evaluate(
+						$x = Evaluator::evaluate(
 							$column->getColumnProperty(K::COLUMN_PROPERTY_DEFAULT_VALUE));
 						$values[] = $x;
 					}

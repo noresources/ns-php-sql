@@ -6,7 +6,9 @@ namespace NoreSources\SQL;
 // Aliases
 use NoreSources as ns;
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\ExpressionEvaluator as X;
+use NoreSources\SQL\Expression\Expression;
+use NoreSources\SQL\Expression\Evaluator as X;
+use NoreSources\SQL\Expression\Value;
 
 class UpdateQuery extends Statement implements \ArrayAccess
 {
@@ -42,7 +44,7 @@ class UpdateQuery extends Statement implements \ArrayAccess
 		{
 			$x = func_get_arg($i);
 			if (!($x instanceof Expression))
-				$x = ExpressionEvaluator::evaluate($x);
+				$x = X::evaluate($x);
 
 			$this->whereConstraints->append($x);
 		}
@@ -95,7 +97,7 @@ class UpdateQuery extends Statement implements \ArrayAccess
 				if ($column->hasColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE))
 					$type = $column->getColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE);
 
-				$value = new LiteralExpression($value, $type);
+				$value = new Value($value, $type);
 			}
 
 			$stream->identifier($context->escapeIdentifier($columnName))

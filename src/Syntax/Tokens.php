@@ -2,6 +2,9 @@
 namespace NoreSources\SQL;
 
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\Expression\Expression;
+use NoreSources\SQL\Expression\Evaluator;
+use NoreSources\SQL\Expression\BinaryOperation;
 
 interface Tokenizable
 {
@@ -74,9 +77,9 @@ class TokenStream implements \IteratorAggregate, \Countable
 		$c = null;
 		foreach ($constraints as $constraint)
 		{
-			$e = ExpressionEvaluator::evaluate($constraint);
+			$e = Evaluator::evaluate($constraint);
 			if ($c instanceof Expression)
-				$c = new BinaryOperatorExpression('AND', $c, $e);
+				$c = new BinaryOperation('AND', $c, $e);
 			else
 				$c = $e;
 		}
@@ -84,12 +87,12 @@ class TokenStream implements \IteratorAggregate, \Countable
 		if ($c instanceof Expression)
 			return $this->expression($c, $context);
 
-		return $stream;
+		return $this;
 	}
 
 	public function evaluable(Evaluable $evaluable, StatementContext $context)
 	{
-		$x = ExpressionEvaluator::evaluate($evaluable);
+		$x = Evaluator::evaluate($evaluable);
 		return $this->expression($x, $context);
 	}
 

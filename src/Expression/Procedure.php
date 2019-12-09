@@ -2,6 +2,7 @@
 namespace NoreSources\SQL\Expression;
 
 use NoreSources\SQL as sql;
+use NoreSources\SQL\Expression\Evaluator;
 use NoreSources\Expression as xpr;
 
 class Procedure extends xpr\Procedure implements Expression
@@ -12,12 +13,21 @@ class Procedure extends xpr\Procedure implements Expression
 		parent::__construct($name, $arguments);
 	}
 
+	public function appendArgument($argument)
+	{
+		if (!($argument instanceof Expression))
+		{
+			$argument = Evaluator::evaluate($argument);
+		}
+		return parent::appendArgument($argument);
+	}
+
 	public function tokenize(sql\TokenStream &$stream, sql\StatementContext $context)
 	{
-		return $stream->keyword($this->getFunctionName())
+		$stream->keyword($this->getFunctionName())
 			->text('(');
 		$index = 0;
-		foreach ($this->getArguments() as $a)
+		foreach ($this as $a)
 		{
 			if ($index++ > 0)
 				$stream->text(', ');

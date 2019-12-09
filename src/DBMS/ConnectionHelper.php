@@ -6,6 +6,7 @@ namespace NoreSources\SQL;
 // Aliases
 use NoreSources as ns;
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\Expression\Expression;
 
 class ConnectionHelper
 {

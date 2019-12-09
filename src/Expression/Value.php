@@ -12,6 +12,8 @@ class Value extends xpr\Value implements Expression, ExpressionReturnType
 	{
 		parent::__construct($value);
 		$this->setSerializationTarget($type);
+		if ($value instanceof xpr\Expression)
+			throw new \LogicException('Value is already an Expression');
 	}
 
 	/**

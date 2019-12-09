@@ -5,6 +5,7 @@ namespace NoreSources\SQL;
 
 // Aliases
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\Expression\Evaluator as X;
 
 class CreateTableQuery extends Statement
 {
@@ -114,8 +115,7 @@ class CreateTableQuery extends Statement
 
 			if ($column->hasColumnProperty(K::COLUMN_PROPERTY_DEFAULT_VALUE))
 			{
-				$v = ExpressionEvaluator::evaluate(
-					$column->getColumnProperty(K::COLUMN_PROPERTY_DEFAULT_VALUE));
+				$v = X::evaluate($column->getColumnProperty(K::COLUMN_PROPERTY_DEFAULT_VALUE));
 				$stream->space()
 					->keyword('DEFAULT')
 					->space()

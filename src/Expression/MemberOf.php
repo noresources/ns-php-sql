@@ -3,7 +3,9 @@ namespace NoreSources\SQL\Expression;
 
 use NoreSources\SQL as sql;
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\Expression\Evaluator;
 use NoreSources\Expression as xpr;
+use NoreSources\Expression\Set;
 
 /**
  * In operator
@@ -28,9 +30,13 @@ class MemberOf extends xpr\Set implements Expression, ExpressionReturnType
 	 */
 	public function __construct(Expression $leftOperand, $expressionList = array(), $memberOf = true)
 	{
-		parent::__construct($expressionList);
+		parent::__construct();
 		$this->leftOperand = $leftOperand;
 		$this->memberOf = $memberOf;
+		foreach ($expressionList as $x)
+		{
+			$this->append(Evaluator::evaluate($x));
+		}
 	}
 
 	/**

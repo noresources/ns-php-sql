@@ -3,7 +3,7 @@ UPDATE
 SET 
   [salary] = [ns_unittests].[Employees].[salary] * 2 
 WHERE 
-  [ns_unittests].[Employees].[id] IN(
+  [ns_unittests].[Employees].[id] IN (
     SELECT 
       [ns_unittests].[Employees].[id] 
     FROM 
@@ -11,4 +11,4 @@ WHERE
     WHERE 
       [ns_unittests].[Employees].[id] > 2
   ) 
-  AND [ns_unittests].[Employees].[id] NOT IN(4, 5)
+  AND [ns_unittests].[Employees].[id] NOT IN (4, 5)

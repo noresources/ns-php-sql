@@ -4,7 +4,7 @@ namespace NoreSources\SQL;
 use NoreSources\SQL\SQLite as SQLite;
 use PHPUnit\Framework\TestCase;
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\ExpressionEvaluator as X;
+use NoreSources\SQL\Expression\Evaluator as X;
 use NoreSources as ns;
 
 final class SQLiteTest extends TestCase

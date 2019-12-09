@@ -6,6 +6,7 @@ namespace NoreSources\SQL;
 // Aliases
 use NoreSources as ns;
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\Expression\Evaluator;
 
 class DeleteQuery extends Statement
 {
@@ -39,7 +40,7 @@ class DeleteQuery extends Statement
 		{
 			$x = func_get_arg($i);
 			if (!($x instanceof Expression))
-				$x = ExpressionEvaluator::evaluate($x);
+				$x = Evaluator::evaluate($x);
 
 			$this->whereConstraints->append($x);
 		}

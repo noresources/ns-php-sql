@@ -3,7 +3,9 @@ namespace NoreSources\SQL;
 
 use NoreSources as ns;
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\ExpressionEvaluator as X;
+use NoreSources\SQL\Expression\Expression;
+use NoreSources\SQL\Expression\Evaluator as X;
+use NoreSources\SQL\Expression\Keyword;
 
 /**
  */
@@ -533,7 +535,7 @@ class XMLStructureSerializer extends StructureSerializer
 						if (strlen($value))
 							$value = \DateTime::createFromFormat(\DateTime::ISO8601, $value);
 						else
-							$value = new KeywordExpression(K::KEYWORD_CURRENT_TIMESTAMP);
+							$value = new Keyword(K::KEYWORD_CURRENT_TIMESTAMP);
 					break;
 					case 'null':
 						$valueType = K::DATATYPE_NULL;
@@ -710,7 +712,6 @@ class XMLStructureSerializer extends StructureSerializer
 			{
 				foreach ($events as $event)
 				{
-
 					$eventNode = self::getSingleElementByTagName($this->schemaNamespaceURI,
 						$actionsNode, strtolower($event));
 					if ($eventNode)

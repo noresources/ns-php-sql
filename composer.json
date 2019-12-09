@@ -14,10 +14,6 @@
 		"issues": "https://github.com/noresources/ns-php-sql/issues"
 	},
 	"autoload": {
-		"psr-4": {
-			"NoreSources\\SQL\\": "src/",
-			"NoreSources\\SQL\\Expression\\": "src/Expression"
-		},
 		"classmap": [
 			"src/"
 		]
