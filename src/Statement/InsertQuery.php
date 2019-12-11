@@ -4,12 +4,12 @@
 namespace NoreSources\SQL;
 
 // Aliases
-use NoreSources as ns;
+use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\Expression\Evaluator;
 use NoreSources\SQL\Expression\Expression;
 use NoreSources\SQL\Expression\Keyword;
-use NoreSources\SQL\Expression\Evaluator;
+use NoreSources\SQL\Expression\TableReference;
 use NoreSources\SQL\Expression\Value;
-use NoreSources\SQL\Constants as K;
 
 class InsertQuery extends Statement implements \ArrayAccess
 {
@@ -52,7 +52,7 @@ class InsertQuery extends Statement implements \ArrayAccess
 			$stream->space()
 				->keyword('as')
 				->space()
-				->identifier($context->escapeIdentifier($this->table->alias));
+				->expression($this->table, $context);
 		}
 
 		$columns = [];

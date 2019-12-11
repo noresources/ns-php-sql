@@ -51,7 +51,7 @@
             "source": {
                 "type": "git",
                 "url": "ssh://okami/volume1/repository/git/ns-php-core.git",
-                "reference": "278b0a00cf36c9f7faf1e87c0f987136e5af6e0e"
+                "reference": "c9dec70aaf72dfd06e8ca2d45243a29079441597"
             },
             "require": {
                 "php": ">= 5.4"
@@ -63,14 +63,11 @@
             "autoload": {
                 "psr-4": {
                     "NoreSources\\": "src/"
-                },
-                "files": [
-                    "autoload.php"
-                ]
+                }
             },
             "scripts": {
                 "tests": [
-                    "@php  ./vendor/bin/phpunit --bootstrap autoload.php tests"
+                    "@php  ./vendor/bin/phpunit --color=never --bootstrap tests/bootstrap.php tests"
                 ]
             },
             "license": [
@@ -90,7 +87,7 @@
             "support": {
                 "issues": "https://github.com/noresources/ns-php-core/issues"
             },
-            "time": "2019-12-02T13:06:37+00:00"
+            "time": "2019-12-11T22:02:19+00:00"
         },
         {
             "name": "noresources/ns-php-expression",
@@ -98,7 +95,7 @@
             "source": {
                 "type": "git",
                 "url": "ssh://okami/volume1/repository/git/ns-php-expression.git",
-                "reference": "26a9f5e693a97f4354bf4346b63ba096c12bed6f"
+                "reference": "b22576088ae07dc3bcf8b4640f6c9445bd71cfc8"
             },
             "require": {
                 "noresources/ns-php-core": "~2.0",
@@ -137,7 +134,7 @@
             "support": {
                 "issues": "https://github.com/noresources/ns-php-expression/issues"
             },
-            "time": "2019-12-06T20:57:23+00:00"
+            "time": "2019-12-09T20:54:54+00:00"
         }
     ],
     "packages-dev": [
@@ -1271,12 +1268,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/yaml.git",
-                "reference": "1b78a23cf919e943c4730f27869bfe9b7def0e06"
+                "reference": "44b1f27257b05a34c4b0e3405a236fb67eb8b2db"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/yaml/zipball/1b78a23cf919e943c4730f27869bfe9b7def0e06",
-                "reference": "1b78a23cf919e943c4730f27869bfe9b7def0e06",
+                "url": "https://api.github.com/repos/symfony/yaml/zipball/44b1f27257b05a34c4b0e3405a236fb67eb8b2db",
+                "reference": "44b1f27257b05a34c4b0e3405a236fb67eb8b2db",
                 "shasum": ""
             },
             "require": {
@@ -1322,7 +1319,7 @@
             ],
             "description": "Symfony Yaml Component",
             "homepage": "https://symfony.com",
-            "time": "2019-12-04T11:33:46+00:00"
+            "time": "2019-12-10T08:51:28+00:00"
         },
         {
             "name": "webmozart/assert",

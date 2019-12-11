@@ -4,8 +4,8 @@
 namespace NoreSources\SQL;
 
 // Aliases
-use NoreSources as ns;
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\Expression\Table;
 
 class DropTableQuery extends Statement
 {
@@ -17,7 +17,7 @@ class DropTableQuery extends Statement
 			$table = $table->getPath();
 		}
 
-		$this->table = new TableReference($table);
+		$this->table = new Table($table);
 	}
 
 	public function tokenize(TokenStream &$stream, BuildContext $context)
@@ -40,14 +40,14 @@ class DropTableQuery extends Statement
 				->keyword('exists');
 		}
 
-		$stream->space()->identifier($context->getCanonicalName($tableStructure));
+		$stream->space()->expression($this->table, $context);
 		$context->popResolverContext();
 		return $stream;
 	}
 
 	/**
 	 *
-	 * @var TableReference
+	 * @var NoreSources\Expression\Table
 	 */
 	private $table;
 }

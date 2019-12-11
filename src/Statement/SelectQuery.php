@@ -4,12 +4,13 @@
 namespace NoreSources\SQL;
 
 // Aliases
-use NoreSources as ns;
 use NoreSources\Expression as xpr;
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\Expression\Expression;
 use NoreSources\SQL\Expression\Column;
 use NoreSources\SQL\Expression\Evaluator;
+use NoreSources\SQL\Expression\Expression;
+use NoreSources\SQL\Expression\TableReference;
+use NoreSources as ns;
 
 /**
  * SELECT query result column
@@ -84,23 +85,7 @@ class JoinClause implements Expression
 	{
 		$stream->keyword($context->getJoinOperator($this->operator));
 
-		if ($this->subject instanceof TableReference)
-		{
-			$ts = $context->findTable($this->subject->path);
-
-			$stream->space()->identifier($context->getCanonicalName($ts));
-			if ($this->subject->alias)
-			{
-				$stream->space()
-					->keyword('as')
-					->space()
-					->identifier($context->escapeIdentifier($this->subject->alias));
-			}
-		}
-		elseif ($this->subject instanceof Expression)
-		{
-			$stream->space()->expression($this->subject, $context);
-		}
+		$stream->space()->expression($this->subject, $context);
 
 		if ($this->constraints->count())
 		{

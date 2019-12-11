@@ -4,10 +4,10 @@
 namespace NoreSources\SQL;
 
 // Aliases
-use NoreSources as ns;
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\Expression\Expression;
 use NoreSources\SQL\Expression\Evaluator as X;
+use NoreSources\SQL\Expression\Expression;
+use NoreSources\SQL\Expression\TableReference;
 use NoreSources\SQL\Expression\Value;
 
 class UpdateQuery extends Statement implements \ArrayAccess

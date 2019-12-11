@@ -4,9 +4,9 @@
 namespace NoreSources\SQL;
 
 // Aliases
-use NoreSources as ns;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Expression\Evaluator;
+use NoreSources\SQL\Expression\TableReference;
 
 class DeleteQuery extends Statement
 {
@@ -57,7 +57,7 @@ class DeleteQuery extends Statement
 			->space()
 			->keyword('from')
 			->space()
-			->identifier($context->getCanonicalName($tableStructure));
+			->expression($this->table, $context);
 
 		if ($this->whereConstraints->count())
 		{
