@@ -20,7 +20,7 @@ class DropTableQuery extends Statement
 		$this->table = new TableReference($table);
 	}
 
-	public function tokenize(TokenStream &$stream, StatementContext $context)
+	public function tokenize(TokenStream &$stream, BuildContext $context)
 	{
 		$builderFlags = $context->getBuilderFlags(K::BUILDER_DOMAIN_GENERIC);
 		$builderFlags |= $context->getBuilderFlags(K::BUILDER_DOMAIN_DROP_TABLE);

@@ -12,7 +12,7 @@ class Table extends StructureElementIdentifier
 		parent::__construct($path);
 	}
 
-	public function tokenize(sql\TokenStream &$stream, sql\StatementContext $context)
+	public function tokenize(sql\TokenStream &$stream, sql\BuildContext $context)
 	{
 		$target = $context->findTable($this->path);
 

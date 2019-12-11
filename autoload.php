@@ -80,7 +80,7 @@ spl_autoload_register(function($className) {
 		'noresources\sql\tablereference' => 'src/Statement/TableReference.php',
 		'noresources\sql\statementoutputdata' => 'src/Statement/StatementOutputData.php',
 		'noresources\sql\statementoutputdatatrait' => 'src/Statement/StatementOutputData.php',
-		'noresources\sql\statementcontext' => 'src/Statement/Context.php',
+		'noresources\sql\buildcontext' => 'src/Statement/Context.php',
 		'noresources\sql\resultcolumnreference' => 'src/Statement/Select.php',
 		'noresources\sql\joinclause' => 'src/Statement/Select.php',
 		'noresources\sql\selectquery' => 'src/Statement/Select.php',

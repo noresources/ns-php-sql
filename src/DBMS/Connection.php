@@ -49,7 +49,7 @@ interface Connection
 
 	/**
 	 *
-	 * @param StatementContext|string $statement
+	 * @param BuildContext|string $statement
 	 * @return PreparedStatement
 	 */
 	function prepareStatement($statement);

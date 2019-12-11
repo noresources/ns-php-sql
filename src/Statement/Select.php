@@ -80,7 +80,7 @@ class JoinClause implements Expression
 		], $args);
 	}
 
-	public function tokenize(TokenStream &$stream, StatementContext $context)
+	public function tokenize(TokenStream &$stream, BuildContext $context)
 	{
 		$stream->keyword($context->getJoinOperator($this->operator));
 
@@ -345,7 +345,7 @@ class SelectQuery extends Statement
 		return $this;
 	}
 
-	public function tokenize(TokenStream &$stream, StatementContext $context)
+	public function tokenize(TokenStream &$stream, BuildContext $context)
 	{
 		$builderFlags = $context->getBuilderFlags(K::BUILDER_DOMAIN_GENERIC);
 		$builderFlags |= $context->getBuilderFlags(K::BUILDER_DOMAIN_SELECT);
@@ -542,7 +542,7 @@ class SelectQuery extends Statement
 		return $stream;
 	}
 
-	protected function resolveResultColumns(StatementContext $context)
+	protected function resolveResultColumns(BuildContext $context)
 	{
 		foreach ($this->parts[self::PART_COLUMNS] as $column)
 		{

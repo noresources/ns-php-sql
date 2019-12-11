@@ -21,7 +21,7 @@ final class DeleteTest extends TestCase
 		$tableStructure = $structure['ns_unittests']['Employees'];
 		$this->assertInstanceOf(TableStructure::class, $tableStructure);
 		$builder = new Reference\StatementBuilder();
-		$context = new StatementContext($builder);
+		$context = new BuildContext($builder);
 		$context->setPivot($tableStructure);
 		$q = new DeleteQuery($tableStructure);
 

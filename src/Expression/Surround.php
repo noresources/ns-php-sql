@@ -48,7 +48,7 @@ class Surround implements Expression, ExpressionReturnType
 		return $this->getClosingText();
 	}
 
-	public function tokenize(sql\TokenStream &$stream, sql\StatementContext $context)
+	public function tokenize(sql\TokenStream &$stream, sql\BuildContext $context)
 	{
 		return $stream->text($this->openingText)
 			->expression($this->expression, $context)

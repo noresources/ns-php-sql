@@ -26,7 +26,7 @@ final class CreateTableTest extends TestCase
 		{
 			$tableStructure = $structure['ns_unittests'][$tableName];
 			$this->assertInstanceOf(TableStructure::class, $tableStructure, 'Finding ' . $tableName);
-			$context = new StatementContext($builder);
+			$context = new BuildContext($builder);
 			$context->setPivot($tableStructure);
 			$q = new CreateTableQuery($tableStructure);
 			$stream = new TokenStream();

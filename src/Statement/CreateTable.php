@@ -34,7 +34,7 @@ class CreateTableQuery extends Statement
 		return $this->structure->$member;
 	}
 
-	public function tokenize(TokenStream &$stream, StatementContext $context)
+	public function tokenize(TokenStream &$stream, BuildContext $context)
 	{
 		$builderFlags = $context->getBuilderFlags(K::BUILDER_DOMAIN_GENERIC);
 		$builderFlags |= $context->getBuilderFlags(K::BUILDER_DOMAIN_CREATE_TABLE);

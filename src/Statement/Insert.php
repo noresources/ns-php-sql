@@ -27,7 +27,7 @@ class InsertQuery extends Statement implements \ArrayAccess
 		$this->columnValues = new \ArrayObject();
 	}
 
-	public function tokenize(TokenStream &$stream, StatementContext $context)
+	public function tokenize(TokenStream &$stream, BuildContext $context)
 	{
 		$builderFlags = $context->getBuilderFlags(K::BUILDER_DOMAIN_GENERIC);
 		$builderFlags |= $context->getBuilderFlags(K::BUILDER_DOMAIN_INSERT);

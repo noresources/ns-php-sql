@@ -16,7 +16,7 @@ abstract class PreparedStatement implements StatementInputData, StatementOutputD
 	/**
 	 *
 	 * @param
-	 *        	string|StatementContext Statement data
+	 *        	string|BuildContext Statement data
 	 */
 	public function __construct($data)
 	{

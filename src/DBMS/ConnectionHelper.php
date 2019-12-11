@@ -81,7 +81,7 @@ class ConnectionHelper
 	{
 		$reference = ($reference instanceof StructureElement) ? $reference : $connection->getStructure();
 		$builder = $connection->getStatementBuilder();
-		$context = new StatementContext($builder);
+		$context = new BuildContext($builder);
 		if ($reference instanceof StructureElement)
 			$context->setPivot($reference);
 		$stream = new TokenStream();
@@ -102,7 +102,7 @@ class ConnectionHelper
 	{
 		$reference = ($reference instanceof StructureElement) ? $reference : $connection->getStructure();
 		$builder = $connection->getStatementBuilder();
-		$context = new StatementContext($builder);
+		$context = new BuildContext($builder);
 		if ($reference instanceof StructureElement)
 			$context->setPivot($reference);
 		$stream = new TokenStream();

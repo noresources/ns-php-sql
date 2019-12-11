@@ -25,7 +25,7 @@ class Keyword implements Expression
 		$this->keyword = $keyword;
 	}
 
-	public function tokenize(sql\TokenStream &$stream, sql\StatementContext $context)
+	public function tokenize(sql\TokenStream &$stream, sql\BuildContext $context)
 	{
 		return $stream->keyword($context->getKeyword($this->keyword));
 	}

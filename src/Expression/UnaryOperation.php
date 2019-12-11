@@ -13,7 +13,7 @@ class UnaryOperation extends xpr\UnaryOperation implements Expression, Expressio
 		parent::__construct($operator, $operand);
 	}
 
-	public function tokenize(sql\TokenStream &$stream, sql\StatementContext $context)
+	public function tokenize(sql\TokenStream &$stream, sql\BuildContext $context)
 	{
 		$stream->text($this->getOperator());
 		if (\preg_match('/[a-z][0-9]/i', $this->getOperator()))

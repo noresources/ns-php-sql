@@ -80,7 +80,7 @@ class Between implements Expression, ExpressionReturnType
 	 * {@inheritdoc}
 	 * @see \NoreSources\SQL\Tokenizable::tokenize()
 	 */
-	public function tokenize(sql\TokenStream &$stream, sql\StatementContext $context)
+	public function tokenize(sql\TokenStream &$stream, sql\BuildContext $context)
 	{
 		$stream->expression($this->leftOperand, $context);
 		if (!$this->inside)

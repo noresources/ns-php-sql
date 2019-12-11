@@ -49,7 +49,7 @@ class BinaryOperation extends xpr\BinaryOperation implements Expression, Express
 		return $type;
 	}
 
-	public function tokenize(sql\TokenStream &$stream, sql\StatementContext $context)
+	public function tokenize(sql\TokenStream &$stream, sql\BuildContext $context)
 	{
 		return $stream->expression($this->getLeftOperand(), $context)
 			->space()

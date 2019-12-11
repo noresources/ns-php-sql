@@ -346,10 +346,10 @@ abstract class StatementBuilder implements DataSerializer
 	 * Finalize statement building
 	 *
 	 * @param TokenStream $stream
-	 * @param StatementContext $context
-	 * @return \NoreSources\SQL\StatementContext
+	 * @param BuildContext $context
+	 * @return \NoreSources\SQL\BuildContext
 	 */
-	public function finalize(TokenStream $stream, StatementContext &$context)
+	public function finalize(TokenStream $stream, BuildContext &$context)
 	{
 		$context->sql = '';
 		$context->initializeStatementInputData(null);

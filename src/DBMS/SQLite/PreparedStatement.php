@@ -18,7 +18,7 @@ class PreparedStatement extends sql\PreparedStatement
 	/**
 	 *
 	 * @param \SQLite3Stmt $statement
-	 * @param sql\StatementContext|string $data
+	 * @param sql\BuildContext|string $data
 	 * @throws \Exception
 	 * @throws \BadMethodCallException
 	 */
@@ -31,7 +31,7 @@ class PreparedStatement extends sql\PreparedStatement
 
 		if (version_compare(PHP_VERSION, '7.4.0') < 0) // stmp->getSQL
 		{
-			if ($data instanceof sql\StatementContext || \is_string($data))
+			if ($data instanceof sql\BuildContext || \is_string($data))
 			{
 				$this->sql = strval($data);
 			}

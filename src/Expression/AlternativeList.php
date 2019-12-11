@@ -32,7 +32,7 @@ class Alternative implements xpr\Expression, Expression, ExpressionReturnType
 		return $this->then;
 	}
 
-	public function tokenize(sql\TokenStream &$stream, sql\StatementContext $context)
+	public function tokenize(sql\TokenStream &$stream, sql\BuildContext $context)
 	{
 		return $stream->keyword('when')
 			->space()
@@ -77,7 +77,7 @@ class AlternativeList implements xpr\Expression, Expression
 		$this->otherwise = $else;
 	}
 
-	public function tokenize(sql\TokenStream &$stream, sql\StatementContext $context)
+	public function tokenize(sql\TokenStream &$stream, sql\BuildContext $context)
 	{
 		$stream->keyword('case')
 			->space()

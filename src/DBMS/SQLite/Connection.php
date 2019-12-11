@@ -222,7 +222,7 @@ class Connection implements sql\Connection
 
 	/**
 	 *
-	 * @param sql\StatementContext|string $statement
+	 * @param sql\BuildContext|string $statement
 	 * @return \NoreSources\SQL\SQLite\PreparedStatement
 	 */
 	public function prepareStatement($statement)

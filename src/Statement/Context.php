@@ -3,7 +3,7 @@ namespace NoreSources\SQL;
 
 use NoreSources as ns;
 
-class StatementContext implements StatementInputData, StatementOutputData
+class BuildContext implements StatementInputData, StatementOutputData
 {
 	use StatementInputDataTrait;
 	use StatementOutputDataTrait;

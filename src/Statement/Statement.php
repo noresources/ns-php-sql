@@ -73,7 +73,7 @@ abstract class Statement implements X\Expression
 
 			if ($data instanceof PreparedStatement)
 				$data = $data->getStatement();
-			elseif ($data instanceof StatementContext)
+			elseif ($data instanceof BuildContext)
 				$data = strval($data);
 		}
 

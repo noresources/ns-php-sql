@@ -24,7 +24,7 @@ final class UpdateTest extends TestCase
 		$connection = ConnectionHelper::createConnection('reference');
 
 		$builder = $connection->getStatementBuilder();
-		$context = new StatementContext($builder);
+		$context = new BuildContext($builder);
 		$context->setPivot($tableStructure);
 
 		$sets = [
@@ -103,7 +103,7 @@ final class UpdateTest extends TestCase
 		$tableStructure = $structure['ns_unittests']['Employees'];
 		$this->assertInstanceOf(TableStructure::class, $tableStructure);
 		$builder = new Reference\StatementBuilder();
-		$context = new StatementContext($builder);
+		$context = new BuildContext($builder);
 		$context->setPivot($tableStructure);
 
 		$q = new UpdateQuery($tableStructure);
@@ -144,7 +144,7 @@ final class UpdateTest extends TestCase
 		$tableStructure = $structure['ns_unittests']['Employees'];
 		$this->assertInstanceOf(TableStructure::class, $tableStructure);
 		$builder = new Reference\StatementBuilder();
-		$context = new StatementContext($builder);
+		$context = new BuildContext($builder);
 		$context->setPivot($tableStructure);
 
 		$q = new UpdateQuery($tableStructure);

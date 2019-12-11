@@ -34,7 +34,7 @@ final class InsertTest extends TestCase
 		foreach ($builderFlags as $key => $flags)
 		{
 			$builder = new Reference\StatementBuilder($flags);
-			$context = new StatementContext($builder);
+			$context = new BuildContext($builder);
 			$context->setPivot($t);
 
 			$stream = new TokenStream();
@@ -51,7 +51,7 @@ final class InsertTest extends TestCase
 		$tableStructure = $structure['ns_unittests']['Tasks'];
 		$this->assertInstanceOf(TableStructure::class, $tableStructure);
 		$builder = new Reference\StatementBuilder();
-		$context = new StatementContext($builder);
+		$context = new BuildContext($builder);
 
 		$tests = array(
 			'empty' => array(),
