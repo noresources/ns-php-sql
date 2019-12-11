@@ -65,7 +65,7 @@ abstract class Statement implements X\Expression
 				return K::QUERY_DELETE;
 
 			$type = 0;
-			if ($type instanceof StatementOutputData)
+			if ($type instanceof Statement\OutputData)
 				$type = $data->getExpressionDataType();
 
 			if ($type != 0)

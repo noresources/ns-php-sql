@@ -4,8 +4,8 @@
 namespace NoreSources\SQL;
 
 // Aliases
-use NoreSources as ns;
 use NoreSources\SQL\Constants as K;
+use NoreSources as ns;
 
 class RecordsetException extends \ErrorException
 {
@@ -32,11 +32,11 @@ class RecordsetException extends \ErrorException
 /**
  * Recordset query result
  */
-abstract class Recordset implements \Iterator, StatementOutputData, QueryResult,
+abstract class Recordset implements \Iterator, Statement\OutputData, QueryResult,
 	ns\ArrayRepresentation, \JsonSerializable, DataUnserializer
 {
 
-	use StatementOutputDataTrait;
+	use Statement\OutputDataTrait;
 
 	/**
 	 * Fetch record row to an associative array
@@ -248,7 +248,7 @@ abstract class Recordset implements \Iterator, StatementOutputData, QueryResult,
 
 	protected function __construct($data = null)
 	{
-		$this->initializeStatementOutputData($data);
+		$this->initializeOutputData($data);
 
 		$this->flags = self::FETCH_BOTH;
 		$this->record = [];

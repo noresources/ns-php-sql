@@ -3,10 +3,10 @@ namespace NoreSources\SQL;
 
 use NoreSources as ns;
 
-class BuildContext implements Statement\InputData, StatementOutputData
+class BuildContext implements Statement\InputData, Statement\OutputData
 {
 	use Statement\InputDataTrait;
-	use StatementOutputDataTrait;
+	use Statement\OutputDataTrait;
 
 	/**
 	 * SQL statement string
@@ -41,7 +41,7 @@ class BuildContext implements Statement\InputData, StatementOutputData
 	public function __construct(StatementBuilder $builder, StructureElement $pivot = null)
 	{
 		$this->initializeInputData(null);
-		$this->initializeStatementOutputData(null);
+		$this->initializeOutputData(null);
 		$this->sql = '';
 		$this->contextFlags = 0;
 		$this->builder = $builder;

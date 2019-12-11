@@ -1,15 +1,14 @@
 <?php
 
 // Namespace
-namespace NoreSources\SQL;
+namespace NoreSources\SQL\Statement;
+
+use NoreSources\SQL\ResultColumnMap;
+use NoreSources\SQL\Statement;
 
 // Aliases
-use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\Expression as X;
-use NoreSources\Expression as xpr;
-use NoreSources as ns;
+interface OutputData
 
-interface StatementOutputData
 {
 
 	/**
@@ -45,15 +44,15 @@ interface StatementOutputData
 
 	/**
 	 *
-	 * @param StatementOutputData $data
+	 * @param Statement\OutputData $data
 	 */
-	function initializeStatementOutputData($data = null);
+	function initializeOutputData($data = null);
 }
 
 /**
- * Implementation of StatementOutputData
+ * Implementation of Statement\OutputData
  */
-trait StatementOutputDataTrait
+trait OutputDataTrait
 {
 
 	public function getStatementType()
@@ -85,9 +84,9 @@ trait StatementOutputDataTrait
 		return $this->resultColumns->getIterator();
 	}
 
-	public function initializeStatementOutputData($data = null)
+	public function initializeOutputData($data = null)
 	{
-		if ($data instanceof StatementOutputData)
+		if ($data instanceof OutputData)
 		{
 			$this->statementType = $data->getStatementType();
 			$this->resultColumns = $data->getResultColumns();

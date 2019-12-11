@@ -4,11 +4,11 @@ namespace NoreSources\SQL;
 /**
  * Pre-built statement
  */
-abstract class PreparedStatement implements Statement\InputData, StatementOutputData
+abstract class PreparedStatement implements Statement\InputData, Statement\OutputData
 {
 
 	use Statement\InputDataTrait;
-	use StatementOutputDataTrait;
+	use Statement\OutputDataTrait;
 
 	/**
 	 *
@@ -22,7 +22,7 @@ abstract class PreparedStatement implements Statement\InputData, StatementOutput
 		else
 			$this->initializeInputData(null);
 
-		$this->initializeStatementOutputData($data);
+		$this->initializeOutputData($data);
 	}
 
 	/**

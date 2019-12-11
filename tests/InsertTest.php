@@ -40,7 +40,7 @@ final class InsertTest extends TestCase
 			$stream = new TokenStream();
 			$q->tokenize($stream, $context);
 			$result = $builder->finalize($stream, $context);
-			$this->assertInstanceOf(StatementOutputData::class, $result, 'Result is (at least) a StatementOutputData');
+			$this->assertInstanceOf(Statement\OutputData::class, $result, 'Result is (at least) a Statement\OutputData');
 			$this->derivedFileManager->assertDerivedFile(strval($result), __METHOD__, $key, 'sql');
 		}
 	}

@@ -14,7 +14,7 @@ class Recordset extends sql\Recordset
 	{
 		parent::__construct($data);
 		$this->result = $result;
-		if (!($data instanceof sql\StatementOutputData))
+		if (!($data instanceof sql\Statement\OutputData))
 		{
 			$map = $this->getResultColumns();
 			for ($i = 0; $i < $result->numColumns(); $i++)
