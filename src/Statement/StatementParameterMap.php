@@ -1,18 +1,15 @@
 <?php
 
 // Namespace
-namespace NoreSources\SQL;
+namespace NoreSources\SQL\Statement;
 
 // Aliases
-use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\Expression as X;
-use NoreSources\Expression as xpr;
 use NoreSources as ns;
 
-class StatementParameterIterator implements \Iterator
+class ParameterIterator implements \Iterator
 {
 
-	public function __construct(StatementParameterMap $map, $type)
+	public function __construct(ParameterMap $map, $type)
 	{
 		$this->iterator = $map->getIterator();
 		$this->keyType = $type;
@@ -56,7 +53,7 @@ class StatementParameterIterator implements \Iterator
 	private $keyType;
 }
 
-class StatementParameterMap extends \ArrayObject
+class ParameterMap extends \ArrayObject
 {
 
 	public function getNamedParameterCount()
@@ -66,11 +63,11 @@ class StatementParameterMap extends \ArrayObject
 
 	/**
 	 *
-	 * @return \NoreSources\SQL\StatementParameterIterator
+	 * @return \NoreSources\SQL\ParameterIterator
 	 */
 	public function getNamedParameterIterator()
 	{
-		return (new StatementParameterIterator($this, 'string'));
+		return (new ParameterIterator($this, 'string'));
 	}
 
 	/**

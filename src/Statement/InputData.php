@@ -3,8 +3,6 @@
 // Namespace
 namespace NoreSources\SQL\Statement;
 
-use NoreSources\SQL\StatementParameterMap;
-
 interface InputData
 {
 
@@ -38,7 +36,7 @@ interface InputData
 
 	/**
 	 *
-	 * @return StatementParameterMap
+	 * @return ParameterMap
 	 */
 	function getParameters();
 
@@ -98,12 +96,12 @@ trait InputDataTrait
 		if ($data)
 			$this->parameters = $data->getParameters();
 		else
-			$this->parameters = new StatementParameterMap();
+			$this->parameters = new ParameterMap();
 	}
 
 	/**
 	 *
-	 * @var StatementParameterMap Array of StatementParameter
+	 * @var ParameterMap Array of Parameter
 	 *      The entry key is the parameter name as it appears in the Statement.
 	 */
 	private $parameters;
