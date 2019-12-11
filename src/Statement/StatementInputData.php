@@ -1,15 +1,11 @@
 <?php
 
 // Namespace
-namespace NoreSources\SQL;
+namespace NoreSources\SQL\Statement;
 
-// Aliases
-use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\Expression as X;
-use NoreSources\Expression as xpr;
-use NoreSources as ns;
+use NoreSources\SQL\StatementParameterMap;
 
-interface StatementInputData
+interface InputData
 {
 
 	/**
@@ -57,13 +53,13 @@ interface StatementInputData
 	 */
 	function registerParameter($position, $key, $dbmsName);
 
-	function initializeStatementInputData(StatementInputData $data = null);
+	function initializeInputData(InputData $data = null);
 }
 
 /**
- * Implementation of StatementInputData
+ * Implementation of InputData
  */
-trait StatementInputDataTrait
+trait InputDataTrait
 {
 
 	public function getNamedParameterCount()
@@ -97,7 +93,7 @@ trait StatementInputDataTrait
 		$this->parameters->offsetSet(strval($key), $dbmsName);
 	}
 
-	public function initializeStatementInputData(StatementInputData $data = null)
+	public function initializeInputData(InputData $data = null)
 	{
 		if ($data)
 			$this->parameters = $data->getParameters();

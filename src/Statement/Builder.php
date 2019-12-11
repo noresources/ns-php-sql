@@ -1,9 +1,8 @@
 <?php
 namespace NoreSources\SQL;
 
-use NoreSources as ns;
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\Expression\Evaluator as X;
+use NoreSources as ns;
 
 /**
  * Build a SQL statement string to be used in a SQL engine
@@ -352,7 +351,7 @@ abstract class StatementBuilder implements DataSerializer
 	public function finalize(TokenStream $stream, BuildContext &$context)
 	{
 		$context->sql = '';
-		$context->initializeStatementInputData(null);
+		$context->initializeInputData(null);
 
 		foreach ($stream as $token)
 		{

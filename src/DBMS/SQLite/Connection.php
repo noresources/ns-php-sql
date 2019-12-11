@@ -275,7 +275,7 @@ class Connection implements sql\Connection
 			foreach ($parameters as $key => $entry)
 			{
 				$name = $key;
-				if ($statement instanceof sql\StatementInputData)
+				if ($statement instanceof sql\Statement\InputData)
 				{
 					if ($statement->hasParameter($key))
 						$name = $statement->getParameter($key);

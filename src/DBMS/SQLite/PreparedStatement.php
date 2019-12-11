@@ -38,18 +38,18 @@ class PreparedStatement extends sql\PreparedStatement
 			else
 			{
 				throw new \Exception(
-					'Unable to get SQL string from SQLite statement nor StatementInputData');
+					'Unable to get SQL string from SQLite statement nor Statement\InputData');
 			}
 		}
 
-		if ($data instanceof sql\StatementInputData)
+		if ($data instanceof sql\Statement\InputData)
 		{
 			if ($data->getNamedParameterCount() != $statement->paramCount())
 			{
 				echo ($data . PHP_EOL);
 				throw new \BadMethodCallException(
-					'SQLite statement and StatementInputData parameter mismatch. Got ' .
-					$data->getNamedParameterCount() . ' for StatementInputData and ' .
+					'SQLite statement and Statement\InputData parameter mismatch. Got ' .
+					$data->getNamedParameterCount() . ' for Statement\InputData and ' .
 					$statement->paramCount() . ' for SQLiteStmt');
 			}
 		}

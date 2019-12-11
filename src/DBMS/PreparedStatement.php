@@ -1,16 +1,13 @@
 <?php
 namespace NoreSources\SQL;
 
-use NoreSources as ns;
-use NoreSources\SQL\Constants as K;
-
 /**
  * Pre-built statement
  */
-abstract class PreparedStatement implements StatementInputData, StatementOutputData
+abstract class PreparedStatement implements Statement\InputData, StatementOutputData
 {
 
-	use StatementInputDataTrait;
+	use Statement\InputDataTrait;
 	use StatementOutputDataTrait;
 
 	/**
@@ -20,10 +17,10 @@ abstract class PreparedStatement implements StatementInputData, StatementOutputD
 	 */
 	public function __construct($data)
 	{
-		if ($data instanceof StatementInputData)
-			$this->initializeStatementInputData($data);
+		if ($data instanceof Statement\InputData)
+			$this->initializeInputData($data);
 		else
-			$this->initializeStatementInputData(null);
+			$this->initializeInputData(null);
 
 		$this->initializeStatementOutputData($data);
 	}
