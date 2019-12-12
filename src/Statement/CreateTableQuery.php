@@ -4,12 +4,10 @@
 namespace NoreSources\SQL\Statement;
 
 // Aliases
-use NoreSources\SQL\BuildContext;
 use NoreSources\SQL\ColumnTableConstraint;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\ForeignKeyTableConstraint;
 use NoreSources\SQL\PrimaryKeyTableConstraint;
-use NoreSources\SQL\Statement;
 use NoreSources\SQL\StatementException;
 use NoreSources\SQL\TableStructure;
 use NoreSources\SQL\TokenStream;

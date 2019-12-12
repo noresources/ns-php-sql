@@ -1,10 +1,12 @@
 <?php
 
 // Namespace
-namespace NoreSources\SQL;
+namespace NoreSources\SQL\Statement;
 
 // Aliases
-use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\BuildContext;
+use NoreSources\SQL\TableStructure;
+use NoreSources\SQL\TokenStream;
 use NoreSources\SQL\Expression\Table;
 
 class DropTableQuery extends Statement

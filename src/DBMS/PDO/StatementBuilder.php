@@ -8,7 +8,7 @@ use NoreSources as ns;
 use NoreSources\SQL as sql;
 use NoreSources\SQL\Constants as K;
 
-class StatementBuilder extends sql\StatementBuilder
+class StatementBuilder extends sql\Statement\Builder
 {
 
 	const DRIVER_MYSQL = Connection::DRIVER_MYSQL;

@@ -6,8 +6,6 @@ namespace NoreSources\SQL\Statement;
 // Aliases
 use NoreSources\SQL\Constants as K;
 use NoreSources\Expression\Expression;
-use NoreSources\SQL\BuildContext;
-use NoreSources\SQL\Statement;
 use NoreSources\SQL\TableStructure;
 use NoreSources\SQL\TokenStream;
 use NoreSources\SQL\Expression\Evaluator;

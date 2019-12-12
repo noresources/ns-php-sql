@@ -9,7 +9,7 @@ use NoreSources\SQL as sql;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\TableColumnStructure;
 
-class StatementBuilder extends sql\StatementBuilder
+class StatementBuilder extends sql\Statement\Builder
 {
 
 	public function __construct()

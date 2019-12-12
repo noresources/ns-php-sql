@@ -5,6 +5,8 @@ namespace NoreSources\SQL\SQLite;
 
 // Aliases
 use NoreSources\SQL as sql;
+use NoreSources\SQL\Statement\ResultColumn;
+use NoreSources\SQL\Statement\ResultColumnMap;
 use NoreSources\SQL\SQLite\Constants as K;
 
 class Recordset extends sql\Recordset
@@ -24,7 +26,7 @@ class Recordset extends sql\Recordset
 					$column = $map->getColumn($i);
 				else
 				{
-					$column = new sql\ResultColumn(K::DATATYPE_UNDEFINED);
+					$column = new ResultColumn(K::DATATYPE_UNDEFINED);
 					$column->name = $result->columnName($i);
 				}
 
@@ -43,7 +45,7 @@ class Recordset extends sql\Recordset
 		$this->result->finalize();
 	}
 
-	public function setResultColumns(sql\ResultColumnMap $columns)
+	public function setResultColumns(ResultColumnMap $columns)
 	{
 		parent::setResultColumns($columns);
 		foreach ($columns as $index => &$column)

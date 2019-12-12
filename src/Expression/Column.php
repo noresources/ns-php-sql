@@ -3,6 +3,7 @@ namespace NoreSources\SQL\Expression;
 
 use NoreSources\SQL as sql;
 use NoreSources\Expression as xpr;
+use NoreSources\SQL\Statement\BuildContext;
 
 class Column extends StructureElementIdentifier
 {
@@ -14,7 +15,7 @@ class Column extends StructureElementIdentifier
 		parent::__construct($path);
 	}
 
-	public function tokenize(sql\TokenStream &$stream, sql\BuildContext $context)
+	public function tokenize(sql\TokenStream &$stream, BuildContext $context)
 	{
 		$target = $context->findColumn($this->path);
 		if ($target instanceof sql\TableColumnStructure)

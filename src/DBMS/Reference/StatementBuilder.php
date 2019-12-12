@@ -3,11 +3,12 @@ namespace NoreSources\SQL\Reference;
 
 use NoreSources as ns;
 use NoreSources\SQL as sql;
+use NoreSources\SQL\Statement;
 use NoreSources\SQL\Constants as K;
 
 /**
  */
-class StatementBuilder extends sql\StatementBuilder
+class StatementBuilder extends Statement\Builder
 {
 
 	public function __construct($domainFlags = [])

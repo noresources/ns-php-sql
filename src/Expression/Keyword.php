@@ -3,6 +3,7 @@ namespace NoreSources\SQL\Expression;
 
 use NoreSources\SQL as sql;
 use NoreSources\Expression as xpr;
+use NoreSources\SQL\Statement\BuildContext;
 
 class Keyword implements Expression
 {
@@ -25,7 +26,7 @@ class Keyword implements Expression
 		$this->keyword = $keyword;
 	}
 
-	public function tokenize(sql\TokenStream &$stream, sql\BuildContext $context)
+	public function tokenize(sql\TokenStream &$stream, BuildContext $context)
 	{
 		return $stream->keyword($context->getKeyword($this->keyword));
 	}

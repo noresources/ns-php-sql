@@ -3,6 +3,7 @@ namespace NoreSources\SQL\Expression;
 
 use NoreSources\SQL as sql;
 use NoreSources\Expression as xpr;
+use NoreSources\SQL\Statement\BuildContext;
 
 class Surround implements Expression, ExpressionReturnType
 {
@@ -48,7 +49,7 @@ class Surround implements Expression, ExpressionReturnType
 		return $this->getClosingText();
 	}
 
-	public function tokenize(sql\TokenStream &$stream, sql\BuildContext $context)
+	public function tokenize(sql\TokenStream &$stream, BuildContext $context)
 	{
 		return $stream->text($this->openingText)
 			->expression($this->expression, $context)

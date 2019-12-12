@@ -7,6 +7,8 @@ namespace NoreSources\SQL;
 use NoreSources as ns;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Expression\Expression;
+use NoreSources\SQL\Statement\BuildContext;
+use NoreSources\SQL\Statement\Statement;
 
 class ConnectionHelper
 {

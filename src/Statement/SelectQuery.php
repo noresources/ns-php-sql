@@ -1,11 +1,13 @@
 <?php
 
 // Namespace
-namespace NoreSources\SQL;
+namespace NoreSources\SQL\Statement;
 
 // Aliases
 use NoreSources\Expression as xpr;
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\TableStructure;
+use NoreSources\SQL\TokenStream;
 use NoreSources\SQL\Expression\Column;
 use NoreSources\SQL\Expression\Evaluator;
 use NoreSources\SQL\Expression\Expression;

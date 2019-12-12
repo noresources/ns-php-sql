@@ -3,6 +3,7 @@ namespace NoreSources\SQL\Expression;
 
 use NoreSources\SQL as sql;
 use NoreSources\Expression as xpr;
+use NoreSources\SQL\Statement\BuildContext;
 
 class Parameter implements Expression
 {
@@ -15,7 +16,7 @@ class Parameter implements Expression
 		$this->name = $name;
 	}
 
-	public function tokenize(sql\TokenStream &$stream, sql\BuildContext $context)
+	public function tokenize(sql\TokenStream &$stream, BuildContext $context)
 	{
 		return $stream->parameter($this->name);
 	}

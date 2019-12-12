@@ -7,7 +7,9 @@ namespace NoreSources\SQL\SQLite;
 use NoreSources as ns;
 use NoreSources\SQL as sql;
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\StatementData;
+use NoreSources\SQL\Statement\BuildContext;
+use NoreSources\SQL\Statement\InputData;
+use NoreSources\SQL\Statement\OutputData;
 
 /**
  * SQLite3 implementation of NoreSources\SQL\PreparedStatement
@@ -31,7 +33,7 @@ class PreparedStatement extends sql\PreparedStatement
 
 		if (version_compare(PHP_VERSION, '7.4.0') < 0) // stmp->getSQL
 		{
-			if ($data instanceof sql\BuildContext || \is_string($data))
+			if ($data instanceof BuildContext || \is_string($data))
 			{
 				$this->sql = strval($data);
 			}

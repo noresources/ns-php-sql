@@ -23,9 +23,9 @@ final class SelectTest extends TestCase
 		$tableStructure = $structure['ns_unittests']['Employees'];
 		$this->assertInstanceOf(TableStructure::class, $tableStructure);
 		$builder = new Reference\StatementBuilder();
-		$context = new BuildContext($builder);
+		$context = new Statement\BuildContext($builder);
 		$context->setPivot($tableStructure);
-		$q = new SelectQuery($tableStructure, 't');
+		$q = new Statement\SelectQuery($tableStructure, 't');
 
 		$q->columns([
 			'id',
@@ -64,9 +64,9 @@ final class SelectTest extends TestCase
 		$this->assertInstanceOf(TableStructure::class, $tableStructure);
 		$builder = new Reference\StatementBuilder(
 			K::BUILDER_SELECT_EXTENDED_RESULTCOLUMN_ALIAS_RESOLUTION);
-		$context = new BuildContext($builder);
+		$context = new Statement\BuildContext($builder);
 		$context->setPivot($tableStructure);
-		$q = new SelectQuery($tableStructure, 't');
+		$q = new Statement\SelectQuery($tableStructure, 't');
 
 		$q->columns([
 			't.name',
@@ -118,17 +118,17 @@ final class SelectTest extends TestCase
 		$tablesetStructure = $structure['ns_unittests'];
 		$this->assertInstanceOf(TableSetStructure::class, $tablesetStructure);
 		$builder = new Reference\StatementBuilder();
-		$context = new BuildContext($builder);
+		$context = new Statement\BuildContext($builder);
 		$context->setPivot($tablesetStructure);
 
-		$q = new SelectQuery('Employees', 'E');
+		$q = new Statement\SelectQuery('Employees', 'E');
 		$q->columns([
 			'id' => 'I'
 		], [
 			'name' => 'N'
 		]);
 
-		$sub = new SelectQuery('Hierarchy', 'E');
+		$sub = new Statement\SelectQuery('Hierarchy', 'E');
 		$sub->columns([
 			'manageeId' => 'N'
 		]);

@@ -4,6 +4,7 @@ namespace NoreSources\SQL\Expression;
 use NoreSources\SQL as sql;
 use NoreSources\Expression as xpr;
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\Statement\BuildContext;
 
 class BinaryOperation extends xpr\BinaryOperation implements Expression, ExpressionReturnType
 {
@@ -49,7 +50,7 @@ class BinaryOperation extends xpr\BinaryOperation implements Expression, Express
 		return $type;
 	}
 
-	public function tokenize(sql\TokenStream &$stream, sql\BuildContext $context)
+	public function tokenize(sql\TokenStream &$stream, BuildContext $context)
 	{
 		return $stream->expression($this->getLeftOperand(), $context)
 			->space()

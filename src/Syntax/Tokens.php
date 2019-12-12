@@ -15,7 +15,7 @@ interface Tokenizable
 	 * @see \NoreSources\SQL\Tokenizable::tokenize()
 	 * @return TokenStream
 	 */
-	function tokenize(TokenStream &$stream, BuildContext $context);
+	function tokenize(TokenStream &$stream, Statement\BuildContext $context);
 }
 
 class TokenStream implements \IteratorAggregate, \Countable
@@ -60,7 +60,7 @@ class TokenStream implements \IteratorAggregate, \Countable
 		return $this->append($value, K::TOKEN_PARAMETER);
 	}
 
-	public function expression(Expression $expression, BuildContext $context)
+	public function expression(Expression $expression, Statement\BuildContext $context)
 	{
 		$expression->tokenize($this, $context);
 		return $this;
@@ -72,7 +72,7 @@ class TokenStream implements \IteratorAggregate, \Countable
 	 * @param BuildContext $context
 	 * @return \NoreSources\SQL\TokenStream
 	 */
-	public function constraints($constraints, BuildContext $context)
+	public function constraints($constraints, Statement\BuildContext $context)
 	{
 		$c = null;
 		foreach ($constraints as $constraint)
@@ -88,12 +88,6 @@ class TokenStream implements \IteratorAggregate, \Countable
 			return $this->expression($c, $context);
 
 		return $this;
-	}
-
-	public function evaluable(Evaluable $evaluable, BuildContext $context)
-	{
-		$x = Evaluator::evaluate($evaluable);
-		return $this->expression($x, $context);
 	}
 
 	public function append($token, $type)

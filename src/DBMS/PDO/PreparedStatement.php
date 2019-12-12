@@ -7,7 +7,8 @@ namespace NoreSources\SQL\PDO;
 use NoreSources as ns;
 use NoreSources\SQL as sql;
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\ResultColumn;
+use NoreSources\SQL\Statement\ResultColumn;
+use NoreSources\SQL\Statement\ResultColumnMap;
 
 class PreparedStatement extends sql\PreparedStatement
 {
@@ -55,7 +56,7 @@ class PreparedStatement extends sql\PreparedStatement
 						$column = $map->getColumn($i);
 					else
 					{
-						$column = new sql\ResultColumn(K::DATATYPE_UNDEFINED);
+						$column = new ResultColumn(K::DATATYPE_UNDEFINED);
 						$column->name = $meta['name'];
 					}
 

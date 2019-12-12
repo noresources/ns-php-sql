@@ -256,7 +256,7 @@ class Connection implements sql\Connection
 		;
 
 		$result = null;
-		$statementType = sql\Statement::statementTypeFromData($statement);
+		$statementType = sql\Statement\Statement::statementTypeFromData($statement);
 
 		if ($parameters instanceof sql\StatementParameterArray && $parameters->count())
 		{

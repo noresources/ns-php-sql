@@ -6,6 +6,8 @@ namespace NoreSources\SQL;
 // Aliases
 use NoreSources\SQL\Constants as K;
 use NoreSources as ns;
+use NoreSources\SQL\Statement\ResultColumn;
+use NoreSources\SQL\Statement\ResultColumnMap;
 
 class RecordsetException extends \ErrorException
 {

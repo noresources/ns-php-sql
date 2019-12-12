@@ -4,6 +4,7 @@ namespace NoreSources\SQL;
 use PHPUnit\Framework\TestCase;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Expression\Evaluator as X;
+use NoreSources\SQL\Statement\BuildContext;
 
 final class UpdateTest extends TestCase
 {
@@ -110,7 +111,7 @@ final class UpdateTest extends TestCase
 
 		$q->setColumnValue('salary', 'salary * 2', true);
 
-		$sub = new SelectQuery('Employees', 'e');
+		$sub = new Statement\SelectQuery('Employees', 'e');
 		$sub->columns('id');
 		$sub->where('id > 2');
 

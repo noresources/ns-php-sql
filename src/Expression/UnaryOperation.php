@@ -4,6 +4,7 @@ namespace NoreSources\SQL\Expression;
 use NoreSources\SQL as sql;
 use NoreSources\SQL\Constants as K;
 use NoreSources\Expression as xpr;
+use NoreSources\SQL\Statement\BuildContext;
 
 class UnaryOperation extends xpr\UnaryOperation implements Expression, ExpressionReturnType
 {
@@ -13,7 +14,7 @@ class UnaryOperation extends xpr\UnaryOperation implements Expression, Expressio
 		parent::__construct($operator, $operand);
 	}
 
-	public function tokenize(sql\TokenStream &$stream, sql\BuildContext $context)
+	public function tokenize(sql\TokenStream &$stream, BuildContext $context)
 	{
 		$stream->text($this->getOperator());
 		if (\preg_match('/[a-z][0-9]/i', $this->getOperator()))

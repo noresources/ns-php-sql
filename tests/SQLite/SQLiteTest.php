@@ -40,7 +40,7 @@ final class SQLiteTest extends TestCase
 		$result = $this->connection->executeStatement($prepared);
 		$this->assertInstanceOf(InsertionQueryResult::class, $result);
 
-		$selectStatement = new SelectQuery($tableStructure);
+		$selectStatement = new Statement\SelectQuery($tableStructure);
 		$selectPrepared = ConnectionHelper::prepareStatement($this->connection, $selectStatement,
 			$tableStructure);
 
@@ -98,7 +98,7 @@ final class SQLiteTest extends TestCase
 		$result = $this->connection->executeStatement($prepared, $p);
 		$this->assertInstanceOf(InsertionQueryResult::class, $result);
 
-		$statement = new SelectQuery($tableStructure);
+		$statement = new Statement\SelectQuery($tableStructure);
 
 		$prepared = ConnectionHelper::prepareStatement($this->connection, $statement,
 			$tableStructure);
@@ -108,7 +108,7 @@ final class SQLiteTest extends TestCase
 		$this->assertEquals(4, $prepared->getResultColumnCount(),
 			'Prepared statement result columns count');
 
-		$statement = new SelectQuery($tableStructure);
+		$statement = new Statement\SelectQuery($tableStructure);
 		$statement->columns('name', 'gender', 'salary');
 
 		$prepared = ConnectionHelper::prepareStatement($this->connection, $statement,

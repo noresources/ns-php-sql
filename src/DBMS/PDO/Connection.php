@@ -135,7 +135,7 @@ class Connection implements sql\Connection
 		if (!($this->connection instanceof \PDO))
 			throw new sql\ConnectionException($this, 'Not connected');
 
-		$type = sql\Statement::statementTypeFromData($statement);
+		$type = sql\Statement\Statement::statementTypeFromData($statement);
 		$attributes = [];
 		if ($type == K::QUERY_SELECT)
 			$attributes[\PDO::ATTR_CURSOR] = \PDO::CURSOR_SCROLL;
@@ -236,7 +236,7 @@ class Connection implements sql\Connection
 		 */
 
 		$result = true;
-		$type = sql\Statement::statementTypeFromData($prepared);
+		$type = sql\Statement\Statement::statementTypeFromData($prepared);
 
 		if ($type == K::QUERY_SELECT)
 		{

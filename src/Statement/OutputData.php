@@ -3,9 +3,6 @@
 // Namespace
 namespace NoreSources\SQL\Statement;
 
-use NoreSources\SQL\ResultColumnMap;
-use NoreSources\SQL\Statement;
-
 // Aliases
 interface OutputData
 

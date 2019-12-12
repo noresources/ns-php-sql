@@ -3,6 +3,7 @@ namespace NoreSources\SQL\Expression;
 
 use NoreSources\SQL as sql;
 use NoreSources\Expression as xpr;
+use NoreSources\SQL\Statement\BuildContext;
 
 /**
  * CASE expression
@@ -32,7 +33,7 @@ class Alternative implements xpr\Expression, Expression, ExpressionReturnType
 		return $this->then;
 	}
 
-	public function tokenize(sql\TokenStream &$stream, sql\BuildContext $context)
+	public function tokenize(sql\TokenStream &$stream, BuildContext $context)
 	{
 		return $stream->keyword('when')
 			->space()
@@ -77,7 +78,7 @@ class AlternativeList implements xpr\Expression, Expression
 		$this->otherwise = $else;
 	}
 
-	public function tokenize(sql\TokenStream &$stream, sql\BuildContext $context)
+	public function tokenize(sql\TokenStream &$stream, BuildContext $context)
 	{
 		$stream->keyword('case')
 			->space()

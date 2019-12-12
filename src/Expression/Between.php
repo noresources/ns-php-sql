@@ -4,6 +4,7 @@ namespace NoreSources\SQL\Expression;
 use NoreSources\SQL as sql;
 use NoreSources\SQL\Constants as K;
 use NoreSources\Expression as xpr;
+use NoreSources\SQL\Statement\BuildContext;
 
 class Between implements Expression, ExpressionReturnType
 {
@@ -80,7 +81,7 @@ class Between implements Expression, ExpressionReturnType
 	 * {@inheritdoc}
 	 * @see \NoreSources\SQL\Tokenizable::tokenize()
 	 */
-	public function tokenize(sql\TokenStream &$stream, sql\BuildContext $context)
+	public function tokenize(sql\TokenStream &$stream, BuildContext $context)
 	{
 		$stream->expression($this->leftOperand, $context);
 		if (!$this->inside)

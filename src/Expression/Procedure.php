@@ -4,6 +4,7 @@ namespace NoreSources\SQL\Expression;
 use NoreSources\SQL as sql;
 use NoreSources\SQL\Expression\Evaluator;
 use NoreSources\Expression as xpr;
+use NoreSources\SQL\Statement\BuildContext;
 
 class Procedure extends xpr\Procedure implements Expression
 {
@@ -22,7 +23,7 @@ class Procedure extends xpr\Procedure implements Expression
 		return parent::appendArgument($argument);
 	}
 
-	public function tokenize(sql\TokenStream &$stream, sql\BuildContext $context)
+	public function tokenize(sql\TokenStream &$stream, BuildContext $context)
 	{
 		$stream->keyword($this->getFunctionName())
 			->text('(');

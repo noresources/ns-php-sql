@@ -1,13 +1,25 @@
 <?php
-namespace NoreSources\SQL;
+namespace NoreSources\SQL\Statement;
 
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\ColumnPropertyMap;
+use NoreSources\SQL\ColumnTableConstraint;
+use NoreSources\SQL\DataSerializer;
+use NoreSources\SQL\DatasourceStructure;
+use NoreSources\SQL\ForeignKeyTableConstraint;
+use NoreSources\SQL\PrimaryKeyTableConstraint;
+use NoreSources\SQL\StructureElement;
+use NoreSources\SQL\TableColumnStructure;
+use NoreSources\SQL\TableConstraint;
+use NoreSources\SQL\TableStructure;
+use NoreSources\SQL\TokenStream;
+use NoreSources\SQL\UniqueTableConstraint;
 use NoreSources as ns;
 
 /**
  * Build a SQL statement string to be used in a SQL engine
  */
-abstract class StatementBuilder implements DataSerializer
+abstract class Builder implements DataSerializer
 {
 
 	/**

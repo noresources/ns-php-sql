@@ -152,7 +152,7 @@ final class PDOTest extends TestCase
 			$connection->executeStatement($prepared, new StatementParameterArray($employee));
 		}
 
-		$select = new SelectQuery($detachedTable);
+		$select = new Statement\SelectQuery($detachedTable);
 		$select->where([
 			'>' => [
 				'salary',

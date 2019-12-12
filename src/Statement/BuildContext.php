@@ -1,12 +1,14 @@
 <?php
-namespace NoreSources\SQL;
+namespace NoreSources\SQL\Statement;
 
+use NoreSources\SQL\StructureElement;
+use NoreSources\SQL\StructureResolver;
 use NoreSources as ns;
 
-class BuildContext implements Statement\InputData, Statement\OutputData
+class BuildContext implements InputData, OutputData
 {
-	use Statement\InputDataTrait;
-	use Statement\OutputDataTrait;
+	use InputDataTrait;
+	use OutputDataTrait;
 
 	/**
 	 * SQL statement string
@@ -35,10 +37,10 @@ class BuildContext implements Statement\InputData, Statement\OutputData
 
 	/**
 	 *
-	 * @param StatementBuilder $builder
+	 * @param Builder $builder
 	 * @param StructureElement $pivot
 	 */
-	public function __construct(StatementBuilder $builder, StructureElement $pivot = null)
+	public function __construct(Builder $builder, StructureElement $pivot = null)
 	{
 		$this->initializeInputData(null);
 		$this->initializeOutputData(null);

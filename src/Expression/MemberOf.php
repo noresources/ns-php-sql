@@ -6,6 +6,7 @@ use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Expression\Evaluator;
 use NoreSources\Expression as xpr;
 use NoreSources\Expression\Set;
+use NoreSources\SQL\Statement\BuildContext;
 
 /**
  * In operator
@@ -44,7 +45,7 @@ class MemberOf extends xpr\Set implements Expression, ExpressionReturnType
 	 * {@inheritdoc}
 	 * @see \NoreSources\SQL\Tokenizable::tokenize()
 	 */
-	public function tokenize(sql\TokenStream &$stream, sql\BuildContext $context)
+	public function tokenize(sql\TokenStream &$stream, BuildContext $context)
 	{
 		$stream->expression($this->leftOperand, $context);
 		if (!$this->memberOf)

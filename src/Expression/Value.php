@@ -4,6 +4,7 @@ namespace NoreSources\SQL\Expression;
 use NoreSources\SQL as sql;
 use NoreSources\SQL\Constants as K;
 use NoreSources\Expression as xpr;
+use NoreSources\SQL\Statement\BuildContext;
 
 class Value extends xpr\Value implements Expression, ExpressionReturnType
 {
@@ -48,7 +49,7 @@ class Value extends xpr\Value implements Expression, ExpressionReturnType
 		return Helper::getExpressionDataType($this->getValue());
 	}
 
-	public function tokenize(sql\TokenStream &$stream, sql\BuildContext $context)
+	public function tokenize(sql\TokenStream &$stream, BuildContext $context)
 	{
 		return $stream->literal(
 			$context->serializeColumnData($this->serializationTarget, $this->getValue()));

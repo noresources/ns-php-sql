@@ -1,13 +1,13 @@
 <?php
 
 // Namespace
-namespace NoreSources\SQL;
+namespace NoreSources\SQL\Statement;
 
 // Aliases
+use NoreSources\Expression as xpr;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Expression as X;
-use NoreSources\Expression as xpr;
-use NoreSources as ns;
+use NoreSources\SQL\PreparedStatement;
 
 /**
  * Exception raised while building statement SQL string
@@ -57,7 +57,7 @@ abstract class Statement implements X\Expression
 		{
 			if ($data instanceof SelectQuery)
 				return K::QUERY_SELECT;
-			elseif ($data instanceof InsertionQuery)
+			elseif ($data instanceof InsertQuery)
 				return K::QUERY_INSERT;
 			elseif ($data instanceof UpdateQuery)
 				return K::QUERY_UPDATE;
@@ -65,7 +65,7 @@ abstract class Statement implements X\Expression
 				return K::QUERY_DELETE;
 
 			$type = 0;
-			if ($type instanceof Statement\OutputData)
+			if ($type instanceof OutputData)
 				$type = $data->getExpressionDataType();
 
 			if ($type != 0)

@@ -1,12 +1,13 @@
 <?php
 
 // Namespace
-namespace NoreSources\SQL;
+namespace NoreSources\SQL\Statement;
 
 // Aliases
+use NoreSources\SQL\ColumnPropertyMap;
+use NoreSources\SQL\ColumnPropertyMapTrait;
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\Expression as X;
-use NoreSources\Expression as xpr;
+use NoreSources\SQL\TableColumnStructure;
 use NoreSources as ns;
 
 /**
