@@ -1,9 +1,10 @@
 <?php
 
 // Namespace
-namespace NoreSources\SQL;
+namespace NoreSources\SQL\Statement;
 
 // Aliases
+use NoreSources\Expression\Expression;
 use NoreSources\SQL\Expression\Evaluator;
 
 /**

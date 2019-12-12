@@ -1,9 +1,9 @@
 <?php
 namespace NoreSources\SQL;
 
-use PHPUnit\Framework\TestCase;
-use NoreSources as ns;
 use NoreSources\SQL\PDO\Constants as K;
+use NoreSources\SQL\Statement\UpdateQuery;
+use PHPUnit\Framework\TestCase;
 $sqliteConnectionParameters = [
 	K::CONNECTION_PARAMETER_SOURCE => [
 		'sqlite',
@@ -106,14 +106,14 @@ final class PDOTest extends TestCase
 		$connection = new PDO\Connection();
 		$connection->connect($settings);
 
-		$create = new CreateTableQuery($detachedTable);
+		$create = new Statement\CreateTableQuery($detachedTable);
 		$sql = ConnectionHelper::getStatementSQL($connection, $create);
 
 		$this->derivedFileManager->assertDerivedFile(\SqlFormatter::format($sql, false), __METHOD__,
 			'create', 'sql');
 		$connection->executeStatement($sql);
 
-		$insert = new InsertQuery($detachedTable);
+		$insert = new Statement\InsertQuery($detachedTable);
 		$insert('name', ':name');
 		$insert('gender', ':gender');
 		$insert('salary', ':salary');

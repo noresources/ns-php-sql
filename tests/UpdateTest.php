@@ -82,7 +82,7 @@ final class UpdateTest extends TestCase
 
 		foreach ($sets as $set => $columnValues)
 		{
-			$q = new UpdateQuery('types', 't');
+			$q = new Statement\UpdateQuery('types', 't');
 
 			foreach ($columnValues as $column => $value)
 			{
@@ -106,7 +106,7 @@ final class UpdateTest extends TestCase
 		$context = new BuildContext($builder);
 		$context->setPivot($tableStructure);
 
-		$q = new UpdateQuery($tableStructure);
+		$q = new Statement\UpdateQuery($tableStructure);
 
 		$q->setColumnValue('salary', 'salary * 2', true);
 
@@ -147,7 +147,7 @@ final class UpdateTest extends TestCase
 		$context = new BuildContext($builder);
 		$context->setPivot($tableStructure);
 
-		$q = new UpdateQuery($tableStructure);
+		$q = new Statement\UpdateQuery($tableStructure);
 
 		$q('salary', 'salary + 100');
 		$q->where([

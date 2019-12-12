@@ -1,11 +1,9 @@
 <?php
 namespace NoreSources\SQL;
 
-use NoreSources\SQL\SQLite as SQLite;
 use PHPUnit\Framework\TestCase;
-use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\Expression\Evaluator as X;
 use NoreSources as ns;
+use NoreSources\SQL\SQLite\Constants as K;
 
 final class SQLiteTest extends TestCase
 {
@@ -31,7 +29,7 @@ final class SQLiteTest extends TestCase
 			'Create table ' . $tableStructure->getPath());
 
 		// Default values
-		$statement = new InsertQuery($tableStructure);
+		$statement = new Statement\InsertQuery($tableStructure);
 
 		$prepared = ConnectionHelper::prepareStatement($this->connection, $statement,
 			$tableStructure);
@@ -73,7 +71,7 @@ final class SQLiteTest extends TestCase
 		$this->assertTrue($this->createTable($tableStructure),
 			'Create table ' . $tableStructure->getPath());
 
-		$statement = new InsertQuery($tableStructure);
+		$statement = new Statement\InsertQuery($tableStructure);
 		$statement['gender'] = 'M';
 		$statement('name', ':nameValue');
 		$statement('salary', ':salaryValue');
@@ -222,7 +220,7 @@ final class SQLiteTest extends TestCase
 		if ($this->createdTables->offsetExists($path))
 			return true;
 
-		$q = new CreateTableQuery($tableStructure);
+		$q = new Statement\CreateTableQuery($tableStructure);
 		$prepared = ConnectionHelper::prepareStatement($this->connection, $q);
 
 		$this->assertInstanceOf(PreparedStatement::class, $prepared);

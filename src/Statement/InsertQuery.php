@@ -1,10 +1,15 @@
 <?php
 
 // Namespace
-namespace NoreSources\SQL;
+namespace NoreSources\SQL\Statement;
 
 // Aliases
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\BuildContext;
+use NoreSources\SQL\Statement;
+use NoreSources\SQL\StatementException;
+use NoreSources\SQL\TableStructure;
+use NoreSources\SQL\TokenStream;
 use NoreSources\SQL\Expression\Evaluator;
 use NoreSources\SQL\Expression\Expression;
 use NoreSources\SQL\Expression\Keyword;
@@ -16,6 +21,12 @@ class InsertQuery extends Statement implements \ArrayAccess
 
 	use ColumnValueTrait;
 
+	/**
+	 *
+	 * @param TableStructure|string $table
+	 * @param string $alias
+	 *        	Optional table alias
+	 */
 	public function __construct($table, $alias = null)
 	{
 		if ($table instanceof TableStructure)

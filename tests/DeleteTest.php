@@ -3,7 +3,6 @@ namespace NoreSources\SQL;
 
 use PHPUnit\Framework\TestCase;
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\Expression\Evaluator as X;
 
 final class DeleteTest extends TestCase
 {
@@ -23,7 +22,7 @@ final class DeleteTest extends TestCase
 		$builder = new Reference\StatementBuilder();
 		$context = new BuildContext($builder);
 		$context->setPivot($tableStructure);
-		$q = new DeleteQuery($tableStructure);
+		$q = new Statement\DeleteQuery($tableStructure);
 
 		$q->where([
 			// Short form

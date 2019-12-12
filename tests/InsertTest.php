@@ -1,11 +1,10 @@
 <?php
 namespace NoreSources\SQL;
 
-use PHPUnit\Framework\TestCase;
-use NoreSources as ns;
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\Expression\Expression;
 use NoreSources\SQL\Expression\Evaluator as X;
+use NoreSources\SQL\Expression\Expression;
+use PHPUnit\Framework\TestCase;
 
 final class InsertTest extends TestCase
 {
@@ -23,7 +22,7 @@ final class InsertTest extends TestCase
 		$t = $structure['ns_unittests']['types'];
 		$this->assertInstanceOf(TableStructure::class, $t);
 
-		$q = new InsertQuery($t);
+		$q = new Statement\InsertQuery($t);
 
 		$builderFlags = array(
 			'no_default' => 0,
@@ -96,7 +95,7 @@ final class InsertTest extends TestCase
 
 		foreach ($tests as $key => $values)
 		{
-			$q = new InsertQuery($tableStructure);
+			$q = new Statement\InsertQuery($tableStructure);
 			$context->setPivot($tableStructure);
 
 			foreach ($values as $column => $value)

@@ -2,6 +2,7 @@
 namespace NoreSources\SQL;
 
 use PHPUnit\Framework\TestCase;
+use NoreSources\SQL\Constants as K;
 
 final class CreateTableTest extends TestCase
 {
@@ -28,7 +29,7 @@ final class CreateTableTest extends TestCase
 			$this->assertInstanceOf(TableStructure::class, $tableStructure, 'Finding ' . $tableName);
 			$context = new BuildContext($builder);
 			$context->setPivot($tableStructure);
-			$q = new CreateTableQuery($tableStructure);
+			$q = new Statement\CreateTableQuery($tableStructure);
 			$stream = new TokenStream();
 			$q->tokenize($stream, $context);
 			$result = $builder->finalize($stream, $context);
