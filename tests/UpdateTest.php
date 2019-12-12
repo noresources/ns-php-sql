@@ -86,7 +86,7 @@ final class UpdateTest extends TestCase
 
 			foreach ($columnValues as $column => $value)
 			{
-				$q->set($column, $value[0], $value[1]);
+				$q->setColumnValue($column, $value[0], $value[1]);
 			}
 
 			$stream = new TokenStream();
@@ -108,7 +108,7 @@ final class UpdateTest extends TestCase
 
 		$q = new UpdateQuery($tableStructure);
 
-		$q->set('salary', 'salary * 2', true);
+		$q->setColumnValue('salary', 'salary * 2', true);
 
 		$sub = new SelectQuery('Employees', 'e');
 		$sub->columns('id');

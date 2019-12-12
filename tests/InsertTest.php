@@ -104,7 +104,7 @@ final class InsertTest extends TestCase
 				if ($value instanceof Expression)
 					$q[$column] = $value;
 				else
-					$q->set($column, $value[0], $value[1]);
+					$q->setColumnValue($column, $value[0], $value[1]);
 			}
 
 			$stream = new TokenStream();

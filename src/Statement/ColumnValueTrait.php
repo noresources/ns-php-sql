@@ -4,11 +4,11 @@
 namespace NoreSources\SQL;
 
 // Aliases
-use NoreSources\SQL\Constants as K;
-use NoreSources as ns;
 use NoreSources\SQL\Expression\Evaluator;
 
 /**
+ * Store column values in UPDATE and INSERT queries
+ *
  * Implements \ArrayAccess
  */
 trait ColumnValueTrait
@@ -34,7 +34,7 @@ trait ColumnValueTrait
 		if (!\is_string($args[0]))
 			throw new \InvalidArgumentException(__CLASS__ . '() first argument expects string');
 
-		$this->set($args[0], $args[1], true);
+		$this->setColumnValue($args[0], $args[1], true);
 	}
 
 	/**
@@ -47,7 +47,7 @@ trait ColumnValueTrait
 	 *        	If @c null, the
 	 * @return \NoreSources\SQL\UpdateQuery
 	 */
-	public function set($columnName, $columnValue, $evaluate = null)
+	public function setColumnValue($columnName, $columnValue, $evaluate = null)
 	{
 		if ($evaluate === null)
 			$evaluate = !($columnName instanceof Expression);
@@ -95,7 +95,7 @@ trait ColumnValueTrait
 	public function offsetSet($offset, $value)
 	{
 		$evaluate = false;
-		$this->set($offset, $value, $evaluate);
+		$this->setColumnValue($offset, $value, $evaluate);
 	}
 
 	/**
