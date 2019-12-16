@@ -321,7 +321,7 @@ class Evaluator
 
 		if (strpos($key, '()') === ($length - 2))
 		{
-			return new Procedure(substr($key, 0, $length - 2), $operands);
+			return new FunctionCall(substr($key, 0, $length - 2), $operands);
 		}
 
 		$c = count($operands);
@@ -520,7 +520,7 @@ class Evaluator
 				'whitespace',
 				new Loco\StringParser(')')
 			], function ($name, $w1, $s1, $w2, $args) {
-				return new Procedure($name, $args);
+				return new FunctionCall($name, $args);
 			});
 
 		$parenthesis = new Loco\ConcParser(

@@ -1,10 +1,10 @@
 <?php
 namespace NoreSources\SQL\Expression;
 
-use PHPUnit\Framework\TestCase;
-use NoreSources\SQL as sql;
+use NoreSources\SQL;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Expression\Evaluator as X;
+use PHPUnit\Framework\TestCase;
 
 final class ExpressionEvaluatorTest extends TestCase
 {
@@ -140,7 +140,7 @@ final class ExpressionEvaluatorTest extends TestCase
 			'complex' => [
 				"substr(:string, strpos(:string, ','))", 2,
 				Parameter::class,
-				Procedure::class
+				FunctionCall::class
 			],
 			'complex 2' => ['expressions(#2010-07-12#, :p, (:v + 2))', 3,
 				Value::class,
@@ -153,8 +153,8 @@ final class ExpressionEvaluatorTest extends TestCase
 		{
 			$label = $label . ' ' . strval($test[0]);
 			$e = Evaluator::evaluate($test[0]);
-			$this->assertInstanceOf(Procedure::class, $e, $label);
-			if ($e instanceof Procedure)
+			$this->assertInstanceOf(FunctionCall::class, $e, $label);
+			if ($e instanceof FunctionCall)
 			{
 				$this->assertCount($test[1], $e->getArguments(), $label . ' number of arguments');
 			}
@@ -229,7 +229,7 @@ final class ExpressionEvaluatorTest extends TestCase
 			],
 			'function' => [
 				'expression' => ["func()" => [2, 'column', X::literal ('string')]],
-				'main' => Procedure::class,
+				'main' => FunctionCall::class,
 				'args' => [Value::class, Column::class, Value::class],
 			],
 			'in' => [
@@ -250,7 +250,7 @@ final class ExpressionEvaluatorTest extends TestCase
 				if (\array_key_exists('right', $test))
 					$this->assertInstanceOf($test['right'], $x->getRightOperand(), $label . ' right');
 			}
-			elseif ($x instanceof Procedure)
+			elseif ($x instanceof FunctionCall)
 			{
 				if (\array_key_exists('args', $test))
 				{

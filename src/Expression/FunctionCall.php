@@ -1,12 +1,10 @@
 <?php
 namespace NoreSources\SQL\Expression;
 
-use NoreSources\SQL as sql;
-use NoreSources\SQL\Expression\Evaluator;
 use NoreSources\Expression as xpr;
 use NoreSources\SQL\Statement\BuildContext;
 
-class Procedure extends xpr\Procedure implements Expression
+class FunctionCall extends xpr\Procedure implements Expression
 {
 
 	public function __construct($name, $arguments = array())
