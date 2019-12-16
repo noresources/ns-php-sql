@@ -1,15 +1,11 @@
 <?php
 namespace NoreSources\SQL\Expression;
 
-use NoreSources\SQL as sql;
 use NoreSources\SQL\Constants as K;
-use NoreSources\Expression as xpr;
 use NoreSources\SQL\Statement\BuildContext;
 
 class Between implements Expression, ExpressionReturnType
 {
-
-	use xpr\BasicExpressionVisitTrait;
 
 	/**
 	 * Indicate if the left operand must be inside or ouside the range

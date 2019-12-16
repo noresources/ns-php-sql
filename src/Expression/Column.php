@@ -1,14 +1,11 @@
 <?php
 namespace NoreSources\SQL\Expression;
 
-use NoreSources\SQL as sql;
-use NoreSources\Expression as xpr;
+use NoreSources\SQL;
 use NoreSources\SQL\Statement\BuildContext;
 
 class Column extends StructureElementIdentifier
 {
-
-	use xpr\BasicExpressionVisitTrait;
 
 	public function __construct($path)
 	{

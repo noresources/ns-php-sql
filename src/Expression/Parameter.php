@@ -1,13 +1,10 @@
 <?php
 namespace NoreSources\SQL\Expression;
 
-use NoreSources\SQL as sql;
-use NoreSources\Expression as xpr;
 use NoreSources\SQL\Statement\BuildContext;
 
 class Parameter implements Expression
 {
-	use xpr\BasicExpressionVisitTrait;
 
 	public $name;
 

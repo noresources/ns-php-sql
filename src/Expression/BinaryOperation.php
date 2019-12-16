@@ -1,14 +1,12 @@
 <?php
 namespace NoreSources\SQL\Expression;
 
-use NoreSources\SQL as sql;
 use NoreSources\Expression as xpr;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Statement\BuildContext;
 
 class BinaryOperation extends xpr\BinaryOperation implements Expression, ExpressionReturnType
 {
-	use xpr\BasicExpressionVisitTrait;
 
 	const EQUAL = '=';
 

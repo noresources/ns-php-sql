@@ -1,7 +1,6 @@
 <?php
 namespace NoreSources\SQL\Expression;
 
-use NoreSources\SQL as sql;
 use NoreSources\Expression as xpr;
 use NoreSources\SQL\Statement\BuildContext;
 
@@ -10,7 +9,6 @@ use NoreSources\SQL\Statement\BuildContext;
  */
 class Alternative implements xpr\Expression, Expression, ExpressionReturnType
 {
-	use xpr\BasicExpressionVisitTrait;
 
 	public function __construct(Expression $when, Expression $then)
 	{
