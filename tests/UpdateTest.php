@@ -1,10 +1,9 @@
 <?php
 namespace NoreSources\SQL;
 
-use PHPUnit\Framework\TestCase;
-use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\Expression\Evaluator as X;
+use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Statement\BuildContext;
+use PHPUnit\Framework\TestCase;
 
 final class UpdateTest extends TestCase
 {

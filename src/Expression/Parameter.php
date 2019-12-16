@@ -16,7 +16,7 @@ class Parameter implements Expression
 		$this->name = $name;
 	}
 
-	public function tokenize(sql\TokenStream &$stream, BuildContext $context)
+	public function tokenize(TokenStream &$stream, BuildContext $context)
 	{
 		return $stream->parameter($this->name);
 	}

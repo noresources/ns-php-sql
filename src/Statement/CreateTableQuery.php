@@ -8,11 +8,10 @@ use NoreSources\SQL\ColumnTableConstraint;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\ForeignKeyTableConstraint;
 use NoreSources\SQL\PrimaryKeyTableConstraint;
-use NoreSources\SQL\StatementException;
 use NoreSources\SQL\TableStructure;
-use NoreSources\SQL\TokenStream;
 use NoreSources\SQL\UniqueTableConstraint;
 use NoreSources\SQL\Expression\Evaluator as X;
+use NoreSources\SQL\Expression\TokenStream;
 
 class CreateTableQuery extends Statement
 {

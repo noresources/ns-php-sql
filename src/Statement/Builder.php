@@ -12,7 +12,7 @@ use NoreSources\SQL\StructureElement;
 use NoreSources\SQL\TableColumnStructure;
 use NoreSources\SQL\TableConstraint;
 use NoreSources\SQL\TableStructure;
-use NoreSources\SQL\TokenStream;
+use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\UniqueTableConstraint;
 use NoreSources as ns;
 

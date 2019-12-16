@@ -49,7 +49,7 @@ class Value extends xpr\Value implements Expression, ExpressionReturnType
 		return Helper::getExpressionDataType($this->getValue());
 	}
 
-	public function tokenize(sql\TokenStream &$stream, BuildContext $context)
+	public function tokenize(TokenStream &$stream, BuildContext $context)
 	{
 		return $stream->literal(
 			$context->serializeColumnData($this->serializationTarget, $this->getValue()));

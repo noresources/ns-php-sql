@@ -23,7 +23,7 @@ class Procedure extends xpr\Procedure implements Expression
 		return parent::appendArgument($argument);
 	}
 
-	public function tokenize(sql\TokenStream &$stream, BuildContext $context)
+	public function tokenize(TokenStream &$stream, BuildContext $context)
 	{
 		$stream->keyword($this->getFunctionName())
 			->text('(');

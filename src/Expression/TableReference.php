@@ -4,7 +4,6 @@
 namespace NoreSources\SQL\Expression;
 
 // Aliases
-use NoreSources\SQL\TokenStream;
 use NoreSources\SQL\Statement\BuildContext;
 
 /**

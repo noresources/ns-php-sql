@@ -1,22 +1,8 @@
 <?php
-namespace NoreSources\SQL;
+namespace NoreSources\SQL\Expression;
 
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\Expression\Expression;
-use NoreSources\SQL\Expression\Evaluator;
-use NoreSources\SQL\Expression\BinaryOperation;
-
-interface Tokenizable
-{
-
-	/**
-	 *
-	 * {@inheritdoc}
-	 * @see \NoreSources\SQL\Tokenizable::tokenize()
-	 * @return TokenStream
-	 */
-	function tokenize(TokenStream &$stream, Statement\BuildContext $context);
-}
+use NoreSources\SQL\Statement\BuildContext;
 
 class TokenStream implements \IteratorAggregate, \Countable
 {
@@ -60,7 +46,7 @@ class TokenStream implements \IteratorAggregate, \Countable
 		return $this->append($value, K::TOKEN_PARAMETER);
 	}
 
-	public function expression(Expression $expression, Statement\BuildContext $context)
+	public function expression(Expression $expression, BuildContext $context)
 	{
 		$expression->tokenize($this, $context);
 		return $this;
@@ -70,9 +56,9 @@ class TokenStream implements \IteratorAggregate, \Countable
 	 *
 	 * @param array|\Traversable $constraints
 	 * @param BuildContext $context
-	 * @return \NoreSources\SQL\TokenStream
+	 * @return \NoreSources\SQL\Expression\TokenStream
 	 */
-	public function constraints($constraints, Statement\BuildContext $context)
+	public function constraints($constraints, BuildContext $context)
 	{
 		$c = null;
 		foreach ($constraints as $constraint)

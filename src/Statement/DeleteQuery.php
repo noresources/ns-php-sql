@@ -4,12 +4,12 @@
 namespace NoreSources\SQL\Statement;
 
 // Aliases
-use NoreSources\SQL\Constants as K;
 use NoreSources\Expression\Expression;
+use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\TableStructure;
-use NoreSources\SQL\TokenStream;
 use NoreSources\SQL\Expression\Evaluator;
 use NoreSources\SQL\Expression\TableReference;
+use NoreSources\SQL\Expression\TokenStream;
 
 class DeleteQuery extends Statement
 {

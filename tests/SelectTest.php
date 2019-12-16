@@ -1,11 +1,12 @@
 <?php
 namespace NoreSources\SQL;
 
-use PHPUnit\Framework\TestCase;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Expression\Evaluator as X;
-use NoreSources\SQL\Expression\AlternativeList;
 use NoreSources\SQL\Expression\MemberOf;
+use NoreSources\SQL\Expression\TokenStream;
+use NoreSources\SQL\Statement\BuildContext;
+use PHPUnit\Framework\TestCase;
 
 final class SelectTest extends TestCase
 {
@@ -23,7 +24,7 @@ final class SelectTest extends TestCase
 		$tableStructure = $structure['ns_unittests']['Employees'];
 		$this->assertInstanceOf(TableStructure::class, $tableStructure);
 		$builder = new Reference\StatementBuilder();
-		$context = new Statement\BuildContext($builder);
+		$context = new BuildContext($builder);
 		$context->setPivot($tableStructure);
 		$q = new Statement\SelectQuery($tableStructure, 't');
 
@@ -64,7 +65,7 @@ final class SelectTest extends TestCase
 		$this->assertInstanceOf(TableStructure::class, $tableStructure);
 		$builder = new Reference\StatementBuilder(
 			K::BUILDER_SELECT_EXTENDED_RESULTCOLUMN_ALIAS_RESOLUTION);
-		$context = new Statement\BuildContext($builder);
+		$context = new BuildContext($builder);
 		$context->setPivot($tableStructure);
 		$q = new Statement\SelectQuery($tableStructure, 't');
 
@@ -118,7 +119,7 @@ final class SelectTest extends TestCase
 		$tablesetStructure = $structure['ns_unittests'];
 		$this->assertInstanceOf(TableSetStructure::class, $tablesetStructure);
 		$builder = new Reference\StatementBuilder();
-		$context = new Statement\BuildContext($builder);
+		$context = new BuildContext($builder);
 		$context->setPivot($tablesetStructure);
 
 		$q = new Statement\SelectQuery('Employees', 'E');
