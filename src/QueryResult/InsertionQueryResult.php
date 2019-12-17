@@ -1,6 +1,6 @@
 <?php
 // NAmespace
-namespace NoreSources\SQL;
+namespace NoreSources\SQL\QueryResult;
 
 /**
  * Interface for all results of a query that add rows in tables.

@@ -1,10 +1,9 @@
 <?php
-namespace NoreSources\SQL\Reference;
+namespace NoreSources\SQL\DBMS\Reference;
 
-use NoreSources as ns;
-use NoreSources\SQL as sql;
-use NoreSources\SQL\Statement;
+use NoreSources\SQL;
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\Statement;
 
 /**
  */

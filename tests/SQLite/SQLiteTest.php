@@ -1,9 +1,15 @@
 <?php
 namespace NoreSources\SQL;
 
+use NoreSources\SQL\DBMS\Connection;
+use NoreSources\SQL\DBMS\SQLite\Constants as K;
+use NoreSources\SQL\DBMS\SQLite\PreparedStatement;
+use NoreSources\SQL\DBMS\ConnectionHelper;
+use NoreSources\SQL\DBMS\StatementParameterArray;
+use NoreSources\SQL\QueryResult\InsertionQueryResult;
+use NoreSources\SQL\QueryResult\Recordset;
 use PHPUnit\Framework\TestCase;
 use NoreSources as ns;
-use NoreSources\SQL\SQLite\Constants as K;
 
 final class SQLiteTest extends TestCase
 {
@@ -103,7 +109,7 @@ final class SQLiteTest extends TestCase
 		$prepared = ConnectionHelper::prepareStatement($this->connection, $statement,
 			$tableStructure);
 
-		$this->assertInstanceOf(SQLite\PreparedStatement::class, $prepared);
+		$this->assertInstanceOf(DBMS\SQLite\PreparedStatement::class, $prepared);
 
 		$this->assertEquals(4, $prepared->getResultColumnCount(),
 			'Prepared statement result columns count');
@@ -114,7 +120,7 @@ final class SQLiteTest extends TestCase
 		$prepared = ConnectionHelper::prepareStatement($this->connection, $statement,
 			$tableStructure);
 
-		$this->assertInstanceOf(SQLite\PreparedStatement::class, $prepared);
+		$this->assertInstanceOf(DBMS\SQLite\PreparedStatement::class, $prepared);
 		$this->assertEquals(3, $prepared->getResultColumnCount(),
 			'Prepared statement result columns count');
 
@@ -251,10 +257,10 @@ final class SQLiteTest extends TestCase
 				K::CONNECTION_PARAMETER_SOURCE => [
 						'ns_unittests' => $sqliteFile
 				],
-				K::CONNECTION_PARAMETER_TYPE => SQLite\Connection::class
+				K::CONNECTION_PARAMETER_TYPE => DBMS\SQLite\Connection::class
 		]);
 
-		$this->assertInstanceOf(SQLite\Connection::class, $this->connection, 'Create connection');
+		$this->assertInstanceOf(DBMS\SQLite\Connection::class, $this->connection, 'Create connection');
 
 		$this->derivedFileManager->setPersistent($sqliteFile, true);
 

@@ -1,7 +1,7 @@
 <?php
 
 // NAmespace
-namespace NoreSources\SQL\SQLite;
+namespace NoreSources\SQL\DBMS\SQLite;
 
 class Constants extends \NoreSources\SQL\Constants
 {

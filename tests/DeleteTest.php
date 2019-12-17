@@ -1,6 +1,7 @@
 <?php
 namespace NoreSources\SQL;
 
+use NoreSources\SQL\DBMS\Reference;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Statement\BuildContext;
 use PHPUnit\Framework\TestCase;

@@ -1,6 +1,6 @@
 <?php
 // NAmespace
-namespace NoreSources\SQL;
+namespace NoreSources\SQL\QueryResult;
 
 /**
  * Base class for all query result types

@@ -1,19 +1,19 @@
 <?php
 
 // NAmespace
-namespace NoreSources\SQL\Reference;
+namespace NoreSources\SQL\DBMS\Reference;
 
 // Aliases
-use NoreSources as ns;
-use NoreSources\SQL as sql;
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\DBMS;
+use NoreSources as ns;
 
 /**
  * SQLite connection
  */
-class Connection implements sql\Connection
+class Connection implements dbms\Connection
 {
-	use sql\ConnectionStructureTrait;
+	use dbms\ConnectionStructureTrait;
 
 	public function __construct()
 	{
@@ -43,14 +43,14 @@ class Connection implements sql\Connection
 		return $this->builder;
 	}
 
-	public function executeStatement($statement, sql\StatementParameterArray $parameters = null)
+	public function executeStatement($statement, dbms\StatementParameterArray $parameters = null)
 	{
 		return true;
 	}
 
 	/**
 	 *
-	 * @param sql\BuildContext|string $statement
+	 * @param dbms\BuildContext|string $statement
 	 *        	#return \NoreSources\SQL\Reference\PreparedStatement
 	 */
 	public function prepareStatement($statement)

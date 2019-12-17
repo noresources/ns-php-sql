@@ -1,7 +1,7 @@
 <?php
 
 // NAmespace
-namespace NoreSources\SQL\PDO;
+namespace NoreSources\SQL\DBMS\PDO;
 
 class Constants extends \NoreSources\SQL\Constants
 {

@@ -1,10 +1,11 @@
 <?php
 
 // NAmespace
-namespace NoreSources\SQL;
+namespace NoreSources\SQL\DBMS;
 
 // Aliases
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\StructureElement;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Statement\BuildContext;
 use NoreSources\SQL\Statement\Statement;
@@ -43,7 +44,7 @@ class ConnectionHelper
 
 		foreach ($classNames as $className)
 		{
-			if (class_exists($className) && \is_subclass_of($className, Connection::class, true))
+			if (\class_exists($className) && \is_subclass_of($className, Connection::class, true))
 			{
 				$cls = new \ReflectionClass($className);
 				$connection = $cls->newInstance();
@@ -52,14 +53,10 @@ class ConnectionHelper
 		}
 
 		if ($connection instanceof Connection)
-		{
 			$connection->connect($settings);
-		}
 		else
-		{
-			throw new ConnectionException(
-				'Unable to create a Connection with settings ' . var_export($settings, true));
-		}
+			throw new ConnectionException(null,
+				'Unable to create a Connection using classes ' . implode(', ', $classNames));
 
 		return $connection;
 	}

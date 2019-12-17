@@ -1,5 +1,5 @@
 <?php
-namespace NoreSources\SQL;
+namespace NoreSources\SQL\DBMS;
 
 use NoreSources as ns;
 use NoreSources\SQL\Constants as K;

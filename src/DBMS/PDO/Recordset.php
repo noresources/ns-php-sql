@@ -1,14 +1,12 @@
 <?php
 
 // NAmespace
-namespace NoreSources\SQL\PDO;
+namespace NoreSources\SQL\DBMS\PDO;
 
 // Aliases
-use NoreSources\SQL as sql;
-use NoreSources as ns;
-use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\QueryResult as qr;
 
-class Recordset extends sql\Recordset
+class Recordset extends qr\Recordset
 {
 
 	const PDO_SCROLLABLE = 0x1;

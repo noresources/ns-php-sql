@@ -1,22 +1,23 @@
 <?php
 
 // NAmespace
-namespace NoreSources\SQL\SQLite;
+namespace NoreSources\SQL\DBMS\SQLite;
 
 // Aliases
-use NoreSources\SQL as sql;
+use NoreSources\SQL;
+use NoreSources\SQL\QueryResult;
+use NoreSources\SQL\DBMS\SQLite\Constants as K;
 use NoreSources\SQL\Statement\ResultColumn;
 use NoreSources\SQL\Statement\ResultColumnMap;
-use NoreSources\SQL\SQLite\Constants as K;
 
-class Recordset extends sql\Recordset
+class Recordset extends QueryResult\Recordset
 {
 
 	public function __construct(\SQLite3Result $result, $data = null)
 	{
 		parent::__construct($data);
 		$this->result = $result;
-		if (!($data instanceof sql\Statement\OutputData))
+		if (!($data instanceof SQL\Statement\OutputData))
 		{
 			$map = $this->getResultColumns();
 			for ($i = 0; $i < $result->numColumns(); $i++)

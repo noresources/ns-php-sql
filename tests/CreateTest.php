@@ -18,7 +18,7 @@ final class CreateTableTest extends TestCase
 	public function testCreateTableCompanyTables()
 	{
 		$structure = $this->datasources->get('Company');
-		$builder = new Reference\StatementBuilder();
+		$builder = new DBMS\Reference\StatementBuilder();
 
 		foreach ([
 			'Employees',

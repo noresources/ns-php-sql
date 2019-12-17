@@ -7,7 +7,7 @@ namespace NoreSources\SQL\Statement;
 use NoreSources\Expression as xpr;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Expression as X;
-use NoreSources\SQL\PreparedStatement;
+use NoreSources\SQL\DBMS\PreparedStatement;
 
 /**
  * Exception raised while building statement SQL string

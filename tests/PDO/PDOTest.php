@@ -1,8 +1,12 @@
 <?php
 namespace NoreSources\SQL;
 
-use NoreSources\SQL\PDO\Constants as K;
+use NoreSOurces\SQL\DBMS\PDO;
+use NoreSources\SQL\QueryResult;
+use NoreSources\SQL\DBMS\PDO\Constants as K;
 use NoreSources\SQL\Statement\UpdateQuery;
+use NoreSources\SQL\DBMS\ConnectionHelper;
+use NoreSources\SQL\DBMS\StatementParameterArray;
 use PHPUnit\Framework\TestCase;
 $sqliteConnectionParameters = [
 	K::CONNECTION_PARAMETER_SOURCE => [
@@ -168,7 +172,7 @@ final class PDOTest extends TestCase
 			'select', 'sql');
 
 		$result = $connection->executeStatement($preparedSelect);
-		$this->assertInstanceOf(Recordset::class, $result);
+		$this->assertInstanceOf(PDO\Recordset::class, $result);
 
 		$expected = [
 			$employees[1],
@@ -195,10 +199,10 @@ final class PDOTest extends TestCase
 			'update', 'sql');
 
 		$result = $connection->executeStatement($prepared);
-		$this->assertInstanceOf(RowModificationQueryResult::class, $result);
+		$this->assertInstanceOf(QueryResult\RowModificationQueryResult::class, $result);
 
 		$result = $connection->executeStatement($preparedSelect);
-		$this->assertInstanceOf(Recordset::class, $result);
+		$this->assertInstanceOf(PDO\Recordset::class, $result);
 
 		$c = 0;
 		foreach ($result as $index => $row)

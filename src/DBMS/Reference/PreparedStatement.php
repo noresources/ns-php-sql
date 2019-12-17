@@ -1,18 +1,15 @@
 <?php
 
 // NAmespace
-namespace NoreSources\SQL\Reference;
+namespace NoreSources\SQL\DBMS\Reference;
 
 // Aliases
-use NoreSources as ns;
-use NoreSources\SQL as sql;
-use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\StatementData;
+use NoreSources\SQL\DBMS;
 
 /**
  * SQLite3 implementation of NoreSources\SQL\PreparedStatement
  */
-class PreparedStatement extends sql\PreparedStatement
+class PreparedStatement extends dbms\PreparedStatement
 {
 
 	/**

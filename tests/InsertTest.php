@@ -2,6 +2,7 @@
 namespace NoreSources\SQL;
 
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\DBMS\Reference;
 use NoreSources\SQL\Expression\Evaluator as X;
 use NoreSources\SQL\Expression\Expression;
 use NoreSources\SQL\Expression\TokenStream;

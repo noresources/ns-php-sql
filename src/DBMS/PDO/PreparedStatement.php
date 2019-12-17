@@ -1,22 +1,23 @@
 <?php
 
 // NAmespace
-namespace NoreSources\SQL\PDO;
+namespace NoreSources\SQL\DBMS\PDO;
 
 // Aliases
 use NoreSources as ns;
-use NoreSources\SQL as sql;
+use NoreSources\SQL;
+use NoreSources\SQL\DBMS;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Statement\ResultColumn;
 use NoreSources\SQL\Statement\ResultColumnMap;
 
-class PreparedStatement extends sql\PreparedStatement
+class PreparedStatement extends DBMS\PreparedStatement
 {
 
 	/**
 	 *
 	 * @param \PDOStatement $statement
-	 * @param string|sql\StatementData $data
+	 * @param string|SQL\StatementData $data
 	 */
 	public function __construct(\PDOStatement $statement, $data)
 	{
@@ -25,7 +26,7 @@ class PreparedStatement extends sql\PreparedStatement
 		$this->statementOwner = null;
 
 		if ($this->getStatementType() == 0)
-			$this->statementType = sql\Statement::statementTypeFromData($data);
+			$this->statementType = SQL\Statement::statementTypeFromData($data);
 
 		if ($this->getStatementType() == K::QUERY_SELECT)
 		{

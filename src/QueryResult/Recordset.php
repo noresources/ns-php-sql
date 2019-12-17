@@ -1,13 +1,16 @@
 <?php
 
 // NAmespace
-namespace NoreSources\SQL;
+namespace NoreSources\SQL\QueryResult;
 
 // Aliases
+use NoreSources\SQL\ColumnPropertyMap;
 use NoreSources\SQL\Constants as K;
-use NoreSources as ns;
-use NoreSources\SQL\Statement\ResultColumn;
+use NoreSources\SQL\DataUnserializer;
+use NoreSources\SQL\Statement\OutputData;
+use NoreSources\SQL\Statement\OutputDataTrait;
 use NoreSources\SQL\Statement\ResultColumnMap;
+use NoreSources as ns;
 
 class RecordsetException extends \ErrorException
 {
@@ -20,11 +23,11 @@ class RecordsetException extends \ErrorException
 
 	/**
 	 *
-	 * @param Recordset $recordset
+	 * @param PDORecordset $recordset
 	 * @param string $message
 	 * @param integer $code
 	 */
-	public function __construct(Recordset $recordset, $message, $code = null)
+	public function __construct(PDORecordset $recordset, $message, $code = null)
 	{
 		parent::__construct($message, $code);
 		$this->recordset = $recordset;
@@ -34,11 +37,11 @@ class RecordsetException extends \ErrorException
 /**
  * Recordset query result
  */
-abstract class Recordset implements \Iterator, Statement\OutputData, QueryResult,
-	ns\ArrayRepresentation, \JsonSerializable, DataUnserializer
+abstract class Recordset implements \Iterator, OutputData, QueryResult, ns\ArrayRepresentation,
+	\JsonSerializable, DataUnserializer
 {
 
-	use Statement\OutputDataTrait;
+	use OutputDataTrait;
 
 	/**
 	 * Fetch record row to an associative array

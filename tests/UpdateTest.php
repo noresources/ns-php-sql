@@ -1,6 +1,8 @@
 <?php
 namespace NoreSources\SQL;
 
+use NoreSources\SQL\DBMS\ConnectionHelper;
+use NoreSources\SQL\DBMS\Reference;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Statement\BuildContext;
 use PHPUnit\Framework\TestCase;
@@ -21,7 +23,7 @@ final class UpdateTest extends TestCase
 		$tableStructure = $structure['ns_unittests']['types'];
 		$this->assertInstanceOf(TableStructure::class, $tableStructure);
 
-		$connection = ConnectionHelper::createConnection('reference');
+		$connection = ConnectionHelper::createConnection('Reference');
 
 		$builder = $connection->getStatementBuilder();
 		$context = new BuildContext($builder);

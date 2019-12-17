@@ -1,11 +1,11 @@
 <?php
 
 // NAmespace
-namespace NoreSources\SQL\SQLite;
+namespace NoreSources\SQL\DBMS\SQLite;
 
 // Aliases
 use NoreSources as ns;
-use NoreSources\SQL as sql;
+use NoreSources\SQL;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Statement\BuildContext;
 use NoreSources\SQL\Statement\InputData;
@@ -14,7 +14,7 @@ use NoreSources\SQL\Statement\OutputData;
 /**
  * SQLite3 implementation of NoreSources\SQL\PreparedStatement
  */
-class PreparedStatement extends sql\PreparedStatement
+class PreparedStatement extends SQL\DBMS\PreparedStatement
 {
 
 	/**
@@ -39,12 +39,11 @@ class PreparedStatement extends sql\PreparedStatement
 			}
 			else
 			{
-				throw new \Exception(
-					'Unable to get SQL string from SQLite statement nor Statement\InputData');
+				throw new \Exception('Unable to get SQL string from SQLite statement nor InputData');
 			}
 		}
 
-		if ($data instanceof sql\Statement\InputData)
+		if ($data instanceof InputData)
 		{
 			if ($data->getNamedParameterCount() != $statement->paramCount())
 			{

@@ -1,7 +1,7 @@
 <?php
 
 // NAmespace
-namespace NoreSources\SQL\SQLite;
+namespace NoreSources\SQL\DBMS\SQLite;
 
 // Aliases
 use NoreSources as ns;

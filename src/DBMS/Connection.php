@@ -1,11 +1,12 @@
 <?php
 
 // NAmespace
-namespace NoreSources\SQL;
+namespace NoreSources\SQL\DBMS;
 
 // Aliases
+use NoreSources\SQL\StructureElement;
+use NoreSources\SQL\StructureSerializerFactory;
 use NoreSources as ns;
-use NoreSources\SQL\Constants as K;
 
 /**
  * DMBS connection
