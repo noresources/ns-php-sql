@@ -2,6 +2,13 @@
 spl_autoload_register(function($className) {
 	$className = strtolower ($className);
 	$classMap = array (
+		'noresources\sql\rowmodificationqueryresult' => 'src/QueryResult/RowModificationQueryResult.php',
+		'noresources\sql\queryresult' => 'src/QueryResult/QuesyResult.php',
+		'noresources\sql\genericinsertionqueryresult' => 'src/QueryResult/GenericInsertionQueryResult.php',
+		'noresources\sql\insertionqueryresult' => 'src/QueryResult/InsertionQueryResult.php',
+		'noresources\sql\genericrowmodificationqueryresult' => 'src/QueryResult/GenericRowModificationQueryResult.php',
+		'noresources\sql\recordsetexception' => 'src/QueryResult/Recordset.php',
+		'noresources\sql\recordset' => 'src/QueryResult/Recordset.php',
 		'noresources\sql\constants' => 'src/Constants.php',
 		'noresources\sql\sqlite\constants' => 'src/DBMS/SQLite/Constants.php',
 		'noresources\sql\sqlite\statementbuilder' => 'src/DBMS/SQLite/StatementBuilder.php',
@@ -92,14 +99,7 @@ spl_autoload_register(function($className) {
 		'noresources\sql\statement\statementexception' => 'src/Statement/Statement.php',
 		'noresources\sql\statement\statement' => 'src/Statement/Statement.php',
 		'noresources\sql\statement\inputdata' => 'src/Statement/InputData.php',
-		'noresources\sql\statement\inputdatatrait' => 'src/Statement/InputData.php',
-		'noresources\sql\queryresult' => 'src/Results/QuesyResults.php',
-		'noresources\sql\rowmodificationqueryresult' => 'src/Results/QuesyResults.php',
-		'noresources\sql\insertionqueryresult' => 'src/Results/QuesyResults.php',
-		'noresources\sql\genericrowmodificationqueryresult' => 'src/Results/QuesyResults.php',
-		'noresources\sql\genericinsertionqueryresult' => 'src/Results/QuesyResults.php',
-		'noresources\sql\recordsetexception' => 'src/Results/Recordset.php',
-		'noresources\sql\recordset' => 'src/Results/Recordset.php'
+		'noresources\sql\statement\inputdatatrait' => 'src/Statement/InputData.php'
 	); // classMap
 
 	if (\array_key_exists ($className, $classMap)) {
