@@ -1,8 +1,8 @@
 <?php
 namespace NoreSources\SQL\DBMS;
 
-use NoreSources as ns;
 use NoreSources\SQL\Constants as K;
+use NoreSources as ns;
 
 /**
  * A list of parameter values to pass to the Connection::executeStatement() method

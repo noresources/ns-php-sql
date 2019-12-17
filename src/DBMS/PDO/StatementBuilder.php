@@ -4,8 +4,7 @@
 namespace NoreSources\SQL\DBMS\PDO;
 
 // Aliases
-use NoreSources as ns;
-use NoreSources\SQL as sql;
+use NoreSources\SQL;
 use NoreSources\SQL\Constants as K;
 
 class StatementBuilder extends sql\Statement\Builder

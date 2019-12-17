@@ -4,8 +4,7 @@
 namespace NoreSources\SQL\DBMS\SQLite;
 
 // Aliases
-use NoreSources as ns;
-use NoreSources\SQL as sql;
+use NoreSources\SQL;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\TableColumnStructure;
 

@@ -4,14 +4,13 @@
 namespace NoreSources\SQL\DBMS\PDO;
 
 // Aliases
-use NoreSources as ns;
 use NoreSources\SQL;
+use NoreSources\TypeDescription;
 use NoreSources\SQL\DBMS;
 use NoreSources\SQL\DBMS\PDO\Constants as K;
-use NoreSources\TypeDescription;
-use NoreSources\SQL\DBMS\ConnectionStructureTrait;
 use NoreSources\SQL\QueryResult\GenericInsertionQueryResult;
 use NoreSources\SQL\QueryResult\GenericRowModificationQueryResult;
+use NoreSources as ns;
 
 /**
  * PDO connection

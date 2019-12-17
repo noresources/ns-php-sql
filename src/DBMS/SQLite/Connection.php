@@ -5,11 +5,10 @@ namespace NoreSources\SQL\DBMS\SQLite;
 
 // Aliases
 use NoreSources\SQL;
-use NoreSources\SQL\DBMS\ConnectionStructureTrait;
+use NoreSources\SQL\DBMS\StatementParameterArray;
 use NoreSources\SQL\DBMS\SQLite\Constants as K;
 use NoreSources\SQL\QueryResult\GenericInsertionQueryResult;
 use NoreSources\SQL\QueryResult\GenericRowModificationQueryResult;
-use Noresources\SQL\DBMS\StatementParameterArray;
 use NoreSources as ns;
 
 class ConnectionException extends SQL\DBMS\ConnectionException

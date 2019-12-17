@@ -4,12 +4,9 @@
 namespace NoreSources\SQL\DBMS\SQLite;
 
 // Aliases
-use NoreSources as ns;
 use NoreSources\SQL;
-use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Statement\BuildContext;
 use NoreSources\SQL\Statement\InputData;
-use NoreSources\SQL\Statement\OutputData;
 
 /**
  * SQLite3 implementation of NoreSources\SQL\PreparedStatement

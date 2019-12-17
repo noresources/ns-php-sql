@@ -4,12 +4,11 @@
 namespace NoreSources\SQL\DBMS\PDO;
 
 // Aliases
-use NoreSources as ns;
-use NoreSources\SQL;
-use NoreSources\SQL\DBMS;
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\DBMS;
 use NoreSources\SQL\Statement\ResultColumn;
-use NoreSources\SQL\Statement\ResultColumnMap;
+use NoreSources\SQL\Statement\Statement;
+use NoreSources as ns;
 
 class PreparedStatement extends DBMS\PreparedStatement
 {
