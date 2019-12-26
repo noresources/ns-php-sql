@@ -700,8 +700,9 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 		 *
 		 * @todo attached databases
 		 */
-		throw new \Exception(
-			'SQLite only provides a single database named ' . $this->m_databaseName);
+
+		throw new \InvalidArgumentException(
+			$name . ' is not the SQLite database name (' . $this->m_databaseName . ')');
 	}
 
 	// default behavior
