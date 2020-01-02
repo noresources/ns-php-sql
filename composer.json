@@ -31,6 +31,8 @@
 	},
 	"suggest": {
 		"ext-sqlite": "*",
+		"ext-pdo": "*",
+		"ext-pgsql": "*",
 		"ext-mysql": "*"
 	},
 	"require-dev": {
