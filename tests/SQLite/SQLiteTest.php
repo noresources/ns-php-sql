@@ -1,7 +1,6 @@
 <?php
 namespace NoreSources\SQL;
 
-use NoreSources\SQL\DBMS\Connection;
 use NoreSources\SQL\DBMS\SQLite\Constants as K;
 use NoreSources\SQL\DBMS\SQLite\PreparedStatement;
 use NoreSources\SQL\DBMS\ConnectionHelper;
