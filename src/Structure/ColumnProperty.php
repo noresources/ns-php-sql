@@ -1,8 +1,8 @@
 <?php
 namespace NoreSources\SQL;
 
-use NoreSources as ns;
 use NoreSources\SQL\Constants as K;
+use NoreSources as ns;
 
 interface ColumnPropertyMap
 {
@@ -119,17 +119,6 @@ trait ColumnPropertyMapTrait
 	 * @var array
 	 */
 	private $columnProperties;
-}
-
-class ArrayColumnPropertyMap implements ColumnPropertyMap
-{
-	use ColumnPropertyMapTrait;
-
-	public function __construct($properties = array())
-	{
-		$this->initializeColumnProperties($properties);
-		;
-	}
 }
 
 class ColumnPropertyDefault
