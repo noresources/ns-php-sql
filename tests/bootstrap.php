@@ -3,7 +3,7 @@ namespace NoreSources\SQL;
 
 use NoreSources as ns;
 use PHPUnit\Framework\TestCase;
-require_once (__DIR__ . '/../autoload.php');
+require_once (__DIR__ . '/../vendor/autoload.php');
 
 class DatasourceManager extends TestCase
 {

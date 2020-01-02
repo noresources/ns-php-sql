@@ -10,7 +10,7 @@ use NoreSources\SQL\DBMS;
 use NoreSources\SQL\DBMS\PDO\Constants as K;
 use NoreSources\SQL\QueryResult\GenericInsertionQueryResult;
 use NoreSources\SQL\QueryResult\GenericRowModificationQueryResult;
-use NoreSources as ns;
+use Noresources\Container;
 
 /**
  * PDO connection
@@ -33,7 +33,7 @@ class Connection implements DBMS\Connection
 	 */
 	public static function buildDSN($array)
 	{
-		return ns\Container::implode($array, ':',
+		return Container::implode($array, ':',
 			function ($k, $v) {
 				if (\is_integer($k))
 					return $v;
@@ -86,12 +86,12 @@ class Connection implements DBMS\Connection
 		if ($this->connection instanceof \PDO)
 			$this->connection->close();
 
-		$dsn = ns\Container::keyValue($parameters, K::CONNECTION_PARAMETER_SOURCE, null);
-		$user = ns\Container::keyValue($parameters, K::CONNECTION_PARAMETER_USER, null);
-		$password = ns\Container::keyValue($parameters, K::CONNECTION_PARAMETER_PASSWORD, null);
-		$options = ns\Container::keyValue($parameters, K::CONNECTION_PARAMETER_OPTIONS, null);
+		$dsn = Container::keyValue($parameters, K::CONNECTION_PARAMETER_SOURCE, null);
+		$user = Container::keyValue($parameters, K::CONNECTION_PARAMETER_USER, null);
+		$password = Container::keyValue($parameters, K::CONNECTION_PARAMETER_PASSWORD, null);
+		$options = Container::keyValue($parameters, K::CONNECTION_PARAMETER_OPTIONS, null);
 
-		if (ns\Container::isArray($dsn))
+		if (Container::isArray($dsn))
 		{
 			$dsn = self::buildDSN($dsn);
 		}
@@ -99,7 +99,7 @@ class Connection implements DBMS\Connection
 		if (!\is_string($dsn))
 			throw new DBMS\ConnectionException($this,
 				'Invalid DSN parameter. string or array expected. Got ' .
-				ns\TypeDescription::getName($dsn));
+				TypeDescription::getName($dsn));
 
 		try
 		{
@@ -111,7 +111,7 @@ class Connection implements DBMS\Connection
 			throw new DBMS\ConnectionException($this, $e->getMessage(), $e->getCode());
 		}
 
-		if (ns\Container::keyExists($parameters, K::CONNECTION_PARAMETER_STRUCTURE))
+		if (Container::keyExists($parameters, K::CONNECTION_PARAMETER_STRUCTURE))
 			$this->setStructure($structure)[K::CONNECTION_PARAMETER_STRUCTURE];
 		;
 	}
@@ -170,7 +170,7 @@ class Connection implements DBMS\Connection
 			TypeDescription::hasStringRepresentation($statement)))
 		{
 			throw new \InvalidArgumentException(
-				'Invalid type ' . ns\TypeDescription::getName($statement) .
+				'Invalid type ' . TypeDescription::getName($statement) .
 				' for statement argument. string or PDO\PreparedStatement expected');
 		}
 
@@ -210,7 +210,7 @@ class Connection implements DBMS\Connection
 				else
 					$name = ':' . $key;
 
-				$value = ns\Container::keyValue($entry, DBMS\StatementParameterArray::VALUE, null);
+				$value = Container::keyValue($entry, DBMS\StatementParameterArray::VALUE, null);
 				$pdo->bindValue($name, $value);
 			}
 
@@ -257,7 +257,7 @@ class Connection implements DBMS\Connection
 
 	public static function getErrorMessage($error)
 	{
-		return ns\Container::implode($error, ', ',
+		return Container::implode($error, ', ',
 			function ($k, $v) {
 				if (strlen($v) == 0)
 					return false;

@@ -7,7 +7,7 @@ namespace NoreSources\SQL\DBMS\PDO;
 use NoreSources\SQL;
 use NoreSources\SQL\Constants as K;
 
-class StatementBuilder extends sql\Statement\Builder
+class StatementBuilder extends SQL\Statement\Builder
 {
 
 	const DRIVER_MYSQL = Connection::DRIVER_MYSQL;
@@ -50,7 +50,7 @@ class StatementBuilder extends sql\Statement\Builder
 		return (':' . $position);
 	}
 
-	public function getColumnTypeName(sql\TableColumnStructure $column)
+	public function getColumnTypeName(SQL\TableColumnStructure $column)
 	{
 		$dataType = K::DATATYPE_UNDEFINED;
 		if ($column->hasColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE))
