@@ -50,7 +50,7 @@ class StructureResolverContext
 		$this->cache = new \ArrayObject([
 			TableColumnStructure::class => new \ArrayObject(),
 			TableStructure::class => new \ArrayObject(),
-			TableSetStructure::class => new \ArrayObject(),
+			TablesetStructure::class => new \ArrayObject(),
 			DatasourceStructure::class => new \ArrayObject()
 		]);
 		$this->aliases = new \ArrayObject();
@@ -212,7 +212,7 @@ class StructureResolver
 				$tableset = $this->findTableset($x[0]);
 			}
 
-		$table = ($tableset instanceof TableSetStructure) ? $tableset->offsetGet($name) : null;
+		$table = ($tableset instanceof TablesetStructure) ? $tableset->offsetGet($name) : null;
 
 		if ($table instanceof TableStructure)
 		{
@@ -230,13 +230,13 @@ class StructureResolver
 	 *
 	 * @param string $path
 	 * @throws StructureResolverException
-	 * @return \NoreSources\SQL\TableSetStructure
+	 * @return \NoreSources\SQL\TablesetStructure
 	 */
 	public function findTableset($path)
 	{
-		if ($this->cache[TableSetStructure::class]->offsetExists($path))
+		if ($this->cache[TablesetStructure::class]->offsetExists($path))
 		{
-			return $this->cache[TableSetStructure::class][
+			return $this->cache[TablesetStructure::class][
 				$path
 			];
 		}
@@ -249,9 +249,9 @@ class StructureResolver
 
 		$tableset = ($datasource instanceof DatasourceStructure) ? $datasource->offsetGet($path) : null;
 
-		if ($tableset instanceof TableSetStructure)
+		if ($tableset instanceof TablesetStructure)
 		{
-			$this->cache[TableSetStructure::class]->offsetSet($path, $tableset);
+			$this->cache[TablesetStructure::class]->offsetSet($path, $tableset);
 		}
 		else
 		{
@@ -296,7 +296,7 @@ class StructureResolver
 				return $this->pivot->getIterator()->current();
 			}
 		}
-		elseif ($this->pivot instanceof TableSetStructure)
+		elseif ($this->pivot instanceof TablesetStructure)
 			return $this->pivot;
 		elseif ($this->pivot instanceof TableStructure)
 			return $this->pivot->parent();
@@ -319,7 +319,7 @@ class StructureResolver
 		else
 		{
 			$tableset = $this->getDefaultTableset();
-			if ($tableset instanceof TableSetStructure && ($tableset->count() == 1))
+			if ($tableset instanceof TablesetStructure && ($tableset->count() == 1))
 				return $tableset->getIterator()->current();
 		}
 

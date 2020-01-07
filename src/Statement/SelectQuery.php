@@ -7,11 +7,11 @@ namespace NoreSources\SQL\Statement;
 use NoreSources\Expression as xpr;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\TableStructure;
-use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Expression\Column;
 use NoreSources\SQL\Expression\Evaluator;
 use NoreSources\SQL\Expression\Expression;
 use NoreSources\SQL\Expression\TableReference;
+use NoreSources\SQL\Expression\TokenStream;
 use NoreSources as ns;
 
 /**
@@ -109,7 +109,7 @@ class JoinClause implements Expression
 	 *
 	 * @param
 	 *        	... List of constraint expressions
-	 * @return \NoreSources\SQL\JoinClause
+	 * @return \NoreSources\SQL\Statement\JoinClause
 	 */
 	public function on()
 	{
@@ -471,8 +471,8 @@ class SelectQuery extends Statement
 		$stream->stream($where);
 
 		// GROUP BY
-		if ($this->parts[self::PART_GROUPBY] &&
-			ns\Container::count($this->parts[self::PART_GROUPBY]))
+		if ($this->parts[self::PART_GROUPBY] && ns\Container::count(
+			$this->parts[self::PART_GROUPBY]))
 		{
 
 			$stream->space()

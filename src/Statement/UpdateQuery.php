@@ -19,7 +19,7 @@ class UpdateQuery extends Statement implements \ArrayAccess
 
 	/**
 	 *
-	 * @param TableSetStructure|string $table
+	 * @param TablesetStructure|string $table
 	 */
 	public function __construct($table)
 	{

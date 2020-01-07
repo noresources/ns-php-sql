@@ -20,10 +20,10 @@ class TableStructure extends StructureElement
 
 	/**
 	 *
-	 * @param TableSetStructure $a_tablesetStructure
+	 * @param TablesetStructure $a_tablesetStructure
 	 * @param string $name
 	 */
-	public function __construct(/*TableSetStructure */ $a_tablesetStructure, $name)
+	public function __construct(/*TablesetStructure */ $a_tablesetStructure, $name)
 	{
 		parent::__construct($name, $a_tablesetStructure);
 

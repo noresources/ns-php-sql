@@ -96,9 +96,9 @@ class JSONStructureSerializer extends StructureSerializer implements \JsonSerial
 		{
 			return $this->serializeDatasource($this->structureElement);
 		}
-		elseif ($this->structureElement instanceof TableSetStructure)
+		elseif ($this->structureElement instanceof TablesetStructure)
 		{
-			return $this->serializeTableSet($this->structureElement);
+			return $this->serializeTableset($this->structureElement);
 		}
 		elseif ($this->structureElement instanceof TableStructure)
 		{
@@ -122,13 +122,13 @@ class JSONStructureSerializer extends StructureSerializer implements \JsonSerial
 
 		foreach ($structure as $tableName => $table)
 		{
-			$properties['tablesets'][$tableName] = $this->serializeTableSet($table);
+			$properties['tablesets'][$tableName] = $this->serializeTableset($table);
 		}
 
 		return $properties;
 	}
 
-	private function serializeTableSet(TableSetStructure $structure)
+	private function serializeTableset(TablesetStructure $structure)
 	{
 		$properties = [
 			'tables' => []
@@ -161,7 +161,7 @@ class JSONStructureSerializer extends StructureSerializer implements \JsonSerial
 			$properties['columns'][$columnName] = $this->serializeTableColumn($column);
 		}
 
-		if (!($structure->parent() instanceof TableSetStructure))
+		if (!($structure->parent() instanceof TablesetStructure))
 		{
 			$properties = array_merge([
 				'name' => $structure->getName(),
@@ -278,7 +278,7 @@ class XMLStructureSerializer extends StructureSerializer
 		elseif (($schemaVersion < 20000 && $document->documentElement->localName == 'database') ||
 			($schemaVersion >= 20000 && $document->documentElement->localName == 'tableset'))
 		{
-			$this->structureElement = new TableSetStructure(
+			$this->structureElement = new TablesetStructure(
 				$document->documentElement->getAttribute('name'));
 			$this->unserializeTableset($this->structureElement, $document->documentElement);
 		}
@@ -311,13 +311,13 @@ class XMLStructureSerializer extends StructureSerializer
 		$tablesetNodes = $xpath->query($nodeName);
 		foreach ($tablesetNodes as $tablesetNode)
 		{
-			$tableset = new TableSetStructure($structure, $tablesetNode->getAttribute('name'));
+			$tableset = new TablesetStructure($structure, $tablesetNode->getAttribute('name'));
 			$structure->appendChild($tableset);
-			$this->unserializeTableSet($tableset, $tablesetNode);
+			$this->unserializeTableset($tableset, $tablesetNode);
 		}
 	}
 
-	private function unserializeTableSet(TableSetStructure $structure, \DOMNode $node)
+	private function unserializeTableset(TablesetStructure $structure, \DOMNode $node)
 	{
 		if ($node->hasAttribute('id'))
 			$this->identifiedElements->offsetSet($node->getAttribute('id'), $structure);
@@ -579,7 +579,7 @@ class XMLStructureSerializer extends StructureSerializer
 	{
 		if ($element instanceof DatasourceStructure)
 			return 'datasource';
-		elseif ($element instanceof TableSetStructure)
+		elseif ($element instanceof TablesetStructure)
 		{
 			if ($this->schemaVersion->getIntegerValue() < 20000)
 				return 'database';

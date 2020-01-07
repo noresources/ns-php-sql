@@ -118,7 +118,7 @@ final class SelectTest extends TestCase
 	{
 		$structure = $this->datasources->get('Company');
 		$tablesetStructure = $structure['ns_unittests'];
-		$this->assertInstanceOf(TableSetStructure::class, $tablesetStructure);
+		$this->assertInstanceOf(TablesetStructure::class, $tablesetStructure);
 		$builder = new Reference\StatementBuilder();
 		$context = new BuildContext($builder);
 		$context->setPivot($tablesetStructure);

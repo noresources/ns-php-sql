@@ -1278,12 +1278,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/yaml.git",
-                "reference": "44b1f27257b05a34c4b0e3405a236fb67eb8b2db"
+                "reference": "ef67314ed0a51cb20cbbf7e7b2bb0d6106072ed3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/yaml/zipball/44b1f27257b05a34c4b0e3405a236fb67eb8b2db",
-                "reference": "44b1f27257b05a34c4b0e3405a236fb67eb8b2db",
+                "url": "https://api.github.com/repos/symfony/yaml/zipball/ef67314ed0a51cb20cbbf7e7b2bb0d6106072ed3",
+                "reference": "ef67314ed0a51cb20cbbf7e7b2bb0d6106072ed3",
                 "shasum": ""
             },
             "require": {
@@ -1329,7 +1329,7 @@
             ],
             "description": "Symfony Yaml Component",
             "homepage": "https://symfony.com",
-            "time": "2019-12-10T08:51:28+00:00"
+            "time": "2020-01-04T12:05:51+00:00"
         },
         {
             "name": "webmozart/assert",

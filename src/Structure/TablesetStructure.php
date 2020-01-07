@@ -13,7 +13,7 @@ namespace NoreSources\SQL;
 /**
  * Table set structure definition
  */
-class TableSetStructure extends StructureElement
+class TablesetStructure extends StructureElement
 {
 
 	public function __construct(/*DatasourceStructure */$a_datasourceStructure, $name)
