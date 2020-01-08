@@ -9,11 +9,15 @@
  */
 namespace NoreSources\SQL\Statement;
 
+use NoreSources\Stack;
+use NoreSources\StringRepresentation;
 use NoreSources\SQL\Structure\StructureElement;
 use NoreSources\SQL\Structure\StructureResolver;
-use NoreSources as ns;
 
-class BuildContext implements InputData, OutputData
+/**
+ * Statement building context data
+ */
+class BuildContext implements InputData, OutputData, StringRepresentation
 {
 	use InputDataTrait;
 	use OutputDataTrait;
@@ -56,7 +60,7 @@ class BuildContext implements InputData, OutputData
 		$this->contextFlags = 0;
 		$this->builder = $builder;
 		$this->resolver = new StructureResolver($pivot);
-		$this->resultColumnAliases = new ns\Stack();
+		$this->resultColumnAliases = new Stack();
 	}
 
 	/**
@@ -194,7 +198,7 @@ class BuildContext implements InputData, OutputData
 	 *
 	 * @method string getColumnDescription(ColumnStructure $column)
 	 * @method string getTableConstraintDescription(TableStructure, TableConstraint)
-	 *        
+	 *
 	 */
 	public function __call($method, $args)
 	{

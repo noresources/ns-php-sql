@@ -12,6 +12,9 @@ namespace NoreSources\SQL\Expression;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Statement\BuildContext;
 
+/**
+ * Sequence of SQL language tokens
+ */
 class TokenStream implements \IteratorAggregate, \Countable
 {
 

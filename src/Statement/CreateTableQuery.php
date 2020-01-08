@@ -21,6 +21,9 @@ use NoreSources\SQL\Structure\PrimaryKeyTableConstraint;
 use NoreSources\SQL\Structure\TableStructure;
 use NoreSources\SQL\Structure\UniqueTableConstraint;
 
+/**
+ * CREATE TABLE statement
+ */
 class CreateTableQuery extends Statement
 {
 

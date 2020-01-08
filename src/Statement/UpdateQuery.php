@@ -20,6 +20,9 @@ use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Expression\Value;
 use NoreSources\SQL\Structure\TableStructure;
 
+/**
+ * UPDATE query
+ */
 class UpdateQuery extends Statement implements \ArrayAccess
 {
 

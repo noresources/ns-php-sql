@@ -16,6 +16,9 @@ use NoreSources\SQL\Expression\Table;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Structure\TableStructure;
 
+/**
+ * DROP TABLE statement
+ */
 class DropTableQuery extends Statement
 {
 

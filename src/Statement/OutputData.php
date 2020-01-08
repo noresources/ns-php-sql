@@ -11,9 +11,10 @@
 // Namespace
 namespace NoreSources\SQL\Statement;
 
-// Aliases
+/**
+ * Statement building data
+ */
 interface OutputData
-
 {
 
 	/**

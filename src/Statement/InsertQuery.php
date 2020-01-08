@@ -21,6 +21,9 @@ use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Expression\Value;
 use NoreSources\SQL\Structure\TableStructure;
 
+/**
+ * INSERT query
+ */
 class InsertQuery extends Statement implements \ArrayAccess
 {
 

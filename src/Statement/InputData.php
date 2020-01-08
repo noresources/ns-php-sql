@@ -11,6 +11,9 @@
 // Namespace
 namespace NoreSources\SQL\Statement;
 
+/**
+ * Statement information about parameters etc.
+ */
 interface InputData
 {
 

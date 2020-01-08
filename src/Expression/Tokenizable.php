@@ -11,6 +11,9 @@ namespace NoreSources\SQL\Expression;
 
 use NoreSources\SQL\Statement\BuildContext;
 
+/**
+ * A tokenizable object can be represented as a series of Token
+ */
 interface Tokenizable
 {
 

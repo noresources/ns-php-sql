@@ -19,6 +19,9 @@ use NoreSources\SQL\Expression\TableReference;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Structure\TableStructure;
 
+/**
+ * DELETE query
+ */
 class DeleteQuery extends Statement
 {
 

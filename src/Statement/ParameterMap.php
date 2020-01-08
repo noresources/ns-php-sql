@@ -14,6 +14,11 @@ namespace NoreSources\SQL\Statement;
 // Aliases
 use NoreSources as ns;
 
+/**
+ * Parameter iterator
+ *
+ * Iterate over a certain kind of key (string or index)
+ */
 class ParameterIterator implements \Iterator
 {
 
@@ -61,6 +66,11 @@ class ParameterIterator implements \Iterator
 	private $keyType;
 }
 
+/**
+ * Map of statement parameters
+ *
+ * Each parameter have a position and an name
+ */
 class ParameterMap extends \ArrayObject
 {
 
@@ -71,7 +81,7 @@ class ParameterMap extends \ArrayObject
 
 	/**
 	 *
-	 * @return \NoreSources\SQL\ParameterIterator
+	 * @return ParameterIterator
 	 */
 	public function getNamedParameterIterator()
 	{
