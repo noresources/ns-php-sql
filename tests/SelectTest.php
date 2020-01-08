@@ -7,9 +7,10 @@ use NoreSources\SQL\Expression\Evaluator as X;
 use NoreSources\SQL\Expression\MemberOf;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Statement\BuildContext;
-use PHPUnit\Framework\TestCase;
+use NoreSources\SQL\Structure\TableStructure;
+use NoreSources\SQL\Structure\TablesetStructure;
 
-final class SelectTest extends TestCase
+final class SelectTest extends \PHPUnit\Framework\TestCase
 {
 
 	public function __construct()

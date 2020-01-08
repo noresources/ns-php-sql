@@ -1,11 +1,15 @@
 <?php
-namespace NoreSources\SQL;
+/**
+ * Copyright © 2012-2018 by Renaud Guillard (dev@nore.fr)
+ * Distributed under the terms of the MIT License, see LICENSE
+ */
+/**
+ *
+ * @package SQL
+ */
+namespace NoreSources\SQL\Structure;
 
 use NoreSources as ns;
-use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\Expression\Expression;
-use NoreSources\SQL\Expression\Evaluator as X;
-use NoreSources\SQL\Expression\Keyword;
 
 class StructureSerializerFactory
 {

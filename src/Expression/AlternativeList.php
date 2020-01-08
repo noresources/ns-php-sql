@@ -57,7 +57,6 @@ class Alternative implements xpr\Expression, Expression, ExpressionReturnType
 
 class AlternativeList implements xpr\Expression, Expression
 {
-	use xpr\BasicExpressionVisitTrait;
 
 	public function __construct(Expression $subject)
 	{

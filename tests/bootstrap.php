@@ -1,11 +1,14 @@
 <?php
 namespace NoreSources\SQL;
 
-use NoreSources as ns;
-use PHPUnit\Framework\TestCase;
 require_once (__DIR__ . '/../vendor/autoload.php');
 
-class DatasourceManager extends TestCase
+use NoreSources\SQL\Structure\StructureSerializerFactory;
+use NoreSources\SQL\Structure\DatasourceStructure;
+use NoreSources\SQL\Structure\TablesetStructure;
+use NoreSources\SQL\Structure\TableStructure;
+
+class DatasourceManager extends \PHPUnit\Framework\TestCase
 {
 
 	public function __construct()
@@ -41,7 +44,7 @@ class DatasourceManager extends TestCase
 	private $datasources;
 }
 
-class DerivedFileManager extends TestCase
+class DerivedFileManager extends \PHPUnit\Framework\TestCase
 {
 
 	const DIRECTORY_REFERENCE = 'reference';

@@ -5,9 +5,11 @@ use NoreSources\SQL\DBMS\ConnectionHelper;
 use NoreSources\SQL\DBMS\Reference;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Statement\BuildContext;
-use PHPUnit\Framework\TestCase;
+use NoreSources\SQL\Structure\DatasourceStructure;
+use NoreSources\SQL\Structure\TablesetStructure;
+use NoreSources\SQL\Structure\TableStructure;
 
-final class UpdateTest extends TestCase
+final class UpdateTest extends \PHPUnit\Framework\TestCase
 {
 
 	public function __construct()

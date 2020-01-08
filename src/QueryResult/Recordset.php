@@ -1,15 +1,21 @@
 <?php
-
-// NAmespace
+/**
+ * Copyright © 2012-2018 by Renaud Guillard (dev@nore.fr)
+ * Distributed under the terms of the MIT License, see LICENSE
+ */
+/**
+ *
+ * @package SQL
+ */
 namespace NoreSources\SQL\QueryResult;
 
 // Aliases
-use NoreSources\SQL\ColumnPropertyMap;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DataUnserializer;
 use NoreSources\SQL\Statement\OutputData;
 use NoreSources\SQL\Statement\OutputDataTrait;
 use NoreSources\SQL\Statement\ResultColumnMap;
+use NoreSources\SQL\Structure\ColumnPropertyMap;
 use NoreSources as ns;
 
 class RecordsetException extends \ErrorException
@@ -23,11 +29,11 @@ class RecordsetException extends \ErrorException
 
 	/**
 	 *
-	 * @param PDORecordset $recordset
+	 * @param Recordset $recordset
 	 * @param string $message
 	 * @param integer $code
 	 */
-	public function __construct(PDORecordset $recordset, $message, $code = null)
+	public function __construct(Recordset $recordset, $message, $code = null)
 	{
 		parent::__construct($message, $code);
 		$this->recordset = $recordset;

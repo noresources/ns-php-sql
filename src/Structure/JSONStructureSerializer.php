@@ -1,5 +1,15 @@
 <?php
-namespace NoreSources\SQL;
+/**
+ * Copyright © 2012-2018 by Renaud Guillard (dev@nore.fr)
+ * Distributed under the terms of the MIT License, see LICENSE
+ */
+/**
+ *
+ * @package SQL
+ */
+namespace NoreSources\SQL\Structure;
+
+use NoreSources\SQL\Constants as K;
 
 class JSONStructureSerializer extends StructureSerializer implements \JsonSerializable
 {
@@ -44,7 +54,7 @@ class JSONStructureSerializer extends StructureSerializer implements \JsonSerial
 		{
 			return $this->serializeTable($this->structureElement);
 		}
-		elseif ($this->structureElement instanceof TableColumnStructure)
+		elseif ($this->structureElement instanceof ColumnStructure)
 		{
 			return $this->serializeTableColumn($this->structureElement);
 		}
@@ -112,7 +122,7 @@ class JSONStructureSerializer extends StructureSerializer implements \JsonSerial
 		return $properties;
 	}
 
-	private function serializeTableColumn(TableColumnStructure $structure)
+	private function serializeTableColumn(ColumnStructure $structure)
 	{
 		$properties = [];
 		foreach ($structure->getColumnProperties() as $key => $value)

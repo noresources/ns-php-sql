@@ -8,9 +8,10 @@
  *
  * @package SQL
  */
-namespace NoreSources\SQL;
+namespace NoreSources\SQL\Structure;
 
-use NoreSources\SQL\DBMS\PDO\StatementBuilder;
+use NoreSources\SQL\Statement\Builder;
+use NoreSources\SQL\Constants as K;
 use NoreSources as ns;
 
 class StructureException extends \Exception
@@ -140,16 +141,16 @@ abstract class StructureElement implements \ArrayAccess, \IteratorAggregate, \Co
 
 	/**
 	 *
-	 * @param StatementBuilder $builder
+	 * @param \NoreSources\SQL\Statement\Builder $builder
 	 * @return string
 	 */
-	public function getPath(StatementBuilder $builder = null)
+	public function getPath(Builder $builder = null)
 	{
-		$s = ($builder instanceof StatementBuilder) ? $builder->escapeIdentifier($this->getName()) : $this->getName();
+		$s = ($builder instanceof Builder) ? $builder->escapeIdentifier($this->getName()) : $this->getName();
 		$p = $this->parent();
 		while ($p && !($p instanceof DatasourceStructure))
 		{
-			$s = (($builder instanceof StatementBuilder) ? $builder->escapeIdentifier($p->getName()) : $p->getName()) .
+			$s = (($builder instanceof Builder) ? $builder->escapeIdentifier($p->getName()) : $p->getName()) .
 				'.' . $s;
 			$p = $p->parent();
 		}

@@ -1,17 +1,25 @@
 <?php
+/**
+ * Copyright © 2012-2018 by Renaud Guillard (dev@nore.fr)
+ * Distributed under the terms of the MIT License, see LICENSE
+ */
+/**
+ *
+ * @package SQL
+ */
 
 // Namespace
 namespace NoreSources\SQL\Statement;
 
 // Aliases
-use NoreSources\SQL\ColumnTableConstraint;
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\ForeignKeyTableConstraint;
-use NoreSources\SQL\PrimaryKeyTableConstraint;
-use NoreSources\SQL\TableStructure;
-use NoreSources\SQL\UniqueTableConstraint;
 use NoreSources\SQL\Expression\Evaluator as X;
 use NoreSources\SQL\Expression\TokenStream;
+use NoreSources\SQL\Structure\ColumnTableConstraint;
+use NoreSources\SQL\Structure\ForeignKeyTableConstraint;
+use NoreSources\SQL\Structure\PrimaryKeyTableConstraint;
+use NoreSources\SQL\Structure\TableStructure;
+use NoreSources\SQL\Structure\UniqueTableConstraint;
 
 class CreateTableQuery extends Statement
 {
@@ -90,7 +98,7 @@ class CreateTableQuery extends Statement
 		{
 			/**
 			 *
-			 * @var TableColumnStructure $column
+			 * @var ColumnStructure $column
 			 */
 
 			if ($c++ > 0)

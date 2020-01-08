@@ -1,17 +1,24 @@
 <?php
+/**
+ * Copyright © 2012-2018 by Renaud Guillard (dev@nore.fr)
+ * Distributed under the terms of the MIT License, see LICENSE
+ */
+/**
+ *
+ * @package SQL
+ */
 
 // Namespace
 namespace NoreSources\SQL\Statement;
 
 // Aliases
-use NoreSources\Expression as xpr;
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\TableStructure;
 use NoreSources\SQL\Expression\Column;
 use NoreSources\SQL\Expression\Evaluator;
 use NoreSources\SQL\Expression\Expression;
 use NoreSources\SQL\Expression\TableReference;
 use NoreSources\SQL\Expression\TokenStream;
+use NoreSources\SQL\Structure\TableStructure;
 use NoreSources as ns;
 
 /**
@@ -51,8 +58,6 @@ class ResultColumnReference
  */
 class JoinClause implements Expression
 {
-
-	use xpr\BasicExpressionVisitTrait;
 
 	/**
 	 *
@@ -471,8 +476,8 @@ class SelectQuery extends Statement
 		$stream->stream($where);
 
 		// GROUP BY
-		if ($this->parts[self::PART_GROUPBY] && ns\Container::count(
-			$this->parts[self::PART_GROUPBY]))
+		if ($this->parts[self::PART_GROUPBY] &&
+			ns\Container::count($this->parts[self::PART_GROUPBY]))
 		{
 
 			$stream->space()

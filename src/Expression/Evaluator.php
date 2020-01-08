@@ -1,10 +1,18 @@
 <?php
+/**
+ * Copyright © 2012-2018 by Renaud Guillard (dev@nore.fr)
+ * Distributed under the terms of the MIT License, see LICENSE
+ */
+/**
+ *
+ * @package SQL
+ */
 namespace NoreSources\SQL\Expression;
 
-use NoreSources as ns;
-use NoreSources\SQL as sql;
-use Ferno\Loco as Loco;
+use Ferno\Loco;
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\Structure\ColumnStructure;
+use NoreSources as ns;
 
 class EvaluatorExceptioion extends \ErrorException
 {
@@ -21,12 +29,12 @@ class Evaluator
 	/**
 	 * Create Column
 	 *
-	 * @param string|sql\TableColumnStructure $column
+	 * @param string|ColumnStructure $column
 	 * @return Column
 	 */
 	public static function column($column)
 	{
-		if ($column instanceof sql\TableColumnStructure)
+		if ($column instanceof ColumnStructure)
 		{
 			$column = $column->getPath();
 		}
@@ -39,14 +47,14 @@ class Evaluator
 	 *
 	 * @param mixed $value
 	 *        	Literal value
-	 * @param integer|sql\TableColumnStructure $type
+	 * @param integer|ColumnStructure $type
 	 *        	Data type hint
 	 *
 	 * @return \NoreSources\SQL\Expression\Value
 	 */
 	public static function literal($value, $type = K::DATATYPE_UNDEFINED)
 	{
-		if ($type instanceof sql\TableColumnStructure)
+		if ($type instanceof ColumnStructure)
 		{
 			$type = $type->getColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE);
 		}

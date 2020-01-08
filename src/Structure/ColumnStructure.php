@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Copyright © 2012-2018 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
@@ -8,14 +7,14 @@
  *
  * @package SQL
  */
-namespace NoreSources\SQL;
+namespace NoreSources\SQL\Structure;
 
 use NoreSources\SQL\Constants as K;
 
 /**
  * Table column properties
  */
-class TableColumnStructure extends StructureElement implements ColumnPropertyMap
+class ColumnStructure extends StructureElement implements ColumnPropertyMap
 {
 
 	const DATATYPE = K::COLUMN_PROPERTY_DATA_TYPE;

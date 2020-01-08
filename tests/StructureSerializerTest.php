@@ -1,9 +1,14 @@
 <?php
 namespace NoreSources\SQL;
 
-use PHPUnit\Framework\TestCase;
+use NoreSources\SQL\Structure\StructureSerializer;
+use NoreSources\SQL\Structure\XMLStructureSerializer;
+use NoreSources\SQL\Structure\JSONStructureSerializer;
+use NoreSources\SQL\Structure\StructureSerializerFactory;
+use NoreSources\SQL\Structure\DatasourceStructure;
+use NoreSources\SQL\Structure\TableStructure;
 
-final class StructureSerializerTest extends TestCase
+final class StructureSerializerTest extends \PHPUnit\Framework\TestCase
 {
 
 	public function __construct()

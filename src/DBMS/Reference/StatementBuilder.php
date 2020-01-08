@@ -1,9 +1,17 @@
 <?php
+/**
+ * Copyright © 2012-2018 by Renaud Guillard (dev@nore.fr)
+ * Distributed under the terms of the MIT License, see LICENSE
+ */
+/**
+ *
+ * @package SQL
+ */
 namespace NoreSources\SQL\DBMS\Reference;
 
-use NoreSources\SQL;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Statement;
+use NoreSources\SQL\Structure\ColumnStructure;
 
 /**
  */
@@ -40,7 +48,7 @@ class StatementBuilder extends Statement\Builder
 		return ('$' . preg_replace('/[^a-zA-Z0-9_]/', '_', $name));
 	}
 
-	function getColumnTypeName(sql\TableColumnStructure $column)
+	function getColumnTypeName(ColumnStructure $column)
 	{
 		$dataType = K::DATATYPE_UNDEFINED;
 		if ($column->hasColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE))

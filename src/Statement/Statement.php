@@ -1,10 +1,17 @@
 <?php
+/**
+ * Copyright © 2012-2018 by Renaud Guillard (dev@nore.fr)
+ * Distributed under the terms of the MIT License, see LICENSE
+ */
+/**
+ *
+ * @package SQL
+ */
 
 // Namespace
 namespace NoreSources\SQL\Statement;
 
 // Aliases
-use NoreSources\Expression as xpr;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Expression as X;
 use NoreSources\SQL\DBMS\PreparedStatement;
@@ -42,8 +49,6 @@ class StatementException extends \Exception
  */
 abstract class Statement implements X\Expression
 {
-
-	use xpr\BasicExpressionVisitTrait;
 
 	/**
 	 * Attempt to guess statement type from statement data

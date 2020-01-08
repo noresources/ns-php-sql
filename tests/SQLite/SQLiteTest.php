@@ -7,10 +7,10 @@ use NoreSources\SQL\DBMS\ConnectionHelper;
 use NoreSources\SQL\DBMS\StatementParameterArray;
 use NoreSources\SQL\QueryResult\InsertionQueryResult;
 use NoreSources\SQL\QueryResult\Recordset;
-use PHPUnit\Framework\TestCase;
+use NoreSources\SQL\Structure\TableStructure;
 use NoreSources as ns;
 
-final class SQLiteTest extends TestCase
+final class SQLiteTest extends \PHPUnit\Framework\TestCase
 {
 
 	public function __construct()

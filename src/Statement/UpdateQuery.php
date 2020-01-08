@@ -1,16 +1,24 @@
 <?php
+/**
+ * Copyright © 2012-2018 by Renaud Guillard (dev@nore.fr)
+ * Distributed under the terms of the MIT License, see LICENSE
+ */
+/**
+ *
+ * @package SQL
+ */
 
 // Namespace
 namespace NoreSources\SQL\Statement;
 
 // Aliases
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\TableStructure;
-use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Expression\Evaluator as X;
 use NoreSources\SQL\Expression\Expression;
 use NoreSources\SQL\Expression\TableReference;
+use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Expression\Value;
+use NoreSources\SQL\Structure\TableStructure;
 
 class UpdateQuery extends Statement implements \ArrayAccess
 {
@@ -90,7 +98,7 @@ class UpdateQuery extends Statement implements \ArrayAccess
 			$column = $tableStructure->offsetGet($columnName);
 			/**
 			 *
-			 * @var TableColumnStructure $column
+			 * @var ColumnStructure $column
 			 */
 
 			if (!($value instanceof Expression))

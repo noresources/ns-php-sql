@@ -1,13 +1,21 @@
 <?php
+/**
+ * Copyright © 2012-2018 by Renaud Guillard (dev@nore.fr)
+ * Distributed under the terms of the MIT License, see LICENSE
+ */
+/**
+ *
+ * @package SQL
+ */
 
 // Namespace
 namespace NoreSources\SQL\Statement;
 
 // Aliases
-use NoreSources\SQL\ColumnPropertyMap;
-use NoreSources\SQL\ColumnPropertyMapTrait;
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\TableColumnStructure;
+use NoreSources\SQL\Structure\ColumnPropertyMap;
+use NoreSources\SQL\Structure\ColumnPropertyMapTrait;
+use NoreSources\SQL\Structure\ColumnStructure;
 use NoreSources as ns;
 
 /**
@@ -37,7 +45,7 @@ class ResultColumn implements ColumnPropertyMap
 		{
 			if ($this->hasColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE))
 				return $this->getColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE);
-			return k::DATATYPE_UNDEFINED;
+			return K::DATATYPE_UNDEFINED;
 		}
 
 		throw new \InvalidArgumentException(
@@ -55,7 +63,7 @@ class ResultColumn implements ColumnPropertyMap
 	{
 		if ($member == 'dataType')
 		{
-			$this->setColumnProperty(k::COLUMN_PROPERTY_DATA_TYPE, $value);
+			$this->setColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE, $value);
 			return;
 		}
 
@@ -65,16 +73,16 @@ class ResultColumn implements ColumnPropertyMap
 
 	/**
 	 *
-	 * @param integer|TableColumnStructure $data
+	 * @param integer|ColumnStructure $data
 	 */
 	public function __construct($data)
 	{
-		if ($data instanceof TableColumnStructure)
+		if ($data instanceof ColumnStructure)
 			$this->name = $data->getName();
 		elseif (ns\TypeDescription::hasStringRepresentation($data))
 			$this->name = ns\TypeConversion::toString($data);
 
-		if ($data instanceof TableColumnStructure)
+		if ($data instanceof ColumnStructure)
 		{
 			$this->initializeColumnProperties($data->getColumnProperties());
 		}

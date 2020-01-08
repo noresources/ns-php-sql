@@ -5,6 +5,7 @@ namespace NoreSources\SQL;
 use NoreSources\SQL\DBMS\PDO\Connection;
 use NoreSources\SQL\DBMS\PDO\Recordset;
 use NoreSources\SQL\DBMS\PDO\PreparedStatement;
+use NoreSources\SQL\Structure\TableStructure;
 use NoreSources\SQL\QueryResult;
 use NoreSources\SQL\DBMS\PDO\Constants as K;
 use NoreSources\SQL\Statement\UpdateQuery;
@@ -20,7 +21,7 @@ $sqliteConnectionParameters = [
 	]
 ];
 
-final class PDOTest extends TestCase
+final class PDOTest extends \PHPUnit\Framework\TestCase
 {
 
 	public function __construct()

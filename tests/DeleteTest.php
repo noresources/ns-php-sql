@@ -3,10 +3,10 @@ namespace NoreSources\SQL;
 
 use NoreSources\SQL\DBMS\Reference;
 use NoreSources\SQL\Expression\TokenStream;
+use NoreSources\SQL\Structure\TableStructure;
 use NoreSources\SQL\Statement\BuildContext;
-use PHPUnit\Framework\TestCase;
 
-final class DeleteTest extends TestCase
+final class DeleteTest extends \PHPUnit\Framework\TestCase
 {
 
 	public function __construct()

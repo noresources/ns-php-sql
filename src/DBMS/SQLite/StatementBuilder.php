@@ -1,14 +1,20 @@
 <?php
-
-// NAmespace
+/**
+ * Copyright © 2012-2018 by Renaud Guillard (dev@nore.fr)
+ * Distributed under the terms of the MIT License, see LICENSE
+ */
+/**
+ *
+ * @package SQL
+ */
 namespace NoreSources\SQL\DBMS\SQLite;
 
 // Aliases
 use NoreSources\SQL;
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\TableColumnStructure;
+use NoreSources\SQL\Structure\ColumnStructure;
 
-class StatementBuilder extends sql\Statement\Builder
+class StatementBuilder extends SQL\Statement\Builder
 {
 
 	public function __construct()
@@ -37,7 +43,7 @@ class StatementBuilder extends sql\Statement\Builder
 		return (':' . preg_replace('/[^a-zA-Z0-9_]/', '_', $name));
 	}
 
-	public static function getSQLiteColumnTypeName(TableColumnStructure $column)
+	public static function getSQLiteColumnTypeName(ColumnStructure $column)
 	{
 		$dataType = K::DATATYPE_UNDEFINED;
 		if ($column->hasColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE))
@@ -60,7 +66,7 @@ class StatementBuilder extends sql\Statement\Builder
 		return 'TEXT';
 	}
 
-	public function getColumnTypeName(TableColumnStructure $column)
+	public function getColumnTypeName(ColumnStructure $column)
 	{
 		return self::getSQLiteColumnTypeName($column);
 	}

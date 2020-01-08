@@ -8,7 +8,9 @@
  *
  * @package SQL
  */
-namespace NoreSources\SQL;
+namespace NoreSources\SQL\Structure;
+
+use NoreSources\SQL\Constants as K;
 
 /**
  * Table properties

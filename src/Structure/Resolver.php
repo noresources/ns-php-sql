@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Copyright © 2012-2018 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
@@ -8,11 +7,7 @@
  *
  * @package SQL
  */
-namespace NoreSources\SQL;
-
-use NoreSources as ns;
-use NoreSources\SQL\Constants as K;
-use NoreSources\Stack;
+namespace NoreSources\SQL\Structure;
 
 class StructureResolverException extends \Exception
 {
@@ -48,7 +43,7 @@ class StructureResolverContext
 	{
 		$this->pivot = $pivot;
 		$this->cache = new \ArrayObject([
-			TableColumnStructure::class => new \ArrayObject(),
+			ColumnStructure::class => new \ArrayObject(),
 			TableStructure::class => new \ArrayObject(),
 			TablesetStructure::class => new \ArrayObject(),
 			DatasourceStructure::class => new \ArrayObject()
@@ -61,7 +56,8 @@ class StructureResolverContext
 		$p = $pivot->parent();
 		while ($p instanceof StructureElement)
 		{
-			$this->cache[get_class($p)]->offsetSet($p->getName(), $p);
+			$key = get_class($p);
+			$this->cache[$key]->offsetSet($p->getName(), $p);
 			$p = $p->parent();
 		}
 	}
@@ -77,7 +73,7 @@ class StructureResolver
 	 */
 	public function __construct(StructureElement $pivot = null)
 	{
-		$this->contextStack = new Stack();
+		$this->contextStack = new \NoreSources\Stack();
 
 		if ($pivot instanceof StructureElement)
 		{
@@ -130,13 +126,13 @@ class StructureResolver
 	 *
 	 * @param string $path
 	 * @throws StructureResolverException
-	 * @return \NoreSources\SQL\TableColumnStructure
+	 * @return \NoreSources\SQL\ColumnStructure
 	 */
 	public function findColumn($path)
 	{
-		if ($this->cache[TableColumnStructure::class]->offsetExists($path))
+		if ($this->cache[ColumnStructure::class]->offsetExists($path))
 		{
-			return $this->cache[TableColumnStructure::class][
+			return $this->cache[ColumnStructure::class][
 				$path
 			];
 		}
@@ -169,9 +165,10 @@ class StructureResolver
 
 		$column = $table->offsetGet($name);
 
-		if ($column instanceof TableColumnStructure)
+		if ($column instanceof ColumnStructure)
 		{
-			$this->cache[TableColumnStructure::class]->offsetSet($path, $column);
+			$key = ColumnStructure::class;
+			$this->cache[$key]->offsetSet($path, $column);
 		}
 		else
 		{
@@ -206,7 +203,7 @@ class StructureResolver
 		{
 			$tableset = $this->getDefaultTableset();
 		}
-		else 
+		else
 			if ($c == 2)
 			{
 				$tableset = $this->findTableset($x[0]);
@@ -216,7 +213,8 @@ class StructureResolver
 
 		if ($table instanceof TableStructure)
 		{
-			$this->cache[TableStructure::class]->offsetSet($path, $table);
+			$key = TableStructure::class;
+			$this->cache[$key]->offsetSet($path, $table);
 		}
 		else
 		{
@@ -251,7 +249,8 @@ class StructureResolver
 
 		if ($tableset instanceof TablesetStructure)
 		{
-			$this->cache[TablesetStructure::class]->offsetSet($path, $tableset);
+			$key = TablesetStructure::class;
+			$this->cache[$key]->offsetSet($path, $tableset);
 		}
 		else
 		{
@@ -267,7 +266,8 @@ class StructureResolver
 	 */
 	public function setAlias($alias, StructureElement $reference)
 	{
-		$this->cache[get_class($reference)]->offsetSet($alias, $reference);
+		$key = get_class($reference);
+		$this->cache[$key]->offsetSet($alias, $reference);
 		$this->aliases->offsetSet($alias, $reference);
 	}
 
@@ -300,7 +300,7 @@ class StructureResolver
 			return $this->pivot;
 		elseif ($this->pivot instanceof TableStructure)
 			return $this->pivot->parent();
-		elseif ($this->pivot instanceof TableColumnStructure)
+		elseif ($this->pivot instanceof ColumnStructure)
 			return $this->pivot->parent(2);
 
 		throw new StructureResolverException('Default tableset');
@@ -308,7 +308,7 @@ class StructureResolver
 
 	private function getDefaultTable()
 	{
-		if ($this->pivot instanceof TableColumnStructure)
+		if ($this->pivot instanceof ColumnStructure)
 		{
 			return $this->pivot->parent();
 		}

@@ -1,8 +1,16 @@
 <?php
+/**
+ * Copyright © 2012-2018 by Renaud Guillard (dev@nore.fr)
+ * Distributed under the terms of the MIT License, see LICENSE
+ */
+/**
+ *
+ * @package SQL
+ */
 namespace NoreSources\SQL\Statement;
 
-use NoreSources\SQL\StructureElement;
-use NoreSources\SQL\StructureResolver;
+use NoreSources\SQL\Structure\StructureElement;
+use NoreSources\SQL\Structure\StructureResolver;
 use NoreSources as ns;
 
 class BuildContext implements InputData, OutputData
@@ -64,7 +72,7 @@ class BuildContext implements InputData, OutputData
 	 * Set a SELECT statement result column
 	 *
 	 * @param integer $index
-	 * @param integer|TableColumnStructure $data
+	 * @param integer|ColumnStructure $data
 	 *
 	 * @note A result column can only be set on top-level context
 	 */
@@ -184,9 +192,9 @@ class BuildContext implements InputData, OutputData
 	 * @throws \BadMethodCallException
 	 * @return mixed
 	 *
-	 * @method string getColumnDescription(TableColumnStructure $column)
+	 * @method string getColumnDescription(ColumnStructure $column)
 	 * @method string getTableConstraintDescription(TableStructure, TableConstraint)
-	 *
+	 *        
 	 */
 	public function __call($method, $args)
 	{

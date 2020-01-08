@@ -3,9 +3,10 @@ namespace NoreSources\SQL;
 
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Statement\BuildContext;
+use NoreSources\SQL\Structure\TableStructure;
 use PHPUnit\Framework\TestCase;
 
-final class CreateTableTest extends TestCase
+final class CreateTableTest extends \PHPUnit\Framework\TestCase
 {
 
 	public function __construct()

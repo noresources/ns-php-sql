@@ -1,13 +1,20 @@
 <?php
+/**
+ * Copyright © 2012-2018 by Renaud Guillard (dev@nore.fr)
+ * Distributed under the terms of the MIT License, see LICENSE
+ */
+/**
+ *
+ * @package SQL
+ */
 
 // Namespace
 namespace NoreSources\SQL\Statement;
 
 // Aliases
-use NoreSources\SQL\BuildContext;
-use NoreSources\SQL\TableStructure;
-use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Expression\Table;
+use NoreSources\SQL\Expression\TokenStream;
+use NoreSources\SQL\Structure\TableStructure;
 
 class DropTableQuery extends Statement
 {

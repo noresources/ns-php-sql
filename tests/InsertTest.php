@@ -7,9 +7,9 @@ use NoreSources\SQL\Expression\Evaluator as X;
 use NoreSources\SQL\Expression\Expression;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Statement\BuildContext;
-use PHPUnit\Framework\TestCase;
+use NoreSources\SQL\Structure\TableStructure;
 
-final class InsertTest extends TestCase
+final class InsertTest extends \PHPUnit\Framework\TestCase
 {
 
 	public function __construct()

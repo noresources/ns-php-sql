@@ -6,7 +6,7 @@ use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Expression\Evaluator as X;
 use PHPUnit\Framework\TestCase;
 
-final class ExpressionEvaluatorTest extends TestCase
+final class ExpressionEvaluatorTest extends \PHPUnit\Framework\TestCase
 {
 
 	public function __construct()

@@ -1,10 +1,20 @@
 <?php
+/**
+ * Copyright © 2012-2018 by Renaud Guillard (dev@nore.fr)
+ * Distributed under the terms of the MIT License, see LICENSE
+ */
+/**
+ *
+ * @package SQL
+ */
 namespace NoreSources\SQL\Expression;
 
-use NoreSources\SQL as sql;
-use NoreSources\SQL\Constants as K;
 use NoreSources\Expression as xpr;
+use NoreSources\TypeDescription;
+use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Statement\BuildContext;
+use NoreSources\SQL\Structure\ArrayColumnPropertyMap;
+use NoreSources\SQL\Structure\ColumnPropertyMap;
 
 class Value extends xpr\Value implements Expression, ExpressionReturnType
 {
@@ -13,22 +23,22 @@ class Value extends xpr\Value implements Expression, ExpressionReturnType
 	{
 		parent::__construct($value);
 		$this->setSerializationTarget($type);
-		if ($value instanceof xpr\Expression)
+		if ($value instanceof Expression)
 			throw new \LogicException('Value is already an Expression');
 	}
 
 	/**
 	 * Set to which type the value should be serialized
 	 *
-	 * @param sql\ArrayColumnPropertyMap|integer $type
+	 * @param ArrayColumnPropertyMap|integer $type
 	 * @throws \InvalidArgumentException
 	 */
 	public function setSerializationTarget($type)
 	{
-		if ($type instanceof sql\ArrayColumnPropertyMap)
+		if ($type instanceof ColumnPropertyMap)
 			$this->serializationTarget = $type;
 		elseif (\is_integer($type))
-			$this->serializationTarget = new sql\ArrayColumnPropertyMap(
+			$this->serializationTarget = new ArrayColumnPropertyMap(
 				[
 					K::COLUMN_PROPERTY_DATA_TYPE => $type
 				]);
@@ -40,7 +50,7 @@ class Value extends xpr\Value implements Expression, ExpressionReturnType
 
 	public function getExpressionDataType()
 	{
-		if ($this->serializationTarget instanceof sql\ArrayColumnPropertyMap)
+		if ($this->serializationTarget instanceof ColumnPropertyMap)
 		{
 			if ($this->serializationTarget->hasColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE))
 				return $this->serializationTarget->getColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE);
@@ -57,7 +67,7 @@ class Value extends xpr\Value implements Expression, ExpressionReturnType
 
 	/**
 	 *
-	 * @var sql\ColumnPropertyMap Literal type
+	 * @var ColumnPropertyMap Literal type
 	 */
 	private $serializationTarget;
 }

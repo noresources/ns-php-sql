@@ -1,14 +1,20 @@
 <?php
-
-// NAmespace
+/**
+ * Copyright © 2012-2018 by Renaud Guillard (dev@nore.fr)
+ * Distributed under the terms of the MIT License, see LICENSE
+ */
+/**
+ *
+ * @package SQL
+ */
 namespace NoreSources\SQL\DBMS;
 
 // Aliases
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\StructureElement;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Statement\BuildContext;
 use NoreSources\SQL\Statement\Statement;
+use NoreSources\SQL\Structure\StructureElement;
 use NoreSources as ns;
 
 class ConnectionHelper
@@ -71,7 +77,7 @@ class ConnectionHelper
 	 * @param StructureElement $reference
 	 *        	Pivot StructureElement
 	 * @return string SQL string in the DBMS dialect
-	 *
+	 *        
 	 * @note This method does not provide any informations about statement parameters or result column types.
 	 * Tf these information are needed, use ConnectionHelper::prepareStatement()
 	 */

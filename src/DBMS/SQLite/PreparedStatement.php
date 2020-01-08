@@ -1,6 +1,12 @@
 <?php
-
-// NAmespace
+/**
+ * Copyright © 2012-2018 by Renaud Guillard (dev@nore.fr)
+ * Distributed under the terms of the MIT License, see LICENSE
+ */
+/**
+ *
+ * @package SQL
+ */
 namespace NoreSources\SQL\DBMS\SQLite;
 
 // Aliases
@@ -17,7 +23,7 @@ class PreparedStatement extends SQL\DBMS\PreparedStatement
 	/**
 	 *
 	 * @param \SQLite3Stmt $statement
-	 * @param sql\BuildContext|string $data
+	 * @param BuildContext|string $data
 	 * @throws \Exception
 	 * @throws \BadMethodCallException
 	 */

@@ -1,8 +1,16 @@
 <?php
+/**
+ * Copyright © 2012-2018 by Renaud Guillard (dev@nore.fr)
+ * Distributed under the terms of the MIT License, see LICENSE
+ */
+/**
+ *
+ * @package SQL
+ */
 namespace NoreSources\SQL\Expression;
 
-use NoreSources\SQL;
 use NoreSources\SQL\Statement\BuildContext;
+use NoreSources\SQL\Structure\ColumnStructure;
 
 class Column extends StructureElementIdentifier
 {
@@ -15,7 +23,7 @@ class Column extends StructureElementIdentifier
 	public function tokenize(TokenStream &$stream, BuildContext $context)
 	{
 		$target = $context->findColumn($this->path);
-		if ($target instanceof sql\TableColumnStructure)
+		if ($target instanceof ColumnStructure)
 		{
 			$parts = explode('.', $this->path);
 			foreach ($parts as $part)

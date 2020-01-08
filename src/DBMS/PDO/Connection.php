@@ -1,16 +1,22 @@
 <?php
-
-// NAmespace
+/**
+ * Copyright © 2012-2018 by Renaud Guillard (dev@nore.fr)
+ * Distributed under the terms of the MIT License, see LICENSE
+ */
+/**
+ *
+ * @package SQL
+ */
 namespace NoreSources\SQL\DBMS\PDO;
 
 // Aliases
+use NoreSources\Container;
 use NoreSources\SQL;
 use NoreSources\TypeDescription;
 use NoreSources\SQL\DBMS;
 use NoreSources\SQL\DBMS\PDO\Constants as K;
 use NoreSources\SQL\QueryResult\GenericInsertionQueryResult;
 use NoreSources\SQL\QueryResult\GenericRowModificationQueryResult;
-use Noresources\Container;
 
 /**
  * PDO connection
@@ -79,7 +85,7 @@ class Connection implements DBMS\Connection
 	 *        	<li>CONNECTION_PARAMETER_PASSWORD</li>
 	 *        	<li>CONNECTION_PARAMETER_OPTIONS</li>
 	 *        	</ul>
-	 *
+	 *        	
 	 */
 	public function connect($parameters)
 	{

@@ -1,11 +1,18 @@
 <?php
-
-// NAmespace
+/**
+ * Copyright © 2012-2018 by Renaud Guillard (dev@nore.fr)
+ * Distributed under the terms of the MIT License, see LICENSE
+ */
+/**
+ *
+ * @package SQL
+ */
 namespace NoreSources\SQL\DBMS\PDO;
 
 // Aliases
 use NoreSources\SQL;
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\Structure\ColumnStructure;
 
 class StatementBuilder extends SQL\Statement\Builder
 {
@@ -50,7 +57,7 @@ class StatementBuilder extends SQL\Statement\Builder
 		return (':' . $position);
 	}
 
-	public function getColumnTypeName(SQL\TableColumnStructure $column)
+	public function getColumnTypeName(ColumnStructure $column)
 	{
 		$dataType = K::DATATYPE_UNDEFINED;
 		if ($column->hasColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE))

@@ -1,19 +1,27 @@
 <?php
+/**
+ * Copyright © 2012-2018 by Renaud Guillard (dev@nore.fr)
+ * Distributed under the terms of the MIT License, see LICENSE
+ */
+/**
+ *
+ * @package SQL
+ */
 namespace NoreSources\SQL\Statement;
 
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\ColumnPropertyMap;
-use NoreSources\SQL\ColumnTableConstraint;
 use NoreSources\SQL\DataSerializer;
-use NoreSources\SQL\DatasourceStructure;
-use NoreSources\SQL\ForeignKeyTableConstraint;
-use NoreSources\SQL\PrimaryKeyTableConstraint;
-use NoreSources\SQL\StructureElement;
-use NoreSources\SQL\TableColumnStructure;
-use NoreSources\SQL\TableConstraint;
-use NoreSources\SQL\TableStructure;
 use NoreSources\SQL\Expression\TokenStream;
-use NoreSources\SQL\UniqueTableConstraint;
+use NoreSources\SQL\Structure\ColumnPropertyMap;
+use NoreSources\SQL\Structure\ColumnTableConstraint;
+use NoreSources\SQL\Structure\DatasourceStructure;
+use NoreSources\SQL\Structure\ForeignKeyTableConstraint;
+use NoreSources\SQL\Structure\PrimaryKeyTableConstraint;
+use NoreSources\SQL\Structure\StructureElement;
+use NoreSources\SQL\Structure\ColumnStructure;
+use NoreSources\SQL\Structure\TableConstraint;
+use NoreSources\SQL\Structure\TableStructure;
+use NoreSources\SQL\Structure\UniqueTableConstraint;
 use NoreSources as ns;
 
 /**
@@ -76,11 +84,11 @@ abstract class Builder implements DataSerializer
 	/**
 	 * Get the default type name for a given data type
 	 *
-	 * @param TableColumnStructure $column
+	 * @param ColumnStructure $column
 	 *        	Column definition
 	 * @return string The default Connection type name for the given data type
 	 */
-	abstract function getColumnTypeName(TableColumnStructure $column);
+	abstract function getColumnTypeName(ColumnStructure $column);
 
 	/**
 	 * Get syntax keyword.
@@ -130,7 +138,7 @@ abstract class Builder implements DataSerializer
 				$s .= 'OUTER ';
 			}
 		}
-		else
+		else 
 			if (($joinTypeFlags & K::JOIN_RIGHT) == K::JOIN_RIGHT)
 			{
 				$s . 'RIGHT ';
@@ -139,12 +147,12 @@ abstract class Builder implements DataSerializer
 					$s .= 'OUTER ';
 				}
 			}
-			else
+			else 
 				if (($joinTypeFlags & K::JOIN_CROSS) == K::JOIN_CROSS)
 				{
 					$s .= 'CROSS ';
 				}
-				else
+				else 
 					if (($joinTypeFlags & K::JOIN_INNER) == K::JOIN_INNER)
 					{
 						$s .= 'INNER ';
@@ -163,7 +171,7 @@ abstract class Builder implements DataSerializer
 	 *        	<li>Constants\DATATYPE_TIME</li>
 	 *        	<li>Constants\DATATYPE_TIMEZONE</li>
 	 *        	</ul>
-	 *
+	 *        	
 	 * @return string \DateTime format string
 	 */
 	public function getTimestampFormat($type = 0)
