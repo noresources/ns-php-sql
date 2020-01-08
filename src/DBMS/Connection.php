@@ -10,9 +10,6 @@
 namespace NoreSources\SQL\DBMS;
 
 // Aliases
-use NoreSources\SQL\Structure\StructureElement;
-use NoreSources\SQL\Structure\StructureSerializerFactory;
-use NoreSources as ns;
 
 /**
  * DMBS connection
@@ -75,28 +72,5 @@ interface Connection
 	 * @return StructureElement
 	 */
 	function getStructure();
-}
-
-trait ConnectionStructureTrait
-{
-
-	public function getStructure()
-	{
-		return $this->connectionStructure;
-	}
-
-	protected function setStructure($structure)
-	{
-		if ($structure instanceof StructureElement)
-			$this->connectionStructure = $structure;
-		elseif (is_file($structure))
-			$this->connectionStructure = StructureSerializerFactory::structureFromFile($filename);
-		else
-			throw new \InvalidArgumentException(
-				ns\TypeDescription::getName($structure) .
-				' is not a valid argument. Instance of StructureElement or filename expected');
-	}
-
-	private $connectionStructure;
 }
 

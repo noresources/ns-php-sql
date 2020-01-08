@@ -9,46 +9,12 @@
  */
 namespace NoreSources\SQL\Structure;
 
-use NoreSources\SQL\DataUnserializer;
+use NoreSources\Container;
+use NoreSources\MediaType;
+use NoreSources\TypeConversion;
+use NoreSources\TypeDescription;
 use NoreSources\SQL\Constants as K;
-use NoreSources as ns;
-
-interface ColumnPropertyMap
-{
-
-	/**
-	 *
-	 * @param string $key
-	 */
-	function hasColumnProperty($key);
-
-	/**
-	 *
-	 * @param string $key
-	 * @return boolean
-	 */
-	function getColumnProperty($key);
-
-	/**
-	 * Get all column properties
-	 * #return array
-	 */
-	function getColumnProperties();
-
-	/**
-	 *
-	 * @param string $key
-	 * @param mixed $value
-	 */
-	function setColumnProperty($key, $value);
-
-	/**
-	 * Remove a column property
-	 *
-	 * @param string $key
-	 */
-	function removeColumnProperty($key);
-}
+use NoreSources\SQL\DataUnserializer;
 
 trait ColumnPropertyMapTrait
 {
@@ -72,12 +38,12 @@ trait ColumnPropertyMapTrait
 
 	public function hasColumnProperty($key)
 	{
-		return ns\Container::keyExists($this->columnProperties, $key);
+		return Container::keyExists($this->columnProperties, $key);
 	}
 
 	public function getColumnProperty($key)
 	{
-		if (ns\Container::keyExists($this->columnProperties, $key))
+		if (Container::keyExists($this->columnProperties, $key))
 			return $this->columnProperties[$key];
 		return ColumnPropertyDefault::get($key);
 	}
@@ -100,17 +66,17 @@ trait ColumnPropertyMapTrait
 			case K::COLUMN_PROPERTY_DATA_SIZE:
 			case K::COLUMN_PROPERTY_DATA_TYPE:
 			case K::COLUMN_PROPERTY_FRACTION_DIGIT_COUNT:
-				$value = ns\TypeConversion::toInteger($value);
+				$value = TypeConversion::toInteger($value);
 			break;
 			case K::COLUMN_PROPERTY_MEDIA_TYPE:
-				if (!($value instanceof ns\MediaType))
-					$value = new ns\MediaType($value);
+				if (!($value instanceof MediaType))
+					$value = new MediaType($value);
 			break;
 			case K::COLUMN_PROPERTY_UNSERIALIZER:
 				if (!($value instanceof DataUnserializer))
 					throw new \InvalidArgumentException(
-						'Invalid value type ' . ns\TypeDescription::getName($value) .
-						' for property ' . $key);
+						'Invalid value type ' . TypeDescription::getName($value) . ' for property ' .
+						$key);
 			break;
 		}
 
@@ -119,7 +85,7 @@ trait ColumnPropertyMapTrait
 
 	public function removeColumnProperty($key)
 	{
-		if (ns\Container::keyExists($this->columnProperties, $key))
+		if (Container::keyExists($this->columnProperties, $key))
 			unset($this->columnProperties[$key]);
 	}
 
