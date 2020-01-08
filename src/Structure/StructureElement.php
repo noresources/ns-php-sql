@@ -10,7 +10,7 @@
  */
 namespace NoreSources\SQL\Structure;
 
-use NoreSources\SQL\Statement\Builder;
+use NoreSources\SQL\Statement\StatementBuilder;
 use NoreSources\SQL\Constants as K;
 use NoreSources as ns;
 
@@ -144,13 +144,13 @@ abstract class StructureElement implements \ArrayAccess, \IteratorAggregate, \Co
 	 * @param \NoreSources\SQL\Statement\Builder $builder
 	 * @return string
 	 */
-	public function getPath(Builder $builder = null)
+	public function getPath(StatementBuilder $builder = null)
 	{
-		$s = ($builder instanceof Builder) ? $builder->escapeIdentifier($this->getName()) : $this->getName();
+		$s = ($builder instanceof StatementBuilder) ? $builder->escapeIdentifier($this->getName()) : $this->getName();
 		$p = $this->parent();
 		while ($p && !($p instanceof DatasourceStructure))
 		{
-			$s = (($builder instanceof Builder) ? $builder->escapeIdentifier($p->getName()) : $p->getName()) .
+			$s = (($builder instanceof StatementBuilder) ? $builder->escapeIdentifier($p->getName()) : $p->getName()) .
 				'.' . $s;
 			$p = $p->parent();
 		}

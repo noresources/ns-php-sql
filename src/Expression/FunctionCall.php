@@ -29,7 +29,7 @@ class FunctionCall extends xpr\Procedure implements Expression
 		return parent::appendArgument($argument);
 	}
 
-	public function tokenize(TokenStream &$stream, BuildContext $context)
+	public function tokenize(TokenStream $stream, BuildContext $context)
 	{
 		$stream->keyword($this->getFunctionName())
 			->text('(');

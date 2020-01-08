@@ -31,7 +31,7 @@ class Keyword implements Expression
 		$this->keyword = $keyword;
 	}
 
-	public function tokenize(TokenStream &$stream, BuildContext $context)
+	public function tokenize(TokenStream $stream, BuildContext $context)
 	{
 		return $stream->keyword($context->getKeyword($this->keyword));
 	}

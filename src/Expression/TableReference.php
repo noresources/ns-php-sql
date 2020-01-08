@@ -33,7 +33,7 @@ class TableReference extends Table
 		$this->alias = $alias;
 	}
 
-	public function tokenize(TokenStream &$stream, BuildContext $context)
+	public function tokenize(TokenStream $stream, BuildContext $context)
 	{
 		parent::tokenize($stream, $context);
 		if (strlen($this->alias))

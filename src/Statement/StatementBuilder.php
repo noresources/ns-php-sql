@@ -13,12 +13,12 @@ use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DataSerializer;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Structure\ColumnPropertyMap;
+use NoreSources\SQL\Structure\ColumnStructure;
 use NoreSources\SQL\Structure\ColumnTableConstraint;
 use NoreSources\SQL\Structure\DatasourceStructure;
 use NoreSources\SQL\Structure\ForeignKeyTableConstraint;
 use NoreSources\SQL\Structure\PrimaryKeyTableConstraint;
 use NoreSources\SQL\Structure\StructureElement;
-use NoreSources\SQL\Structure\ColumnStructure;
 use NoreSources\SQL\Structure\TableConstraint;
 use NoreSources\SQL\Structure\TableStructure;
 use NoreSources\SQL\Structure\UniqueTableConstraint;
@@ -27,13 +27,13 @@ use NoreSources as ns;
 /**
  * Build a SQL statement string to be used in a SQL engine
  */
-abstract class Builder implements DataSerializer
+abstract class StatementBuilder implements DataSerializer
 {
 
 	/**
 	 *
 	 * @param number $flags
-	 *        	Builder flags
+	 *        	StatementBuilder flags
 	 */
 	public function __construct()
 	{
@@ -138,7 +138,7 @@ abstract class Builder implements DataSerializer
 				$s .= 'OUTER ';
 			}
 		}
-		else 
+		else
 			if (($joinTypeFlags & K::JOIN_RIGHT) == K::JOIN_RIGHT)
 			{
 				$s . 'RIGHT ';
@@ -147,12 +147,12 @@ abstract class Builder implements DataSerializer
 					$s .= 'OUTER ';
 				}
 			}
-			else 
+			else
 				if (($joinTypeFlags & K::JOIN_CROSS) == K::JOIN_CROSS)
 				{
 					$s .= 'CROSS ';
 				}
-				else 
+				else
 					if (($joinTypeFlags & K::JOIN_INNER) == K::JOIN_INNER)
 					{
 						$s .= 'INNER ';
@@ -171,7 +171,7 @@ abstract class Builder implements DataSerializer
 	 *        	<li>Constants\DATATYPE_TIME</li>
 	 *        	<li>Constants\DATATYPE_TIMEZONE</li>
 	 *        	</ul>
-	 *        	
+	 *
 	 * @return string \DateTime format string
 	 */
 	public function getTimestampFormat($type = 0)

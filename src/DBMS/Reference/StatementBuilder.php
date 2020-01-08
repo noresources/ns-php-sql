@@ -15,7 +15,7 @@ use NoreSources\SQL\Structure\ColumnStructure;
 
 /**
  */
-class StatementBuilder extends Statement\Builder
+class StatementBuilder extends Statement\StatementBuilder
 {
 
 	public function __construct($domainFlags = [])

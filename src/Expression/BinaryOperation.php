@@ -56,7 +56,7 @@ class BinaryOperation extends xpr\BinaryOperation implements Expression, Express
 		return $type;
 	}
 
-	public function tokenize(TokenStream &$stream, BuildContext $context)
+	public function tokenize(TokenStream $stream, BuildContext $context)
 	{
 		return $stream->expression($this->getLeftOperand(), $context)
 			->space()

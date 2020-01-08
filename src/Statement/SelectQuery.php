@@ -88,7 +88,7 @@ class JoinClause implements Expression
 		], $args);
 	}
 
-	public function tokenize(TokenStream &$stream, BuildContext $context)
+	public function tokenize(TokenStream $stream, BuildContext $context)
 	{
 		$stream->keyword($context->getJoinOperator($this->operator));
 
@@ -337,7 +337,7 @@ class SelectQuery extends Statement
 		return $this;
 	}
 
-	public function tokenize(TokenStream &$stream, BuildContext $context)
+	public function tokenize(TokenStream $stream, BuildContext $context)
 	{
 		$builderFlags = $context->getBuilderFlags(K::BUILDER_DOMAIN_GENERIC);
 		$builderFlags |= $context->getBuilderFlags(K::BUILDER_DOMAIN_SELECT);

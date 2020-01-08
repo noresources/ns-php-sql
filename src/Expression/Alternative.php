@@ -31,7 +31,7 @@ class Alternative implements xpr\Expression, Expression, ExpressionReturnType
 		return $this->then;
 	}
 
-	public function tokenize(TokenStream &$stream, BuildContext $context)
+	public function tokenize(TokenStream $stream, BuildContext $context)
 	{
 		return $stream->keyword('when')
 			->space()

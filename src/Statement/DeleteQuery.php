@@ -57,7 +57,7 @@ class DeleteQuery extends Statement
 		}
 	}
 
-	public function tokenize(TokenStream &$stream, BuildContext $context)
+	public function tokenize(TokenStream $stream, BuildContext $context)
 	{
 		$tableStructure = $context->findTable($this->table->path);
 

@@ -14,7 +14,7 @@ use NoreSources\SQL;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Structure\ColumnStructure;
 
-class StatementBuilder extends SQL\Statement\Builder
+class StatementBuilder extends SQL\Statement\StatementBuilder
 {
 
 	public function __construct()

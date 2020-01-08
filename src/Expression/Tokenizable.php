@@ -20,5 +20,5 @@ interface Tokenizable
 	 * @see \NoreSources\SQL\Tokenizable::tokenize()
 	 * @return TokenStream
 	 */
-	function tokenize(TokenStream &$stream, BuildContext $context);
+	function tokenize(TokenStream $stream, BuildContext $context);
 }

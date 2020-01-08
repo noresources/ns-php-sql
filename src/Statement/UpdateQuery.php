@@ -62,7 +62,7 @@ class UpdateQuery extends Statement implements \ArrayAccess
 		return $this;
 	}
 
-	public function tokenize(TokenStream &$stream, BuildContext $context)
+	public function tokenize(TokenStream $stream, BuildContext $context)
 	{
 		if ($this->columnValues->count() == 0)
 		{

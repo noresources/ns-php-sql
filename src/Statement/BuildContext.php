@@ -45,10 +45,10 @@ class BuildContext implements InputData, OutputData
 
 	/**
 	 *
-	 * @param Builder $builder
+	 * @param StatementBuilder $builder
 	 * @param StructureElement $pivot
 	 */
-	public function __construct(Builder $builder, StructureElement $pivot = null)
+	public function __construct(StatementBuilder $builder, StructureElement $pivot = null)
 	{
 		$this->initializeInputData(null);
 		$this->initializeOutputData(null);

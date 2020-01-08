@@ -21,7 +21,7 @@ class UnaryOperation extends xpr\UnaryOperation implements Expression, Expressio
 		parent::__construct($operator, $operand);
 	}
 
-	public function tokenize(TokenStream &$stream, BuildContext $context)
+	public function tokenize(TokenStream $stream, BuildContext $context)
 	{
 		$stream->text($this->getOperator());
 		if (\preg_match('/[a-z][0-9]/i', $this->getOperator()))

@@ -24,7 +24,7 @@ class AlternativeList implements xpr\Expression, Expression
 		$this->otherwise = $else;
 	}
 
-	public function tokenize(TokenStream &$stream, BuildContext $context)
+	public function tokenize(TokenStream $stream, BuildContext $context)
 	{
 		$stream->keyword('case')
 			->space()

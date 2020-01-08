@@ -54,7 +54,7 @@ class Surround implements Expression, ExpressionReturnType
 		return $this->getClosingText();
 	}
 
-	public function tokenize(TokenStream &$stream, BuildContext $context)
+	public function tokenize(TokenStream $stream, BuildContext $context)
 	{
 		return $stream->text($this->openingText)
 			->expression($this->expression, $context)
