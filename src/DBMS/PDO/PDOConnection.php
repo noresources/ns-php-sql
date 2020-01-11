@@ -14,14 +14,16 @@ use NoreSources\Container;
 use NoreSources\SQL;
 use NoreSources\TypeDescription;
 use NoreSources\SQL\DBMS;
-use NoreSources\SQL\DBMS\PDO\Constants as K;
+use NoreSources\SQL\DBMS\Connection;
+use NoreSources\SQL\DBMS\ConnectionException;
+use NoreSources\SQL\DBMS\PDO\PDOConstants as K;
 use NoreSources\SQL\QueryResult\GenericInsertionQueryResult;
 use NoreSources\SQL\QueryResult\GenericRowModificationQueryResult;
 
 /**
  * PDO connection
  */
-class Connection implements DBMS\Connection
+class PDOConnection implements Connection
 {
 	use DBMS\ConnectionStructureTrait;
 
@@ -50,7 +52,7 @@ class Connection implements DBMS\Connection
 
 	public function __construct()
 	{
-		$this->builder = new StatementBuilder($this);
+		$this->builder = new PDOStatementBuilder($this);
 		$this->connection = null;
 	}
 
@@ -85,7 +87,7 @@ class Connection implements DBMS\Connection
 	 *        	<li>CONNECTION_PARAMETER_PASSWORD</li>
 	 *        	<li>CONNECTION_PARAMETER_OPTIONS</li>
 	 *        	</ul>
-	 *        	
+	 *
 	 */
 	public function connect($parameters)
 	{
@@ -103,7 +105,7 @@ class Connection implements DBMS\Connection
 		}
 
 		if (!\is_string($dsn))
-			throw new DBMS\ConnectionException($this,
+			throw new ConnectionException($this,
 				'Invalid DSN parameter. string or array expected. Got ' .
 				TypeDescription::getName($dsn));
 
@@ -114,7 +116,7 @@ class Connection implements DBMS\Connection
 		}
 		catch (\PDOException $e)
 		{
-			throw new DBMS\ConnectionException($this, $e->getMessage(), $e->getCode());
+			throw new ConnectionException($this, $e->getMessage(), $e->getCode());
 		}
 
 		if (Container::keyExists($parameters, K::CONNECTION_PARAMETER_STRUCTURE))
@@ -127,6 +129,11 @@ class Connection implements DBMS\Connection
 		$this->connection = null;
 	}
 
+	/**
+	 *
+	 * {@inheritdoc}
+	 * @see \NoreSources\SQL\DBMS\Connection::getStatementBuilder()
+	 */
 	public function getStatementBuilder()
 	{
 		return $this->builder;
@@ -135,12 +142,12 @@ class Connection implements DBMS\Connection
 	/**
 	 *
 	 * @param SQL\BuildContext|string $statement
-	 * @return \NoreSources\SQL\DBMS\PDO\PreparedStatement
+	 * @return \NoreSources\SQL\DBMS\PDO\PDOPreparedStatement
 	 */
 	public function prepareStatement($statement)
 	{
 		if (!($this->connection instanceof \PDO))
-			throw new DBMS\ConnectionException($this, 'Not connected');
+			throw new ConnectionException($this, 'Not connected');
 
 		$type = SQL\Statement\Statement::statementTypeFromData($statement);
 		$attributes = [];
@@ -155,29 +162,29 @@ class Connection implements DBMS\Connection
 		{
 			$error = $this->connection->errorInfo();
 			$message = self::getErrorMessage($error);
-			throw new DBMS\ConnectionException($this, 'Failed to prepare statement. ' . $message);
+			throw new ConnectionException($this, 'Failed to prepare statement. ' . $message);
 		}
 
-		return new PreparedStatement($pdo, $statement);
+		return new PDOPreparedStatement($pdo, $statement);
 	}
 
 	/**
 	 *
 	 * @param
-	 *        	PreparedStatement|string SQL statement
+	 *        	PDOPreparedStatement|string SQL statement
 	 * @param \NoreSources\DBMS\StatementParameterArray $parameters
 	 */
 	public function executeStatement($statement, DBMS\StatementParameterArray $parameters = null)
 	{
 		if (!($this->connection instanceof \PDO))
-			throw new DBMS\ConnectionException($this, 'Not connected');
+			throw new ConnectionException($this, 'Not connected');
 
-		if (!(($statement instanceof PreparedStatetement) ||
+		if (!(($statement instanceof PDOPreparedStatetement) ||
 			TypeDescription::hasStringRepresentation($statement)))
 		{
 			throw new \InvalidArgumentException(
 				'Invalid type ' . TypeDescription::getName($statement) .
-				' for statement argument. string or PDO\PreparedStatement expected');
+				' for statement argument. string or '.PDOPreparedStatement::class.' expected');
 		}
 
 		$pdo = null;
@@ -185,10 +192,10 @@ class Connection implements DBMS\Connection
 
 		if ($parameters instanceof DBMS\StatementParameterArray && $parameters->count())
 		{
-			if ($statement instanceof PreparedStatement)
+			if ($statement instanceof PDOPreparedStatement)
 			{
 				if ($statement->isPDOStatementAcquired())
-					throw new DBMS\ConnectionException($this,
+					throw new ConnectionException($this,
 						'Prepared statement is acquired by another object');
 
 				$prepared = $statement;
@@ -209,7 +216,7 @@ class Connection implements DBMS\Connection
 					if ($statement->hasParameter($key))
 						$name = $statement->getParameter($key);
 					else
-						throw new DBMS\ConnectionException($this,
+						throw new ConnectionException($this,
 							'Parameter "' . $key . '" not found in prepared statement (with ' .
 							$statement->getParameterCount() . ' parameter(s))');
 				}
@@ -225,21 +232,21 @@ class Connection implements DBMS\Connection
 			{
 				$error = $pdo->errorInfo();
 				$message = self::getErrorMessage($error);
-				throw new DBMS\ConnectionException($this, 'Failed to execute');
+				throw new ConnectionException($this, 'Failed to execute');
 			}
 		}
 		else // Basic case
 		{
 			$pdo = $this->connection->query($statement);
 			if ($pdo === false)
-				throw new DBMS\ConnectionException($this, 'Failed to execute');
+				throw new ConnectionException($this, 'Failed to execute');
 
-			$prepared = new PreparedStatement($pdo, $statement);
+			$prepared = new PDOPreparedStatement($pdo, $statement);
 		}
 
 		/**
 		 *
-		 * @var PreparedStatement $prepared
+		 * @var PDOPreparedStatement $prepared
 		 */
 
 		$result = true;
@@ -247,7 +254,7 @@ class Connection implements DBMS\Connection
 
 		if ($type == K::QUERY_SELECT)
 		{
-			$result = (new Recordset($prepared));
+			$result = (new PDORecordset($prepared));
 		}
 		elseif ($type == K::QUERY_INSERT)
 		{
@@ -278,7 +285,7 @@ class Connection implements DBMS\Connection
 	public function getPDOAttribute($attribute)
 	{
 		if (!($this->connection instanceof \PDO))
-			throw new DBMS\ConnectionException($this, 'Not connected');
+			throw new ConnectionException($this, 'Not connected');
 
 		return $this->connection->getAttribute($attribute);
 	}
@@ -301,7 +308,7 @@ class Connection implements DBMS\Connection
 
 	/**
 	 *
-	 * @var StatementBuilder
+	 * @var PDOStatementBuilder
 	 */
 	private $builder;
 

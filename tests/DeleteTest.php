@@ -1,9 +1,8 @@
 <?php
 namespace NoreSources\SQL;
 
-use NoreSources\SQL\DBMS\Reference;
+use NoreSources\SQL\DBMS\Reference\ReferenceStatementBuilder;
 use NoreSources\SQL\Expression\TokenStream;
-use NoreSources\SQL\Structure\TableStructure;
 use NoreSources\SQL\Statement\BuildContext;
 
 final class DeleteTest extends \PHPUnit\Framework\TestCase
@@ -20,8 +19,8 @@ final class DeleteTest extends \PHPUnit\Framework\TestCase
 	{
 		$structure = $this->datasources->get('Company');
 		$tableStructure = $structure['ns_unittests']['Employees'];
-		$this->assertInstanceOf(TableStructure::class, $tableStructure);
-		$builder = new Reference\StatementBuilder();
+		$this->assertInstanceOf(Structure\TableStructure::class, $tableStructure);
+		$builder = new ReferenceStatementBuilder();
 		$context = new BuildContext($builder);
 		$context->setPivot($tableStructure);
 		$q = new Statement\DeleteQuery($tableStructure);

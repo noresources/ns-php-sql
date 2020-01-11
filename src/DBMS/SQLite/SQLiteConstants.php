@@ -9,7 +9,9 @@
  */
 namespace NoreSources\SQL\DBMS\SQLite;
 
-class Constants extends \NoreSources\SQL\Constants
+use NoreSources\SQL\Constants;
+
+class SQLiteConstants extends Constants
 {
 
 	/**

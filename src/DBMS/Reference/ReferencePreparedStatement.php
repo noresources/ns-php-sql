@@ -10,17 +10,17 @@
 namespace NoreSources\SQL\DBMS\Reference;
 
 // Aliases
-use NoreSources\SQL\DBMS;
+use NoreSources\SQL\DBMS\PreparedStatement;
 
 /**
- * SQLite3 implementation of NoreSources\SQL\PreparedStatement
+ * SQLite3 implementation of NoreSources\SQL\ReferencePreparedStatement
  */
-class PreparedStatement extends DBMS\PreparedStatement
+class ReferencePreparedStatement extends PreparedStatement
 {
 
 	/**
 	 *
-	 * @param StatementData|string $data
+	 * @param InputData $data
 	 */
 	public function __construct($data)
 	{

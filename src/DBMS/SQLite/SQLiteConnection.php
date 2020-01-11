@@ -11,8 +11,10 @@ namespace NoreSources\SQL\DBMS\SQLite;
 
 // Aliases
 use NoreSources\SQL;
+use NoreSources\SQL\DBMS\Connection;
+use NoreSources\SQL\DBMS\ConnectionStructureTrait;
 use NoreSources\SQL\DBMS\StatementParameterArray;
-use NoreSources\SQL\DBMS\SQLite\Constants as K;
+use NoreSources\SQL\DBMS\SQLite\SQLiteConstants as K;
 use NoreSources\SQL\QueryResult\GenericInsertionQueryResult;
 use NoreSources\SQL\QueryResult\GenericRowModificationQueryResult;
 use NoreSources as ns;
@@ -20,9 +22,9 @@ use NoreSources as ns;
 class ConnectionException extends SQL\DBMS\ConnectionException
 {
 
-	public function __construct(Connection $connection = null, $message, $code = null)
+	public function __construct(SQLiteConnection $connection = null, $message, $code = null)
 	{
-		if ($code === null && ($connection instanceof Connection))
+		if ($code === null && ($connection instanceof SQLiteConnection))
 		{
 			$code = $connection->sqliteConnection->lastErrorCode();
 			if ($code != 0)
@@ -35,9 +37,9 @@ class ConnectionException extends SQL\DBMS\ConnectionException
 /**
  * SQLite connection
  */
-class Connection implements SQL\DBMS\Connection
+class SQLiteConnection implements Connection
 {
-	use SQL\DBMS\ConnectionStructureTrait;
+	use ConnectionStructureTrait;
 
 	/**
 	 * Special in-memory database name
@@ -65,7 +67,7 @@ class Connection implements SQL\DBMS\Connection
 
 	public function __construct()
 	{
-		$this->builder = new StatementBuilder();
+		$this->builder = new SQLiteStatementBuilder();
 		$this->connection = null;
 	}
 
@@ -96,7 +98,7 @@ class Connection implements SQL\DBMS\Connection
 	 * Connect to DBMS
 	 *
 	 * @param \ArrayAccess $parameters
-	 *        	Connection parameters. Accepted keys are
+	 *        	SQLiteConnection parameters. Accepted keys are
 	 *        	<ul>
 	 *        	<li>CONNECTION_PARAMETER_SOURCE (string|array):
 	 *        	<ul>
@@ -232,7 +234,7 @@ class Connection implements SQL\DBMS\Connection
 	/**
 	 *
 	 * @param SQL\BuildContext|string $statement
-	 * @return \NoreSources\SQL\DBMS\SQLite\PreparedStatement
+	 * @return \NoreSources\SQL\DBMS\PreparedStatement
 	 */
 	public function prepareStatement($statement)
 	{
@@ -243,7 +245,7 @@ class Connection implements SQL\DBMS\Connection
 		if (!($stmt instanceof \SQLite3Stmt))
 			throw new ConnectionException($this, 'Unable to create SQLite statement');
 
-		return new PreparedStatement($stmt, $statement);
+		return new SQLitePreparedStatement($stmt, $statement);
 	}
 
 	/**
@@ -257,7 +259,7 @@ class Connection implements SQL\DBMS\Connection
 		if (!($this->connection instanceof \SQLite3))
 			throw new ConnectionException($this, 'Not connected');
 
-		if (!($statement instanceof PreparedStatement ||
+		if (!($statement instanceof SQLitePreparedStatement ||
 			ns\TypeDescription::hasStringRepresentation($statement)))
 			throw new ConnectionException($this,
 				'Invalid statement type ' . ns\TypeDescription::getName($statement) .
@@ -270,7 +272,7 @@ class Connection implements SQL\DBMS\Connection
 		if ($parameters instanceof StatementParameterArray && $parameters->count())
 		{
 			$stmt = null;
-			if ($statement instanceof PreparedStatement)
+			if ($statement instanceof SQLitePreparedStatement)
 			{
 				$stmt = $statement->getSQLite3Stmt();
 				$stmt->clear();
@@ -339,7 +341,7 @@ class Connection implements SQL\DBMS\Connection
 		elseif ($statementType == K::QUERY_SELECT)
 		{
 			if ($result instanceof \SQLite3Result)
-				return new Recordset($result, $statement);
+				return new SQLiteRecordset($result, $statement);
 			else
 				throw new ConnectionException($this, 'Invalid execution result');
 		}

@@ -1,14 +1,11 @@
 <?php
 namespace NoreSources\SQL;
 
-use NoreSources\SQL\DBMS\SQLite\Constants as K;
-use NoreSources\SQL\DBMS\SQLite\PreparedStatement;
+use NoreSources\TypeDescription;
 use NoreSources\SQL\DBMS\ConnectionHelper;
 use NoreSources\SQL\DBMS\StatementParameterArray;
-use NoreSources\SQL\QueryResult\InsertionQueryResult;
 use NoreSources\SQL\QueryResult\Recordset;
 use NoreSources\SQL\Structure\TableStructure;
-use NoreSources as ns;
 
 final class SQLiteTest extends \PHPUnit\Framework\TestCase
 {
@@ -26,7 +23,7 @@ final class SQLiteTest extends \PHPUnit\Framework\TestCase
 	{
 		$structure = $this->datasources->get('types');
 		$tableStructure = $structure['ns_unittests']['types'];
-		$this->assertInstanceOf(TableStructure::class, $tableStructure);
+		$this->assertInstanceOf(Structure\TableStructure::class, $tableStructure);
 
 		$this->assertTrue($this->createDatabase(), 'Create SQLite file');
 
@@ -43,14 +40,14 @@ final class SQLiteTest extends \PHPUnit\Framework\TestCase
 		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, 'insert', 'sql');
 
 		$result = $this->connection->executeStatement($prepared);
-		$this->assertInstanceOf(InsertionQueryResult::class, $result);
+		$this->assertInstanceOf(QueryResult\InsertionQueryResult::class, $result);
 
 		$selectStatement = new Statement\SelectQuery($tableStructure);
 		$selectPrepared = ConnectionHelper::prepareStatement($this->connection, $selectStatement,
 			$tableStructure);
 
 		$result = $this->connection->executeStatement($selectPrepared);
-		$this->assertInstanceOf(Recordset::class, $result);
+		$this->assertInstanceOf(DBMS\SQLite\SQLiteRecordset::class, $result);
 
 		$result->setFlags(Recordset::FETCH_ASSOCIATIVE | Recordset::FETCH_UNSERIALIZE);
 		$records = $result->getArrayCopy();
@@ -59,17 +56,17 @@ final class SQLiteTest extends \PHPUnit\Framework\TestCase
 
 		$record = $records[0];
 
-		$this->assertEquals('integer', ns\TypeDescription::getName($record['int']));
-		$this->assertEquals('double', ns\TypeDescription::getName($record['float']));
+		$this->assertEquals('integer', TypeDescription::getName($record['int']));
+		$this->assertEquals('double', TypeDescription::getName($record['float']));
 		$this->assertInstanceOf(\DateTime::class, $record['timestamp']);
-		$this->assertEquals('boolean', ns\TypeDescription::getName($record['boolean']));
+		$this->assertEquals('boolean', TypeDescription::getName($record['boolean']));
 	}
 
 	public function testParametersEmployees()
 	{
 		$structure = $this->datasources->get('Company');
 		$tableStructure = $structure['ns_unittests']['Employees'];
-		$this->assertInstanceOf(TableStructure::class, $tableStructure);
+		$this->assertInstanceOf(Structure\TableStructure::class, $tableStructure);
 
 		$this->assertTrue($this->createDatabase(), 'Create SQLite file');
 
@@ -84,7 +81,7 @@ final class SQLiteTest extends \PHPUnit\Framework\TestCase
 		$prepared = ConnectionHelper::prepareStatement($this->connection, $statement,
 			$tableStructure);
 
-		$this->assertInstanceOf(PreparedStatement::class, $prepared);
+		$this->assertInstanceOf(DBMS\SQLite\SQLitePreparedStatement::class, $prepared);
 		$this->assertEquals(2, $prepared->getParameterCount(),
 			'Number of parameters in prepared statement');
 
@@ -97,18 +94,18 @@ final class SQLiteTest extends \PHPUnit\Framework\TestCase
 		$p->set('nameValue', 'Bob');
 		$p->set('salaryValue', 2000);
 		$result = $this->connection->executeStatement($prepared, $p);
-		$this->assertInstanceOf(InsertionQueryResult::class, $result);
+		$this->assertInstanceOf(QueryResult\InsertionQueryResult::class, $result);
 
 		$p->set('nameValue', 'Ron');
 		$result = $this->connection->executeStatement($prepared, $p);
-		$this->assertInstanceOf(InsertionQueryResult::class, $result);
+		$this->assertInstanceOf(QueryResult\InsertionQueryResult::class, $result);
 
 		$statement = new Statement\SelectQuery($tableStructure);
 
 		$prepared = ConnectionHelper::prepareStatement($this->connection, $statement,
 			$tableStructure);
 
-		$this->assertInstanceOf(DBMS\SQLite\PreparedStatement::class, $prepared);
+		$this->assertInstanceOf(DBMS\SQLite\SQLitePreparedStatement::class, $prepared);
 
 		$this->assertEquals(4, $prepared->getResultColumnCount(),
 			'Prepared statement result columns count');
@@ -119,7 +116,7 @@ final class SQLiteTest extends \PHPUnit\Framework\TestCase
 		$prepared = ConnectionHelper::prepareStatement($this->connection, $statement,
 			$tableStructure);
 
-		$this->assertInstanceOf(DBMS\SQLite\PreparedStatement::class, $prepared);
+		$this->assertInstanceOf(DBMS\SQLite\SQLitePreparedStatement::class, $prepared);
 		$this->assertEquals(3, $prepared->getResultColumnCount(),
 			'Prepared statement result columns count');
 
@@ -133,7 +130,7 @@ final class SQLiteTest extends \PHPUnit\Framework\TestCase
 		foreach ($statements as $statement)
 		{
 			$result = $this->connection->executeStatement($statement);
-			$this->assertInstanceOf(Recordset::class, $result);
+			$this->assertInstanceOf(DBMS\SQLite\SQLiteRecordset::class, $result);
 
 			$this->assertEquals(3, $result->getResultColumnCount(), 'Recordset result columns count');
 
@@ -205,7 +202,7 @@ final class SQLiteTest extends \PHPUnit\Framework\TestCase
 				$params->set('param', $test['param']);
 				$result = $this->connection->executeStatement($statement, $params);
 
-				$this->assertInstanceOf(Recordset::class, $result, $testName . ' result object');
+				$this->assertInstanceOf(DBMS\SQLite\SQLiteRecordset::class, $result, $testName . ' result object');
 
 				$index = 0;
 				foreach ($result as $row)
@@ -228,7 +225,7 @@ final class SQLiteTest extends \PHPUnit\Framework\TestCase
 		$q = new Statement\CreateTableQuery($tableStructure);
 		$prepared = ConnectionHelper::prepareStatement($this->connection, $q);
 
-		$this->assertInstanceOf(PreparedStatement::class, $prepared);
+		$this->assertInstanceOf(DBMS\SQLite\SQLitePreparedStatement::class, $prepared);
 
 		$sql = strval($prepared);
 		$sql = \SqlFormatter::format(strval($sql), false);
@@ -242,7 +239,7 @@ final class SQLiteTest extends \PHPUnit\Framework\TestCase
 
 	private function createDatabase()
 	{
-		if ($this->connection instanceof Connection)
+		if ($this->connection instanceof DBMS\Connection)
 			return true;
 
 		$sqliteFile = $this->derivedFileManager->registerDerivedFile('SQLite', __METHOD__, 'db',
@@ -252,14 +249,14 @@ final class SQLiteTest extends \PHPUnit\Framework\TestCase
 			unlink($sqliteFile);
 
 		$this->connection = ConnectionHelper::createConnection([
-				K::CONNECTION_PARAMETER_CREATE => true,
-				K::CONNECTION_PARAMETER_SOURCE => [
+				DBMS\SQLite\SQLiteConstants::CONNECTION_PARAMETER_CREATE => true,
+				DBMS\SQLite\SQLiteConstants::CONNECTION_PARAMETER_SOURCE => [
 						'ns_unittests' => $sqliteFile
 				],
-				K::CONNECTION_PARAMETER_TYPE => DBMS\SQLite\Connection::class
+				DBMS\SQLite\SQLiteConstants::CONNECTION_PARAMETER_TYPE => DBMS\SQLite\SQLiteConnection::class
 		]);
 
-		$this->assertInstanceOf(DBMS\SQLite\Connection::class, $this->connection, 'Create connection');
+		$this->assertInstanceOf(DBMS\SQLite\SQLiteConnection::class, $this->connection, 'Create connection');
 
 		$this->derivedFileManager->setPersistent($sqliteFile, true);
 

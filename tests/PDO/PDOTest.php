@@ -2,16 +2,11 @@
 namespace NoreSources\SQL;
 
 // Uses
-use NoreSources\SQL\DBMS\PDO\Connection;
-use NoreSources\SQL\DBMS\PDO\Recordset;
-use NoreSources\SQL\DBMS\PDO\PreparedStatement;
-use NoreSources\SQL\Structure\TableStructure;
-use NoreSources\SQL\QueryResult;
-use NoreSources\SQL\DBMS\PDO\Constants as K;
-use NoreSources\SQL\Statement\UpdateQuery;
 use NoreSources\SQL\DBMS\ConnectionHelper;
 use NoreSources\SQL\DBMS\StatementParameterArray;
-use PHPUnit\Framework\TestCase;
+use NoreSources\SQL\DBMS\PDO\PDOConnection;
+use NoreSources\SQL\DBMS\PDO\PDOConstants as K;
+use NoreSources\SQL\Statement\UpdateQuery;
 
 // Globals
 $sqliteConnectionParameters = [
@@ -46,7 +41,7 @@ final class PDOTest extends \PHPUnit\Framework\TestCase
 
 		foreach ($tests as $expected => $array)
 		{
-			$actual = Connection::buildDSN($array);
+			$actual = PDOConnection::buildDSN($array);
 			$this->assertEquals($expected, $actual);
 		}
 	}
@@ -70,11 +65,11 @@ final class PDOTest extends \PHPUnit\Framework\TestCase
 	private function subtestSQLiteBase()
 	{
 		global $sqliteConnectionParameters;
-		$connection = new Connection();
+		$connection = new PDOConnection();
 		$connection->connect($sqliteConnectionParameters);
 
 		$recordset = $connection->executeStatement('select * from employees');
-		$this->assertInstanceOf(Recordset::class, $recordset);
+		$this->assertInstanceOf(DBMS\PDO\PDORecordset::class, $recordset);
 
 		$expectedRowCount = 4;
 
@@ -107,13 +102,13 @@ final class PDOTest extends \PHPUnit\Framework\TestCase
 		$structure = $this->datasources->get('Company');
 
 		$tableStructure = $structure['ns_unittests']['Employees'];
-		$this->assertInstanceOf(TableStructure::class, $tableStructure);
+		$this->assertInstanceOf(Structure\TableStructure::class, $tableStructure);
 
 		// Detach table from tableset to avoid invalid tableset name
 		$detachedTable = clone $tableStructure;
 		$detachedTable->detach();
 
-		$connection = new Connection();
+		$connection = new PDOConnection();
 		$connection->connect($settings);
 
 		$create = new Statement\CreateTableQuery($detachedTable);
@@ -129,7 +124,7 @@ final class PDOTest extends \PHPUnit\Framework\TestCase
 		$insert('salary', ':salary');
 
 		$prepared = ConnectionHelper::prepareStatement($connection, $insert, $detachedTable);
-		$this->assertInstanceOf(PreparedStatement::class, $prepared);
+		$this->assertInstanceOf(DBMS\PDO\PDOPreparedStatement::class, $prepared);
 		$sql = strval($prepared);
 		$this->derivedFileManager->assertDerivedFile(\SqlFormatter::format($sql, false), __METHOD__,
 			'insert', 'sql');
@@ -172,13 +167,13 @@ final class PDOTest extends \PHPUnit\Framework\TestCase
 		$select->orderBy('id');
 
 		$preparedSelect = ConnectionHelper::prepareStatement($connection, $select, $detachedTable);
-		$this->assertInstanceOf(PreparedStatement::class, $preparedSelect);
+		$this->assertInstanceOf(DBMS\PDO\PDOPreparedStatement::class, $preparedSelect);
 		$sql = strval($preparedSelect);
 		$this->derivedFileManager->assertDerivedFile(\SqlFormatter::format($sql, false), __METHOD__,
 			'select', 'sql');
 
 		$result = $connection->executeStatement($preparedSelect);
-		$this->assertInstanceOf(Recordset::class, $result);
+		$this->assertInstanceOf(DBMS\PDO\PDORecordset::class, $result);
 
 		$expected = [
 			$employees[1],
@@ -199,7 +194,7 @@ final class PDOTest extends \PHPUnit\Framework\TestCase
 		$update->where('salary < 5000');
 
 		$prepared = ConnectionHelper::prepareStatement($connection, $update, $detachedTable);
-		$this->assertInstanceOf(PreparedStatement::class, $prepared);
+		$this->assertInstanceOf(DBMS\PDO\PDOPreparedStatement::class, $prepared);
 		$sql = strval($prepared);
 		$this->derivedFileManager->assertDerivedFile(\SqlFormatter::format($sql, false), __METHOD__,
 			'update', 'sql');
@@ -208,7 +203,7 @@ final class PDOTest extends \PHPUnit\Framework\TestCase
 		$this->assertInstanceOf(QueryResult\RowModificationQueryResult::class, $result);
 
 		$result = $connection->executeStatement($preparedSelect);
-		$this->assertInstanceOf(Recordset::class, $result);
+		$this->assertInstanceOf(DBMS\PDO\PDORecordset::class, $result);
 
 		$c = 0;
 		foreach ($result as $index => $row)

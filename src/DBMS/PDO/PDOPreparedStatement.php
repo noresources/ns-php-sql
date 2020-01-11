@@ -12,11 +12,12 @@ namespace NoreSources\SQL\DBMS\PDO;
 // Aliases
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS;
+use NoreSources\SQL\DBMS\PDO\PDOConnection as Connection;
 use NoreSources\SQL\Statement\ResultColumn;
 use NoreSources\SQL\Statement\Statement;
 use NoreSources as ns;
 
-class PreparedStatement extends DBMS\PreparedStatement
+class PDOPreparedStatement extends DBMS\PreparedStatement
 {
 
 	/**

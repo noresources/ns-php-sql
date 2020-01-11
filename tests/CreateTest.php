@@ -1,10 +1,9 @@
 <?php
 namespace NoreSources\SQL;
 
+use NoreSources\SQL\DBMS\Reference\ReferenceStatementBuilder;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Statement\BuildContext;
-use NoreSources\SQL\Structure\TableStructure;
-use PHPUnit\Framework\TestCase;
 
 final class CreateTableTest extends \PHPUnit\Framework\TestCase
 {
@@ -19,7 +18,7 @@ final class CreateTableTest extends \PHPUnit\Framework\TestCase
 	public function testCreateTableCompanyTables()
 	{
 		$structure = $this->datasources->get('Company');
-		$builder = new DBMS\Reference\StatementBuilder();
+		$builder = new ReferenceStatementBuilder();
 
 		foreach ([
 			'Employees',
@@ -28,7 +27,7 @@ final class CreateTableTest extends \PHPUnit\Framework\TestCase
 		] as $tableName)
 		{
 			$tableStructure = $structure['ns_unittests'][$tableName];
-			$this->assertInstanceOf(TableStructure::class, $tableStructure, 'Finding ' . $tableName);
+			$this->assertInstanceOf(Structure\TableStructure::class, $tableStructure, 'Finding ' . $tableName);
 			$context = new BuildContext($builder);
 			$context->setPivot($tableStructure);
 			$q = new Statement\CreateTableQuery($tableStructure);

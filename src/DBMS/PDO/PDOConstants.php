@@ -9,7 +9,9 @@
  */
 namespace NoreSources\SQL\DBMS\PDO;
 
-class Constants extends \NoreSources\SQL\Constants
+use NoreSources\SQL\Constants;
+
+class PDOConstants extends Constants
 {
 
 	/**

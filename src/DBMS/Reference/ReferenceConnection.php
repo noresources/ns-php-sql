@@ -11,19 +11,21 @@ namespace NoreSources\SQL\DBMS\Reference;
 
 // Aliases
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\DBMS;
+use NoreSources\SQL\DBMS\Connection;
+use NoreSources\SQL\DBMS\ConnectionStructureTrait;
+use NoreSources\SQL\DBMS\StatementParameterArray;
 use NoreSources as ns;
 
 /**
  * SQLite connection
  */
-class Connection implements dbms\Connection
+class ReferenceConnection implements Connection
 {
-	use dbms\ConnectionStructureTrait;
+	use ConnectionStructureTrait;
 
 	public function __construct()
 	{
-		$this->builder = new StatementBuilder();
+		$this->builder = new ReferenceStatementBuilder();
 	}
 
 	public function beginTransation()
@@ -49,19 +51,19 @@ class Connection implements dbms\Connection
 		return $this->builder;
 	}
 
-	public function executeStatement($statement, dbms\StatementParameterArray $parameters = null)
+	public function executeStatement($statement, StatementParameterArray $parameters = null)
 	{
 		return true;
 	}
 
 	/**
 	 *
-	 * @param dbms\BuildContext|string $statement
-	 *        	#return \NoreSources\SQL\Reference\PreparedStatement
+	 * {@inheritdoc}
+	 * @see \NoreSources\SQL\DBMS\Connection::prepareStatement()
 	 */
 	public function prepareStatement($statement)
 	{
-		return new PreparedStatement($statement);
+		return new ReferencePreparedStatement($statement);
 	}
 
 	/**

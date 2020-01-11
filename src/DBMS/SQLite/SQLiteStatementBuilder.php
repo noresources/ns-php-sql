@@ -7,57 +7,43 @@
  *
  * @package SQL
  */
-namespace NoreSources\SQL\DBMS\PDO;
+namespace NoreSources\SQL\DBMS\SQLite;
 
 // Aliases
-use NoreSources\SQL;
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\Statement\StatementBuilder;
 use NoreSources\SQL\Structure\ColumnStructure;
 
-class StatementBuilder extends SQL\Statement\StatementBuilder
+class SQLiteStatementBuilder extends StatementBuilder
 {
-
-	const DRIVER_MYSQL = Connection::DRIVER_MYSQL;
-
-	const DRIVER_POSTGRESQL = Connection::DRIVER_POSTGRESQL;
-
-	const DRIVER_SQLITE = Connection::DRIVER_SQLITE;
 
 	public function __construct()
 	{
 		parent::__construct();
+
+		$this->setBuilderFlags(K::BUILDER_DOMAIN_GENERIC,
+			K::BUILDER_IF_EXISTS | K::BUILDER_IF_NOT_EXISTS);
+		$this->setBuilderFlags(K::BUILDER_DOMAIN_SELECT,
+			K::BUILDER_SELECT_EXTENDED_RESULTCOLUMN_ALIAS_RESOLUTION);
+		$this->setBuilderFlags(K::BUILDER_DOMAIN_INSERT, K::BUILDER_INSERT_DEFAULT_VALUES);
 	}
 
 	public function escapeString($value)
 	{
-		return \PDO::quote($value);
+		return \SQLite3::escapeString($value);
 	}
 
 	public function escapeIdentifier($identifier)
 	{
-		switch ($this->driverName)
-		{
-			case self::DRIVER_POSTGRESQL:
-				return '"' . $identifier . '"';
-			case self::DRIVER_MYSQL:
-				return '`' . $identifier . '`';
-			case self::DRIVER_SQLITE:
-				return '[' . $identifier . ']';
-		}
-		return $identifier;
-	}
-
-	public function configure(\PDO $connection)
-	{
-		$this->driverName = $connection->getAttribute(\PDO::ATTR_DRIVER_NAME);
+		return '"' . $identifier . '"';
 	}
 
 	public function getParameter($name, $position)
 	{
-		return (':' . $position);
+		return (':' . preg_replace('/[^a-zA-Z0-9_]/', '_', $name));
 	}
 
-	public function getColumnTypeName(ColumnStructure $column)
+	public static function getSQLiteColumnTypeName(ColumnStructure $column)
 	{
 		$dataType = K::DATATYPE_UNDEFINED;
 		if ($column->hasColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE))
@@ -80,10 +66,21 @@ class StatementBuilder extends SQL\Statement\StatementBuilder
 		return 'TEXT';
 	}
 
-	public function getKeyword($keyword)
+	public function getColumnTypeName(ColumnStructure $column)
 	{
-		return parent::getKeyword($keyword);
+		return self::getSQLiteColumnTypeName($column);
 	}
 
-	private $driverName;
+	public function getKeyword($keyword)
+	{
+		switch ($keyword)
+		{
+			case K::KEYWORD_TRUE:
+				return 1;
+			case K::KEYWORD_FALSE:
+				return 0;
+		}
+
+		return parent::getKeyword($keyword);
+	}
 }

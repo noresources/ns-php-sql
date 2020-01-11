@@ -10,14 +10,14 @@
 namespace NoreSources\SQL\DBMS\SQLite;
 
 // Aliases
-use NoreSources\SQL;
+use NoreSources\SQL\DBMS\PreparedStatement;
 use NoreSources\SQL\Statement\BuildContext;
 use NoreSources\SQL\Statement\InputData;
 
 /**
- * SQLite3 implementation of NoreSources\SQL\PreparedStatement
+ * SQLite3 implementation of NoreSources\SQL\SQLitePreparedStatement
  */
-class PreparedStatement extends SQL\DBMS\PreparedStatement
+class SQLitePreparedStatement extends PreparedStatement
 {
 
 	/**

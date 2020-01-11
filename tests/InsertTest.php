@@ -2,12 +2,11 @@
 namespace NoreSources\SQL;
 
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\DBMS\Reference;
+use NoreSources\SQL\DBMS\Reference\ReferenceStatementBuilder;
 use NoreSources\SQL\Expression\Evaluator as X;
 use NoreSources\SQL\Expression\Expression;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Statement\BuildContext;
-use NoreSources\SQL\Structure\TableStructure;
 
 final class InsertTest extends \PHPUnit\Framework\TestCase
 {
@@ -23,7 +22,7 @@ final class InsertTest extends \PHPUnit\Framework\TestCase
 	{
 		$structure = $this->datasources->get('types');
 		$t = $structure['ns_unittests']['types'];
-		$this->assertInstanceOf(TableStructure::class, $t);
+		$this->assertInstanceOf(Structure\TableStructure::class, $t);
 
 		$q = new Statement\InsertQuery($t);
 
@@ -35,7 +34,7 @@ final class InsertTest extends \PHPUnit\Framework\TestCase
 
 		foreach ($builderFlags as $key => $flags)
 		{
-			$builder = new Reference\StatementBuilder($flags);
+			$builder = new ReferenceStatementBuilder($flags);
 			$context = new BuildContext($builder);
 			$context->setPivot($t);
 
@@ -51,8 +50,8 @@ final class InsertTest extends \PHPUnit\Framework\TestCase
 	{
 		$structure = $this->datasources->get('Company');
 		$tableStructure = $structure['ns_unittests']['Tasks'];
-		$this->assertInstanceOf(TableStructure::class, $tableStructure);
-		$builder = new Reference\StatementBuilder();
+		$this->assertInstanceOf(Structure\TableStructure::class, $tableStructure);
+		$builder = new ReferenceStatementBuilder();
 		$context = new BuildContext($builder);
 
 		$tests = array(

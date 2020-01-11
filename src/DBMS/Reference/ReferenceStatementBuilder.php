@@ -10,12 +10,12 @@
 namespace NoreSources\SQL\DBMS\Reference;
 
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\Statement;
+use NoreSources\SQL\Statement\StatementBuilder;
 use NoreSources\SQL\Structure\ColumnStructure;
 
 /**
  */
-class StatementBuilder extends Statement\StatementBuilder
+class ReferenceStatementBuilder extends StatementBuilder
 {
 
 	public function __construct($domainFlags = [])

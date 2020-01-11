@@ -11,12 +11,13 @@ namespace NoreSources\SQL\DBMS\SQLite;
 
 // Aliases
 use NoreSources\SQL;
-use NoreSources\SQL\QueryResult;
-use NoreSources\SQL\DBMS\SQLite\Constants as K;
+use NoreSources\SQL\DBMS\Connection;
+use NoreSources\SQL\DBMS\SQLite\SQLiteConstants as K;
+use NoreSources\SQL\QueryResult\Recordset;
 use NoreSources\SQL\Statement\ResultColumn;
 use NoreSources\SQL\Statement\ResultColumnMap;
 
-class Recordset extends QueryResult\Recordset
+class SQLiteRecordset extends Recordset
 {
 
 	public function __construct(\SQLite3Result $result, $data = null)

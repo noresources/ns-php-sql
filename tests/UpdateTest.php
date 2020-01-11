@@ -2,12 +2,9 @@
 namespace NoreSources\SQL;
 
 use NoreSources\SQL\DBMS\ConnectionHelper;
-use NoreSources\SQL\DBMS\Reference;
+use NoreSources\SQL\DBMS\Reference\ReferenceStatementBuilder;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Statement\BuildContext;
-use NoreSources\SQL\Structure\DatasourceStructure;
-use NoreSources\SQL\Structure\TablesetStructure;
-use NoreSources\SQL\Structure\TableStructure;
 
 final class UpdateTest extends \PHPUnit\Framework\TestCase
 {
@@ -23,7 +20,7 @@ final class UpdateTest extends \PHPUnit\Framework\TestCase
 	{
 		$structure = $this->datasources->get('types');
 		$tableStructure = $structure['ns_unittests']['types'];
-		$this->assertInstanceOf(TableStructure::class, $tableStructure);
+		$this->assertInstanceOf(Structure\TableStructure::class, $tableStructure);
 
 		$connection = ConnectionHelper::createConnection('Reference');
 
@@ -105,8 +102,8 @@ final class UpdateTest extends \PHPUnit\Framework\TestCase
 	{
 		$structure = $this->datasources->get('Company');
 		$tableStructure = $structure['ns_unittests']['Employees'];
-		$this->assertInstanceOf(TableStructure::class, $tableStructure);
-		$builder = new Reference\StatementBuilder();
+		$this->assertInstanceOf(Structure\TableStructure::class, $tableStructure);
+		$builder = new ReferenceStatementBuilder();
 		$context = new BuildContext($builder);
 		$context->setPivot($tableStructure);
 
@@ -146,8 +143,8 @@ final class UpdateTest extends \PHPUnit\Framework\TestCase
 	{
 		$structure = $this->datasources->get('Company');
 		$tableStructure = $structure['ns_unittests']['Employees'];
-		$this->assertInstanceOf(TableStructure::class, $tableStructure);
-		$builder = new Reference\StatementBuilder();
+		$this->assertInstanceOf(Structure\TableStructure::class, $tableStructure);
+		$builder = new ReferenceStatementBuilder();
 		$context = new BuildContext($builder);
 		$context->setPivot($tableStructure);
 

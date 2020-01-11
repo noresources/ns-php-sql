@@ -10,14 +10,14 @@
 namespace NoreSources\SQL\DBMS\PDO;
 
 // Aliases
-use NoreSources\SQL\QueryResult as qr;
+use NoreSources\SQL\QueryResult\Recordset;
 
-class Recordset extends qr\Recordset
+class PDORecordset extends Recordset
 {
 
 	const PDO_SCROLLABLE = 0x1;
 
-	public function __construct(PreparedStatement $statement)
+	public function __construct(PDOPreparedStatement $statement)
 	{
 		parent::__construct($statement);
 		$this->statement = $statement;
@@ -144,7 +144,7 @@ class Recordset extends qr\Recordset
 
 	/**
 	 *
-	 * @var PreparedStatement
+	 * @var PDOPreparedStatement
 	 */
 	private $statement;
 

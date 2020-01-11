@@ -2,13 +2,11 @@
 namespace NoreSources\SQL;
 
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\DBMS\Reference;
+use NoreSources\SQL\DBMS\Reference\ReferenceStatementBuilder;
 use NoreSources\SQL\Expression\Evaluator as X;
 use NoreSources\SQL\Expression\MemberOf;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Statement\BuildContext;
-use NoreSources\SQL\Structure\TableStructure;
-use NoreSources\SQL\Structure\TablesetStructure;
 
 final class SelectTest extends \PHPUnit\Framework\TestCase
 {
@@ -24,8 +22,8 @@ final class SelectTest extends \PHPUnit\Framework\TestCase
 	{
 		$structure = $this->datasources->get('Company');
 		$tableStructure = $structure['ns_unittests']['Employees'];
-		$this->assertInstanceOf(TableStructure::class, $tableStructure);
-		$builder = new Reference\StatementBuilder();
+		$this->assertInstanceOf(Structure\TableStructure::class, $tableStructure);
+		$builder = new ReferenceStatementBuilder();
 		$context = new BuildContext($builder);
 		$context->setPivot($tableStructure);
 		$q = new Statement\SelectQuery($tableStructure, 't');
@@ -64,8 +62,8 @@ final class SelectTest extends \PHPUnit\Framework\TestCase
 	{
 		$structure = $this->datasources->get('Company');
 		$tableStructure = $structure['ns_unittests']['Tasks'];
-		$this->assertInstanceOf(TableStructure::class, $tableStructure);
-		$builder = new Reference\StatementBuilder(
+		$this->assertInstanceOf(Structure\TableStructure::class, $tableStructure);
+		$builder = new ReferenceStatementBuilder(
 			K::BUILDER_SELECT_EXTENDED_RESULTCOLUMN_ALIAS_RESOLUTION);
 		$context = new BuildContext($builder);
 		$context->setPivot($tableStructure);
@@ -119,8 +117,8 @@ final class SelectTest extends \PHPUnit\Framework\TestCase
 	{
 		$structure = $this->datasources->get('Company');
 		$tablesetStructure = $structure['ns_unittests'];
-		$this->assertInstanceOf(TablesetStructure::class, $tablesetStructure);
-		$builder = new Reference\StatementBuilder();
+		$this->assertInstanceOf(Structure\TablesetStructure::class, $tablesetStructure);
+		$builder = new ReferenceStatementBuilder();
 		$context = new BuildContext($builder);
 		$context->setPivot($tablesetStructure);
 
