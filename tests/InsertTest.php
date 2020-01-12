@@ -11,9 +11,9 @@ use NoreSources\SQL\Statement\BuildContext;
 final class InsertTest extends \PHPUnit\Framework\TestCase
 {
 
-	public function __construct()
+	public function __construct($name = null, array $data = [], $dataName = '')
 	{
-		parent::__construct();
+		parent::__construct($name, $data, $dataName);
 		$this->datasources = new DatasourceManager();
 		$this->derivedFileManager = new DerivedFileManager();
 	}
@@ -41,7 +41,8 @@ final class InsertTest extends \PHPUnit\Framework\TestCase
 			$stream = new TokenStream();
 			$q->tokenize($stream, $context);
 			$result = $builder->finalize($stream, $context);
-			$this->assertInstanceOf(Statement\OutputData::class, $result, 'Result is (at least) a Statement\OutputData');
+			$this->assertInstanceOf(Statement\OutputData::class, $result,
+				'Result is (at least) a Statement\OutputData');
 			$this->derivedFileManager->assertDerivedFile(strval($result), __METHOD__, $key, 'sql');
 		}
 	}

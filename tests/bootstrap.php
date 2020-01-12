@@ -3,16 +3,15 @@ namespace NoreSources\SQL;
 
 require_once (__DIR__ . '/../vendor/autoload.php');
 
-use NoreSources\SQL\Structure\StructureSerializerFactory;
 use NoreSources\SQL\Structure\DatasourceStructure;
-use NoreSources\SQL\Structure\TablesetStructure;
-use NoreSources\SQL\Structure\TableStructure;
+use NoreSources\SQL\Structure\StructureSerializerFactory;
 
 class DatasourceManager extends \PHPUnit\Framework\TestCase
 {
 
-	public function __construct()
+	public function __construct($name = null, array $data = [], $dataName = '')
 	{
+		parent::__construct($name, $data, $dataName);
 		$this->datasources = new \ArrayObject();
 	}
 
@@ -27,10 +26,8 @@ class DatasourceManager extends \PHPUnit\Framework\TestCase
 
 		$structure = StructureSerializerFactory::structureFromFile($filename);
 
-		$this->assertInstanceOf(DatasourceStructure::class,
-				$structure,
-				$name . ' datasource loading'
-		);
+		$this->assertInstanceOf(DatasourceStructure::class, $structure,
+			$name . ' datasource loading');
 
 		$this->datasources->offsetSet($name, $structure);
 

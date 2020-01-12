@@ -1,19 +1,16 @@
 <?php
 namespace NoreSources\SQL;
 
-use NoreSources\SQL\Structure\StructureSerializer;
-use NoreSources\SQL\Structure\XMLStructureSerializer;
-use NoreSources\SQL\Structure\JSONStructureSerializer;
-use NoreSources\SQL\Structure\StructureSerializerFactory;
 use NoreSources\SQL\Structure\DatasourceStructure;
-use NoreSources\SQL\Structure\TableStructure;
+use NoreSources\SQL\Structure\JSONStructureSerializer;
+use NoreSources\SQL\Structure\XMLStructureSerializer;
 
 final class StructureSerializerTest extends \PHPUnit\Framework\TestCase
 {
 
-	public function __construct()
+	public function __construct($name = null, array $data = [], $dataName = '')
 	{
-		parent::__construct();
+		parent::__construct($name, $data, $dataName);
 	}
 
 	public function testLoadTasks()

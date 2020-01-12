@@ -4,13 +4,13 @@ namespace NoreSources\SQL\Expression;
 use NoreSources\SQL;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Expression\Evaluator as X;
-use PHPUnit\Framework\TestCase;
 
 final class ExpressionEvaluatorTest extends \PHPUnit\Framework\TestCase
 {
 
-	public function __construct()
+	public function __construct($name = null, array $data = [], $dataName = '')
 	{
+		parent::__construct($name, $data, $dataName);
 		$this->datasources = new sql\DatasourceManager();
 	}
 
@@ -107,15 +107,42 @@ final class ExpressionEvaluatorTest extends \PHPUnit\Framework\TestCase
 	public function testComplex()
 	{
 		$list = [
-			'binary' => [ ':p1 or :p2', BinaryOperation::class ],
-			'complex binary' => [ '(:p1 * 2) or (not :p2)', BinaryOperation::class ],
-			'unary' => [ 'not null', UnaryOperation::class ],
-			'between' => [ 'peace between 1919 and 1939', Between::class ],
-			'not-between' => [ 'peace not between 1940 and 1945', Between::class ],
-			'in' => [ 'even in (0, 2, 4, 6, 8, 10)', MemberOf::class ],
-			'not iin' => [ 'odd not in (0, 2, 4, 6, 8, 10)', MemberOf::class ],
-			'like' => [ "fps like 'DOOM%'", BinaryOperation::class ],
-			'alternatives' => ["case column when 1 then 'one' when 2 then 'two'", AlternativeList::class]
+			'binary' => [
+				':p1 or :p2',
+				BinaryOperation::class
+			],
+			'complex binary' => [
+				'(:p1 * 2) or (not :p2)',
+				BinaryOperation::class
+			],
+			'unary' => [
+				'not null',
+				UnaryOperation::class
+			],
+			'between' => [
+				'peace between 1919 and 1939',
+				Between::class
+			],
+			'not-between' => [
+				'peace not between 1940 and 1945',
+				Between::class
+			],
+			'in' => [
+				'even in (0, 2, 4, 6, 8, 10)',
+				MemberOf::class
+			],
+			'not iin' => [
+				'odd not in (0, 2, 4, 6, 8, 10)',
+				MemberOf::class
+			],
+			'like' => [
+				"fps like 'DOOM%'",
+				BinaryOperation::class
+			],
+			'alternatives' => [
+				"case column when 1 then 'one' when 2 then 'two'",
+				AlternativeList::class
+			]
 		];
 
 		foreach ($list as $label => $test)
@@ -129,24 +156,36 @@ final class ExpressionEvaluatorTest extends \PHPUnit\Framework\TestCase
 	public function testFunctions()
 	{
 		$list = [
-			'simple' => [ 'rand()', 0 ],
-			'max' => [ 'max(1, 2)', 2, Value::class, Value::class ],
+			'simple' => [
+				'rand()',
+				0
+			],
+			'max' => [
+				'max(1, 2)',
+				2,
+				Value::class,
+				Value::class
+			],
 			'substr' => [
-				"substr(:string, 0, 2)", 3,
+				"substr(:string, 0, 2)",
+				3,
 				Parameter::class,
 				Value::class,
-				Value::class,
+				Value::class
 			],
 			'complex' => [
-				"substr(:string, strpos(:string, ','))", 2,
+				"substr(:string, strpos(:string, ','))",
+				2,
 				Parameter::class,
 				FunctionCall::class
 			],
-			'complex 2' => ['expressions(#2010-07-12#, :p, (:v + 2))', 3,
+			'complex 2' => [
+				'expressions(#2010-07-12#, :p, (:v + 2))',
+				3,
 				Value::class,
 				Parameter::class,
 				BinaryOperation::class
-			],
+			]
 		];
 
 		foreach ($list as $label => $test)
@@ -216,26 +255,53 @@ final class ExpressionEvaluatorTest extends \PHPUnit\Framework\TestCase
 	{
 		$expressions = [
 			'shortest' => [
-				'expression' => ['column' => "'value'"],
+				'expression' => [
+					'column' => "'value'"
+				],
 				'main' => BinaryOperation::class,
 				'left' => Column::class,
 				'right' => Value::class
 			],
 			'short' => [
-				'expression' => ["=" => ['column', "'value'"]],
+				'expression' => [
+					"=" => [
+						'column',
+						"'value'"
+					]
+				],
 				'main' => BinaryOperation::class,
 				'left' => Column::class,
 				'right' => Value::class
 			],
 			'function' => [
-				'expression' => ["func()" => [2, 'column', X::literal ('string')]],
+				'expression' => [
+					"func()" => [
+						2,
+						'column',
+						X::literal('string')
+					]
+				],
 				'main' => FunctionCall::class,
-				'args' => [Value::class, Column::class, Value::class],
+				'args' => [
+					Value::class,
+					Column::class,
+					Value::class
+				]
 			],
 			'in' => [
-				'expression' => ["in" => [2, 128, ':param']],
+				'expression' => [
+					"in" => [
+						2,
+						128,
+						':param'
+					]
+				],
 				'main' => MemberOf::class,
-				'args' => [Value::class, Value::class, Parameter::class],
+				'args' => [
+					Value::class,
+					Value::class,
+					Parameter::class
+				]
 			]
 		];
 

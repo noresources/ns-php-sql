@@ -19,9 +19,9 @@ $sqliteConnectionParameters = [
 final class PDOTest extends \PHPUnit\Framework\TestCase
 {
 
-	public function __construct()
+	public function __construct($name = null, array $data = [], $dataName = '')
 	{
-		parent::__construct();
+		parent::__construct($name, $data, $dataName);
 		$this->derivedFileManager = new DerivedFileManager();
 		$this->datasources = new DatasourceManager();
 	}

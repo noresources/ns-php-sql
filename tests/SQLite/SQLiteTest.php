@@ -10,9 +10,9 @@ use NoreSources\SQL\Structure\TableStructure;
 final class SQLiteTest extends \PHPUnit\Framework\TestCase
 {
 
-	public function __construct()
+	public function __construct($name = null, array $data = [], $dataName = '')
 	{
-		parent::__construct();
+		parent::__construct($name, $data, $dataName);
 		$this->connection = null;
 		$this->derivedFileManager = new DerivedFileManager();
 		$this->datasources = new DatasourceManager();
@@ -202,7 +202,8 @@ final class SQLiteTest extends \PHPUnit\Framework\TestCase
 				$params->set('param', $test['param']);
 				$result = $this->connection->executeStatement($statement, $params);
 
-				$this->assertInstanceOf(DBMS\SQLite\SQLiteRecordset::class, $result, $testName . ' result object');
+				$this->assertInstanceOf(DBMS\SQLite\SQLiteRecordset::class, $result,
+					$testName . ' result object');
 
 				$index = 0;
 				foreach ($result as $row)
@@ -248,15 +249,17 @@ final class SQLiteTest extends \PHPUnit\Framework\TestCase
 		if (\file_exists($sqliteFile))
 			unlink($sqliteFile);
 
-		$this->connection = ConnectionHelper::createConnection([
+		$this->connection = ConnectionHelper::createConnection(
+			[
 				DBMS\SQLite\SQLiteConstants::CONNECTION_PARAMETER_CREATE => true,
 				DBMS\SQLite\SQLiteConstants::CONNECTION_PARAMETER_SOURCE => [
-						'ns_unittests' => $sqliteFile
+					'ns_unittests' => $sqliteFile
 				],
 				DBMS\SQLite\SQLiteConstants::CONNECTION_PARAMETER_TYPE => DBMS\SQLite\SQLiteConnection::class
-		]);
+			]);
 
-		$this->assertInstanceOf(DBMS\SQLite\SQLiteConnection::class, $this->connection, 'Create connection');
+		$this->assertInstanceOf(DBMS\SQLite\SQLiteConnection::class, $this->connection,
+			'Create connection');
 
 		$this->derivedFileManager->setPersistent($sqliteFile, true);
 
