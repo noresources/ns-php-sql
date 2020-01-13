@@ -11,6 +11,7 @@ final class StructureSerializerTest extends \PHPUnit\Framework\TestCase
 	public function __construct($name = null, array $data = [], $dataName = '')
 	{
 		parent::__construct($name, $data, $dataName);
+		$this->derivedFileManager = new DerivedFileManager();
 	}
 
 	public function testLoadTasks()
@@ -24,6 +25,8 @@ final class StructureSerializerTest extends \PHPUnit\Framework\TestCase
 		$this->assertEquals('string', gettype($text));
 		$a = json_decode($text, true);
 		$this->assertArrayHasKey('tablesets', $a);
+
+		$this->derivedFileManager->assertDerivedFile($text, __METHOD__, null, 'json');
 	}
 
 	public function testBinarySerialize()
@@ -43,4 +46,10 @@ final class StructureSerializerTest extends \PHPUnit\Framework\TestCase
 	}
 
 	private $dataPath;
+
+	/**
+	 *
+	 * @var DerivedFileManager
+	 */
+	private $derivedFileManager;
 }

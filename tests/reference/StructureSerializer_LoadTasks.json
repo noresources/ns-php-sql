@@ -1,0 +1,56 @@
+{
+    "name": "datasource",
+    "kind": "datasource",
+    "tablesets": {
+        "ns_unittests": {
+            "tables": {
+                "types": {
+                    "columns": {
+                        "base": {
+                            "null": true,
+                            "autoincrement": false,
+                            "datatype": 2
+                        },
+                        "binary": {
+                            "null": true,
+                            "autoincrement": false,
+                            "datatype": 256,
+                            "default": {}
+                        },
+                        "boolean": {
+                            "null": true,
+                            "autoincrement": false,
+                            "datatype": 128,
+                            "default": {}
+                        },
+                        "int": {
+                            "null": true,
+                            "autoincrement": false,
+                            "datatype": 4,
+                            "default": {}
+                        },
+                        "float": {
+                            "null": true,
+                            "autoincrement": false,
+                            "datatype": 8,
+                            "fractiondigitcount": 2,
+                            "default": {}
+                        },
+                        "timestamp": {
+                            "null": true,
+                            "autoincrement": false,
+                            "datatype": 48,
+                            "default": {}
+                        },
+                        "timestamp_tz": {
+                            "null": true,
+                            "autoincrement": false,
+                            "datatype": 112,
+                            "default": {}
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
