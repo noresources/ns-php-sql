@@ -4,6 +4,7 @@ namespace NoreSources\SQL;
 use NoreSources\SQL\DBMS\Reference\ReferenceStatementBuilder;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Statement\BuildContext;
+use NoreSources\SQL\Statement\StatementBuilder;
 
 final class CreateTableTest extends \PHPUnit\Framework\TestCase
 {
@@ -34,7 +35,7 @@ final class CreateTableTest extends \PHPUnit\Framework\TestCase
 			$q = new Statement\CreateTableQuery($tableStructure);
 			$stream = new TokenStream();
 			$q->tokenize($stream, $context);
-			$result = $builder->finalize($stream, $context);
+			$result = StatementBuilder::finalize($stream, $context);
 			$sql = \SqlFormatter::format(strval($result), false);
 			$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, $tableName, 'sql',
 				$tableName . ' SQL');

@@ -7,6 +7,7 @@ use NoreSources\SQL\Expression\Evaluator as X;
 use NoreSources\SQL\Expression\Expression;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Statement\BuildContext;
+use NoreSources\SQL\Statement\StatementBuilder;
 
 final class InsertTest extends \PHPUnit\Framework\TestCase
 {
@@ -40,7 +41,7 @@ final class InsertTest extends \PHPUnit\Framework\TestCase
 
 			$stream = new TokenStream();
 			$q->tokenize($stream, $context);
-			$result = $builder->finalize($stream, $context);
+			$result = StatementBuilder::finalize($stream, $context);
 			$this->assertInstanceOf(Statement\OutputData::class, $result,
 				'Result is (at least) a Statement\OutputData');
 			$this->derivedFileManager->assertDerivedFile(strval($result), __METHOD__, $key, 'sql');
@@ -111,7 +112,7 @@ final class InsertTest extends \PHPUnit\Framework\TestCase
 
 			$stream = new TokenStream();
 			$q->tokenize($stream, $context);
-			$result = $builder->finalize($stream, $context);
+			$result = StatementBuilder::finalize($stream, $context);
 			$this->derivedFileManager->assertDerivedFile(strval($result), __METHOD__, $key, 'sql');
 		}
 	}

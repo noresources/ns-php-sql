@@ -5,6 +5,7 @@ use NoreSources\SQL\DBMS\ConnectionHelper;
 use NoreSources\SQL\DBMS\Reference\ReferenceStatementBuilder;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Statement\BuildContext;
+use NoreSources\SQL\Statement\StatementBuilder;
 
 final class UpdateTest extends \PHPUnit\Framework\TestCase
 {
@@ -92,7 +93,7 @@ final class UpdateTest extends \PHPUnit\Framework\TestCase
 
 			$stream = new TokenStream();
 			$q->tokenize($stream, $context);
-			$sql = $builder->finalize($stream, $context);
+			$sql = StatementBuilder::finalize($stream, $context);
 			$sql = \SqlFormatter::format(strval($sql), false);
 			$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, $set, 'sql');
 		}
@@ -130,7 +131,7 @@ final class UpdateTest extends \PHPUnit\Framework\TestCase
 
 		$stream = new TokenStream();
 		$q->tokenize($stream, $context);
-		$result = $builder->finalize($stream, $context);
+		$result = StatementBuilder::finalize($stream, $context);
 
 		$this->assertEquals($context, $result, 'builder::finalize() result');
 
@@ -162,7 +163,7 @@ final class UpdateTest extends \PHPUnit\Framework\TestCase
 
 		$stream = new TokenStream();
 		$q->tokenize($stream, $context);
-		$result = $builder->finalize($stream, $context);
+		$result = StatementBuilder::finalize($stream, $context);
 
 		$this->assertEquals($context, $result, 'builder::finalize() result');
 

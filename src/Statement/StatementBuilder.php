@@ -368,7 +368,7 @@ abstract class StatementBuilder implements DataSerializer
 	 * @param BuildContext $context
 	 * @return \NoreSources\SQL\BuildContext
 	 */
-	public function finalize(TokenStream $stream, BuildContext &$context)
+	public final static function finalize(TokenStream $stream, BuildContext &$context)
 	{
 		$context->sql = '';
 		$context->initializeInputData(null);
@@ -382,7 +382,7 @@ abstract class StatementBuilder implements DataSerializer
 			{
 				$name = strval($value);
 				$position = $context->getParameterCount();
-				$dbmsName = $this->getParameter($name, $position);
+				$dbmsName = $context->builder->getParameter($name, $position);
 				$context->registerParameter($position, $name, $dbmsName);
 				$value = $dbmsName;
 			}

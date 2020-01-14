@@ -7,6 +7,7 @@ use NoreSources\SQL\Expression\Evaluator as X;
 use NoreSources\SQL\Expression\MemberOf;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Statement\BuildContext;
+use NoreSources\SQL\Statement\StatementBuilder;
 
 final class SelectTest extends \PHPUnit\Framework\TestCase
 {
@@ -47,7 +48,7 @@ final class SelectTest extends \PHPUnit\Framework\TestCase
 		$this->assertEquals(2, $context->getResultColumnCount(),
 			'Number of result column (after Builder::tokenize())');
 
-		$result = $builder->finalize($stream, $context);
+		$result = StatementBuilder::finalize($stream, $context);
 		$this->assertEquals($context, $result, 'Builder::finalzie() result');
 
 		$this->assertEquals(2, $context->getResultColumnCount(),
@@ -103,7 +104,7 @@ final class SelectTest extends \PHPUnit\Framework\TestCase
 
 		$stream = new TokenStream();
 		$q->tokenize($stream, $context);
-		$builder->finalize($stream, $context);
+		StatementBuilder::finalize($stream, $context);
 
 		$this->assertEquals(K::QUERY_SELECT, $context->statementType, 'Statement type');
 		$this->assertCount(4, $context->resultColumns, 'Number of result columns');
@@ -151,7 +152,7 @@ final class SelectTest extends \PHPUnit\Framework\TestCase
 
 		$stream = new TokenStream();
 		$q->tokenize($stream, $context);
-		$sql = $builder->finalize($stream, $context);
+		$sql = StatementBuilder::finalize($stream, $context);
 		$sql = \SqlFormatter::format(strval($sql), false);
 
 		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, null, 'sql');
