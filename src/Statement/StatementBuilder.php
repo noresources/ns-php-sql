@@ -72,14 +72,17 @@ abstract class StatementBuilder implements DataSerializer
 	abstract function escapeIdentifier($identifier);
 
 	/**
+	 *
 	 * Get a DBMS-compliant parameter name
 	 *
 	 * @param string $name
 	 *        	Parameter name
-	 * @param integer $position
-	 *        	Total number of parameter
+	 * @param ParameterMap $parameters
+	 *        	The already assigned parameters
+	 *
+	 *        	On some DBs,MS implementations, @c null may not be accepted as a value for @c $arameters argument
 	 */
-	abstract function getParameter($name, $position);
+	abstract function getParameter($name, ParameterMap $parameters = null);
 
 	/**
 	 * Get the default type name for a given data type
@@ -382,7 +385,7 @@ abstract class StatementBuilder implements DataSerializer
 			{
 				$name = strval($value);
 				$position = $context->getParameterCount();
-				$dbmsName = $context->builder->getParameter($name, $position);
+				$dbmsName = $context->builder->getParameter($name, $context->getParameters());
 				$context->registerParameter($position, $name, $dbmsName);
 				$value = $dbmsName;
 			}

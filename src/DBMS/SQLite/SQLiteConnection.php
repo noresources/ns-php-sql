@@ -297,7 +297,7 @@ class SQLiteConnection implements Connection
 				}
 				else
 				{
-					$name = $this->getStatementBuilder()->getParameter($key, -1);
+					$name = $this->getStatementBuilder()->getParameter($key, null);
 				}
 
 				$value = ns\Container::keyValue($entry, StatementParameterArray::VALUE, null);

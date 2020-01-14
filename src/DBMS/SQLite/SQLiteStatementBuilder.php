@@ -11,6 +11,7 @@ namespace NoreSources\SQL\DBMS\SQLite;
 
 // Aliases
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\Statement\ParameterMap;
 use NoreSources\SQL\Statement\StatementBuilder;
 use NoreSources\SQL\Structure\ColumnStructure;
 
@@ -38,7 +39,7 @@ class SQLiteStatementBuilder extends StatementBuilder
 		return '"' . $identifier . '"';
 	}
 
-	public function getParameter($name, $position)
+	public function getParameter($name, ParameterMap $parameters = null)
 	{
 		return (':' . preg_replace('/[^a-zA-Z0-9_]/', '_', $name));
 	}
