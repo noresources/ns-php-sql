@@ -19,12 +19,6 @@ interface InputData
 
 	/**
 	 *
-	 * @return integer
-	 */
-	function getNamedParameterCount();
-
-	/**
-	 *
 	 * @return integer Total number of parameter occurences
 	 */
 	function getParameterCount();

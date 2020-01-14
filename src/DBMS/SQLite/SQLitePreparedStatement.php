@@ -48,13 +48,12 @@ class SQLitePreparedStatement extends PreparedStatement
 
 		if ($data instanceof InputData)
 		{
-			if ($data->getNamedParameterCount() != $statement->paramCount())
+			$npc = $data->getParameters()->getNamedParameterCount();
+			if ($npc != $statement->paramCount())
 			{
-				echo ($data . PHP_EOL);
 				throw new \BadMethodCallException(
-					'SQLite statement and Statement\InputData parameter mismatch. Got ' .
-					$data->getNamedParameterCount() . ' for Statement\InputData and ' .
-					$statement->paramCount() . ' for SQLiteStmt');
+					'SQLite statement and Statement\InputData parameter mismatch. Got ' . $npc .
+					' for Statement\InputData and ' . $statement->paramCount() . ' for SQLiteStmt');
 			}
 		}
 	}

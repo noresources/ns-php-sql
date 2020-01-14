@@ -380,11 +380,11 @@ abstract class StatementBuilder implements DataSerializer
 
 			if ($type == K::TOKEN_PARAMETER)
 			{
-				$value = strval($value);
+				$name = strval($value);
 				$position = $context->getParameterCount();
-				$name = $this->getParameter($value, $position);
-				$context->registerParameter($position, $value, $name);
-				$value = $name;
+				$dbmsName = $this->getParameter($name, $position);
+				$context->registerParameter($position, $name, $dbmsName);
+				$value = $dbmsName;
 			}
 
 			$context->sql .= $value;

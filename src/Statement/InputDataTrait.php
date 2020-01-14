@@ -17,11 +17,6 @@ namespace NoreSources\SQL\Statement;
 trait InputDataTrait
 {
 
-	public function getNamedParameterCount()
-	{
-		return $this->parameters->getNamedParameterCount();
-	}
-
 	public function getParameterCount()
 	{
 		return $this->parameters->count();

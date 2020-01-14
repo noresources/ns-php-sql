@@ -90,6 +90,31 @@ class ParameterMap extends \ArrayObject
 
 	/**
 	 *
+	 * @param string $name
+	 *        	Parameter name
+	 * @return array<int> List of parameter occurence positions
+	 */
+	public function getNamedParameterPositions($name)
+	{
+		$name = strval($name);
+		$positions = [];
+
+		if (!$this->offsetExists($name))
+			return $positions;
+
+		$dbmsName = $this->offsetGet($name);
+
+		foreach ($this as $k => $v)
+		{
+			if (\is_integer($k) && ($v == $dbmsName))
+				$positions[] = $k;
+		}
+
+		return $dbmsName;
+	}
+
+	/**
+	 *
 	 * @property-read integer $namedParameterCount
 	 * @param string $member
 	 * @throws \InvalidArgumentException
