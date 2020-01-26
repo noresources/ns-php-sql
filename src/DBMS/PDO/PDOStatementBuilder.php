@@ -24,14 +24,26 @@ class PDOStatementBuilder extends StatementBuilder
 
 	const DRIVER_SQLITE = PDOConnection::DRIVER_SQLITE;
 
-	public function __construct()
+	public function __construct(PDOConnection $connection)
 	{
 		parent::__construct();
+		$this->connection = $connection;
 	}
 
-	public function escapeString($value)
+	public function serializeString($value)
 	{
-		return \PDO::quote($value);
+		$o = null;
+		if ($this->connection instanceof PDOConnection)
+			$o = $this->connection->getConnectionObject();
+
+		if ($o instanceof \PDO)
+			return $o->quote($value);
+
+		/**
+		 *
+		 * @todo Securigy warning
+		 */
+		return "'" . \str_replace("'", "''", $value) . "'";
 	}
 
 	public function escapeIdentifier($identifier)
@@ -87,4 +99,10 @@ class PDOStatementBuilder extends StatementBuilder
 	}
 
 	private $driverName;
+
+	/**
+	 *
+	 * @var PDOConnection $connection
+	 */
+	private $connection;
 }

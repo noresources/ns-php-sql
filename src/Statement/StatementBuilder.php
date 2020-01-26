@@ -61,8 +61,20 @@ abstract class StatementBuilder implements DataSerializer
 	 * Escape text string to be inserted in a SQL statement.
 	 *
 	 * @param string $value
+	 *        	A quoted string with escaped characters
 	 */
-	abstract function escapeString($value);
+	abstract function serializeString($value);
+
+	/**
+	 * Escape binary data to be inserted in a SQL statement.
+	 *
+	 * @param mixed $value
+	 * @return string
+	 */
+	public function serializeBinary($value)
+	{
+		return $this->serializeString($value);
+	}
 
 	/**
 	 * Escape SQL identifier to be inserted in a SQL statement.
@@ -329,8 +341,12 @@ abstract class StatementBuilder implements DataSerializer
 				$value = floatval($value);
 			return $value;
 		}
+		elseif ($type == K::DATATYPE_BINARY)
+		{
+			return $this->serializeBinary($value);
+		}
 
-		return "'" . $this->escapeString($value) . "'";
+		return $this->serializeString($value);
 	}
 
 	/**

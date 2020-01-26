@@ -184,7 +184,7 @@ class PDOConnection implements Connection
 		{
 			throw new \InvalidArgumentException(
 				'Invalid type ' . TypeDescription::getName($statement) .
-				' for statement argument. string or '.PDOPreparedStatement::class.' expected');
+				' for statement argument. string or ' . PDOPreparedStatement::class . ' expected');
 		}
 
 		$pdo = null;
@@ -304,6 +304,11 @@ class PDOConnection implements Connection
 				return K::DATATYPE_STRING;
 		}
 		return K::DATATYPE_UNDEFINED;
+	}
+
+	public function getConnectionObject()
+	{
+		return $this->connection;
 	}
 
 	/**

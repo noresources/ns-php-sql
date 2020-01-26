@@ -10,6 +10,7 @@
 namespace NoreSources\SQL\DBMS\SQLite;
 
 // Aliases
+use NoreSources\Text;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Statement\ParameterMap;
 use NoreSources\SQL\Statement\StatementBuilder;
@@ -29,9 +30,14 @@ class SQLiteStatementBuilder extends StatementBuilder
 		$this->setBuilderFlags(K::BUILDER_DOMAIN_INSERT, K::BUILDER_INSERT_DEFAULT_VALUES);
 	}
 
-	public function escapeString($value)
+	public function serializeString($value)
 	{
-		return \SQLite3::escapeString($value);
+		return "'" . \SQLite3::escapeString($value) . "'";
+	}
+
+	public function serializeBinary($value)
+	{
+		return "X'" . Text::toHexadecimalString($value) . "'";
 	}
 
 	public function escapeIdentifier($identifier)

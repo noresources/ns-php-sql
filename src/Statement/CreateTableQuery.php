@@ -142,7 +142,9 @@ class CreateTableQuery extends Statement
 			if ($column->hasColumnProperty(K::COLUMN_PROPERTY_AUTO_INCREMENT) &&
 				$column->getColumnProperty(K::COLUMN_PROPERTY_AUTO_INCREMENT))
 			{
-				$stream->space()->keyword($context->getKeyword(K::KEYWORD_AUTOINCREMENT));
+				$ai = $context->getKeyword(K::KEYWORD_AUTOINCREMENT);
+				if (\strlen($ai))
+					$stream->space()->keyword($ai);
 			}
 		}
 

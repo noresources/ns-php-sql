@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS "ns_unittests"."types" (
   "base" TEXT, 
-  "binary" BLOB DEFAULT 'abc', 
+  "binary" BLOB DEFAULT X '616263', 
   "boolean" INTEGER DEFAULT 1, 
   "int" INTEGER DEFAULT 3, 
   "float" REAL DEFAULT 1.23, 

@@ -177,7 +177,7 @@ class SQLiteConnection implements Connection
 			$names[] = $name;
 
 			$attach = false;
-			$sql = 'ATTACH DATABASE \'' . $this->builder->escapeString($source) . '\' AS ' .
+			$sql = 'ATTACH DATABASE ' . $this->builder->serializeString($source) . ' AS ' .
 				$this->builder->escapeIdentifier($name);
 
 			if ($this->connection instanceof \SQLite3)

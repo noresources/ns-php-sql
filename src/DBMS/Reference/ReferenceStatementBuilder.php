@@ -34,14 +34,27 @@ class ReferenceStatementBuilder extends StatementBuilder
 		$this->parameters = new \ArrayObject();
 	}
 
-	public function escapeString($value)
+	public static function serializeStringFallback($value)
 	{
-		return str_replace("'", "''", $value);
+		return "'" . str_replace("'", "''", $value) . "'";
+	}
+
+	public function serializeString($value)
+	{
+		return self::serializeStringFallback($value);
+	}
+
+	public static function escapeIdentifierFallback($identifier, $before, $after)
+	{
+		$identifier = \str_replace($before, $before . $before, $identifier);
+		if ($before != $after)
+			$identifier = \str_replace($after, $after . $after, $identifier);
+		return $before . $identifier . $after;
 	}
 
 	public function escapeIdentifier($identifier)
 	{
-		return '[' . $identifier . ']';
+		return self::escapeIdentifierFallback($identifier, '[', ']');
 	}
 
 	public function getParameter($name, ParameterMap $parameters = null)
