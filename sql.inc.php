@@ -11,15 +11,35 @@
  */
 namespace NoreSources\SQL;
 
-use NoreSources as ns;
-
 if (!defined('NS_PHP_SQL_PATH'))
 {
 	define('NS_PHP_SQL_PATH', realpath(__DIR__));
 }
+
 const SQL_VERSION_MAJOR = 0;
+
 const SQL_VERSION_MINOR = 2;
+
 const SQL_VERSION_PATCH = 0;
+
+class SQL
+{
+
+	public static function getBasePath()
+	{
+		return NS_PHP_SQL_PATH;
+	}
+
+	public static function versionString()
+	{
+		return (SQL_VERSION_MAJOR . '.' . SQL_VERSION_MINOR . '.' . SQL_VERSION_PATCH);
+	}
+
+	public static function versionNumber()
+	{
+		return (SQL_VERSION_MAJOR * 10000 + SQL_VERSION_MINOR * 100 + SQL_VERSION_PATCH);
+	}
+}
 
 /**
  * Version string of NoreSources SQL module.
@@ -29,12 +49,12 @@ const SQL_VERSION_PATCH = 0;
  */
 function version_string()
 {
-	return (SQL_VERSION_MAJOR . '.' . SQL_VERSION_MINOR . '.' . SQL_VERSION_PATCH);
+	return SQL::versionString();
 }
 
 function version_number()
 {
-	return (SQL_VERSION_MAJOR * 10000 + SQL_VERSION_MINOR * 100 + SQL_VERSION_PATCH);
+	return SQL::versionNumber();
 }
 
 /**
@@ -48,16 +68,19 @@ function version_number()
  * Value type: integer
  */
 const kStructureDatatype = 'datasourcetype';
+
 /**
  * The column is part of a primary key.
  * Value type: boolean
  */
 const kStructurePrimaryKey = 'primary';
+
 /**
  * The column value is auto-incremented (integer column type only).
  * Value type: boolean
  */
 const kStructureAutoincrement = 'auto';
+
 const kStructureForeignKey = 'foreign';
 
 /**
@@ -65,11 +88,13 @@ const kStructureForeignKey = 'foreign';
  * Value type: boolean
  */
 const kStructureIndexed = 'index';
+
 /**
  * The column accepts null values.
  * Value type: boolean
  */
 const kStructureAcceptNull = 'null';
+
 /**
  * Data size.
  *
@@ -88,6 +113,7 @@ const kStructureDecimalCount = 'decimalsize';
  * Value type: array
  */
 const kStructureEnumeration = 'valid_values';
+
 /**
  * Default value.
  * Value type: mixed
@@ -155,27 +181,32 @@ const kExpressionElementDeclaration = 0x3;
  * Does not require any link field
  */
 const kJoinNatural = 'sql.join.natural';
+
 /**
  * Cross join
  * Cartesian product
  */
 const kJoinCross = 'sql.join.cross';
+
 /**
  * (Full) Outer join
  * Merge two tables.
  */
 const kJoinOuter = 'sql.join.outer';
+
 /**
  * Inner join
  * Merge obly lines which linkfields match in then two tables
  */
 const kJoinInner = 'sql.join.inner';
+
 /**
  * Left (outer) join
  * Take all elements of left table
  * and merge those which match link fields at the right
  */
 const kJoinLeft = 'sql.join.left';
+
 /**
  * Right (outer) join
  * Take all elements of right table
@@ -217,7 +248,9 @@ const kDataTypeDecimal = 0x08;
 /**
  * All kind of number element
  */
-const kDataTypeNumber = 0x0c; // 0x04 + 0x08
+const kDataTypeNumber = 0x0c;
+
+// 0x04 + 0x08
 
 /**
  * All kind of date (date, datetime, time)
@@ -249,35 +282,42 @@ const kDataTypeBinary = 0x40;
 /**
  * A Datasource child class name.
  * Used in Datasource::create
+ *
  * @var string
  */
 const kConnectionParameterClassname = 'sql.source.classname';
 
 /**
  * Datasource connection user
+ *
  * @var string
  */
 const kConnectionParameterUsername = 'sql.source.user';
 
 /**
  * Datasource conneciion user password
+ *
  * @var string
  */
 const kConnectionParameterPassword = 'sql.source.password';
+
 /**
  * Datasource host (for network-based datasources)
+ *
  * @var string
  */
 const kConnectionParameterHostname = 'sql.source.host';
 
 /**
  * Datasource port (for network-based datasources)
+ *
  * @var string
  */
 const kConnectionParameterPort = 'sql.source.port';
 
 /**
  * Datasource source file
+ *
  * @var string
  */
 const kConnectionParameterFilename = 'sql.source.file';
@@ -287,6 +327,7 @@ const kConnectionParameterFilename = 'sql.source.file';
  * SQLite: defines the name of the main SQLite main table
  * MySQL: If @c kConnectionParameterActiveTableSet is not set.
  * Set the active MySQL database
+ *
  * @var string
  */
 const kConnectionParameterDatabasename = 'sql.source.database';
@@ -298,12 +339,14 @@ const kConnectionParameterActiveTableSet = 'sql.source.tableset.default';
 
 /**
  * Use persistent connection
+ *
  * @var bool
  */
 const kConnectionParameterPersistent = 'sql.source.persistent';
 
 /**
  * Read only connection
+ *
  * @var bool
  */
 const kConnectionParameterReadOnly = 'sql.source.readonly';
@@ -312,12 +355,14 @@ const kConnectionParameterReadOnly = 'sql.source.readonly';
  * Set foreign key support
  *
  * For SQLite. Default behavior is to enable foreign keys
+ *
  * @var integer
  */
 const kConnectionParameterForeignKeySupport = 'sql.source.foreignkey';
 
 /**
  * Create datasource if possible (for file-based datasource)
+ *
  * @var bool
  */
 const kConnectionParameterCreate = 'sql.source.create';
@@ -325,6 +370,7 @@ const kConnectionParameterCreate = 'sql.source.create';
 /**
  * A XML structure file
  * Used in Datasource::create()
+ *
  * @var string
  */
 const kConnectionParameterStructureFile = 'sql.source.structure';
@@ -354,8 +400,11 @@ const kConnectionPersistent = 0x01;
  * @{
  */
 const kRecordsetFetchName = 0x01;
+
 const kRecordsetFetchNumeric = 0x02;
+
 const kRecordsetFetchBoth = 0x03;
+
 /**
  *
  * @}
@@ -371,11 +420,13 @@ const kRecordsetFetchBoth = 0x03;
  * @var integer Query object in SQL structure
  */
 const kObjectQuerySchema = 0x1;
+
 /**
  *
  * @var integer Query object in 'physical' Datasource
  */
 const kObjectQueryDatasource = 0x2;
+
 /**
  *
  * @var integer Query object in both modes
@@ -388,4 +439,3 @@ const kObjectQueryBoth = 0x3;
  */
 // group 'Datasourcequeries'
 
-include_once (NS_PHP_SQL_PATH . '/sql.autoload.inc.php');
