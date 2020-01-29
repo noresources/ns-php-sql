@@ -19,7 +19,7 @@ use NoreSources\SQL\Structure\ColumnStructure;
 class PostgreSQLStatementBuilder extends StatementBuilder
 {
 
-	public function __construct(PostgreSQLConnection $connection)
+	public function __construct(PostgreSQLConnection $connection = null)
 	{
 		parent::__construct();
 		$this->connection = $connection;
@@ -75,22 +75,15 @@ class PostgreSQLStatementBuilder extends StatementBuilder
 
 		if ($dataType & K::DATATYPE_TIMESTAMP)
 		{
-			if (($dataType & K::DATATYPE_DATETIME) == K::DATATYPE_DATETIME)
+			if (($dataType & K::DATATYPE_TIME) == K::DATATYPE_TIME)
 			{
-				if ($dataType & K::DATATYPE_TIMEZONE)
-					return 'timestamp with time zone';
-
-				return 'timestamp';
+				return 'time' . ((($dataType & K::DATATYPE_DATE) == K::DATATYPE_DATE) ? 'stamp' : '') .
+					' with' .
+					((($dataType & K::DATATYPE_TIMEZONE) == K::DATATYPE_TIMEZONE) ? '' : 'out') .
+					' time zone';
 			}
 
-			if ($dataType & K::DATATYPE_DATE)
-				return 'date';
-
-			// Time only
-			if ($dataType & K::DATATYPE_TIMEZONE)
-				return 'time with time zone';
-
-			return 'time';
+			return 'date';
 		}
 
 		if ($dataType & K::DATATYPE_NUMBER)
