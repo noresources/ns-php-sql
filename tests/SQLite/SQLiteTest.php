@@ -6,6 +6,8 @@ use NoreSources\SQL\DBMS\ConnectionHelper;
 use NoreSources\SQL\DBMS\StatementParameterArray;
 use NoreSources\SQL\QueryResult\Recordset;
 use NoreSources\SQL\Structure\TableStructure;
+use NoreSources\Test\DatasourceManager;
+use NoreSources\Test\DerivedFileManager;
 
 final class SQLiteTest extends \PHPUnit\Framework\TestCase
 {

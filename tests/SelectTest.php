@@ -8,6 +8,8 @@ use NoreSources\SQL\Expression\MemberOf;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Statement\BuildContext;
 use NoreSources\SQL\Statement\StatementBuilder;
+use NoreSources\Test\DatasourceManager;
+use NoreSources\Test\DerivedFileManager;
 
 final class SelectTest extends \PHPUnit\Framework\TestCase
 {

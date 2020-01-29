@@ -1,9 +1,9 @@
 <?php
 namespace NoreSources\SQL\Expression;
 
-use NoreSources\SQL;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Expression\Evaluator as X;
+use NoreSources\Test\DatasourceManager;
 
 final class ExpressionEvaluatorTest extends \PHPUnit\Framework\TestCase
 {
@@ -11,7 +11,7 @@ final class ExpressionEvaluatorTest extends \PHPUnit\Framework\TestCase
 	public function __construct($name = null, array $data = [], $dataName = '')
 	{
 		parent::__construct($name, $data, $dataName);
-		$this->datasources = new sql\DatasourceManager();
+		$this->datasources = new DatasourceManager();
 	}
 
 	public function testBasics()

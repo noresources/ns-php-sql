@@ -6,6 +6,8 @@ use NoreSources\SQL\DBMS\Reference\ReferenceStatementBuilder;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Statement\BuildContext;
 use NoreSources\SQL\Statement\StatementBuilder;
+use NoreSources\Test\DatasourceManager;
+use NoreSources\Test\DerivedFileManager;
 
 final class UpdateTest extends \PHPUnit\Framework\TestCase
 {

@@ -4,6 +4,7 @@ namespace NoreSources\SQL;
 use NoreSources\SQL\Structure\DatasourceStructure;
 use NoreSources\SQL\Structure\JSONStructureSerializer;
 use NoreSources\SQL\Structure\XMLStructureSerializer;
+use NoreSources\Test\DerivedFileManager;
 
 final class StructureSerializerTest extends \PHPUnit\Framework\TestCase
 {

@@ -15,11 +15,12 @@
 	},
 	"autoload": {
 		"psr-4": {
-			"NoreSources\\SQL\\": "src/"
+			"NoreSources\\SQL\\": "src/",
+			"NoreSources\\Test\\": "tests/src/"
 		}
 	},
 	"scripts": {
-		"tests": "@php  ./vendor/bin/phpunit --bootstrap tests/bootstrap.php tests"
+		"tests": "@php  ./vendor/bin/phpunit --bootstrap vendor/autoload.php tests"
 	},
 	"prefer-stable": false,
 	"minimum-stability": "dev",

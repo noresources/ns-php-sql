@@ -7,6 +7,8 @@ use NoreSources\SQL\DBMS\StatementParameterArray;
 use NoreSources\SQL\DBMS\PDO\PDOConnection;
 use NoreSources\SQL\DBMS\PDO\PDOConstants as K;
 use NoreSources\SQL\Statement\UpdateQuery;
+use NoreSources\Test\DatasourceManager;
+use NoreSources\Test\DerivedFileManager;
 
 // Globals
 $sqliteConnectionParameters = [

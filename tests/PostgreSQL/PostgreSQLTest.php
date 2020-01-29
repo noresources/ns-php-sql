@@ -5,6 +5,8 @@ use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\ConnectionHelper;
 use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLStatementBuilder;
 use NoreSources\SQL\Statement\CreateTableQuery;
+use NoreSources\Test\DatasourceManager;
+use NoreSources\Test\DerivedFileManager;
 
 final class PostgreSQLTest extends \PHPUnit\Framework\TestCase
 {
@@ -21,18 +23,38 @@ final class PostgreSQLTest extends \PHPUnit\Framework\TestCase
 	public function testBuilder()
 	{
 		$structure = $this->datasources->get('Company');
-		$tableStructure = $structure['ns_unittests']['Tasks'];
+
 		$connection = ConnectionHelper::createConnection(
 			[
 				K::CONNECTION_PARAMETER_TYPE => \NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLConnection::class
 			]);
-		$builder = $connection->getStatementBuilder();
-		$this->assertInstanceOf(PostgreSQLStatementBuilder::class, $builder);
 
-		$s = new CreateTableQuery($tableStructure);
-		$sql = ConnectionHelper::getStatementSQL($connection, $s, $tableStructure);
+		$builders = [
+			'connectionless' => new PostgreSQLStatementBuilder(null),
+			'connected' => $connection->getStatementBuilder()
+		];
 
-		//var_dump($sql);
+		foreach ($structure['ns_unittests'] as $name => $tableStructure)
+		{
+			$previousFile = null;
+			foreach ($builders as $builderType => $builder)
+			{
+				$this->assertInstanceOf(PostgreSQLStatementBuilder::class, $builder);
+
+				$s = new CreateTableQuery($tableStructure);
+				$sql = ConnectionHelper::getStatementSQL($connection, $s, $tableStructure);
+
+				$sql = \SqlFormatter::format($sql, false);
+				$file = $this->derivedFileManager->assertDerivedFile($sql, __METHOD__,
+					'create_' . $name . '_' . $builderType, 'sql');
+
+				if (\is_file($previousFile))
+				{
+					$this->assertEquals(file_get_contents($previousFile), file_get_contents($file),
+						'Compare builder results');
+				}
+			}
+		}
 	}
 
 	/**
