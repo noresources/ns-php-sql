@@ -1,4 +1,4 @@
-CREATE TABLE "ns_unittests"."Tasks" (
+CREATE TABLE IF NOT EXISTS "ns_unittests"."Tasks" (
   "id" serial, 
   "name" TEXT, 
   "creationDateTime" timestamp with time zone DEFAULT CURRENT_TIMESTAMP, 

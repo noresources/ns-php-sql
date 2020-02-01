@@ -15,7 +15,7 @@ final class PostgreSQLTest extends \PHPUnit\Framework\TestCase
 	{
 		parent::__construct($name, $data, $dataName);
 		$this->connection = null;
-		$this->derivedFileManager = new DerivedFileManager();
+		$this->derivedFileManager = new DerivedFileManager(__dir__ . '/..');
 		$this->datasources = new DatasourceManager();
 		$this->createdTables = new \ArrayObject();
 	}
@@ -34,25 +34,33 @@ final class PostgreSQLTest extends \PHPUnit\Framework\TestCase
 			'connected' => $connection->getStatementBuilder()
 		];
 
+		$version = $connection->getPostgreSQLVersion();
+		$versionString = \strval($version);
+
 		foreach ($structure['ns_unittests'] as $name => $tableStructure)
 		{
 			$previousFile = null;
 			foreach ($builders as $builderType => $builder)
 			{
+				if (!\is_resource($builder->getConnectionResource()))
+					$builder->updateBuilderFlags($version);
+
 				$this->assertInstanceOf(PostgreSQLStatementBuilder::class, $builder);
 
 				$s = new CreateTableQuery($tableStructure);
 				$sql = ConnectionHelper::getStatementSQL($connection, $s, $tableStructure);
 
 				$sql = \SqlFormatter::format($sql, false);
-				$file = $this->derivedFileManager->assertDerivedFile($sql, __METHOD__,
-					'create_' . $name . '_' . $builderType, 'sql');
+				$suffix = 'create_' . $name . '_' . $builderType . '_' . $versionString;
+				$file = $this->derivedFileManager->assertDerivedFile($sql, __METHOD__, $suffix,
+					'sql');
 
 				if (\is_file($previousFile))
 				{
 					$this->assertEquals(file_get_contents($previousFile), file_get_contents($file),
 						'Compare builder results');
 				}
+				$previousFile = $file;
 			}
 		}
 	}

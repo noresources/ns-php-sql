@@ -15,7 +15,7 @@ final class CreateTableTest extends \PHPUnit\Framework\TestCase
 	{
 		parent::__construct($name, $data, $dataName);
 		$this->datasources = new DatasourceManager();
-		$this->derivedFileManager = new DerivedFileManager();
+		$this->derivedFileManager = new DerivedFileManager(__DIR__);
 	}
 
 	public function testCreateTableCompanyTables()

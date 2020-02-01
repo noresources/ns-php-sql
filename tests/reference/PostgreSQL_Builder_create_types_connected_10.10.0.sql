@@ -1,6 +1,6 @@
-CREATE TABLE "ns_unittests"."types" (
+CREATE TABLE IF NOT EXISTS "ns_unittests"."types" (
   "base" TEXT, 
-  "binary" bytea DEFAULT E'abc', 
+  "binary" bytea DEFAULT E '\x616263', 
   "boolean" boolean DEFAULT TRUE, 
   "int" integer DEFAULT 3, 
   "float" real DEFAULT 1.23, 

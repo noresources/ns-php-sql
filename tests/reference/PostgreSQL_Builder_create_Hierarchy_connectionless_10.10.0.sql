@@ -1,4 +1,4 @@
-CREATE TABLE "ns_unittests"."Hierarchy" (
+CREATE TABLE IF NOT EXISTS "ns_unittests"."Hierarchy" (
   "managerId" integer NOT NULL, 
   "manageeId" integer NOT NULL, 
   PRIMARY KEY ("managerId", "manageeId"), 

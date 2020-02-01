@@ -15,7 +15,7 @@ final class UpdateTest extends \PHPUnit\Framework\TestCase
 	public function __construct($name = null, array $data = [], $dataName = '')
 	{
 		parent::__construct($name, $data, $dataName);
-		$this->derivedFileManager = new DerivedFileManager();
+		$this->derivedFileManager = new DerivedFileManager(__DIR__);
 		$this->datasources = new DatasourceManager();
 	}
 

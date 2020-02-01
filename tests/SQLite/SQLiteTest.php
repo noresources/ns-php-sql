@@ -16,7 +16,7 @@ final class SQLiteTest extends \PHPUnit\Framework\TestCase
 	{
 		parent::__construct($name, $data, $dataName);
 		$this->connection = null;
-		$this->derivedFileManager = new DerivedFileManager();
+		$this->derivedFileManager = new DerivedFileManager(__DIR__ . '/..');
 		$this->datasources = new DatasourceManager();
 		$this->createdTables = new \ArrayObject();
 	}
