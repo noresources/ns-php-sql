@@ -11,7 +11,6 @@ namespace NoreSources\SQL\DBMS\SQLite;
 
 // Aliases
 use NoreSources\SQL;
-use NoreSources\SQL\DBMS\Connection;
 use NoreSources\SQL\DBMS\SQLite\SQLiteConstants as K;
 use NoreSources\SQL\QueryResult\Recordset;
 use NoreSources\SQL\Statement\ResultColumn;
@@ -39,7 +38,7 @@ class SQLiteRecordset extends Recordset
 				}
 
 				if ($column->dataType == K::DATATYPE_UNDEFINED)
-					$column->dataType = Connection::dataTypeFromSQLiteDataType(
+					$column->dataType = SQLiteConnection::dataTypeFromSQLiteDataType(
 						$result->columnType($i));
 
 				if ($i >= $map->count())
@@ -75,32 +74,6 @@ class SQLiteRecordset extends Recordset
 	public function reset()
 	{
 		return $this->result->reset();
-	}
-
-	/**
-	 *
-	 * {@inheritdoc}
-	 * @see Iterator::next()
-	 */
-	public function _next()
-	{
-		$mode = 0;
-		if ($this->flags & self::FETCH_ASSOCIATIVE)
-			$mode |= \SQLITE3_ASSOC;
-		if ($this->flags | self::FETCH_INDEXED)
-			$mode |= \SQLITE3_NUM;
-
-		$a = $this->result->fetchArray($mode);
-
-		if ($a === FALSE)
-		{
-			$this->setIteratorPosition(-1, self::POSITION_END);
-		}
-		else
-		{
-			$this->record->exchangeArray($a);
-			$this->setIteratorPosition($this->rowIndex + 1, 0);
-		}
 	}
 
 	/**
