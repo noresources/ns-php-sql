@@ -18,28 +18,6 @@ use NoreSources\SQL\Statement\ResultColumnMap;
 use NoreSources\SQL\Structure\ColumnPropertyMap;
 use NoreSources as ns;
 
-class RecordsetException extends \ErrorException
-{
-
-	/**
-	 *
-	 * @var Recordset
-	 */
-	public $recordset;
-
-	/**
-	 *
-	 * @param Recordset $recordset
-	 * @param string $message
-	 * @param integer $code
-	 */
-	public function __construct(Recordset $recordset, $message, $code = null)
-	{
-		parent::__construct($message, $code);
-		$this->recordset = $recordset;
-	}
-}
-
 /**
  * Recordset query result
  */
