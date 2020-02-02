@@ -111,14 +111,14 @@ class CreateTableQuery extends Statement
 				->space()
 				->identifier($context->getColumnTypeName($column));
 
-			if ($column->hasColumnProperty(K::COLUMN_PROPERTY_DATA_SIZE))
+			if ($column->hasColumnProperty(K::COLUMN_PROPERTY_DATA_LENGTH))
 			{
 				/**
 				 *
 				 * @todo only if supported
 				 */
 				$stream->text('(')
-					->literal($column->getColumnProperty(K::COLUMN_PROPERTY_DATA_SIZE))
+					->literal($column->getColumnProperty(K::COLUMN_PROPERTY_DATA_LENGTH))
 					->text(')');
 			}
 

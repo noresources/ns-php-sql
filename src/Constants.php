@@ -173,6 +173,14 @@ class Constants
 	const CONNECTION_PARAMETER_STRUCTURE = 'structure';
 
 	/**
+	 * DBMS version.
+	 * This may help Statement Builder togenerate a more accurate SQL string.
+	 *
+	 * @var string
+	 */
+	const CONNECTION_PARAMETER_VERSION = 'version';
+
+	/**
 	 * The type of Datasource column.
 	 * Value type: integer
 	 */
@@ -191,17 +199,19 @@ class Constants
 	const COLUMN_PROPERTY_ACCEPT_NULL = 'null';
 
 	/**
-	 * Data size.
+	 * Maximum number of digits or characters
+	 *
 	 *
 	 * Value type: integer
 	 */
-	const COLUMN_PROPERTY_DATA_SIZE = 'datasize';
+	const COLUMN_PROPERTY_DATA_LENGTH = 'ddatalength';
 
 	/**
 	 * Maximum number of digit to represents the fractional part of a floating-point number
+	 *
 	 * Value type: integer
 	 */
-	const COLUMN_PROPERTY_FRACTION_DIGIT_COUNT = 'fractiondigitcount';
+	const COLUMN_PROPERTY_SCALE = 'scale';
 
 	/**
 	 * List of valid values.
@@ -350,6 +360,13 @@ class Constants
 	const BUILDER_DOMAIN_DROP_TABLE = 'droptable';
 
 	const BUILDER_DOMAIN_CREATE_TABLE = 'createtable';
+
+	/**
+	 * CREATE SCHEMA statements
+	 *
+	 * @var string
+	 */
+	const BUILDER_DOMAIN_CREATE_TABLESET = 'createtableset';
 
 	// Tokens
 	const TOKEN_SPACE = 0;

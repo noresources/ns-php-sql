@@ -63,9 +63,9 @@ trait ColumnPropertyMapTrait
 			case K::COLUMN_PROPERTY_ACCEPT_NULL:
 				$value = ($value ? true : false);
 			break;
-			case K::COLUMN_PROPERTY_DATA_SIZE:
+			case K::COLUMN_PROPERTY_DATA_LENGTH:
 			case K::COLUMN_PROPERTY_DATA_TYPE:
-			case K::COLUMN_PROPERTY_FRACTION_DIGIT_COUNT:
+			case K::COLUMN_PROPERTY_SCALE:
 				$value = TypeConversion::toInteger($value);
 			break;
 			case K::COLUMN_PROPERTY_MEDIA_TYPE:
@@ -117,8 +117,8 @@ class ColumnPropertyDefault
 			case K::COLUMN_PROPERTY_UNSERIALIZER:
 				return ($value instanceof DataUnserializer);
 			case K::COLUMN_PROPERTY_DATA_TYPE:
-			case K::COLUMN_PROPERTY_DATA_SIZE:
-			case K::COLUMN_PROPERTY_FRACTION_DIGIT_COUNT:
+			case K::COLUMN_PROPERTY_DATA_LENGTH:
+			case K::COLUMN_PROPERTY_SCALE:
 				return is_int($value);
 		}
 
@@ -141,8 +141,8 @@ class ColumnPropertyDefault
 		self::$defaultValues = [
 			K::COLUMN_PROPERTY_ACCEPT_NULL => true,
 			K::COLUMN_PROPERTY_AUTO_INCREMENT => false,
-			K::COLUMN_PROPERTY_FRACTION_DIGIT_COUNT => 0,
-			K::COLUMN_PROPERTY_DATA_SIZE => 0,
+			K::COLUMN_PROPERTY_SCALE => 0,
+			K::COLUMN_PROPERTY_DATA_LENGTH => 0,
 			K::COLUMN_PROPERTY_DATA_TYPE => K::DATATYPE_STRING,
 			K::COLUMN_PROPERTY_ENUMERATION => null,
 			K::COLUMN_PROPERTY_DEFAULT_VALUE => null
