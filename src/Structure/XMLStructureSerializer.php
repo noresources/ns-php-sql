@@ -297,13 +297,13 @@ class XMLStructureSerializer extends StructureSerializer
 			}
 			if ($typeNode->hasAttribute('length'))
 			{
-				$structure->setColumnProperty(K::COLUMN_PROPERTY_DATA_LENGTH,
+				$structure->setColumnProperty(K::COLUMN_PROPERTY_GLYPH_COUNT,
 					intval($typeNode->getAttribute('length')));
 			}
 			if ($typeNode->hasAttribute('decimals'))
 			{
 				$count = intval($typeNode->getAttribute('decimals'));
-				$structure->setColumnProperty(K::COLUMN_PROPERTY_SCALE, $count);
+				$structure->setColumnProperty(K::COLUMN_PROPERTY_FRACTION_SCALE, $count);
 				if ($count > 0)
 				{
 					$type = K::DATATYPE_FLOAT;

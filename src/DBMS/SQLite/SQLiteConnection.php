@@ -17,6 +17,8 @@ use NoreSources\SQL\DBMS\StatementParameterArray;
 use NoreSources\SQL\DBMS\SQLite\SQLiteConstants as K;
 use NoreSources\SQL\QueryResult\GenericInsertionQueryResult;
 use NoreSources\SQL\QueryResult\GenericRowModificationQueryResult;
+use NoreSources\SQL\Statement\InputData;
+use NoreSources\SQL\Statement\Statement;
 use NoreSources as ns;
 
 class ConnectionException extends SQL\DBMS\ConnectionException
@@ -267,7 +269,7 @@ class SQLiteConnection implements Connection
 		;
 
 		$result = null;
-		$statementType = SQL\Statement\Statement::statementTypeFromData($statement);
+		$statementType = Statement::statementTypeFromData($statement);
 
 		if ($parameters instanceof StatementParameterArray && $parameters->count())
 		{
@@ -286,7 +288,7 @@ class SQLiteConnection implements Connection
 			foreach ($parameters as $key => $entry)
 			{
 				$name = $key;
-				if ($statement instanceof SQL\Statement\InputData)
+				if ($statement instanceof InputData)
 				{
 					if ($statement->hasParameter($key))
 						$name = $statement->getParameter($key);

@@ -1,8 +1,14 @@
 <?php
 namespace NoreSources\Test;
 
+use NoreSources\TypeDescription;
+use NoreSources\SQL\DBMS\Connection;
+use NoreSources\SQL\DBMS\ConnectionHelper;
+use NoreSources\SQL\Statement\CreateTableQuery;
 use NoreSources\SQL\Structure\DatasourceStructure;
 use NoreSources\SQL\Structure\StructureSerializerFactory;
+use NoreSources\SQL\Structure\TableStructure;
+use PHPUnit\Framework\TestCase;
 
 class DatasourceManager extends \PHPUnit\Framework\TestCase
 {
@@ -33,6 +39,23 @@ class DatasourceManager extends \PHPUnit\Framework\TestCase
 		return $structure;
 	}
 
+	public static function createTable(TestCase $test, Connection $connection,
+		TableStructure $tableStructure, $stored = false)
+	{
+		if ($stored)
+		{
+			if (!\is_array(self::$createdTables))
+				self::$createdTables = [];
+			$path = TypeDescription::getName($connection) . $tableStructure->getPath();
+			if (\array_key_exists($path, self::$createdTables))
+				return true;
+		}
+
+		$q = new CreateTableQuery($tableStructure);
+		$sql = ConnectionHelper::getStatementSQL($connection, $q);
+		return $connection->executeStatement($sql);
+	}
+
 	/**
 	 *
 	 * @var \ArrayObject
@@ -40,4 +63,6 @@ class DatasourceManager extends \PHPUnit\Framework\TestCase
 	private $datasources;
 
 	private $basePath;
+
+	private static $createdTables;
 }

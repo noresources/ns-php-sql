@@ -12,7 +12,9 @@
 namespace NoreSources\SQL\Statement;
 
 // Aliases
+use NoreSources\TypeDescription;
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\DBMS\TypeInterface;
 use NoreSources\SQL\Expression\Evaluator as X;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Structure\ColumnTableConstraint;
@@ -107,19 +109,43 @@ class CreateTableQuery extends Statement
 			if ($c++ > 0)
 				$stream->text(',')->space();
 
+			$type = $context->getColumnType($column);
+			if (!($type instanceof TypeInterface))
+				throw new \Exception('TEMP ' . TypeDescription::getName($type));
+			/**
+			 *
+			 * @var TypeInterface $type
+			 */
+
+			$typeName = $type->getTypeName();
+
 			$stream->identifier($context->escapeIdentifier($column->getName()))
 				->space()
-				->identifier($context->getColumnTypeName($column));
+				->identifier($typeName);
 
-			if ($column->hasColumnProperty(K::COLUMN_PROPERTY_DATA_LENGTH))
+			$glyphCountSupport = ($type->has(K::TYPE_PROPERTY_GLYPH_COUNT) &&
+				$type->get(K::TYPE_PROPERTY_GLYPH_COUNT));
+
+			$fractionScaleSupport = ($type->has(K::TYPE_PROPERTY_FRACTION_SCALE) &&
+				$type->get(K::TYPE_PROPERTY_FRACTION_SCALE));
+
+			if ($column->hasColumnProperty(K::COLUMN_PROPERTY_GLYPH_COUNT) && $glyphCountSupport)
 			{
 				/**
 				 *
 				 * @todo only if supported
 				 */
-				$stream->text('(')
-					->literal($column->getColumnProperty(K::COLUMN_PROPERTY_DATA_LENGTH))
-					->text(')');
+				$stream->text('(')->literal(
+					$column->getColumnProperty(K::COLUMN_PROPERTY_GLYPH_COUNT));
+
+				if ($column->hasColumnProperty(K::COLUMN_PROPERTY_FRACTION_SCALE) &&
+					$fractionScaleSupport)
+				{
+					$stream->text(', ')->literal(
+						$column->getColumnProperty(K::COLUMN_PROPERTY_FRACTION_SCALE));
+				}
+
+				$stream->text(')');
 			}
 
 			if (!$column->getColumnProperty(K::COLUMN_PROPERTY_ACCEPT_NULL))

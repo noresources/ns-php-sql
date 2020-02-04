@@ -44,7 +44,8 @@ abstract class StatementBuilder implements DataSerializer
 			K::BUILDER_DOMAIN_UPDATE => 0,
 			K::BUILDER_DOMAIN_DELETE => 0,
 			K::BUILDER_DOMAIN_DROP_TABLE => 0,
-			K::BUILDER_DOMAIN_CREATE_TABLE => 0
+			K::BUILDER_DOMAIN_CREATE_TABLE => 0,
+			K::BUILDER_DOMAIN_CREATE_TABLESET => 0
 		];
 	}
 
@@ -97,13 +98,23 @@ abstract class StatementBuilder implements DataSerializer
 	abstract function getParameter($name, ParameterMap $parameters = null);
 
 	/**
-	 * Get the default type name for a given data type
+	 *
+	 * @param ColumnStructure $column
+	 * @return TypeInterface
+	 */
+	abstract function getColumnType(ColumnStructure $column);
+
+	/**
+	 * Get the closest DBMS type name for a given data type
 	 *
 	 * @param ColumnStructure $column
 	 *        	Column definition
 	 * @return string The default Connection type name for the given data type
 	 */
-	abstract function getColumnTypeName(ColumnStructure $column);
+	public function getColumnTypeName(ColumnStructure $column)
+	{
+		return $this->getColumnType($column)->getTypeName();
+	}
 
 	/**
 	 * Get syntax keyword.

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "ba48f934156c9a493240c82fddee9521",
+    "content-hash": "beba7e9bee60f824cc9ea4fe02731a79",
     "packages": [
         {
             "name": "ferno/loco",

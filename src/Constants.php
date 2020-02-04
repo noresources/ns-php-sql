@@ -204,14 +204,14 @@ class Constants
 	 *
 	 * Value type: integer
 	 */
-	const COLUMN_PROPERTY_DATA_LENGTH = 'ddatalength';
+	const COLUMN_PROPERTY_GLYPH_COUNT = 'glyphcount';
 
 	/**
 	 * Maximum number of digit to represents the fractional part of a floating-point number
 	 *
 	 * Value type: integer
 	 */
-	const COLUMN_PROPERTY_SCALE = 'scale';
+	const COLUMN_PROPERTY_FRACTION_SCALE = 'fractionscale';
 
 	/**
 	 * List of valid values.
@@ -240,6 +240,62 @@ class Constants
 	 * @var string
 	 */
 	const COLUMN_PROPERTY_MEDIA_TYPE = 'mediatype';
+
+	/**
+	 * Value padding
+	 * <ul>
+	 * <li>&lt; 0</li> Left padded
+	 * <li>&gt; 0</li> Right padded
+	 * <li>any other value </li> No padding
+	 * </ul>
+	 *
+	 * @var string
+	 */
+	const COLUMN_PROPERTY_PADDING_DIRECTION = 'padding';
+
+	/**
+	 * Text pattern.
+	 * Define string pattern that the value must match
+	 *
+	 * @var string
+	 */
+	const COLUMN_PROPERTY_TEXT_PATTERN = 'pattern';
+
+	const TYPE_PROPERTY_DATA_TYPE = self::COLUMN_PROPERTY_DATA_TYPE;
+
+	/**
+	 * DBMS type name
+	 *
+	 * @var string
+	 */
+	const TYPE_PROPERTY_NAME = 'typename';
+
+	/**
+	 * DBMS type data size in bits.
+	 *
+	 * @var string
+	 */
+	const TYPE_PROPERTY_SIZE = 'typesize';
+
+	/**
+	 * Indicates if the DBMS type supports type length specification
+	 *
+	 * Property value is expected to be a boolean.
+	 *
+	 * @var string
+	 */
+	const TYPE_PROPERTY_GLYPH_COUNT = self::COLUMN_PROPERTY_GLYPH_COUNT;
+
+	/**
+	 * Indicates if the DBMS type supports fraction scale specification
+	 *
+	 * Property value is expected to be a boolean.
+	 *
+	 * @var unknown
+	 */
+	const TYPE_PROPERTY_FRACTION_SCALE = self::COLUMN_PROPERTY_FRACTION_SCALE;
+
+	const TYPE_PROPERTY_MEDIA_TYPE = self::COLUMN_PROPERTY_MEDIA_TYPE;
 
 	// JOIN operator
 	const JOIN_NATURAL = 0x01;

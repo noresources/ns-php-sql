@@ -27,7 +27,7 @@ interface ColumnPropertyMap
 
 	/**
 	 * Get all column properties
-	 * #return array
+	 * #return \Traversable
 	 */
 	function getColumnProperties();
 

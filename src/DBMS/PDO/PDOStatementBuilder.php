@@ -11,6 +11,7 @@ namespace NoreSources\SQL\DBMS\PDO;
 
 // Aliases
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\DBMS\BasicType;
 use NoreSources\SQL\Statement\ParameterMap;
 use NoreSources\SQL\Statement\StatementBuilder;
 use NoreSources\SQL\Structure\ColumnStructure;
@@ -68,6 +69,11 @@ class PDOStatementBuilder extends StatementBuilder
 	public function getParameter($name, ParameterMap $parameters = null)
 	{
 		return (':' . $parameters->count());
+	}
+
+	public function getColumnType(ColumnStructure $column)
+	{
+		return new BasicType($this->getColumnTypeName($column));
 	}
 
 	public function getColumnTypeName(ColumnStructure $column)

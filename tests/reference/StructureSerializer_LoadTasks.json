@@ -33,7 +33,7 @@
                             "null": true,
                             "autoincrement": false,
                             "datatype": 8,
-                            "fractiondigitcount": 2,
+                            "fractionscale": 2,
                             "default": {}
                         },
                         "timestamp": {

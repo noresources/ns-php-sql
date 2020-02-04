@@ -12,6 +12,7 @@ namespace NoreSources\SQL\DBMS\SQLite;
 // Aliases
 use NoreSources\Text;
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\DBMS\BasicType;
 use NoreSources\SQL\Statement\ParameterMap;
 use NoreSources\SQL\Statement\StatementBuilder;
 use NoreSources\SQL\Structure\ColumnStructure;
@@ -71,6 +72,11 @@ class SQLiteStatementBuilder extends StatementBuilder
 		}
 
 		return 'TEXT';
+	}
+
+	public function getColumnType(ColumnStructure $column)
+	{
+		return new BasicType($this->getColumnTypeName($column));
 	}
 
 	public function getColumnTypeName(ColumnStructure $column)

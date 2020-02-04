@@ -2,6 +2,6 @@ CREATE TABLE IF NOT EXISTS "ns_unittests"."Employees" (
   "id" INTEGER NOT NULL, 
   "name" TEXT, 
   "gender" TEXT, 
-  "salary" REAL(7), 
+  "salary" REAL, 
   CONSTRAINT "pk_id" PRIMARY KEY ("id")
 )

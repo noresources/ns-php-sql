@@ -9,6 +9,7 @@
  */
 namespace NoreSources\SQL\DBMS\PostgreSQL;
 
+use NoreSources\SemanticVersion;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\Reference\ReferenceStatementBuilder;
 use NoreSources\SQL\Statement\ParameterMap;
@@ -23,6 +24,9 @@ class PostgreSQLStatementBuilder extends StatementBuilder
 	{
 		parent::__construct();
 		$this->connection = $connection;
+
+		$this->setBuilderFlags(K::BUILDER_DOMAIN_INSERT,
+			K::BUILDER_INSERT_DEFAULT_VALUES | K::BUILDER_INSERT_DEFAULT_KEYWORD);
 	}
 
 	public function serializeString($value)
@@ -67,51 +71,9 @@ class PostgreSQLStatementBuilder extends StatementBuilder
 		return '$' . ($parameters->getNamedParameterCount() + 1);
 	}
 
-	public static function getPostgreSQLColumnTypeName(ColumnStructure $column)
+	public function getColumnType(ColumnStructure $column)
 	{
-		$dataType = K::DATATYPE_UNDEFINED;
-		if ($column->hasColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE))
-			$dataType = $column->getColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE);
-
-		if ($dataType & K::DATATYPE_TIMESTAMP)
-		{
-			if (($dataType & K::DATATYPE_TIME) == K::DATATYPE_TIME)
-			{
-				return 'time' . ((($dataType & K::DATATYPE_DATE) == K::DATATYPE_DATE) ? 'stamp' : '') .
-					' with' .
-					((($dataType & K::DATATYPE_TIMEZONE) == K::DATATYPE_TIMEZONE) ? '' : 'out') .
-					' time zone';
-			}
-
-			return 'date';
-		}
-
-		if ($dataType & K::DATATYPE_NUMBER)
-		{
-			if (($dataType & K::DATATYPE_NUMBER) == K::DATATYPE_INTEGER)
-			{
-				if ($column->hasColumnProperty(K::COLUMN_PROPERTY_AUTO_INCREMENT))
-				{
-					if ($column->getColumnProperty(K::COLUMN_PROPERTY_AUTO_INCREMENT))
-						return 'serial';
-					return 'integer';
-				}
-			}
-
-			return 'real';
-		}
-
-		if ($dataType == K::DATATYPE_BINARY)
-			return 'bytea';
-		elseif ($dataType == K::DATATYPE_BOOLEAN)
-			return 'boolean';
-
-		return 'TEXT';
-	}
-
-	public function getColumnTypeName(ColumnStructure $column)
-	{
-		return self::getPostgreSQLColumnTypeName($column);
+		return PostgreSQLType::columnPropertyToType($column);
 	}
 
 	public function getKeyword($keyword)
@@ -124,15 +86,42 @@ class PostgreSQLStatementBuilder extends StatementBuilder
 		return parent::getKeyword($keyword);
 	}
 
-	private function getConnectionResource()
+	public function getConnectionResource()
 	{
 		if ($this->connection instanceof PostgreSQLConnection)
 		{
-			if (\is_readable($this->connection->getConnectionResource()))
+			if (\is_resource($this->connection->getConnectionResource()))
 				return $this->connection->getConnectionResource();
 		}
 
 		return null;
+	}
+
+	/**
+	 * Update builder flags according PostgreSQL server version
+	 *
+	 * @param SemanticVersion $serverVersion
+	 *        	PostgreSQL server version
+	 */
+	public function updateBuilderFlags(SemanticVersion $serverVersion)
+	{
+		$createTableFlags = $this->getBuilderFlags(K::BUILDER_DOMAIN_CREATE_TABLE);
+		$createTableFlags &= ~(K::BUILDER_IF_NOT_EXISTS);
+		$createTablesetFlags = $this->getBuilderFlags(K::BUILDER_DOMAIN_CREATE_TABLESET);
+		$createTablesetFlags &= ~K::BUILDER_IF_NOT_EXISTS;
+
+		if (SemanticVersion::compareVersions($serverVersion, '9.1.0') >= 0)
+		{
+			$createTableFlags |= K::BUILDER_IF_NOT_EXISTS;
+		}
+
+		if (SemanticVersion::compareVersions($serverVersion, '9.3.0') >= 0)
+		{
+			$createTablesetFlags |= K::BUILDER_IF_NOT_EXISTS;
+		}
+
+		$this->setBuilderFlags(K::BUILDER_DOMAIN_CREATE_TABLE, $createTableFlags);
+		$this->setBuilderFlags(K::BUILDER_DOMAIN_CREATE_TABLESET, $createTablesetFlags);
 	}
 
 	/**

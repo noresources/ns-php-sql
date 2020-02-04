@@ -1,10 +1,13 @@
 <?php
 namespace NoreSources\SQL;
 
-use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\ConnectionHelper;
+use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLConnection;
+use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLConstants as K;
+use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLPreparedStatement;
 use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLStatementBuilder;
 use NoreSources\SQL\Statement\CreateTableQuery;
+use NoreSources\SQL\Statement\InsertQuery;
 use NoreSources\Test\DatasourceManager;
 use NoreSources\Test\DerivedFileManager;
 
@@ -24,10 +27,7 @@ final class PostgreSQLTest extends \PHPUnit\Framework\TestCase
 	{
 		$structure = $this->datasources->get('Company');
 
-		$connection = ConnectionHelper::createConnection(
-			[
-				K::CONNECTION_PARAMETER_TYPE => \NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLConnection::class
-			]);
+		$connection = self::createConnection();
 
 		$builders = [
 			'connectionless' => new PostgreSQLStatementBuilder(null),
@@ -63,6 +63,53 @@ final class PostgreSQLTest extends \PHPUnit\Framework\TestCase
 				$previousFile = $file;
 			}
 		}
+	}
+
+	public function testTypeMapping()
+	{
+		$structure = $this->datasources->get('types');
+
+		$tests = [
+			'unknown' => [
+				'expected' => 'text'
+			]
+		];
+	}
+
+	public function testParameters()
+	{
+		$this->assertEquals(true, true);
+		return;
+
+		$connection = self::createConnection();
+		$structure = $this->datasources->get('Company');
+		$tableStructure = $structure['ns_unittests']['Employees'];
+		$this->assertInstanceOf(Structure\TableStructure::class, $tableStructure);
+
+		$query = new InsertQuery($tableStructure);
+		$query('gender', ':gender');
+
+		$prepared = ConnectionHelper::prepareStatement($connection, $query, $tableStructure);
+
+		$this->assertInstanceOf(PostgreSQLPreparedStatement::class, $prepared);
+	}
+
+	public function _testSelect()
+	{}
+
+	private function createConnection()
+	{
+		if ($this->connection instanceof PostgreSQLConnection)
+			return $this->connection;
+
+		$settings = [
+			K::CONNECTION_PARAMETER_TYPE => \NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLConnection::class
+		];
+		$settingsFile = __DIR__ . '/../settings/' . basename(__DIR__) . '.php';
+		if (\file_exists($settingsFile))
+			$settings = require ($settingsFile);
+
+		return ConnectionHelper::createConnection($settings);
 	}
 
 	/**

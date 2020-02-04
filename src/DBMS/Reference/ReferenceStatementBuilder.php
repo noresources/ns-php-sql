@@ -10,6 +10,7 @@
 namespace NoreSources\SQL\DBMS\Reference;
 
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\DBMS\ArrayObjectType;
 use NoreSources\SQL\Statement\ParameterMap;
 use NoreSources\SQL\Statement\StatementBuilder;
 use NoreSources\SQL\Structure\ColumnStructure;
@@ -62,7 +63,24 @@ class ReferenceStatementBuilder extends StatementBuilder
 		return ('$' . preg_replace('/[^a-zA-Z0-9_]/', '_', $name));
 	}
 
-	function getColumnTypeName(ColumnStructure $column)
+	public function getColumnType(ColumnStructure $column)
+	{
+		$props = [
+			K::TYPE_PROPERTY_NAME => $this->getColumnTypeName($column)
+		];
+		foreach ([
+			K::COLUMN_PROPERTY_GLYPH_COUNT,
+			K::COLUMN_PROPERTY_MEDIA_TYPE,
+			K::COLUMN_PROPERTY_FRACTION_SCALE
+		] as $key)
+		{
+			if ($column->hasColumnProperty($key))
+				$props[$key] = $column->getColumnProperty($key);
+		}
+		return new ArrayObjectType($props);
+	}
+
+	public function getColumnTypeName(ColumnStructure $column)
 	{
 		$dataType = K::DATATYPE_UNDEFINED;
 		if ($column->hasColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE))

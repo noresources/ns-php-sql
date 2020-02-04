@@ -10,6 +10,8 @@
 namespace NoreSources\SQL\DBMS\SQLite;
 
 // Aliases
+use NoreSources\TypeConversion;
+use NoreSources\TypeDescription;
 use NoreSources\SQL\DBMS\PreparedStatement;
 use NoreSources\SQL\Statement\BuildContext;
 use NoreSources\SQL\Statement\InputData;
@@ -36,9 +38,9 @@ class SQLitePreparedStatement extends PreparedStatement
 
 		if (version_compare(PHP_VERSION, '7.4.0') < 0) // stmp->getSQL
 		{
-			if ($data instanceof BuildContext || \is_string($data))
+			if ($data instanceof BuildContext || TypeDescription::hasStringRepresentation($data))
 			{
-				$this->sql = strval($data);
+				$this->sql = TypeConversion::toString($data);
 			}
 			else
 			{
