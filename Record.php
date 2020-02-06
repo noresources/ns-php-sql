@@ -1,7 +1,10 @@
 <?php
 namespace NoreSources\SQL;
-use NoreSources as ns;
-use dp\Application\Data\RecordException;
+
+use NoreSources\ArrayUtil;
+use NoreSources\BinaryOperatorExpression;
+use NoreSources\DataTree;
+use NoreSources\Reporter;
 
 /**
  * The record values differs from the entry stored in the datasource
@@ -68,7 +71,8 @@ const kRecordQueryFlagExtension = 0x40;
 const kRecordDataSerialized = 0x20;
 
 interface RecordQueryOption
-{}
+{
+}
 
 /**
  * Specify a column name that will act a key for
@@ -82,14 +86,14 @@ const kRecordKeyColumn = 'keyColumn';
 
 const kRecordDistinct = 'distinct';
 
-class PresentationSettings extends ns\DataTree implements RecordQueryOption
+class PresentationSettings extends DataTree implements RecordQueryOption
 {
 
 	const KEY_COLUMN = kRecordKeyColumn;
-	
+
 	const DISTINCT = kRecordDistinct;
-	
-	public function __construct ($table)
+
+	public function __construct($table)
 	{
 		parent::__construct($table);
 	}
@@ -103,7 +107,7 @@ class ColumnSelectionFilter extends \ArrayObject implements RecordQueryOption
 
 	public $columnNames;
 
-	public function __construct ($columnNames)
+	public function __construct($columnNames)
 	{
 		if (is_string($columnNames))
 		{
@@ -163,7 +167,7 @@ class ColumnValueFilter implements RecordQueryOption
 	 *        	Value
 	 * @param boolean $positive
 	 */
-	public function __construct ($column, $operator, $value = null, $positive = true)
+	public function __construct($column, $operator, $value = null, $positive = true)
 	{
 		$this->columnName = ($column instanceof TableColumn) ? $column->getName() : $column;
 		$this->positive = $positive;
@@ -177,9 +181,10 @@ class ColumnValueFilter implements RecordQueryOption
 	 *        	Record object classname
 	 * @param Table $table
 	 */
-	public function toExpression ($className, Table $table)
+	public function toExpression($className, Table $table)
 	{
-		return self::createExpression($className, $table, $this->operator, $this->value, $this->positive);
+		return self::createExpression($className, $table, $this->operator, $this->value,
+			$this->positive);
 	}
 
 	/**
@@ -205,7 +210,8 @@ class ColumnValueFilter implements RecordQueryOption
 	 *        	Reverse operator behavior
 	 * @return IExpression
 	 */
-	public function createExpression ($className, Table $table, $operator, $value = null, $positive = true)
+	public function createExpression($className, Table $table, $operator, $value = null,
+		$positive = true)
 	{
 		$datasource = $table->datasource;
 		$column = $table->getColumn($this->columnName);
@@ -220,7 +226,8 @@ class ColumnValueFilter implements RecordQueryOption
 				$e = null;
 				if (is_null($value))
 				{
-					$e = new ns\BinaryOperatorExpression('IS', $column, $datasource->createData(kDataTypeNull));
+					$e = new BinaryOperatorExpression('IS', $column,
+						$datasource->createData(kDataTypeNull));
 					$e->protect = false;
 				}
 				else
@@ -230,7 +237,7 @@ class ColumnValueFilter implements RecordQueryOption
 					 * @todo serialize ?
 					 */
 					$v = $value;
-					$e = new ns\BinaryOperatorExpression('=', $column, $column->importData($v));
+					$e = new BinaryOperatorExpression('=', $column, $column->importData($v));
 				}
 
 				if (!$positive)
@@ -238,7 +245,7 @@ class ColumnValueFilter implements RecordQueryOption
 
 				return $e;
 			case 'in':
-				if (!($value instanceof ns\IExpression))
+				if (!($value instanceof IExpression))
 				{
 				/**
 				 *
@@ -246,16 +253,16 @@ class ColumnValueFilter implements RecordQueryOption
 				 */
 				}
 				return new SQLSmartEquality($column, $value, $positive);
-				break;
+			break;
 			case 'between':
 				if (!\is_array($value))
 				{
-					throw new RecordException(null, 'Invalid between filter (array required)');
+					throw new \Exception('Invalid between filter (array required)');
 					break;
 				}
 				if (count($value) != 2)
 				{
-					throw new RecordException(null, 'Invalid between filter (2 element expected)');
+					throw new \Exception('Invalid between filter (2 element expected)');
 				}
 
 				/**
@@ -273,52 +280,68 @@ class ColumnValueFilter implements RecordQueryOption
 
 				return $e;
 
-				break;
+			break;
 			case '&':
 				$v = $value;
 				/**
 				 *
 				 * @todo serialize ?
 				 */
-				$e = new ns\BinaryOperatorExpression('&', $column, $column->importData($v));
+				$e = new BinaryOperatorExpression('&', $column, $column->importData($v));
 				$e->protect = true;
-				$e = new ns\BinaryOperatorExpression('=', $e, $column->importData($v));
+				$e = new BinaryOperatorExpression('=', $e, $column->importData($v));
 				if (!$positive)
 				{
 					$e = new SQLNot($e);
 				}
 
 				return $e;
-				break;
+			break;
 			case '<':
 			case '<=':
 			case '>':
 			case '>=':
 			case 'like':
+			case 'startswith':
+			case 'endswith':
 				/**
 				 *
 				 * @todo serialize ?
 				 */
 				$v = $value;
-				$e = new ns\BinaryOperatorExpression(strtoupper($operator), $column, $column->importData($v));
+				if ($operator == 'startswith')
+				{
+					$operator = 'like';
+					$v = $v . '%';
+				}
+				elseif ($operator == 'endswith')
+				{
+					$operator = 'like';
+					$v = '%'  . $v;
+				}
+				
+				$e = new BinaryOperatorExpression(strtoupper($operator), $column,
+					$column->importData($v));
 				if (!$positive)
 				{
 					$e = new SQLNot($e);
 				}
 
 				return $e;
-				break;
+			break;
 			case null:
 			case 'null':
-				$e = new ns\BinaryOperatorExpression('IS', $column, $datasource->createData(kDataTypeNull));
+				$e = new BinaryOperatorExpression('IS', $column,
+					$datasource->createData(kDataTypeNull));
 				$e->protect = false;
 				if (!$positive)
 					$e = new SQLNot($e);
 				return $e;
-				break;
+			break;
 		}
 
-		return ns\Reporter::fatalError(__CLASS__, __METHOD__ . ': Failed to create filter expression');
+		return Reporter::fatalError(__CLASS__,
+			__METHOD__ . ': Failed to create filter expression');
 	}
 }
 
@@ -342,7 +365,7 @@ class LimitFilter implements RecordQueryOption
 	 * @param number $limit
 	 * @param number $ooffset
 	 */
-	public function __construct ($limit, $ooffset = 0)
+	public function __construct($limit, $ooffset = 0)
 	{
 		$this->limit = $limit;
 		$this->offset = $ooffset;
@@ -362,7 +385,7 @@ class OrderingOption implements RecordQueryOption
 	 *        	Column name or TableColumn
 	 * @param string $asc
 	 */
-	public function __construct ($column, $asc = true)
+	public function __construct($column, $asc = true)
 	{
 		$this->columnName = ($column instanceof TableColumn) ? $column->getName() : $column;
 		$this->ascending = $asc;
@@ -374,7 +397,7 @@ class GroupingOption implements RecordQueryOption
 
 	public $columnName;
 
-	public function __construct ($column)
+	public function __construct($column)
 	{
 		$this->columnName = $column;
 	}
@@ -407,7 +430,7 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 	 *        	Accepts kRecordQueryCreate
 	 * @param string $className
 	 */
-	public static function getRecord (Table $table, $keys, $flags, $className = null)
+	public static function getRecord(Table $table, $keys, $flags, $className = null)
 	{
 		if (!(is_string($className) && class_exists($className)))
 		{
@@ -418,7 +441,7 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 
 		if (is_null($keys))
 		{
-			return ns\Reporter::error(__CLASS__, __METHOD__ . ': Invalid key (null)');
+			return Reporter::error(__CLASS__, __METHOD__ . ': Invalid key (null)');
 		}
 
 		if (!\is_array($keys))
@@ -428,19 +451,19 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 			$c = count($primaryKeyColumns);
 			if ($c == 0)
 			{
-				return ns\Reporter::error(__CLASS__,
-						__METHOD__ . ': Table "' . $table->getName() . '" does not have primary key');
+				return Reporter::error(__CLASS__,
+					__METHOD__ . ': Table "' . $table->getName() . '" does not have primary key');
 			}
 			else 
 				if ($c > 1)
 				{
-					return ns\Reporter::error(__CLASS__,
-							__METHOD__ . ': Composite primary key can not accept non-array parameter');
+					return Reporter::error(__CLASS__,
+						__METHOD__ . ': Composite primary key can not accept non-array parameter');
 				}
 
 			list ($pk, $_) = each($primaryKeyColumns);
 			$keys = array(
-					$pk => $keys
+				$pk => $keys
 			);
 		}
 
@@ -460,11 +483,12 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 		foreach ($keys as $k => $v)
 		{
 			$column = $table->getColumn($k);
-			$data = $column->importData(($flags & kRecordDataSerialized) ? $v : static::serializeValue($k, $v));
+			$data = $column->importData(
+				($flags & kRecordDataSerialized) ? $v : static::serializeValue($k, $v));
 			$s->where->addAndExpression($column->equalityExpression($data));
 		}
 
-		// ns\Reporter::debug(get_called_class(), class_exists('\SqlFormatter')
+		// Reporter::debug(get_called_class(), class_exists('\SqlFormatter')
 		// ? \SqlFormatter::format ($s->expressionString(), false) :
 		// $s->expressionString());
 
@@ -478,13 +502,14 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 			$c = $recordset->rowCount;
 			if ($c == 1)
 			{
-				$result = new $className($table, $recordset, (kRecordStateExists | kRecordDataSerialized));
+				$result = new $className($table, $recordset,
+					(kRecordStateExists | kRecordDataSerialized));
 				return $result;
 			}
 
 			if ($c > 1)
 			{
-				return ns\Reporter::error(__CLASS__, __METHOD__ . ': Multiple record found');
+				return Reporter::error(__CLASS__, __METHOD__ . ': Multiple record found');
 			}
 
 			if ($flags & kRecordQueryCreate)
@@ -501,7 +526,7 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 			return null;
 		}
 
-		return ns\Reporter::error(__CLASS__, __METHOD__ . ': Invalid query result');
+		return Reporter::error(__CLASS__, __METHOD__ . ': Invalid query result');
 	}
 
 	/**
@@ -524,7 +549,8 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 	 *        	otherwise
 	 *        	- an array of Record
 	 */
-	public static function queryRecord (Table $table, $options = null, $flags = kRecordQueryMultiple, $className = null)
+	public static function queryRecord(Table $table, $options = null, $flags = kRecordQueryMultiple,
+		$className = null)
 	{
 		if (!(is_string($className) && class_exists($className)))
 		{
@@ -534,7 +560,7 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 		if ($options instanceof RecordQueryOption)
 		{
 			$options = array(
-					$options
+				$options
 			);
 		}
 
@@ -564,13 +590,13 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 				if (!is_null($primaryKeyColumn))
 				{
 					return self::queryRecord($table, array(
-							$primaryKeyColumn => $options
+						$primaryKeyColumn => $options
 					), $flags, $className);
 				}
 			}
 			elseif (!($flags & kRecordQueryMultiple))
 			{
-				return ns\Reporter::error(__CLASS__, __METHOD__ . ': $filters. Array expected');
+				return Reporter::error(__CLASS__, __METHOD__ . ': $filters. Array expected');
 			}
 		}
 
@@ -591,7 +617,8 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 					{
 						if (!$structure->offsetExists($keyColumn))
 						{
-							return ns\Reporter::error($className, __METHOD__ . ': Invalid key column', __FILE__, __LINE__);
+							return Reporter::error($className,
+								__METHOD__ . ': Invalid key column', __FILE__, __LINE__);
 						}
 					}
 
@@ -614,7 +641,7 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 				{
 					if (!$structure->offsetExists($option->columnName))
 					{
-						throw new RecordException($className, 'Invalid column "' . $option->columnName . '" for filter');
+						throw new \Exception('Invalid column "' . $option->columnName . '" for filter');
 						continue;
 					}
 
@@ -668,7 +695,7 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 			}
 		}
 
-		// ns\Reporter::debug($className, $s->expressionString());
+		// Reporter::debug($className, $s->expressionString());
 
 		if ($flags & self::QUERY_SQL)
 		{
@@ -683,7 +710,8 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 				$result = array();
 				foreach ($recordset as $record)
 				{
-					$r = new $className($table, $record, (kRecordDataSerialized | kRecordStateExists));
+					$r = new $className($table, $record,
+						(kRecordDataSerialized | kRecordStateExists));
 					if (\is_null($keyColumn))
 					{
 						$result[] = $r;
@@ -700,11 +728,13 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 			{
 				if ($recordset->rowCount == 1)
 				{
-					$result = new $className($table, $recordset, (kRecordDataSerialized | kRecordStateExists));
+					$result = new $className($table, $recordset,
+						(kRecordDataSerialized | kRecordStateExists));
 					return $result;
 				}
 
-				return ns\Reporter::error(__CLASS__, __METHOD__ . ': Non unique result', __FILE__, __LINE__);
+				return Reporter::error(__CLASS__, __METHOD__ . ': Non unique result', __FILE__,
+					__LINE__);
 			}
 		}
 
@@ -719,7 +749,8 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 	 * @param string $flags
 	 * @param unknown $className
 	 */
-	public static function deleteRecord (Table $table, $options = null, $flags = kRecordQueryMultiple, $className = null)
+	public static function deleteRecord(Table $table, $options = null, $flags = kRecordQueryMultiple,
+		$className = null)
 	{
 		$records = self::queryRecord($table, $options, $flags, $className);
 		if ($records instanceof Record)
@@ -737,7 +768,7 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 			return count($records);
 		}
 
-		return ns\Reporter::error($className, 'Invalid query result ' . gettype($records));
+		return Reporter::error($className, 'Invalid query result ' . gettype($records));
 	}
 
 	/**
@@ -751,7 +782,8 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 	 * @return Record|boolean The newly created Record on success
 	 *         @c false otherwise
 	 */
-	public static function createRecord (Table $table, $values, $flags = kRecordDataSerialized, $className = null)
+	public static function createRecord(Table $table, $values, $flags = kRecordDataSerialized,
+		$className = null)
 	{
 		if (!(is_string($className) && class_exists($className)))
 		{
@@ -772,7 +804,7 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 	 * @param Table $table
 	 *        	Table
 	 */
-	public function __construct (Table $table, $values, $flags = 0)
+	public function __construct(Table $table, $values, $flags = 0)
 	{
 		$this->m_table = $table;
 		$this->m_flags = ($flags & (kRecordStateExists | kRecordStateModified));
@@ -796,7 +828,8 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 			{
 				$this->m_values[$name] = $column->getProperty(kStructureDefaultValue);
 			}
-			elseif ($column->hasProperty(kStructureAcceptNull) && $column->getProperty(kStructureAcceptNull))
+			elseif ($column->hasProperty(kStructureAcceptNull) &&
+				$column->getProperty(kStructureAcceptNull))
 			{
 				$this->m_values[$name] = null;
 			}
@@ -821,21 +854,25 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 				{
 					$this->setValue($structure->offsetGet($key), $value, true);
 				}
-				elseif (($fk = $this->parseForeignKeyColumn($key)) && array_key_exists($fk['column'], $foreignKeys))
+				elseif (($fk = $this->parseForeignKeyColumn($key)) &&
+					array_key_exists($fk['column'], $foreignKeys))
 				{
-					$this->setForeignKeyData($fk['column'], $fk['foreignColumn'], $this->unserializeValue($fk, $value));
+					$this->setForeignKeyData($fk['column'], $fk['foreignColumn'],
+						$this->unserializeValue($fk, $value));
 				}
 			}
 		}
-		elseif (ns\ArrayUtil::isArray($values))
+		elseif (ArrayUtil::isArray($values))
 		{
 			foreach ($values as $key => $value)
 			{
 				if ($structure->offsetExists($key))
 				{
-					$this->setValue($structure->offsetGet($key), $value, ($flags & kRecordDataSerialized));
+					$this->setValue($structure->offsetGet($key), $value,
+						($flags & kRecordDataSerialized));
 				}
-				elseif (($fk = $this->parseForeignKeyColumn($key)) && array_key_exists($fk['column'], $foreignKeys))
+				elseif (($fk = $this->parseForeignKeyColumn($key)) &&
+					array_key_exists($fk['column'], $foreignKeys))
 				{
 					$value = ($flags & kRecordDataSerialized) ? $this->unserializeValue($fk, $value) : $value;
 					$this->setForeignKeyData($fk['column'], $fk['foreignColumn'], $value);
@@ -852,7 +889,7 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 	 * @return mixed
 	 * @see ArrayAccess::offsetGet()
 	 */
-	public function offsetGet ($member)
+	public function offsetGet($member)
 	{
 		$structure = $this->m_table->getStructure();
 		if ($structure->offsetExists($member))
@@ -874,7 +911,7 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 	 * @param string $offset
 	 * @see ArrayAccess::offsetExists()
 	 */
-	public function offsetExists ($offset)
+	public function offsetExists($offset)
 	{
 		return $this->m_table->getStructure()->offsetExists($offset);
 	}
@@ -886,7 +923,7 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 	 *        	name
 	 * @see ArrayAccess::offsetUnset()
 	 */
-	public function offsetUnset ($offset)
+	public function offsetUnset($offset)
 	{
 		unset($this->m_values[$offset]);
 		$this->m_flags |= kRecordStateModified;
@@ -901,7 +938,7 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 	 *        	value
 	 * @see ArrayAccess::offsetSet()
 	 */
-	public function offsetSet ($member, $value)
+	public function offsetSet($member, $value)
 	{
 		/**
 		 *
@@ -920,12 +957,12 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 		throw new \InvalidArgumentException('Invalid member ' . $member);
 	}
 
-	public function getIterator ()
+	public function getIterator()
 	{
 		return (new \ArrayObject($this->getArrayCopy()))->getIterator();
 	}
 
-	public function __get ($member)
+	public function __get($member)
 	{
 		if (\array_key_exists($member, $this->m_ephemerals))
 		{
@@ -941,7 +978,7 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 	 * @param string $member
 	 * @param mixed $value
 	 */
-	public function __set ($member, $value)
+	public function __set($member, $value)
 	{
 		if (\array_key_exists($member, $this->m_ephemerals))
 		{
@@ -951,7 +988,7 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 		$this->offsetSet($member, $value);
 	}
 
-	public function jsonSerialize ()
+	public function jsonSerialize()
 	{
 		return $this->getArrayCopy();
 	}
@@ -961,7 +998,7 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 	 * @deprecated use getArrayCopy()
 	 * @return array
 	 */
-	public function toArray ()
+	public function toArray()
 	{
 		return $this->getArrayCopy();
 	}
@@ -971,10 +1008,9 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 	 *
 	 * @return array
 	 */
-	public function getArrayCopy ()
+	public function getArrayCopy()
 	{
-		$x = function ($v)
-		{
+		$x = function ($v) {
 			if ($v instanceof \DateTime)
 				return $v->format(\DateTime::ISO8601);
 			else
@@ -982,14 +1018,14 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 		};
 
 		return array_merge(array_map($x, $this->m_values), array_map($x, $this->m_foreignKeyData),
-				array_map($x, $this->m_ephemerals));
+			array_map($x, $this->m_ephemerals));
 	}
 
 	/**
 	 *
 	 * @return boolean @c true if the record was successfully inserted
 	 */
-	public function insert ()
+	public function insert()
 	{
 		$structure = $this->m_table->getStructure();
 		$i = new InsertQuery($this->m_table);
@@ -1006,8 +1042,8 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 				$autoIncrementColumn = $c;
 			}
 
-			if (ns\ArrayUtil::keyExists($this->m_values, $n) &&
-					(\is_null($autoIncrementColumn) || ($autoIncrementColumn->getName() != $n)))
+			if (ArrayUtil::keyExists($this->m_values, $n) &&
+				(\is_null($autoIncrementColumn) || ($autoIncrementColumn->getName() != $n)))
 			{
 				$column = $this->m_table->getColumn($n);
 				$data = $column->importData(static::serializeValue($n, $this->m_values[$n]));
@@ -1036,7 +1072,7 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 	 *
 	 * @return boolean
 	 */
-	public function update ()
+	public function update()
 	{
 		if (!($this->m_flags & kRecordStateExists))
 		{
@@ -1060,7 +1096,8 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 					if (array_key_exists($n, $this->m_storedKey))
 					{
 						$primaryKeyChanged = ($this->m_values[$n] != $this->m_storedKey[$n]);
-						$keyData = $column->importData(static::serializeValue($n, $this->m_storedKey[$n]));
+						$keyData = $column->importData(
+							static::serializeValue($n, $this->m_storedKey[$n]));
 					}
 
 					$u->where->addAndExpression($column->equalityExpression($keyData));
@@ -1074,13 +1111,14 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 			}
 			elseif ($primary)
 			{
-				return ns\Reporter::error($this, __METHOD__ . ': Missing value for primary key column ' . $n, __FILE__, __LINE__);
+				return Reporter::error($this,
+					__METHOD__ . ': Missing value for primary key column ' . $n, __FILE__, __LINE__);
 			}
 		}
 
 		if ($count == 0)
 		{
-			ns\Reporter::notice($this, __METHOD__ . ': Nothing to update', __FILE__, __LINE__);
+			Reporter::notice($this, __METHOD__ . ': Nothing to update', __FILE__, __LINE__);
 			$this->m_flags &= ~kRecordStateModified;
 			return true;
 		}
@@ -1108,7 +1146,7 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 	 *        	identify a unique record
 	 * @return Number of deleted records or @c false if an error occurs
 	 */
-	public function delete ($flags = 0x00)
+	public function delete($flags = 0x00)
 	{
 		$structure = $this->m_table->getStructure();
 		$columns = array();
@@ -1126,10 +1164,12 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 			{
 				// Table does not have primary key -> check if the delete
 				// command will
-				$records = self::queryRecord($this->m_table, $this->m_values, $flags | kRecordQueryMultiple);
+				$records = self::queryRecord($this->m_table, $this->m_values,
+					$flags | kRecordQueryMultiple);
 				if (count($records) > 1)
 				{
-					return ns\Reporter::error($this, __METHOD__ . ': Multiple records match the current record values');
+					return Reporter::error($this,
+						__METHOD__ . ': Multiple records match the current record values');
 				}
 
 				// We accept to work with all columns
@@ -1149,7 +1189,8 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 			}
 			elseif ($usePrimaryKeys)
 			{
-				return ns\Reporter::error($this, __METHOD__ . ': Missing required column ' . $n . ' value');
+				return Reporter::error($this,
+					__METHOD__ . ': Missing required column ' . $n . ' value');
 			}
 		}
 
@@ -1167,7 +1208,7 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 	 *
 	 * @return \NoreSources\SQL\Table
 	 */
-	public function getTable ()
+	public function getTable()
 	{
 		return $this->m_table;
 	}
@@ -1182,7 +1223,7 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 	 *         Otherwise, the value of the foreign column @param
 	 *         $foreignColumnName
 	 */
-	public function getForeignKeyData ($columnName, $foreignColumnName = null)
+	public function getForeignKeyData($columnName, $foreignColumnName = null)
 	{
 		$a = (array_key_exists($columnName, $this->m_foreignKeyData) ? $this->m_foreignKeyData[$columnName] : array());
 
@@ -1209,7 +1250,7 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 				{
 					if (!array_key_exists($n, $this->m_values))
 					{
-						return ns\Reporter::fatalError($this, __METHOD__ . ': Incomplete key');
+						 return Reporter::fatalError($this, __METHOD__ . ': Incomplete key');
 					}
 
 					$key[$n] = $this->m_values[$n];
