@@ -9,3 +9,4 @@
 # Tests derived data and local settings
 /tests/derived
 /tests/settings/PostgreSQL.php
+/tests/settings
