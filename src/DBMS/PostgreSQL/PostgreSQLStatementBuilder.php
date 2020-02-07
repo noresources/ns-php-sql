@@ -44,7 +44,18 @@ class PostgreSQLStatementBuilder extends StatementBuilder
 
 	public function serializeBinary($value)
 	{
-		return "E'" . \pg_escape_bytea($value) . "'";
+		if (\is_int($value))
+		{
+			$value = \base_convert($value, 10, 16);
+			if (\strlen($value) % 2 == 1)
+			{
+				$value = '0' . $value;
+			}
+
+			$value = \hex2bin($value);
+		}
+
+		return "'" . \pg_escape_bytea($value) . "'";
 	}
 
 	public function escapeIdentifier($identifier)

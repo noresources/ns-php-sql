@@ -29,7 +29,8 @@
 		"noresources/ns-php-core": "~2.0",
 		"ferno/loco": "dev-master",
 		"noresources/ns-php-expression": "~1.0",
-		"psr/container": "^1.0"
+		"psr/container": "^1.0",
+		"noresources/ns-php-mediatype": "~1.0"
 	},
 	"suggest": {
 		"ext-sqlite": "*",

@@ -29,6 +29,18 @@
                             "datatype": 4,
                             "default": {}
                         },
+                        "large_int": {
+                            "null": true,
+                            "autoincrement": false,
+                            "datatype": 4,
+                            "glyphcount": 12
+                        },
+                        "small_int": {
+                            "null": true,
+                            "autoincrement": false,
+                            "datatype": 4,
+                            "glyphcount": 3
+                        },
                         "float": {
                             "null": true,
                             "autoincrement": false,

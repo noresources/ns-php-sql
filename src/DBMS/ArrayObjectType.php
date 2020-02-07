@@ -30,6 +30,11 @@ class ArrayObjectType implements TypeInterface
 			$this->typeProperties = new \ArrayObject($properties);
 	}
 
+	public function __tostring()
+	{
+		return $this->getTypeName();
+	}
+
 	public function getTypeName()
 	{
 		return $this->typeProperties->offsetGet(K::TYPE_PROPERTY_NAME);

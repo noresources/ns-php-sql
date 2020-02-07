@@ -26,6 +26,11 @@ class BasicType implements TypeInterface
 		$this->typeName = $typeName;
 	}
 
+	public function __toString()
+	{
+		return $this->getTypeName();
+	}
+
 	public function getTypeName()
 	{
 		return $this->typeName;

@@ -28,6 +28,18 @@
 					<sql:integer>3</sql:integer>
 				</sql:default>
 			</sql:column>
+			<sql:column name="large_int">
+				<sql:comment>A large int with size spec.</sql:comment>
+				<sql:datatype>
+					<sql:numeric length="12"  />
+				</sql:datatype>
+			</sql:column>
+			<sql:column name="small_int">
+				<sql:comment>A quite small int with size spec.</sql:comment>
+				<sql:datatype>
+					<sql:numeric length="3"  />
+				</sql:datatype>
+			</sql:column>
 			<sql:column name="float">
 				<sql:datatype>
 					<sql:numeric decimals="2" />

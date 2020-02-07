@@ -220,6 +220,11 @@ class SQLiteConnection implements Connection
 			$this->setStructure($structure)[K::CONNECTION_PARAMETER_STRUCTURE];
 	}
 
+	public function isConnected()
+	{
+		return ($this->connection instanceof \SQLite3);
+	}
+
 	public function disconnect()
 	{
 		if (!($this->connection instanceof \SQLite3))

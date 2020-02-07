@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "beba7e9bee60f824cc9ea4fe02731a79",
+    "content-hash": "f65d996e2f158ffc9f2f59dce6211410",
     "packages": [
         {
             "name": "ferno/loco",
@@ -51,7 +51,7 @@
             "source": {
                 "type": "git",
                 "url": "ssh://okami/volume1/repository/git/ns-php-core.git",
-                "reference": "da925c696cd3a9a9a435ac615872a1b6987544e6"
+                "reference": "5fd85418297671dfe9ce1132a96a4817041d6cb1"
             },
             "require": {
                 "ext-json": "*",
@@ -101,7 +101,7 @@
             "support": {
                 "issues": "https://github.com/noresources/ns-php-core/issues"
             },
-            "time": "2020-01-29T21:27:52+00:00"
+            "time": "2020-02-06T20:01:04+00:00"
         },
         {
             "name": "noresources/ns-php-expression",
@@ -149,6 +149,58 @@
                 "issues": "https://github.com/noresources/ns-php-expression/issues"
             },
             "time": "2019-12-16T20:15:11+00:00"
+        },
+        {
+            "name": "noresources/ns-php-mediatype",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "ssh://okami/volume1/repository/git/ns-php-mediatype.git",
+                "reference": "5a71656a7802bd0fa21627eeb0f382e2404ce712"
+            },
+            "require": {
+                "noresources/ns-php-core": "~2.0",
+                "php": ">= 5.5",
+                "psr/container": "^1.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "~8.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "NoreSources\\MediaType\\": "src/"
+                }
+            },
+            "scripts": {
+                "tests": [
+                    "@php  ./vendor/bin/phpunit --color=never --bootstrap tests/bootstrap.php tests"
+                ]
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Renaud Guillard",
+                    "email": "dev@nore.fr",
+                    "role": "lead"
+                }
+            ],
+            "description": "Media Type",
+            "keywords": [
+                "MIME",
+                "Utility"
+            ],
+            "support": {
+                "issues": "https://github.com/noresources/ns-php-mediatype/issues"
+            },
+            "time": "2020-01-27T22:02:29+00:00"
         },
         {
             "name": "psr/container",
@@ -569,12 +621,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpDocumentor/ReflectionDocBlock.git",
-                "reference": "93919e334b0cb304fb04429b4b3a3b1e1787c873"
+                "reference": "6a88d1ae42db82ae8274bbf55880d0876ee24323"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpDocumentor/ReflectionDocBlock/zipball/93919e334b0cb304fb04429b4b3a3b1e1787c873",
-                "reference": "93919e334b0cb304fb04429b4b3a3b1e1787c873",
+                "url": "https://api.github.com/repos/phpDocumentor/ReflectionDocBlock/zipball/6a88d1ae42db82ae8274bbf55880d0876ee24323",
+                "reference": "6a88d1ae42db82ae8274bbf55880d0876ee24323",
                 "shasum": ""
             },
             "require": {
@@ -614,7 +666,7 @@
                 }
             ],
             "description": "With this component, a library can provide support for annotations via DocBlocks or otherwise retrieve information that is embedded in a DocBlock.",
-            "time": "2020-01-27T20:01:09+00:00"
+            "time": "2020-02-05T20:17:02+00:00"
         },
         {
             "name": "phpdocumentor/type-resolver",
@@ -622,12 +674,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpDocumentor/TypeResolver.git",
-                "reference": "28517b98024f4d578e7a0774fa4a73ca2a73c724"
+                "reference": "a748970492a3fc0c12a823e27c520cf9820b90fb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpDocumentor/TypeResolver/zipball/28517b98024f4d578e7a0774fa4a73ca2a73c724",
-                "reference": "28517b98024f4d578e7a0774fa4a73ca2a73c724",
+                "url": "https://api.github.com/repos/phpDocumentor/TypeResolver/zipball/a748970492a3fc0c12a823e27c520cf9820b90fb",
+                "reference": "a748970492a3fc0c12a823e27c520cf9820b90fb",
                 "shasum": ""
             },
             "require": {
@@ -660,7 +712,7 @@
                 }
             ],
             "description": "A PSR-5 based resolver of Class names, Types and Structural Element Names",
-            "time": "2019-12-27T21:51:48+00:00"
+            "time": "2020-02-05T20:18:28+00:00"
         },
         {
             "name": "phpspec/prophecy",

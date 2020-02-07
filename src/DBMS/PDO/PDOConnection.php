@@ -124,6 +124,22 @@ class PDOConnection implements Connection
 		;
 	}
 
+	public function isConnected()
+	{
+		if (!($this->connection instanceof \PDO))
+			return false;
+
+		$status = true;
+		try
+		{
+			$status = $this->connection->getAttribute(\PDO::ATTR_CONNECTION_STATUS);
+		}
+		catch (\Exception $e)
+		{}
+
+		return $status;
+	}
+
 	public function disconnect()
 	{
 		$this->connection = null;

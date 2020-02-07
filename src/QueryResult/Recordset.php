@@ -10,18 +10,19 @@
 namespace NoreSources\SQL\QueryResult;
 
 // Aliases
+use NoreSources\ArrayRepresentation;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DataUnserializer;
+use NoreSources\SQL\GenericDataUnserializer;
 use NoreSources\SQL\Statement\OutputData;
 use NoreSources\SQL\Statement\OutputDataTrait;
 use NoreSources\SQL\Statement\ResultColumnMap;
 use NoreSources\SQL\Structure\ColumnPropertyMap;
-use NoreSources as ns;
 
 /**
  * Recordset query result
  */
-abstract class Recordset implements \Iterator, OutputData, QueryResult, ns\ArrayRepresentation,
+abstract class Recordset implements \Iterator, OutputData, QueryResult, ArrayRepresentation,
 	\JsonSerializable, DataUnserializer
 {
 
@@ -93,6 +94,11 @@ abstract class Recordset implements \Iterator, OutputData, QueryResult, ns\Array
 
 		if ($previousFlags != $this->flags)
 			$this->updateRecord();
+	}
+
+	public function getFlags()
+	{
+		return $this->flags;
 	}
 
 	public function setResultColumns(ResultColumnMap $columns)
@@ -200,39 +206,18 @@ abstract class Recordset implements \Iterator, OutputData, QueryResult, ns\Array
 		}
 	}
 
+	public function setDataUnserializer(DataUnserializer $unserializer)
+	{
+		$this->unserializer = $unserializer;
+	}
+
 	public function unserializeColumnData(ColumnPropertyMap $column, $data)
 	{
-		$type = K::DATATYPE_UNDEFINED;
-		if ($column->hasColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE))
-			$type = $column->getColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE);
+		$unserializer = $this->unserializer;
+		if (!($unserializer instanceof DataUnserializer))
+			$unserializer = GenericDataUnserializer::getInstance();
 
-		if ($type == K::DATATYPE_BOOLEAN)
-			$data = ns\TypeConversion::toBoolean($data);
-		elseif ($type & K::DATATYPE_TIMESTAMP)
-			$data = ns\TypeConversion::toDateTime($data);
-		elseif ($type & K::DATATYPE_NUMBER)
-		{
-			if ($type & K::DATATYPE_FLOAT)
-				$data = ns\TypeConversion::toFloat($data);
-			else
-				$data = ns\TypeConversion::toInteger($data);
-		}
-		elseif ($type == K::DATATYPE_NULL)
-			$data = null;
-
-		if ($column->hasColumnProperty(K::COLUMN_PROPERTY_MEDIA_TYPE))
-		{
-			$mediaType = $column->getColumnProperty(K::COLUMN_PROPERTY_MEDIA_TYPE);
-			if ($mediaType instanceof ns\MediaType)
-			{
-				if ($mediaType->getStructuredSyntax() == 'json')
-				{
-					$data = \json_decode($data, true);
-				}
-			}
-		}
-
-		return $data;
+		return $unserializer->unserializeColumnData($column, $data);
 	}
 
 	protected function __construct($data = null)
@@ -243,6 +228,7 @@ abstract class Recordset implements \Iterator, OutputData, QueryResult, ns\Array
 		$this->record = [];
 		$this->internalRecord = false;
 		$this->setIteratorPosition(-1, self::POSITION_BEGIN);
+		$this->unserializer = null;
 	}
 
 	// Internal flags
@@ -299,6 +285,7 @@ abstract class Recordset implements \Iterator, OutputData, QueryResult, ns\Array
 					$u = $this;
 					if ($column->hasColumnProperty(K::COLUMN_PROPERTY_UNSERIALIZER))
 						$u = $column->getColumnProperty(K::COLUMN_PROPERTY_UNSERIALIZER);
+
 					$value = $u->unserializeColumnData($column, $value);
 				}
 
@@ -339,4 +326,10 @@ abstract class Recordset implements \Iterator, OutputData, QueryResult, ns\Array
 	 * @var ResultColumnMap
 	 */
 	private $resultColumns;
+
+	/**
+	 *
+	 * @var DataUnserializer
+	 */
+	private $unserializer;
 }

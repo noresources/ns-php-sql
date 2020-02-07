@@ -47,6 +47,12 @@ interface Connection
 
 	/**
 	 *
+	 * @return boolean
+	 */
+	function isConnected();
+
+	/**
+	 *
 	 * @return StatementBuilder
 	 */
 	function getStatementBuilder();

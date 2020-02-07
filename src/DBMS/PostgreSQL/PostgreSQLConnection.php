@@ -119,6 +119,12 @@ class PostgreSQLConnection implements Connection
 		$this->builder->updateBuilderFlags($this->getPostgreSQLVersion());
 	}
 
+	public function isConnected()
+	{
+		return (\is_resource($this->resource) &&
+			(\pg_connection_status($this->resource) == PGSQL_CONNECTION_OK));
+	}
+
 	public function disconnect()
 	{
 		if (\is_resource($this->resource))
@@ -199,10 +205,9 @@ class PostgreSQLConnection implements Connection
 		switch ($status)
 		{
 			case PGSQL_TUPLES_OK:
-			/**
-			 *
-			 * @todo Recordset
-			 */
+				$recordset = new PostgreSQLRecordset($result, $statement);
+				$recordset->setDataUnserializer(PostgreSQLDataUnserializer::getInstance());
+				return $recordset;
 			break;
 
 			case PGSQL_COMMAND_OK:

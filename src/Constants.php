@@ -485,6 +485,11 @@ class Constants
 	 */
 	const RECORDSET_FETCH_UBSERIALIZE = 0x04;
 
+	/**
+	 * RECORDSET_FETCH_UBSERIALIZE + RECORDSET_FETCH_BOTH
+	 *
+	 * @var number
+	 */
 	const RECORDSET_PUBLIC_FLAGS = 0x07;
 
 	/**

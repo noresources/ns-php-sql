@@ -9,6 +9,12 @@ use NoreSources\Container;
 use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLConstants as K;
 require (__DIR__ . '/../vendor/autoload.php');
 
+/**
+ *
+ * @see https://www.postgresql.org/docs/8.4/catalog-pg-type.html
+ * @var Ambiguous $query
+ */
+
 $query = <<< EOF
 SELECT t.oid, pg_catalog.format_type(t.oid, NULL) AS "name",
   pg_catalog.obj_description(t.oid, 'pg_type') as "desc",
@@ -22,9 +28,10 @@ ORDER BY 2
 EOF;
 
 $typePropertiesMap = [
-	'abstime' => [
-		K::TYPE_PROPERTY_DATA_TYPE => 'K::DATATYPE_DATETIME'
-	],
+	// Range tool limited
+	// 'abstime' => [
+	// 		K::TYPE_PROPERTY_DATA_TYPE => 'K::DATATYPE_DATETIME'
+	// ],
 	'boolean' => [
 		K::TYPE_PROPERTY_DATA_TYPE => 'K::DATATYPE_BOOLEAN'
 	],
@@ -63,9 +70,6 @@ $typePropertiesMap = [
 	'date' => [
 		K::TYPE_PROPERTY_DATA_TYPE => 'K::DATATYPE_DATE'
 	],
-	'datetime' => [
-		K::TYPE_PROPERTY_DATA_TYPE => 'K::DATATYPE_TIMESTAMP'
-	],
 	'double precision' => [
 		K::TYPE_PROPERTY_DATA_TYPE => 'K::DATATYPE_FLOAT'
 	],
@@ -73,6 +77,8 @@ $typePropertiesMap = [
 	// 		K::COLUMN_PROPERTY_DATA_TYPE => 'K::DATATYPE_STRING',
 	// 		K::COLUMN_PROPERTY_TEXT_PATTERN => 'TBD',
 	// 	],
+
+	// This is an alias of int4
 	'integer' => [
 		K::TYPE_PROPERTY_DATA_TYPE => 'K::DATATYPE_INTEGER'
 	],
@@ -81,7 +87,8 @@ $typePropertiesMap = [
 		K::TYPE_PROPERTY_MEDIA_TYPE => '\'application/json\''
 	],
 	'jsonb' => [
-		K::TYPE_PROPERTY_DATA_TYPE => 'K::DATATYPE_BINARY'
+		K::TYPE_PROPERTY_DATA_TYPE => 'K::DATATYPE_BINARY',
+		K::TYPE_PROPERTY_MEDIA_TYPE => '\'application/json\''
 	],
 	// 'money' => [
 	// 	K::TYPE_PROPERTY_DATA_TYPE => 'K::DATATYPE_NUMBER',
@@ -108,9 +115,6 @@ $typePropertiesMap = [
 	],
 	'text' => [
 		K::TYPE_PROPERTY_DATA_TYPE => 'K::DATATYPE_STRING'
-	],
-	'time' => [
-		K::TYPE_PROPERTY_DATA_TYPE => 'K::DATATYPE_TIME'
 	],
 	'time without time zone' => [
 		K::TYPE_PROPERTY_DATA_TYPE => 'K::DATATYPE_TIME'

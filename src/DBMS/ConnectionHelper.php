@@ -78,12 +78,12 @@ class ConnectionHelper
 	 *        	Statement to convert to string
 	 * @param StructureElement $reference
 	 *        	Pivot StructureElement
-	 * @return string SQL string in the DBMS dialect
+	 * @return object SQL string representation and additional informations
 	 *
 	 * @note This method does not provide any informations about statement parameters or result column types.
 	 * Tf these information are needed, use ConnectionHelper::prepareStatement()
 	 */
-	public static function getStatementSQL($connection, Statement $statement,
+	public static function getStatementData($connection, Statement $statement,
 		StructureElement $reference = null)
 	{
 		$reference = ($reference instanceof StructureElement) ? $reference : $connection->getStructure();
@@ -94,7 +94,27 @@ class ConnectionHelper
 		$stream = new TokenStream();
 		$statement->tokenize($stream, $context);
 		StatementBuilder::finalize($stream, $context);
-		return strval($context);
+		return $context;
+	}
+
+	/**
+	 * Get the DBMS-specific SQL string representation of the given statement
+	 *
+	 * @param Connection $connection
+	 *        	DBMS connection
+	 * @param Statement $statement
+	 *        	Statement to convert to string
+	 * @param StructureElement $reference
+	 *        	Pivot StructureElement
+	 * @return string SQL string in the DBMS dialect
+	 *
+	 * @note This method does not provide any informations about statement parameters or result column types.
+	 * Tf these information are needed, use ConnectionHelper::prepareStatement()
+	 */
+	public static function getStatementSQL($connection, Statement $statement,
+		StructureElement $reference = null)
+	{
+		return \strval(self::getStatementData($connection, $statement, $reference));
 	}
 
 	/**

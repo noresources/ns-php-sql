@@ -9,9 +9,10 @@
  */
 namespace NoreSources\SQL\DBMS;
 
+use NoreSources\StringRepresentation;
 use Psr\Container\ContainerInterface;
 
-interface TypeInterface extends ContainerInterface
+interface TypeInterface extends ContainerInterface, StringRepresentation
 {
 
 	/**

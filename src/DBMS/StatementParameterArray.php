@@ -9,15 +9,16 @@
  */
 namespace NoreSources\SQL\DBMS;
 
+use NoreSources\ArrayRepresentation;
+use NoreSources\Container;
 use NoreSources\SQL\Constants as K;
-use NoreSources as ns;
 
 /**
  * A list of parameter values to pass to the Connection::executeStatement() method
  * alongside a statement with parameters
  */
 class StatementParameterArray implements \IteratorAggregate, \ArrayAccess, \Countable,
-	ns\ArrayRepresentation
+	ArrayRepresentation
 {
 
 	const VALUE = 'value';
@@ -96,10 +97,10 @@ class StatementParameterArray implements \IteratorAggregate, \ArrayAccess, \Coun
 		foreach ($table as $key => $value)
 		{
 			$tyoe = K::DATATYPE_UNDEFINED;
-			if (ns\Container::isArray($value))
+			if (Container::isArray($value))
 			{
-				$type = ns\Container::keyValue($value, self::TYPE, K::DATATYPE_UNDEFINED);
-				$value = ns\Container::keyValue($value, self::VALUE, null);
+				$type = Container::keyValue($value, self::TYPE, K::DATATYPE_UNDEFINED);
+				$value = Container::keyValue($value, self::VALUE, null);
 			}
 
 			$this->set($key, $value, $tyoe);

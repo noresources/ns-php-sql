@@ -9,6 +9,7 @@
  */
 namespace NoreSources\SQL\DBMS\PostgreSQL;
 
+use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\QueryResult\Recordset;
 use NoreSources\SQL\QueryResult\SeekableRecordsetTrait;
 use NoreSources\SQL\Statement\OutputData;

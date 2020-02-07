@@ -43,6 +43,11 @@ class ReferenceConnection implements Connection
 			$this->setStructure($structure)[K::CONNECTION_PARAMETER_STRUCTURE];
 	}
 
+	public function isConnected()
+	{
+		return true;
+	}
+
 	public function disconnect()
 	{}
 
