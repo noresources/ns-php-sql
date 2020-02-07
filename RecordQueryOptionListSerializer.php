@@ -30,45 +30,48 @@ class RecordQueryOptionListSerializer implements \Serializable, \JsonSerializabl
 
 		$filters = [];
 
-		foreach ($content as $key => $arguments)
+		foreach ($content as $key => $filterSpec)
 		{
-			$clsName = null;
-			if ($key == 'value')
+			if (\is_string($key))
 			{
-				$cls = new \ReflectionClass(ColumnValueFilter::class);
-				$filters[] = $cls->newInstanceArgs($arguments);
+				if (ArrayUtil::isArray($filterSpec))
+				{
+					$cls = new \ReflectionClass(ColumnValueFilter::class);
+					$filters[] = $cls->newInstanceArgs($filterSpec);
+				}
+				else
+				{
+					$filters[] = new ColumnValueFilter($key, '=', $filterSpec);
+				}
+				continue;
 			}
-			elseif ($key == 'limit')
-			{
-				$cls = new \ReflectionClass(LimitFilter::class);
-				$filters[] = $cls->newInstanceArgs($arguments);
-			}
-			elseif ($key == 'group')
-			{
-				$cls = new \ReflectionClass(GroupingOption::class);
-				$filters[] = $cls->newInstanceArgs($arguments);
-			}
-			elseif ($key == 'order')
-			{
-				$cls = new \ReflectionClass(OrderingOption::class);
-				$filters[] = $cls->newInstanceArgs($arguments);
-			}
-			elseif ($key == 'columns')
-			{
-				$filters[] = new ColumnSelectionFilter($arguments);
-			}
-			elseif ($key == 'presentation')
-			{
-				$filters[] = new PresentationSettings($arguments);
-			}
-			else
-			{
-				$filters[] = new ColumnValueFilter($key, '=', $arguments);
-			}
-		}
 
+			$classKey = ArrayUtil::keyValue($filterSpec, 'type', ColumnValueFilter::class);
+			$arguments = ArrayUtil::keyValue($filterSpec, 'arguments', []);
+			$cls = self::getFilterC$classKey);
+			$filters[] = $cls->newInstanceArgs($arguments);
+		}
 		return $filters;
 	}
+
+	public static function getFilterClass($key)
+	{
+		if (\class_exists($key) && \is_subclass_of($key, RecordQueryOption::class))
+			return new \ReflectionClass($key);
+		if (!\is_array(self::$classKeyMap))
+			self::$classKeyMap = [
+				'presentation' => PresentationSettings::class,
+				'value' => ColumnValueFilter::class,
+				'columns' => ColumnSelectionFilter::class,
+				'order' => OrderingOption::class,
+				'group' => GroupingOption::class,
+				'limit' => LimitFilter::class
+			];
+
+		if (!ArrayUtil::keyExists(self::$classKeyMap, $key)) throw new \InvalidArgumentException($key);
+	}
+	
+	private static $classKeyMap;
 }
 
 

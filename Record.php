@@ -109,15 +109,19 @@ class ColumnSelectionFilter extends \ArrayObject implements RecordQueryOption
 
 	public function __construct($columnNames)
 	{
-		if (is_string($columnNames))
+		$args = func_get_args();
+		foreach ($args as $value)
 		{
-			$this->append($columnNames);
-		}
-		else
-		{
-			foreach ($columnNames as $columnName)
+			if (is_string($value))
 			{
-				$this->append($columnName);
+				$this->append($value);
+			}
+			else
+			{
+				foreach ($value as $columnName)
+				{
+					$this->append($columnName);
+				}
 			}
 		}
 	}
@@ -317,9 +321,9 @@ class ColumnValueFilter implements RecordQueryOption
 				elseif ($operator == 'endswith')
 				{
 					$operator = 'like';
-					$v = '%'  . $v;
+					$v = '%' . $v;
 				}
-				
+
 				$e = new BinaryOperatorExpression(strtoupper($operator), $column,
 					$column->importData($v));
 				if (!$positive)
@@ -340,8 +344,7 @@ class ColumnValueFilter implements RecordQueryOption
 			break;
 		}
 
-		return Reporter::fatalError(__CLASS__,
-			__METHOD__ . ': Failed to create filter expression');
+		return Reporter::fatalError(__CLASS__, __METHOD__ . ': Failed to create filter expression');
 	}
 }
 
@@ -617,8 +620,8 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 					{
 						if (!$structure->offsetExists($keyColumn))
 						{
-							return Reporter::error($className,
-								__METHOD__ . ': Invalid key column', __FILE__, __LINE__);
+							return Reporter::error($className, __METHOD__ . ': Invalid key column',
+								__FILE__, __LINE__);
 						}
 					}
 
@@ -641,7 +644,8 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 				{
 					if (!$structure->offsetExists($option->columnName))
 					{
-						throw new \Exception('Invalid column "' . $option->columnName . '" for filter');
+						throw new \Exception(
+							'Invalid column "' . $option->columnName . '" for filter');
 						continue;
 					}
 
@@ -1239,7 +1243,7 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 	 *
 	 * @param string $glue
 	 */
-	public function getKey ($glue = null, $current = true)
+	public function getKey($glue = null, $current = true)
 	{
 		$key = array();
 		if ($current)
