@@ -11,7 +11,8 @@ require (__DIR__ . '/../vendor/autoload.php');
 
 $query = <<< EOF
 SELECT t.oid, pg_catalog.format_type(t.oid, NULL) AS "name",
-  pg_catalog.obj_description(t.oid, 'pg_type') as "desc"
+  pg_catalog.obj_description(t.oid, 'pg_type') as "desc",
+  t.typlen as "length"
 FROM pg_catalog.pg_type t
      LEFT JOIN pg_catalog.pg_namespace n ON n.oid = t.typnamespace
 WHERE (t.typrelid = 0 OR (SELECT c.relkind = 'c' FROM pg_catalog.pg_class c WHERE c.oid = t.typrelid))
@@ -22,108 +23,112 @@ EOF;
 
 $typePropertiesMap = [
 	'abstime' => [
-		K::COLUMN_PROPERTY_DATA_TYPE => 'K::DATATYPE_DATETIME'
+		K::TYPE_PROPERTY_DATA_TYPE => 'K::DATATYPE_DATETIME'
 	],
 	'boolean' => [
-		K::COLUMN_PROPERTY_DATA_TYPE => 'K::DATATYPE_BOOLEAN'
+		K::TYPE_PROPERTY_DATA_TYPE => 'K::DATATYPE_BOOLEAN'
 	],
 	'bigint' => [
-		K::COLUMN_PROPERTY_DATA_TYPE => 'K::DATATYPE_INTEGER',
-		K::TYPE_PROPERTY_SIZE => 8 * 18
+		K::TYPE_PROPERTY_DATA_TYPE => 'K::DATATYPE_INTEGER'
 	],
 	//  Require a strict glyph count property
 	// 'bit' => [
-	// 		K::COLUMN_PROPERTY_DATA_TYPE => 'K::DATATYPE_STRING',
-	// 		K::TYPE_PROPERTY_SIZE => 1
+	// 		K::TYPE_PROPERTY_DATA_TYPE => 'K::DATATYPE_STRING',
 	// ],
 
 	/* @todo A way to make distinction with "text" */
 
 	// 'bit varying' => [
-	// 		K::COLUMN_PROPERTY_DATA_TYPE => 'K::DATATYPE_STRING',
+	// 		K::TYPE_PROPERTY_DATA_TYPE => 'K::DATATYPE_STRING',
 	// 		K::TYPE_PROPERTY_GLYPH_COUNT => 'true'
 	// ],
 	'bytea' => [
-		K::COLUMN_PROPERTY_DATA_TYPE => 'K::DATATYPE_BINARY'
+		K::TYPE_PROPERTY_DATA_TYPE => 'K::DATATYPE_BINARY'
 	],
 	'"char"' => [
-		K::COLUMN_PROPERTY_DATA_TYPE => 'K::DATATYPE_STRING',
-		K::TYPE_PROPERTY_SIZE => 1
+		K::TYPE_PROPERTY_DATA_TYPE => 'K::DATATYPE_STRING'
 	],
 	// 'character' => [
-	// 	K::COLUMN_PROPERTY_DATA_TYPE => 'K::DATATYPE_STRING',
+	// 	K::TYPE_PROPERTY_DATA_TYPE => 'K::DATATYPE_STRING',
 	// K::COLUMN_PROPERTY_GLYPH_COUNT => 'true',
 	// K::TYPE_PROPERTY_PADDING_DIRECTION => 1
 	// ],
 	'character varying' => [
-		K::COLUMN_PROPERTY_DATA_TYPE => 'K::DATATYPE_STRING',
+		K::TYPE_PROPERTY_DATA_TYPE => 'K::DATATYPE_STRING',
 		K::TYPE_PROPERTY_GLYPH_COUNT => 'true'
 	],
 	// 	'cstring' => [
-	// 		K::COLUMN_PROPERTY_DATA_TYPE => 'K::DATATYPE_STRING'
-	// 	],
+	// 		K::TYPE_PROPERTY_DATA_TYPE => 'K::DATATYPE_STRING'
+	//
+	'date' => [
+		K::TYPE_PROPERTY_DATA_TYPE => 'K::DATATYPE_DATE'
+	],
+	'datetime' => [
+		K::TYPE_PROPERTY_DATA_TYPE => 'K::DATATYPE_TIMESTAMP'
+	],
 	'double precision' => [
-		K::COLUMN_PROPERTY_DATA_TYPE => 'K::DATATYPE_FLOAT',
-		K::TYPE_PROPERTY_SIZE => 8 * 8
+		K::TYPE_PROPERTY_DATA_TYPE => 'K::DATATYPE_FLOAT'
 	],
 	// 'inet' => [
 	// 		K::COLUMN_PROPERTY_DATA_TYPE => 'K::DATATYPE_STRING',
 	// 		K::COLUMN_PROPERTY_TEXT_PATTERN => 'TBD',
-	// 		K::TYPE_PROPERTY_SIZE => (8 * 4)
 	// 	],
 	'integer' => [
-		K::COLUMN_PROPERTY_DATA_TYPE => 'K::DATATYPE_INTEGER'
+		K::TYPE_PROPERTY_DATA_TYPE => 'K::DATATYPE_INTEGER'
 	],
 	'json' => [
-		K::COLUMN_PROPERTY_DATA_TYPE => 'K::DATATYPE_STRING',
+		K::TYPE_PROPERTY_DATA_TYPE => 'K::DATATYPE_STRING',
 		K::TYPE_PROPERTY_MEDIA_TYPE => '\'application/json\''
 	],
 	'jsonb' => [
-		K::COLUMN_PROPERTY_DATA_TYPE => 'K::DATATYPE_BINARY'
+		K::TYPE_PROPERTY_DATA_TYPE => 'K::DATATYPE_BINARY'
 	],
 	// 'money' => [
-	// 	K::COLUMN_PROPERTY_DATA_TYPE => 'K::DATATYPE_NUMBER',
-	// 	K::COLUMN_PROPERTY_TEXT_PATTERN => 'TBD'
+	// 	K::TYPE_PROPERTY_DATA_TYPE => 'K::DATATYPE_NUMBER',
+	// 	K::TYPE_PROPERTY_TEXT_PATTERN => 'TBD'
 	// ],
 	'numeric' => [
-		K::COLUMN_PROPERTY_DATA_TYPE => 'K::DATATYPE_NUMBER',
+		K::TYPE_PROPERTY_DATA_TYPE => 'K::DATATYPE_NUMBER',
 		K::TYPE_PROPERTY_GLYPH_COUNT => 'true',
 		K::TYPE_PROPERTY_FRACTION_SCALE => 'true'
 	],
 
 	//	'oid' => [
-	//		K::COLUMN_PROPERTY_DATA_TYPE => 'K::DATATYPE_INTEGER'
+	//		K::TYPE_PROPERTY_DATA_TYPE => 'K::DATATYPE_INTEGER'
 	//	],
 	'real' => [
-		K::COLUMN_PROPERTY_DATA_TYPE => 'K::DATATYPE_FLOAT'
+		K::TYPE_PROPERTY_DATA_TYPE => 'K::DATATYPE_FLOAT'
 	],
-	'reltime' => [
-		K::COLUMN_PROPERTY_DATA_TYPE => 'K::DATATYPE_DATETIME'
-	],
+	// Too specific
+	// 'reltime' => [
+	// 		K::TYPE_PROPERTY_DATA_TYPE => 'K::DATATYPE_DATETIME',
+	// ],
 	'smallint' => [
-		K::COLUMN_PROPERTY_DATA_TYPE => 'K::DATATYPE_INTEGER',
-		K::TYPE_PROPERTY_SIZE => (8 * 2)
+		K::TYPE_PROPERTY_DATA_TYPE => 'K::DATATYPE_INTEGER'
 	],
 	'text' => [
-		K::COLUMN_PROPERTY_DATA_TYPE => 'K::DATATYPE_STRING'
+		K::TYPE_PROPERTY_DATA_TYPE => 'K::DATATYPE_STRING'
+	],
+	'time' => [
+		K::TYPE_PROPERTY_DATA_TYPE => 'K::DATATYPE_TIME'
 	],
 	'time without time zone' => [
-		K::COLUMN_PROPERTY_DATA_TYPE => 'K::DATATYPE_TIME'
+		K::TYPE_PROPERTY_DATA_TYPE => 'K::DATATYPE_TIME'
 	],
 	'timestamp without time zone' => [
-		K::COLUMN_PROPERTY_DATA_TYPE => 'K::DATATYPE_DATETIME'
+		K::TYPE_PROPERTY_DATA_TYPE => 'K::DATATYPE_DATETIME'
 	],
 	'timestamp with time zone' => [
-		K::COLUMN_PROPERTY_DATA_TYPE => 'K::DATATYPE_TIMESTAMP'
+		K::TYPE_PROPERTY_DATA_TYPE => 'K::DATATYPE_TIMESTAMP'
 	],
 	'time with time zone' => [
-		K::COLUMN_PROPERTY_DATA_TYPE => 'K::DATATYPE_TIME | K::DATATYPE_TIMEZONE'
+		K::TYPE_PROPERTY_DATA_TYPE => 'K::DATATYPE_TIME | K::DATATYPE_TIMEZONE'
 	],
 	// 'uuid' => [
-	// 	K::COLUMN_PROPERTY_DATA_TYPE => 'K::DATATYPE_STRING'
+	// 	K::TYPE_PROPERTY_DATA_TYPE => 'K::DATATYPE_STRING'
 	// ],
 	'xml' => [
-		K::COLUMN_PROPERTY_DATA_TYPE => 'K::DATATYPE_STRING',
+		K::TYPE_PROPERTY_DATA_TYPE => 'K::DATATYPE_STRING',
 		K::TYPE_PROPERTY_MEDIA_TYPE => '\'text/xml\''
 	]
 ];
@@ -142,11 +147,15 @@ while ($row = pg_fetch_assoc($result))
 	$oidDescriptions[$oid] = $row['desc'];
 	$oidToTypeNames[$oid] = $name;
 	$typeNameOidMap[$name] = $oid;
+	$length = \intval($row['length']);
+	$size = $length * 8;
 
-	echo (sprintf('%-5d %-30.30s %s', $oid, $name, $row['desc']) . PHP_EOL);
+	echo (sprintf('%-5d %-30.30s %3d %s', $oid, $name, $length, $row['desc']) . PHP_EOL);
 
 	if (\array_key_exists($name, $typePropertiesMap))
 	{
+		if ($size > 0)
+			$typePropertiesMap[$name][K::TYPE_PROPERTY_SIZE] = $size;
 		$oidToDataType[$oid] = $typePropertiesMap[$name][K::COLUMN_PROPERTY_DATA_TYPE];
 	}
 }
