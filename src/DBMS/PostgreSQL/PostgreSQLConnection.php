@@ -15,7 +15,6 @@ use NoreSources\TypeDescription;
 use NoreSources\SQL\DBMS\Connection;
 use NoreSources\SQL\DBMS\ConnectionException;
 use NoreSources\SQL\DBMS\ConnectionStructureTrait;
-use NoreSources\SQL\DBMS\StatementParameterArray;
 use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLConstants as K;
 use NoreSources\SQL\QueryResult\GenericInsertionQueryResult;
 use NoreSources\SQL\QueryResult\GenericRowModificationQueryResult;
@@ -157,15 +156,7 @@ class PostgreSQLConnection implements Connection
 		return new PostgreSQLPreparedStatement($identifier, $statement);
 	}
 
-	/**
-	 *
-	 * @param
-	 *        	string|PostgreSQLPreparedStatement Statement
-	 * @param StatementParameterArray $parameters
-	 *        	Statement parameters. If @c $statement is not
-	 *        	a PostgreSQLPreparedStatement. @c $parameters will be treated as an indexed array
-	 */
-	public function executeStatement($statement, StatementParameterArray $parameters = null)
+	public function executeStatement($statement, $parameters = array())
 	{
 		$this->checkConnection();
 
@@ -177,23 +168,21 @@ class PostgreSQLConnection implements Connection
 
 		$statementType = Statement::statementTypeFromData($statement);
 		$pgResult = null;
-		if ($parameters instanceof StatementParameterArray && $parameters->count())
+		if (Container::count($parameters))
 		{
 			if ($statement instanceof PostgreSQLPreparedStatement)
-			{}
-			else
 			{
-				$pgParameters = array();
-				foreach ($parameters as $p)
-					$pgParameters[] = $p[StatementParameterArray::VALUE];
-
-				$result = \pg_query_params($this->resource, $statement, $pgParameters);
+			/**
+			 *
+			 * @todo
+			 */
 			}
+			else
+				$result = \pg_query_params($this->resource, $statement,
+					self::getPostgreSQLParameterArray($statement, $parameters));
 		}
 		else
-		{
 			$result = \pg_query($this->resource, \strval($statement));
-		}
 
 		if ($result === false)
 			throw new ConnectionException($this, \pg_last_error($this->resource));
@@ -250,21 +239,25 @@ class PostgreSQLConnection implements Connection
 		return $this->resource;
 	}
 
-	private function getPostgreSQLParameterArray($statement, StatementParameterArray $parameters)
+	private static function getPostgreSQLParameterArray($statement, $parameters = array())
 	{
 		$a = [];
 		if ($statement instanceof InputData)
 		{
 			foreach ($parameters as $key => $entry)
-			{}
+			{
+			/**
+			 *
+			 * @todo
+			 */
+			}
 		}
 		else
 		{
-
-			foreach ($parameters as $key => $entry)
-			{
-				$a[] = Container::keyValue($entry, StatementParameterArray::VALUE, null);
-			}
+		/**
+		 *
+		 * @todo
+		 */
 		}
 
 		return $a;

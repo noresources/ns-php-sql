@@ -14,6 +14,7 @@ use NoreSources\Container;
 use NoreSources\SQL;
 use NoreSources\TypeDescription;
 use NoreSources\SQL\DBMS;
+use NoreSources\SQL\ParameterValue;
 use NoreSources\SQL\DBMS\Connection;
 use NoreSources\SQL\DBMS\ConnectionException;
 use NoreSources\SQL\DBMS\PDO\PDOConstants as K;
@@ -184,13 +185,7 @@ class PDOConnection implements Connection
 		return new PDOPreparedStatement($pdo, $statement);
 	}
 
-	/**
-	 *
-	 * @param
-	 *        	PDOPreparedStatement|string SQL statement
-	 * @param \NoreSources\DBMS\StatementParameterArray $parameters
-	 */
-	public function executeStatement($statement, DBMS\StatementParameterArray $parameters = null)
+	public function executeStatement($statement, $parameters = array())
 	{
 		if (!($this->connection instanceof \PDO))
 			throw new ConnectionException($this, 'Not connected');
@@ -206,7 +201,7 @@ class PDOConnection implements Connection
 		$pdo = null;
 		$prepared = null;
 
-		if ($parameters instanceof DBMS\StatementParameterArray && $parameters->count())
+		if (Container::count($parameters))
 		{
 			if ($statement instanceof PDOPreparedStatement)
 			{
@@ -239,7 +234,7 @@ class PDOConnection implements Connection
 				else
 					$name = ':' . $key;
 
-				$value = Container::keyValue($entry, DBMS\StatementParameterArray::VALUE, null);
+				$value = ($entry instanceof ParameterValue) ? $entry->value : $entry;
 				$pdo->bindValue($name, $value);
 			}
 

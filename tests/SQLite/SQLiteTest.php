@@ -3,7 +3,6 @@ namespace NoreSources\SQL;
 
 use NoreSources\TypeDescription;
 use NoreSources\SQL\DBMS\ConnectionHelper;
-use NoreSources\SQL\DBMS\StatementParameterArray;
 use NoreSources\SQL\QueryResult\Recordset;
 use NoreSources\SQL\Structure\TableStructure;
 use NoreSources\Test\DatasourceManager;
@@ -91,14 +90,14 @@ final class SQLiteTest extends \PHPUnit\Framework\TestCase
 		$sql = \SqlFormatter::format(strval($sql), false);
 		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, 'insert', 'sql');
 
-		$p = new StatementParameterArray();
+		$p = [];
 
-		$p->set('nameValue', 'Bob');
-		$p->set('salaryValue', 2000);
+		$p['nameValue'] = 'Bob';
+		$p['salaryValue'] = 2000;
 		$result = $this->connection->executeStatement($prepared, $p);
 		$this->assertInstanceOf(QueryResult\InsertionQueryResult::class, $result);
 
-		$p->set('nameValue', 'Ron');
+		$p['nameValue'] = 'Ron';
 		$result = $this->connection->executeStatement($prepared, $p);
 		$this->assertInstanceOf(QueryResult\InsertionQueryResult::class, $result);
 
@@ -200,8 +199,8 @@ final class SQLiteTest extends \PHPUnit\Framework\TestCase
 
 			foreach ($tests as $testName => $test)
 			{
-				$params = new StatementParameterArray();
-				$params->set('param', $test['param']);
+				$params = [];
+				$params['param'] = $test['param'];
 				$result = $this->connection->executeStatement($statement, $params);
 
 				$this->assertInstanceOf(DBMS\SQLite\SQLiteRecordset::class, $result,

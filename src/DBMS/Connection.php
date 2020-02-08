@@ -65,12 +65,13 @@ interface Connection
 	function prepareStatement($statement);
 
 	/**
+	 * Execute a SQL statement
 	 *
 	 * @param PreparedStatement|string $statement
-	 * @param StatementParameterArray $parameters
+	 * @param array $parameters
 	 * @return Recordset|integer|boolean
 	 */
-	function executeStatement($statement, StatementParameterArray $parameters = null);
+	function executeStatement($statement, $parameters = array());
 
 	/**
 	 * Get the structure of the connected database

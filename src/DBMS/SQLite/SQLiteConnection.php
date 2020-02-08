@@ -10,16 +10,17 @@
 namespace NoreSources\SQL\DBMS\SQLite;
 
 // Aliases
+use NoreSources\Container;
 use NoreSources\SQL;
+use NoreSources\TypeDescription;
+use NoreSources\SQL\ParameterValue;
 use NoreSources\SQL\DBMS\Connection;
 use NoreSources\SQL\DBMS\ConnectionStructureTrait;
-use NoreSources\SQL\DBMS\StatementParameterArray;
 use NoreSources\SQL\DBMS\SQLite\SQLiteConstants as K;
 use NoreSources\SQL\QueryResult\GenericInsertionQueryResult;
 use NoreSources\SQL\QueryResult\GenericRowModificationQueryResult;
 use NoreSources\SQL\Statement\InputData;
 use NoreSources\SQL\Statement\Statement;
-use NoreSources as ns;
 
 class ConnectionException extends SQL\DBMS\ConnectionException
 {
@@ -124,22 +125,22 @@ class SQLiteConnection implements Connection
 
 		$this->connection = null;
 
-		$pragmas = ns\Container::keyValue($parameters, K::CONNECTION_PARAMETER_SQLITE_PRAGMAS,
+		$pragmas = Container::keyValue($parameters, K::CONNECTION_PARAMETER_SQLITE_PRAGMAS,
 			[
 				'foreign_keys' => 1,
 				'busy_timeout' => 5000
 			]);
 
-		$defaultTablesetName = ns\Container::keyValue($parameters, K::CONNECTION_PARAMETER_DATABASE,
+		$defaultTablesetName = Container::keyValue($parameters, K::CONNECTION_PARAMETER_DATABASE,
 			self::TABLESET_NAME_DEFAULT);
 
-		$sources = ns\Container::keyValue($parameters, K::CONNECTION_PARAMETER_SOURCE,
+		$sources = Container::keyValue($parameters, K::CONNECTION_PARAMETER_SOURCE,
 			[
 				$defaultTablesetName => self::SOURCE_MEMORY
 			]);
 
 		$flags = 0;
-		if (ns\Container::keyValue($parameters, K::CONNECTION_PARAMETER_READONLY, false))
+		if (Container::keyValue($parameters, K::CONNECTION_PARAMETER_READONLY, false))
 		{
 			$flags |= \SQLITE3_OPEN_READONLY;
 		}
@@ -148,7 +149,7 @@ class SQLiteConnection implements Connection
 			$flags |= \SQLITE3_OPEN_READWRITE;
 		}
 
-		if (ns\Container::keyValue($parameters, K::CONNECTION_PARAMETER_CREATE, false))
+		if (Container::keyValue($parameters, K::CONNECTION_PARAMETER_CREATE, false))
 		{
 			if ($flags & \SQLITE3_OPEN_READONLY)
 			{
@@ -188,8 +189,7 @@ class SQLiteConnection implements Connection
 			}
 			else
 			{
-				$key = ns\Container::keyValue($parameters, K::CONNECTION_PARAMETER_ENCRYPTION_KEY,
-					null);
+				$key = Container::keyValue($parameters, K::CONNECTION_PARAMETER_ENCRYPTION_KEY, null);
 				if ($name == self::TABLESET_NAME_DEFAULT)
 				{
 					$this->connection = new \SQLite3($source, $flags, $key);
@@ -216,7 +216,7 @@ class SQLiteConnection implements Connection
 				throw new ConnectionException($this, 'Failed to set ' . $pragma . ' pragma');
 		}
 
-		if (ns\Container::keyExists($parameters, K::CONNECTION_PARAMETER_STRUCTURE))
+		if (Container::keyExists($parameters, K::CONNECTION_PARAMETER_STRUCTURE))
 			$this->setStructure($structure)[K::CONNECTION_PARAMETER_STRUCTURE];
 	}
 
@@ -255,28 +255,22 @@ class SQLiteConnection implements Connection
 		return new SQLitePreparedStatement($stmt, $statement);
 	}
 
-	/**
-	 *
-	 * @param
-	 *        	PreparedStatement|string SQL statement
-	 * @param \NoreSources\SQL\DBMS\StatementParameterArray $parameters
-	 */
-	public function executeStatement($statement, StatementParameterArray $parameters = null)
+	public function executeStatement($statement, $parameters = array())
 	{
 		if (!($this->connection instanceof \SQLite3))
 			throw new ConnectionException($this, 'Not connected');
 
 		if (!($statement instanceof SQLitePreparedStatement ||
-			ns\TypeDescription::hasStringRepresentation($statement)))
+			TypeDescription::hasStringRepresentation($statement)))
 			throw new ConnectionException($this,
-				'Invalid statement type ' . ns\TypeDescription::getName($statement) .
+				'Invalid statement type ' . TypeDescription::getName($statement) .
 				'. Expect PreparedStatement or stringifiable');
 		;
 
 		$result = null;
 		$statementType = Statement::statementTypeFromData($statement);
 
-		if ($parameters instanceof StatementParameterArray && $parameters->count())
+		if (Container::count($parameters))
 		{
 			$stmt = null;
 			if ($statement instanceof SQLitePreparedStatement)
@@ -307,9 +301,8 @@ class SQLiteConnection implements Connection
 					$name = $this->getStatementBuilder()->getParameter($key, null);
 				}
 
-				$value = ns\Container::keyValue($entry, StatementParameterArray::VALUE, null);
-				$type = ns\Container::keyValue($entry, StatementParameterArray::TYPE,
-					K::DATATYPE_UNDEFINED);
+				$value = ($entry instanceof ParameterValue) ? $entry->value : $entry;
+				$type = ($entry instanceof ParameterValue) ? $entry->type : K::DATATYPE_UNDEFINED;
 
 				$type = self::sqliteDataTypeFromDataType($type);
 				$bindResult = $stmt->bindValue($name, $value, $type);

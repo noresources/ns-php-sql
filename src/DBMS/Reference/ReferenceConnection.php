@@ -13,7 +13,6 @@ namespace NoreSources\SQL\DBMS\Reference;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\Connection;
 use NoreSources\SQL\DBMS\ConnectionStructureTrait;
-use NoreSources\SQL\DBMS\StatementParameterArray;
 use NoreSources as ns;
 
 /**
@@ -56,7 +55,7 @@ class ReferenceConnection implements Connection
 		return $this->builder;
 	}
 
-	public function executeStatement($statement, StatementParameterArray $parameters = null)
+	public function executeStatement($statement, $parameters = array())
 	{
 		return true;
 	}

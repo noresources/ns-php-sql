@@ -3,7 +3,6 @@ namespace NoreSources\SQL;
 
 // Uses
 use NoreSources\SQL\DBMS\ConnectionHelper;
-use NoreSources\SQL\DBMS\StatementParameterArray;
 use NoreSources\SQL\DBMS\PDO\PDOConnection;
 use NoreSources\SQL\DBMS\PDO\PDOConstants as K;
 use NoreSources\SQL\Statement\UpdateQuery;
@@ -156,7 +155,7 @@ final class PDOTest extends \PHPUnit\Framework\TestCase
 
 		foreach ($employees as $index => $employee)
 		{
-			$connection->executeStatement($prepared, new StatementParameterArray($employee));
+			$connection->executeStatement($prepared, $employee);
 		}
 
 		$select = new Statement\SelectQuery($detachedTable);

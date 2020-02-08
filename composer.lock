@@ -51,7 +51,7 @@
             "source": {
                 "type": "git",
                 "url": "ssh://okami/volume1/repository/git/ns-php-core.git",
-                "reference": "5fd85418297671dfe9ce1132a96a4817041d6cb1"
+                "reference": "60e543c8c885748e963b035b209eee032e15ca78"
             },
             "require": {
                 "ext-json": "*",
@@ -101,7 +101,7 @@
             "support": {
                 "issues": "https://github.com/noresources/ns-php-core/issues"
             },
-            "time": "2020-02-06T20:01:04+00:00"
+            "time": "2020-02-08T15:57:45+00:00"
         },
         {
             "name": "noresources/ns-php-expression",
@@ -1035,12 +1035,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "2f0ab996ca57beb9598bb6429bdaf94daddb1f9e"
+                "reference": "db6a66913fe7794a2bd60b38d538b5ce744622a5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/2f0ab996ca57beb9598bb6429bdaf94daddb1f9e",
-                "reference": "2f0ab996ca57beb9598bb6429bdaf94daddb1f9e",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/db6a66913fe7794a2bd60b38d538b5ce744622a5",
+                "reference": "db6a66913fe7794a2bd60b38d538b5ce744622a5",
                 "shasum": ""
             },
             "require": {
@@ -1110,7 +1110,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2020-01-23T15:44:04+00:00"
+            "time": "2020-02-07T06:53:33+00:00"
         },
         {
             "name": "sebastian/code-unit-reverse-lookup",
