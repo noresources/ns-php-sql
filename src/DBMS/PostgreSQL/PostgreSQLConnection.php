@@ -12,6 +12,7 @@ namespace NoreSources\SQL\DBMS\PostgreSQL;
 use NoreSources\Container;
 use NoreSources\SemanticVersion;
 use NoreSources\TypeDescription;
+use NoreSources\SQL\ParameterValue;
 use NoreSources\SQL\DBMS\Connection;
 use NoreSources\SQL\DBMS\ConnectionException;
 use NoreSources\SQL\DBMS\ConnectionStructureTrait;
@@ -172,10 +173,8 @@ class PostgreSQLConnection implements Connection
 		{
 			if ($statement instanceof PostgreSQLPreparedStatement)
 			{
-			/**
-			 *
-			 * @todo
-			 */
+				$result = \pg_execute($this->resource, $statement->getPreparedStatementId(),
+					self::getPostgreSQLParameterArray($statement, $parameters));
 			}
 			else
 				$result = \pg_query_params($this->resource, $statement,
@@ -242,23 +241,34 @@ class PostgreSQLConnection implements Connection
 	private static function getPostgreSQLParameterArray($statement, $parameters = array())
 	{
 		$a = [];
+		$indexed = Container::isIndexed($parameters);
+		if ($indexed) // Don not use names...
+		{
+			foreach ($parameters as $entry)
+			{
+				$a[] = ($entry instanceof ParameterValue) ? $entry->value : $value;
+			}
+
+			return $a;
+		}
+
 		if ($statement instanceof InputData)
 		{
-			foreach ($parameters as $key => $entry)
+			$p = $statement->getParameters();
+			foreach ($p->getNamedParameterIterator() as $name => $dbmsName)
 			{
-			/**
-			 *
-			 * @todo
-			 */
+				$position = intval(\substr($dbmsName, 1)) - 1; // '$3 -> index 2
+				$entry = Container::keyValue($parameters, $name, null);
+				$value = ($entry instanceof ParameterValue) ? $entry->value : $entry;
+				$a[$position] = $value;
 			}
+
+			ksort($a);
 		}
 		else
-		{
-		/**
-		 *
-		 * @todo
-		 */
-		}
+			throw \InvalidArgumentException(
+				'Invalid parameter list. Indexed array is mandatory if the statement does not implement ' .
+				InputData::class);
 
 		return $a;
 	}
