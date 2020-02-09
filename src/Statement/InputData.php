@@ -55,6 +55,4 @@ interface InputData
 	 *        	DBMS representation of the parameter name
 	 */
 	function registerParameter($position, $key, $dbmsName);
-
-	function initializeInputData(InputData $data = null);
 }

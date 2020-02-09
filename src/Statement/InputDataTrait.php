@@ -43,6 +43,13 @@ trait InputDataTrait
 		$this->parameters->offsetSet(strval($key), $dbmsName);
 	}
 
+	/**
+	 * Initialize InputDataTrait members.
+	 * This method have to be called in constructors of
+	 * class that use this trait.
+	 *
+	 * @param InputData $data
+	 */
 	public function initializeInputData(InputData $data = null)
 	{
 		if ($data)

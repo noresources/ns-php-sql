@@ -11,7 +11,6 @@ namespace NoreSources\SQL\DBMS\PDO;
 
 // Aliases
 use NoreSources\Container;
-use NoreSources\SQL;
 use NoreSources\TypeDescription;
 use NoreSources\SQL\DBMS;
 use NoreSources\SQL\ParameterValue;
@@ -20,6 +19,8 @@ use NoreSources\SQL\DBMS\ConnectionException;
 use NoreSources\SQL\DBMS\PDO\PDOConstants as K;
 use NoreSources\SQL\QueryResult\GenericInsertionQueryResult;
 use NoreSources\SQL\QueryResult\GenericRowModificationQueryResult;
+use NoreSources\SQL\Statement\InputData;
+use NoreSources\SQL\Statement\Statement;
 
 /**
  * PDO connection
@@ -166,7 +167,7 @@ class PDOConnection implements Connection
 		if (!($this->connection instanceof \PDO))
 			throw new ConnectionException($this, 'Not connected');
 
-		$type = SQL\Statement\Statement::statementTypeFromData($statement);
+		$type = Statement::statementTypeFromData($statement);
 		$attributes = [];
 		if ($type == K::QUERY_SELECT)
 			$attributes[\PDO::ATTR_CURSOR] = \PDO::CURSOR_SCROLL;
@@ -222,9 +223,10 @@ class PDOConnection implements Connection
 			foreach ($parameters as $key => $entry)
 			{
 				$name = '';
-				if ($statement instanceof SQL\Statement\InputData)
+				if ($statement instanceof InputData)
 				{
-					if ($statement->hasParameter($key))
+					$map = $statement->getParameters();
+					if ($map->offsetExists($key))
 						$name = $statement->getParameter($key);
 					else
 						throw new ConnectionException($this,
@@ -261,7 +263,7 @@ class PDOConnection implements Connection
 		 */
 
 		$result = true;
-		$type = SQL\Statement\Statement::statementTypeFromData($prepared);
+		$type = Statement::statementTypeFromData($prepared);
 
 		if ($type == K::QUERY_SELECT)
 		{

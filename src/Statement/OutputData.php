@@ -47,11 +47,5 @@ interface OutputData
 	 * @return \ArrayIterator
 	 */
 	function getResultColumnIterator();
-
-	/**
-	 *
-	 * @param Statement\OutputData $data
-	 */
-	function initializeOutputData($data = null);
 }
 

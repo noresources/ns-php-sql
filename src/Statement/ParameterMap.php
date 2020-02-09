@@ -12,60 +12,6 @@
 namespace NoreSources\SQL\Statement;
 
 // Aliases
-use NoreSources as ns;
-
-/**
- * Parameter iterator
- *
- * Iterate over a certain kind of key (string or index)
- */
-class ParameterIterator implements \Iterator
-{
-
-	public function __construct(ParameterMap $map, $type)
-	{
-		$this->iterator = $map->getIterator();
-		$this->keyType = $type;
-	}
-
-	public function current()
-	{
-		return $this->iterator->current();
-	}
-
-	public function key()
-	{
-		return $this->iterator->key();
-	}
-
-	public function next()
-	{
-		do
-		{
-			$this->iterator->next();
-		}
-		while ($this->iterator->valid() &&
-			ns\TypeDescription::getName($this->iterator->key()) != $this->keyType);
-	}
-
-	public function valid()
-	{
-		return $this->iterator->valid();
-	}
-
-	public function rewind()
-	{
-		$this->iterator->rewind();
-	}
-
-	/**
-	 *
-	 * @var \Iterator
-	 */
-	private $iterator;
-
-	private $keyType;
-}
 
 /**
  * Map of statement parameters
@@ -91,19 +37,20 @@ class ParameterMap extends \ArrayObject
 
 	/**
 	 *
-	 * @param string $name
+	 * @param string $key
+	 *        	Parameter identifier
 	 *        	Parameter name
 	 * @return array<int> List of parameter occurence positions
 	 */
-	public function getNamedParameterPositions($name)
+	public function getNamedParameterPositions($key)
 	{
-		$name = strval($name);
+		$key = strval($key);
 		$positions = [];
 
-		if (!$this->offsetExists($name))
+		if (!$this->offsetExists($key))
 			return $positions;
 
-		$dbmsName = $this->offsetGet($name);
+		$dbmsName = $this->offsetGet($key);
 
 		foreach ($this as $k => $v)
 		{

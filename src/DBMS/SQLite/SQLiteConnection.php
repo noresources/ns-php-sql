@@ -289,7 +289,8 @@ class SQLiteConnection implements Connection
 				$name = $key;
 				if ($statement instanceof InputData)
 				{
-					if ($statement->hasParameter($key))
+					$map = $statement->getParameters();
+					if ($map->offsetExists($key))
 						$name = $statement->getParameter($key);
 					else
 						throw new ConnectionException($this,
