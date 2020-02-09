@@ -289,15 +289,19 @@ final class DBMSCommonTest extends TestCase
 			$this->assertInstanceOf(Recordset::class, $result,
 				$dbmsName . ' ' . $testName . ' result object');
 
-			$index = 0;
-			foreach ($result as $row)
+			for ($pass = 1; $pass <= 2; $pass++)
 			{
-				$this->assertArrayHasKey($index, $test['rows'], 'Rows of ' . $testName);
-				$index++;
-			}
+				$index = 0;
+				foreach ($result as $row)
+				{
+					$this->assertArrayHasKey($index, $test['rows'],
+						'Rows of ' . $testName . '(pass ' . $pass . ')');
+					$index++;
+				}
 
-			$this->assertEquals(count($test['rows']), $index,
-				$dbmsName . ' Number of row of ' . $testName);
+				$this->assertEquals(count($test['rows']), $index,
+					$dbmsName . ' Number of row of ' . $testName . '(pass ' . $pass . ')');
+			}
 		}
 	}
 
