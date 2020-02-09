@@ -11,12 +11,15 @@
 // Namespace
 namespace NoreSources\SQL\Statement;
 
+/**
+ * Describe statements parameters
+ */
 interface ParametrizedStatement
 {
 
 	/**
 	 *
-	 * @return ParameterMap
+	 * @return ParameterMap The statement parameters
 	 */
 	function getParameters();
 }
