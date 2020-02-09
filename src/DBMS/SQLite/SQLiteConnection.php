@@ -19,7 +19,7 @@ use NoreSources\SQL\DBMS\ConnectionStructureTrait;
 use NoreSources\SQL\DBMS\SQLite\SQLiteConstants as K;
 use NoreSources\SQL\QueryResult\GenericInsertionQueryResult;
 use NoreSources\SQL\QueryResult\GenericRowModificationQueryResult;
-use NoreSources\SQL\Statement\InputData;
+use NoreSources\SQL\Statement\ParametrizedStatement;
 use NoreSources\SQL\Statement\Statement;
 
 class ConnectionException extends SQL\DBMS\ConnectionException
@@ -287,7 +287,7 @@ class SQLiteConnection implements Connection
 			foreach ($parameters as $key => $entry)
 			{
 				$name = $key;
-				if ($statement instanceof InputData)
+				if ($statement instanceof ParametrizedStatement)
 					$name = $statement->getParameters()->get($key);
 				else
 					$name = $this->getStatementBuilder()->getParameter($key, null);

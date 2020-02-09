@@ -14,7 +14,7 @@ use NoreSources\TypeConversion;
 use NoreSources\TypeDescription;
 use NoreSources\SQL\DBMS\PreparedStatement;
 use NoreSources\SQL\Statement\BuildContext;
-use NoreSources\SQL\Statement\InputData;
+use NoreSources\SQL\Statement\ParametrizedStatement;
 
 /**
  * SQLite3 implementation of NoreSources\SQL\SQLitePreparedStatement
@@ -48,7 +48,7 @@ class SQLitePreparedStatement extends PreparedStatement
 			}
 		}
 
-		if ($data instanceof InputData)
+		if ($data instanceof ParametrizedStatement)
 		{
 			$npc = $data->getParameters()->getNamedParameterCount();
 			if ($npc != $statement->paramCount())

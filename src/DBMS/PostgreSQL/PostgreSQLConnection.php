@@ -20,6 +20,7 @@ use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLConstants as K;
 use NoreSources\SQL\QueryResult\GenericInsertionQueryResult;
 use NoreSources\SQL\QueryResult\GenericRowModificationQueryResult;
 use NoreSources\SQL\Statement\InputData;
+use NoreSources\SQL\Statement\ParametrizedStatement;
 use NoreSources\SQL\Statement\Statement;
 
 class PostgreSQLConnection implements Connection
@@ -255,10 +256,10 @@ class PostgreSQLConnection implements Connection
 			return $a;
 		}
 
-		if ($statement instanceof InputData)
+		if ($statement instanceof ParametrizedStatement)
 		{
-			$p = $statement->getParameters();
-			foreach ($p->getNamedParameterIterator() as $name => $dbmsName)
+			$map = $statement->getParameters();
+			foreach ($map->getNamedParameterIterator() as $name => $dbmsName)
 			{
 				$position = intval(\substr($dbmsName, 1)) - 1; // '$3 -> index 2
 				$entry = Container::keyValue($parameters, $name, null);
