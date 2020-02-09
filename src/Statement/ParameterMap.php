@@ -11,6 +11,8 @@
 // Namespace
 namespace NoreSources\SQL\Statement;
 
+use Psr\Container\ContainerInterface;
+
 // Aliases
 
 /**
@@ -18,7 +20,7 @@ namespace NoreSources\SQL\Statement;
  *
  * Each parameter have a position and an name
  */
-class ParameterMap extends \ArrayObject
+class ParameterMap extends \ArrayObject implements ContainerInterface
 {
 
 	public function getNamedParameterCount()
@@ -86,19 +88,46 @@ class ParameterMap extends \ArrayObject
 		return (parent::count() - $this->namedParameterCount);
 	}
 
+	/**
+	 *
+	 * @param string|integer $key
+	 *        	Parameter position or key
+	 *
+	 * {@inheritdoc}
+	 * @see \Psr\Container\ContainerInterface::has()
+	 *
+	 * @return boolean
+	 */
+	public function has($key)
+	{
+		return $this->offsetExists($key);
+	}
+
+	/**
+	 *
+	 * @param string|integer $key
+	 *        	Parameter key or position
+	 * {@inheritdoc}
+	 * @see \Psr\Container\ContainerInterface::get()
+	 *
+	 * @return Parameter DBMS name
+	 */
+	public function get($key)
+	{
+		if (!$this->offsetExists($key))
+			throw new ParameterNotFoundException($key);
+		return $this->offsetGet($key);
+	}
+
 	public function offsetSet($index, $newval)
 	{
 		if (\is_string($index))
 		{
 			if (!$this->offsetExists($index))
-			{
 				$this->namedParameterCount++;
-			}
 		}
 		elseif (!\is_integer($index))
-		{
 			throw new \InvalidArgumentException('Invalid index. int or string expected.');
-		}
 
 		parent::offsetSet($index, $newval);
 	}
