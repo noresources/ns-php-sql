@@ -17,21 +17,6 @@ namespace NoreSources\SQL\Statement;
 trait InputDataTrait
 {
 
-	public function getParameterCount()
-	{
-		return $this->parameters->count();
-	}
-
-	public function hasParameter($key)
-	{
-		return $this->parameters->offsetExists($key);
-	}
-
-	public function getParameter($key)
-	{
-		return $this->parameters->offsetGet($key);
-	}
-
 	public function getParameters()
 	{
 		return $this->parameters;

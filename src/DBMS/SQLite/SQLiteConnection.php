@@ -288,19 +288,9 @@ class SQLiteConnection implements Connection
 			{
 				$name = $key;
 				if ($statement instanceof InputData)
-				{
-					$map = $statement->getParameters();
-					if ($map->offsetExists($key))
-						$name = $statement->getParameter($key);
-					else
-						throw new ConnectionException($this,
-							'Parameter "' . $key . '" not found in prepared statement (with ' .
-							$statement->getParameterCount() . ' parameter(s))');
-				}
+					$name = $statement->getParameters()->get($key);
 				else
-				{
 					$name = $this->getStatementBuilder()->getParameter($key, null);
-				}
 
 				$value = ($entry instanceof ParameterValue) ? $entry->value : $entry;
 				$type = ($entry instanceof ParameterValue) ? $entry->type : K::DATATYPE_UNDEFINED;

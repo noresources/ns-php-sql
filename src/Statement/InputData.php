@@ -14,36 +14,8 @@ namespace NoreSources\SQL\Statement;
 /**
  * Statement information about parameters etc.
  */
-interface InputData
+interface InputData extends ParametrizedStatement
 {
-
-	/**
-	 *
-	 * @return integer Total number of parameter occurences
-	 */
-	function getParameterCount();
-
-	/**
-	 *
-	 * @param integer|string $key
-	 *        	Parameter position or name
-	 * @return boolean
-	 */
-	function hasParameter($key);
-
-	/**
-	 *
-	 * @param integer|string $key
-	 *        	Parameter name or index
-	 * @return string DBMS representation of the parameter name
-	 */
-	function getParameter($key);
-
-	/**
-	 *
-	 * @return ParameterMap
-	 */
-	function getParameters();
 
 	/**
 	 *

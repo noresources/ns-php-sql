@@ -9,25 +9,26 @@
  */
 namespace NoreSources\SQL\DBMS\PDO;
 
-// Aliases
 use NoreSources\Container;
 use NoreSources\TypeDescription;
-use NoreSources\SQL\DBMS;
 use NoreSources\SQL\ParameterValue;
 use NoreSources\SQL\DBMS\Connection;
-use NoreSources\SQL\DBMS\ConnectionException;
+use NoreSources\SQL\DBMS\ConnectionStructureTrait;
 use NoreSources\SQL\DBMS\PDO\PDOConstants as K;
+use NoreSources\SQL\DBMS\SQLite\ConnectionException;
 use NoreSources\SQL\QueryResult\GenericInsertionQueryResult;
 use NoreSources\SQL\QueryResult\GenericRowModificationQueryResult;
 use NoreSources\SQL\Statement\InputData;
 use NoreSources\SQL\Statement\Statement;
+
+// Aliases
 
 /**
  * PDO connection
  */
 class PDOConnection implements Connection
 {
-	use DBMS\ConnectionStructureTrait;
+	use ConnectionStructureTrait;
 
 	const DRIVER_MYSQL = 'mysql';
 
@@ -224,15 +225,7 @@ class PDOConnection implements Connection
 			{
 				$name = '';
 				if ($statement instanceof InputData)
-				{
-					$map = $statement->getParameters();
-					if ($map->offsetExists($key))
-						$name = $statement->getParameter($key);
-					else
-						throw new ConnectionException($this,
-							'Parameter "' . $key . '" not found in prepared statement (with ' .
-							$statement->getParameterCount() . ' parameter(s))');
-				}
+					$name = $statement->getParameters()->get($key);
 				else
 					$name = ':' . $key;
 

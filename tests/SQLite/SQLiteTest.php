@@ -83,8 +83,8 @@ final class SQLiteTest extends \PHPUnit\Framework\TestCase
 			$tableStructure);
 
 		$this->assertInstanceOf(DBMS\SQLite\SQLitePreparedStatement::class, $prepared);
-		$this->assertEquals(2, $prepared->getParameterCount(),
-			'Number of parameters in prepared statement');
+		$this->assertEquals(2, $prepared->getParameters()
+			->count(), 'Number of parameters in prepared statement');
 
 		$sql = strval($prepared);
 		$sql = \SqlFormatter::format(strval($sql), false);

@@ -64,21 +64,6 @@ class ParameterMap extends \ArrayObject implements ContainerInterface
 	}
 
 	/**
-	 *
-	 * @property-read integer $namedParameterCount
-	 * @param string $member
-	 * @throws \InvalidArgumentException
-	 * @return Integer
-	 */
-	public function __get($member)
-	{
-		if ($member == 'namedParameterCount')
-			return $this->namedParameterCount;
-
-		throw new \InvalidArgumentException($member);
-	}
-
-	/**
 	 * Number of parameter occurences
 	 *
 	 * @return integer Total number of parameter occurences
@@ -119,7 +104,7 @@ class ParameterMap extends \ArrayObject implements ContainerInterface
 		return $this->offsetGet($key);
 	}
 
-	public function offsetSet($index, $newval)
+	public function offsetSet($index, $dbmsName)
 	{
 		if (\is_string($index))
 		{
@@ -129,7 +114,7 @@ class ParameterMap extends \ArrayObject implements ContainerInterface
 		elseif (!\is_integer($index))
 			throw new \InvalidArgumentException('Invalid index. int or string expected.');
 
-		parent::offsetSet($index, $newval);
+		parent::offsetSet($index, $dbmsName);
 	}
 
 	public function offsetUnset($index)
@@ -151,6 +136,17 @@ class ParameterMap extends \ArrayObject implements ContainerInterface
 			if (\is_string($key))
 				$this->namedParameterCount++;
 		}
+	}
+
+	/**
+	 * Append a new parameter at next position.
+	 *
+	 * @param string $dbmsName
+	 */
+	public function append($dbmsName)
+	{
+		$position = $this->count();
+		$this->offsetSet($position, $dbmsName);
 	}
 
 	private $namedParameterCount;

@@ -411,7 +411,7 @@ abstract class StatementBuilder implements DataSerializer
 			if ($type == K::TOKEN_PARAMETER)
 			{
 				$name = strval($value);
-				$position = $context->getParameterCount();
+				$position = $context->getParameters()->count();
 				$dbmsName = $context->builder->getParameter($name, $context->getParameters());
 				$context->registerParameter($position, $name, $dbmsName);
 				$value = $dbmsName;

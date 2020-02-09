@@ -165,8 +165,8 @@ final class DBMSCommonTest extends TestCase
 
 		$this->assertInstanceOf(PreparedStatement::class, $preparedInsert, $dbmsName);
 
-		$this->assertEquals(3, $preparedInsert->getParameterCount(),
-			'Number of parameters in prepared statement');
+		$this->assertEquals(3, $preparedInsert->getParameters()
+			->count(), 'Number of parameters in prepared statement');
 
 		$sql = strval($preparedInsert);
 		$sql = \SqlFormatter::format(strval($sql), false);
