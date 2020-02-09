@@ -154,20 +154,21 @@ final class DBMSCommonTest extends TestCase
 		$this->recreateTable($connection, $tableStructure);
 
 		// Insert QUery
-		$statement = new InsertQuery($tableStructure);
-		$statement->setColumnValue('id', ':identifier', true);
-		$statement['gender'] = 'M';
-		$statement('name', ':nameValue');
-		$statement('salary', ':salaryValue');
+		$insertQuery = new InsertQuery($tableStructure);
+		$insertQuery->setColumnValue('id', ':identifier', true);
+		$insertQuery['gender'] = 'M';
+		$insertQuery('name', ':nameValue');
+		$insertQuery('salary', ':salaryValue');
 
-		$prepared = ConnectionHelper::prepareStatement($connection, $statement, $tableStructure);
+		$preparedInsert = ConnectionHelper::prepareStatement($connection, $insertQuery,
+			$tableStructure);
 
-		$this->assertInstanceOf(PreparedStatement::class, $prepared, $dbmsName);
+		$this->assertInstanceOf(PreparedStatement::class, $preparedInsert, $dbmsName);
 
-		$this->assertEquals(3, $prepared->getParameterCount(),
+		$this->assertEquals(3, $preparedInsert->getParameterCount(),
 			'Number of parameters in prepared statement');
 
-		$sql = strval($prepared);
+		$sql = strval($preparedInsert);
 		$sql = \SqlFormatter::format(strval($sql), false);
 		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, $dbmsName . '_insert', 'sql');
 
@@ -177,33 +178,36 @@ final class DBMSCommonTest extends TestCase
 			'identifier' => 1
 		];
 
-		$result = $connection->executeStatement($prepared, $p);
+		$result = $connection->executeStatement($preparedInsert, $p);
 		$this->assertInstanceOf(QueryResult\InsertionQueryResult::class, $result,
-			$dbmsName . ' ' . $prepared);
+			$dbmsName . ' ' . $preparedInsert);
 
 		$p['identifier'] = 2;
 		$p['nameValue'] = 'Ron';
-		$result = $connection->executeStatement($prepared, $p);
+		$result = $connection->executeStatement($preparedInsert, $p);
 		$this->assertInstanceOf(QueryResult\InsertionQueryResult::class, $result,
-			$dbmsName . ' ' . $prepared);
+			$dbmsName . ' ' . $preparedInsert);
 
-		$statement = new SelectQuery($tableStructure);
-		$prepared = ConnectionHelper::prepareStatement($connection, $statement, $tableStructure);
-		$this->assertInstanceOf(PreparedStatement::class, $prepared, $dbmsName);
+		// Test result column count when no column are specified (select * from ...)
+		$basicSelectQuery = new SelectQuery($tableStructure);
+		$preparedBasicSelect = ConnectionHelper::prepareStatement($connection, $basicSelectQuery,
+			$tableStructure);
+		$this->assertInstanceOf(PreparedStatement::class, $preparedBasicSelect, $dbmsName);
 
-		$this->assertEquals(4, $prepared->getResultColumnCount(),
+		$this->assertEquals(4, $preparedBasicSelect->getResultColumnCount(),
 			$dbmsName . ' Prepared statement result columns count (auto-detected)');
 
-		$statement = new SelectQuery($tableStructure);
-		$statement->columns('name', 'gender', 'salary');
+		$selectColumnQuery = new SelectQuery($tableStructure);
+		$selectColumnQuery->columns('name', 'gender', 'salary');
 
-		$prepared = ConnectionHelper::prepareStatement($connection, $statement, $tableStructure);
-		$this->assertInstanceOf(PreparedStatement::class, $prepared, $dbmsName);
-		$this->assertEquals(3, $prepared->getResultColumnCount(),
+		$preparedSelectColumn = ConnectionHelper::prepareStatement($connection, $selectColumnQuery,
+			$tableStructure);
+		$this->assertInstanceOf(PreparedStatement::class, $preparedSelectColumn, $dbmsName);
+		$this->assertEquals(3, $preparedSelectColumn->getResultColumnCount(),
 			$dbmsName . ' Prepared statement result columns count');
 
-		$result = $connection->executeStatement($prepared);
-		$this->assertInstanceOf(Recordset::class, $result, $dbmsName);
+		$result = $connection->executeStatement($preparedSelectColumn);
+		$this->assertInstanceOf(Recordset::class, $result, $dbmsName, $preparedSelectColumn);
 
 		$this->assertEquals(3, $result->getResultColumnCount(),
 			$dbmsName . ' Recordset result columns count');
@@ -246,9 +250,9 @@ final class DBMSCommonTest extends TestCase
 			$index++;
 		}
 
-		$statement = new SelectQuery('Employees');
-		$statement->columns('name', 'salary');
-		$statement->where([
+		$selectByNameParamQuery = new SelectQuery('Employees');
+		$selectByNameParamQuery->columns('name', 'salary');
+		$selectByNameParamQuery->where([
 			'=' => [
 				'name',
 				':param'
@@ -256,7 +260,8 @@ final class DBMSCommonTest extends TestCase
 		]);
 
 		// Not a prepared statement but containts enough informations
-		$backed = ConnectionHelper::getStatementData($connection, $statement, $tableStructure);
+		$backedSelectByName = ConnectionHelper::getStatementData($connection,
+			$selectByNameParamQuery, $tableStructure);
 
 		$tests = [
 			'Bob only' => [
@@ -279,7 +284,7 @@ final class DBMSCommonTest extends TestCase
 		{
 			$params = [];
 			$params['param'] = $test['param'];
-			$result = $connection->executeStatement($backed, $params);
+			$result = $connection->executeStatement($backedSelectByName, $params);
 
 			$this->assertInstanceOf(Recordset::class, $result,
 				$dbmsName . ' ' . $testName . ' result object');
