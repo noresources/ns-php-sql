@@ -165,7 +165,7 @@ class PostgreSQLConnection implements Connection
 			TypeDescription::hasStringRepresentation($statement)))
 			throw new ConnectionException($this,
 				'Invalide statement type. string or ' . PostgreSQLStatementBuilder::class .
-				' expected');
+				' expected. Got ' . TypeDescription::getName($statement));
 
 		$statementType = Statement::statementTypeFromData($statement);
 		$pgResult = null;
@@ -181,7 +181,7 @@ class PostgreSQLConnection implements Connection
 					self::getPostgreSQLParameterArray($statement, $parameters));
 		}
 		else
-			$result = \pg_query($this->resource, \strval($statement));
+			$result = @\pg_query($this->resource, \strval($statement));
 
 		if ($result === false)
 			throw new ConnectionException($this, \pg_last_error($this->resource));

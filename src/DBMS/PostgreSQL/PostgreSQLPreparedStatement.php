@@ -19,7 +19,7 @@ class PostgreSQLPreparedStatement extends PreparedStatement
 
 	public static function newUniqueId()
 	{
-		return \uniqid(self::class, true);
+		return \uniqid('pgsql', true);
 	}
 
 	/**
@@ -48,7 +48,7 @@ class PostgreSQLPreparedStatement extends PreparedStatement
 		return $this->sql;
 	}
 
-	public static function getPreparedStatementId()
+	public function getPreparedStatementId()
 	{
 		return $this->identifier;
 	}

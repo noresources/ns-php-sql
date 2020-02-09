@@ -44,7 +44,8 @@ class ParameterIterator implements \Iterator
 		{
 			$this->iterator->next();
 		}
-		while ($this->iterator->valid() && ns\TypeDescription::getName($key) != $this->keyType);
+		while ($this->iterator->valid() &&
+			ns\TypeDescription::getName($this->iterator->key()) != $this->keyType);
 	}
 
 	public function valid()
