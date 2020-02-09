@@ -303,7 +303,7 @@ final class DBMSCommonTest extends TestCase
 
 	private function recreateTable(Connection $connection, TableStructure $tableStructure)
 	{
-		try
+		try // PostgreSQL < 8.2 does not support DROP IF EXISTS and may fail
 		{
 			$drop = new DropTableQuery($tableStructure);
 			$sql = ConnectionHelper::getStatementSQL($connection, $drop, $tableStructure);

@@ -117,9 +117,16 @@ class PostgreSQLStatementBuilder extends StatementBuilder
 	public function updateBuilderFlags(SemanticVersion $serverVersion)
 	{
 		$createTableFlags = $this->getBuilderFlags(K::BUILDER_DOMAIN_CREATE_TABLE);
-		$createTableFlags &= ~(K::BUILDER_IF_NOT_EXISTS);
+		$dropTableFlags = $this->getBuilderFlags(K::BUILDER_DOMAIN_DROP_TABLE);
 		$createTablesetFlags = $this->getBuilderFlags(K::BUILDER_DOMAIN_CREATE_TABLESET);
+
+		$createTableFlags &= ~(K::BUILDER_IF_NOT_EXISTS);
 		$createTablesetFlags &= ~K::BUILDER_IF_NOT_EXISTS;
+
+		if (SemanticVersion::compareVersions($serverVersion, '8.2.0') >= 0)
+		{
+			$dropTableFlags |= K::BUILDER_IF_EXISTS;
+		}
 
 		if (SemanticVersion::compareVersions($serverVersion, '9.1.0') >= 0)
 		{
@@ -133,6 +140,7 @@ class PostgreSQLStatementBuilder extends StatementBuilder
 
 		$this->setBuilderFlags(K::BUILDER_DOMAIN_CREATE_TABLE, $createTableFlags);
 		$this->setBuilderFlags(K::BUILDER_DOMAIN_CREATE_TABLESET, $createTablesetFlags);
+		$this->setBuilderFlags(K::BUILDER_DOMAIN_DROP_TABLE, $dropTableFlags);
 	}
 
 	/**

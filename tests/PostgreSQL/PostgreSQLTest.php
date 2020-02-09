@@ -7,6 +7,7 @@ use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLConstants as K;
 use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLPreparedStatement;
 use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLStatementBuilder;
 use NoreSources\SQL\Statement\CreateTableQuery;
+use NoreSources\SQL\Statement\DropTableQuery;
 use NoreSources\SQL\Statement\InsertQuery;
 use NoreSources\Test\DatasourceManager;
 use NoreSources\Test\DerivedFileManager;
@@ -63,6 +64,12 @@ final class PostgreSQLTest extends \PHPUnit\Framework\TestCase
 				$previousFile = $file;
 			}
 		}
+
+		$dropTable = new DropTableQuery($tableStructure);
+		$data = ConnectionHelper::getStatementData($connection, $dropTable, $tableStructure);
+		$sql = \SqlFormatter::format(\strval($data), false);
+		$suffix = 'drop_' . $versionString;
+		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, $suffix, 'sql');
 	}
 
 	public function testTypeMapping()
