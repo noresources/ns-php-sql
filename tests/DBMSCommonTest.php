@@ -5,7 +5,9 @@ use NoreSources\Container;
 use NoreSources\TypeDescription;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\Connection;
+use NoreSources\SQL\DBMS\ConnectionException;
 use NoreSources\SQL\DBMS\ConnectionHelper;
+use NoreSources\SQL\DBMS\PreparedStatement;
 use NoreSources\SQL\QueryResult\InsertionQueryResult;
 use NoreSources\SQL\QueryResult\Recordset;
 use NoreSources\SQL\Statement\CreateTableQuery;
@@ -25,7 +27,7 @@ final class DBMSCommonTest extends TestCase
 	public function __construct($name = null, array $data = [], $dataName = '')
 	{
 		parent::__construct($name, $data, $dataName);
-		$this->derivedFileManager = new DerivedFileManager(__DIR__ . '/..');
+		$this->derivedFileManager = new DerivedFileManager(__DIR__);
 		$this->structures = new DatasourceManager();
 		$this->connections = new TestConnection();
 	}
@@ -128,11 +130,182 @@ final class DBMSCommonTest extends TestCase
 		}
 	}
 
+	public function testParametersEmployees()
+	{
+		$structure = $this->structures->get('Company');
+		$tableStructure = $structure['ns_unittests']['Employees'];
+		$this->assertInstanceOf(Structure\TableStructure::class, $tableStructure);
+
+		$settings = $this->connections->getAvailableConnectionNames();
+
+		foreach ($settings as $dbmsName)
+		{
+			$connection = $this->connections->get($dbmsName);
+			$this->assertInstanceOf(Connection::class, $connection, $dbmsName);
+			$this->assertTrue($connection->isConnected(), $dbmsName);
+
+			$this->employeesTest($tableStructure, $connection);
+		}
+	}
+
+	private function employeesTest(TableStructure $tableStructure, Connection $connection)
+	{
+		$dbmsName = TypeDescription::getLocalName($connection);
+		$this->recreateTable($connection, $tableStructure);
+
+		// Insert QUery
+		$statement = new InsertQuery($tableStructure);
+		$statement->setColumnValue('id', ':identifier', true);
+		$statement['gender'] = 'M';
+		$statement('name', ':nameValue');
+		$statement('salary', ':salaryValue');
+
+		$prepared = ConnectionHelper::prepareStatement($connection, $statement, $tableStructure);
+
+		$this->assertInstanceOf(PreparedStatement::class, $prepared, $dbmsName);
+
+		$this->assertEquals(3, $prepared->getParameterCount(),
+			'Number of parameters in prepared statement');
+
+		$sql = strval($prepared);
+		$sql = \SqlFormatter::format(strval($sql), false);
+		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, $dbmsName . '_insert', 'sql');
+
+		$p = [
+			'nameValue' => 'Bob',
+			'salaryValue' => 2000,
+			'identifier' => 1
+		];
+
+		$result = $connection->executeStatement($prepared, $p);
+		$this->assertInstanceOf(QueryResult\InsertionQueryResult::class, $result,
+			$dbmsName . ' ' . $prepared);
+
+		$p['identifier'] = 2;
+		$p['nameValue'] = 'Ron';
+		$result = $connection->executeStatement($prepared, $p);
+		$this->assertInstanceOf(QueryResult\InsertionQueryResult::class, $result,
+			$dbmsName . ' ' . $prepared);
+
+		$statement = new SelectQuery($tableStructure);
+		$prepared = ConnectionHelper::prepareStatement($connection, $statement, $tableStructure);
+		$this->assertInstanceOf(PreparedStatement::class, $prepared, $dbmsName);
+
+		$this->assertEquals(4, $prepared->getResultColumnCount(),
+			$dbmsName . ' Prepared statement result columns count (auto-detected)');
+
+		$statement = new SelectQuery($tableStructure);
+		$statement->columns('name', 'gender', 'salary');
+
+		$prepared = ConnectionHelper::prepareStatement($connection, $statement, $tableStructure);
+		$this->assertInstanceOf(PreparedStatement::class, $prepared, $dbmsName);
+		$this->assertEquals(3, $prepared->getResultColumnCount(),
+			$dbmsName . ' Prepared statement result columns count');
+
+		$result = $connection->executeStatement($prepared);
+		$this->assertInstanceOf(Recordset::class, $result, $dbmsName);
+
+		$this->assertEquals(3, $result->getResultColumnCount(),
+			$dbmsName . ' Recordset result columns count');
+
+		$expected = [
+			[
+				'name' => 'Bob',
+				'gender' => 'M',
+				'salary' => 2000.
+			],
+			[
+				'name' => 'Ron',
+				'gender' => 'M',
+				'salary' => 2000.
+			]
+		];
+
+		list ($_, $expectedResultColumnKeys) = each($expected);
+		$index = 0;
+		foreach ($expectedResultColumnKeys as $name => $_)
+		{
+			$byIndex = $result->getResultColumn($index);
+			$this->assertEquals($name, $byIndex->name,
+				$dbmsName . ' Recordset result column #' . $index);
+			$byName = $result->getResultColumn($name);
+			$this->assertEquals($name, $byName->name,
+				$dbmsName . ' Recordset result column ' . $name);
+			$index++;
+		}
+
+		$index = 0;
+		foreach ($result as $row)
+		{
+			foreach ($expected[$index] as $name => $value)
+			{
+				$this->assertEquals($value, $row[$name],
+					$dbmsName . ' Row ' . $index . ' column ' . $name);
+			}
+
+			$index++;
+		}
+
+		$statement = new SelectQuery('Employees');
+		$statement->columns('name', 'salary');
+		$statement->where([
+			'=' => [
+				'name',
+				':param'
+			]
+		]);
+
+		// Not a prepared statement but containts enough informations
+		$backed = ConnectionHelper::getStatementData($connection, $statement, $tableStructure);
+
+		$tests = [
+			'Bob only' => [
+				'param' => 'Bob',
+				'rows' => [
+					[
+						'name' => 'Bob',
+						'gender' => 'M',
+						'salary' => 2000
+					]
+				]
+			],
+			'Empty' => [
+				'param' => 'Zob',
+				'rows' => []
+			]
+		];
+
+		foreach ($tests as $testName => $test)
+		{
+			$params = [];
+			$params['param'] = $test['param'];
+			$result = $connection->executeStatement($backed, $params);
+
+			$this->assertInstanceOf(Recordset::class, $result,
+				$dbmsName . ' ' . $testName . ' result object');
+
+			$index = 0;
+			foreach ($result as $row)
+			{
+				$this->assertArrayHasKey($index, $test['rows'], 'Rows of ' . $testName);
+				$index++;
+			}
+
+			$this->assertEquals(count($test['rows']), $index,
+				$dbmsName . ' Number of row of ' . $testName);
+		}
+	}
+
 	private function recreateTable(Connection $connection, TableStructure $tableStructure)
 	{
-		$drop = new DropTableQuery($tableStructure);
-		$sql = ConnectionHelper::getStatementSQL($connection, $drop, $tableStructure);
-		$connection->executeStatement($sql);
+		try
+		{
+			$drop = new DropTableQuery($tableStructure);
+			$sql = ConnectionHelper::getStatementSQL($connection, $drop, $tableStructure);
+			$connection->executeStatement($sql);
+		}
+		catch (ConnectionException $e)
+		{}
 
 		$createTable = new CreateTableQuery($tableStructure);
 		$sql = ConnectionHelper::getStatementSQL($connection, $createTable, $tableStructure);
