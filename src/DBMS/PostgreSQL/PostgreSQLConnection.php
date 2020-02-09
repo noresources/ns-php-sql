@@ -105,7 +105,10 @@ class PostgreSQLConnection implements Connection
 			}
 		}
 
-		$this->resource = @\pg_connect($dsn);
+		$connectionFunction = Container::keyValue($parameters, K::CONNECTION_PARAMETER_PERSISTENT,
+			false) ? '\pg_pconnect' : '\pg_connect';
+
+		$this->resource = @call_user_func($connectionFunction, $dsn);
 
 		if (!\is_resource($this->resource))
 			throw new ConnectionException($this, 'Failed to connect');

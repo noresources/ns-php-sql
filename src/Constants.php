@@ -152,6 +152,15 @@ class Constants
 	const CONNECTION_PARAMETER_DATABASE = 'database';
 
 	/**
+	 * Use persistent connection if available.
+	 *
+	 * Value is expected to be a boolean.
+	 *
+	 * @var string
+	 */
+	const CONNECTION_PARAMETER_PERSISTENT = 'persistent';
+
+	/**
 	 * Create Database if it does not exists yer
 	 *
 	 * @var string
