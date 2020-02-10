@@ -253,7 +253,7 @@ class StarColumn extends ITableColumn
 	 *
 	 * @param Table $a_table Table reference
 	 */
-	public function __construct(Table $a_table)
+	public function __construct(Table $a_table = null)
 	{
 		parent::__construct(null);
 		$this->m_table = $a_table;
@@ -266,6 +266,7 @@ class StarColumn extends ITableColumn
 	 */
 	public function expressionString($a_options = null)
 	{
+		if (!$this->m_table) return '*';
 		/**
 		 * @note appending table name does not work in MySQL
 		 */

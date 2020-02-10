@@ -1174,6 +1174,12 @@ class SelectQuery extends TableQuery implements ns\IExpression
 		}
 		return $n;
 	}
+	
+	public function clearColumns ()
+	{
+		$this->m_columns = [];
+		return $this;
+	}
 
 	/**
 	 *

@@ -60,7 +60,7 @@ const kRecordQuerySQL = 0x20;
  *
  * @var integer
  */
-const kRecordQueryFlagExtension = 0x40;
+const kRecordQueryFlagExtension = 0x80;
 
 /**
  * Indicate the input data are serialized
@@ -68,7 +68,7 @@ const kRecordQueryFlagExtension = 0x40;
  *
  * @var integer
  */
-const kRecordDataSerialized = 0x20;
+const kRecordDataSerialized = 0x100;
 
 interface RecordQueryOption
 {
@@ -419,6 +419,8 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 
 	const QUERY_SQL = kRecordQuerySQL;
 
+	const QUERY_COUNT = 0x40;
+
 	const QUERY_FLAGEXTENSION = kRecordQueryFlagExtension;
 
 	/**
@@ -491,7 +493,6 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 			$s->where->addAndExpression($column->equalityExpression($data));
 		}
 
-		// Reporter::debug(get_called_class(), class_exists('\SqlFormatter')
 		// ? \SqlFormatter::format ($s->expressionString(), false) :
 		// $s->expressionString());
 
@@ -500,36 +501,34 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 
 		$recordset = $s->execute();
 
-		if ($recordset instanceof Recordset)
+		if (!($recordset instanceof Recordset))
+			throw new \RuntimeException('Invalid resoult ' . @get_class($recordset));
+
+		$c = $recordset->rowCount;
+		if ($c == 1)
 		{
-			$c = $recordset->rowCount;
-			if ($c == 1)
-			{
-				$result = new $className($table, $recordset,
-					(kRecordStateExists | kRecordDataSerialized));
-				return $result;
-			}
-
-			if ($c > 1)
-			{
-				return Reporter::error(__CLASS__, __METHOD__ . ': Multiple record found');
-			}
-
-			if ($flags & kRecordQueryCreate)
-			{
-				$o = new $className($table, $keys, (kRecordDataSerialized));
-				if ($o->insert())
-				{
-					return $o;
-				}
-
-				return false;
-			}
-
-			return null;
+			$result = new $className($table, $recordset,
+				(kRecordStateExists | kRecordDataSerialized));
+			return $result;
 		}
 
-		return Reporter::error(__CLASS__, __METHOD__ . ': Invalid query result');
+		if ($c > 1)
+		{
+			return Reporter::error(__CLASS__, __METHOD__ . ': Multiple record found');
+		}
+
+		if ($flags & kRecordQueryCreate)
+		{
+			$o = new $className($table, $keys, (kRecordDataSerialized));
+			if ($o->insert())
+			{
+				return $o;
+			}
+
+			return false;
+		}
+
+		return null;
 	}
 
 	/**
@@ -615,6 +614,7 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 			{
 				if ($option instanceof PresentationSettings)
 				{
+
 					$keyColumn = $option->getSetting(kRecordKeyColumn, null);
 					if (is_string($keyColumn))
 					{
@@ -624,8 +624,6 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 								__FILE__, __LINE__);
 						}
 					}
-
-					$s->distinct = $option->getSetting(kRecordDistinct, false);
 				}
 				elseif ($option instanceof ColumnSelectionFilter)
 				{
@@ -699,16 +697,24 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 			}
 		}
 
+		if ($flags & self::QUERY_COUNT)
+			$s->clearColumns()->addColumn(new SQLFunction('count', new StarColumn()));
+
 		// Reporter::debug($className, $s->expressionString());
 
 		if ($flags & self::QUERY_SQL)
-		{
 			return $s;
-		}
 
 		$recordset = $s->execute();
-		if (is_object($recordset) && ($recordset instanceof Recordset) && ($recordset->rowCount))
+		if (!($recordset instanceof Recordset))
+			throw new \RuntimeException('Invalid resoult ' . @get_class($recordset));
+
+		if ($flags & self::QUERY_COUNT)
+			return intval($recordset->current()[0]);
+
+		if ($recordset->rowCount)
 		{
+
 			if ($flags & kRecordQueryMultiple)
 			{
 				$result = array();

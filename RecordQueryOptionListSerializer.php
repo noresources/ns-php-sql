@@ -2,6 +2,7 @@
 namespace NoreSources\SQL;
 
 use NoreSources\ArrayUtil;
+use ReflectionClass;
 
 class RecordQueryOptionListSerializer implements \Serializable, \JsonSerializable
 {
@@ -48,7 +49,7 @@ class RecordQueryOptionListSerializer implements \Serializable, \JsonSerializabl
 
 			$classKey = ArrayUtil::keyValue($filterSpec, 'type', ColumnValueFilter::class);
 			$arguments = ArrayUtil::keyValue($filterSpec, 'arguments', []);
-			$cls = self::getFilterC$classKey);
+			$cls = self::getFilterClass($classKey);
 			$filters[] = $cls->newInstanceArgs($arguments);
 		}
 		return $filters;
@@ -68,9 +69,11 @@ class RecordQueryOptionListSerializer implements \Serializable, \JsonSerializabl
 				'limit' => LimitFilter::class
 			];
 
-		if (!ArrayUtil::keyExists(self::$classKeyMap, $key)) throw new \InvalidArgumentException($key);
+		if (!ArrayUtil::keyExists(self::$classKeyMap, $key))
+			throw new \InvalidArgumentException($key);
+			return new ReflectionClass (ArrayUtil::keyValue(self::$classKeyMap, $key));
 	}
-	
+
 	private static $classKeyMap;
 }
 
