@@ -25,6 +25,22 @@ const SQL_VERSION_PATCH = 0;
 class SQL
 {
 
+	const DATATYPE_NULL = 0x01;
+
+	const DATATYPE_STRING = 0x02;
+
+	const DATATYPE_INTEGER = 0x04;
+
+	const DATATYPE_FLOAT = 0x08;
+
+	const DATATYPE_NUMBER = 0x0c;
+
+	const DATATYPE_TIMESTAMP = 0x10;
+
+	const DATATYPE_BOOLEAN = 0x20;
+
+	const DATATYPE_BINARY = 0x40;
+
 	public static function getBasePath()
 	{
 		return NS_PHP_SQL_PATH;
@@ -228,44 +244,44 @@ const kJoinRight = 'sql.join.right';
 /**
  * null element
  */
-const kDataTypeNull = 0x01;
+const kDataTypeNull = SQL::DATATYPE_NULL;
 
 /**
  * Manage all kind of string based element
  */
-const kDataTypeString = 0x02;
+const kDataTypeString = SQL::DATATYPE_STRING;
 
 /**
  * Integer number
  */
-const kDataTypeInteger = 0x04;
+const kDataTypeInteger = SQL::DATATYPE_INTEGER;
 
 /**
  * Decimal numbers
  */
-const kDataTypeDecimal = 0x08;
+const kDataTypeDecimal = SQL::DATATYPE_FLOAT;
 
 /**
  * All kind of number element
  */
-const kDataTypeNumber = 0x0c;
+const kDataTypeNumber = SQL::DATATYPE_NUMBER;
 
 // 0x04 + 0x08
 
 /**
  * All kind of date (date, datetime, time)
  */
-const kDataTypeTimestamp = 0x10;
+const kDataTypeTimestamp = SQL::DATATYPE_TIMESTAMP;
 
 /**
  * Boolean (true / false)
  */
-const kDataTypeBoolean = 0x20;
+const kDataTypeBoolean = SQL::DATATYPE_BOOLEAN;
 
 /**
  * Binary data
  */
-const kDataTypeBinary = 0x40;
+const kDataTypeBinary = SQL::DATATYPE_BINARY;
 
 /**
  *
