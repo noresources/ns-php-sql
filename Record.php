@@ -488,12 +488,11 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 				return Reporter::error(__CLASS__,
 					__METHOD__ . ': Table "' . $table->getName() . '" does not have primary key');
 			}
-			else 
-				if ($c > 1)
-				{
-					return Reporter::error(__CLASS__,
-						__METHOD__ . ': Composite primary key can not accept non-array parameter');
-				}
+			elseif ($c > 1)
+			{
+				return Reporter::error(__CLASS__,
+					__METHOD__ . ': Composite primary key can not accept non-array parameter');
+			}
 
 			list ($pk, $_) = each($primaryKeyColumns);
 			$keys = array(
@@ -637,8 +636,8 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 			{
 				if ($option instanceof PresentationSettings)
 				{
-
-					$keyColumn = $option->getSetting(kRecordKeyColumn, null);
+					$s->distinct = $option->getSetting(PresentationSettings::DISTINCT, false);
+					$keyColumn = $option->getSetting(PresentationSettings::KEY_COLUMN, null);
 					if (is_string($keyColumn))
 					{
 						if (!$structure->offsetExists($keyColumn))
