@@ -130,9 +130,20 @@ class ColumnSelectionFilter extends \ArrayObject implements RecordQueryOption
 class ColumnValueFilter implements RecordQueryOption
 {
 
+	/**
+	 * Compare strings lowercase
+	 *
+	 * @var number
+	 */
 	const CASE_INSENSITIVE = 0x01;
 
 	const NEGATE = 0x02;
+
+	/**
+	 * Cast DBMS column values to input value type.
+	 * The default behavior is to cast input value to column type
+	 */
+	const ENFORCE_VALUE_TYPE = 0x04;
 
 	public $columnName;
 
@@ -231,42 +242,6 @@ class ColumnValueFilter implements RecordQueryOption
 		$column = $table->getColumn($this->columnName);
 		switch ($operator)
 		{
-			case '=':
-			case '!=':
-
-				if ($operator == '!-')
-					$flags ^= self::NEGATE;
-
-				$e = null;
-				if (is_null($value))
-				{
-					$e = new BinaryOperatorExpression('IS', $column,
-						$datasource->createData(kDataTypeNull));
-					$e->protect = false;
-				}
-				else
-				{
-					/**
-					 *
-					 * @todo serialize ?
-					 */
-
-					$c = $column;
-					$v = $column->importData($value);
-
-					if ($flags & self::CASE_INSENSITIVE)
-					{
-						$c = new SQLFunction('lower', $c);
-						$v = new SQLFunction('lower', $v);
-					}
-
-					$e = new BinaryOperatorExpression('=', $c, $v);
-				}
-
-				if ($flags & self::NEGATE)
-					$e = new SQLNot($e);
-
-				return $e;
 			case 'in':
 				if (!($value instanceof IExpression))
 				{
@@ -321,6 +296,8 @@ class ColumnValueFilter implements RecordQueryOption
 
 				return $e;
 			break;
+			case '=':
+			case '!=':
 			case '<':
 			case '<=':
 			case '>':
@@ -332,6 +309,22 @@ class ColumnValueFilter implements RecordQueryOption
 				 *
 				 * @todo serialize ?
 				 */
+				if ($operator == '!-')
+				{
+					$operator = '=';
+					$flags ^= self::NEGATE;
+				}
+
+				if ($operator == '=' && \is_null($value))
+				{
+					$e = new BinaryOperatorExpression('IS', $column,
+						$datasource->createData(kDataTypeNull));
+					$e->protect = false;
+					if ($flags & self::NEGATE)
+						$e = new SQLNot($e);
+					return $e;
+				}
+
 				$v = $value;
 				if ($operator == 'startswith')
 				{
@@ -344,11 +337,37 @@ class ColumnValueFilter implements RecordQueryOption
 					$v = '%' . $v;
 				}
 
+				$valueType = Data::dataTypeFromValue($v);
+
 				$c = $column;
-				if (($operator == 'like') && ($flags & self::CASE_INSENSITIVE))
+
+				if ($flags & self::ENFORCE_VALUE_TYPE && ($valueType != $column->type()))
+					$c = $table->getDatasource()->createCast($c, $valueType);
+				else
+					$valueType = $column->type();
+
+				// Workaround unsupported types for case-insensivity
+				if (\in_array($valueType,
+					[
+						SQL::DATATYPE_INTEGER,
+						SQL::DATATYPE_FLOAT,
+						SQL::DATATYPE_NUMBER,
+						SQL::DATATYPE_BOOLEAN,
+						SQL::DATATYPE_NULL
+					]))
+					$flags &= ~self::CASE_INSENSITIVE;
+
+				if ($flags & self::CASE_INSENSITIVE)
 				{
 					$c = new SQLFunction('lower', $c);
-					$v = $column->importData(\strtolower($v));
+					$v = \strtolower($v);
+				}
+
+				if ($flags & self::ENFORCE_VALUE_TYPE)
+				{
+					$d = $table->getDatasource()->createData($valueType);
+					$d->import($v);
+					$v = $d;
 				}
 				else
 					$v = $column->importData($v);
@@ -721,8 +740,6 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 
 		if ($flags & self::QUERY_COUNT)
 			$s->clearColumns()->addColumn(new SQLFunction('count', new StarColumn()));
-
-		// Reporter::debug($className, $s->expressionString());
 
 		if ($flags & self::QUERY_SQL)
 			return $s;
