@@ -1,6 +1,8 @@
 <?php
 namespace NoreSources\SQL\Expression;
 
+use NoreSources\Expression\Literal;
+use NoreSources\SQL\ColumnExpression;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Expression\Evaluator as X;
 use NoreSources\Test\DatasourceManager;
@@ -173,6 +175,12 @@ final class ExpressionEvaluatorTest extends \PHPUnit\Framework\TestCase
 				Value::class,
 				Value::class
 			],
+			'meta function' => [
+				"@strftime('%Y', timeCol)",
+				2,
+				Literal::class,
+				ColumnExpression::class
+			],
 			'complex' => [
 				"substr(:string, strpos(:string, ','))",
 				2,
@@ -194,9 +202,10 @@ final class ExpressionEvaluatorTest extends \PHPUnit\Framework\TestCase
 			$e = Evaluator::evaluate($test[0]);
 			$this->assertInstanceOf(FunctionCall::class, $e, $label);
 			if ($e instanceof FunctionCall)
-			{
 				$this->assertCount($test[1], $e->getArguments(), $label . ' number of arguments');
-			}
+
+			if (\strpos($test[0], '@') === 0)
+				$this->assertInstanceOf(MetaFunctionCall::class, $e, $label);
 
 			for ($i = 2; $i < $test[1]; $i++)
 			{

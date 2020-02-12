@@ -10,6 +10,9 @@
 namespace NoreSources\SQL\Expression;
 
 use Ferno\Loco;
+use Ferno\Loco\EmptyParser;
+use Ferno\Loco\LazyAltParser;
+use Ferno\Loco\StringParser;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Structure\ColumnStructure;
 use NoreSources as ns;
@@ -78,44 +81,50 @@ class Evaluator
 	{
 		$this->evaluatorFlags = 0;
 		$this->operators = [
-				1 => [
-						'not' => new UnaryPolishNotationOperation('NOT', PolishNotationOperation::KEYWORD |
-						PolishNotationOperation::POST_SPACE),
-						'!' => new UnaryPolishNotationOperation('NOT', PolishNotationOperation::KEYWORD),
-						'-' => new UnaryPolishNotationOperation('-'),
-						'~' => new UnaryPolishNotationOperation('~')
-				],
-				2 => [
-						'==' => new BinaryPolishNotationOperation('='),
-						'<>' => new BinaryPolishNotationOperation('<>'),
-						'!=' => new BinaryPolishNotationOperation('<>'),
-						'<=' => new BinaryPolishNotationOperation('<='),
-						'<<' => new BinaryPolishNotationOperation('<<'),
-						'>>' => new BinaryPolishNotationOperation('>>'),
-						'>=' => new BinaryPolishNotationOperation('>='),
-						'=' => new BinaryPolishNotationOperation('='),
-						'<' => new BinaryPolishNotationOperation('<'),
-						'>' => new BinaryPolishNotationOperation('>'),
-						'&' => new BinaryPolishNotationOperation('&'),
-						'|' => new BinaryPolishNotationOperation('|'),
-						'^' => new BinaryPolishNotationOperation('^'),
-						'-' => new BinaryPolishNotationOperation('-'),
-						'+' => new BinaryPolishNotationOperation('+'),
-						'*' => new BinaryPolishNotationOperation('*'),
-						'/' => new BinaryPolishNotationOperation('/'),
-						'%' => new BinaryPolishNotationOperation('%'),
-						'and' => new BinaryPolishNotationOperation('AND', PolishNotationOperation::KEYWORD |
-						PolishNotationOperation::SPACE),
-						'or' => new BinaryPolishNotationOperation('OR', PolishNotationOperation::KEYWORD |
-						PolishNotationOperation::SPACE),
-						'like' => new BinaryPolishNotationOperation('LIKE', PolishNotationOperation::KEYWORD |
-						PolishNotationOperation::SPACE)
-				],
-				'*' => [
-					'in' => new BinaryPolishNotationOperation('in', PolishNotationOperation::PRE_SPACE | PolishNotationOperation::POST_WHITESPACE, MemberOf::class),
-					'!in' => new BinaryPolishNotationOperation('in', PolishNotationOperation::PRE_SPACE | PolishNotationOperation::POST_WHITESPACE, MemberOf::class),
-					'not in' => new BinaryPolishNotationOperation('in', PolishNotationOperation::PRE_SPACE | PolishNotationOperation::POST_WHITESPACE, MemberOf::class)
-				]
+			1 => [
+				'not' => new UnaryPolishNotationOperation('NOT',
+					PolishNotationOperation::KEYWORD | PolishNotationOperation::POST_SPACE),
+				'!' => new UnaryPolishNotationOperation('NOT', PolishNotationOperation::KEYWORD),
+				'-' => new UnaryPolishNotationOperation('-'),
+				'~' => new UnaryPolishNotationOperation('~')
+			],
+			2 => [
+				'==' => new BinaryPolishNotationOperation('='),
+				'<>' => new BinaryPolishNotationOperation('<>'),
+				'!=' => new BinaryPolishNotationOperation('<>'),
+				'<=' => new BinaryPolishNotationOperation('<='),
+				'<<' => new BinaryPolishNotationOperation('<<'),
+				'>>' => new BinaryPolishNotationOperation('>>'),
+				'>=' => new BinaryPolishNotationOperation('>='),
+				'=' => new BinaryPolishNotationOperation('='),
+				'<' => new BinaryPolishNotationOperation('<'),
+				'>' => new BinaryPolishNotationOperation('>'),
+				'&' => new BinaryPolishNotationOperation('&'),
+				'|' => new BinaryPolishNotationOperation('|'),
+				'^' => new BinaryPolishNotationOperation('^'),
+				'-' => new BinaryPolishNotationOperation('-'),
+				'+' => new BinaryPolishNotationOperation('+'),
+				'*' => new BinaryPolishNotationOperation('*'),
+				'/' => new BinaryPolishNotationOperation('/'),
+				'%' => new BinaryPolishNotationOperation('%'),
+				'and' => new BinaryPolishNotationOperation('AND',
+					PolishNotationOperation::KEYWORD | PolishNotationOperation::SPACE),
+				'or' => new BinaryPolishNotationOperation('OR',
+					PolishNotationOperation::KEYWORD | PolishNotationOperation::SPACE),
+				'like' => new BinaryPolishNotationOperation('LIKE',
+					PolishNotationOperation::KEYWORD | PolishNotationOperation::SPACE)
+			],
+			'*' => [
+				'in' => new BinaryPolishNotationOperation('in',
+					PolishNotationOperation::PRE_SPACE | PolishNotationOperation::POST_WHITESPACE,
+					MemberOf::class),
+				'!in' => new BinaryPolishNotationOperation('in',
+					PolishNotationOperation::PRE_SPACE | PolishNotationOperation::POST_WHITESPACE,
+					MemberOf::class),
+				'not in' => new BinaryPolishNotationOperation('in',
+					PolishNotationOperation::PRE_SPACE | PolishNotationOperation::POST_WHITESPACE,
+					MemberOf::class)
+			]
 		];
 	}
 
@@ -329,6 +338,9 @@ class Evaluator
 
 		if (strpos($key, '()') === ($length - 2))
 		{
+			if (\strpos($key, '@') === 0)
+				return new MetaFunctionCall(substr($key, 1, $length - 3), $operands);
+
 			return new FunctionCall(substr($key, 0, $length - 2), $operands);
 		}
 
@@ -520,6 +532,10 @@ class Evaluator
 
 		$procedure = new Loco\ConcParser(
 			[
+				new LazyAltParser([
+					new StringParser('@'),
+					new EmptyParser()
+				]),
 				'function-name',
 				'whitespace',
 				new Loco\StringParser('('),
@@ -527,7 +543,10 @@ class Evaluator
 				'expression-list',
 				'whitespace',
 				new Loco\StringParser(')')
-			], function ($name, $w1, $s1, $w2, $args) {
+			],
+			function ($meta, $name, $w1, $s1, $w2, $args) {
+				if ($meta == '@')
+					return new MetaFunctionCall($name, $args);
 				return new FunctionCall($name, $args);
 			});
 
@@ -1129,10 +1148,13 @@ class PolishNotationOperation
 			$context = $builder[1]['class'];
 		}
 
-		if (!($context && ($context == Evaluator::class || is_subclass_of($context, self::class, true))))
+		if (!($context &&
+			($context == Evaluator::class || is_subclass_of($context, self::class, true))))
 		{
 			$context = ($context ? $context : 'global');
-			throw new EvaluatorExceptioion(self::class . ' is a private class of ' . Evaluator::class . ' (not allowed in ' . $context . ' context)');
+			throw new EvaluatorExceptioion(
+				self::class . ' is a private class of ' . Evaluator::class . ' (not allowed in ' .
+				$context . ' context)');
 		}
 
 		$this->operator = $key;
@@ -1189,7 +1211,8 @@ final class BinaryPolishNotationOperation extends PolishNotationOperation
 	public function __construct($key, $flags = PolishNotationOperation::WHITESPACE,
 		$className = null)
 	{
-		parent::__construct($key, ($flags | PolishNotationOperation::WHITESPACE), ($className ? $className : BinaryOperation::class));
+		parent::__construct($key, ($flags | PolishNotationOperation::WHITESPACE),
+			($className ? $className : BinaryOperation::class));
 	}
 }
 
@@ -1199,6 +1222,7 @@ final class UnaryPolishNotationOperation extends PolishNotationOperation
 	public function __construct($key, $flags = PolishNotationOperation::POST_WHITESPACE,
 		$className = null)
 	{
-		parent::__construct($key, ($flags | PolishNotationOperation::POST_WHITESPACE), ($className ? $className : UnaryOperation::class));
+		parent::__construct($key, ($flags | PolishNotationOperation::POST_WHITESPACE),
+			($className ? $className : UnaryOperation::class));
 	}
 }

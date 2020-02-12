@@ -9,26 +9,43 @@
  */
 namespace NoreSources\SQL\Expression;
 
-use NoreSources\Expression as xpr;
+use NoreSources\Expression\Procedure;
 use NoreSources\SQL\Statement\BuildContext;
 
-class FunctionCall extends xpr\Procedure implements Expression
+class FunctionCall extends Procedure implements Expression
 {
 
+	/**
+	 *
+	 * @param string $name
+	 * @param array $arguments
+	 */
 	public function __construct($name, $arguments = array())
 	{
 		parent::__construct($name, $arguments);
 	}
 
+	/**
+	 *
+	 * @param mixed $argument
+	 * @return FunctionCall
+	 */
 	public function appendArgument($argument)
 	{
 		if (!($argument instanceof Expression))
 		{
 			$argument = Evaluator::evaluate($argument);
 		}
+
 		return parent::appendArgument($argument);
 	}
 
+	/**
+	 *
+	 * @param TokenStream $stream
+	 * @param BuildContext $context
+	 * @return TokenStream
+	 */
 	public function tokenize(TokenStream $stream, BuildContext $context)
 	{
 		$stream->keyword($this->getFunctionName())

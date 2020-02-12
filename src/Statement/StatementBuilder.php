@@ -11,6 +11,8 @@ namespace NoreSources\SQL\Statement;
 
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DataSerializer;
+use NoreSources\SQL\Expression\FunctionCall;
+use NoreSources\SQL\Expression\MetaFunctionCall;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Structure\ColumnPropertyMap;
 use NoreSources\SQL\Structure\ColumnStructure;
@@ -114,6 +116,17 @@ abstract class StatementBuilder implements DataSerializer
 	public function getColumnTypeName(ColumnStructure $column)
 	{
 		return $this->getColumnType($column)->getTypeName();
+	}
+
+	/**
+	 * Translate a meta function to a DBMS compliant function
+	 *
+	 * @param MetaFunctionCall $metaFunction
+	 * @return \NoreSources\SQL\Expression\FunctionCall
+	 */
+	public function translateFunction(MetaFunctionCall $metaFunction)
+	{
+		return new FunctionCall($metaFunction->getFunctionName(), $metaFunction->getArguments());
 	}
 
 	/**

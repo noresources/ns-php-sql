@@ -51,7 +51,7 @@
             "source": {
                 "type": "git",
                 "url": "ssh://okami/volume1/repository/git/ns-php-core.git",
-                "reference": "320ad3d29dc02f063e92aa8c0b76c1427b22275a"
+                "reference": "0a68470a6a3dce2ca38e20e96b38a9805b9a3718"
             },
             "require": {
                 "ext-json": "*",
@@ -102,7 +102,7 @@
             "support": {
                 "issues": "https://github.com/noresources/ns-php-core/issues"
             },
-            "time": "2020-02-09T19:45:12+00:00"
+            "time": "2020-02-10T19:24:21+00:00"
         },
         {
             "name": "noresources/ns-php-expression",
@@ -110,11 +110,11 @@
             "source": {
                 "type": "git",
                 "url": "ssh://okami/volume1/repository/git/ns-php-expression.git",
-                "reference": "39db1d952ec36852b867b8b4ac98148632d17472"
+                "reference": "6139b78c9ce638672f00917890aa33ff704edf4a"
             },
             "require": {
                 "noresources/ns-php-core": "~2.0",
-                "php": ">= 5.4"
+                "php": ">= 5.5"
             },
             "require-dev": {
                 "phpunit/phpunit": "^4.8"
@@ -132,7 +132,7 @@
             },
             "scripts": {
                 "tests": [
-                    "@php  ./vendor/bin/phpunit --bootstrap tests/bootstrap.php tests"
+                    "@php  ./vendor/bin/phpunit --bootstrap vendor/autoload.php tests"
                 ]
             },
             "license": [
@@ -149,7 +149,7 @@
             "support": {
                 "issues": "https://github.com/noresources/ns-php-expression/issues"
             },
-            "time": "2019-12-16T20:15:11+00:00"
+            "time": "2020-02-11T23:19:42+00:00"
         },
         {
             "name": "noresources/ns-php-mediatype",
@@ -622,12 +622,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpDocumentor/ReflectionDocBlock.git",
-                "reference": "a48807183a4b819072f26e347bbd0b5199a9d15f"
+                "reference": "e2ce1d210acaf2c3aeab9d7428bfc55e7d468767"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpDocumentor/ReflectionDocBlock/zipball/a48807183a4b819072f26e347bbd0b5199a9d15f",
-                "reference": "a48807183a4b819072f26e347bbd0b5199a9d15f",
+                "url": "https://api.github.com/repos/phpDocumentor/ReflectionDocBlock/zipball/e2ce1d210acaf2c3aeab9d7428bfc55e7d468767",
+                "reference": "e2ce1d210acaf2c3aeab9d7428bfc55e7d468767",
                 "shasum": ""
             },
             "require": {
@@ -667,7 +667,7 @@
                 }
             ],
             "description": "With this component, a library can provide support for annotations via DocBlocks or otherwise retrieve information that is embedded in a DocBlock.",
-            "time": "2020-02-09T09:16:15+00:00"
+            "time": "2020-02-10T20:23:05+00:00"
         },
         {
             "name": "phpdocumentor/type-resolver",
@@ -675,12 +675,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpDocumentor/TypeResolver.git",
-                "reference": "a748970492a3fc0c12a823e27c520cf9820b90fb"
+                "reference": "35ac7d8479b312530648b28914620120446fa0ae"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpDocumentor/TypeResolver/zipball/a748970492a3fc0c12a823e27c520cf9820b90fb",
-                "reference": "a748970492a3fc0c12a823e27c520cf9820b90fb",
+                "url": "https://api.github.com/repos/phpDocumentor/TypeResolver/zipball/35ac7d8479b312530648b28914620120446fa0ae",
+                "reference": "35ac7d8479b312530648b28914620120446fa0ae",
                 "shasum": ""
             },
             "require": {
@@ -713,7 +713,7 @@
                 }
             ],
             "description": "A PSR-5 based resolver of Class names, Types and Structural Element Names",
-            "time": "2020-02-05T20:18:28+00:00"
+            "time": "2020-02-10T19:49:09+00:00"
         },
         {
             "name": "phpspec/prophecy",
@@ -1036,12 +1036,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "073d302866d4b961e02f8f25acfeccad8fdd9227"
+                "reference": "6d6f260a2e82f57026b28db566da6e62fff3bf2a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/073d302866d4b961e02f8f25acfeccad8fdd9227",
-                "reference": "073d302866d4b961e02f8f25acfeccad8fdd9227",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/6d6f260a2e82f57026b28db566da6e62fff3bf2a",
+                "reference": "6d6f260a2e82f57026b28db566da6e62fff3bf2a",
                 "shasum": ""
             },
             "require": {
@@ -1111,7 +1111,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2020-02-09T08:02:36+00:00"
+            "time": "2020-02-11T16:13:52+00:00"
         },
         {
             "name": "sebastian/code-unit-reverse-lookup",
