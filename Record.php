@@ -1489,14 +1489,17 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 		$this->m_ephemerals[$key] = $value;
 	}
 
+	protected function hasEphemeral($member)
+	{
+		return \array_key_exists($member, $this->m_ephemerals);
+	}
+	
 	protected function getEphemeral($member)
 	{
-		if (\array_key_exists($member, $this->m_ephemerals))
-		{
-			return $this->m_ephemerals[$member];
-		}
-
-		throw new \Exception('Invalid ephemeral key ' . $member);
+		if (!$this->hasEphemeral($member))
+			throw new \Exception('Invalid ephemeral key ' . $member);
+		
+		return $this->m_ephemerals[$member];
 	}
 
 	protected function buildEphemerals()
