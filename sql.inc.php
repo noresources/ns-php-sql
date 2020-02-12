@@ -41,6 +41,26 @@ class SQL
 
 	const DATATYPE_BINARY = 0x40;
 
+	public static function getDataTypeName($type)
+	{
+		switch ($type)
+		{
+			case self::DATATYPE_BINARY:
+				return 'binary';
+			case self::DATATYPE_BOOLEAN:
+				return 'boolean';
+			case self::DATATYPE_INTEGER:
+				return 'integer';
+			case self::DATATYPE_NULL:
+				return 'null';
+			case self::DATATYPE_FLOAT:
+			case self::DATATYPE_NUMBER:
+				return 'float';
+			default:
+				return 'string';
+		}
+	}
+
 	public static function getBasePath()
 	{
 		return NS_PHP_SQL_PATH;
