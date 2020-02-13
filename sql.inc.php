@@ -75,6 +75,52 @@ class SQL
 	{
 		return (SQL_VERSION_MAJOR * 10000 + SQL_VERSION_MINOR * 100 + SQL_VERSION_PATCH);
 	}
+	
+	
+	/**
+	 * Gegin transaction block
+	 * @param Datasource $a_datasource
+	 * @return boolean
+	 */
+	public static function begin(Datasource $a_datasource)
+	{
+		if ($a_datasource instanceof ITransactionBlock)
+		{
+			$a_datasource->startTransaction();
+			return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * Commit transaction block
+	 * @param Datasource $a_datasource
+	 * @return boolean
+	 */
+	public static function commit(Datasource $a_datasource)
+	{
+		if ($a_datasource instanceof ITransactionBlock)
+		{
+			$a_datasource->commitTransaction();
+			return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * Rollback transaction block
+	 * @param Datasource $a_datasource
+	 * @return boolean
+	 */
+	public static function rollback(Datasource $a_datasource)
+	{
+		if ($a_datasource instanceof ITransactionBlock)
+		{
+			$a_datasource->rollbackTransaction();
+			return true;
+		}
+		return false;
+	}
 }
 
 /**
