@@ -36,12 +36,6 @@ class BuildContext implements InputData, OutputData, StringRepresentation,
 
 	/**
 	 *
-	 * @var integer
-	 */
-	public $contextFlags;
-
-	/**
-	 *
 	 * @var StatementBuilder
 	 */
 	public $builder;
@@ -56,7 +50,6 @@ class BuildContext implements InputData, OutputData, StringRepresentation,
 		$this->initializeInputData(null);
 		$this->initializeOutputData(null);
 		$this->sql = '';
-		$this->contextFlags = 0;
 		$this->builder = $builder;
 		$this->setStructureResolver(new StructureResolver($pivot));
 		$this->resultColumnAliases = new Stack();
@@ -186,7 +179,7 @@ class BuildContext implements InputData, OutputData, StringRepresentation,
 	}
 
 	/**
-	 * Attemp to call StatementBuilder or StructureResolver method
+	 * Attempt to call StatementBuilder method
 	 *
 	 * @param string $method
 	 *        	Method name
