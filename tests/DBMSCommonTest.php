@@ -229,10 +229,10 @@ final class DBMSCommonTest extends TestCase
 		$index = 0;
 		foreach ($expectedResultColumnKeys as $name => $_)
 		{
-			$byIndex = $result->getResultColumn($index);
+			$byIndex = $result->getResultColumns()->getColumn($index);
 			$this->assertEquals($name, $byIndex->name,
 				$dbmsName . ' Recordset result column #' . $index);
-			$byName = $result->getResultColumn($name);
+			$byName = $result->getResultColumns()->getColumn($name);
 			$this->assertEquals($name, $byName->name,
 				$dbmsName . ' Recordset result column ' . $name);
 			$index++;

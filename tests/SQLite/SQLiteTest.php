@@ -152,9 +152,9 @@ final class SQLiteTest extends \PHPUnit\Framework\TestCase
 			$index = 0;
 			foreach ($expectedResultColumnKeys as $name => $_)
 			{
-				$byIndex = $result->getResultColumn($index);
+				$byIndex = $result->getResultColumns()->getColumn($index);
 				$this->assertEquals($name, $byIndex->name, 'Recordset result column #' . $index);
-				$byName = $result->getResultColumn($name);
+				$byName = $result->getResultColumns()->getColumn($name);
 				$this->assertEquals($name, $byName->name, 'Recordset result column ' . $name);
 				$index++;
 			}

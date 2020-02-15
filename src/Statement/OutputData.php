@@ -25,13 +25,6 @@ interface OutputData
 
 	/**
 	 *
-	 * @param string $key
-	 * @return ResultColumn
-	 */
-	function getResultColumn($key);
-
-	/**
-	 *
 	 * @return ResultColumnMap
 	 */
 	function getResultColumns();
