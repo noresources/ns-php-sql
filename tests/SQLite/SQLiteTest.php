@@ -108,8 +108,8 @@ final class SQLiteTest extends \PHPUnit\Framework\TestCase
 
 		$this->assertInstanceOf(DBMS\SQLite\SQLitePreparedStatement::class, $prepared);
 
-		$this->assertEquals(4, $prepared->getResultColumnCount(),
-			'Prepared statement result columns count');
+		$this->assertEquals(4, $prepared->getResultColumns()
+			->count(), 'Prepared statement result columns count');
 
 		$statement = new Statement\SelectQuery($tableStructure);
 		$statement->columns('name', 'gender', 'salary');
@@ -118,8 +118,8 @@ final class SQLiteTest extends \PHPUnit\Framework\TestCase
 			$tableStructure);
 
 		$this->assertInstanceOf(DBMS\SQLite\SQLitePreparedStatement::class, $prepared);
-		$this->assertEquals(3, $prepared->getResultColumnCount(),
-			'Prepared statement result columns count');
+		$this->assertEquals(3, $prepared->getResultColumns()
+			->count(), 'Prepared statement result columns count');
 
 		// Testing the nicely crafted query
 		// and the ugly hard-coded one
@@ -133,7 +133,7 @@ final class SQLiteTest extends \PHPUnit\Framework\TestCase
 			$result = $this->connection->executeStatement($statement);
 			$this->assertInstanceOf(DBMS\SQLite\SQLiteRecordset::class, $result);
 
-			$this->assertEquals(3, $result->getResultColumnCount(), 'Recordset result columns count');
+			$this->assertCount(3, $result->getResultColumns(), 'Recordset result columns count');
 
 			$expected = [
 				[

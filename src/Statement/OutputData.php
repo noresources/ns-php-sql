@@ -25,12 +25,6 @@ interface OutputData
 
 	/**
 	 *
-	 * @return integer
-	 */
-	function getResultColumnCount();
-
-	/**
-	 *
 	 * @param string $key
 	 * @return ResultColumn
 	 */

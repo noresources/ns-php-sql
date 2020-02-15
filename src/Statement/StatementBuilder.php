@@ -10,7 +10,6 @@
 namespace NoreSources\SQL\Statement;
 
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\DataSerializer;
 use NoreSources\SQL\Expression\FunctionCall;
 use NoreSources\SQL\Expression\MetaFunctionCall;
 use NoreSources\SQL\Expression\TokenStream;
@@ -27,9 +26,9 @@ use NoreSources\SQL\Structure\UniqueTableConstraint;
 use NoreSources as ns;
 
 /**
- * Build a SQL statement string to be used in a SQL engine
+ * Generic, partial implementation of StatementBuilderInterface
  */
-abstract class StatementBuilder implements DataSerializer
+abstract class StatementBuilder implements StatementBuilderInterface
 {
 
 	/**
@@ -51,91 +50,26 @@ abstract class StatementBuilder implements DataSerializer
 		];
 	}
 
-	/**
-	 *
-	 * @return number
-	 */
 	public function getBuilderFlags($domain = K::BUILDER_DOMAIN_GENERIC)
 	{
 		return $this->builderFlags[$domain];
 	}
 
-	/**
-	 * Escape text string to be inserted in a SQL statement.
-	 *
-	 * @param string $value
-	 *        	A quoted string with escaped characters
-	 */
-	abstract function serializeString($value);
-
-	/**
-	 * Escape binary data to be inserted in a SQL statement.
-	 *
-	 * @param mixed $value
-	 * @return string
-	 */
 	public function serializeBinary($value)
 	{
 		return $this->serializeString($value);
 	}
 
-	/**
-	 * Escape SQL identifier to be inserted in a SQL statement.
-	 *
-	 * @param string $identifier
-	 */
-	abstract function escapeIdentifier($identifier);
-
-	/**
-	 *
-	 * Get a DBMS-compliant parameter name
-	 *
-	 * @param string $name
-	 *        	Parameter name
-	 * @param ParameterMap $parameters
-	 *        	The already assigned parameters
-	 *
-	 *        	On some DBs,MS implementations, @c null may not be accepted as a value for @c $arameters argument
-	 */
-	abstract function getParameter($name, ParameterMap $parameters = null);
-
-	/**
-	 *
-	 * @param ColumnStructure $column
-	 * @return TypeInterface
-	 */
-	abstract function getColumnType(ColumnStructure $column);
-
-	/**
-	 * Get the closest DBMS type name for a given data type
-	 *
-	 * @param ColumnStructure $column
-	 *        	Column definition
-	 * @return string The default Connection type name for the given data type
-	 */
 	public function getColumnTypeName(ColumnStructure $column)
 	{
 		return $this->getColumnType($column)->getTypeName();
 	}
 
-	/**
-	 * Translate a meta function to a DBMS compliant function
-	 *
-	 * @param MetaFunctionCall $metaFunction
-	 * @return \NoreSources\SQL\Expression\FunctionCall
-	 */
 	public function translateFunction(MetaFunctionCall $metaFunction)
 	{
 		return new FunctionCall($metaFunction->getFunctionName(), $metaFunction->getArguments());
 	}
 
-	/**
-	 * Get syntax keyword.
-	 *
-	 * @param integer $keyword
-	 * @throws \InvalidArgumentException
-	 * @return string
-	 */
 	public function getKeyword($keyword)
 	{
 		switch ($keyword)
@@ -157,12 +91,6 @@ abstract class StatementBuilder implements DataSerializer
 		throw new \InvalidArgumentException('Keyword ' . $keyword . ' is not available');
 	}
 
-	/**
-	 *
-	 * @param integer $joinTypeFlags
-	 *        	JOIN type flags
-	 * @return string
-	 */
 	public function getJoinOperator($joinTypeFlags)
 	{
 		$s = '';
@@ -200,19 +128,6 @@ abstract class StatementBuilder implements DataSerializer
 		return ($s . 'JOIN');
 	}
 
-	/**
-	 * Get the \DateTime timestamp format accepted by the Connection
-	 *
-	 * @param integer $type
-	 *        	Timestamp parts. Combination of
-	 *        	<ul>
-	 *        	<li>Constants\DATATYPE_DATE</li>
-	 *        	<li>Constants\DATATYPE_TIME</li>
-	 *        	<li>Constants\DATATYPE_TIMEZONE</li>
-	 *        	</ul>
-	 *
-	 * @return string \DateTime format string
-	 */
 	public function getTimestampFormat($type = 0)
 	{
 		switch ($type)
@@ -230,13 +145,6 @@ abstract class StatementBuilder implements DataSerializer
 		return \DateTime::ISO8601;
 	}
 
-	/**
-	 * Build a partial SQL statement describing a table constraint in a CREATE TABLE statement.
-	 *
-	 * @param TableStructure $structure
-	 * @param TableConstraint $constraint
-	 * @return string
-	 */
 	public function getTableConstraintDescription(TableStructure $structure,
 		TableConstraint $constraint)
 	{
@@ -373,11 +281,6 @@ abstract class StatementBuilder implements DataSerializer
 		return $this->serializeString($value);
 	}
 
-	/**
-	 *
-	 * @param array $path
-	 * @return string
-	 */
 	public function escapeIdentifierPath($path)
 	{
 		return ns\Container::implodeValues($path, '.', [
@@ -386,11 +289,6 @@ abstract class StatementBuilder implements DataSerializer
 		]);
 	}
 
-	/**
-	 *
-	 * @param StructureElement $structure
-	 * @return string
-	 */
 	public function getCanonicalName(StructureElement $structure)
 	{
 		$s = $this->escapeIdentifier($structure->getName());
@@ -404,13 +302,6 @@ abstract class StatementBuilder implements DataSerializer
 		return $s;
 	}
 
-	/**
-	 * Finalize statement building
-	 *
-	 * @param TokenStream $stream
-	 * @param BuildContext $context
-	 * @return \NoreSources\SQL\BuildContext
-	 */
 	public final static function finalize(TokenStream $stream, BuildContext &$context)
 	{
 		$context->sql = '';
@@ -436,12 +327,6 @@ abstract class StatementBuilder implements DataSerializer
 		return $context;
 	}
 
-	/**
-	 * GET the SQL keyword associated to the given foreign key action
-	 *
-	 * @param string $action
-	 * @return string
-	 */
 	public function getForeignKeyAction($action)
 	{
 		switch ($action)

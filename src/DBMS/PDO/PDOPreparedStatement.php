@@ -45,10 +45,10 @@ class PDOPreparedStatement extends DBMS\PreparedStatement
 
 			if ($statement->columnCount() > 0)
 			{
-				if ($this->getResultColumnCount() > $statement->columnCount())
+				if ($this->getResultColumns()->count() > $statement->columnCount())
 					throw new \Exception(
 						'Incorrect number of result column. Should be ' . $statement->columnCount() .
-						', got ' . $this->getResultColumnCount());
+						', got ' . $this->getResultColumns()->count());
 			}
 
 			$map = $this->getResultColumns();

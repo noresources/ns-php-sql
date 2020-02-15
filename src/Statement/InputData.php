@@ -27,4 +27,13 @@ interface InputData extends ParametrizedStatement
 	 *        	DBMS representation of the parameter name
 	 */
 	function registerParameter($position, $key, $dbmsName);
+
+	/**
+	 * Initialize InputDataTrait members.
+	 * This method have to be called in constructors of
+	 * class that use this trait.
+	 *
+	 * @param InputData $data
+	 */
+	function initializeInputData(InputData $data = null);
 }

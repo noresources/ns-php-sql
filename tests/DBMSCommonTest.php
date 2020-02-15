@@ -194,7 +194,7 @@ final class DBMSCommonTest extends TestCase
 			$tableStructure);
 		$this->assertInstanceOf(PreparedStatement::class, $preparedBasicSelect, $dbmsName);
 
-		$this->assertEquals(4, $preparedBasicSelect->getResultColumnCount(),
+		$this->assertCount(4, $preparedBasicSelect->getResultColumns(),
 			$dbmsName . ' Prepared statement result columns count (auto-detected)');
 
 		$selectColumnQuery = new SelectQuery($tableStructure);
@@ -203,13 +203,13 @@ final class DBMSCommonTest extends TestCase
 		$preparedSelectColumn = ConnectionHelper::prepareStatement($connection, $selectColumnQuery,
 			$tableStructure);
 		$this->assertInstanceOf(PreparedStatement::class, $preparedSelectColumn, $dbmsName);
-		$this->assertEquals(3, $preparedSelectColumn->getResultColumnCount(),
+		$this->assertCount(3, $preparedSelectColumn->getResultColumns(),
 			$dbmsName . ' Prepared statement result columns count');
 
 		$result = $connection->executeStatement($preparedSelectColumn);
 		$this->assertInstanceOf(Recordset::class, $result, $dbmsName, $preparedSelectColumn);
 
-		$this->assertEquals(3, $result->getResultColumnCount(),
+		$this->assertCount(3, $result->getResultColumns(),
 			$dbmsName . ' Recordset result columns count');
 
 		$expected = [

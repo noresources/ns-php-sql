@@ -47,13 +47,13 @@ final class SelectTest extends \PHPUnit\Framework\TestCase
 		$stream = new TokenStream();
 		$q->tokenize($stream, $context);
 
-		$this->assertEquals(2, $context->getResultColumnCount(),
+		$this->assertCount(2, $context->getResultColumns(),
 			'Number of result column (after Builder::tokenize())');
 
 		$result = StatementBuilder::finalize($stream, $context);
 		$this->assertEquals($context, $result, 'Builder::finalzie() result');
 
-		$this->assertEquals(2, $context->getResultColumnCount(),
+		$this->assertCount(2, $context->getResultColumns(),
 			'Number of result column (after Builder::finalize())');
 
 		$sql = \SqlFormatter::format(strval($result), false);
