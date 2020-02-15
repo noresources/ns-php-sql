@@ -13,14 +13,19 @@ use NoreSources\Stack;
 use NoreSources\StringRepresentation;
 use NoreSources\SQL\Structure\StructureElement;
 use NoreSources\SQL\Structure\StructureResolver;
+use NoreSources\SQL\Structure\StructureResolverAwareInterface;
+use NoreSources\SQL\Structure\StructureResolverAwareTrait;
+use NoreSources\SQL\Structure\StructureResolverInterface;
 
 /**
  * Statement building context data
  */
-class BuildContext implements InputData, OutputData, StringRepresentation
+class BuildContext implements InputData, OutputData, StringRepresentation,
+	StructureResolverInterface, StructureResolverAwareInterface
 {
 	use InputDataTrait;
 	use OutputDataTrait;
+	use StructureResolverAwareTrait;
 
 	/**
 	 * SQL statement string
@@ -43,12 +48,6 @@ class BuildContext implements InputData, OutputData, StringRepresentation
 
 	/**
 	 *
-	 * @var StructureResolver
-	 */
-	public $resolver;
-
-	/**
-	 *
 	 * @param StatementBuilder $builder
 	 * @param StructureElement $pivot
 	 */
@@ -59,7 +58,7 @@ class BuildContext implements InputData, OutputData, StringRepresentation
 		$this->sql = '';
 		$this->contextFlags = 0;
 		$this->builder = $builder;
-		$this->resolver = new StructureResolver($pivot);
+		$this->setStructureResolver(new StructureResolver($pivot));
 		$this->resultColumnAliases = new Stack();
 	}
 
@@ -115,7 +114,7 @@ class BuildContext implements InputData, OutputData, StringRepresentation
 		if ($this->resultColumnAliases->offsetExists($path))
 			return $this->resultColumnAliases->offsetGet($path);
 
-		return $this->resolver->findColumn($path);
+		return $this->structureResolver->findColumn($path);
 	}
 
 	/**
@@ -129,7 +128,7 @@ class BuildContext implements InputData, OutputData, StringRepresentation
 	{
 		if ($reference instanceof StructureElement)
 		{
-			return $this->resolver->setAlias($alias, $reference);
+			return $this->structureResolver->setAlias($alias, $reference);
 		}
 		else
 		{
@@ -153,19 +152,19 @@ class BuildContext implements InputData, OutputData, StringRepresentation
 				return true;
 		}
 
-		return $this->resolver->isAlias($identifier);
+		return $this->structureResolver->isAlias($identifier);
 	}
 
 	public function pushResolverContext(StructureElement $pivot = null)
 	{
 		$this->resultColumnAliases->push(new \ArrayObject());
-		$this->resolver->pushResolverContext($pivot);
+		$this->structureResolver->pushResolverContext($pivot);
 	}
 
 	public function popResolverContext()
 	{
 		$this->resultColumnAliases->pop();
-		$this->resolver->popResolverContext();
+		$this->structureResolver->popResolverContext();
 	}
 
 	/**
@@ -206,13 +205,6 @@ class BuildContext implements InputData, OutputData, StringRepresentation
 		{
 			return call_user_func_array(array(
 				$this->builder,
-				$method
-			), $args);
-		}
-		elseif (\method_exists($this->resolver, $method))
-		{
-			return call_user_func_array(array(
-				$this->resolver,
 				$method
 			), $args);
 		}

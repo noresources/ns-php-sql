@@ -68,7 +68,7 @@ trait StructureResolverAwareTrait
 
 	public function pushResolverContext(StructureElement $pivot = null)
 	{
-		return $this->structureResolver->pushResolverContext(, $pivot);
+		return $this->structureResolver->pushResolverContext($pivot);
 	}
 
 	public function popResolverContext()
