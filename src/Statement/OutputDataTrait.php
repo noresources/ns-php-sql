@@ -22,11 +22,6 @@ trait OutputDataTrait
 		return $this->statementType;
 	}
 
-	public function getResultColumn($key)
-	{
-		return $this->resultColumns->getColumn($key);
-	}
-
 	public function getResultColumns()
 	{
 		return $this->resultColumns;
