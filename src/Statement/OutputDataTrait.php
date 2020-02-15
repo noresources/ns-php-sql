@@ -32,11 +32,6 @@ trait OutputDataTrait
 		return $this->resultColumns;
 	}
 
-	public function getResultColumnIterator()
-	{
-		return $this->resultColumns->getIterator();
-	}
-
 	public function initializeOutputData($data = null)
 	{
 		if ($data instanceof OutputData)

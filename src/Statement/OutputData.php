@@ -35,11 +35,5 @@ interface OutputData
 	 * @return ResultColumnMap
 	 */
 	function getResultColumns();
-
-	/**
-	 *
-	 * @return \ArrayIterator
-	 */
-	function getResultColumnIterator();
 }
 
