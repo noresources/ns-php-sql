@@ -9,61 +9,7 @@
  */
 namespace NoreSources\SQL\Structure;
 
-class StructureResolverException extends \Exception
-{
-
-	public function __construct($path)
-	{
-		parent::__construct($path . ' not found');
-	}
-}
-
-class StructureResolverContext
-{
-
-	/**
-	 *
-	 * @var StructureElement
-	 */
-	public $pivot;
-
-	/**
-	 *
-	 * @var \ArrayObject
-	 */
-	public $cache;
-
-	/**
-	 *
-	 * @var \ArrayObject
-	 */
-	public $aliases;
-
-	public function __construct(StructureElement $pivot)
-	{
-		$this->pivot = $pivot;
-		$this->cache = new \ArrayObject([
-			ColumnStructure::class => new \ArrayObject(),
-			TableStructure::class => new \ArrayObject(),
-			TablesetStructure::class => new \ArrayObject(),
-			DatasourceStructure::class => new \ArrayObject()
-		]);
-		$this->aliases = new \ArrayObject();
-
-		$key = get_class($pivot);
-		$this->cache[$key]->offsetSet($pivot->getName(), $pivot);
-		$this->cache[$key]->offsetSet($pivot->getPath(), $pivot);
-		$p = $pivot->parent();
-		while ($p instanceof StructureElement)
-		{
-			$key = get_class($p);
-			$this->cache[$key]->offsetSet($p->getName(), $p);
-			$p = $p->parent();
-		}
-	}
-}
-
-class StructureResolver
+class StructureResolver implements StructureResolverInterface
 {
 
 	/**
@@ -100,11 +46,6 @@ class StructureResolver
 		throw new \RuntimeException('Context stack not initialized');
 	}
 
-	/**
-	 * Define the reference node and reset cache
-	 *
-	 * @param StructureElement $pivot
-	 */
 	public function setPivot(StructureElement $pivot)
 	{
 		if ($this->contextStack->isEmpty())
@@ -113,28 +54,16 @@ class StructureResolver
 		$this->pivot = $pivot;
 	}
 
-	/**
-	 *
-	 * @return \NoreSources\SQL\StructureElement
-	 */
 	public function getPivot()
 	{
 		return $this->pivot;
 	}
 
-	/**
-	 *
-	 * @param string $path
-	 * @throws StructureResolverException
-	 * @return \NoreSources\SQL\ColumnStructure
-	 */
 	public function findColumn($path)
 	{
 		if ($this->cache[ColumnStructure::class]->offsetExists($path))
 		{
-			return $this->cache[ColumnStructure::class][
-				$path
-			];
+			return $this->cache[ColumnStructure::class][$path];
 		}
 
 		$x = explode('.', $path);
@@ -178,19 +107,11 @@ class StructureResolver
 		return $column;
 	}
 
-	/**
-	 *
-	 * @param string $path
-	 * @throws StructureResolverException
-	 * @return \NoreSources\SQL\TableStructure
-	 */
 	public function findTable($path)
 	{
 		if ($this->cache[TableStructure::class]->offsetExists($path))
 		{
-			return $this->cache[TableStructure::class][
-				$path
-			];
+			return $this->cache[TableStructure::class][$path];
 		}
 
 		$x = explode('.', $path);
@@ -224,19 +145,11 @@ class StructureResolver
 		return $table;
 	}
 
-	/**
-	 *
-	 * @param string $path
-	 * @throws StructureResolverException
-	 * @return \NoreSources\SQL\TablesetStructure
-	 */
 	public function findTableset($path)
 	{
 		if ($this->cache[TablesetStructure::class]->offsetExists($path))
 		{
-			return $this->cache[TablesetStructure::class][
-				$path
-			];
+			return $this->cache[TablesetStructure::class][$path];
 		}
 
 		$datasource = $this->pivot;
@@ -259,11 +172,6 @@ class StructureResolver
 		return $tableset;
 	}
 
-	/**
-	 *
-	 * @param string $alias
-	 * @param StructureElement $structure
-	 */
 	public function setAlias($alias, StructureElement $reference)
 	{
 		$key = get_class($reference);
