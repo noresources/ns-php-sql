@@ -9,12 +9,14 @@
  */
 namespace NoreSources\SQL\DBMS;
 
+use NoreSources\SQL\Statement\StatementBuilderAwareInterface;
+
 // Aliases
 
 /**
  * DMBS connection
  */
-interface Connection
+interface Connection extends StatementBuilderAwareInterface
 {
 
 	/**
