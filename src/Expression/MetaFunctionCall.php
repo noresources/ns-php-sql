@@ -24,6 +24,6 @@ class MetaFunctionCall extends FunctionCall
 
 	public function tokenize(TokenStream $stream, TokenStreamContext $context)
 	{
-		return $context->translateFunction($this)->tokenize($stream, $context);
+		return $context->getStatementBuilder()->translateFunction($this)->tokenize($stream, $context);
 	}
 }

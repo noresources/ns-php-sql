@@ -128,33 +128,6 @@ class BuildContext implements InputData, StringRepresentation, StructureResolver
 	}
 
 	/**
-	 * Attempt to call StatementBuilder method
-	 *
-	 * @param string $method
-	 *        	Method name
-	 * @param array $args
-	 *        	Arguments
-	 * @throws \BadMethodCallException
-	 * @return mixed
-	 *
-	 * @method string getColumnDescription(ColumnStructure $column)
-	 * @method string getTableConstraintDescription(TableStructure, TableConstraint)
-	 *
-	 */
-	public function __call($method, $args)
-	{
-		if (\method_exists($this->builder, $method))
-		{
-			return call_user_func_array(array(
-				$this->builder,
-				$method
-			), $args);
-		}
-
-		throw new \BadMethodCallException($method);
-	}
-
-	/**
 	 *
 	 * @var \Noresources\Stack Stack of \ArrayObject
 	 */

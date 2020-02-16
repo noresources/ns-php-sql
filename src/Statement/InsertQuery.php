@@ -49,8 +49,8 @@ class InsertQuery extends Statement implements \ArrayAccess
 
 	public function tokenize(TokenStream $stream, TokenStreamContext $context)
 	{
-		$builderFlags = $context->getBuilderFlags(K::BUILDER_DOMAIN_GENERIC);
-		$builderFlags |= $context->getBuilderFlags(K::BUILDER_DOMAIN_INSERT);
+		$builderFlags = $context->getStatementBuilder()->getBuilderFlags(K::BUILDER_DOMAIN_GENERIC);
+		$builderFlags |= $context->getStatementBuilder()->getBuilderFlags(K::BUILDER_DOMAIN_INSERT);
 
 		$tableStructure = $context->findTable($this->table->path);
 		$context->setStatementType(K::QUERY_INSERT);
@@ -66,7 +66,7 @@ class InsertQuery extends Statement implements \ArrayAccess
 			->space()
 			->keyword('into')
 			->space()
-			->identifier($context->getCanonicalName($tableStructure));
+			->identifier($context->getStatementBuilder()->getCanonicalName($tableStructure));
 		if ($this->table->alias)
 		{
 			$stream->space()
@@ -91,7 +91,7 @@ class InsertQuery extends Statement implements \ArrayAccess
 			if (!$tableStructure->offsetExists($columnName))
 				throw new StatementException($this, 'Invalid column "' . $columnName . '"');
 
-			$columns[] = $context->escapeIdentifier($columnName);
+			$columns[] = $context->getStatementBuilder()->escapeIdentifier($columnName);
 			$column = $tableStructure->offsetGet($columnName);
 			/**
 			 *
@@ -121,7 +121,7 @@ class InsertQuery extends Statement implements \ArrayAccess
 				if ($column->hasColumnProperty(K::COLUMN_PROPERTY_DEFAULT_VALUE))
 				{
 					$c++;
-					$columns[] = $context->escapeIdentifier($name);
+					$columns[] = $context->getStatementBuilder()->escapeIdentifier($name);
 					if ($builderFlags & K::BUILDER_INSERT_DEFAULT_KEYWORD)
 					{
 						$values[] = new Keyword(K::KEYWORD_DEFAULT);

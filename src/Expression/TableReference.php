@@ -39,7 +39,7 @@ class TableReference extends Table
 			$stream->space()
 				->keyword('as')
 				->space()
-				->identifier($context->escapeIdentifier($this->alias));
+				->identifier($context->getStatementBuilder()->escapeIdentifier($this->alias));
 
 		return $stream;
 	}

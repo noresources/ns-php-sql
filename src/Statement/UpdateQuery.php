@@ -83,7 +83,7 @@ class UpdateQuery extends Statement implements \ArrayAccess
 
 		$stream->keyword('update')
 			->space()
-			->identifier($context->getCanonicalName($tableStructure));
+			->identifier($context->getStatementBuilder()->getCanonicalName($tableStructure));
 
 		if ($this->columnValues->count())
 			$stream->space()
@@ -114,7 +114,7 @@ class UpdateQuery extends Statement implements \ArrayAccess
 				$value = new Value($value, $type);
 			}
 
-			$stream->identifier($context->escapeIdentifier($columnName))
+			$stream->identifier($context->getStatementBuilder()->escapeIdentifier($columnName))
 				->text('=')
 				->expression($value, $context);
 

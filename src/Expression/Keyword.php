@@ -31,6 +31,6 @@ class Keyword implements Expression
 
 	public function tokenize(TokenStream $stream, TokenStreamContext $context)
 	{
-		return $stream->keyword($context->getKeyword($this->keyword));
+		return $stream->keyword($context->getStatementBuilder()->getKeyword($this->keyword));
 	}
 }

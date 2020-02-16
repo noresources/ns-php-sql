@@ -36,8 +36,8 @@ class DropTableQuery extends Statement
 
 	public function tokenize(TokenStream $stream, TokenStreamContext $context)
 	{
-		$builderFlags = $context->getBuilderFlags(K::BUILDER_DOMAIN_GENERIC);
-		$builderFlags |= $context->getBuilderFlags(K::BUILDER_DOMAIN_DROP_TABLE);
+		$builderFlags = $context->getStatementBuilder()->getBuilderFlags(K::BUILDER_DOMAIN_GENERIC);
+		$builderFlags |= $context->getStatementBuilder()->getBuilderFlags(K::BUILDER_DOMAIN_DROP_TABLE);
 
 		$tableStructure = $context->findTable($this->table->path);
 

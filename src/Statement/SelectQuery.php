@@ -91,7 +91,7 @@ class JoinClause implements Expression
 
 	public function tokenize(TokenStream $stream, TokenStreamContext $context)
 	{
-		$stream->keyword($context->getJoinOperator($this->operator));
+		$stream->keyword($context->getStatementBuilder()->getJoinOperator($this->operator));
 
 		$stream->space()->expression($this->subject, $context);
 
@@ -340,8 +340,8 @@ class SelectQuery extends Statement
 
 	public function tokenize(TokenStream $stream, TokenStreamContext $context)
 	{
-		$builderFlags = $context->getBuilderFlags(K::BUILDER_DOMAIN_GENERIC);
-		$builderFlags |= $context->getBuilderFlags(K::BUILDER_DOMAIN_SELECT);
+		$builderFlags = $context->getStatementBuilder()->getBuilderFlags(K::BUILDER_DOMAIN_GENERIC);
+		$builderFlags |= $context->getStatementBuilder()->getBuilderFlags(K::BUILDER_DOMAIN_SELECT);
 
 		$tableStructure = $context->findTable($this->parts[self::PART_TABLE]->path);
 
@@ -372,13 +372,13 @@ class SelectQuery extends Statement
 		}
 
 		$tableAndJoins = new TokenStream();
-		$tableAndJoins->identifier($context->getCanonicalName($tableStructure));
+		$tableAndJoins->identifier($context->getStatementBuilder()->getCanonicalName($tableStructure));
 		if ($this->parts[self::PART_TABLE]->alias)
 		{
 			$tableAndJoins->space()
 				->keyword('as')
 				->space()
-				->identifier($context->escapeIdentifier($this->parts[self::PART_TABLE]->alias));
+				->identifier($context->getStatementBuilder()->escapeIdentifier($this->parts[self::PART_TABLE]->alias));
 		}
 
 		foreach ($this->parts[self::PART_JOINS] as $join)
@@ -453,7 +453,7 @@ class SelectQuery extends Statement
 					$stream->space()
 						->keyword('as')
 						->space()
-						->identifier($context->escapeIdentifier($column->alias));
+						->identifier($context->getStatementBuilder()->escapeIdentifier($column->alias));
 				}
 			}
 		}

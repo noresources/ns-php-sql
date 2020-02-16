@@ -61,7 +61,7 @@ class Value extends xpr\Value implements Expression, ExpressionReturnType
 	public function tokenize(TokenStream $stream, TokenStreamContext $context)
 	{
 		return $stream->literal(
-			$context->serializeColumnData($this->serializationTarget, $this->getValue()));
+			$context->getStatementBuilder()->serializeColumnData($this->serializationTarget, $this->getValue()));
 	}
 
 	/**

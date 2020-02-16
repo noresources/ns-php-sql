@@ -31,12 +31,12 @@ class Column extends StructureElementIdentifier
 			foreach ($parts as $part)
 			{
 				if ($context->isAlias($part))
-					return $stream->identifier($context->escapeIdentifierPath($parts));
+					return $stream->identifier($context->getStatementBuilder()->escapeIdentifierPath($parts));
 			}
 
-			return $stream->identifier($context->getCanonicalName($target));
+			return $stream->identifier($context->getStatementBuilder()->getCanonicalName($target));
 		}
 		else
-			return $stream->identifier($context->escapeIdentifier($this->path));
+			return $stream->identifier($context->getStatementBuilder()->escapeIdentifier($this->path));
 	}
 }

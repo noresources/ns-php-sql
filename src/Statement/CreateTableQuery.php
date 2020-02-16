@@ -56,8 +56,8 @@ class CreateTableQuery extends Statement
 
 	public function tokenize(TokenStream $stream, TokenStreamContext $context)
 	{
-		$builderFlags = $context->getBuilderFlags(K::BUILDER_DOMAIN_GENERIC);
-		$builderFlags |= $context->getBuilderFlags(K::BUILDER_DOMAIN_CREATE_TABLE);
+		$builderFlags = $context->getStatementBuilder()->getBuilderFlags(K::BUILDER_DOMAIN_GENERIC);
+		$builderFlags |= $context->getStatementBuilder()->getBuilderFlags(K::BUILDER_DOMAIN_CREATE_TABLE);
 
 		$structure = $this->structure;
 		if (!($structure instanceof TableStructure))
@@ -93,7 +93,7 @@ class CreateTableQuery extends Statement
 		}
 
 		$stream->space()
-			->identifier($context->getCanonicalName($this->structure))
+			->identifier($context->getStatementBuilder()->getCanonicalName($this->structure))
 			->space()
 			->text('(');
 
@@ -110,7 +110,7 @@ class CreateTableQuery extends Statement
 			if ($c++ > 0)
 				$stream->text(',')->space();
 
-			$type = $context->getColumnType($column);
+			$type = $context->getStatementBuilder()->getColumnType($column);
 			if (!($type instanceof TypeInterface))
 				throw new \Exception('TEMP ' . TypeDescription::getName($type));
 			/**
@@ -120,7 +120,7 @@ class CreateTableQuery extends Statement
 
 			$typeName = $type->getTypeName();
 
-			$stream->identifier($context->escapeIdentifier($column->getName()))
+			$stream->identifier($context->getStatementBuilder()->escapeIdentifier($column->getName()))
 				->space()
 				->identifier($typeName);
 
@@ -169,7 +169,7 @@ class CreateTableQuery extends Statement
 			if ($column->hasColumnProperty(K::COLUMN_PROPERTY_AUTO_INCREMENT) &&
 				$column->getColumnProperty(K::COLUMN_PROPERTY_AUTO_INCREMENT))
 			{
-				$ai = $context->getKeyword(K::KEYWORD_AUTOINCREMENT);
+				$ai = $context->getStatementBuilder()->getKeyword(K::KEYWORD_AUTOINCREMENT);
 				if (\strlen($ai))
 					$stream->space()->keyword($ai);
 			}
@@ -190,7 +190,7 @@ class CreateTableQuery extends Statement
 			{
 				$stream->keyword('constraint')
 					->space()
-					->identifier($context->escapeIdentifier($constraint->constraintName));
+					->identifier($context->getStatementBuilder()->escapeIdentifier($constraint->constraintName));
 			}
 
 			if ($constraint instanceof ColumnTableConstraint)
@@ -207,7 +207,7 @@ class CreateTableQuery extends Statement
 					if ($i++ > 0)
 						$stream->text(',')->space();
 
-					$stream->identifier($context->escapeIdentifier($column->getName()));
+					$stream->identifier($context->getStatementBuilder()->escapeIdentifier($column->getName()));
 				}
 				$stream->text(')');
 			}
@@ -223,14 +223,14 @@ class CreateTableQuery extends Statement
 					if ($i++ > 0)
 						$stream->text(',')->space();
 
-					$stream->identifier($context->escapeIdentifier($column));
+					$stream->identifier($context->getStatementBuilder()->escapeIdentifier($column));
 				}
 				$stream->text(')');
 
 				$stream->space()
 					->keyword('references')
 					->space()
-					->identifier($context->getCanonicalName($constraint->foreignTable))
+					->identifier($context->getStatementBuilder()->getCanonicalName($constraint->foreignTable))
 					->space()
 					->text('(');
 
@@ -239,7 +239,7 @@ class CreateTableQuery extends Statement
 				{
 					if ($i++ > 0)
 						$stream->text(',')->space();
-					$stream->identifier($context->escapeIdentifier($reference));
+					$stream->identifier($context->getStatementBuilder()->escapeIdentifier($reference));
 				}
 				$stream->text(')');
 
@@ -248,7 +248,7 @@ class CreateTableQuery extends Statement
 					$stream->space()
 						->keyword('on update')
 						->space()
-						->keyword($context->getForeignKeyAction($constraint->onUpdate));
+						->keyword($context->getStatementBuilder()->getForeignKeyAction($constraint->onUpdate));
 				}
 
 				if ($constraint->onDelete)
@@ -256,7 +256,7 @@ class CreateTableQuery extends Statement
 					$stream->space()
 						->keyword('on delete')
 						->space()
-						->keyword($context->getForeignKeyAction($constraint->onDelete));
+						->keyword($context->getStatementBuilder()->getForeignKeyAction($constraint->onDelete));
 				}
 			}
 		} // constraints
