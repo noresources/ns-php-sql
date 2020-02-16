@@ -11,17 +11,17 @@ namespace NoreSources\SQL\Statement;
 
 use NoreSources\Stack;
 use NoreSources\StringRepresentation;
+use NoreSources\SQL\Expression\TokenStreamContext;
 use NoreSources\SQL\Structure\StructureElement;
 use NoreSources\SQL\Structure\StructureResolver;
 use NoreSources\SQL\Structure\StructureResolverAwareInterface;
 use NoreSources\SQL\Structure\StructureResolverAwareTrait;
-use NoreSources\SQL\Structure\StructureResolverInterface;
 
 /**
  * Statement building context data
  */
-class BuildContext implements InputData, OutputData, StringRepresentation,
-	StructureResolverInterface, StructureResolverAwareInterface, StatementBuilderAwareInterface
+class BuildContext implements InputData, StringRepresentation, StructureResolverAwareInterface,
+	TokenStreamContext
 {
 	use InputDataTrait;
 	use OutputDataTrait;
@@ -63,14 +63,6 @@ class BuildContext implements InputData, OutputData, StringRepresentation,
 		return $this->builder;
 	}
 
-	/**
-	 * Set a SELECT statement result column
-	 *
-	 * @param integer $index
-	 * @param integer|ColumnStructure $data
-	 *
-	 * @note A result column can only be set on top-level context
-	 */
 	public function setResultColumn($index, $data)
 	{
 		if ($this->resultColumnAliases->count() > 1)
@@ -79,13 +71,6 @@ class BuildContext implements InputData, OutputData, StringRepresentation,
 		$this->resultColumns->setColumn($index, $data);
 	}
 
-	/**
-	 * Set the statement type
-	 *
-	 * @param integer $type
-	 *
-	 * @note The statement type can only be set on top-level context
-	 */
 	public function setStatementType($type)
 	{
 		if ($this->resultColumnAliases->count() > 1)
@@ -93,11 +78,6 @@ class BuildContext implements InputData, OutputData, StringRepresentation,
 		$this->statementType = $type;
 	}
 
-	/**
-	 *
-	 * {@inheritdoc}
-	 * @see \NoreSources\SQL\StructureResolver::findColumn()
-	 */
 	public function findColumn($path)
 	{
 		if ($this->resultColumnAliases->isEmpty())
@@ -109,13 +89,6 @@ class BuildContext implements InputData, OutputData, StringRepresentation,
 		return $this->structureResolver->findColumn($path);
 	}
 
-	/**
-	 *
-	 * @param string $alias
-	 * @param StructureElement|TableReference|ResultColumnReference $reference
-	 *
-	 * @see \NoreSources\SQL\StructureResolver::Alias()
-	 */
 	public function setAlias($alias, $reference)
 	{
 		if ($reference instanceof StructureElement)
@@ -131,11 +104,6 @@ class BuildContext implements InputData, OutputData, StringRepresentation,
 		}
 	}
 
-	/**
-	 *
-	 * {@inheritdoc}
-	 * @see \NoreSources\SQL\StructureResolver::isAlias()
-	 */
 	public function isAlias($identifier)
 	{
 		if ($this->resultColumnAliases->count())
@@ -157,24 +125,6 @@ class BuildContext implements InputData, OutputData, StringRepresentation,
 	{
 		$this->resultColumnAliases->pop();
 		$this->structureResolver->popResolverContext();
-	}
-
-	/**
-	 *
-	 * @property-read integer $statementType
-	 * @property-read ResultColumnMap $resultColumns
-	 * @param string $member
-	 * @throws \InvalidArgumentException
-	 * @return number|\NoreSources\SQL\ResultColumnMap
-	 */
-	public function __get($member)
-	{
-		if ($member == 'statementType')
-			return $this->statementType;
-		elseif ($member == 'resultColumns')
-			return $this->resultColumns;
-
-		throw new \InvalidArgumentException($member);
 	}
 
 	/**

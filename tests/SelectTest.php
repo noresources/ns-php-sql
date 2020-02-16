@@ -108,8 +108,8 @@ final class SelectTest extends \PHPUnit\Framework\TestCase
 		$q->tokenize($stream, $context);
 		StatementBuilder::finalize($stream, $context);
 
-		$this->assertEquals(K::QUERY_SELECT, $context->statementType, 'Statement type');
-		$this->assertCount(4, $context->resultColumns, 'Number of result columns');
+		$this->assertEquals(K::QUERY_SELECT, $context->getStatementType(), 'Statement type');
+		$this->assertCount(4, $context->getResultColumns(), 'Number of result columns');
 
 		$sql = \SqlFormatter::format(strval($context), false);
 
