@@ -9,8 +9,6 @@
  */
 namespace NoreSources\SQL\Expression;
 
-use NoreSources\SQL\Statement\BuildContext;
-
 class Parameter implements Expression
 {
 
@@ -21,7 +19,7 @@ class Parameter implements Expression
 		$this->name = $name;
 	}
 
-	public function tokenize(TokenStream $stream, BuildContext $context)
+	public function tokenize(TokenStream $stream, TokenStreamContext $context)
 	{
 		return $stream->parameter($this->name);
 	}

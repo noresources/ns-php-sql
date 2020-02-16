@@ -10,8 +10,10 @@
 namespace NoreSources\SQL\Expression;
 
 use NoreSources\Expression\Procedure;
-use NoreSources\SQL\Statement\BuildContext;
 
+/**
+ * SQL function call expression
+ */
 class FunctionCall extends Procedure implements Expression
 {
 
@@ -40,13 +42,7 @@ class FunctionCall extends Procedure implements Expression
 		return parent::appendArgument($argument);
 	}
 
-	/**
-	 *
-	 * @param TokenStream $stream
-	 * @param BuildContext $context
-	 * @return TokenStream
-	 */
-	public function tokenize(TokenStream $stream, BuildContext $context)
+	public function tokenize(TokenStream $stream, TokenStreamContext $context)
 	{
 		$stream->keyword($this->getFunctionName())
 			->text('(');

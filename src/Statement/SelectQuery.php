@@ -18,6 +18,7 @@ use NoreSources\SQL\Expression\Evaluator;
 use NoreSources\SQL\Expression\Expression;
 use NoreSources\SQL\Expression\TableReference;
 use NoreSources\SQL\Expression\TokenStream;
+use NoreSources\SQL\Expression\TokenStreamContext;
 use NoreSources\SQL\Structure\TableStructure;
 use NoreSources as ns;
 
@@ -88,7 +89,7 @@ class JoinClause implements Expression
 		], $args);
 	}
 
-	public function tokenize(TokenStream $stream, BuildContext $context)
+	public function tokenize(TokenStream $stream, TokenStreamContext $context)
 	{
 		$stream->keyword($context->getJoinOperator($this->operator));
 
@@ -337,7 +338,7 @@ class SelectQuery extends Statement
 		return $this;
 	}
 
-	public function tokenize(TokenStream $stream, BuildContext $context)
+	public function tokenize(TokenStream $stream, TokenStreamContext $context)
 	{
 		$builderFlags = $context->getBuilderFlags(K::BUILDER_DOMAIN_GENERIC);
 		$builderFlags |= $context->getBuilderFlags(K::BUILDER_DOMAIN_SELECT);
@@ -476,8 +477,8 @@ class SelectQuery extends Statement
 		$stream->stream($where);
 
 		// GROUP BY
-		if ($this->parts[self::PART_GROUPBY] && ns\Container::count(
-			$this->parts[self::PART_GROUPBY]))
+		if ($this->parts[self::PART_GROUPBY] &&
+			ns\Container::count($this->parts[self::PART_GROUPBY]))
 		{
 
 			$stream->space()
@@ -534,7 +535,7 @@ class SelectQuery extends Statement
 		return $stream;
 	}
 
-	protected function resolveResultColumns(BuildContext $context)
+	protected function resolveResultColumns(TokenStreamContext $context)
 	{
 		foreach ($this->parts[self::PART_COLUMNS] as $column)
 		{

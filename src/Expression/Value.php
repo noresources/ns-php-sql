@@ -12,7 +12,6 @@ namespace NoreSources\SQL\Expression;
 use NoreSources\Expression as xpr;
 use NoreSources\TypeDescription;
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\Statement\BuildContext;
 use NoreSources\SQL\Structure\ArrayColumnPropertyMap;
 use NoreSources\SQL\Structure\ColumnPropertyMap;
 
@@ -59,7 +58,7 @@ class Value extends xpr\Value implements Expression, ExpressionReturnType
 		return Helper::getExpressionDataType($this->getValue());
 	}
 
-	public function tokenize(TokenStream $stream, BuildContext $context)
+	public function tokenize(TokenStream $stream, TokenStreamContext $context)
 	{
 		return $stream->literal(
 			$context->serializeColumnData($this->serializationTarget, $this->getValue()));

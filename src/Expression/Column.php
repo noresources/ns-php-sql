@@ -9,9 +9,11 @@
  */
 namespace NoreSources\SQL\Expression;
 
-use NoreSources\SQL\Statement\BuildContext;
 use NoreSources\SQL\Structure\ColumnStructure;
 
+/**
+ * Table column
+ */
 class Column extends StructureElementIdentifier
 {
 
@@ -20,7 +22,7 @@ class Column extends StructureElementIdentifier
 		parent::__construct($path);
 	}
 
-	public function tokenize(TokenStream $stream, BuildContext $context)
+	public function tokenize(TokenStream $stream, TokenStreamContext $context)
 	{
 		$target = $context->findColumn($this->path);
 		if ($target instanceof ColumnStructure)

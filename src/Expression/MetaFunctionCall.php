@@ -9,8 +9,6 @@
  */
 namespace NoreSources\SQL\Expression;
 
-use NoreSources\SQL\Statement\BuildContext;
-
 class MetaFunctionCall extends FunctionCall
 {
 
@@ -24,7 +22,7 @@ class MetaFunctionCall extends FunctionCall
 		parent::__construct($name, $arguments);
 	}
 
-	public function tokenize(TokenStream $stream, BuildContext $context)
+	public function tokenize(TokenStream $stream, TokenStreamContext $context)
 	{
 		return $context->translateFunction($this)->tokenize($stream, $context);
 	}

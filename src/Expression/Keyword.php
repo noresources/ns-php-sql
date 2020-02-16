@@ -9,8 +9,6 @@
  */
 namespace NoreSources\SQL\Expression;
 
-use NoreSources\SQL\Statement\BuildContext;
-
 class Keyword implements Expression
 {
 
@@ -31,7 +29,7 @@ class Keyword implements Expression
 		$this->keyword = $keyword;
 	}
 
-	public function tokenize(TokenStream $stream, BuildContext $context)
+	public function tokenize(TokenStream $stream, TokenStreamContext $context)
 	{
 		return $stream->keyword($context->getKeyword($this->keyword));
 	}

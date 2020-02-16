@@ -9,8 +9,6 @@
  */
 namespace NoreSources\SQL\Expression;
 
-use NoreSources\SQL\Statement\BuildContext;
-
 /**
  * A tokenizable object can be represented as a series of Token
  */
@@ -23,5 +21,5 @@ interface Tokenizable
 	 * @see \NoreSources\SQL\Tokenizable::tokenize()
 	 * @return TokenStream
 	 */
-	function tokenize(TokenStream $stream, BuildContext $context);
+	function tokenize(TokenStream $stream, TokenStreamContext $context);
 }

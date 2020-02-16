@@ -17,6 +17,7 @@ use NoreSources\SQL\Expression\Evaluator as X;
 use NoreSources\SQL\Expression\Expression;
 use NoreSources\SQL\Expression\TableReference;
 use NoreSources\SQL\Expression\TokenStream;
+use NoreSources\SQL\Expression\TokenStreamContext;
 use NoreSources\SQL\Expression\Value;
 use NoreSources\SQL\Structure\TableStructure;
 
@@ -65,7 +66,7 @@ class UpdateQuery extends Statement implements \ArrayAccess
 		return $this;
 	}
 
-	public function tokenize(TokenStream $stream, BuildContext $context)
+	public function tokenize(TokenStream $stream, TokenStreamContext $context)
 	{
 		if ($this->columnValues->count() == 0)
 		{

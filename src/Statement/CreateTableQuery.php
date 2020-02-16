@@ -17,6 +17,7 @@ use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\TypeInterface;
 use NoreSources\SQL\Expression\Evaluator as X;
 use NoreSources\SQL\Expression\TokenStream;
+use NoreSources\SQL\Expression\TokenStreamContext;
 use NoreSources\SQL\Structure\ColumnTableConstraint;
 use NoreSources\SQL\Structure\ForeignKeyTableConstraint;
 use NoreSources\SQL\Structure\PrimaryKeyTableConstraint;
@@ -53,7 +54,7 @@ class CreateTableQuery extends Statement
 		return $this->structure->$member;
 	}
 
-	public function tokenize(TokenStream $stream, BuildContext $context)
+	public function tokenize(TokenStream $stream, TokenStreamContext $context)
 	{
 		$builderFlags = $context->getBuilderFlags(K::BUILDER_DOMAIN_GENERIC);
 		$builderFlags |= $context->getBuilderFlags(K::BUILDER_DOMAIN_CREATE_TABLE);

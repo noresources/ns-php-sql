@@ -18,6 +18,7 @@ use NoreSources\SQL\Expression\Expression;
 use NoreSources\SQL\Expression\Keyword;
 use NoreSources\SQL\Expression\TableReference;
 use NoreSources\SQL\Expression\TokenStream;
+use NoreSources\SQL\Expression\TokenStreamContext;
 use NoreSources\SQL\Expression\Value;
 use NoreSources\SQL\Structure\TableStructure;
 
@@ -46,7 +47,7 @@ class InsertQuery extends Statement implements \ArrayAccess
 		$this->columnValues = new \ArrayObject();
 	}
 
-	public function tokenize(TokenStream $stream, BuildContext $context)
+	public function tokenize(TokenStream $stream, TokenStreamContext $context)
 	{
 		$builderFlags = $context->getBuilderFlags(K::BUILDER_DOMAIN_GENERIC);
 		$builderFlags |= $context->getBuilderFlags(K::BUILDER_DOMAIN_INSERT);

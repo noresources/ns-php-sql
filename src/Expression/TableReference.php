@@ -12,7 +12,6 @@
 namespace NoreSources\SQL\Expression;
 
 // Aliases
-use NoreSources\SQL\Statement\BuildContext;
 
 /**
  * SQL Table reference in a SQL query
@@ -33,7 +32,7 @@ class TableReference extends Table
 		$this->alias = $alias;
 	}
 
-	public function tokenize(TokenStream $stream, BuildContext $context)
+	public function tokenize(TokenStream $stream, TokenStreamContext $context)
 	{
 		parent::tokenize($stream, $context);
 		if (strlen($this->alias))

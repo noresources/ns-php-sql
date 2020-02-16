@@ -2,7 +2,6 @@
 namespace NoreSources\SQL\Expression;
 
 use NoreSources\Expression as xpr;
-use NoreSources\SQL\Statement\BuildContext;
 
 class AlternativeList implements xpr\Expression, Expression
 {
@@ -24,7 +23,7 @@ class AlternativeList implements xpr\Expression, Expression
 		$this->otherwise = $else;
 	}
 
-	public function tokenize(TokenStream $stream, BuildContext $context)
+	public function tokenize(TokenStream $stream, TokenStreamContext $context)
 	{
 		$stream->keyword('case')
 			->space()
