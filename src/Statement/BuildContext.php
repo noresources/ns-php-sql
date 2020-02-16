@@ -21,7 +21,7 @@ use NoreSources\SQL\Structure\StructureResolverInterface;
  * Statement building context data
  */
 class BuildContext implements InputData, OutputData, StringRepresentation,
-	StructureResolverInterface, StructureResolverAwareInterface
+	StructureResolverInterface, StructureResolverAwareInterface, StatementBuilderAwareInterface
 {
 	use InputDataTrait;
 	use OutputDataTrait;
@@ -33,12 +33,6 @@ class BuildContext implements InputData, OutputData, StringRepresentation,
 	 * @var string
 	 */
 	public $sql;
-
-	/**
-	 *
-	 * @var StatementBuilder
-	 */
-	public $builder;
 
 	/**
 	 *
@@ -62,6 +56,11 @@ class BuildContext implements InputData, OutputData, StringRepresentation,
 	public function __toString()
 	{
 		return $this->sql;
+	}
+
+	public function getStatementBuilder()
+	{
+		return $this->builder;
 	}
 
 	/**
@@ -210,4 +209,10 @@ class BuildContext implements InputData, OutputData, StringRepresentation,
 	 * @var \Noresources\Stack Stack of \ArrayObject
 	 */
 	private $resultColumnAliases;
+
+	/**
+	 *
+	 * @var StatementBuilder
+	 */
+	private $builder;
 }

@@ -316,7 +316,8 @@ abstract class StatementBuilder implements StatementBuilderInterface
 			{
 				$name = strval($value);
 				$position = $context->getParameters()->count();
-				$dbmsName = $context->builder->getParameter($name, $context->getParameters());
+				$dbmsName = $context->getStatementBuilder()->getParameter($name,
+					$context->getParameters());
 				$context->registerParameter($position, $name, $dbmsName);
 				$value = $dbmsName;
 			}
