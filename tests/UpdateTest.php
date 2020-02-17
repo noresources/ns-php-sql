@@ -5,7 +5,6 @@ use NoreSources\SQL\DBMS\ConnectionHelper;
 use NoreSources\SQL\DBMS\Reference\ReferenceStatementBuilder;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Statement\BuildContext;
-use NoreSources\SQL\Statement\StatementBuilder;
 use NoreSources\Test\DatasourceManager;
 use NoreSources\Test\DerivedFileManager;
 
@@ -95,8 +94,8 @@ final class UpdateTest extends \PHPUnit\Framework\TestCase
 
 			$stream = new TokenStream();
 			$q->tokenize($stream, $context);
-			$sql = StatementBuilder::finalize($stream, $context);
-			$sql = \SqlFormatter::format(strval($sql), false);
+			$result = $builder->finalizeStatement($stream, $context);
+			$sql = \SqlFormatter::format(strval($result), false);
 			$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, $set, 'sql');
 		}
 	}
@@ -133,11 +132,8 @@ final class UpdateTest extends \PHPUnit\Framework\TestCase
 
 		$stream = new TokenStream();
 		$q->tokenize($stream, $context);
-		$result = StatementBuilder::finalize($stream, $context);
-
-		$this->assertEquals($context, $result, 'builder::finalize() result');
-
-		$sql = \SqlFormatter::format($result, false);
+		$result = $builder->finalizeStatement($stream, $context);
+		$sql = \SqlFormatter::format(\strval($result), false);
 
 		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, null, 'sql');
 	}
@@ -165,11 +161,8 @@ final class UpdateTest extends \PHPUnit\Framework\TestCase
 
 		$stream = new TokenStream();
 		$q->tokenize($stream, $context);
-		$result = StatementBuilder::finalize($stream, $context);
-
-		$this->assertEquals($context, $result, 'builder::finalize() result');
-
-		$sql = \SqlFormatter::format($result, false);
+		$result = $builder->finalizeStatement($stream, $context);
+		$sql = \SqlFormatter::format(\strval($result), false);
 
 		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, null, 'sql');
 	}

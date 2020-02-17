@@ -14,7 +14,6 @@ use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Statement\BuildContext;
 use NoreSources\SQL\Statement\Statement;
-use NoreSources\SQL\Statement\StatementBuilder;
 use NoreSources\SQL\Structure\StructureElement;
 use NoreSources as ns;
 
@@ -93,8 +92,7 @@ class ConnectionHelper
 			$context->setPivot($reference);
 		$stream = new TokenStream();
 		$statement->tokenize($stream, $context);
-		StatementBuilder::finalize($stream, $context);
-		return $context;
+		return $builder->finalizeStatement($stream, $context);
 	}
 
 	/**
@@ -134,8 +132,8 @@ class ConnectionHelper
 			$context->setPivot($reference);
 		$stream = new TokenStream();
 		$statement->tokenize($stream, $context);
-		StatementBuilder::finalize($stream, $context);
-		$prepared = $connection->prepareStatement($context);
+		$result = $builder->finalizeStatement($stream, $context);
+		$prepared = $connection->prepareStatement($result);
 		return $prepared;
 	}
 

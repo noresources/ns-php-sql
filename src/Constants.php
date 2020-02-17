@@ -463,6 +463,10 @@ class Constants
 
 	const QUERY_FAMILY_CREATE = 0x30;
 
+	const QUERY_DROP_TABLE = 0x40;
+
+	const QUERY_FAMILY_DROP = 0x40;
+
 	// Recordset flags
 
 	/**

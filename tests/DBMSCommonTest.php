@@ -100,8 +100,9 @@ final class DBMSCommonTest extends TestCase
 			}
 
 			$q = new SelectQuery($tableStructure);
-			$sql = ConnectionHelper::getStatementData($connection, $q, $tableStructure);
-			$recordset = $connection->executeStatement($sql);
+			$data = ConnectionHelper::getStatementData($connection, $q, $tableStructure);
+
+			$recordset = $connection->executeStatement($data);
 			$this->assertInstanceOf(Recordset::class, $recordset, $dbmsName);
 			$recordset->setFlags($recordset->getFlags() | Recordset::FETCH_UNSERIALIZE);
 

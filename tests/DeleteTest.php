@@ -4,7 +4,6 @@ namespace NoreSources\SQL;
 use NoreSources\SQL\DBMS\Reference\ReferenceStatementBuilder;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Statement\BuildContext;
-use NoreSources\SQL\Statement\StatementBuilder;
 use NoreSources\Test\DatasourceManager;
 use NoreSources\Test\DerivedFileManager;
 
@@ -35,8 +34,8 @@ final class DeleteTest extends \PHPUnit\Framework\TestCase
 
 		$stream = new TokenStream();
 		$q->tokenize($stream, $context);
-		$sql = StatementBuilder::finalize($stream, $context);
-		$sql = \SqlFormatter::format(strval($sql), false);
+		$result = $builder->finalizeStatement($stream, $context);
+		$sql = \SqlFormatter::format(strval($result), false);
 
 		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, null, 'sql');
 	}

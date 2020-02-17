@@ -10,7 +10,6 @@
 namespace NoreSources\SQL\Statement;
 
 use NoreSources\Stack;
-use NoreSources\StringRepresentation;
 use NoreSources\SQL\Expression\TokenStreamContext;
 use NoreSources\SQL\Structure\StructureElement;
 use NoreSources\SQL\Structure\StructureResolver;
@@ -20,19 +19,11 @@ use NoreSources\SQL\Structure\StructureResolverAwareTrait;
 /**
  * Statement building context data
  */
-class BuildContext implements InputData, StringRepresentation, StructureResolverAwareInterface,
-	TokenStreamContext
+class BuildContext implements InputData, StructureResolverAwareInterface, TokenStreamContext
 {
 	use InputDataTrait;
 	use OutputDataTrait;
 	use StructureResolverAwareTrait;
-
-	/**
-	 * SQL statement string
-	 *
-	 * @var string
-	 */
-	public $sql;
 
 	/**
 	 *
@@ -43,19 +34,9 @@ class BuildContext implements InputData, StringRepresentation, StructureResolver
 	{
 		$this->initializeInputData(null);
 		$this->initializeOutputData(null);
-		$this->sql = '';
 		$this->builder = $builder;
 		$this->setStructureResolver(new StructureResolver($pivot));
 		$this->resultColumnAliases = new Stack();
-	}
-
-	/**
-	 *
-	 * @return string SQL statement string
-	 */
-	public function __toString()
-	{
-		return $this->sql;
 	}
 
 	public function getStatementBuilder()

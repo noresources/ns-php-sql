@@ -7,7 +7,6 @@ use NoreSources\SQL\Expression\Evaluator as X;
 use NoreSources\SQL\Expression\MemberOf;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Statement\BuildContext;
-use NoreSources\SQL\Statement\StatementBuilder;
 use NoreSources\Test\DatasourceManager;
 use NoreSources\Test\DerivedFileManager;
 
@@ -50,11 +49,12 @@ final class SelectTest extends \PHPUnit\Framework\TestCase
 		$this->assertCount(2, $context->getResultColumns(),
 			'Number of result column (after Builder::tokenize())');
 
-		$result = StatementBuilder::finalize($stream, $context);
-		$this->assertEquals($context, $result, 'Builder::finalzie() result');
+		$result = $builder->finalizeStatement($stream, $context);
 
-		$this->assertCount(2, $context->getResultColumns(),
+		$this->assertCount(2, $result->getResultColumns(),
 			'Number of result column (after Builder::finalize())');
+
+		$this->assertEquals(K::QUERY_SELECT, $result->getStatementType(), 'Statement type');
 
 		$sql = \SqlFormatter::format(strval($result), false);
 
@@ -106,12 +106,12 @@ final class SelectTest extends \PHPUnit\Framework\TestCase
 
 		$stream = new TokenStream();
 		$q->tokenize($stream, $context);
-		StatementBuilder::finalize($stream, $context);
+		$result = $builder->finalizeStatement($stream, $context);
 
-		$this->assertEquals(K::QUERY_SELECT, $context->getStatementType(), 'Statement type');
-		$this->assertCount(4, $context->getResultColumns(), 'Number of result columns');
+		$this->assertEquals(K::QUERY_SELECT, $result->getStatementType(), 'Statement type');
+		$this->assertCount(4, $result->getResultColumns(), 'Number of result columns');
 
-		$sql = \SqlFormatter::format(strval($context), false);
+		$sql = \SqlFormatter::format(strval($result), false);
 
 		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, null, 'sql');
 	}
@@ -154,8 +154,8 @@ final class SelectTest extends \PHPUnit\Framework\TestCase
 
 		$stream = new TokenStream();
 		$q->tokenize($stream, $context);
-		$sql = StatementBuilder::finalize($stream, $context);
-		$sql = \SqlFormatter::format(strval($sql), false);
+		$result = $builder->finalizeStatement($stream, $context);
+		$sql = \SqlFormatter::format(strval($result), false);
 
 		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, null, 'sql');
 	}

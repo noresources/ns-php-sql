@@ -13,6 +13,7 @@ use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Expression\FunctionCall;
 use NoreSources\SQL\Expression\MetaFunctionCall;
 use NoreSources\SQL\Expression\TokenStream;
+use NoreSources\SQL\Expression\TokenStreamContext;
 use NoreSources\SQL\Structure\ColumnPropertyMap;
 use NoreSources\SQL\Structure\ColumnStructure;
 use NoreSources\SQL\Structure\ColumnTableConstraint;
@@ -26,7 +27,9 @@ use NoreSources\SQL\Structure\UniqueTableConstraint;
 use NoreSources as ns;
 
 /**
- * Generic, partial implementation of StatementBuilderInterface
+ * Generic, partial implementation of StatementBuilderInterface.
+ *
+ * This should be used as base class for all DBMS-specific statement builders.
  */
 abstract class StatementBuilder implements StatementBuilderInterface
 {
@@ -302,10 +305,10 @@ abstract class StatementBuilder implements StatementBuilderInterface
 		return $s;
 	}
 
-	public final static function finalize(TokenStream $stream, BuildContext &$context)
+	public function finalizeStatement(TokenStream $stream, TokenStreamContext &$context)
 	{
-		$context->sql = '';
-		$context->initializeInputData(null);
+		$data = new StatementData($context);
+		$sql = '';
 
 		foreach ($stream as $token)
 		{
@@ -314,18 +317,18 @@ abstract class StatementBuilder implements StatementBuilderInterface
 
 			if ($type == K::TOKEN_PARAMETER)
 			{
-				$name = strval($value);
-				$position = $context->getParameters()->count();
-				$dbmsName = $context->getStatementBuilder()->getParameter($name,
-					$context->getParameters());
-				$context->registerParameter($position, $name, $dbmsName);
+				$name = \strval($value);
+				$position = $data->getParameters()->count();
+				$dbmsName = $this->getParameter($name, $data->getParameters());
+				$data->registerParameter($position, $name, $dbmsName);
 				$value = $dbmsName;
 			}
 
-			$context->sql .= $value;
+			$sql .= $value;
 		}
 
-		return $context;
+		$data->setSQL($sql);
+		return $data;
 	}
 
 	public function getForeignKeyAction($action)
