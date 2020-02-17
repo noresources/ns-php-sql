@@ -68,10 +68,14 @@ abstract class Statement implements X\Expression
 				return K::QUERY_UPDATE;
 			elseif ($data instanceof DeleteQuery)
 				return K::QUERY_DELETE;
+			elseif ($data instanceof CreateTableQuery)
+				return K::QUERY_CREATE_TABLE;
+			elseif ($data instanceof DropTableQuery)
+				return K::QUERY_DROP_TABLE;
 
 			$type = 0;
-			if ($type instanceof OutputData)
-				$type = $data->getExpressionDataType();
+			if ($data instanceof OutputData)
+				$type = $data->getStatementType();
 
 			if ($type != 0)
 				return $type;
