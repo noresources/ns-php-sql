@@ -10,7 +10,18 @@
  */
 namespace NoreSources\SQL;
 
+use NoreSources\IExpression;
+use NoreSources\UnaryOperatorExpression;
 use NoreSources as ns;
+
+class Distinct extends UnaryOperatorExpression
+{
+	public function __construct (IExpression $operand)
+	{
+		parent::__construct ('DISTINCT ', $operand);
+		$this->protect = false;
+	}
+}
 
 /**
  * IS null expression
