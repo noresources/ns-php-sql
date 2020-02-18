@@ -739,7 +739,28 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 		}
 
 		if ($flags & self::QUERY_COUNT)
-			$s->clearColumns()->addColumn(new SQLFunction('count', new StarColumn()));
+		{
+			$countColumn = null;
+			if ($s->distinct)
+			{
+				$countColumnName = null;
+				$pks = $structure->getPrimaryKeyColumns();
+				if (\count($pks))
+					list ($countColumnName, $_) = each($pks);
+				else
+					foreach ($structure as $name => $_)
+					{
+						$countColumnName = $name;
+						break;
+					}
+				$countColumn = new Distinct($table->getColumn($countColumnName));
+			}
+			else
+				$countColumn = new StarColumn();
+
+			$s->distinct = false;
+			$s->clearColumns()->addColumn(new SQLFunction('count', $countColumn));
+		}
 
 		if ($flags & self::QUERY_SQL)
 			return $s;
