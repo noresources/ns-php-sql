@@ -25,6 +25,8 @@ const SQL_VERSION_PATCH = 0;
 class SQL
 {
 
+	const DATATYPE_UNDEFINED = 0;
+	
 	const DATATYPE_NULL = 0x01;
 
 	const DATATYPE_STRING = 0x02;
