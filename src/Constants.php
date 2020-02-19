@@ -526,4 +526,11 @@ class Constants
 	 * @var string
 	 */
 	const XML_ELEMENT_UBDEX = 'index';
+
+	/**
+	 * Timestamp formatting meta function name.
+	 *
+	 * @var string
+	 */
+	const METAFUNCTION_TIMESTAMP_FORMAT = 'timestampformat';
 }
