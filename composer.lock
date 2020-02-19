@@ -51,7 +51,7 @@
             "source": {
                 "type": "git",
                 "url": "ssh://okami/volume1/repository/git/ns-php-core.git",
-                "reference": "0a68470a6a3dce2ca38e20e96b38a9805b9a3718"
+                "reference": "034272dc2ec90ee0576fbc649791dbf209498e17"
             },
             "require": {
                 "ext-json": "*",
@@ -102,7 +102,7 @@
             "support": {
                 "issues": "https://github.com/noresources/ns-php-core/issues"
             },
-            "time": "2020-02-10T19:24:21+00:00"
+            "time": "2020-02-14T22:57:45+00:00"
         },
         {
             "name": "noresources/ns-php-expression",
@@ -110,7 +110,7 @@
             "source": {
                 "type": "git",
                 "url": "ssh://okami/volume1/repository/git/ns-php-expression.git",
-                "reference": "6139b78c9ce638672f00917890aa33ff704edf4a"
+                "reference": "ee39087e3b5296017690fc39994ccd5976749051"
             },
             "require": {
                 "noresources/ns-php-core": "~2.0",
@@ -149,7 +149,7 @@
             "support": {
                 "issues": "https://github.com/noresources/ns-php-expression/issues"
             },
-            "time": "2020-02-11T23:19:42+00:00"
+            "time": "2020-02-18T21:29:40+00:00"
         },
         {
             "name": "noresources/ns-php-mediatype",
@@ -622,12 +622,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpDocumentor/ReflectionDocBlock.git",
-                "reference": "e2ce1d210acaf2c3aeab9d7428bfc55e7d468767"
+                "reference": "011b369030b0976f51d94eba8e255a1f66461df5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpDocumentor/ReflectionDocBlock/zipball/e2ce1d210acaf2c3aeab9d7428bfc55e7d468767",
-                "reference": "e2ce1d210acaf2c3aeab9d7428bfc55e7d468767",
+                "url": "https://api.github.com/repos/phpDocumentor/ReflectionDocBlock/zipball/011b369030b0976f51d94eba8e255a1f66461df5",
+                "reference": "011b369030b0976f51d94eba8e255a1f66461df5",
                 "shasum": ""
             },
             "require": {
@@ -667,7 +667,7 @@
                 }
             ],
             "description": "With this component, a library can provide support for annotations via DocBlocks or otherwise retrieve information that is embedded in a DocBlock.",
-            "time": "2020-02-10T20:23:05+00:00"
+            "time": "2020-02-17T17:48:35+00:00"
         },
         {
             "name": "phpdocumentor/type-resolver",
@@ -675,12 +675,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpDocumentor/TypeResolver.git",
-                "reference": "35ac7d8479b312530648b28914620120446fa0ae"
+                "reference": "7462d5f123dfc080dfdf26897032a6513644fc95"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpDocumentor/TypeResolver/zipball/35ac7d8479b312530648b28914620120446fa0ae",
-                "reference": "35ac7d8479b312530648b28914620120446fa0ae",
+                "url": "https://api.github.com/repos/phpDocumentor/TypeResolver/zipball/7462d5f123dfc080dfdf26897032a6513644fc95",
+                "reference": "7462d5f123dfc080dfdf26897032a6513644fc95",
                 "shasum": ""
             },
             "require": {
@@ -713,7 +713,7 @@
                 }
             ],
             "description": "A PSR-5 based resolver of Class names, Types and Structural Element Names",
-            "time": "2020-02-10T19:49:09+00:00"
+            "time": "2020-02-18T18:59:58+00:00"
         },
         {
             "name": "phpspec/prophecy",
@@ -1036,12 +1036,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "6d6f260a2e82f57026b28db566da6e62fff3bf2a"
+                "reference": "7b597a4ca10d93ede4937286dafdfbe665ac0097"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/6d6f260a2e82f57026b28db566da6e62fff3bf2a",
-                "reference": "6d6f260a2e82f57026b28db566da6e62fff3bf2a",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/7b597a4ca10d93ede4937286dafdfbe665ac0097",
+                "reference": "7b597a4ca10d93ede4937286dafdfbe665ac0097",
                 "shasum": ""
             },
             "require": {
@@ -1111,7 +1111,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2020-02-11T16:13:52+00:00"
+            "time": "2020-02-18T06:21:10+00:00"
         },
         {
             "name": "sebastian/code-unit-reverse-lookup",
@@ -1828,16 +1828,16 @@
         },
         {
             "name": "webmozart/assert",
-            "version": "1.6.0",
+            "version": "1.7.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/webmozart/assert.git",
-                "reference": "573381c0a64f155a0d9a23f4b0c797194805b925"
+                "reference": "aed98a490f9a8f78468232db345ab9cf606cf598"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/webmozart/assert/zipball/573381c0a64f155a0d9a23f4b0c797194805b925",
-                "reference": "573381c0a64f155a0d9a23f4b0c797194805b925",
+                "url": "https://api.github.com/repos/webmozart/assert/zipball/aed98a490f9a8f78468232db345ab9cf606cf598",
+                "reference": "aed98a490f9a8f78468232db345ab9cf606cf598",
                 "shasum": ""
             },
             "require": {
@@ -1872,7 +1872,7 @@
                 "check",
                 "validate"
             ],
-            "time": "2019-11-24T13:36:37+00:00"
+            "time": "2020-02-14T12:15:55+00:00"
         }
     ],
     "aliases": [],
