@@ -12,8 +12,9 @@ namespace NoreSources\SQL\Structure;
 class StructureResolverException extends \Exception
 {
 
-	public function __construct($path)
+	public function __construct($path, $elementType = '')
 	{
-		parent::__construct($path . ' not found');
+		parent::__construct(
+			'"' . $path . '"' . (\strlen($elementType) ? ' ' . $elementType : '') . ' not found');
 	}
 }

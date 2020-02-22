@@ -100,9 +100,7 @@ class StructureResolver implements StructureResolverInterface
 			$this->cache[$key]->offsetSet($path, $column);
 		}
 		else
-		{
-			throw new StructureResolverException($path);
-		}
+			throw new StructureResolverException($path, 'column');
 
 		return $column;
 	}
@@ -124,11 +122,10 @@ class StructureResolver implements StructureResolverInterface
 		{
 			$tableset = $this->getDefaultTableset();
 		}
-		else
-			if ($c == 2)
-			{
-				$tableset = $this->findTableset($x[0]);
-			}
+		elseif ($c == 2)
+		{
+			$tableset = $this->findTableset($x[0]);
+		}
 
 		$table = ($tableset instanceof TablesetStructure) ? $tableset->offsetGet($name) : null;
 
@@ -138,9 +135,7 @@ class StructureResolver implements StructureResolverInterface
 			$this->cache[$key]->offsetSet($path, $table);
 		}
 		else
-		{
-			throw new StructureResolverException($path);
-		}
+			throw new StructureResolverException($path, 'table');
 
 		return $table;
 	}
@@ -166,9 +161,8 @@ class StructureResolver implements StructureResolverInterface
 			$this->cache[$key]->offsetSet($path, $tableset);
 		}
 		else
-		{
-			throw new StructureResolverException($path);
-		}
+			throw new StructureResolverException($path, 'tableset');
+
 		return $tableset;
 	}
 
