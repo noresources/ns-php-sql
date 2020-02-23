@@ -16,6 +16,7 @@ use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Expression\Column;
 use NoreSources\SQL\Expression\Evaluator;
 use NoreSources\SQL\Expression\Expression;
+use NoreSources\SQL\Expression\ExpressionReturnType;
 use NoreSources\SQL\Expression\TableReference;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Expression\TokenStreamContext;
@@ -91,7 +92,8 @@ class JoinClause implements Expression
 
 	public function tokenize(TokenStream $stream, TokenStreamContext $context)
 	{
-		$stream->keyword($context->getStatementBuilder()->getJoinOperator($this->operator));
+		$stream->keyword($context->getStatementBuilder()
+			->getJoinOperator($this->operator));
 
 		$stream->space()->expression($this->subject, $context);
 
@@ -372,13 +374,17 @@ class SelectQuery extends Statement
 		}
 
 		$tableAndJoins = new TokenStream();
-		$tableAndJoins->identifier($context->getStatementBuilder()->getCanonicalName($tableStructure));
+		$tableAndJoins->identifier(
+			$context->getStatementBuilder()
+				->getCanonicalName($tableStructure));
 		if ($this->parts[self::PART_TABLE]->alias)
 		{
 			$tableAndJoins->space()
 				->keyword('as')
 				->space()
-				->identifier($context->getStatementBuilder()->escapeIdentifier($this->parts[self::PART_TABLE]->alias));
+				->identifier(
+				$context->getStatementBuilder()
+					->escapeIdentifier($this->parts[self::PART_TABLE]->alias));
 		}
 
 		foreach ($this->parts[self::PART_JOINS] as $join)
@@ -444,8 +450,10 @@ class SelectQuery extends Statement
 				}
 				else
 				{
-					$context->setResultColumn($columnIndex,
-						$column->expression->getExpressionDataType());
+					$type = K::DATATYPE_UNDEFINED;
+					if ($column->expression instanceof ExpressionReturnType)
+						$type = $column->expression->getExpressionDataType();
+					$context->setResultColumn($columnIndex, $type);
 				}
 
 				if ($column->alias)
@@ -453,7 +461,9 @@ class SelectQuery extends Statement
 					$stream->space()
 						->keyword('as')
 						->space()
-						->identifier($context->getStatementBuilder()->escapeIdentifier($column->alias));
+						->identifier(
+						$context->getStatementBuilder()
+							->escapeIdentifier($column->alias));
 				}
 			}
 		}
@@ -477,8 +487,8 @@ class SelectQuery extends Statement
 		$stream->stream($where);
 
 		// GROUP BY
-		if ($this->parts[self::PART_GROUPBY] &&
-			ns\Container::count($this->parts[self::PART_GROUPBY]))
+		if ($this->parts[self::PART_GROUPBY] && ns\Container::count(
+			$this->parts[self::PART_GROUPBY]))
 		{
 
 			$stream->space()
