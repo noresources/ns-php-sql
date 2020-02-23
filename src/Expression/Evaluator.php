@@ -13,9 +13,10 @@ use Ferno\Loco;
 use Ferno\Loco\EmptyParser;
 use Ferno\Loco\LazyAltParser;
 use Ferno\Loco\StringParser;
+use NoreSources\Container;
+use NoreSources\TypeDescription;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Structure\ColumnStructure;
-use NoreSources as ns;
 
 class EvaluatorExceptioion extends \ErrorException
 {
@@ -239,12 +240,14 @@ class Evaluator
 		{
 			return $this->evaluateString($evaluable);
 		}
-		elseif (ns\Container::isArray($evaluable))
+		elseif (Container::isArray($evaluable))
 		{
-			if (ns\Container::isAssociative($evaluable))
+			if (Container::isAssociative($evaluable))
 			{
+				// Polish notation or "column => value"
 				if (\count($evaluable) == 1)
 				{
+					// column = value
 					reset($evaluable);
 					list ($a, $b) = each($evaluable);
 					if (!\is_array($b))
@@ -258,15 +261,22 @@ class Evaluator
 			}
 			else
 			{
-				return array_map([
-					$this,
-					'evaluateEvaluable'
-				], $evaluable);
+				$e = null;
+				foreach ($evaluable as $v)
+				{
+					$x = $this->evaluateEvaluable($v);
+					if ($e instanceof Expression)
+						$e = new BinaryOperation(BinaryOperation::LOGICAL_AND, $e, $x);
+					else
+						$e = $x;
+				}
+
+				return $e;
 			}
 		}
 
 		throw new EvaluatorExceptioion(
-			ns\TypeDescription::getName($evaluable) . ' cannot be evaluated');
+			TypeDescription::getName($evaluable) . ' cannot be evaluated');
 	}
 
 	/**
@@ -347,10 +357,10 @@ class Evaluator
 		$c = count($operands);
 		$o = false;
 		if (\array_key_exists($c, $this->operators))
-			$o = ns\Container::keyValue($this->operators[$c], $key, false);
+			$o = Container::keyValue($this->operators[$c], $key, false);
 
 		if (!($o instanceof PolishNotationOperation))
-			$o = ns\Container::keyValue($this->operators['*'], $key, false);
+			$o = Container::keyValue($this->operators['*'], $key, false);
 
 		if (!($o instanceof PolishNotationOperation))
 			throw new EvaluatorExceptioion(
@@ -400,7 +410,7 @@ class Evaluator
 
 			if ($result instanceof Expression)
 			{
-				$result = new BinaryOperation('AND', $result, $expression);
+				$result = new BinaryOperation(BinaryOperation::LOGICAL_AND, $result, $expression);
 			}
 			else
 				$result = $expression;
@@ -896,18 +906,18 @@ class Evaluator
 				$date = date('Y-m-d');
 				$time = date('H:i:s.u');
 
-				if (ns\Container::keyExists($dt, 'hour'))
+				if (Container::keyExists($dt, 'hour'))
 				{
 					$time = $dt['hour'] . ':' . $dt['minute'] . ':' . $dt['second'] . '.' .
 					$dt['microsecond'];
 				}
 
-				if (ns\Container::keyExists($dt, 'year'))
+				if (Container::keyExists($dt, 'year'))
 				{
 					$date = $dt['year'] . '-' . $dt['month'] . '-' . $dt['day'];
 				}
 
-				if (ns\Container::keyExists($dt, 'timezone'))
+				if (Container::keyExists($dt, 'timezone'))
 				{
 					$timezone = $dt['timezone'];
 				}
