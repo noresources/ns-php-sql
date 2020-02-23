@@ -17,6 +17,7 @@ use NoreSources\SQL\ParameterValue;
 use NoreSources\SQL\DBMS\Connection;
 use NoreSources\SQL\DBMS\ConnectionStructureTrait;
 use NoreSources\SQL\DBMS\SQLite\SQLiteConstants as K;
+use NoreSources\SQL\Expression\Value;
 use NoreSources\SQL\QueryResult\GenericInsertionQueryResult;
 use NoreSources\SQL\QueryResult\GenericRowModificationQueryResult;
 use NoreSources\SQL\Statement\ParametrizedStatement;
@@ -295,6 +296,23 @@ class SQLiteConnection implements Connection
 				$value = ($entry instanceof ParameterValue) ? $entry->value : $entry;
 				$type = ($entry instanceof ParameterValue) ? $entry->type : K::DATATYPE_UNDEFINED;
 
+				if ($type == K::DATATYPE_UNDEFINED)
+					$type = Value::dataTypeFromValue($value);
+
+				/**
+				 * SQLite does not have type for DateTIme etc.
+				 * but Date/Time functions
+				 * expects a strict datetime format.
+				 *
+				 * Workaround: format DateTIme to string with the correct format before
+				 */
+
+				if ($type & K::DATATYPE_TIMESTAMP)
+				{
+					if ($value instanceof \DateTimeInterface)
+						$value = $value->format($this->builder->getTimestampFormat($type));
+				}
+
 				$type = self::sqliteDataTypeFromDataType($type);
 				$bindResult = $stmt->bindValue($name, $value, $type);
 				if (!$bindResult)
@@ -405,7 +423,7 @@ class SQLiteConnection implements Connection
 
 	/**
 	 *
-	 * @var StatementBuilder
+	 * @var SQLiteStatementBuilder
 	 */
 	private $builder;
 
