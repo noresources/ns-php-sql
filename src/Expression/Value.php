@@ -18,12 +18,34 @@ use NoreSources\SQL\Structure\ColumnPropertyMap;
 class Value extends xpr\Value implements Expression, ExpressionReturnType
 {
 
+	public static function dataTypeFromValue($value)
+	{
+		if (\is_integer($value))
+			return K::DATATYPE_INTEGER;
+		elseif (\is_float($value))
+			return K::DATATYPE_FLOAT;
+		elseif (\is_bool($value))
+			return K::DATATYPE_BOOLEAN;
+		elseif (\is_null($value))
+			return K::DATATYPE_NULL;
+		elseif ($value instanceof \DateTime)
+			return K::DATATYPE_TIMESTAMP;
+		if (\is_string($value))
+			return K::DATATYPE_STRING;
+
+		return K::DATATYPE_UNDEFINED;
+	}
+
 	public function __construct($value, $type = K::DATATYPE_STRING)
 	{
-		parent::__construct($value);
-		$this->setSerializationTarget($type);
 		if ($value instanceof Expression)
 			throw new \LogicException('Value is already an Expression');
+
+		parent::__construct($value);
+		if (\is_integer($type) && ($type == K::DATATYPE_UNDEFINED))
+			$type = self::dataTypeFromValue($value);
+
+		$this->setSerializationTarget($type);
 	}
 
 	/**
