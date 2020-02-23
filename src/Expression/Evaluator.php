@@ -261,7 +261,7 @@ class Evaluator
 				return array_map([
 					$this,
 					'evaluateEvaluable'
-				], $expression);
+				], $evaluable);
 			}
 		}
 
