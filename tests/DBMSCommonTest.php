@@ -104,7 +104,7 @@ final class DBMSCommonTest extends TestCase
 				}
 			}
 
-			$sql = ConnectionHelper::getStatementSQL($connection, $q, $tableStructure);
+			$sql = ConnectionHelper::getStatementData($connection, $q, $tableStructure);
 			$result = $connection->executeStatement($sql);
 
 			$this->assertInstanceOf(InsertionQueryResult::class, $result, $label);
@@ -434,14 +434,14 @@ final class DBMSCommonTest extends TestCase
 		try // PostgreSQL < 8.2 does not support DROP IF EXISTS and may fail
 		{
 			$drop = new DropTableQuery($tableStructure);
-			$sql = ConnectionHelper::getStatementSQL($connection, $drop, $tableStructure);
+			$sql = ConnectionHelper::getStatementData($connection, $drop, $tableStructure);
 			$connection->executeStatement($sql);
 		}
 		catch (ConnectionException $e)
 		{}
 
 		$createTable = new CreateTableQuery($tableStructure);
-		$sql = ConnectionHelper::getStatementSQL($connection, $createTable, $tableStructure);
+		$sql = ConnectionHelper::getStatementData($connection, $createTable, $tableStructure);
 		$result = $connection->executeStatement($sql);
 		$this->assertEquals(true, $result,
 			'Create table ' . $tableStructure->getName() . ' on ' .

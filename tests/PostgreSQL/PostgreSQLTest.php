@@ -50,7 +50,8 @@ final class PostgreSQLTest extends \PHPUnit\Framework\TestCase
 				$this->assertInstanceOf(PostgreSQLStatementBuilder::class, $builder);
 
 				$s = new CreateTableQuery($tableStructure);
-				$sql = ConnectionHelper::getStatementSQL($connection, $s, $tableStructure);
+				$sql = ConnectionHelper::getStatementData($connection, $s, $tableStructure);
+				$sql = \strval($sql);
 
 				$sql = \SqlFormatter::format($sql, false);
 				$suffix = 'create_' . $name . '_' . $builderType . '_' . $versionString;

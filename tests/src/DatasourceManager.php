@@ -52,7 +52,7 @@ class DatasourceManager extends \PHPUnit\Framework\TestCase
 		}
 
 		$q = new CreateTableQuery($tableStructure);
-		$sql = ConnectionHelper::getStatementSQL($connection, $q);
+		$sql = ConnectionHelper::getStatementData($connection, $q);
 		return $connection->executeStatement($sql);
 	}
 

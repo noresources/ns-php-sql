@@ -96,26 +96,6 @@ class ConnectionHelper
 	}
 
 	/**
-	 * Get the DBMS-specific SQL string representation of the given statement
-	 *
-	 * @param Connection $connection
-	 *        	DBMS connection
-	 * @param Statement $statement
-	 *        	Statement to convert to string
-	 * @param StructureElement $reference
-	 *        	Pivot StructureElement
-	 * @return string SQL string in the DBMS dialect
-	 *
-	 * @note This method does not provide any informations about statement parameters or result column types.
-	 * Tf these information are needed, use ConnectionHelper::prepareStatement()
-	 */
-	public static function getStatementSQL($connection, Statement $statement,
-		StructureElement $reference = null)
-	{
-		return \strval(self::getStatementData($connection, $statement, $reference));
-	}
-
-	/**
 	 *
 	 * @param Connection $connection
 	 * @param Statement $statement

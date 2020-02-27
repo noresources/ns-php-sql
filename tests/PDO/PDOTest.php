@@ -113,7 +113,8 @@ final class PDOTest extends \PHPUnit\Framework\TestCase
 		$connection->connect($settings);
 
 		$create = new Statement\CreateTableQuery($detachedTable);
-		$sql = ConnectionHelper::getStatementSQL($connection, $create);
+		$sql = ConnectionHelper::getStatementData($connection, $create);
+		$sql = \strval($sql);
 
 		$this->derivedFileManager->assertDerivedFile(\SqlFormatter::format($sql, false), __METHOD__,
 			'create', 'sql');
