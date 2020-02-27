@@ -51,7 +51,7 @@
             "source": {
                 "type": "git",
                 "url": "ssh://okami/volume1/repository/git/ns-php-core.git",
-                "reference": "034272dc2ec90ee0576fbc649791dbf209498e17"
+                "reference": "d291cd190a3e2a11870695ad244543011881fa84"
             },
             "require": {
                 "ext-json": "*",
@@ -102,7 +102,7 @@
             "support": {
                 "issues": "https://github.com/noresources/ns-php-core/issues"
             },
-            "time": "2020-02-14T22:57:45+00:00"
+            "time": "2020-02-23T00:32:44+00:00"
         },
         {
             "name": "noresources/ns-php-expression",
@@ -622,12 +622,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpDocumentor/ReflectionDocBlock.git",
-                "reference": "011b369030b0976f51d94eba8e255a1f66461df5"
+                "reference": "cd72d394ca794d3466a3b2fc09d5a6c1dc86b47e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpDocumentor/ReflectionDocBlock/zipball/011b369030b0976f51d94eba8e255a1f66461df5",
-                "reference": "011b369030b0976f51d94eba8e255a1f66461df5",
+                "url": "https://api.github.com/repos/phpDocumentor/ReflectionDocBlock/zipball/cd72d394ca794d3466a3b2fc09d5a6c1dc86b47e",
+                "reference": "cd72d394ca794d3466a3b2fc09d5a6c1dc86b47e",
                 "shasum": ""
             },
             "require": {
@@ -667,7 +667,7 @@
                 }
             ],
             "description": "With this component, a library can provide support for annotations via DocBlocks or otherwise retrieve information that is embedded in a DocBlock.",
-            "time": "2020-02-17T17:48:35+00:00"
+            "time": "2020-02-22T12:28:44+00:00"
         },
         {
             "name": "phpdocumentor/type-resolver",
@@ -1036,12 +1036,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "7b597a4ca10d93ede4937286dafdfbe665ac0097"
+                "reference": "a8275a2fbc5cc069b0c8fe40c1b0cc7b4d551b8a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/7b597a4ca10d93ede4937286dafdfbe665ac0097",
-                "reference": "7b597a4ca10d93ede4937286dafdfbe665ac0097",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/a8275a2fbc5cc069b0c8fe40c1b0cc7b4d551b8a",
+                "reference": "a8275a2fbc5cc069b0c8fe40c1b0cc7b4d551b8a",
                 "shasum": ""
             },
             "require": {
@@ -1111,7 +1111,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2020-02-18T06:21:10+00:00"
+            "time": "2020-02-22T07:04:45+00:00"
         },
         {
             "name": "sebastian/code-unit-reverse-lookup",

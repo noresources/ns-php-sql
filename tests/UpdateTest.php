@@ -22,7 +22,8 @@ final class UpdateTest extends \PHPUnit\Framework\TestCase
 	{
 		$structure = $this->datasources->get('types');
 		$tableStructure = $structure['ns_unittests']['types'];
-		$this->assertInstanceOf(Structure\TableStructure::class, $tableStructure);
+		$this->assertInstanceOf(Structure\TableStructure::class, $tableStructure,
+			'TableStructure instance');
 
 		$connection = ConnectionHelper::createConnection('Reference');
 
@@ -104,7 +105,8 @@ final class UpdateTest extends \PHPUnit\Framework\TestCase
 	{
 		$structure = $this->datasources->get('Company');
 		$tableStructure = $structure['ns_unittests']['Employees'];
-		$this->assertInstanceOf(Structure\TableStructure::class, $tableStructure);
+		$this->assertInstanceOf(Structure\TableStructure::class, $tableStructure,
+			'TableStructure instance');
 		$builder = new ReferenceStatementBuilder();
 		$context = new BuildContext($builder);
 		$context->setPivot($tableStructure);
@@ -142,7 +144,8 @@ final class UpdateTest extends \PHPUnit\Framework\TestCase
 	{
 		$structure = $this->datasources->get('Company');
 		$tableStructure = $structure['ns_unittests']['Employees'];
-		$this->assertInstanceOf(Structure\TableStructure::class, $tableStructure);
+		$this->assertInstanceOf(Structure\TableStructure::class, $tableStructure,
+			'TableStructure instance');
 		$builder = new ReferenceStatementBuilder();
 		$context = new BuildContext($builder);
 		$context->setPivot($tableStructure);

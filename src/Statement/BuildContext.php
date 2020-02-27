@@ -44,12 +44,12 @@ class BuildContext implements InputData, StructureResolverAwareInterface, TokenS
 		return $this->builder;
 	}
 
-	public function setResultColumn($index, $data)
+	public function setResultColumn($index, $data, $as = null)
 	{
 		if ($this->resultColumnAliases->count() > 1)
 			return;
 
-		$this->resultColumns->setColumn($index, $data);
+		$this->resultColumns->setColumn($index, $data, $as);
 	}
 
 	public function setStatementType($type)

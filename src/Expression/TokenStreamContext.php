@@ -29,8 +29,10 @@ interface TokenStreamContext extends StructureResolverInterface, StatementBuilde
 	 *
 	 * @param integer $index
 	 * @param integer|ColumnStructure $data
+	 * @param string|null $as
+	 *        	Column name. If null, use $data
 	 *
 	 * @note A result column can only be set on top-level context
 	 */
-	function setResultColumn($index, $data);
+	function setResultColumn($index, $data, $as = null);
 }

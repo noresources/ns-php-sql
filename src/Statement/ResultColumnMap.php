@@ -62,10 +62,14 @@ class ResultColumnMap implements \Countable, \IteratorAggregate
 		return $this->columns->offsetGet($key);
 	}
 
-	public function setColumn($index, $data)
+	public function setColumn($index, $data, $as = null)
 	{
 		if (!($data instanceof ResultColumn))
 			$data = new ResultColumn($data);
+
+		if (\is_string($as) && \strlen($as))
+			$data->name = $as;
+
 		$this->columns->offsetSet($index, $data);
 	}
 

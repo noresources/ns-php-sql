@@ -1,6 +1,7 @@
 <?php
 namespace NoreSources\SQL;
 
+use NoreSources\SemanticVersion;
 use NoreSources\SQL\DBMS\ConnectionHelper;
 use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLConnection;
 use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLConstants as K;
@@ -36,7 +37,7 @@ final class PostgreSQLTest extends \PHPUnit\Framework\TestCase
 		];
 
 		$version = $connection->getPostgreSQLVersion();
-		$versionString = \strval($version);
+		$versionString = $version->slice(SemanticVersion::MAJOR, SemanticVersion::MINOR);
 
 		foreach ($structure['ns_unittests'] as $name => $tableStructure)
 		{

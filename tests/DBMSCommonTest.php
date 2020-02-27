@@ -2,12 +2,16 @@
 namespace NoreSources\SQL;
 
 use NoreSources\Container;
+use NoreSources\DateTime;
 use NoreSources\TypeDescription;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\Connection;
 use NoreSources\SQL\DBMS\ConnectionException;
 use NoreSources\SQL\DBMS\ConnectionHelper;
 use NoreSources\SQL\DBMS\PreparedStatement;
+use NoreSources\SQL\Expression\Column;
+use NoreSources\SQL\Expression\TimestampFormatFunction;
+use NoreSources\SQL\Expression\Value;
 use NoreSources\SQL\QueryResult\InsertionQueryResult;
 use NoreSources\SQL\QueryResult\Recordset;
 use NoreSources\SQL\Statement\CreateTableQuery;
@@ -18,6 +22,7 @@ use NoreSources\SQL\Structure\StructureElement;
 use NoreSources\SQL\Structure\TableStructure;
 use NoreSources\Test\DatasourceManager;
 use NoreSources\Test\DerivedFileManager;
+use NoreSources\Test\Generator;
 use NoreSources\Test\TestConnection;
 use PHPUnit\Framework\TestCase;
 
@@ -38,96 +43,214 @@ final class DBMSCommonTest extends TestCase
 
 		foreach ($settings as $dbmsName)
 		{
-			$connection = $this->connections->get($dbmsName);
-			$this->assertInstanceOf(Connection::class, $connection, $dbmsName);
-			$this->assertTrue($connection->isConnected(), $dbmsName);
+			$this->dbmsTestTypes($dbmsName);
+		}
+	}
 
-			$structure = $this->structures->get('types');
-			$this->assertInstanceOf(StructureElement::class, $structure);
-			$tableStructure = $structure['ns_unittests']['types'];
-			$this->assertInstanceOf(TableStructure::class, $tableStructure);
+	public function dbmsTestTypes($dbmsName)
+	{
+		$connection = $this->connections->get($dbmsName);
+		$this->assertInstanceOf(Connection::class, $connection, $dbmsName);
+		$this->assertTrue($connection->isConnected(), $dbmsName);
 
-			$this->recreateTable($connection, $tableStructure);
+		$structure = $this->structures->get('types');
+		$this->assertInstanceOf(StructureElement::class, $structure);
+		$tableStructure = $structure['ns_unittests']['types'];
+		$this->assertInstanceOf(TableStructure::class, $tableStructure);
 
-			$rows = [
-				'default values' => [
-					'base' => [
-						'insert' => 'defaults',
-						'expected' => 'defaults'
-					],
-					'binary' => [
-						'expected' => 'abc',
-						K::COLUMN_PROPERTY_DATA_TYPE => K::DATATYPE_BINARY
-					],
-					'boolean' => [
-						'expected' => true
-					],
-					'int' => [
-						'expected' => 3
-					],
-					'large_int' => [
-						'insert' => 16123456789,
-						'expected' => 16123456789
-					],
-					'small_int' => [
-						'expected' => null
-					],
-					'float' => [
-						'expected' => 1.23
-					],
-					'timestamp_tz' => [
-						'expected' => new \DateTime('2010-11-12T13:14:15+0100')
-					]
+		$this->recreateTable($connection, $tableStructure);
+
+		$rows = [
+			'default values' => [
+				'base' => [
+					'insert' => 'defaults',
+					'expected' => 'defaults'
+				],
+				'binary' => [
+					'expected' => 'abc',
+					K::COLUMN_PROPERTY_DATA_TYPE => K::DATATYPE_BINARY
+				],
+				'boolean' => [
+					'expected' => true
+				],
+				'int' => [
+					'expected' => 3
+				],
+				'large_int' => [
+					'insert' => 16123456789,
+					'expected' => 16123456789
+				],
+				'small_int' => [
+					'expected' => null
+				],
+				'float' => [
+					'expected' => 1.23
+				],
+				'timestamp_tz' => [
+					'expected' => new \DateTime('2010-11-12T13:14:15+0100')
 				]
+			]
+		];
+
+		foreach ($rows as $label => $columns)
+		{
+			$q = new InsertQuery($tableStructure);
+			foreach ($columns as $columnName => $specs)
+			{
+				if (Container::keyExists($specs, 'insert'))
+				{
+					$as = $q->setColumnValue($columnName, $specs['insert'],
+						Container::keyValue($specs, 'evaluate', false));
+				}
+			}
+
+			$sql = ConnectionHelper::getStatementSQL($connection, $q, $tableStructure);
+			$result = $connection->executeStatement($sql);
+
+			$this->assertInstanceOf(InsertionQueryResult::class, $result, $label);
+		}
+
+		$q = new SelectQuery($tableStructure);
+		$data = ConnectionHelper::getStatementData($connection, $q, $tableStructure);
+
+		$recordset = $connection->executeStatement($data);
+		$this->assertInstanceOf(Recordset::class, $recordset, $dbmsName);
+		$recordset->setFlags($recordset->getFlags() | Recordset::FETCH_UNSERIALIZE);
+
+		if ($recordset instanceof \Countable)
+			$this->assertCount(\count($rows), $recordset, $dbmsName . ' ' . $label . ' record count');
+
+		reset($rows);
+		$count = 0;
+		foreach ($recordset as $record)
+		{
+			list ($label, $columns) = each($rows);
+			$count++;
+			foreach ($columns as $columnName => $specs)
+			{
+				if (!Container::keyExists($specs, 'expected'))
+					continue;
+
+				$expected = $specs['expected'];
+				$this->assertEquals($record[$columnName], $expected,
+					$dbmsName . ':' . $label . ':' . $columnName . ' value');
+			}
+		}
+
+		$this->assertEquals(\count($rows), $count, 'Recordset count (iterate)');
+
+		// Binary data insertion
+		{
+			$i = new InsertQuery($tableStructure);
+			$fileName = 'binary-content.data';
+			$content = file_get_contents(__DIR__ . '/data/' . $fileName);
+			$i['base'] = $fileName;
+			$i['binary'] = $content;
+
+			$result = $connection->executeStatement(
+				ConnectionHelper::getStatementData($connection, $i, $tableStructure));
+
+			$this->assertInstanceOf(InsertionQueryResult::class, $result,
+				$fileName . ' binary insert');
+
+			$s = new SelectQuery($tableStructure);
+			$s->columns('binary');
+			$s->where([
+				'base' => new Value($fileName)
+			]);
+
+			$result = $connection->executeStatement(
+				ConnectionHelper::getStatementData($connection, $s, $tableStructure));
+
+			$this->assertInstanceOf(Recordset::class, $result,
+				$dbmsName . ' ' . $fileName . ' select');
+
+			$result->setFlags($result->getFlags() | Recordset::FETCH_UNSERIALIZE);
+			if ($result instanceof \Countable)
+				$this->assertCount(1, $result, $dbmsName . ' ' . $fileName . ' count');
+
+			$row = $result->current();
+
+			$this->assertEquals($content, $row['binary'],
+				$dbmsName . ' ' . $fileName . ' content from db');
+		}
+
+		// Timestamp formatting
+		{
+			$timestamps = [];
+			for ($i = 0; $i < 10; $i++)
+			{
+				$timestamps[] = Generator::randomDateTime(
+					[
+						'yearRange' => [
+							// PostgreSQL wants a special format of BC dates
+							//
+							1,
+							2123
+						],
+
+						'timezone' => DateTime::getUTCTimezone()
+					]);
+			}
+
+			$formats = [
+				'date' => 'Y-m-d',
+				'time' => 'H:i:s'
 			];
 
-			foreach ($rows as $label => $columns)
+			$i = new InsertQuery($tableStructure);
+			$i('base', ':id');
+			$i('timestamp', ':timestamp');
+
+			$prepared = ConnectionHelper::prepareStatement($connection, $i, $tableStructure);
+
+			$c = \count($timestamps);
+			for ($i = 0; $i < $c; $i++)
 			{
-				$q = new InsertQuery($tableStructure);
-				foreach ($columns as $columnName => $specs)
-				{
-					if (Container::keyExists($specs, 'insert'))
-					{
-						$as = $q->setColumnValue($columnName, $specs['insert'],
-							Container::keyValue($specs, 'evaluate', false));
-					}
-				}
-
-				$sql = ConnectionHelper::getStatementSQL($connection, $q, $tableStructure);
-				$result = $connection->executeStatement($sql);
-
-				$this->assertInstanceOf(InsertionQueryResult::class, $result, $label);
+				$id = 'timestamp_format_' . $i;
+				$result = $connection->executeStatement($prepared,
+					[
+						'id' => $id,
+						'timestamp' => $timestamps[$i]
+					]);
 			}
 
-			$q = new SelectQuery($tableStructure);
-			$data = ConnectionHelper::getStatementData($connection, $q, $tableStructure);
-
-			$recordset = $connection->executeStatement($data);
-			$this->assertInstanceOf(Recordset::class, $recordset, $dbmsName);
-			$recordset->setFlags($recordset->getFlags() | Recordset::FETCH_UNSERIALIZE);
-
-			if ($recordset instanceof \Countable)
-				$this->assertCount(\count($rows), $recordset,
-					$dbmsName . ' ' . $label . ' record count');
-
-			reset($rows);
-			$count = 0;
-			foreach ($recordset as $record)
+			foreach ($formats as $label => $format)
 			{
-				list ($label, $columns) = each($rows);
-				$count++;
-				foreach ($columns as $columnName => $specs)
-				{
-					if (!Container::keyExists($specs, 'expected'))
-						continue;
+				$s = new SelectQuery($tableStructure);
+				$s->columns('timestamp',
+					[
+						new TimestampFormatFunction($format, new Column('timestamp')),
+						'format'
+					]);
+				$s->where("base like 'timestamp_format_%'")->orderBy('base');
 
-					$expected = $specs['expected'];
-					$this->assertEquals($record[$columnName], $expected,
-						$dbmsName . ':' . $label . ':' . $columnName . ' value');
+				$statement = ConnectionHelper::getStatementData($connection, $s, $tableStructure);
+
+				$result = $connection->executeStatement($statement);
+				$this->assertInstanceOf(Recordset::class, $result);
+
+				if ($result instanceof \Countable)
+					$this->assertCount(\count($timestamps), $result);
+
+				$i = 0;
+				//$result->setFlags($result->getFlags() | Recordset::FETCH_UNSERIALIZE);
+				foreach ($result as $row)
+				{
+					/*
+					 * Most of DBMS outputs UTC based values
+					 */
+					$dt = clone $timestamps[$i];
+					$dt->setTimezone(DateTime::getUTCTimezone());
+
+					$expected = $dt->format($format);
+					$actual = $row['format'];
+					$this->assertEquals($expected, $actual,
+						$dbmsName . ' timestamp format ' . $format . ' of #' . $i . ' ' .
+						$timestamps[0]->format(\DateTIme::ISO8601) . PHP_EOL . \strval($statement));
+					$i++;
 				}
 			}
-
-			$this->assertEquals(\count($rows), $count, 'Recordset count (iterate)');
 		}
 	}
 

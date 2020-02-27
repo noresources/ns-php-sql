@@ -9,6 +9,8 @@
  */
 namespace NoreSources\SQL\Statement;
 
+use NoreSources\DateTime;
+use NoreSources\TypeConversion;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Expression\FunctionCall;
 use NoreSources\SQL\Expression\MetaFunctionCall;
@@ -63,6 +65,17 @@ abstract class StatementBuilder implements StatementBuilderInterface
 		return $this->serializeString($value);
 	}
 
+	public function serializeTimestamp($value, $type = K::DATATYPE_TIMESTAMP)
+	{
+		if (\is_int($value) || \is_float($value) || \is_string($value))
+			$value = new DateTime($value);
+		elseif (DateTime::isDateTimeStateArray($value))
+			$value = DateTime::createFromArray($value);
+
+		if ($value instanceof \DateTime)
+			return $this->serializeString($value->format($this->getTimestampFormat($type)));
+	}
+
 	public function getColumnTypeName(ColumnStructure $column)
 	{
 		return $this->getColumnType($column)->getTypeName();
@@ -108,25 +121,24 @@ abstract class StatementBuilder implements StatementBuilderInterface
 				$s .= 'OUTER ';
 			}
 		}
-		else
-			if (($joinTypeFlags & K::JOIN_RIGHT) == K::JOIN_RIGHT)
+		elseif (($joinTypeFlags & K::JOIN_RIGHT) == K::JOIN_RIGHT)
+		{
+			$s . 'RIGHT ';
+			if (($joinTypeFlags & K::JOIN_OUTER) == K::JOIN_OUTER)
 			{
-				$s . 'RIGHT ';
-				if (($joinTypeFlags & K::JOIN_OUTER) == K::JOIN_OUTER)
-				{
-					$s .= 'OUTER ';
-				}
+				$s .= 'OUTER ';
+			}
+		}
+		else
+			if (($joinTypeFlags & K::JOIN_CROSS) == K::JOIN_CROSS)
+			{
+				$s .= 'CROSS ';
 			}
 			else
-				if (($joinTypeFlags & K::JOIN_CROSS) == K::JOIN_CROSS)
+				if (($joinTypeFlags & K::JOIN_INNER) == K::JOIN_INNER)
 				{
-					$s .= 'CROSS ';
+					$s .= 'INNER ';
 				}
-				else
-					if (($joinTypeFlags & K::JOIN_INNER) == K::JOIN_INNER)
-					{
-						$s .= 'INNER ';
-					}
 
 		return ($s . 'JOIN');
 	}
@@ -226,62 +238,35 @@ abstract class StatementBuilder implements StatementBuilderInterface
 				{
 					if ($value instanceof \JsonSerializable)
 						$value = $value->jsonSerialize();
-					$value = json_encode($value);
+					else
+						$value = json_encode($value);
 				}
 			}
 		}
 
-		if ($type == K::DATATYPE_NULL)
-			return $this->getKeyword(K::KEYWORD_NULL);
-
-		if ($type == K::DATATYPE_BOOLEAN)
-			return $this->getKeyword(($value) ? K::KEYWORD_TRUE : K::KEYWORD_FALSE);
-
-		if ($value instanceof \DateTime)
+		switch ($type)
 		{
-			if ($type & K::DATATYPE_NUMBER)
-			{
-				$ts = $value->getTimestamp();
-				if ($type == K::DATATYPE_FLOAT)
-				{
-					$u = intval($value->format('u'));
-					$ts += ($u / 1000000);
-				}
-				$value = $ts;
-			}
-			else
-				$value = $value->format($this->getTimestampFormat($type));
+			case K::DATATYPE_NULL:
+				return $this->getKeyword(K::KEYWORD_NULL);
+			case K::DATATYPE_BINARY:
+				return $this->serializeBinary($value);
+			case K::DATATYPE_BOOLEAN:
+				return $this->getKeyword(
+					TypeConversion::toBoolean($value) ? K::KEYWORD_TRUE : K::KEYWORD_FALSE);
+			case K::DATATYPE_INTEGER:
+				return TypeConversion::toInteger($value);
+			case K::DATATYPE_FLOAT:
+			case K::DATATYPE_NUMBER:
+				return TypeCOnversion::toFloat($value);
 		}
 
 		if ($type & K::DATATYPE_TIMESTAMP)
-		{
-			if (\is_float($value))
-			{
-				$d = new \DateTime();
-				$d->setTimestamp(jdtounix($value));
-				$value = $d->format($this->getTimestampFormat($type));
-			}
-			elseif (\is_int($value))
-			{
-				$d = new \DateTime();
-				$d->setTimestamp($value);
-				$value = $d->format($this->getTimestampFormat($type));
-			}
-		}
-		elseif ($type & K::DATATYPE_NUMBER)
-		{
-			if ($type & K::DATATYPE_INTEGER == K::DATATYPE_INTEGER)
-				$value = intval($value);
-			else
-				$value = floatval($value);
-			return $value;
-		}
-		elseif ($type == K::DATATYPE_BINARY)
-		{
-			return $this->serializeBinary($value);
-		}
+			return $this->serializeTimestamp($value, $type);
 
-		return $this->serializeString($value);
+		if ($value instanceof \DateTimeInterface)
+			$value = $value->format($this->getTimestampFormat(K::DATATYPE_TIMESTAMP));
+
+		return $this->serializeString(TypeConversion::toString($value));
 	}
 
 	public function escapeIdentifierPath($path)

@@ -13,7 +13,7 @@ namespace NoreSources\SQL\Statement;
 
 use Psr\Container\NotFoundExceptionInterface;
 
-class ParameterNotFoundException implements NotFoundExceptionInterface
+class ParameterNotFoundException extends \Exception implements NotFoundExceptionInterface
 {
 
 	public function __construct($key)

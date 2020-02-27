@@ -9,9 +9,13 @@
  */
 namespace NoreSources\SQL\DBMS\PostgreSQL;
 
+use NoreSources\Container;
 use NoreSources\SemanticVersion;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\Reference\ReferenceStatementBuilder;
+use NoreSources\SQL\Expression\FunctionCall;
+use NoreSources\SQL\Expression\MetaFunctionCall;
+use NoreSources\SQL\Expression\Value;
 use NoreSources\SQL\Statement\ParameterMap;
 use NoreSources\SQL\Statement\StatementBuilder;
 use NoreSources\SQL\Structure\ColumnStructure;
@@ -82,6 +86,16 @@ class PostgreSQLStatementBuilder extends StatementBuilder
 		return '$' . ($parameters->getNamedParameterCount() + 1);
 	}
 
+	public function translateFunction(MetaFunctionCall $metaFunction)
+	{
+		if ($metaFunction->getFunctionName() == K::METAFUNCTION_TIMESTAMP_FORMAT)
+		{
+			return $this->translateTimestampFunction($metaFunction);
+		}
+
+		return parent::translateFunction($metaFunction);
+	}
+
 	public function getColumnType(ColumnStructure $column)
 	{
 		return PostgreSQLType::columnPropertyToType($column);
@@ -143,9 +157,161 @@ class PostgreSQLStatementBuilder extends StatementBuilder
 		$this->setBuilderFlags(K::BUILDER_DOMAIN_DROP_TABLE, $dropTableFlags);
 	}
 
+	private function translateTimestampFunction(MetaFunctionCall $metaFunction)
+	{
+		$format = $metaFunction->getArgument(0);
+		if ($format instanceof Value)
+		{
+			$s = \str_split(\strval($format->getValue()));
+			$escapeChar = '\\';
+			$translation = '';
+			$escape = 0;
+			$quoted = false;
+			foreach ($s as $c)
+			{
+				if ($c == $escapeChar)
+				{
+					$escape++;
+					if ($escape == 2)
+					{
+						$translation .= $escapeChar;
+						$escape = 0;
+					}
+
+					continue;
+				}
+
+				if ($escape)
+				{
+					if (!$quoted)
+						$translation .= '"';
+
+					$escape = 0;
+					$translation .= $c;
+
+					if (!$quoted)
+						$translation .= '"';
+
+					continue;
+				}
+
+				$t = $c;
+				if (Container::keyExists(self::getTimestampFormatTranslations(), $c))
+				{
+					$t = Container::keyValue(self::getTimestampFormatTranslations(), $c, $c);
+
+					if ($quoted)
+						$translation .= '"';
+
+					$quoted = false;
+
+					if ($t === false)
+					{
+						trigger_error(
+							'Timestamp format "' . $c . ' " nut supported by SQLite to_char',
+							E_USER_WARNING);
+						continue;
+					}
+
+					if (\is_array($t))
+					{
+						trigger_error('Timestamp format "' . $c . '": ' . $t[1], E_USER_NOTICE);
+						$t = $t[0];
+					}
+				}
+				else
+				{
+					if (!$quoted)
+						$translation .= '"';
+
+					$quoted = true;
+				}
+
+				$translation .= $t;
+			}
+
+			if ($quoted)
+				$translation .= '"';
+
+			$format->setValue($translation);
+		}
+
+		$timestamp = $metaFunction->getArgument(1);
+		$to_char = new FunctionCall('to_char', [
+			$timestamp,
+			$format
+		]);
+
+		return $to_char;
+	}
+
+	public static function getTimestampFormatTranslations()
+	{
+		if (!\is_array(self::$timestampFormatTranslations))
+		{
+			self::$timestampFormatTranslations = [
+				'Y' => 'YYYY',
+				'y' => 'YY',
+				'o' => 'IYYY',
+				'L' => false,
+				'M' => 'Mon',
+				'F' => 'Month',
+				'm' => 'MM',
+				'n' => 'FMMM',
+				'W' => 'IW',
+				'l' => 'Day',
+				't' => false,
+				'D' => 'Dy',
+				'd' => 'DD',
+				'j' => 'FMDD',
+				'z' => [
+					'DDD',
+					'Day of year range will be [1-366] instead of [0-365]'
+				],
+				'N' => 'ID',
+				'S' => false,
+				'w' => [
+					'D',
+					'Day of week range will be [1-7] instead of [0-6]'
+				],
+				// Hours
+				'H' => 'HH24',
+				'G' => 'FMHH24',
+				'h' => 'HH',
+				'g' => 'FMHH',
+				'B' => false,
+				'A' => 'AM',
+				'a' => 'am',
+				// Minutes
+				'i' => 'MI',
+				// Seconds
+				's' => 'SS',
+				'v' => 'MS',
+				'u' => 'US',
+				// Time zone
+				'Z' => false,
+				'O' => false,
+				'P' => 'OF',
+				'e' => false,
+				'T' => 'TZ',
+				'I' => false,
+				'r' => false,
+				'c' => [
+					'YYY-MM-DD"T"HH24:MI:SSOF',
+					'Time zone offset will contain colon(s)'
+				],
+				'U' => false
+			];
+		}
+
+		return self::$timestampFormatTranslations;
+	}
+
 	/**
 	 *
 	 * @var PostgreSQLConnection
 	 */
 	private $connection;
+
+	private static $timestampFormatTranslations;
 }

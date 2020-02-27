@@ -11,8 +11,6 @@ namespace NoreSources\SQL\Statement;
 
 use NoreSources\SQL\DataSerializer;
 use NoreSources\SQL\Expression\MetaFunctionCall;
-use NoreSources\SQL\Expression\TokenStream;
-use NoreSources\SQL\Expression\TokenStreamContext;
 use NoreSources\SQL\Structure\ColumnPropertyMap;
 use NoreSources\SQL\Structure\ColumnStructure;
 use NoreSources\SQL\Structure\StructureElement;
@@ -155,16 +153,4 @@ interface StatementBuilderInterface extends DataSerializer
 	 * @return string
 	 */
 	function getForeignKeyAction($action);
-
-	/**
-	 * Postprocess statement token stream
-	 *
-	 * @param TokenStream $stream
-	 *        	Token stream filled with Statement::tokenize() method
-	 * @param TokenStreamContext $context
-	 *        	Token stream context used during tokenization
-	 *
-	 * @return StatementData Statement SQL string, type, result columns and parameters
-	 */
-	function finalizeStatement(TokenStream $stream, TokenStreamContext &$context);
 }

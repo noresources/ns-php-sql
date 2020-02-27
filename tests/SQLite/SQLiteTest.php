@@ -1,8 +1,13 @@
 <?php
 namespace NoreSources\SQL;
 
+use NoreSources\Container;
+use NoreSources\DateTime;
 use NoreSources\TypeDescription;
 use NoreSources\SQL\DBMS\ConnectionHelper;
+use NoreSources\SQL\DBMS\SQLite\SQLiteStatementBuilder;
+use NoreSources\SQL\Expression\FunctionCall;
+use NoreSources\SQL\Expression\TimestampFormatFunction;
 use NoreSources\SQL\QueryResult\Recordset;
 use NoreSources\SQL\Structure\TableStructure;
 use NoreSources\Test\DatasourceManager;
@@ -215,6 +220,55 @@ final class SQLiteTest extends \PHPUnit\Framework\TestCase
 
 				$this->assertEquals(count($test['rows']), $index, 'Number of row of ' . $testName);
 			}
+		}
+	}
+
+	public function testTimestampFormat()
+	{
+		$builder = new SQLiteStatementBuilder();
+
+		$dateTimeFormat = DateTime::getFormatTokenDescriptions();
+		$translations = $builder->getTimestampFormatTranslations();
+
+		foreach ($translations as $key => $t)
+		{
+			$this->assertArrayHasKey($key, $dateTimeFormat, 'Format token "' . $key . '" exists');
+		}
+
+		foreach ($dateTimeFormat as $token => $info)
+		{
+			$this->assertArrayHasKey($token, $translations, $token . ' translation rule exists');
+		}
+
+		$this->assertCount(Container::count($dateTimeFormat), $translations,
+			'Same number of format tokens');
+
+		$timestamp = '2010-11-12 13:14:15+02:00';
+
+		$tests = [
+			'date' => [
+				'format' => 'Y-m-d',
+				'translation' => '%Y-%m-%d'
+			],
+			'time' => [
+				'format' => 'H:i:s',
+				'translation' => '%H:%M:%S'
+			],
+			'Escaped' => [
+				'format' => 'Y-m-d\TH:i:s',
+				'translation' => '%Y-%m-%dT%H:%M:%S'
+			]
+		];
+
+		foreach ($tests as $label => $test)
+		{
+			$test = (object) $test;
+			$tf = new TimestampFormatFunction($test->format, $timestamp);
+			$f = $builder->translateFunction($tf);
+			$this->assertInstanceOf(FunctionCall::class, $f, $label . ' translated function');
+
+			$format = $f->getArgument(0)->getValue();
+			$this->assertEquals($test->translation, $format, $label . ' translated format');
 		}
 	}
 

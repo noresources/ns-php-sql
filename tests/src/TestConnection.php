@@ -20,7 +20,7 @@ class TestConnection extends \PHPUnit\Framework\TestCase
 			while ($item = readdir($iterator))
 			{
 				$path = $basePath . '/' . $item;
-				if (\is_file($path) && (\strpos($item, '.php') !== false) &&
+				if (\is_file($path) && (\preg_match('/\.php$/', $path)) &&
 					(\strpos($item, '.example.php') === false))
 				{
 					$key = pathinfo($path, PATHINFO_FILENAME);

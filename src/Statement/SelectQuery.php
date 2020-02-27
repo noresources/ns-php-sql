@@ -446,14 +446,14 @@ class SelectQuery extends Statement
 				if ($column->expression instanceof Column)
 				{
 					$structure = $context->findColumn($column->expression->path);
-					$context->setResultColumn($columnIndex, $structure);
+					$context->setResultColumn($columnIndex, $structure, $column->alias);
 				}
 				else
 				{
 					$type = K::DATATYPE_UNDEFINED;
 					if ($column->expression instanceof ExpressionReturnType)
 						$type = $column->expression->getExpressionDataType();
-					$context->setResultColumn($columnIndex, $type);
+					$context->setResultColumn($columnIndex, $type, $column->alias);
 				}
 
 				if ($column->alias)
