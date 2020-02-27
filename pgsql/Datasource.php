@@ -565,8 +565,8 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 		// Data types
 
 		$type = array(
-			'character varying',
 			'varchar',
+			'character varying',
 			'text'
 		);
 

@@ -937,13 +937,17 @@ class SelectQueryJoin extends ISelectQueryJoin
 
 	/**
 	 *
-	 * @param TableColumn $a_leftField
-	 * @param TableColumn $a_rightField
+	 * @param TableColumn $leftColumn
+	 * @param TableColumn $rightColumn
 	 * @return boolean
 	 */
-	public function addLink(TableColumn $a_leftField, TableColumn $a_rightField)
+	public function addLink($leftColumn, $rightColumn)
 	{
-		$e = new ns\BinaryOperatorExpression('=', $a_leftField, $a_rightField);
+		if (\is_string($leftColumn))
+			$leftColumn = $this->m_leftTable->getColumn($leftColumn);
+		if (\is_string($rightColumn))
+			$rightColumn = $this->m_rightTable->getColumn($rightColumn);
+		$e = new ns\BinaryOperatorExpression('=', $leftColumn, $rightColumn);
 		$e->protect = false;
 
 		if (is_null($this->m_joinLink))
