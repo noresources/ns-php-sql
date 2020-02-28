@@ -62,14 +62,6 @@ const kRecordQuerySQL = 0x20;
  */
 const kRecordQueryFlagExtension = 0x80;
 
-/**
- * Indicate the input data are serialized
- * and should be unserialized
- *
- * @var integer
- */
-const kRecordDataSerialized = 0x100;
-
 interface RecordQueryOption
 {
 }
@@ -472,6 +464,14 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 	const QUERY_FLAGEXTENSION = kRecordQueryFlagExtension;
 
 	/**
+	 * Indicate the input data are serialized
+	 * and should be unserialized
+	 *
+	 * @var integer
+	 */
+	const DATA_SERIALIZED = 0x100;
+	
+	/**
 	 * Get or create a single record
 	 *
 	 * @param Table $table
@@ -536,7 +536,7 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 		{
 			$column = $table->getColumn($k);
 			$data = $column->importData(
-				($flags & kRecordDataSerialized) ? $v : static::serializeValue($k, $v));
+				($flags & self::DATA_SERIALIZED) ? $v : static::serializeValue($k, $v));
 			$s->where->addAndExpression($column->equalityExpression($data));
 		}
 
@@ -555,7 +555,7 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 		if ($c == 1)
 		{
 			$result = new $className($table, $recordset,
-				(kRecordStateExists | kRecordDataSerialized));
+				(kRecordStateExists | self::DATA_SERIALIZED));
 			return $result;
 		}
 
@@ -566,7 +566,7 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 
 		if ($flags & kRecordQueryCreate)
 		{
-			$o = new $className($table, $keys, (kRecordDataSerialized));
+			$o = new $className($table, $keys, (self::DATA_SERIALIZED));
 			if ($o->insert())
 			{
 				return $o;
@@ -775,7 +775,7 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 		$result = array();
 		foreach ($recordset as $record)
 		{
-			$r = new $className($table, $record, (kRecordDataSerialized | kRecordStateExists));
+			$r = new $className($table, $record, (self::DATA_SERIALIZED | kRecordStateExists));
 			if (\is_null($keyColumn))
 				$result[] = $r;
 			else
@@ -826,7 +826,7 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 	 * @return Record|boolean The newly created Record on success
 	 *         @c false otherwise
 	 */
-	public static function createRecord(Table $table, $values, $flags = kRecordDataSerialized,
+	public static function createRecord(Table $table, $values, $flags = self::DATA_SERIALIZED,
 		$className = null)
 	{
 		if (!(is_string($className) && class_exists($className)))
@@ -913,12 +913,12 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 				if ($structure->offsetExists($key))
 				{
 					$this->setValue($structure->offsetGet($key), $value,
-						($flags & kRecordDataSerialized));
+						($flags & self::DATA_SERIALIZED));
 				}
 				elseif (($fk = $this->parseForeignKeyColumn($key)) &&
 					array_key_exists($fk['column'], $foreignKeys))
 				{
-					$value = ($flags & kRecordDataSerialized) ? $this->unserializeValue($fk, $value) : $value;
+					$value = ($flags & self::DATA_SERIALIZED) ? $this->unserializeValue($fk, $value) : $value;
 					$this->setForeignKeyData($fk['column'], $fk['foreignColumn'], $value);
 				}
 			}
@@ -1567,3 +1567,8 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 	 */
 	private $m_foreignKeyData;
 }
+
+/**
+ * Legacy
+ */
+const kRecordDataSerialized = Record::DATA_SERIALIZED;
