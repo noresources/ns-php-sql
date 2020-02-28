@@ -26,7 +26,7 @@ class SQL
 {
 
 	const DATATYPE_UNDEFINED = 0;
-	
+
 	const DATATYPE_NULL = 0x01;
 
 	const DATATYPE_STRING = 0x02;
@@ -42,6 +42,44 @@ class SQL
 	const DATATYPE_BOOLEAN = 0x20;
 
 	const DATATYPE_BINARY = 0x40;
+
+	/**
+	 * Natural join
+	 * Does not require any link field
+	 */
+	const JOIN_NATURAL = 'sql.join.natural';
+
+	/**
+	 * Cross join
+	 * Cartesian product
+	 */
+	const JOIN_CROSS = 'sql.join.cross';
+
+	/**
+	 * (Full) Outer join
+	 * Merge two tables.
+	 */
+	const JOIN_OUTER = 'sql.join.outer';
+
+	/**
+	 * Inner join
+	 * Merge obly lines which linkfields match in then two tables
+	 */
+	const JOIN_INNER = 'sql.join.inner';
+
+	/**
+	 * Left (outer) join
+	 * Take all elements of left table
+	 * and merge those which match link fields at the right
+	 */
+	const JOIN_LEFT = 'sql.join.left';
+
+	/**
+	 * Right (outer) join
+	 * Take all elements of right table
+	 * and merge those which match link fields at the left
+	 */
+	const JOIN_RIGHT = 'sql.join.right';
 
 	public static function getDataTypeName($type)
 	{
@@ -77,10 +115,10 @@ class SQL
 	{
 		return (SQL_VERSION_MAJOR * 10000 + SQL_VERSION_MINOR * 100 + SQL_VERSION_PATCH);
 	}
-	
-	
+
 	/**
 	 * Gegin transaction block
+	 *
 	 * @param Datasource $a_datasource
 	 * @return boolean
 	 */
@@ -93,9 +131,10 @@ class SQL
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Commit transaction block
+	 *
 	 * @param Datasource $a_datasource
 	 * @return boolean
 	 */
@@ -108,9 +147,10 @@ class SQL
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Rollback transaction block
+	 *
 	 * @param Datasource $a_datasource
 	 * @return boolean
 	 */
@@ -252,55 +292,6 @@ const kExpressionElementDeclaration = 0x3;
 /**
  *
  * @} // group 'elemdisplay'
- */
-
-/**
- *
- * @defgroup jointypes 'Join types'
- * @{
- */
-
-/**
- * Natural join
- * Does not require any link field
- */
-const kJoinNatural = 'sql.join.natural';
-
-/**
- * Cross join
- * Cartesian product
- */
-const kJoinCross = 'sql.join.cross';
-
-/**
- * (Full) Outer join
- * Merge two tables.
- */
-const kJoinOuter = 'sql.join.outer';
-
-/**
- * Inner join
- * Merge obly lines which linkfields match in then two tables
- */
-const kJoinInner = 'sql.join.inner';
-
-/**
- * Left (outer) join
- * Take all elements of left table
- * and merge those which match link fields at the right
- */
-const kJoinLeft = 'sql.join.left';
-
-/**
- * Right (outer) join
- * Take all elements of right table
- * and merge those which match link fields at the left
- */
-const kJoinRight = 'sql.join.right';
-
-/**
- *
- * @} // group jointypes
  */
 
 /**
@@ -521,5 +512,17 @@ const kObjectQueryBoth = 0x3;
  *
  * @}
  */
-// group 'Datasourcequeries'
+
+const kJoinNatural = SQL::JOIN_NATURAL;
+
+const kJoinCross = SQL::JOIN_CROSS;
+
+const kJoinOuter = SQL::JOIN_OUTER;
+
+const kJoinInner = SQL::JOIN_INNER;
+
+const kJoinLeft = SQL::JOIN_LEFT;
+
+const kJoinRight = SQL::JOIN_RIGHT;
+
 
