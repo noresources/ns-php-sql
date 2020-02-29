@@ -1,7 +1,6 @@
 <?php
 namespace NoreSources\SQL\Expression;
 
-use NoreSources\Expression\Literal;
 use NoreSources\SQL\ColumnExpression;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Expression\Evaluator as X;
@@ -98,8 +97,8 @@ final class ExpressionEvaluatorTest extends \PHPUnit\Framework\TestCase
 		{
 			$label = $label . ' ' . strval($test[0]);
 			$e = Evaluator::evaluate($test[0]);
-			$this->assertInstanceOf(Value::class, $e, $label);
-			if ($e instanceof Value)
+			$this->assertInstanceOf(Literal::class, $e, $label);
+			if ($e instanceof Literal)
 			{
 				$this->assertEquals($e->getExpressionDataType(), $test[1], $label);
 			}
@@ -165,15 +164,15 @@ final class ExpressionEvaluatorTest extends \PHPUnit\Framework\TestCase
 			'max' => [
 				'max(1, 2)',
 				2,
-				Value::class,
-				Value::class
+				Literal::class,
+				Literal::class
 			],
 			'substr' => [
 				"substr(:string, 0, 2)",
 				3,
 				Parameter::class,
-				Value::class,
-				Value::class
+				Literal::class,
+				Literal::class
 			],
 			'meta function' => [
 				"@strftime('%Y', timeCol)",
@@ -190,7 +189,7 @@ final class ExpressionEvaluatorTest extends \PHPUnit\Framework\TestCase
 			'complex 2' => [
 				'expressions(#2010-07-12#, :p, (:v + 2))',
 				3,
-				Value::class,
+				Literal::class,
 				Parameter::class,
 				BinaryOperation::class
 			]
@@ -252,8 +251,8 @@ final class ExpressionEvaluatorTest extends \PHPUnit\Framework\TestCase
 		foreach ($timestamps as $label => $timestamp)
 		{
 			$x = Evaluator::evaluate($timestamp['expression']);
-			$this->assertInstanceOf(Value::class, $x, $label . ' class');
-			if ($x instanceof Value)
+			$this->assertInstanceOf(Literal::class, $x, $label . ' class');
+			if ($x instanceof Literal)
 			{
 				$this->assertEquals(K::DATATYPE_TIMESTAMP, $x->getExpressionDataType());
 			}
@@ -269,7 +268,7 @@ final class ExpressionEvaluatorTest extends \PHPUnit\Framework\TestCase
 				],
 				'main' => BinaryOperation::class,
 				'left' => Column::class,
-				'right' => Value::class
+				'right' => Literal::class
 			],
 			'short' => [
 				'expression' => [
@@ -280,7 +279,7 @@ final class ExpressionEvaluatorTest extends \PHPUnit\Framework\TestCase
 				],
 				'main' => BinaryOperation::class,
 				'left' => Column::class,
-				'right' => Value::class
+				'right' => Literal::class
 			],
 			'function' => [
 				'expression' => [
@@ -292,9 +291,9 @@ final class ExpressionEvaluatorTest extends \PHPUnit\Framework\TestCase
 				],
 				'main' => FunctionCall::class,
 				'args' => [
-					Value::class,
+					Literal::class,
 					Column::class,
-					Value::class
+					Literal::class
 				]
 			],
 			'in' => [
@@ -307,8 +306,8 @@ final class ExpressionEvaluatorTest extends \PHPUnit\Framework\TestCase
 				],
 				'main' => MemberOf::class,
 				'args' => [
-					Value::class,
-					Value::class,
+					Literal::class,
+					Literal::class,
 					Parameter::class
 				]
 			]

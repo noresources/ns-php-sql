@@ -14,8 +14,8 @@ use NoreSources\SemanticVersion;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\Reference\ReferenceStatementBuilder;
 use NoreSources\SQL\Expression\FunctionCall;
+use NoreSources\SQL\Expression\Literal;
 use NoreSources\SQL\Expression\MetaFunctionCall;
-use NoreSources\SQL\Expression\Value;
 use NoreSources\SQL\Statement\ParameterMap;
 use NoreSources\SQL\Statement\StatementBuilder;
 use NoreSources\SQL\Structure\ColumnStructure;
@@ -160,7 +160,7 @@ class PostgreSQLStatementBuilder extends StatementBuilder
 	private function translateTimestampFunction(MetaFunctionCall $metaFunction)
 	{
 		$format = $metaFunction->getArgument(0);
-		if ($format instanceof Value)
+		if ($format instanceof Literal)
 		{
 			$s = \str_split(\strval($format->getValue()));
 			$escapeChar = '\\';

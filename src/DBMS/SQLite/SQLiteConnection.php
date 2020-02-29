@@ -17,7 +17,7 @@ use NoreSources\SQL\ParameterValue;
 use NoreSources\SQL\DBMS\Connection;
 use NoreSources\SQL\DBMS\ConnectionStructureTrait;
 use NoreSources\SQL\DBMS\SQLite\SQLiteConstants as K;
-use NoreSources\SQL\Expression\Value;
+use NoreSources\SQL\Expression\Literal;
 use NoreSources\SQL\QueryResult\GenericInsertionQueryResult;
 use NoreSources\SQL\QueryResult\GenericRowModificationQueryResult;
 use NoreSources\SQL\Statement\ParametrizedStatement;
@@ -297,7 +297,7 @@ class SQLiteConnection implements Connection
 				$type = ($entry instanceof ParameterValue) ? $entry->type : K::DATATYPE_UNDEFINED;
 
 				if ($type == K::DATATYPE_UNDEFINED)
-					$type = Value::dataTypeFromValue($value);
+					$type = Literal::dataTypeFromValue($value);
 
 				/**
 				 * SQLite does not have type for DateTIme etc.

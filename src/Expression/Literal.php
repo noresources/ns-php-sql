@@ -9,15 +9,20 @@
  */
 namespace NoreSources\SQL\Expression;
 
-use NoreSources\Expression as xpr;
 use NoreSources\TypeDescription;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Structure\ArrayColumnPropertyMap;
 use NoreSources\SQL\Structure\ColumnPropertyMap;
 
-class Value extends xpr\Value implements Expression, ExpressionReturnType
+class Literal implements Expression, ExpressionReturnType
 {
 
+	/**
+	 * Guess the SQL data type from the given value
+	 *
+	 * @param mixed $value
+	 * @return integer SQL data type constant
+	 */
 	public static function dataTypeFromValue($value)
 	{
 		if (\is_integer($value))
@@ -36,16 +41,50 @@ class Value extends xpr\Value implements Expression, ExpressionReturnType
 		return K::DATATYPE_UNDEFINED;
 	}
 
+	/**
+	 *
+	 * @param mixed $value
+	 *        	Literal value
+	 * @param ColumnPropertyMap|integer|null $type
+	 *        	serialization target type
+	 */
 	public function __construct($value, $type = K::DATATYPE_STRING)
 	{
+		$this->serializationTarget = K::DATATYPE_UNDEFINED;
+		$this->setValue($value, $type);
+	}
+
+	/**
+	 *
+	 * @return mixed
+	 */
+	public function getValue()
+	{
+		return $this->literalValue;
+	}
+
+	/**
+	 *
+	 * @param mixed $value
+	 *        	Literal value
+	 * @param ColumnPropertyMap|integer|null $type
+	 *        	Serialization target type. If NULL, the previous value is kept.
+	 * @throws \LogicException
+	 */
+	public function setValue($value, $type = null)
+	{
 		if ($value instanceof Expression)
-			throw new \LogicException('Value is already an Expression');
+			throw new \LogicException('Literal is already an Expression');
 
-		parent::__construct($value);
-		if (\is_integer($type) && ($type == K::DATATYPE_UNDEFINED))
-			$type = self::dataTypeFromValue($value);
+		$this->literalValue = $value;
 
-		$this->setSerializationTarget($type);
+		if ($type !== null)
+		{
+			if (\is_integer($type) && ($type == K::DATATYPE_UNDEFINED))
+				$type = self::dataTypeFromValue($value);
+
+			$this->setSerializationTarget($type);
+		}
 	}
 
 	/**
@@ -92,4 +131,6 @@ class Value extends xpr\Value implements Expression, ExpressionReturnType
 	 * @var ColumnPropertyMap Literal type
 	 */
 	private $serializationTarget;
+
+	private $literalValue;
 }

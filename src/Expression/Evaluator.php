@@ -47,14 +47,14 @@ class Evaluator
 	}
 
 	/**
-	 * Create a Value
+	 * Create a Literal
 	 *
 	 * @param mixed $value
 	 *        	Literal value
 	 * @param integer|ColumnStructure $type
 	 *        	Data type hint
 	 *
-	 * @return \NoreSources\SQL\Expression\Value
+	 * @return \NoreSources\SQL\Expression\Literal
 	 */
 	public static function literal($value, $type = K::DATATYPE_UNDEFINED)
 	{
@@ -63,7 +63,7 @@ class Evaluator
 			$type = $type->getColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE);
 		}
 
-		return new Value($value, $type);
+		return new Literal($value, $type);
 	}
 
 	/**
@@ -208,33 +208,33 @@ class Evaluator
 			}
 			elseif ($evaluable instanceof \DateTime)
 			{
-				return new Value($evaluable, K::DATATYPE_TIMESTAMP);
+				return new Literal($evaluable, K::DATATYPE_TIMESTAMP);
 			}
 		}
 		elseif (\is_null($evaluable))
 		{
-			return new Value($evaluable, K::DATATYPE_NULL);
+			return new Literal($evaluable, K::DATATYPE_NULL);
 		}
 		elseif (\is_bool($evaluable))
 		{
-			return new Value($evaluable, K::DATATYPE_BOOLEAN);
+			return new Literal($evaluable, K::DATATYPE_BOOLEAN);
 		}
 		elseif (is_int($evaluable))
 		{
-			return new Value($evaluable, K::DATATYPE_INTEGER);
+			return new Literal($evaluable, K::DATATYPE_INTEGER);
 		}
 		elseif (is_float($evaluable))
 		{
-			return new Value($evaluable, K::DATATYPE_FLOAT);
+			return new Literal($evaluable, K::DATATYPE_FLOAT);
 		}
 		elseif (\is_numeric($evaluable))
 		{
 			$i = \intval($evaluable);
 			$f = \floatval($evaluable);
 			if ($i == $f)
-				return new Value($i, K::DATATYPE_INTEGER);
+				return new Literal($i, K::DATATYPE_INTEGER);
 			else
-				return new Value($f, K::DATATYPE_FLOAT);
+				return new Literal($f, K::DATATYPE_FLOAT);
 		}
 		elseif (is_string($evaluable))
 		{
@@ -645,7 +645,7 @@ class Evaluator
 				$stringContent,
 				new Loco\StringParser("'")
 			], function () {
-				return new Value(func_get_arg(1), K::DATATYPE_STRING);
+				return new Literal(func_get_arg(1), K::DATATYPE_STRING);
 			});
 
 		// Date & Time
@@ -925,7 +925,7 @@ class Evaluator
 				$dateTimeString = $date . 'T' . $time . $timezone;
 				$dateTime = \DateTime::createFromFormat(self::DATETIME_FORMAT, $dateTimeString);
 
-				return new Value($dateTime, K::DATATYPE_TIMESTAMP);
+				return new Literal($dateTime, K::DATATYPE_TIMESTAMP);
 			});
 
 		$number = new Loco\RegexParser(chr(1) . '^(' . $rx[self::PATTERN_NUMBER] . ')' . chr(1),
@@ -933,9 +933,9 @@ class Evaluator
 				$i = \intval($v);
 				$f = \floatval($v);
 				if ($i == $v)
-					return new Value($i, K::DATATYPE_INTEGER);
+					return new Literal($i, K::DATATYPE_INTEGER);
 				else
-					return new Value($f, K::DATATYPE_FLOAT);
+					return new Literal($f, K::DATATYPE_FLOAT);
 			});
 
 		$unaryOperators = [];
@@ -1062,15 +1062,15 @@ class Evaluator
 				'number' => $number,
 				'true' => self::keywordParser('true',
 					function () {
-						return new Value(true, K::DATATYPE_BOOLEAN);
+						return new Literal(true, K::DATATYPE_BOOLEAN);
 					}),
 				'false' => self::keywordParser('false',
 					function () {
-						return new Value(false, K::DATATYPE_BOOLEAN);
+						return new Literal(false, K::DATATYPE_BOOLEAN);
 					}),
 				'null' => self::keywordParser('null',
 					function () {
-						return new Value(null, K::DATATYPE_NULL);
+						return new Literal(null, K::DATATYPE_NULL);
 					}),
 				'unary-operator-literal' => $unaryOperatorLiteral,
 				'binary-operator-literal' => $binaryOperatorLiteral,

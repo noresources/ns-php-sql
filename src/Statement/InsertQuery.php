@@ -16,10 +16,10 @@ use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Expression\Evaluator;
 use NoreSources\SQL\Expression\Expression;
 use NoreSources\SQL\Expression\Keyword;
+use NoreSources\SQL\Expression\Literal;
 use NoreSources\SQL\Expression\TableReference;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Expression\TokenStreamContext;
-use NoreSources\SQL\Expression\Value;
 use NoreSources\SQL\Structure\TableStructure;
 
 /**
@@ -66,7 +66,8 @@ class InsertQuery extends Statement implements \ArrayAccess
 			->space()
 			->keyword('into')
 			->space()
-			->identifier($context->getStatementBuilder()->getCanonicalName($tableStructure));
+			->identifier($context->getStatementBuilder()
+			->getCanonicalName($tableStructure));
 		if ($this->table->alias)
 		{
 			$stream->space()
@@ -103,7 +104,7 @@ class InsertQuery extends Statement implements \ArrayAccess
 				if ($column->hasColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE))
 					$type = $column->getColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE);
 
-				$value = new Value($value, $type);
+				$value = new Literal($value, $type);
 			}
 
 			$values[] = $value;

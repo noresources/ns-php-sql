@@ -10,7 +10,7 @@
 namespace NoreSources\SQL;
 
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\Expression\Value;
+use NoreSources\SQL\Expression\Literal;
 
 /**
  * Value of statement parameter.
@@ -44,6 +44,6 @@ class ParameterValue
 	public function __construct($value, $type = K::DATATYPE_UNDEFINED)
 	{
 		if ($type == K::DATATYPE_UNDEFINED)
-			$type = Value::dataTypeFromValue($value);
+			$type = Literal::dataTypeFromValue($value);
 	}
 }

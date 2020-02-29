@@ -15,8 +15,8 @@ use NoreSources\Text;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\BasicType;
 use NoreSources\SQL\Expression\FunctionCall;
+use NoreSources\SQL\Expression\Literal;
 use NoreSources\SQL\Expression\MetaFunctionCall;
-use NoreSources\SQL\Expression\Value;
 use NoreSources\SQL\Statement\ParameterMap;
 use NoreSources\SQL\Statement\StatementBuilder;
 use NoreSources\SQL\Structure\ColumnStructure;
@@ -194,7 +194,7 @@ class SQLiteStatementBuilder extends StatementBuilder
 	private function translateTimestampFormatFunction(MetaFunctionCall $metaFunction)
 	{
 		$format = $metaFunction->getArgument(0);
-		if ($format instanceof Value)
+		if ($format instanceof Literal)
 		{
 			$s = \str_split(\strval($format->getValue()));
 			$escapeChar = '\\';

@@ -15,10 +15,10 @@ namespace NoreSources\SQL\Statement;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Expression\Evaluator as X;
 use NoreSources\SQL\Expression\Expression;
+use NoreSources\SQL\Expression\Literal;
 use NoreSources\SQL\Expression\TableReference;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Expression\TokenStreamContext;
-use NoreSources\SQL\Expression\Value;
 use NoreSources\SQL\Structure\TableStructure;
 
 /**
@@ -83,7 +83,8 @@ class UpdateQuery extends Statement implements \ArrayAccess
 
 		$stream->keyword('update')
 			->space()
-			->identifier($context->getStatementBuilder()->getCanonicalName($tableStructure));
+			->identifier($context->getStatementBuilder()
+			->getCanonicalName($tableStructure));
 
 		if ($this->columnValues->count())
 			$stream->space()
@@ -111,10 +112,11 @@ class UpdateQuery extends Statement implements \ArrayAccess
 				if ($column->hasColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE))
 					$type = $column->getColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE);
 
-				$value = new Value($value, $type);
+				$value = new Literal($value, $type);
 			}
 
-			$stream->identifier($context->getStatementBuilder()->escapeIdentifier($columnName))
+			$stream->identifier($context->getStatementBuilder()
+				->escapeIdentifier($columnName))
 				->text('=')
 				->expression($value, $context);
 

@@ -10,8 +10,8 @@ use NoreSources\SQL\DBMS\ConnectionException;
 use NoreSources\SQL\DBMS\ConnectionHelper;
 use NoreSources\SQL\DBMS\PreparedStatement;
 use NoreSources\SQL\Expression\Column;
+use NoreSources\SQL\Expression\Literal;
 use NoreSources\SQL\Expression\TimestampFormatFunction;
-use NoreSources\SQL\Expression\Value;
 use NoreSources\SQL\QueryResult\InsertionQueryResult;
 use NoreSources\SQL\QueryResult\Recordset;
 use NoreSources\SQL\Statement\CreateTableQuery;
@@ -156,7 +156,7 @@ final class DBMSCommonTest extends TestCase
 			$s = new SelectQuery($tableStructure);
 			$s->columns('binary');
 			$s->where([
-				'base' => new Value($fileName)
+				'base' => new Literal($fileName)
 			]);
 
 			$result = $connection->executeStatement(
