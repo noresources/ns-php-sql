@@ -66,30 +66,35 @@ interface RecordQueryOption
 {
 }
 
-/**
- * Specify a column name that will act a key for
- * multiple record table.
- * If the values of the given column are not unique, the result of
- * the query will be unpredictable.
- *
- * @var string
- */
-const kRecordKeyColumn = 'keyColumn';
-
-const kRecordDistinct = 'distinct';
-
 class PresentationSettings extends DataTree implements RecordQueryOption
 {
 
-	const KEY_COLUMN = kRecordKeyColumn;
+	/**
+	 * Specify a column name that will act a key for
+	 * multiple record table.
+	 * If the values of the given column are not unique, the result of
+	 * the query will be unpredictable.
+	 *
+	 * @var string
+	 */
+	const KEY_COLUMN = 'keyColumn';
 
-	const DISTINCT = kRecordDistinct;
+	/**
+	 * @deprecated
+	 * @var string
+	 */
+	const DISTINCT = 'distinct';
 
 	public function __construct($table)
 	{
 		parent::__construct($table);
 	}
 }
+
+const kRecordKeyColumn = PresentationSettings::KEY_COLUMN;
+
+const kRecordDistinct = PresentationSettings::DISTINCT;
+
 
 /**
  * Restrict query to a subset of the record
