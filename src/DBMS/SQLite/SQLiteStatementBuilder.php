@@ -127,65 +127,70 @@ class SQLiteStatementBuilder extends StatementBuilder
 		return parent::getTimestampFormat($type);
 	}
 
+	/**
+	 *
+	 * @return ArrayObject
+	 */
 	public static function getTimestampFormatTranslations()
 	{
-		if (!\is_array(self::$timestampFormatTranslations))
+		if (!Container::isArray(self::$timestampFormatTranslations))
 		{
-			self::$timestampFormatTranslations = [
-				'Y' => '%Y',
-				'y' => [
-					'%Y',
-					'Two digits year number format is not available'
-				],
-				'o' => '%G',
-				'L' => false,
-				'M' => false,
-				'F' => false,
-				'm' => '%m',
-				'n' => [
-					'%m',
-					'Month number without leading zero is not available'
-				],
-				'W' => '%W',
-				'l' => false,
-				't' => false,
-				'D' => false,
-				'd' => '%d',
-				'j' => '%d',
-				'z' => [
-					'%j',
-					'Day of year range will be [1-366] instead of [0-365]'
-				],
-				'N' => [
-					'%w',
-					'Week day "sunday" will be 0 instead of 7'
-				],
-				'S' => false,
-				'w' => '%w',
-				'H' => '%H', // it's 00-24 insteand of 23 but it's 99% ok. No need to notice
-				'G' => [
-					'%H',
-					'24-Hour without leading zero is not available'
-				],
-				'h' => false,
-				'g' => false,
-				'B' => false,
-				'A' => false,
-				'a' => false,
-				'i' => '%M',
-				's' => '%S',
-				'v' => false,
-				'u' => false,
-				'Z' => false,
-				'O' => false,
-				'P' => false,
-				'e' => false,
-				'T' => false,
-				'I' => false,
-				'r' => false,
-				'c' => false,
-				'U' => '%s'
-			];
+			self::$timestampFormatTranslations = new \ArrayObject(
+				[
+					'Y' => '%Y',
+					'y' => [
+						'%Y',
+						'Two digits year number format is not available'
+					],
+					'o' => '%G',
+					'L' => false,
+					'M' => false,
+					'F' => false,
+					'm' => '%m',
+					'n' => [
+						'%m',
+						'Month number without leading zero is not available'
+					],
+					'W' => '%W',
+					'l' => false,
+					't' => false,
+					'D' => false,
+					'd' => '%d',
+					'j' => '%d',
+					'z' => [
+						'%j',
+						'Day of year range will be [1-366] instead of [0-365]'
+					],
+					'N' => [
+						'%w',
+						'Week day "sunday" will be 0 instead of 7'
+					],
+					'S' => false,
+					'w' => '%w',
+					'H' => '%H', // it's 00-24 insteand of 23 but it's 99% ok. No need to notice
+					'G' => [
+						'%H',
+						'24-Hour without leading zero is not available'
+					],
+					'h' => false,
+					'g' => false,
+					'B' => false,
+					'A' => false,
+					'a' => false,
+					'i' => '%M',
+					's' => '%S',
+					'v' => false,
+					'u' => false,
+					'Z' => false,
+					'O' => false,
+					'P' => false,
+					'e' => false,
+					'T' => false,
+					'I' => false,
+					'r' => false,
+					'c' => false,
+					'U' => '%s'
+				]);
 		}
 
 		return self::$timestampFormatTranslations;
@@ -251,5 +256,9 @@ class SQLiteStatementBuilder extends StatementBuilder
 		return $strftime;
 	}
 
+	/**
+	 *
+	 * @var \ArrayObject
+	 */
 	private static $timestampFormatTranslations;
 }

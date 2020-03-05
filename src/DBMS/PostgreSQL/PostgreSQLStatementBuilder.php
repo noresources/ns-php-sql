@@ -245,63 +245,68 @@ class PostgreSQLStatementBuilder extends StatementBuilder
 		return $to_char;
 	}
 
+	/**
+	 *
+	 * @return \ArrayObject
+	 */
 	public static function getTimestampFormatTranslations()
 	{
-		if (!\is_array(self::$timestampFormatTranslations))
+		if (!Container::isArray(self::$timestampFormatTranslations))
 		{
-			self::$timestampFormatTranslations = [
-				'Y' => 'YYYY',
-				'y' => 'YY',
-				'o' => 'IYYY',
-				'L' => false,
-				'M' => 'Mon',
-				'F' => 'Month',
-				'm' => 'MM',
-				'n' => 'FMMM',
-				'W' => 'IW',
-				'l' => 'Day',
-				't' => false,
-				'D' => 'Dy',
-				'd' => 'DD',
-				'j' => 'FMDD',
-				'z' => [
-					'DDD',
-					'Day of year range will be [1-366] instead of [0-365]'
-				],
-				'N' => 'ID',
-				'S' => false,
-				'w' => [
-					'D',
-					'Day of week range will be [1-7] instead of [0-6]'
-				],
-				// Hours
-				'H' => 'HH24',
-				'G' => 'FMHH24',
-				'h' => 'HH',
-				'g' => 'FMHH',
-				'B' => false,
-				'A' => 'AM',
-				'a' => 'am',
-				// Minutes
-				'i' => 'MI',
-				// Seconds
-				's' => 'SS',
-				'v' => 'MS',
-				'u' => 'US',
-				// Time zone
-				'Z' => false,
-				'O' => false,
-				'P' => 'OF',
-				'e' => false,
-				'T' => 'TZ',
-				'I' => false,
-				'r' => false,
-				'c' => [
-					'YYY-MM-DD"T"HH24:MI:SSOF',
-					'Time zone offset will contain colon(s)'
-				],
-				'U' => false
-			];
+			self::$timestampFormatTranslations = new \ArrayObject(
+				[
+					'Y' => 'YYYY',
+					'y' => 'YY',
+					'o' => 'IYYY',
+					'L' => false,
+					'M' => 'Mon',
+					'F' => 'Month',
+					'm' => 'MM',
+					'n' => 'FMMM',
+					'W' => 'IW',
+					'l' => 'Day',
+					't' => false,
+					'D' => 'Dy',
+					'd' => 'DD',
+					'j' => 'FMDD',
+					'z' => [
+						'DDD',
+						'Day of year range will be [1-366] instead of [0-365]'
+					],
+					'N' => 'ID',
+					'S' => false,
+					'w' => [
+						'D',
+						'Day of week range will be [1-7] instead of [0-6]'
+					],
+					// Hours
+					'H' => 'HH24',
+					'G' => 'FMHH24',
+					'h' => 'HH',
+					'g' => 'FMHH',
+					'B' => false,
+					'A' => 'AM',
+					'a' => 'am',
+					// Minutes
+					'i' => 'MI',
+					// Seconds
+					's' => 'SS',
+					'v' => 'MS',
+					'u' => 'US',
+					// Time zone
+					'Z' => false,
+					'O' => false,
+					'P' => 'OF',
+					'e' => false,
+					'T' => 'TZ',
+					'I' => false,
+					'r' => false,
+					'c' => [
+						'YYY-MM-DD"T"HH24:MI:SSOF',
+						'Time zone offset will contain colon(s)'
+					],
+					'U' => false
+				]);
 		}
 
 		return self::$timestampFormatTranslations;
