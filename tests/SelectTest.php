@@ -2,11 +2,14 @@
 namespace NoreSources\SQL;
 
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\DBMS\ConnectionHelper;
+use NoreSources\SQL\DBMS\Reference\ReferenceConnection;
 use NoreSources\SQL\DBMS\Reference\ReferenceStatementBuilder;
 use NoreSources\SQL\Expression\Evaluator as X;
 use NoreSources\SQL\Expression\MemberOf;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Statement\BuildContext;
+use NoreSources\SQL\Statement\SelectQuery;
 use NoreSources\Test\DatasourceManager;
 use NoreSources\Test\DerivedFileManager;
 
@@ -121,6 +124,7 @@ final class SelectTest extends \PHPUnit\Framework\TestCase
 		$structure = $this->datasources->get('Company');
 		$tablesetStructure = $structure['ns_unittests'];
 		$this->assertInstanceOf(Structure\TablesetStructure::class, $tablesetStructure);
+
 		$builder = new ReferenceStatementBuilder();
 		$context = new BuildContext($builder);
 		$context->setPivot($tablesetStructure);
@@ -156,7 +160,38 @@ final class SelectTest extends \PHPUnit\Framework\TestCase
 		$q->tokenize($stream, $context);
 		$result = $builder->finalizeStatement($stream, $context);
 		$sql = \SqlFormatter::format(strval($result), false);
+		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, null, 'sql');
+	}
 
+	public function testUnion()
+	{
+		$structure = $this->datasources->get('Company');
+		$tableStructure = $structure['ns_unittests']['Employees'];
+
+		$a = new SelectQuery($tableStructure);
+		$a->columns([
+			'name' => 'n'
+		]);
+		$a->where([
+			'gender' => "'M'"
+		]);
+		$a->orderBy('n');
+		$b = new SelectQuery($tableStructure);
+		$b->columns([
+			'name' => 'm'
+		]);
+		$b->where([
+			'>' => [
+				'salary',
+				1000
+			]
+		]);
+
+		$a->union($b);
+
+		$reference = new ReferenceConnection();
+		$data = ConnectionHelper::getStatementData($reference, $a, $tableStructure);
+		$sql = \SqlFormatter::format(strval($data), false);
 		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, null, 'sql');
 	}
 

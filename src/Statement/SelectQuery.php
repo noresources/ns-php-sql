@@ -12,6 +12,8 @@
 namespace NoreSources\SQL\Statement;
 
 // Aliases
+use NoreSources\Container;
+use NoreSources\TypeDescription;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Expression\Column;
 use NoreSources\SQL\Expression\Evaluator;
@@ -136,6 +138,28 @@ class JoinClause implements Expression
 	private $constraints;
 }
 
+class UnionClause
+{
+
+	/**
+	 *
+	 * @var SelectQuery
+	 */
+	public $query;
+
+	/**
+	 *
+	 * @var boolean
+	 */
+	public $all;
+
+	public function __construct(SelectQuery $q, $all = false)
+	{
+		$this->query = $q;
+		$this->all = $all;
+	}
+}
+
 /**
  * SELECT query statement
  */
@@ -155,6 +179,11 @@ class SelectQuery extends Statement
 			$table = $table->getPath();
 		}
 
+		if (!\is_string($table))
+			throw new \InvalidArgumentException(
+				'Invalid type for $table argument. ' . TableStructure::class .
+				' or string expected. Got ' . TypeDescription::getName($table));
+
 		$this->parts = [
 			self::PART_DISTINCT => false,
 			self::PART_COLUMNS => new \ArrayObject(),
@@ -164,6 +193,7 @@ class SelectQuery extends Statement
 			self::PART_GROUPBY => new \ArrayObject(),
 			self::PART_HAVING => new \ArrayObject(),
 			self::PART_ORDERBY => new \ArrayObject(),
+			self::PART_UNION => [],
 			self::PART_LIMIT => [
 				'count' => 0,
 				'offset' => 0
@@ -305,6 +335,11 @@ class SelectQuery extends Statement
 		return $this;
 	}
 
+	public function union(SelectQuery $query, $all = false)
+	{
+		$this->parts[self::PART_UNION][] = new UnionClause($query, $all);
+	}
+
 	/**
 	 *
 	 * @param string $reference
@@ -338,6 +373,29 @@ class SelectQuery extends Statement
 		$this->parts[self::PART_LIMIT]['count'] = $count;
 		$this->parts[self::PART_LIMIT]['offset'] = $offset;
 		return $this;
+	}
+
+	public function hasUnion()
+	{
+		return Container::count($this->parts[self::PART_UNION]);
+	}
+
+	/**
+	 *
+	 * @return boolean
+	 */
+	public function hasLimitClause()
+	{
+		return ($this->parts[self::PART_LIMIT]['count'] > 0);
+	}
+
+	/**
+	 *
+	 * @return number
+	 */
+	public function hasOrderingClause()
+	{
+		return Container::count($this->parts[self::PART_ORDERBY]);
 	}
 
 	public function tokenize(TokenStream $stream, TokenStreamContext $context)
@@ -506,8 +564,27 @@ class SelectQuery extends Statement
 
 		$stream->stream($having);
 
+		if (Container::count($this->parts[self::PART_UNION]))
+		{
+			foreach ($this->parts[self::PART_UNION] as $union)
+			{
+				/**
+				 *
+				 * @var UnionClause $union
+				 */
+				if ($union->query->hasLimitClause() || $union->query->hasOrderingClause())
+					throw new \LogicException('UNIONed query canont have LIMIT or ORDER BY clause');
+
+				$stream->space()->keyword('union');
+				if ($union->all)
+					$stream->space()->keyword('all');
+
+				$stream->space()->expression($union->query, $context);
+			}
+		}
+
 		// ORDER BY
-		if ($this->parts[self::PART_ORDERBY]->count())
+		if ($this->hasOrderingClause())
 		{
 			$stream->space()
 				->keyword('order by')
@@ -525,7 +602,7 @@ class SelectQuery extends Statement
 		}
 
 		// LIMIT
-		if ($this->parts[self::PART_LIMIT]['count'] > 0)
+		if ($this->hasLimitClause())
 		{
 			$stream->space()
 				->keyword('limit')
@@ -573,4 +650,6 @@ class SelectQuery extends Statement
 	const PART_ORDERBY = 'orderby';
 
 	const PART_LIMIT = 'limit';
+
+	const PART_UNION = 'union';
 }
