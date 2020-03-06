@@ -15,6 +15,7 @@ use NoreSources\TypeDescription;
 use NoreSources\SQL\ParameterValue;
 use NoreSources\SQL\DBMS\Connection;
 use NoreSources\SQL\DBMS\ConnectionException;
+use NoreSources\SQL\DBMS\ConnectionHelper;
 use NoreSources\SQL\DBMS\ConnectionStructureTrait;
 use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLConstants as K;
 use NoreSources\SQL\QueryResult\GenericInsertionQueryResult;
@@ -250,7 +251,8 @@ class PostgreSQLConnection implements Connection
 		{
 			foreach ($parameters as $entry)
 			{
-				$a[] = ($entry instanceof ParameterValue) ? $entry->value : $value;
+				$a[] = ($entry instanceof ParameterValue) ? ConnectionHelper::serializeParameterValue(
+					$this, $entry) : $value;
 			}
 
 			return $a;

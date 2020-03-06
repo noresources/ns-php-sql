@@ -15,6 +15,7 @@ use NoreSources\SQL;
 use NoreSources\TypeDescription;
 use NoreSources\SQL\ParameterValue;
 use NoreSources\SQL\DBMS\Connection;
+use NoreSources\SQL\DBMS\ConnectionHelper;
 use NoreSources\SQL\DBMS\ConnectionStructureTrait;
 use NoreSources\SQL\DBMS\SQLite\SQLiteConstants as K;
 use NoreSources\SQL\Expression\Literal;
@@ -293,7 +294,8 @@ class SQLiteConnection implements Connection
 				else
 					$name = $this->getStatementBuilder()->getParameter($key, null);
 
-				$value = ($entry instanceof ParameterValue) ? $entry->value : $entry;
+				$value = ($entry instanceof ParameterValue) ? ConnectionHelper::serializeParameterValue(
+					$this, $entry) : $entry;
 				$type = ($entry instanceof ParameterValue) ? $entry->type : K::DATATYPE_UNDEFINED;
 
 				if ($type == K::DATATYPE_UNDEFINED)

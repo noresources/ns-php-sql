@@ -13,6 +13,7 @@ use NoreSources\Container;
 use NoreSources\TypeDescription;
 use NoreSources\SQL\ParameterValue;
 use NoreSources\SQL\DBMS\Connection;
+use NoreSources\SQL\DBMS\ConnectionHelper;
 use NoreSources\SQL\DBMS\ConnectionStructureTrait;
 use NoreSources\SQL\DBMS\PDO\PDOConstants as K;
 use NoreSources\SQL\DBMS\SQLite\ConnectionException;
@@ -229,7 +230,8 @@ class PDOConnection implements Connection
 				else
 					$name = ':' . $key;
 
-				$value = ($entry instanceof ParameterValue) ? $entry->value : $entry;
+				$value = ($entry instanceof ParameterValue) ? ConnectionHelper::serializeParameterValue(
+					$this, $entry) : $entry;
 				$pdo->bindValue($name, $value);
 			}
 

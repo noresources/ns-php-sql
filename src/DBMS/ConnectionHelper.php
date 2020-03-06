@@ -10,7 +10,9 @@
 namespace NoreSources\SQL\DBMS;
 
 // Aliases
+use NoreSources\TypeConversion;
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\ParameterValue;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Statement\BuildContext;
 use NoreSources\SQL\Statement\Statement;
@@ -120,6 +122,32 @@ class ConnectionHelper
 	public static function registerConnectionClass($type, $className)
 	{
 		self::$connectionClassMap->offsetSet($type, $className);
+	}
+
+	public static function serializeParameterValue(Connection $connection,
+		ParameterValue $parameterValue)
+	{
+		if ($parameterValue->type & K::DATATYPE_NUMBER)
+		{
+			if ($parameterValue->type == K::DATATYPE_INTEGER)
+				return TypeConversion::toInteger($parameterValue->value);
+			else
+				return TypeConversion::toFloat($parameterValue->value);
+		}
+		elseif ($parameterValue->type == K::DATATYPE_BOOLEAN)
+			return TypeConversion::toBoolean($parameterValue->value);
+		elseif ($parameterValue->type == K::DATATYPE_NULL)
+			return null;
+		elseif ($parameterValue->value instanceof \DateTimeInterface)
+		{
+			$f = $connection->getStatementBuilder()->getTimestampFormat(K::DATATYPE_TIMESTAMP);
+			if ($parameterValue->type & K::DATATYPE_TIMESTAMP)
+				$f = $connection->getStatementBuilder()->getTimestampFormat($parameterValue->type);
+
+			return $parameterValue->value->format($f);
+		}
+
+		return $parameterValue->value;
 	}
 
 	public static function initialize()

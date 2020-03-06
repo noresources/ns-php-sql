@@ -55,7 +55,7 @@ interface Connection extends StatementBuilderAwareInterface
 
 	/**
 	 *
-	 * @return StatementBuilder
+	 * @return NoreSources\SQL\Statement\StatementBuilderInterface
 	 */
 	function getStatementBuilder();
 
