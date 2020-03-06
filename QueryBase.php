@@ -47,7 +47,7 @@ abstract class IQuery
 	{
 		if ($member == 'datasource')
 			return $this->datasource;
-		
+
 		throw new \InvalidArgumentException($member);
 	}
 
@@ -62,7 +62,7 @@ abstract class IQuery
 	 * @return QueryResult
 	 */
 	public abstract function execute($flags = 0);
-	
+
 	/**
 	 *
 	 * @var numeric
@@ -97,7 +97,8 @@ class FormattedQuery extends IQuery implements ns\IExpression
 	 * Constructor
 	 *
 	 * @param Datasource $a_datasource
-	 * @param string $a_strQuery SQL Query
+	 * @param string $a_strQuery
+	 *        	SQL Query
 	 */
 	public function __construct(Datasource $a_datasource, $a_strQuery = null)
 	{
@@ -116,7 +117,7 @@ class FormattedQuery extends IQuery implements ns\IExpression
 		{
 			return ns\Reporter::addError($this, __METHOD__ . '(): Null query', __FILE__, __LINE__);
 		}
-		
+
 		$resultClassName = QueryResult::queryResultClassName($this->queryString);
 		$result = $this->datasource->executeQuery($this->expressionString());
 		if ($result)
@@ -155,6 +156,11 @@ abstract class TableQuery extends IQuery
 	{
 		parent::__construct($a_table->datasource);
 		$this->table = $a_table;
+	}
+	
+	public function getQueryTable ()
+	{
+		return $this->table;
 	}
 
 	public function __get($key)
