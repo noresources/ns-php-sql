@@ -9,7 +9,7 @@
  */
 namespace NoreSources\SQL\Expression;
 
-class Surround implements Expression, ExpressionReturnType
+class Group implements Expression, ExpressionReturnType
 {
 
 	/**

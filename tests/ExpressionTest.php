@@ -32,7 +32,7 @@ final class ExpressionEvaluatorTest extends \PHPUnit\Framework\TestCase
 			],
 			'parenthesis' => [
 				'(12)',
-				Surround::class
+				Group::class
 			]
 		];
 

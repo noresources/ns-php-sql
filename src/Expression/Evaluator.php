@@ -568,7 +568,7 @@ class Evaluator
 				'whitespace',
 				new Loco\StringParser(')')
 			], function () {
-				return new Surround(func_get_arg(2));
+				return new Group(func_get_arg(2));
 			});
 
 		$whenThen = new Loco\ConcParser(
