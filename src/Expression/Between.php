@@ -85,7 +85,7 @@ class Between implements Expression, ExpressionReturnType
 	/**
 	 *
 	 * {@inheritdoc}
-	 * @see \NoreSources\SQL\Tokenizable::tokenize()
+	 * @see \NoreSources\SQL\TokenizableExpression::tokenize()
 	 */
 	public function tokenize(TokenStream $stream, TokenStreamContext $context)
 	{

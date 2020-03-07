@@ -51,7 +51,7 @@
             "source": {
                 "type": "git",
                 "url": "ssh://okami/volume1/repository/git/ns-php-core.git",
-                "reference": "d291cd190a3e2a11870695ad244543011881fa84"
+                "reference": "d98d53d4e9fc3c7ecfbc7bad3c108a7bf68e79c9"
             },
             "require": {
                 "ext-json": "*",
@@ -102,7 +102,7 @@
             "support": {
                 "issues": "https://github.com/noresources/ns-php-core/issues"
             },
-            "time": "2020-02-23T00:32:44+00:00"
+            "time": "2020-02-23T20:57:32+00:00"
         },
         {
             "name": "noresources/ns-php-expression",
@@ -110,7 +110,7 @@
             "source": {
                 "type": "git",
                 "url": "ssh://okami/volume1/repository/git/ns-php-expression.git",
-                "reference": "ee39087e3b5296017690fc39994ccd5976749051"
+                "reference": "77c4a610e1a9e0028e479f3a63dbcab4ea65440b"
             },
             "require": {
                 "noresources/ns-php-core": "~2.0",
@@ -129,6 +129,11 @@
                 "psr-4": {
                     "NoreSources\\Expression\\": "src/"
                 }
+            },
+            "autoload-dev": {
+                "classmap": [
+                    "tests/src/"
+                ]
             },
             "scripts": {
                 "tests": [
@@ -149,7 +154,7 @@
             "support": {
                 "issues": "https://github.com/noresources/ns-php-expression/issues"
             },
-            "time": "2020-02-18T21:29:40+00:00"
+            "time": "2020-03-07T13:04:21+00:00"
         },
         {
             "name": "noresources/ns-php-mediatype",
@@ -258,12 +263,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-fig/log.git",
-                "reference": "5628725d0e4d687e29575eb41f9d5ee7de33a84c"
+                "reference": "e1cb6eca27ccfd46567a2837eeba62bc5fecdee2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-fig/log/zipball/5628725d0e4d687e29575eb41f9d5ee7de33a84c",
-                "reference": "5628725d0e4d687e29575eb41f9d5ee7de33a84c",
+                "url": "https://api.github.com/repos/php-fig/log/zipball/e1cb6eca27ccfd46567a2837eeba62bc5fecdee2",
+                "reference": "e1cb6eca27ccfd46567a2837eeba62bc5fecdee2",
                 "shasum": ""
             },
             "require": {
@@ -297,7 +302,7 @@
                 "psr",
                 "psr-3"
             ],
-            "time": "2019-11-12T16:45:05+00:00"
+            "time": "2020-02-28T08:38:25+00:00"
         }
     ],
     "packages-dev": [
@@ -675,12 +680,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpDocumentor/TypeResolver.git",
-                "reference": "7462d5f123dfc080dfdf26897032a6513644fc95"
+                "reference": "d6b5291650d058fe1162a54fee9d923de19bcda2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpDocumentor/TypeResolver/zipball/7462d5f123dfc080dfdf26897032a6513644fc95",
-                "reference": "7462d5f123dfc080dfdf26897032a6513644fc95",
+                "url": "https://api.github.com/repos/phpDocumentor/TypeResolver/zipball/d6b5291650d058fe1162a54fee9d923de19bcda2",
+                "reference": "d6b5291650d058fe1162a54fee9d923de19bcda2",
                 "shasum": ""
             },
             "require": {
@@ -713,7 +718,7 @@
                 }
             ],
             "description": "A PSR-5 based resolver of Class names, Types and Structural Element Names",
-            "time": "2020-02-18T18:59:58+00:00"
+            "time": "2020-03-06T17:11:40+00:00"
         },
         {
             "name": "phpspec/prophecy",
@@ -721,12 +726,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpspec/prophecy.git",
-                "reference": "b4400efc9d206e83138e2bb97ed7f5b14b831cd9"
+                "reference": "451c3cd1418cf640de218914901e51b064abb093"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpspec/prophecy/zipball/b4400efc9d206e83138e2bb97ed7f5b14b831cd9",
-                "reference": "b4400efc9d206e83138e2bb97ed7f5b14b831cd9",
+                "url": "https://api.github.com/repos/phpspec/prophecy/zipball/451c3cd1418cf640de218914901e51b064abb093",
+                "reference": "451c3cd1418cf640de218914901e51b064abb093",
                 "shasum": ""
             },
             "require": {
@@ -776,7 +781,7 @@
                 "spy",
                 "stub"
             ],
-            "time": "2020-01-20T15:57:02+00:00"
+            "time": "2020-03-05T15:02:03+00:00"
         },
         {
             "name": "phpunit/php-code-coverage",
@@ -1036,12 +1041,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "a8275a2fbc5cc069b0c8fe40c1b0cc7b4d551b8a"
+                "reference": "34ea708b010eb7c6e3e2e27fd0aac614a39b80e2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/a8275a2fbc5cc069b0c8fe40c1b0cc7b4d551b8a",
-                "reference": "a8275a2fbc5cc069b0c8fe40c1b0cc7b4d551b8a",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/34ea708b010eb7c6e3e2e27fd0aac614a39b80e2",
+                "reference": "34ea708b010eb7c6e3e2e27fd0aac614a39b80e2",
                 "shasum": ""
             },
             "require": {
@@ -1111,7 +1116,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2020-02-22T07:04:45+00:00"
+            "time": "2020-03-01T08:29:15+00:00"
         },
         {
             "name": "sebastian/code-unit-reverse-lookup",
@@ -1734,12 +1739,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-ctype.git",
-                "reference": "fbdeaec0df06cf3d51c93de80c7eb76e271f5a38"
+                "reference": "4719fa9c18b0464d399f1a63bf624b42b6fa8d14"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-ctype/zipball/fbdeaec0df06cf3d51c93de80c7eb76e271f5a38",
-                "reference": "fbdeaec0df06cf3d51c93de80c7eb76e271f5a38",
+                "url": "https://api.github.com/repos/symfony/polyfill-ctype/zipball/4719fa9c18b0464d399f1a63bf624b42b6fa8d14",
+                "reference": "4719fa9c18b0464d399f1a63bf624b42b6fa8d14",
                 "shasum": ""
             },
             "require": {
@@ -1751,7 +1756,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.14-dev"
+                    "dev-master": "1.15-dev"
                 }
             },
             "autoload": {
@@ -1784,7 +1789,7 @@
                 "polyfill",
                 "portable"
             ],
-            "time": "2020-01-13T11:15:53+00:00"
+            "time": "2020-02-27T09:26:54+00:00"
         },
         {
             "name": "theseer/tokenizer",

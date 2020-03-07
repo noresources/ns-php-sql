@@ -9,12 +9,12 @@
  */
 namespace NoreSources\SQL\Expression;
 
-use NoreSources\Expression\Procedure;
+use NoreSources\Expression\ProcedureInvocation;
 
 /**
  * SQL function call expression
  */
-class FunctionCall extends Procedure implements Expression
+class FunctionCall extends ProcedureInvocation implements Expression
 {
 
 	/**

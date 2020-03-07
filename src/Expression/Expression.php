@@ -11,6 +11,6 @@ namespace NoreSources\SQL\Expression;
 
 use NoreSources\Expression as xpr;
 
-interface Expression extends xpr\Expression, Tokenizable
+interface Expression extends xpr\Expression, TokenizableExpression
 {
 }

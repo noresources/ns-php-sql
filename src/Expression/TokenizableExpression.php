@@ -12,13 +12,13 @@ namespace NoreSources\SQL\Expression;
 /**
  * A tokenizable object can be represented as a series of Token
  */
-interface Tokenizable
+interface TokenizableExpression
 {
 
 	/**
 	 *
 	 * {@inheritdoc}
-	 * @see \NoreSources\SQL\Tokenizable::tokenize()
+	 * @see \NoreSources\SQL\TokenizableExpression::tokenize()
 	 * @return TokenStream
 	 */
 	function tokenize(TokenStream $stream, TokenStreamContext $context);
