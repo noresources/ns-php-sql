@@ -9,6 +9,9 @@
  */
 namespace NoreSources\SQL\Expression;
 
+/**
+ * A special function which have different translation in DBMS dialects
+ */
 class MetaFunctionCall extends FunctionCall
 {
 
@@ -24,6 +27,8 @@ class MetaFunctionCall extends FunctionCall
 
 	public function tokenize(TokenStream $stream, TokenStreamContext $context)
 	{
-		return $context->getStatementBuilder()->translateFunction($this)->tokenize($stream, $context);
+		return $context->getStatementBuilder()
+			->translateFunction($this)
+			->tokenize($stream, $context);
 	}
 }

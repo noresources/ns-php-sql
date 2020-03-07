@@ -1,9 +1,12 @@
 <?php
 namespace NoreSources\SQL\Expression;
 
-use NoreSources\Expression as xpr;
-
-class AlternativeList implements xpr\Expression, TokenizableExpression
+/**
+ * List of CASE + ELSE expression
+ *
+ * @see https://www.sqlite.org/lang_expr.html
+ */
+class AlternativeList implements TokenizableExpression
 {
 
 	public function __construct(TokenizableExpression $subject)

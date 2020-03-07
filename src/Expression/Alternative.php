@@ -1,12 +1,10 @@
 <?php
 namespace NoreSources\SQL\Expression;
 
-use NoreSources\Expression as xpr;
-
 /**
  * CASE expression
  */
-class Alternative implements xpr\Expression, TokenizableExpression, ExpressionReturnType
+class Alternative implements TokenizableExpression, ExpressionReturnType
 {
 
 	public function __construct(TokenizableExpression $when, TokenizableExpression $then)

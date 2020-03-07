@@ -14,6 +14,9 @@ use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Structure\ArrayColumnPropertyMap;
 use NoreSources\SQL\Structure\ColumnPropertyMap;
 
+/**
+ * Literal value
+ */
 class Literal implements TokenizableExpression, ExpressionReturnType
 {
 

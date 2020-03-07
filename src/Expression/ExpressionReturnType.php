@@ -9,6 +9,9 @@
  */
 namespace NoreSources\SQL\Expression;
 
+/**
+ * Describe the kind of data type an expression will represents
+ */
 interface ExpressionReturnType
 {
 

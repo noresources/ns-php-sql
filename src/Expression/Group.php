@@ -9,6 +9,8 @@
  */
 namespace NoreSources\SQL\Expression;
 
+/**
+ */
 class Group implements TokenizableExpression, ExpressionReturnType
 {
 

@@ -9,11 +9,23 @@
  */
 namespace NoreSources\SQL\Expression;
 
+/**
+ * Statement named parameter
+ */
 class Parameter implements TokenizableExpression
 {
 
+	/**
+	 *
+	 * @var string Parameter name
+	 */
 	public $name;
 
+	/**
+	 *
+	 * @param string $name
+	 *        	Parameter name
+	 */
 	public function __construct($name)
 	{
 		$this->name = $name;
