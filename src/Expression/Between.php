@@ -14,7 +14,7 @@ use NoreSources\SQL\Constants as K;
 /**
  * expression BETWEEN expression AND expression
  */
-class Between implements Expression, ExpressionReturnType
+class Between implements TokenizableExpression, ExpressionReturnType
 {
 
 	/**
@@ -26,11 +26,11 @@ class Between implements Expression, ExpressionReturnType
 
 	/**
 	 *
-	 * @param Expression $leftOperand
-	 * @param Expression $min
-	 * @param Expression $max
+	 * @param TokenizableExpression $leftOperand
+	 * @param TokenizableExpression $min
+	 * @param TokenizableExpression $max
 	 */
-	public function __construct(Expression $leftOperand, Expression $min, Expression $max,
+	public function __construct(TokenizableExpression $leftOperand, TokenizableExpression $min, TokenizableExpression $max,
 		$inside = true)
 	{
 		$this->inside = true;
@@ -48,7 +48,7 @@ class Between implements Expression, ExpressionReturnType
 
 	/**
 	 *
-	 * @return \NoreSources\SQL\Expression\Expression
+	 * @return \NoreSources\SQL\TokenizableExpression\Expression
 	 */
 	public function getLeftOperand()
 	{
@@ -57,7 +57,7 @@ class Between implements Expression, ExpressionReturnType
 
 	/**
 	 *
-	 * @return array<integer,Expression>
+	 * @return array<integer,TokenizableExpression>
 	 */
 	public function getRange()
 	{
@@ -66,7 +66,7 @@ class Between implements Expression, ExpressionReturnType
 
 	/**
 	 *
-	 * @return Expression Range min boundary
+	 * @return TokenizableExpression Range min boundary
 	 */
 	public function getMin()
 	{
@@ -75,7 +75,7 @@ class Between implements Expression, ExpressionReturnType
 
 	/**
 	 *
-	 * @return Expression Range max boundary
+	 * @return TokenizableExpression Range max boundary
 	 */
 	public function getMax()
 	{
@@ -105,13 +105,13 @@ class Between implements Expression, ExpressionReturnType
 
 	/**
 	 *
-	 * @var Expression
+	 * @var TokenizableExpression
 	 */
 	private $leftOperand;
 
 	/**
 	 *
-	 * @var \array<integer,Expression>
+	 * @var \array<integer,TokenizableExpression>
 	 */
 	private $range;
 }

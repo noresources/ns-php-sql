@@ -14,7 +14,7 @@ namespace NoreSources\SQL\Statement;
 // Aliases
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Expression\Evaluator;
-use NoreSources\SQL\Expression\Expression;
+use NoreSources\SQL\Expression\TokenizableExpression;
 use NoreSources\SQL\Expression\Keyword;
 use NoreSources\SQL\Expression\Literal;
 use NoreSources\SQL\Expression\TableReference;
@@ -98,7 +98,7 @@ class InsertQuery extends Statement implements \ArrayAccess
 			 *
 			 * @var ColumnStructure $column
 			 */
-			if (!($value instanceof Expression))
+			if (!($value instanceof TokenizableExpression))
 			{
 				$type = K::DATATYPE_UNDEFINED;
 				if ($column->hasColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE))

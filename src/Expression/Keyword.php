@@ -9,7 +9,7 @@
  */
 namespace NoreSources\SQL\Expression;
 
-class Keyword implements Expression
+class Keyword implements TokenizableExpression
 {
 
 	/**

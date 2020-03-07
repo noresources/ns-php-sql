@@ -11,7 +11,7 @@ namespace NoreSources\SQL\Structure;
 
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Expression\Evaluator as X;
-use NoreSources\SQL\Expression\Expression;
+use NoreSources\SQL\Expression\TokenizableExpression;
 use NoreSources\SQL\Expression\Keyword;
 use NoreSources as ns;
 
@@ -389,7 +389,7 @@ class XMLStructureSerializer extends StructureSerializer
 					break;
 				}
 
-				if (!($value instanceof Expression))
+				if (!($value instanceof TokenizableExpression))
 				{
 					$value = X::literal($value, $valueType);
 				}

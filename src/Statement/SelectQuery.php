@@ -17,7 +17,7 @@ use NoreSources\TypeDescription;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Expression\Column;
 use NoreSources\SQL\Expression\Evaluator;
-use NoreSources\SQL\Expression\Expression;
+use NoreSources\SQL\Expression\TokenizableExpression;
 use NoreSources\SQL\Expression\ExpressionReturnType;
 use NoreSources\SQL\Expression\TableReference;
 use NoreSources\SQL\Expression\TokenStream;
@@ -34,7 +34,7 @@ class ResultColumnReference
 	/**
 	 * Result column
 	 *
-	 * @var Expression
+	 * @var TokenizableExpression
 	 */
 	public $expression;
 
@@ -47,10 +47,10 @@ class ResultColumnReference
 	/**
 	 *
 	 * @param
-	 *        	Expression
+	 *        	TokenizableExpression
 	 * @param string $alias
 	 */
-	public function __construct(Expression $expression, $alias)
+	public function __construct(TokenizableExpression $expression, $alias)
 	{
 		$this->expression = $expression;
 		$this->alias = $alias;
@@ -60,7 +60,7 @@ class ResultColumnReference
 /**
  * SELECT query JOIN clause
  */
-class JoinClause implements Expression
+class JoinClause implements TokenizableExpression
 {
 
 	/**
@@ -127,7 +127,7 @@ class JoinClause implements Expression
 		for ($i = 0; $i < $c; $i++)
 		{
 			$x = func_get_arg($i);
-			if (!($x instanceof Expression))
+			if (!($x instanceof TokenizableExpression))
 				$x = Evaluator::evaluate($x);
 			$this->constraints->append($x);
 		}
@@ -234,7 +234,7 @@ class SelectQuery extends Statement
 				else
 					$expression = $arg;
 
-				if (!($expression instanceof Expression))
+				if (!($expression instanceof TokenizableExpression))
 					$expression = Evaluator::evaluate($expression);
 
 				$this->parts[self::PART_COLUMNS]->append(
@@ -311,7 +311,7 @@ class SelectQuery extends Statement
 	{
 		foreach ($args as $x)
 		{
-			if (!($x instanceof Expression))
+			if (!($x instanceof TokenizableExpression))
 				$x = Evaluator::evaluate($x);
 			$this->parts[$part]->append($x);
 		}
@@ -350,7 +350,7 @@ class SelectQuery extends Statement
 	 */
 	public function orderBy($reference, $direction = K::ORDERING_ASC, $collation = null)
 	{
-		if (!($reference instanceof Expression))
+		if (!($reference instanceof TokenizableExpression))
 			$reference = Evaluator::evaluate($reference);
 
 		$this->parts[self::PART_ORDERBY]->append(

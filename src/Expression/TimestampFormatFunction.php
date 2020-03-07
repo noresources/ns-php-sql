@@ -30,9 +30,9 @@ class TimestampFormatFunction extends MetaFunctionCall implements ExpressionRetu
 	 */
 	public function __construct($format, $timestamp)
 	{
-		if (!($format instanceof Expression))
+		if (!($format instanceof TokenizableExpression))
 			$format = new Literal($format, K::DATATYPE_STRING);
-		if (!($timestamp instanceof Expression))
+		if (!($timestamp instanceof TokenizableExpression))
 			$timestamp = new Literal(new DateTime($timestamp), K::DATATYPE_TIMESTAMP);
 
 		parent::__construct(K::METAFUNCTION_TIMESTAMP_FORMAT, [

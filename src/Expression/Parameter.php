@@ -9,7 +9,7 @@
  */
 namespace NoreSources\SQL\Expression;
 
-class Parameter implements Expression
+class Parameter implements TokenizableExpression
 {
 
 	public $name;

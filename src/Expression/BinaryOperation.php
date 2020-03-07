@@ -12,7 +12,7 @@ namespace NoreSources\SQL\Expression;
 use NoreSources\Expression as xpr;
 use NoreSources\SQL\Constants as K;
 
-class BinaryOperation extends xpr\BinaryOperation implements Expression, ExpressionReturnType
+class BinaryOperation extends xpr\BinaryOperation implements TokenizableExpression, ExpressionReturnType
 {
 
 	const EQUAL = '=';
@@ -22,10 +22,10 @@ class BinaryOperation extends xpr\BinaryOperation implements Expression, Express
 	/**
 	 *
 	 * @param unknown $operator
-	 * @param Expression $left
-	 * @param Expression $right
+	 * @param TokenizableExpression $left
+	 * @param TokenizableExpression $right
 	 */
-	public function __construct($operator, Expression $left, Expression $right)
+	public function __construct($operator, TokenizableExpression $left, TokenizableExpression $right)
 	{
 		parent::__construct($operator, $left, $right);
 	}

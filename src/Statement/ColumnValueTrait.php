@@ -121,7 +121,7 @@ trait ColumnValueTrait
 	 *
 	 * @var \ArrayObject Associative array where
 	 *      keys are column names
-	 *      and values are \NoreSources\SQL\Expression
+	 *      and values are \NoreSources\SQL\TokenizableExpression
 	 */
 	private $columnValues;
 }

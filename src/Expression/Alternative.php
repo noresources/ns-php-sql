@@ -6,10 +6,10 @@ use NoreSources\Expression as xpr;
 /**
  * CASE expression
  */
-class Alternative implements xpr\Expression, Expression, ExpressionReturnType
+class Alternative implements xpr\Expression, TokenizableExpression, ExpressionReturnType
 {
 
-	public function __construct(Expression $when, Expression $then)
+	public function __construct(TokenizableExpression $when, TokenizableExpression $then)
 	{
 		$this->when = $when;
 		$this->then = $then;
@@ -43,13 +43,13 @@ class Alternative implements xpr\Expression, Expression, ExpressionReturnType
 
 	/**
 	 *
-	 * @var Expression
+	 * @var TokenizableExpression
 	 */
 	private $when;
 
 	/**
 	 *
-	 * @var Expression
+	 * @var TokenizableExpression
 	 */
 	private $then;
 }

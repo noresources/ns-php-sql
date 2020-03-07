@@ -57,7 +57,7 @@ class TokenStream implements \IteratorAggregate, \Countable
 		return $this->append($value, K::TOKEN_PARAMETER);
 	}
 
-	public function expression(Expression $expression, BuildContext $context)
+	public function expression(TokenizableExpression $expression, BuildContext $context)
 	{
 		$expression->tokenize($this, $context);
 		return $this;
@@ -67,7 +67,7 @@ class TokenStream implements \IteratorAggregate, \Countable
 	 *
 	 * @param array|\Traversable $constraints
 	 * @param BuildContext $context
-	 * @return \NoreSources\SQL\Expression\TokenStream
+	 * @return \NoreSources\SQL\TokenizableExpression\TokenStream
 	 */
 	public function constraints($constraints, BuildContext $context)
 	{
@@ -75,13 +75,13 @@ class TokenStream implements \IteratorAggregate, \Countable
 		foreach ($constraints as $constraint)
 		{
 			$e = Evaluator::evaluate($constraint);
-			if ($c instanceof Expression)
+			if ($c instanceof TokenizableExpression)
 				$c = new BinaryOperation('AND', $c, $e);
 			else
 				$c = $e;
 		}
 
-		if ($c instanceof Expression)
+		if ($c instanceof TokenizableExpression)
 			return $this->expression($c, $context);
 
 		return $this;

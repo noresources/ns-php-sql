@@ -12,10 +12,10 @@ namespace NoreSources\SQL\Expression;
 use NoreSources\Expression as xpr;
 use NoreSources\SQL\Constants as K;
 
-class UnaryOperation extends xpr\UnaryOperation implements Expression, ExpressionReturnType
+class UnaryOperation extends xpr\UnaryOperation implements TokenizableExpression, ExpressionReturnType
 {
 
-	public function __construct($operator, Expression $operand)
+	public function __construct($operator, TokenizableExpression $operand)
 	{
 		parent::__construct($operator, $operand);
 	}

@@ -47,7 +47,7 @@ class StatementException extends \Exception
 /**
  * SQL statement
  */
-abstract class Statement implements X\Expression
+abstract class Statement implements X\TokenizableExpression
 {
 
 	/**

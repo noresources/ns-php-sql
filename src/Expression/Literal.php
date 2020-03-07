@@ -14,7 +14,7 @@ use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Structure\ArrayColumnPropertyMap;
 use NoreSources\SQL\Structure\ColumnPropertyMap;
 
-class Literal implements Expression, ExpressionReturnType
+class Literal implements TokenizableExpression, ExpressionReturnType
 {
 
 	/**
@@ -73,8 +73,8 @@ class Literal implements Expression, ExpressionReturnType
 	 */
 	public function setValue($value, $type = null)
 	{
-		if ($value instanceof Expression)
-			throw new \LogicException('Literal is already an Expression');
+		if ($value instanceof TokenizableExpression)
+			throw new \LogicException('Literal is already an TokenizableExpression');
 
 		$this->literalValue = $value;
 

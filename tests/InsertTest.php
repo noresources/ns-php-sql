@@ -4,7 +4,7 @@ namespace NoreSources\SQL;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\Reference\ReferenceStatementBuilder;
 use NoreSources\SQL\Expression\Evaluator as X;
-use NoreSources\SQL\Expression\Expression;
+use NoreSources\SQL\Expression\TokenizableExpression;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Statement\BuildContext;
 use NoreSources\Test\DatasourceManager;
@@ -105,7 +105,7 @@ final class InsertTest extends \PHPUnit\Framework\TestCase
 
 			foreach ($values as $column => $value)
 			{
-				if ($value instanceof Expression)
+				if ($value instanceof TokenizableExpression)
 					$q[$column] = $value;
 				else
 					$q->setColumnValue($column, $value[0], $value[1]);

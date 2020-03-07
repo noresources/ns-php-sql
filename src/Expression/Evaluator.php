@@ -54,7 +54,7 @@ class Evaluator
 	 * @param integer|ColumnStructure $type
 	 *        	Data type hint
 	 *
-	 * @return \NoreSources\SQL\Expression\Literal
+	 * @return \NoreSources\SQL\TokenizableExpression\Literal
 	 */
 	public static function literal($value, $type = K::DATATYPE_UNDEFINED)
 	{
@@ -71,7 +71,7 @@ class Evaluator
 	 * @param string $name
 	 *        	Parameter name
 	 *
-	 * @return \NoreSources\SQL\Expression\Parameter
+	 * @return \NoreSources\SQL\TokenizableExpression\Parameter
 	 */
 	public static function parameter($name)
 	{
@@ -133,7 +133,7 @@ class Evaluator
 	 * Evalute expression description
 	 *
 	 * @param string|mixed $string
-	 * @return \NoreSources\SQL\Expression|NULL|mixed
+	 * @return \NoreSources\SQL\TokenizableExpression|NULL|mixed
 	 */
 	public function __invoke($evaluable)
 	{
@@ -142,12 +142,12 @@ class Evaluator
 
 	/**
 	 *
-	 * @method Expression evaluate ($evaluable)
+	 * @method TokenizableExpression evaluate ($evaluable)
 	 *
 	 * @param string $name
 	 * @param array $args
 	 *
-	 * @return Expression
+	 * @return TokenizableExpression
 	 *
 	 * @throws \BadMethodCallException
 	 */
@@ -166,12 +166,12 @@ class Evaluator
 
 	/**
 	 *
-	 * @method Expression evaluate ($evaluable)
+	 * @method TokenizableExpression evaluate ($evaluable)
 	 *
 	 * @param string $name
 	 * @param array $args
 	 *
-	 * @return Expression
+	 * @return TokenizableExpression
 	 *
 	 * @throws \BadMethodCallException
 	 */
@@ -202,7 +202,7 @@ class Evaluator
 	{
 		if (\is_object($evaluable))
 		{
-			if ($evaluable instanceof Expression)
+			if ($evaluable instanceof TokenizableExpression)
 			{
 				return $evaluable;
 			}
@@ -265,7 +265,7 @@ class Evaluator
 				foreach ($evaluable as $v)
 				{
 					$x = $this->evaluateEvaluable($v);
-					if ($e instanceof Expression)
+					if ($e instanceof TokenizableExpression)
 						$e = new BinaryOperation(BinaryOperation::LOGICAL_AND, $e, $x);
 					else
 						$e = $x;
@@ -402,13 +402,13 @@ class Evaluator
 
 			$expression = $this->evaluatePolishNotationElement($key, $operands);
 
-			if (!($expression instanceof Expression))
+			if (!($expression instanceof TokenizableExpression))
 			{
 				throw new EvaluatorExceptioion(
 					'Unable to create expression (got ' . var_export($expression, true) . ')');
 			}
 
-			if ($result instanceof Expression)
+			if ($result instanceof TokenizableExpression)
 			{
 				$result = new BinaryOperation(BinaryOperation::LOGICAL_AND, $result, $expression);
 			}
@@ -416,7 +416,7 @@ class Evaluator
 				$result = $expression;
 		}
 
-		if (!($result instanceof Expression))
+		if (!($result instanceof TokenizableExpression))
 		{
 			throw new EvaluatorExceptioion('Unable to create expression');
 		}
@@ -533,7 +533,7 @@ class Evaluator
 			function ($a) {
 				if (\is_null($a))
 					return [];
-				elseif ($a instanceof Expression)
+				elseif ($a instanceof TokenizableExpression)
 					return [
 						$a
 					];

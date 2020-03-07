@@ -9,16 +9,16 @@
  */
 namespace NoreSources\SQL\Expression;
 
-class Group implements Expression, ExpressionReturnType
+class Group implements TokenizableExpression, ExpressionReturnType
 {
 
 	/**
 	 *
-	 * @param Expression $expression
+	 * @param TokenizableExpression $expression
 	 * @param string $open
 	 * @param string $close
 	 */
-	public function __construct(Expression $expression, $open = '(', $close = ')')
+	public function __construct(TokenizableExpression $expression, $open = '(', $close = ')')
 	{
 		$this->expression = $expression;
 		$this->openingText = $open;
@@ -27,7 +27,7 @@ class Group implements Expression, ExpressionReturnType
 
 	/**
 	 *
-	 * @return \NoreSources\Expression\Expression
+	 * @return \NoreSources\TokenizableExpression\Expression
 	 */
 	public function getExpression()
 	{
@@ -62,7 +62,7 @@ class Group implements Expression, ExpressionReturnType
 	/**
 	 *
 	 * {@inheritdoc}
-	 * @see \NoreSources\SQL\Expression\ExpressionReturnType::getExpressionDataType()
+	 * @see \NoreSources\SQL\TokenizableExpression\ExpressionReturnType::getExpressionDataType()
 	 */
 	public function getExpressionDataType()
 	{
@@ -71,7 +71,7 @@ class Group implements Expression, ExpressionReturnType
 
 	/**
 	 *
-	 * @var Expression
+	 * @var TokenizableExpression
 	 */
 	private $expression;
 

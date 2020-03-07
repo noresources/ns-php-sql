@@ -12,7 +12,7 @@ namespace NoreSources\SQL\Expression;
 /**
  * Structure element path or alias
  */
-abstract class StructureElementIdentifier implements Expression
+abstract class StructureElementIdentifier implements TokenizableExpression
 {
 
 	public $path;

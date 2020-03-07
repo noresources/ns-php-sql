@@ -14,7 +14,7 @@ use NoreSources\Expression\ProcedureInvocation;
 /**
  * SQL function call expression
  */
-class FunctionCall extends ProcedureInvocation implements Expression
+class FunctionCall extends ProcedureInvocation implements TokenizableExpression
 {
 
 	/**
@@ -34,7 +34,7 @@ class FunctionCall extends ProcedureInvocation implements Expression
 	 */
 	public function appendArgument($argument)
 	{
-		if (!($argument instanceof Expression))
+		if (!($argument instanceof TokenizableExpression))
 		{
 			$argument = Evaluator::evaluate($argument);
 		}

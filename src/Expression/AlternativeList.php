@@ -3,10 +3,10 @@ namespace NoreSources\SQL\Expression;
 
 use NoreSources\Expression as xpr;
 
-class AlternativeList implements xpr\Expression, Expression
+class AlternativeList implements xpr\Expression, TokenizableExpression
 {
 
-	public function __construct(Expression $subject)
+	public function __construct(TokenizableExpression $subject)
 	{
 		$this->subject = $subject;
 		$this->alternatives = [];
@@ -18,7 +18,7 @@ class AlternativeList implements xpr\Expression, Expression
 		$this->alternatives[] = $alternative;
 	}
 
-	public function setOtherwise(Expression $else = null)
+	public function setOtherwise(TokenizableExpression $else = null)
 	{
 		$this->otherwise = $else;
 	}
@@ -33,7 +33,7 @@ class AlternativeList implements xpr\Expression, Expression
 			$stream->space()->expression($alternative, $context);
 		}
 
-		if ($this->otherwise instanceof Expression)
+		if ($this->otherwise instanceof TokenizableExpression)
 		{
 			$stream->space()
 				->keyword('else')
@@ -52,7 +52,7 @@ class AlternativeList implements xpr\Expression, Expression
 
 	/**
 	 *
-	 * @var array<Expression>
+	 * @var array<TokenizableExpression>
 	 */
 	private $alternatives;
 

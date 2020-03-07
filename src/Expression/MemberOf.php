@@ -15,7 +15,7 @@ use NoreSources\SQL\Constants as K;
 /**
  * In operator
  */
-class MemberOf extends xpr\Set implements Expression, ExpressionReturnType
+class MemberOf extends xpr\Set implements TokenizableExpression, ExpressionReturnType
 {
 
 	/**
@@ -27,13 +27,13 @@ class MemberOf extends xpr\Set implements Expression, ExpressionReturnType
 
 	/**
 	 *
-	 * @param Expression $leftOperand
+	 * @param TokenizableExpression $leftOperand
 	 * @param array $expressionList
 	 *        	List of expression
 	 * @param boolean $memberOf
 	 *        	Indicate if @c $leftOperand should be a momber of the @c $expressionList or not
 	 */
-	public function __construct(Expression $leftOperand, $expressionList = array(), $memberOf = true)
+	public function __construct(TokenizableExpression $leftOperand, $expressionList = array(), $memberOf = true)
 	{
 		parent::__construct();
 		$this->leftOperand = $leftOperand;
@@ -78,12 +78,12 @@ class MemberOf extends xpr\Set implements Expression, ExpressionReturnType
 
 	protected function isValidElement($element)
 	{
-		return ($element instanceof Expression);
+		return ($element instanceof TokenizableExpression);
 	}
 
 	/**
 	 *
-	 * @var Expression
+	 * @var TokenizableExpression
 	 */
 	private $leftOperand;
 }
