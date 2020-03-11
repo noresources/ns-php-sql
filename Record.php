@@ -6,62 +6,6 @@ use NoreSources\BinaryOperatorExpression;
 use NoreSources\DataTree;
 use NoreSources\Reporter;
 
-/**
- * The record values differs from the entry stored in the datasource
- *
- * @var integer
- */
-const kRecordStateModified = 0x01;
-
-/**
- * A record with the same primary key values exists in the datasource
- *
- * @var integer
- */
-const kRecordStateExists = 0x02;
-
-/**
- * Return or affect multiple records
- *
- * @var integer
- */
-const kRecordQueryMultiple = 0x04;
-
-/**
- * When using getter methods,
- * create a new record if none can be found
- *
- * @var integer
- */
-const kRecordQueryCreate = 0x08;
-
-/**
- * Also retreive foreign keys data
- *
- * @var integer
- */
-const kRecordQueryForeignKeys = 0x10;
-
-/**
- * Return the SelectQuery object
- *
- * @var integer
- */
-const kRecordQuerySQL = 0x20;
-
-/**
- * Starting point for all query flag extensions
- *
- * User-defined query flags should have the form
- *
- * @c{ (kRecordQueryFlagExtension << n) @}
- *
- * Witn n >= 1
- *
- * @var integer
- */
-const kRecordQueryFlagExtension = 0x80;
-
 interface RecordQueryOption
 {
 }
@@ -92,8 +36,18 @@ class PresentationSettings extends DataTree implements RecordQueryOption
 	}
 }
 
+/**
+ *
+ * @deprecated Use class constant
+ * @var unknown
+ */
 const kRecordKeyColumn = PresentationSettings::KEY_COLUMN;
 
+/**
+ *
+ * @deprecated Use class constant
+ * @var unknown
+ */
 const kRecordDistinct = PresentationSettings::DISTINCT;
 
 /**
@@ -456,17 +410,71 @@ const kRecordForeignKeyColumnFormat = '(.+?)::(.+)';
 class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 {
 
-	const QUERY_MULTIPLE = kRecordQueryMultiple;
+	/**
+	 * Return or affect multiple records
+	 *
+	 * @var integer
+	 */
+	const QUERY_MULTIPLE = 0x01;
 
-	const QUERY_CREATE = kRecordQueryCreate;
+	/**
+	 * When using getter methods,
+	 * create a new record if none can be found
+	 *
+	 * @var integer
+	 */
+	const QUERY_CREATE = 0x02;
 
-	const QUERY_FOREIGNKEYS = kRecordQueryForeignKeys;
+	/**
+	 * Query modification flag.
+	 * Also retreive foreign keys data
+	 *
+	 * @var integer
+	 */
+	const QUERY_FOREIGNKEYS = 0x04;
 
-	const QUERY_SQL = kRecordQuerySQL;
+	/**
+	 * Query modification flag.
+	 * Return the SelectQuery object
+	 *
+	 * @var integer
+	 */
+	const QUERY_SQL = 0x08;
 
+	/**
+	 * Query modification flag.
+	 * Return the number of record found instead of the recordset
+	 *
+	 * @var number
+	 */
 	const QUERY_COUNT = 0x40;
 
-	const QUERY_FLAGEXTENSION = kRecordQueryFlagExtension;
+	/**
+	 * Starting point for all query flag extensions
+	 *
+	 * User-defined query flags should have the form
+	 *
+	 * @c{ (kRecordQueryFlagExtension << n) @}
+	 *
+	 * Witn n >= 1
+	 *
+	 * @var integer
+	 */
+	const QUERY_FLAGEXTENSION = 0x20;
+
+	/**
+	 * The record values differs from the entry stored in the datasource
+	 *
+	 * @var integer
+	 */
+	const STATE_MODIFIED = 0x01;
+
+	/**
+	 * A record with the same primary key values exists in the datasource
+	 *
+	 * @var integer
+	 */
+	const STATE_EXISTS = 0x02;
 
 	/**
 	 * Indicate the input data are serialized
@@ -474,7 +482,7 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 	 *
 	 * @var integer
 	 */
-	const DATA_SERIALIZED = 0x100;
+	const DATA_SERIALIZED = 0x04;
 
 	/**
 	 * Get or create a single record
@@ -485,7 +493,7 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 	 *        	Primary key value. If the table primary key is composed of
 	 *        	multiple keys, @param $key must be an array
 	 * @param integer $flags
-	 *        	Accepts kRecordQueryCreate
+	 *        	Accepts QUERY_CREATE
 	 * @param string $className
 	 */
 	public static function getRecord(Table $table, $keys, $flags, $className = null)
@@ -524,7 +532,7 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 				' elements. Got ' . \count($keys));
 
 		$s = new SelectQuery($table);
-		if ($flags & kRecordQueryForeignKeys)
+		if ($flags & self::QUERY_FOREIGNKEYS)
 		{
 			if (self::buildForeignKeyJoins($s, $table) > 0)
 			{
@@ -559,7 +567,7 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 		if ($c == 1)
 		{
 			$result = new $className($table, $recordset,
-				(kRecordStateExists | self::DATA_SERIALIZED));
+				(self::STATE_EXISTS | self::DATA_SERIALIZED));
 			return $result;
 		}
 
@@ -568,7 +576,7 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 			return Reporter::error(__CLASS__, __METHOD__ . ': Multiple record found');
 		}
 
-		if ($flags & kRecordQueryCreate)
+		if ($flags & self::QUERY_CREATE)
 		{
 			$o = new $className($table, $keys, (self::DATA_SERIALIZED));
 			if ($o->insert())
@@ -730,7 +738,7 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 			}
 		}
 
-		if ($flags & kRecordQueryForeignKeys)
+		if ($flags & self::QUERY_FOREIGNKEYS)
 		{
 			if ((self::buildForeignKeyJoins($s, $table) > 0) && !$withColumnSelection)
 			{
@@ -779,7 +787,7 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 		$result = array();
 		foreach ($recordset as $record)
 		{
-			$r = new $className($table, $record, (self::DATA_SERIALIZED | kRecordStateExists));
+			$r = new $className($table, $record, (self::DATA_SERIALIZED | self::STATE_EXISTS));
 			if (\is_null($keyColumn))
 				$result[] = $r;
 			else
@@ -855,7 +863,7 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 	public function __construct(Table $table, $values, $flags = 0)
 	{
 		$this->m_table = $table;
-		$this->m_flags = ($flags & (kRecordStateExists | kRecordStateModified));
+		$this->m_flags = ($flags & (self::STATE_EXISTS | self::STATE_MODIFIED));
 		$this->m_values = array();
 		$this->m_storedKey = [];
 		$this->m_foreignKeyData = [];
@@ -890,7 +898,7 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 			 * @todo Remove this automatic flag. The recordset could come from
 			 *       another table etc.
 			 */
-			$this->m_flags |= kRecordStateExists;
+			$this->m_flags |= self::STATE_EXISTS;
 			$values = $values->current();
 			foreach ($values as $key => $value)
 			{
@@ -974,7 +982,7 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 	public function offsetUnset($offset)
 	{
 		unset($this->m_values[$offset]);
-		$this->m_flags |= kRecordStateModified;
+		$this->m_flags |= self::STATE_MODIFIED;
 	}
 
 	/**
@@ -998,7 +1006,7 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 			$c = $structure->offsetGet($member);
 			$this->setValue($c, $value);
 
-			$this->m_flags |= kRecordStateModified;
+			$this->m_flags |= self::STATE_MODIFIED;
 			return;
 		}
 
@@ -1107,8 +1115,8 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 				$this->setValue($autoIncrementColumn, $result->getLastInsertId());
 			}
 
-			$this->m_flags |= kRecordStateExists;
-			$this->m_flags &= ~kRecordStateModified;
+			$this->m_flags |= self::STATE_EXISTS;
+			$this->m_flags &= ~self::STATE_MODIFIED;
 			$this->updatePrimaryKeyColumns();
 			return true;
 		}
@@ -1122,7 +1130,7 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 	 */
 	public function update()
 	{
-		if (!($this->m_flags & kRecordStateExists))
+		if (!($this->m_flags & self::STATE_EXISTS))
 		{
 			return $this->insert();
 		}
@@ -1167,7 +1175,7 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 		if ($count == 0)
 		{
 			Reporter::notice($this, __METHOD__ . ': Nothing to update', __FILE__, __LINE__);
-			$this->m_flags &= ~kRecordStateModified;
+			$this->m_flags &= ~self::STATE_MODIFIED;
 			return true;
 		}
 
@@ -1175,7 +1183,7 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 
 		if (is_object($result) && ($result instanceof UpdateQueryResult))
 		{
-			$this->m_flags &= ~kRecordStateModified;
+			$this->m_flags &= ~self::STATE_MODIFIED;
 			$this->updatePrimaryKeyColumns();
 			return true;
 		}
@@ -1245,7 +1253,7 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 		$result = $d->execute();
 		if (is_object($result) && ($result instanceof DeleteQueryResult))
 		{
-			$this->m_flags &= ~kRecordStateExists;
+			$this->m_flags &= ~self::STATE_EXISTS;
 			return ($result->getAffectedRowCount() > 0);
 		}
 
@@ -1573,3 +1581,52 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
  * Legacy
  */
 const kRecordDataSerialized = Record::DATA_SERIALIZED;
+
+/**
+ *
+ * @deprecated Use class constant
+ * @var unknown
+ */
+const kRecordStateModified = Record::STATE_MODIFIED;
+
+/**
+ *
+ * @deprecated Use class constant
+ * @var unknown
+ */
+const kRecordStateExists = Record::STATE_EXISTS;
+
+/**
+ *
+ * @deprecated Use class constant
+ * @var unknown
+ */
+const kRecordQueryMultiple = Record::QUERY_MULTIPLE;
+
+/**
+ *
+ * @deprecated Use class constant
+ * @var unknown
+ */
+const kRecordQueryCreate = Record::QUERY_CREATE;
+
+/**
+ *
+ * @deprecated Use class constant
+ * @var unknown
+ */
+const kRecordQueryForeignKeys = Record::QUERY_FOREIGNKEYS;
+
+/**
+ *
+ * @deprecated Use class constant
+ * @var number
+ */
+const kRecordQuerySQL = Record::QUERY_SQL;
+
+/**
+ *
+ * @deprecated Use class constant
+ * @var unknown
+ */
+const kRecordQueryFlagExtension = Record::QUERY_FLAGEXTENSION;
