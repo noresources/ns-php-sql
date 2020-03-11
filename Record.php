@@ -1020,9 +1020,9 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 
 	public function __get($member)
 	{
-		if (\array_key_exists($member, $this->m_ephemerals))
+		if ($this->hasEphemeral($member))
 		{
-			return $this->m_ephemerals[$member];
+			return $this->getEphemeral($member);
 		}
 
 		return $this->offsetGet($member);
@@ -1504,7 +1504,7 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 	 * Register and set a non-persistent data
 	 *
 	 * @param string $key
-	 * @param unknown $value
+	 * @param mixed $value
 	 * @throws \Exception
 	 */
 	public function setEphemeral($key, $value = null, $check = true)
@@ -1519,12 +1519,17 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 		$this->m_ephemerals[$key] = $value;
 	}
 
-	protected function hasEphemeral($member)
+	/**
+	 *
+	 * @param string $member
+	 * @return boolean
+	 */
+	public function hasEphemeral($member)
 	{
 		return \array_key_exists($member, $this->m_ephemerals);
 	}
 
-	protected function getEphemeral($member)
+	public function getEphemeral($member)
 	{
 		if (!$this->hasEphemeral($member))
 			throw new \Exception('Invalid ephemeral key "' . $member . '"');
