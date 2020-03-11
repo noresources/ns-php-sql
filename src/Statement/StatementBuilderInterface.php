@@ -11,11 +11,10 @@ namespace NoreSources\SQL\Statement;
 
 use NoreSources\SQL\DataSerializer;
 use NoreSources\SQL\Expression\MetaFunctionCall;
-use NoreSources\SQL\Structure\ColumnPropertyMap;
+use NoreSources\SQL\Expression\TokenStream;
+use NoreSources\SQL\Expression\TokenStreamContext;
 use NoreSources\SQL\Structure\ColumnStructure;
 use NoreSources\SQL\Structure\StructureElement;
-use NoreSources\SQL\Structure\TableConstraint;
-use NoreSources\SQL\Structure\TableStructure;
 
 /**
  * Build a SQL statement string to be used in a SQL engine
@@ -28,22 +27,6 @@ interface StatementBuilderInterface extends DataSerializer
 	 * @return number
 	 */
 	function getBuilderFlags($domain = K::BUILDER_DOMAIN_GENERIC);
-
-	/**
-	 * Escape text string to be inserted in a SQL statement.
-	 *
-	 * @param string $value
-	 *        	A quoted string with escaped characters
-	 */
-	function serializeString($value);
-
-	/**
-	 * Escape binary data to be inserted in a SQL statement.
-	 *
-	 * @param mixed $value
-	 * @return string
-	 */
-	function serializeBinary($value);
 
 	/**
 	 * Escape SQL identifier to be inserted in a SQL statement.
@@ -71,15 +54,6 @@ interface StatementBuilderInterface extends DataSerializer
 	 * @return TypeInterface
 	 */
 	function getColumnType(ColumnStructure $column);
-
-	/**
-	 * Get the closest DBMS type name for a given data type
-	 *
-	 * @param ColumnStructure $column
-	 *        	Column definition
-	 * @return string The default Connection type name for the given data type
-	 */
-	function getColumnTypeName(ColumnStructure $column);
 
 	/**
 	 * Translate a meta function to a DBMS compliant function
@@ -122,24 +96,6 @@ interface StatementBuilderInterface extends DataSerializer
 	function getTimestampFormat($type = 0);
 
 	/**
-	 * Build a partial SQL statement describing a table constraint in a CREATE TABLE statement.
-	 *
-	 * @param TableStructure $structure
-	 * @param TableConstraint $constraint
-	 * @return string
-	 */
-	function getTableConstraintDescription(TableStructure $structure, TableConstraint $constraint);
-
-	function serializeColumnData(ColumnPropertyMap $column, $value);
-
-	/**
-	 *
-	 * @param array $path
-	 * @return string
-	 */
-	function escapeIdentifierPath($path);
-
-	/**
 	 *
 	 * @param StructureElement $structure
 	 * @return string
@@ -153,4 +109,14 @@ interface StatementBuilderInterface extends DataSerializer
 	 * @return string
 	 */
 	function getForeignKeyAction($action);
+
+	/**
+	 *
+	 * @param TokenStream $stream
+	 *        	A token stream containing statement tokens
+	 * @param TokenStreamContext $context
+	 *        	The stream context used to fill the token stream
+	 * @return StatementData
+	 */
+	function finalizeStatement(TokenStream $stream, TokenStreamContext &$context);
 }

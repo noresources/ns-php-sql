@@ -16,7 +16,7 @@
 			</sql:column>
 			<sql:column name="gender">
 				<sql:datatype>
-					<sql:string>
+					<sql:string length="1">
 						<sql:enumeration>
 							<sql:value>M</sql:value>
 							<sql:value>F</sql:value>

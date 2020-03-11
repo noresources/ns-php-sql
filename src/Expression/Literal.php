@@ -107,8 +107,8 @@ class Literal implements TokenizableExpression, ExpressionReturnType
 				]);
 		else
 			throw new \InvalidArgumentException(
-				ns\TypeDescription::getName($type) . 'is not a valid target argument for ' .
-				ns\TypeDescription::getName($this));
+				TypeDescription::getName($type) . 'is not a valid target argument for ' .
+				TypeDescription::getName($this));
 	}
 
 	public function getExpressionDataType()

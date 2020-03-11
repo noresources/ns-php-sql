@@ -12,6 +12,8 @@ namespace NoreSources\SQL\DBMS\PostgreSQL;
 use NoreSources\Container;
 use NoreSources\SemanticVersion;
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\DBMS\BasicType;
+use NoreSources\SQL\DBMS\TypeHelper;
 use NoreSources\SQL\DBMS\Reference\ReferenceStatementBuilder;
 use NoreSources\SQL\Expression\FunctionCall;
 use NoreSources\SQL\Expression\Literal;
@@ -98,7 +100,18 @@ class PostgreSQLStatementBuilder extends StatementBuilder
 
 	public function getColumnType(ColumnStructure $column)
 	{
-		return PostgreSQLType::columnPropertyToType($column);
+		// Special case for auto-increment column
+		if ($column->hasColumnProperty(K::COLUMN_PROPERTY_AUTO_INCREMENT))
+		{
+			if ($column->getColumnProperty(K::COLUMN_PROPERTY_AUTO_INCREMENT))
+				return new BasicType('serial');
+		}
+
+		$types = PostgreSQLType::getPostgreSQLTypes();
+		$matchingTypes = TypeHelper::getMatchingTypes($column, $types);
+
+		list ($k, $type) = each($matchingTypes);
+		return $type;
 	}
 
 	public function getKeyword($keyword)

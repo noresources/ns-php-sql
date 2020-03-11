@@ -9,6 +9,7 @@
  */
 namespace NoreSources\SQL\Expression;
 
+use NoreSources\Container;
 use NoreSources\SQL\Structure\ColumnStructure;
 
 /**
@@ -31,12 +32,20 @@ class Column extends StructureElementIdentifier
 			foreach ($parts as $part)
 			{
 				if ($context->isAlias($part))
-					return $stream->identifier($context->getStatementBuilder()->escapeIdentifierPath($parts));
+					return $stream->identifier(
+						Container::implodeValues($parts, '.',
+							[
+								$context->getStatementBuilder(),
+								'escapeIdentifier'
+							]));
 			}
 
-			return $stream->identifier($context->getStatementBuilder()->getCanonicalName($target));
+			return $stream->identifier($context->getStatementBuilder()
+				->getCanonicalName($target));
 		}
 		else
-			return $stream->identifier($context->getStatementBuilder()->escapeIdentifier($this->path));
+			return $stream->identifier(
+				$context->getStatementBuilder()
+					->escapeIdentifier($this->path));
 	}
 }

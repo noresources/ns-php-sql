@@ -6,6 +6,7 @@
 namespace NoreSources\SQL\DBMS\PostgreSQL;
 
 use NoreSources\Container;
+use NoreSources\SQL\DBMS\TypeHelper;
 use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLConstants as K;
 require (__DIR__ . '/../vendor/autoload.php');
 
@@ -47,22 +48,24 @@ $typePropertiesMap = [
 
 	// 'bit varying' => [
 	// 		K::TYPE_PROPERTY_DATA_TYPE => 'K::DATATYPE_STRING',
-	// 		K::TYPE_PROPERTY_GLYPH_COUNT => 'true'
+	// 		K::TYPE_PROPERTY_FLAGS => K::TYPE_FLAG_FRACTION_SCALE
 	// ],
 	'bytea' => [
 		K::TYPE_PROPERTY_DATA_TYPE => 'K::DATATYPE_BINARY'
 	],
 	'"char"' => [
-		K::TYPE_PROPERTY_DATA_TYPE => 'K::DATATYPE_STRING'
+		K::TYPE_PROPERTY_DATA_TYPE => 'K::DATATYPE_STRING',
+		K::TYPE_PROPERTY_MAX_LENGTH => 1
 	],
 	// 'character' => [
 	// 	K::TYPE_PROPERTY_DATA_TYPE => 'K::DATATYPE_STRING',
-	// K::COLUMN_PROPERTY_GLYPH_COUNT => 'true',
+	// K::TYPE_PROPERTY_FLAGS => K::TYPE_FLAG_FRACTION_SCALE
 	// K::TYPE_PROPERTY_PADDING_DIRECTION => 1
 	// ],
 	'character varying' => [
 		K::TYPE_PROPERTY_DATA_TYPE => 'K::DATATYPE_STRING',
-		K::TYPE_PROPERTY_GLYPH_COUNT => 'true'
+		K::TYPE_PROPERTY_FLAGS => TypeHelper::getDefaultTypeProperties()[K::TYPE_PROPERTY_FLAGS] |
+		K::TYPE_FLAG_FRACTION_SCALE
 	],
 	// 	'cstring' => [
 	// 		K::TYPE_PROPERTY_DATA_TYPE => 'K::DATATYPE_STRING'
@@ -73,10 +76,6 @@ $typePropertiesMap = [
 	'double precision' => [
 		K::TYPE_PROPERTY_DATA_TYPE => 'K::DATATYPE_FLOAT'
 	],
-	// 'inet' => [
-	// 		K::COLUMN_PROPERTY_DATA_TYPE => 'K::DATATYPE_STRING',
-	// 		K::COLUMN_PROPERTY_TEXT_PATTERN => 'TBD',
-	// 	],
 
 	// This is an alias of int4
 	'integer' => [
@@ -96,8 +95,8 @@ $typePropertiesMap = [
 	// ],
 	'numeric' => [
 		K::TYPE_PROPERTY_DATA_TYPE => 'K::DATATYPE_NUMBER',
-		K::TYPE_PROPERTY_GLYPH_COUNT => 'true',
-		K::TYPE_PROPERTY_FRACTION_SCALE => 'true'
+		K::TYPE_PROPERTY_FLAGS => TypeHelper::getDefaultTypeProperties()[K::TYPE_PROPERTY_FLAGS] |
+		K::TYPE_FLAG_FRACTION_SCALE
 	],
 
 	//	'oid' => [
@@ -169,13 +168,14 @@ $file = file_get_contents($filename);
 
 $typePropertiesMapContent = Container::implode($typePropertiesMap, ',' . PHP_EOL,
 	function ($name, $properties) use ($typeNameOidMap, $oidDescriptions) {
+		$cleanName = \str_replace('"', '', $name);
 		if (!\array_key_exists($name, $typeNameOidMap))
-			throw new \InvalidArgumentException('"' . $name . '" oid not found');
+			throw new \InvalidArgumentException('"' . $cleanName . '" oid not found');
 		$oid = $typeNameOidMap[$name];
 		$s = '';
 		$s .= $oid . ' => new ArrayObjectType([ ' . PHP_EOL;
 		// name
-		$s .= "'" . K::TYPE_PROPERTY_NAME . "' => '" . $name . "'," . PHP_EOL;
+		$s .= "'" . K::TYPE_PROPERTY_NAME . "' => '" . $cleanName . "'," . PHP_EOL;
 		foreach ($properties as $k => $v)
 		{
 			$s .= "'" . $k . "' => " . $v . ', ' . PHP_EOL;

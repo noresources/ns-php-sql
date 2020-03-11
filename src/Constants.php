@@ -9,6 +9,8 @@
  */
 namespace NoreSources\SQL;
 
+use NoreSources\Container;
+
 class Constants
 {
 
@@ -213,7 +215,7 @@ class Constants
 	 *
 	 * Value type: integer
 	 */
-	const COLUMN_PROPERTY_GLYPH_COUNT = 'glyphcount';
+	const COLUMN_PROPERTY_LENGTH = 'length';
 
 	/**
 	 * Maximum number of digit to represents the fractional part of a floating-point number
@@ -234,6 +236,10 @@ class Constants
 	 */
 	const COLUMN_PROPERTY_DEFAULT_VALUE = 'default';
 
+	const COLUMN_PROPERTY_PADDING_DIRECTION = 'paddingdirection';
+
+	const COLUMN_PROPERTY_PADDING_GLYPH = 'paddingglyph';
+
 	/**
 	 * Define a custom deta unserializer for a column
 	 *
@@ -251,25 +257,12 @@ class Constants
 	const COLUMN_PROPERTY_MEDIA_TYPE = 'mediatype';
 
 	/**
-	 * Value padding
-	 * <ul>
-	 * <li>&lt; 0</li> Left padded
-	 * <li>&gt; 0</li> Right padded
-	 * <li>any other value </li> No padding
-	 * </ul>
+	 * DBMS type data type affinity
 	 *
-	 * @var string
-	 */
-	const COLUMN_PROPERTY_PADDING_DIRECTION = 'padding';
-
-	/**
-	 * Text pattern.
-	 * Define string pattern that the value must match
+	 * Property value is expected to be an integer.
 	 *
-	 * @var string
+	 * @var integer
 	 */
-	const COLUMN_PROPERTY_TEXT_PATTERN = 'pattern';
-
 	const TYPE_PROPERTY_DATA_TYPE = self::COLUMN_PROPERTY_DATA_TYPE;
 
 	/**
@@ -281,30 +274,90 @@ class Constants
 
 	/**
 	 * DBMS type data size in bits.
+	 * Property value is expected to be an integer.
 	 *
 	 * @var string
 	 */
 	const TYPE_PROPERTY_SIZE = 'typesize';
 
 	/**
-	 * Indicates if the DBMS type supports type length specification
+	 * Type property flags
+	 * Property value is expected to be an integer, combination of type flags.
 	 *
+	 * @var string
+	 */
+	const TYPE_PROPERTY_FLAGS = 'typeflags';
+
+	const TYPE_FLAG_DEFAULT_VALUE = 0x01;
+
+	const TYPE_FLAG_NULL = 0x02;
+
+	/**
+	 * Indicates if the DBMS type supports glyph count / length specification
+	 *
+	 * @var number
+	 */
+	const TYPE_FLAG_LENGTH = 0x04;
+
+	/**
+	 * Indicates if the DBMS type supports fraction scale specification
+	 * Implies TYPE_FLAG_LENGTH
+	 *
+	 * @var unknown
+	 */
+	const TYPE_FLAG_FRACTION_SCALE = 0x0c;
+
+	/**
+	 * Length specification in table column declaration
+	 * to make the largest column length.
+	 *
+	 * @var number
+	 */
+	const TYPE_FLAG_MANDATORY_LENGTH = 0x10;
+
+	/**
+	 * Maximum glyph count / length.
 	 * Property value is expected to be a boolean.
 	 *
 	 * @var string
 	 */
-	const TYPE_PROPERTY_GLYPH_COUNT = self::COLUMN_PROPERTY_GLYPH_COUNT;
+	const TYPE_PROPERTY_MAX_LENGTH = 'maxlength';
 
 	/**
-	 * Indicates if the DBMS type supports fraction scale specification
+	 * Media Type
 	 *
-	 * Property value is expected to be a boolean.
+	 * Property value is expected to be a MediaTypeInterface or a Media Type compatible string
 	 *
-	 * @var unknown
+	 * @var string
 	 */
-	const TYPE_PROPERTY_FRACTION_SCALE = self::COLUMN_PROPERTY_FRACTION_SCALE;
-
 	const TYPE_PROPERTY_MEDIA_TYPE = self::COLUMN_PROPERTY_MEDIA_TYPE;
+
+	/**
+	 * Value padding
+	 * <ul>
+	 * <li>&lt; 0</li> Left padded
+	 * <li>&gt; 0</li> Right padded
+	 * <li>any other value </li> No padding
+	 * </ul>
+	 *
+	 * Implies the column value length is specified.
+	 * . *
+	 *
+	 * @var string
+	 */
+	const TYPE_PROPERTY_PADDING_DIRECTION = self::COLUMN_PROPERTY_PADDING_DIRECTION;
+
+	const TYPE_PADDING_DIRECTION_LEFT = -1;
+
+	const TYPE_PADDING_DIRECTION_RIGHT = 1;
+
+	/**
+	 * Value padding glyph.
+	 * Implies the type have a non-zero padding direction
+	 *
+	 * @var string
+	 */
+	const TYPE_PROPERTY_PADDING_GLYPH = self::COLUMN_PROPERTY_PADDING_GLYPH;
 
 	// JOIN operator
 	const JOIN_NATURAL = 0x01;
@@ -533,4 +586,23 @@ class Constants
 	 * @var string
 	 */
 	const METAFUNCTION_TIMESTAMP_FORMAT = 'timestampformat';
+
+	public static function dataTypeName($dataType)
+	{
+		static $names = [
+			self::DATATYPE_BINARY => 'binary',
+			self::DATATYPE_BOOLEAN => 'boolean',
+			self::DATATYPE_DATE => 'date',
+			self::DATATYPE_TIME => 'time',
+			self::DATATYPE_DATETIME => 'datetime',
+			self::DATATYPE_TIMESTAMP => 'timestamp',
+			self::DATATYPE_FLOAT => 'float',
+			self::DATATYPE_INTEGER => 'integer',
+			self::DATATYPE_NULL => 'null',
+			self::DATATYPE_NUMBER => 'number',
+			self::DATATYPE_STRING => 'string'
+		];
+
+		return Container::keyValue($names, $dataType, 'unknown');
+	}
 }

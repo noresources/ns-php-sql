@@ -10,9 +10,9 @@
 namespace NoreSources\SQL\DBMS;
 
 // Aliases
+use NoreSources\TypeDescription;
 use NoreSources\SQL\Structure\StructureElement;
 use NoreSources\SQL\Structure\StructureSerializerFactory;
-use NoreSources as ns;
 
 trait ConnectionStructureTrait
 {
@@ -30,7 +30,7 @@ trait ConnectionStructureTrait
 			$this->connectionStructure = StructureSerializerFactory::structureFromFile($filename);
 		else
 			throw new \InvalidArgumentException(
-				ns\TypeDescription::getName($structure) .
+				TypeDescription::getName($structure) .
 				' is not a valid argument. Instance of StructureElement or filename expected');
 	}
 

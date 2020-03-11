@@ -10,10 +10,10 @@
 namespace NoreSources\SQL\DBMS\Reference;
 
 // Aliases
+use NoreSources\Container;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\Connection;
 use NoreSources\SQL\DBMS\ConnectionStructureTrait;
-use NoreSources as ns;
 
 /**
  * SQLite connection
@@ -38,7 +38,7 @@ class ReferenceConnection implements Connection
 
 	public function connect($parameters)
 	{
-		if (ns\Container::keyExists($parameters, K::CONNECTION_PARAMETER_STRUCTURE))
+		if (Container::keyExists($parameters, K::CONNECTION_PARAMETER_STRUCTURE))
 			$this->setStructure($structure)[K::CONNECTION_PARAMETER_STRUCTURE];
 	}
 

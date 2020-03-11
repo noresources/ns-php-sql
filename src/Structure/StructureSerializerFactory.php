@@ -9,7 +9,7 @@
  */
 namespace NoreSources\SQL\Structure;
 
-use NoreSources as ns;
+use NoreSources\Container;
 
 class StructureSerializerFactory
 {
@@ -61,12 +61,12 @@ class StructureSerializerFactory
 		if (\is_file($filename))
 		{
 			$type = mime_content_type($filename);
-			if (ns\Container::keyExists(self::$mimeTypeClassMap, $type))
+			if (Container::keyExists(self::$mimeTypeClassMap, $type))
 				return new \ReflectionClass(self::$mimeTypeClassMap[$type]);
 		}
 
 		$x = pathinfo($filename, \PATHINFO_EXTENSION);
-		if (ns\Container::keyExists(self::$fileExtensionClassMap, $x))
+		if (Container::keyExists(self::$fileExtensionClassMap, $x))
 			return new \ReflectionClass(self::$fileExtensionClassMap[$x]);
 
 		throw new StructureException(

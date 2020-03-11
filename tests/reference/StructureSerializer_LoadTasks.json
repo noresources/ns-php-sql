@@ -33,13 +33,13 @@
                             "null": true,
                             "autoincrement": false,
                             "datatype": 4,
-                            "glyphcount": 12
+                            "length": 12
                         },
                         "small_int": {
                             "null": true,
                             "autoincrement": false,
                             "datatype": 4,
-                            "glyphcount": 3
+                            "length": 3
                         },
                         "float": {
                             "null": true,

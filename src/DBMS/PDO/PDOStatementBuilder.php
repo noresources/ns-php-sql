@@ -69,30 +69,31 @@ class PDOStatementBuilder extends StatementBuilder
 
 	public function getColumnType(ColumnStructure $column)
 	{
-		return new BasicType($this->getColumnTypeName($column));
-	}
-
-	public function getColumnTypeName(ColumnStructure $column)
-	{
 		$dataType = K::DATATYPE_UNDEFINED;
 		if ($column->hasColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE))
 			$dataType = $column->getColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE);
 
+		$typeName = 'TEXT';
+
 		switch ($dataType)
 		{
 			case K::DATATYPE_BINARY:
-				return 'BLOB';
+				$typeName = 'BLOB';
+			break;
 			case K::DATATYPE_NUMBER:
 			case K::DATATYPE_FLOAT:
-				return 'REAL';
+				$typeName = 'REAL';
+			break;
 			case K::DATATYPE_BOOLEAN:
 			case K::DATATYPE_INTEGER:
-				return 'INTEGER';
+				$typeName = 'INTEGER';
+			break;
 			case K::DATATYPE_NULL:
-				return NULL;
+				$typeName = 'NULL';
+			break;
 		}
 
-		return 'TEXT';
+		return new BasicType($typeName);
 	}
 
 	public function getKeyword($keyword)

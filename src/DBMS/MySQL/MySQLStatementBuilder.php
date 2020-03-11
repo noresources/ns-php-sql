@@ -10,7 +10,9 @@
 namespace NoreSources\SQL\DBMS\MySQL;
 
 use NoreSources\Container;
+use NoreSources\TypeConversion;
 use NoreSources\SQL\DBMS\BasicType;
+use NoreSources\SQL\DBMS\TypeHelper;
 use NoreSources\SQL\DBMS\MySQL\MySQLConstants as K;
 use NoreSources\SQL\Expression\FunctionCall;
 use NoreSources\SQL\Expression\Literal;
@@ -18,6 +20,8 @@ use NoreSources\SQL\Expression\MetaFunctionCall;
 use NoreSources\SQL\Statement\ParameterMap;
 use NoreSources\SQL\Statement\StatementBuilder;
 use NoreSources\SQL\Structure\ColumnStructure;
+use NoreSources\SQL\Structure\PrimaryKeyTableConstraint;
+use NoreSources\SQL\Structure\TableStructure;
 
 // Aliases
 class MySQLStatementBuilder extends StatementBuilder
@@ -44,6 +48,14 @@ class MySQLStatementBuilder extends StatementBuilder
 
 	public function serializeBinary($value)
 	{
+		if (\is_integer($value) || \is_float($value) || \is_null($value))
+			return $value;
+
+		if ($value instanceof \DateTimeInterface)
+			$value = $value->format($this->getTimestampFormat(K::DATATYPE_TIMESTAMP));
+		else
+			$value = TypeConversion::toString($value);
+
 		return $this->serializeString($value);
 	}
 
@@ -108,12 +120,138 @@ class MySQLStatementBuilder extends StatementBuilder
 
 	public function getColumnType(ColumnStructure $column)
 	{
-		return new BasicType($this->getColumnTypeName($column));
-	}
+		$types = MySQLType::getMySQLTypes();
+		$count = Container::count($types);
+		$table = $column->parent();
 
-	public function getColumnTypeName(ColumnStructure $column)
-	{
-		return self::getMySQLColumnTypeName($column);
+		if ($table instanceof TableStructure)
+		{
+			$pk = null;
+			foreach ($table->getConstraints() as $contraint)
+			{
+				if ($contraint instanceof PrimaryKeyTableConstraint)
+				{
+					$pk = $contraint;
+					break;
+				}
+			}
+
+			if ($pk instanceof PrimaryKeyTableConstraint &&
+				Container::valueExists($pk->getColumns(), $column->getName()))
+			{
+				// Types must have a key length
+				$types = Container::filter($types,
+					function ($_, $type) {
+						/**
+						 *
+						 * @var TypeInterface $type
+						 */
+						return ((TypeHelper::getProperty($type, K::TYPE_PROPERTY_FLAGS) &
+						K::TYPE_FLAG_LENGTH) == K::TYPE_FLAG_LENGTH);
+					});
+
+				$count = Container::count($types);
+			}
+		}
+
+		// Some types does not accepts non-null default value
+		if ($column->hasColumnProperty(K::COLUMN_PROPERTY_DEFAULT_VALUE))
+		{
+			$dflt = $column->getColumnProperty(K::COLUMN_PROPERTY_DEFAULT_VALUE);
+			if (!(($dflt instanceof Literal) && ($dflt->getExpressionDataType() == K::DATATYPE_NULL)))
+			{
+				$types = Container::filter($types,
+					function ($_, $type) {
+						return ((TypeHelper::getProperty($type, K::TYPE_PROPERTY_FLAGS) &
+						K::TYPE_FLAG_DEFAULT_VALUE) == K::TYPE_FLAG_DEFAULT_VALUE);
+					});
+
+				$count = Container::count($types);
+			}
+		}
+
+		$dataType = K::DATATYPE_UNDEFINED;
+		if ($column->hasColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE))
+			$dataType = $column->getColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE);
+
+		if ($dataType != K::DATATYPE_UNDEFINED)
+		{
+			$types = Container::filter($types,
+				function ($_, $type) use ($dataType) {
+					if (!$type->has(K::TYPE_PROPERTY_DATA_TYPE))
+						return false;
+					$typeDataType = $type->get(K::TYPE_PROPERTY_DATA_TYPE);
+					return (($typeDataType & $dataType) == $dataType);
+				});
+
+			$count = Container::count($types);
+			if ($count == 0)
+				throw new \RuntimeException(
+					'No MySQL type found for column type ' . K::dataTypeName($dataType));
+		}
+
+		if ($count == 1)
+		{
+			list ($oid, $type) = each($types);
+			return $type;
+		}
+
+		if ($column->hasColumnProperty(K::COLUMN_PROPERTY_LENGTH))
+		{
+			$glyphCount = intval($column->getColumnProperty(K::COLUMN_PROPERTY_LENGTH));
+
+			$filtered = Container::filter($types,
+				function ($_, $type) use ($dataType, $glyphCount) {
+					return TypeHelper::getMaxGlyphCount($type) >= $glyphCount;
+				});
+
+			$c = Container::count($filtered);
+			if ($c)
+			{
+				// Prefer the smallest type
+				usort($filtered,
+					function ($a, $b) {
+						if ($a->has(K::TYPE_PROPERTY_SIZE) && $b->has(K::TYPE_PROPERTY_SIZE))
+							return ($a->get(K::TYPE_PROPERTY_SIZE) - $b->get(K::TYPE_PROPERTY_SIZE));
+						if ($a->has(K::TYPE_PROPERTY_FIXED_LENGTH) &&
+						$b->has(K::TYPE_PROPERTY_FIXED_LENGTH))
+							return ($a->get(K::TYPE_PROPERTY_FIXED_LENGTH) -
+							$b->get(K::TYPE_PROPERTY_FIXED_LENGTH));
+						return 0;
+					});
+
+				$count = $c;
+				$types = $filtered;
+			}
+		}
+		else
+		{
+			/**
+			 *
+			 * @todo remove types with MANDATORY glyph count
+			 */
+
+			// Prefer types without padding
+			usort($types,
+				function ($a, $b) {
+					if ($a->has(K::TYPE_PROPERTY_PADDING_GLYPH))
+						return ($b->has(K::TYPE_PROPERTY_PADDING_GLYPH) ? 0 : 1);
+
+					return ($b->has(K::TYPE_PROPERTY_PADDING_GLYPH) ? 0 : -1);
+				});
+		}
+
+		/**
+		 *
+		 * @todo Media type
+		 */
+		if ($count)
+		{
+			list ($oid, $type) = each($types);
+			return $type;
+		}
+
+		return new BasicType('TEXT');
 	}
 
 	public function getKeyword($keyword)

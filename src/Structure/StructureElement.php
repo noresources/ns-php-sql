@@ -10,9 +10,8 @@
  */
 namespace NoreSources\SQL\Structure;
 
-use NoreSources\SQL\Statement\StatementBuilder;
-use NoreSources\SQL\Constants as K;
-use NoreSources as ns;
+use NoreSources\TypeDescription;
+use NoreSources\SQL\Statement\StatementBuilderInterface;
 
 class StructureException extends \Exception
 {
@@ -48,7 +47,7 @@ abstract class StructureElement implements \ArrayAccess, \IteratorAggregate, \Co
 	{
 		if (!(is_string($name) && strlen($name)))
 			throw new StructureException(
-				'Invalid element name (' . ns\TypeDescription::getName($name) . ')');
+				'Invalid element name (' . TypeDescription::getName($name) . ')');
 		$this->elementName = $name;
 		$this->parentElement = $parent;
 
@@ -144,14 +143,15 @@ abstract class StructureElement implements \ArrayAccess, \IteratorAggregate, \Co
 	 * @param \NoreSources\SQL\Statement\Builder $builder
 	 * @return string
 	 */
-	public function getPath(StatementBuilder $builder = null)
+	public function getPath(StatementBuilderInterface $builder = null)
 	{
-		$s = ($builder instanceof StatementBuilder) ? $builder->escapeIdentifier($this->getName()) : $this->getName();
+		$s = ($builder instanceof StatementBuilderInterface) ? $builder->escapeIdentifier(
+			$this->getName()) : $this->getName();
 		$p = $this->parent();
 		while ($p && !($p instanceof DatasourceStructure))
 		{
-			$s = (($builder instanceof StatementBuilder) ? $builder->escapeIdentifier($p->getName()) : $p->getName()) .
-				'.' . $s;
+			$s = (($builder instanceof StatementBuilderInterface) ? $builder->escapeIdentifier(
+				$p->getName()) : $p->getName()) . '.' . $s;
 			$p = $p->parent();
 		}
 

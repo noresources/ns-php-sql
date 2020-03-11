@@ -37,7 +37,7 @@ interface Connection extends StatementBuilderAwareInterface
 	/**
 	 * Connect to DBMS
 	 *
-	 * @param \ArrayAccess $parameters
+	 * @param array $parameters
 	 *        	Connection parameters
 	 */
 	function connect($parameters);
@@ -55,13 +55,13 @@ interface Connection extends StatementBuilderAwareInterface
 
 	/**
 	 *
-	 * @return NoreSources\SQL\Statement\StatementBuilderInterface
+	 * @return \NoreSources\SQL\Statement\StatementBuilderInterface
 	 */
 	function getStatementBuilder();
 
 	/**
 	 *
-	 * @param BuildContext|string $statement
+	 * @param \NoreSources\SQL\Statement\\StatementData|string $statement
 	 * @return PreparedStatement
 	 */
 	function prepareStatement($statement);

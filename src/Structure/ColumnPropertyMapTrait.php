@@ -63,7 +63,7 @@ trait ColumnPropertyMapTrait
 			case K::COLUMN_PROPERTY_ACCEPT_NULL:
 				$value = ($value ? true : false);
 			break;
-			case K::COLUMN_PROPERTY_GLYPH_COUNT:
+			case K::COLUMN_PROPERTY_LENGTH:
 			case K::COLUMN_PROPERTY_DATA_TYPE:
 			case K::COLUMN_PROPERTY_FRACTION_SCALE:
 				$value = TypeConversion::toInteger($value);
@@ -117,7 +117,7 @@ class ColumnPropertyDefault
 			case K::COLUMN_PROPERTY_UNSERIALIZER:
 				return ($value instanceof DataUnserializer);
 			case K::COLUMN_PROPERTY_DATA_TYPE:
-			case K::COLUMN_PROPERTY_GLYPH_COUNT:
+			case K::COLUMN_PROPERTY_LENGTH:
 			case K::COLUMN_PROPERTY_FRACTION_SCALE:
 				return is_int($value);
 		}
@@ -142,7 +142,7 @@ class ColumnPropertyDefault
 			K::COLUMN_PROPERTY_ACCEPT_NULL => true,
 			K::COLUMN_PROPERTY_AUTO_INCREMENT => false,
 			K::COLUMN_PROPERTY_FRACTION_SCALE => 0,
-			K::COLUMN_PROPERTY_GLYPH_COUNT => 0,
+			K::COLUMN_PROPERTY_LENGTH => 0,
 			K::COLUMN_PROPERTY_DATA_TYPE => K::DATATYPE_STRING,
 			K::COLUMN_PROPERTY_ENUMERATION => null,
 			K::COLUMN_PROPERTY_DEFAULT_VALUE => null

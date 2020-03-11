@@ -9,8 +9,8 @@
  */
 namespace NoreSources\SQL\Expression;
 
+use NoreSources\TypeDescription;
 use NoreSources\SQL\Constants as K;
-use NoreSources as ns;
 
 class Helper
 {
@@ -32,7 +32,7 @@ class Helper
 			return K::DATATYPE_BOOLEAN;
 		elseif (\is_null($expression))
 			return K::DATATYPE_NULL;
-		elseif (ns\TypeDescription::hasStringRepresentation($expression))
+		elseif (TypeDescription::hasStringRepresentation($expression))
 			return K::DATATYPE_STRING;
 
 		return K::DATATYPE_UNDEFINED;

@@ -30,7 +30,7 @@ class StatementException extends \Exception
 
 	/**
 	 *
-	 * @return \NoreSources\SQL\Statement
+	 * @return \NoreSources\SQL\Statement\Statement
 	 */
 	public function getStatement()
 	{

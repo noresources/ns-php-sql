@@ -9,9 +9,10 @@
  */
 namespace NoreSources\SQL\DBMS;
 
+use NoreSources\ArrayRepresentation;
 use NoreSources\SQL\Constants as K;
 
-class ArrayObjectType implements TypeInterface
+class ArrayObjectType implements TypeInterface, ArrayRepresentation
 {
 
 	/**
@@ -33,6 +34,11 @@ class ArrayObjectType implements TypeInterface
 	public function __tostring()
 	{
 		return $this->getTypeName();
+	}
+
+	public function getArrayCopy()
+	{
+		return $this->typeProperties->getArrayCopy();
 	}
 
 	public function getTypeName()

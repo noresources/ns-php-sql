@@ -9,11 +9,12 @@
  */
 namespace NoreSources\SQL\Structure;
 
+use NoreSources\Container;
+use NoreSources\SemanticVersion;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Expression\Evaluator as X;
-use NoreSources\SQL\Expression\TokenizableExpression;
 use NoreSources\SQL\Expression\Keyword;
-use NoreSources as ns;
+use NoreSources\SQL\Expression\TokenizableExpression;
 
 /**
  */
@@ -23,7 +24,7 @@ class XMLStructureSerializer extends StructureSerializer
 	public function __construct(StructureElement $element = null)
 	{
 		parent::__construct($element);
-		$this->schemaVersion = new ns\SemanticVersion('2.0.0');
+		$this->schemaVersion = new SemanticVersion('2.0.0');
 		$this->schemaNamespaceURI = K::XML_NAMESPACE_BASEURI . '/2.0';
 	}
 
@@ -86,7 +87,7 @@ class XMLStructureSerializer extends StructureSerializer
 					'/');
 				if (strlen($version) == 0)
 					$version = '1.0.0';
-				$this->schemaVersion = new ns\SemanticVersion($version);
+				$this->schemaVersion = new SemanticVersion($version);
 			}
 		}
 
@@ -297,7 +298,7 @@ class XMLStructureSerializer extends StructureSerializer
 			}
 			if ($typeNode->hasAttribute('length'))
 			{
-				$structure->setColumnProperty(K::COLUMN_PROPERTY_GLYPH_COUNT,
+				$structure->setColumnProperty(K::COLUMN_PROPERTY_LENGTH,
 					intval($typeNode->getAttribute('length')));
 			}
 			if ($typeNode->hasAttribute('decimals'))
@@ -543,7 +544,7 @@ class XMLStructureSerializer extends StructureSerializer
 					if ($eventNode)
 					{
 						$action = $eventNode->getAttribute('action');
-						if (ns\Container::keyExists($actions, $action))
+						if (Container::keyExists($actions, $action))
 						{
 							$fk->$event = $actions[$action];
 						}

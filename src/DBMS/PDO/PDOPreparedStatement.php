@@ -10,12 +10,13 @@
 namespace NoreSources\SQL\DBMS\PDO;
 
 // Aliases
+use NoreSources\Container;
+use NoreSources\TypeDescription;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS;
 use NoreSources\SQL\DBMS\PDO\PDOConnection as Connection;
 use NoreSources\SQL\Statement\ResultColumn;
 use NoreSources\SQL\Statement\Statement;
-use NoreSources as ns;
 
 class PDOPreparedStatement extends DBMS\PreparedStatement
 {
@@ -70,7 +71,7 @@ class PDOPreparedStatement extends DBMS\PreparedStatement
 					if ($column->dataType == K::DATATYPE_UNDEFINED)
 					{
 						$column->dataType = Connection::getDataTypeFromPDOType(
-							ns\Container::keyValue($meta, 'pdo_type', \PDO::PARAM_STR));
+							Container::keyValue($meta, 'pdo_type', \PDO::PARAM_STR));
 						$map->setColumn($i, $column);
 					}
 
@@ -101,7 +102,7 @@ class PDOPreparedStatement extends DBMS\PreparedStatement
 			{
 				throw new \LogicException(
 					'Statement is already acquired by ' .
-					ns\TypeDescription::getName($this->statementOwner));
+					TypeDescription::getName($this->statementOwner));
 			}
 		}
 
@@ -115,7 +116,7 @@ class PDOPreparedStatement extends DBMS\PreparedStatement
 			if ($this->statementOwner !== $by)
 			{
 				throw new \LogicException(
-					ns\TypeDescription::getName($by) . ' is not the owner of the PDOStatement');
+					TypeDescription::getName($by) . ' is not the owner of the PDOStatement');
 			}
 		}
 

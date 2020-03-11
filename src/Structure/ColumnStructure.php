@@ -23,7 +23,7 @@ class ColumnStructure extends StructureElement implements ColumnPropertyMap
 
 	const ACCEPT_NULL = K::COLUMN_PROPERTY_ACCEPT_NULL;
 
-	const DATA_SIZE = K::COLUMN_PROPERTY_GLYPH_COUNT;
+	const DATA_SIZE = K::COLUMN_PROPERTY_LENGTH;
 
 	const FRACTION_DIGIT_COUNT = K::COLUMN_PROPERTY_FRACTION_SCALE;
 

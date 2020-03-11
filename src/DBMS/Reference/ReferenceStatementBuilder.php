@@ -65,49 +65,62 @@ class ReferenceStatementBuilder extends StatementBuilder
 
 	public function getColumnType(ColumnStructure $column)
 	{
+		$dataType = K::DATATYPE_UNDEFINED;
+		if ($column->hasColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE))
+			$dataType = $column->getColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE);
+
+		$typeName = 'TEXT';
+
+		switch ($dataType)
+		{
+			case K::DATATYPE_TIMESTAMP:
+				$typeName = 'TIMESTAMP';
+			break;
+			case K::DATATYPE_DATE:
+				$typeName = 'DATE';
+			break;
+			case K::DATATYPE_TIME:
+			case K::DATATYPE_TIMEZONE:
+				$typeName = 'TIME';
+			break;
+			case K::DATATYPE_DATETIME:
+				$typeName = 'DATETIME';
+			break;
+			case K::DATATYPE_BINARY:
+				$typeName = 'BLOB';
+			break;
+			case K::DATATYPE_BOOLEAN:
+				$typeName = 'BOOL';
+			break;
+			case K::DATATYPE_INTEGER:
+				$typeName = 'INTEGER';
+			break;
+			case K::DATATYPE_NUMBER:
+			case K::DATATYPE_FLOAT:
+				$typeName = 'REAL';
+			break;
+		}
+
 		$props = [
-			K::TYPE_PROPERTY_NAME => $this->getColumnTypeName($column)
+			K::TYPE_PROPERTY_NAME => $typeName
 		];
+
+		$typeFlags = 0;
+		if ($column->hasColumnProperty(K::COLUMN_PROPERTY_LENGTH))
+			$typeFlags |= K::TYPE_FLAG_LENGTH;
+		if ($column->hasColumnProperty(K::COLUMN_PROPERTY_FRACTION_SCALE))
+			$typeFlags |= K::TYPE_FLAG_FRACTION_SCALE;
+
 		foreach ([
-			K::COLUMN_PROPERTY_GLYPH_COUNT,
-			K::COLUMN_PROPERTY_MEDIA_TYPE,
-			K::COLUMN_PROPERTY_FRACTION_SCALE
+			K::COLUMN_PROPERTY_MEDIA_TYPE
 		] as $key)
 		{
 			if ($column->hasColumnProperty($key))
 				$props[$key] = $column->getColumnProperty($key);
 		}
+
+		$props[K::TYPE_PROPERTY_FLAGS] = $typeFlags;
+
 		return new ArrayObjectType($props);
-	}
-
-	public function getColumnTypeName(ColumnStructure $column)
-	{
-		$dataType = K::DATATYPE_UNDEFINED;
-		if ($column->hasColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE))
-			$dataType = $column->getColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE);
-
-		switch ($dataType)
-		{
-			case K::DATATYPE_TIMESTAMP:
-				return 'TIMESTAMP';
-			case K::DATATYPE_DATE:
-				return 'DATE';
-			case K::DATATYPE_TIME:
-			case K::DATATYPE_TIMEZONE:
-				return 'TIME';
-			case K::DATATYPE_DATETIME:
-				return 'DATETIME';
-			case K::DATATYPE_BINARY:
-				return 'BLOB';
-			case K::DATATYPE_BOOLEAN:
-				return 'BOOL';
-			case K::DATATYPE_INTEGER:
-				return 'INTEGER';
-			case K::DATATYPE_NUMBER:
-			case K::DATATYPE_FLOAT:
-				return 'REAL';
-		}
-
-		return 'TEXT';
 	}
 }

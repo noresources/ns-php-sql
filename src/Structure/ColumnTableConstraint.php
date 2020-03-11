@@ -9,8 +9,6 @@
  */
 namespace NoreSources\SQL\Structure;
 
-use NoreSources\SQL\Constants as K;
-
 class ColumnTableConstraint extends TableConstraint implements \ArrayAccess, \IteratorAggregate,
 	\Countable
 {
@@ -26,6 +24,15 @@ class ColumnTableConstraint extends TableConstraint implements \ArrayAccess, \It
 	{
 		parent::__construct($name);
 		$this->columns = new \ArrayObject($columns);
+	}
+
+	/**
+	 *
+	 * @return ArrayObject
+	 */
+	public function getColumns()
+	{
+		return $this->columns;
 	}
 
 	/**

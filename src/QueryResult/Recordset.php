@@ -244,7 +244,8 @@ abstract class Recordset implements \Iterator, OutputData, QueryResult, ArrayRep
 	 * Fetch a row from the DBMS recordset
 	 *
 	 * @param integer $index
-	 *        	The expected row to fetch
+	 *        	The expected row to fetch. This value is always set to
+	 *        	"current row index + 1". It is mandatory for some DBMS implementations
 	 * @return array|false Indexed array of column values or @c false if no mre column can be retreived
 	 */
 	abstract protected function fetch($index);

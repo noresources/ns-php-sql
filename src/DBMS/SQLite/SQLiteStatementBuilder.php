@@ -90,12 +90,7 @@ class SQLiteStatementBuilder extends StatementBuilder
 
 	public function getColumnType(ColumnStructure $column)
 	{
-		return new BasicType($this->getColumnTypeName($column));
-	}
-
-	public function getColumnTypeName(ColumnStructure $column)
-	{
-		return self::getSQLiteColumnTypeName($column);
+		return new BasicType($this->getSQLiteColumnTypeName($column));
 	}
 
 	public function getKeyword($keyword)

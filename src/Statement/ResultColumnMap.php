@@ -12,7 +12,7 @@
 namespace NoreSources\SQL\Statement;
 
 // Aliases
-use NoreSources as ns;
+use NoreSources\TypeDescription;
 
 /**
  */
@@ -56,7 +56,7 @@ class ResultColumnMap implements \Countable, \IteratorAggregate
 			}
 
 			throw new \InvalidArgumentException(
-				ns\TypeDescription::getName($key) . ' ' . $key . ' is not a valid result column key');
+				TypeDescription::getName($key) . ' ' . $key . ' is not a valid result column key');
 		}
 
 		return $this->columns->offsetGet($key);

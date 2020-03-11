@@ -12,8 +12,9 @@
 namespace NoreSources\SQL\Statement;
 
 // Aliases
-use NoreSources\TypeDescription;
+use NoreSources\Container;
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\DBMS\TypeHelper;
 use NoreSources\SQL\DBMS\TypeInterface;
 use NoreSources\SQL\Expression\Evaluator as X;
 use NoreSources\SQL\Expression\TokenStream;
@@ -57,7 +58,8 @@ class CreateTableQuery extends Statement
 	public function tokenize(TokenStream $stream, TokenStreamContext $context)
 	{
 		$builderFlags = $context->getStatementBuilder()->getBuilderFlags(K::BUILDER_DOMAIN_GENERIC);
-		$builderFlags |= $context->getStatementBuilder()->getBuilderFlags(K::BUILDER_DOMAIN_CREATE_TABLE);
+		$builderFlags |= $context->getStatementBuilder()->getBuilderFlags(
+			K::BUILDER_DOMAIN_CREATE_TABLE);
 
 		$structure = $this->structure;
 		if (!($structure instanceof TableStructure))
@@ -68,6 +70,15 @@ class CreateTableQuery extends Statement
 		if (!($structure instanceof TableStructure && ($structure->count() > 0)))
 		{
 			throw new StatementException($this, 'Missing or invalid table structure');
+		}
+
+		$primaryKeyColumns = [];
+		foreach ($structure->getConstraints() as $contraint)
+		{
+			if ($contraint instanceof PrimaryKeyTableConstraint)
+			{
+				$primaryKeyColumns = $contraint->getColumns();
+			}
 		}
 
 		$context->pushResolverContext($structure);
@@ -93,7 +104,8 @@ class CreateTableQuery extends Statement
 		}
 
 		$stream->space()
-			->identifier($context->getStatementBuilder()->getCanonicalName($this->structure))
+			->identifier($context->getStatementBuilder()
+			->getCanonicalName($this->structure))
 			->space()
 			->text('(');
 
@@ -102,6 +114,8 @@ class CreateTableQuery extends Statement
 		$c = 0;
 		foreach ($this->structure as $name => $column)
 		{
+			$isPrimary = Container::keyExists($primaryKeyColumns, $name);
+
 			/**
 			 *
 			 * @var ColumnStructure $column
@@ -112,7 +126,8 @@ class CreateTableQuery extends Statement
 
 			$type = $context->getStatementBuilder()->getColumnType($column);
 			if (!($type instanceof TypeInterface))
-				throw new \Exception('TEMP ' . TypeDescription::getName($type));
+				throw new StatementException($this,
+					'Unable to find a DBMS type for column "' . $column->getName() . '"');
 			/**
 			 *
 			 * @var TypeInterface $type
@@ -120,24 +135,26 @@ class CreateTableQuery extends Statement
 
 			$typeName = $type->getTypeName();
 
-			$stream->identifier($context->getStatementBuilder()->escapeIdentifier($column->getName()))
+			$stream->identifier(
+				$context->getStatementBuilder()
+					->escapeIdentifier($column->getName()))
 				->space()
 				->identifier($typeName);
 
-			$glyphCountSupport = ($type->has(K::TYPE_PROPERTY_GLYPH_COUNT) &&
-				$type->get(K::TYPE_PROPERTY_GLYPH_COUNT));
+			$typeFlags = TypeHelper::getProperty($type, K::TYPE_PROPERTY_FLAGS);
 
-			$fractionScaleSupport = ($type->has(K::TYPE_PROPERTY_FRACTION_SCALE) &&
-				$type->get(K::TYPE_PROPERTY_FRACTION_SCALE));
+			$lengthSupport = (($typeFlags & K::TYPE_FLAG_LENGTH) == K::TYPE_FLAG_LENGTH);
 
-			if ($column->hasColumnProperty(K::COLUMN_PROPERTY_GLYPH_COUNT) && $glyphCountSupport)
+			$fractionScaleSupport = (($typeFlags & K::TYPE_FLAG_FRACTION_SCALE) ==
+				K::TYPE_FLAG_FRACTION_SCALE);
+
+			if ($column->hasColumnProperty(K::COLUMN_PROPERTY_LENGTH) && $lengthSupport)
 			{
 				/**
 				 *
 				 * @todo only if supported
 				 */
-				$stream->text('(')->literal(
-					$column->getColumnProperty(K::COLUMN_PROPERTY_GLYPH_COUNT));
+				$stream->text('(')->literal($column->getColumnProperty(K::COLUMN_PROPERTY_LENGTH));
 
 				if ($column->hasColumnProperty(K::COLUMN_PROPERTY_FRACTION_SCALE) &&
 					$fractionScaleSupport)
@@ -147,6 +164,19 @@ class CreateTableQuery extends Statement
 				}
 
 				$stream->text(')');
+			}
+			elseif ($typeFlags & K::TYPE_FLAG_MANDATORY_LENGTH ||
+				($isPrimary && ($builderFlags & K::BUILDER_CREATE_PRIMARY_KEY_MANDATORY_LENGTH)))
+			{
+				$maxLength = TypeHelper::getMaxLength($type);
+				if (\is_infinite($maxLength))
+					throw new StatementException($this,
+						$column->getName() . ' column require length specification but type ' .
+						$type->getTypeName() . ' max length is unspecified');
+
+				$stream->text('(')
+					->literal($maxLength)
+					->text(')');
 			}
 
 			if (!$column->getColumnProperty(K::COLUMN_PROPERTY_ACCEPT_NULL))
@@ -176,7 +206,7 @@ class CreateTableQuery extends Statement
 		}
 
 		// Constraints
-		foreach ($structure->constraints as $constraint)
+		foreach ($structure->getConstraints() as $constraint)
 		{
 			/**
 			 *
@@ -190,7 +220,9 @@ class CreateTableQuery extends Statement
 			{
 				$stream->keyword('constraint')
 					->space()
-					->identifier($context->getStatementBuilder()->escapeIdentifier($constraint->constraintName));
+					->identifier(
+					$context->getStatementBuilder()
+						->escapeIdentifier($constraint->constraintName));
 			}
 
 			if ($constraint instanceof ColumnTableConstraint)
@@ -207,7 +239,9 @@ class CreateTableQuery extends Statement
 					if ($i++ > 0)
 						$stream->text(',')->space();
 
-					$stream->identifier($context->getStatementBuilder()->escapeIdentifier($column->getName()));
+					$stream->identifier(
+						$context->getStatementBuilder()
+							->escapeIdentifier($column->getName()));
 				}
 				$stream->text(')');
 			}
@@ -223,14 +257,17 @@ class CreateTableQuery extends Statement
 					if ($i++ > 0)
 						$stream->text(',')->space();
 
-					$stream->identifier($context->getStatementBuilder()->escapeIdentifier($column));
+					$stream->identifier($context->getStatementBuilder()
+						->escapeIdentifier($column));
 				}
 				$stream->text(')');
 
 				$stream->space()
 					->keyword('references')
 					->space()
-					->identifier($context->getStatementBuilder()->getCanonicalName($constraint->foreignTable))
+					->identifier(
+					$context->getStatementBuilder()
+						->getCanonicalName($constraint->foreignTable))
 					->space()
 					->text('(');
 
@@ -239,7 +276,9 @@ class CreateTableQuery extends Statement
 				{
 					if ($i++ > 0)
 						$stream->text(',')->space();
-					$stream->identifier($context->getStatementBuilder()->escapeIdentifier($reference));
+					$stream->identifier(
+						$context->getStatementBuilder()
+							->escapeIdentifier($reference));
 				}
 				$stream->text(')');
 
@@ -248,7 +287,9 @@ class CreateTableQuery extends Statement
 					$stream->space()
 						->keyword('on update')
 						->space()
-						->keyword($context->getStatementBuilder()->getForeignKeyAction($constraint->onUpdate));
+						->keyword(
+						$context->getStatementBuilder()
+							->getForeignKeyAction($constraint->onUpdate));
 				}
 
 				if ($constraint->onDelete)
@@ -256,7 +297,9 @@ class CreateTableQuery extends Statement
 					$stream->space()
 						->keyword('on delete')
 						->space()
-						->keyword($context->getStatementBuilder()->getForeignKeyAction($constraint->onDelete));
+						->keyword(
+						$context->getStatementBuilder()
+							->getForeignKeyAction($constraint->onDelete));
 				}
 			}
 		} // constraints

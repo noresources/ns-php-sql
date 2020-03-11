@@ -27,10 +27,10 @@ class BuildContext implements InputData, StructureResolverAwareInterface, TokenS
 
 	/**
 	 *
-	 * @param StatementBuilder $builder
+	 * @param StatementBuilderInterface $builder
 	 * @param StructureElement $pivot
 	 */
-	public function __construct(StatementBuilder $builder, StructureElement $pivot = null)
+	public function __construct(StatementBuilderInterface $builder, StructureElement $pivot = null)
 	{
 		$this->initializeInputData(null);
 		$this->initializeOutputData(null);
@@ -116,7 +116,7 @@ class BuildContext implements InputData, StructureResolverAwareInterface, TokenS
 
 	/**
 	 *
-	 * @var StatementBuilder
+	 * @var StatementBuilderInterface
 	 */
 	private $builder;
 }

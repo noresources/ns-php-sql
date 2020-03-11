@@ -10,6 +10,7 @@
 namespace NoreSources\SQL\DBMS;
 
 // Aliases
+use NoreSources\Container;
 use NoreSources\TypeConversion;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\ParameterValue;
@@ -17,7 +18,6 @@ use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Statement\BuildContext;
 use NoreSources\SQL\Statement\Statement;
 use NoreSources\SQL\Structure\StructureElement;
-use NoreSources as ns;
 
 class ConnectionHelper
 {
@@ -31,12 +31,12 @@ class ConnectionHelper
 	 */
 	public static function createConnection($settings)
 	{
-		if (!ns\Container::isArray($settings))
+		if (!Container::isArray($settings))
 			$settings = [
 				K::CONNECTION_PARAMETER_TYPE => $settings
 			];
 
-		$type = ns\Container::keyValue($settings, K::CONNECTION_PARAMETER_TYPE, 'Reference');
+		$type = Container::keyValue($settings, K::CONNECTION_PARAMETER_TYPE, 'Reference');
 		$connection = null;
 		$className = null;
 

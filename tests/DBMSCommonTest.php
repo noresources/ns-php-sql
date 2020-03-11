@@ -58,7 +58,8 @@ final class DBMSCommonTest extends TestCase
 		$tableStructure = $structure['ns_unittests']['types'];
 		$this->assertInstanceOf(TableStructure::class, $tableStructure);
 
-		$this->recreateTable($connection, $tableStructure);
+		$result = $this->recreateTable($connection, $tableStructure);
+		$this->assertTrue($result, TypeDescription::getName($connection));
 
 		$rows = [
 			'default values' => [
@@ -441,11 +442,25 @@ final class DBMSCommonTest extends TestCase
 		{}
 
 		$createTable = new CreateTableQuery($tableStructure);
+		$result = false;
 		$sql = ConnectionHelper::getStatementData($connection, $createTable, $tableStructure);
-		$result = $connection->executeStatement($sql);
+		try
+		{
+			$result = $connection->executeStatement($sql);
+		}
+		catch (\Exception $e)
+		{
+			$this->assertEquals(true, $result,
+				'Create table ' . $tableStructure->getName() . ' on ' .
+				TypeDescription::getName($connection) . PHP_EOL . \strval($sql) . ': ' .
+				$e->getMessage());
+		}
+
 		$this->assertEquals(true, $result,
 			'Create table ' . $tableStructure->getName() . ' on ' .
 			TypeDescription::getName($connection));
+
+		return $result;
 	}
 
 	/**

@@ -10,8 +10,6 @@
  */
 namespace NoreSources\SQL\Structure;
 
-use NoreSources\SQL\Constants as K;
-
 /**
  * Table properties
  *
@@ -34,19 +32,11 @@ class TableStructure extends StructureElement
 
 	/**
 	 *
-	 * @property-read \ArrayObject $constraints Table constraints
-	 * @param string $member
-	 * @throws \InvalidArgumentException
 	 * @return ArrayObject
 	 */
-	public function __get($member)
+	public function getConstraints()
 	{
-		if ($member == 'constraints')
-		{
-			return $this->constraints;
-		}
-
-		throw new \InvalidArgumentException($member);
+		return $this->constraints;
 	}
 
 	/**

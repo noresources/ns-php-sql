@@ -17,13 +17,12 @@ use NoreSources\TypeDescription;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Expression\Column;
 use NoreSources\SQL\Expression\Evaluator;
-use NoreSources\SQL\Expression\TokenizableExpression;
 use NoreSources\SQL\Expression\ExpressionReturnType;
 use NoreSources\SQL\Expression\TableReference;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Expression\TokenStreamContext;
+use NoreSources\SQL\Expression\TokenizableExpression;
 use NoreSources\SQL\Structure\TableStructure;
-use NoreSources as ns;
 
 /**
  * SELECT query result column
@@ -218,17 +217,17 @@ class SelectQuery extends Statement
 			}
 			else
 			{
-				if (ns\Container::isArray($arg))
+				if (Container::isArray($arg))
 				{
 					// column expression => alias
-					if (ns\Container::isAssociative($arg))
+					if (Container::isAssociative($arg))
 					{
 						list ($expression, $alias) = each($arg);
 					}
 					else // [ column expression, alias ]
 					{
-						$expression = ns\Container::keyValue($arg, 0, null);
-						$alias = ns\Container::keyValue($arg, 1, null);
+						$expression = Container::keyValue($arg, 0, null);
+						$alias = Container::keyValue($arg, 1, null);
 					}
 				}
 				else
@@ -264,19 +263,19 @@ class SelectQuery extends Statement
 			{
 				$subject = new TableReference($subject);
 			}
-			elseif (ns\Container::isArray($subject))
+			elseif (Container::isArray($subject))
 			{
 				$name = null;
 				$alias = null;
 
-				if (ns\Container::count($subject) == 1)
+				if (Container::count($subject) == 1)
 				{
 					list ($name, $alias) = each($subject);
 				}
 				else
 				{
-					$name = ns\Container::keyValue(0, $subject, null);
-					$alias = ns\Container::keyValue(1, $subject, null);
+					$name = Container::keyValue(0, $subject, null);
+					$alias = Container::keyValue(1, $subject, null);
 				}
 
 				$subject = new TableReference($name, $alias);
@@ -545,8 +544,7 @@ class SelectQuery extends Statement
 		$stream->stream($where);
 
 		// GROUP BY
-		if ($this->parts[self::PART_GROUPBY] && ns\Container::count(
-			$this->parts[self::PART_GROUPBY]))
+		if ($this->parts[self::PART_GROUPBY] && Container::count($this->parts[self::PART_GROUPBY]))
 		{
 
 			$stream->space()

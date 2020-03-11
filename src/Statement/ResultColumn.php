@@ -12,11 +12,12 @@
 namespace NoreSources\SQL\Statement;
 
 // Aliases
+use NoreSources\TypeConversion;
+use NoreSources\TypeDescription;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Structure\ColumnPropertyMap;
 use NoreSources\SQL\Structure\ColumnPropertyMapTrait;
 use NoreSources\SQL\Structure\ColumnStructure;
-use NoreSources as ns;
 
 /**
  * Record column description
@@ -49,7 +50,7 @@ class ResultColumn implements ColumnPropertyMap
 		}
 
 		throw new \InvalidArgumentException(
-			$member . ' is not a member of ' . ns\TypeDescription::getName($this));
+			$member . ' is not a member of ' . TypeDescription::getName($this));
 	}
 
 	/**
@@ -68,7 +69,7 @@ class ResultColumn implements ColumnPropertyMap
 		}
 
 		throw new \InvalidArgumentException(
-			$member . ' is not a member of ' . ns\TypeDescription::getName($this));
+			$member . ' is not a member of ' . TypeDescription::getName($this));
 	}
 
 	/**
@@ -79,8 +80,8 @@ class ResultColumn implements ColumnPropertyMap
 	{
 		if ($data instanceof ColumnStructure)
 			$this->name = $data->getName();
-		elseif (ns\TypeDescription::hasStringRepresentation($data))
-			$this->name = ns\TypeConversion::toString($data);
+		elseif (TypeDescription::hasStringRepresentation($data))
+			$this->name = TypeConversion::toString($data);
 
 		if ($data instanceof ColumnStructure)
 		{
