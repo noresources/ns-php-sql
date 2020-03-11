@@ -80,6 +80,7 @@ class PresentationSettings extends DataTree implements RecordQueryOption
 	const KEY_COLUMN = 'keyColumn';
 
 	/**
+	 *
 	 * @deprecated
 	 * @var string
 	 */
@@ -94,7 +95,6 @@ class PresentationSettings extends DataTree implements RecordQueryOption
 const kRecordKeyColumn = PresentationSettings::KEY_COLUMN;
 
 const kRecordDistinct = PresentationSettings::DISTINCT;
-
 
 /**
  * Restrict query to a subset of the record
@@ -475,7 +475,7 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 	 * @var integer
 	 */
 	const DATA_SERIALIZED = 0x100;
-	
+
 	/**
 	 * Get or create a single record
 	 *
@@ -497,32 +497,31 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 
 		$structure = $table->getStructure();
 
-		if (is_null($keys))
-		{
-			return Reporter::error(__CLASS__, __METHOD__ . ': Invalid key (null)');
-		}
+		if (\is_null($keys))
+			throw new \InvalidArgumentException($className . '::getRecord: NULL key argument');
+
+		$primaryKeyColumns = $structure->getPrimaryKeyColumns();
+		$c = count($primaryKeyColumns);
 
 		if (!\is_array($keys))
 		{
 			$primaryKeyColumn = null;
-			$primaryKeyColumns = $structure->getPrimaryKeyColumns();
-			$c = count($primaryKeyColumns);
+
 			if ($c == 0)
-			{
-				return Reporter::error(__CLASS__,
-					__METHOD__ . ': Table "' . $table->getName() . '" does not have primary key');
-			}
-			elseif ($c > 1)
-			{
-				return Reporter::error(__CLASS__,
-					__METHOD__ . ': Composite primary key can not accept non-array parameter');
-			}
+				throw new \LogicException(
+					$className . '::getRecord: Table "' . $table->getName() .
+					'" does not have primary key');
 
 			list ($pk, $_) = each($primaryKeyColumns);
 			$keys = array(
 				$pk => $keys
 			);
 		}
+
+		if (\count($keys) < $c)
+			throw new \InvalidArgumentException(
+				$className . '::getRecord: Incomplete key argument. Expected ' . $c .
+				' elements. Got ' . \count($keys));
 
 		$s = new SelectQuery($table);
 		if ($flags & kRecordQueryForeignKeys)
@@ -858,9 +857,9 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 		$this->m_table = $table;
 		$this->m_flags = ($flags & (kRecordStateExists | kRecordStateModified));
 		$this->m_values = array();
-		$this->m_storedKey = array();
-		$this->m_foreignKeyData = array();
-		$this->m_ephemerals = array();
+		$this->m_storedKey = [];
+		$this->m_foreignKeyData = [];
+		$this->m_ephemerals = [];
 
 		$structure = $table->getStructure();
 		$foreignKeys = $structure->getForeignKeyReferences();
@@ -1506,10 +1505,7 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 		{
 			$structure = $this->m_table->getStructure();
 			if ($structure->offsetExists($key))
-			{
-				throw new \Exception(
-					'Cannot set ' . $key . ' as ephemeral.Key exists in table structure');
-			}
+				throw new \InvalidArgumentException('Ephemeral "' . $name . '" not found');
 		}
 
 		$this->m_ephemerals[$key] = $value;
@@ -1519,12 +1515,12 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 	{
 		return \array_key_exists($member, $this->m_ephemerals);
 	}
-	
+
 	protected function getEphemeral($member)
 	{
 		if (!$this->hasEphemeral($member))
-			throw new \Exception('Invalid ephemeral key ' . $member);
-		
+			throw new \Exception('Invalid ephemeral key "' . $member . '"');
+
 		return $this->m_ephemerals[$member];
 	}
 
