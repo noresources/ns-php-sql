@@ -40,11 +40,7 @@ class PDOStatementBuilder extends StatementBuilder
 		if ($o instanceof \PDO)
 			return $o->quote($value);
 
-		/**
-		 *
-		 * @todo Securigy warning
-		 */
-		return "'" . \str_replace("'", "''", $value) . "'";
+		return "'" . self::escapeString($value) . "'";
 	}
 
 	public function escapeIdentifier($identifier)

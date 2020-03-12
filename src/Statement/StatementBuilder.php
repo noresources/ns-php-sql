@@ -143,6 +143,9 @@ abstract class StatementBuilder implements StatementBuilderInterface
 		return ($s . 'JOIN');
 	}
 
+	public function getColumnTypeDeclaration(ColumnStructure $column)
+	{}
+
 	public function getTimestampFormat($type = 0)
 	{
 		switch ($type)
@@ -330,6 +333,25 @@ abstract class StatementBuilder implements StatementBuilderInterface
 				'SET NULL';
 		}
 		return 'NO ACTION';
+	}
+
+	/**
+	 * Fallback string escaping function.
+	 * Used when the DBMS does not provide text escaping method.
+	 *
+	 * Contrary to serializeString(), this function DOES NOT add single quote around the resulting text.
+	 *
+	 * @param string $text
+	 * @return string
+	 */
+	public static function escapeString($text)
+	{
+		if (\function_exists('pg_escape_string'))
+			return \pg_escape_string($text);
+		elseif (\class_exists('\SQLite3'))
+			return \SQLite3::escapeString($text);
+
+		return \str_replace("'" . $text . "'");
 	}
 
 	protected function setBuilderFlags($domain, $flags)
