@@ -8,6 +8,7 @@
  */
 namespace NoreSources\SQL;
 
+use NoreSources\ArrayUtil;
 use NoreSources\BinaryOperatorExpression;
 use NoreSources\IExpression;
 use NoreSources as ns;
@@ -240,10 +241,10 @@ class UpdateQuery extends TableQuery implements ns\IExpression
 		$qs = 'UPDATE ' . $this->table->expressionString(kExpressionElementName) . ' SET ';
 		$qs .= ' ' .
 			ns\ArrayUtil::implode(', ', $this->columnValues,
-				array(
+				[
 					get_class($this),
 					'glueSetStatements'
-				));
+				]);
 
 		if ($this->m_condition)
 		{
@@ -665,10 +666,12 @@ class SelectQueryGroupByStatement implements ns\IExpression
 		{
 			return 'GROUP BY ' .
 				ns\ArrayUtil::implode(', ', $this->m_columns,
-					array(
+					[
 						get_class($this),
 						'glueGroupByStatement'
-					), $a_options);
+					], (\is_array($a_options) ? [
+						$a_options
+					] : $a_options));
 		}
 
 		return '';
@@ -754,16 +757,16 @@ class SelectQueryOrderByStatement implements ISelectQueryOrderByStatement
 	 */
 	public static function glueOrderByStatement($k, $v, $selectColumns = null)
 	{
-		if (is_array($selectColumns))
+		if (\is_array($selectColumns))
 		{
 			$alias = $v[0]->expressionString(kExpressionElementAlias);
-			if (in_array($alias, $selectColumns))
+			if (\in_array($alias, $selectColumns))
 			{
 				return $alias . ' ' . (($v[1]) ? 'ASC' : 'DESC');
 			}
 		}
 
-		return $v[0]->expressionString(kExpressionElementName) . ' ' . (($v[1]) ? 'ASC' : 'DESC');
+		return $v[0]->expressionString(kExpressionElementAlias) . ' ' . (($v[1]) ? 'ASC' : 'DESC');
 	}
 
 	/**
@@ -773,15 +776,16 @@ class SelectQueryOrderByStatement implements ISelectQueryOrderByStatement
 	 */
 	public function expressionString($a_options = null)
 	{
-		if (count($this->m_columns))
-		{
-			return 'ORDER BY ' .
-				ns\ArrayUtil::implode(', ', $this->m_columns,
-					array(
-						get_class($this),
-						'glueOrderByStatement'
-					), $a_options);
-		}
+		if (\count($this->m_columns) == 0)
+			return '';
+
+		return 'ORDER BY ' .
+			ArrayUtil::implode(', ', $this->m_columns, [
+				get_class($this),
+				'glueOrderByStatement'
+			], (\is_array($a_options) ? [
+				$a_options
+			] : $a_options));
 
 		return '';
 	}
@@ -1134,7 +1138,6 @@ class SelectQuery extends TableQuery implements ns\IExpression
 		{
 			$qs .= '*';
 		}
-
 		// table
 		$qs .= ' FROM ' . $this->table->expressionString(kExpressionElementDeclaration);
 
