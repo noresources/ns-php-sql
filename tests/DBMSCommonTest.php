@@ -105,8 +105,8 @@ final class DBMSCommonTest extends TestCase
 				}
 			}
 
-			$sql = ConnectionHelper::getStatementData($connection, $q, $tableStructure);
-			$result = $connection->executeStatement($sql);
+			$data = ConnectionHelper::getStatementData($connection, $q, $tableStructure);
+			$result = $connection->executeStatement($data);
 
 			$this->assertInstanceOf(InsertionQueryResult::class, $result, $label);
 		}
@@ -432,31 +432,36 @@ final class DBMSCommonTest extends TestCase
 
 	private function recreateTable(Connection $connection, TableStructure $tableStructure)
 	{
+		$dbmsName = TypeDescription::getLocalName($connection);
 		try // PostgreSQL < 8.2 does not support DROP IF EXISTS and may fail
 		{
 			$drop = new DropTableQuery($tableStructure);
-			$sql = ConnectionHelper::getStatementData($connection, $drop, $tableStructure);
-			$connection->executeStatement($sql);
+			$data = ConnectionHelper::getStatementData($connection, $drop, $tableStructure);
+			$connection->executeStatement($data);
 		}
 		catch (ConnectionException $e)
 		{}
 
 		$createTable = new CreateTableQuery($tableStructure);
 		$result = false;
-		$sql = ConnectionHelper::getStatementData($connection, $createTable, $tableStructure);
+		$data = ConnectionHelper::getStatementData($connection, $createTable, $tableStructure);
+		$sql = \SqlFormatter::format(strval($data), false);
+		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__,
+			$dbmsName . '_create_' . $tableStructure->getName(), 'sql');
+
 		try
 		{
-			$result = $connection->executeStatement($sql);
+			$result = $connection->executeStatement($data);
 		}
 		catch (\Exception $e)
 		{
 			$this->assertEquals(true, $result,
 				'Create table ' . $tableStructure->getName() . ' on ' .
-				TypeDescription::getName($connection) . PHP_EOL . \strval($sql) . ': ' .
+				TypeDescription::getName($connection) . PHP_EOL . \strval($data) . ': ' .
 				$e->getMessage());
 		}
 
-		$this->assertEquals(true, $result,
+		$this->assertTrue($result,
 			'Create table ' . $tableStructure->getName() . ' on ' .
 			TypeDescription::getName($connection));
 
