@@ -421,12 +421,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/myclabs/DeepCopy.git",
-                "reference": "b2c28789e80a97badd14145fda39b545d83ca3ef"
+                "reference": "a491d65139e2411c75704e871dd02bdddf5a4bdc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/myclabs/DeepCopy/zipball/b2c28789e80a97badd14145fda39b545d83ca3ef",
-                "reference": "b2c28789e80a97badd14145fda39b545d83ca3ef",
+                "url": "https://api.github.com/repos/myclabs/DeepCopy/zipball/a491d65139e2411c75704e871dd02bdddf5a4bdc",
+                "reference": "a491d65139e2411c75704e871dd02bdddf5a4bdc",
                 "shasum": ""
             },
             "require": {
@@ -461,7 +461,7 @@
                 "object",
                 "object graph"
             ],
-            "time": "2020-01-17T21:11:47+00:00"
+            "time": "2020-03-12T21:49:07+00:00"
         },
         {
             "name": "phar-io/manifest",
@@ -1041,12 +1041,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "34ea708b010eb7c6e3e2e27fd0aac614a39b80e2"
+                "reference": "35b4c697008ca08168c2e91b975e1fc40879690e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/34ea708b010eb7c6e3e2e27fd0aac614a39b80e2",
-                "reference": "34ea708b010eb7c6e3e2e27fd0aac614a39b80e2",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/35b4c697008ca08168c2e91b975e1fc40879690e",
+                "reference": "35b4c697008ca08168c2e91b975e1fc40879690e",
                 "shasum": ""
             },
             "require": {
@@ -1116,7 +1116,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2020-03-01T08:29:15+00:00"
+            "time": "2020-03-20T06:58:40+00:00"
         },
         {
             "name": "sebastian/code-unit-reverse-lookup",

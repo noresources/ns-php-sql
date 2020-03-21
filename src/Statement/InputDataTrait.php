@@ -17,15 +17,13 @@ namespace NoreSources\SQL\Statement;
 trait InputDataTrait
 {
 
+	/**
+	 *
+	 * @return \NoreSources\SQL\Statement\ParameterData
+	 */
 	public function getParameters()
 	{
 		return $this->parameters;
-	}
-
-	public function registerParameter($position, $key, $dbmsName)
-	{
-		$this->parameters->offsetSet(intval($position), $dbmsName);
-		$this->parameters->offsetSet(strval($key), $dbmsName);
 	}
 
 	public function initializeInputData(InputData $data = null)
@@ -33,12 +31,12 @@ trait InputDataTrait
 		if ($data)
 			$this->parameters = $data->getParameters();
 		else
-			$this->parameters = new ParameterMap();
+			$this->parameters = new ParameterData();
 	}
 
 	/**
 	 *
-	 * @var ParameterMap Array of Parameter
+	 * @var ParameterData Array of Parameter
 	 *      The entry key is the parameter name as it appears in the Statement.
 	 */
 	private $parameters;

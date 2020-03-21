@@ -18,7 +18,7 @@ use NoreSources\SQL\DBMS\Reference\ReferenceStatementBuilder;
 use NoreSources\SQL\Expression\FunctionCall;
 use NoreSources\SQL\Expression\Literal;
 use NoreSources\SQL\Expression\MetaFunctionCall;
-use NoreSources\SQL\Statement\ParameterMap;
+use NoreSources\SQL\Statement\ParameterData;
 use NoreSources\SQL\Statement\StatementBuilder;
 use NoreSources\SQL\Structure\ColumnStructure;
 
@@ -77,15 +77,14 @@ class PostgreSQLStatementBuilder extends StatementBuilder
 		return ReferenceStatementBuilder::escapeIdentifierFallback($identifier, '"', '"');
 	}
 
-	public function getParameter($name, ParameterMap $parameters = null)
+	public function getParameter($name, ParameterData $parameters = null)
 	{
-		$name = strval($name);
-		if ($parameters->offsetExists($name))
-		{
-			return $parameters->offsetGet($name);
-		}
+		$key = strval($name);
 
-		return '$' . ($parameters->getNamedParameterCount() + 1);
+		if ($parameters->has($key))
+			return $parameters->get($key)[ParameterData::DBMSNAME];
+
+		return '$' . ($parameters->getDistinctParameterCount() + 1);
 	}
 
 	public function translateFunction(MetaFunctionCall $metaFunction)

@@ -23,11 +23,11 @@ class ParameterIterator implements \Iterator
 
 	/**
 	 *
-	 * @param ParameterMap $map
+	 * @param \IteratorAggregate $map
 	 * @param string $type
 	 *        	"string" or "integer"
 	 */
-	public function __construct(ParameterMap $map, $type)
+	public function __construct(\IteratorAggregate $map, $type)
 	{
 		$this->iterator = $map->getIterator();
 		$this->keyType = $type;

@@ -50,7 +50,7 @@ class SQLitePreparedStatement extends PreparedStatement
 
 		if ($data instanceof ParametrizedStatement)
 		{
-			$npc = $data->getParameters()->getNamedParameterCount();
+			$npc = $data->getParameters()->getDistinctParameterCount();
 			if ($npc != $statement->paramCount())
 			{
 				throw new \BadMethodCallException(

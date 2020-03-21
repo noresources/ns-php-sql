@@ -198,9 +198,8 @@ trait StatementBuilderTrait
 			if ($type == K::TOKEN_PARAMETER)
 			{
 				$name = \strval($value);
-				$position = $data->getParameters()->count();
 				$dbmsName = $this->getParameter($name, $data->getParameters());
-				$data->registerParameter($position, $name, $dbmsName);
+				$position = $data->getParameters()->appendParameter($name, $dbmsName);
 				$value = $dbmsName;
 			}
 

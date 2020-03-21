@@ -19,7 +19,7 @@ interface ParametrizedStatement
 
 	/**
 	 *
-	 * @return ParameterMap The statement parameters
+	 * @return ParameterData The statement parameters
 	 */
 	function getParameters();
 }

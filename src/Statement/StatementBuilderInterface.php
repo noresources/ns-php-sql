@@ -41,12 +41,13 @@ interface StatementBuilderInterface extends DataSerializer
 	 *
 	 * @param string $name
 	 *        	Parameter name
-	 * @param ParameterMap $parameters
+	 * @param ParameterData $parameters
 	 *        	The already assigned parameters
 	 *
-	 *        	On some DBs,MS implementations, @c null may not be accepted as a value for @c $arameters argument
+	 *        	NULL may be passed when the builder does not require the
+	 *        	previou
 	 */
-	function getParameter($name, ParameterMap $parameters = null);
+	function getParameter($name, ParameterData $parameters = null);
 
 	/**
 	 *

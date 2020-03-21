@@ -11,7 +11,7 @@ namespace NoreSources\SQL\DBMS\Reference;
 
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\ArrayObjectType;
-use NoreSources\SQL\Statement\ParameterMap;
+use NoreSources\SQL\Statement\ParameterData;
 use NoreSources\SQL\Statement\StatementBuilder;
 use NoreSources\SQL\Structure\ColumnStructure;
 
@@ -58,7 +58,7 @@ class ReferenceStatementBuilder extends StatementBuilder
 		return self::escapeIdentifierFallback($identifier, '[', ']');
 	}
 
-	public function getParameter($name, ParameterMap $parameters = null)
+	public function getParameter($name, ParameterData $parameters = null)
 	{
 		return ('$' . preg_replace('/[^a-zA-Z0-9_]/', '_', $name));
 	}

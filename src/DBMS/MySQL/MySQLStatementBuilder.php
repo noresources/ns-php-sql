@@ -18,7 +18,7 @@ use NoreSources\SQL\DBMS\MySQL\MySQLConstants as K;
 use NoreSources\SQL\Expression\FunctionCall;
 use NoreSources\SQL\Expression\Literal;
 use NoreSources\SQL\Expression\MetaFunctionCall;
-use NoreSources\SQL\Statement\ParameterMap;
+use NoreSources\SQL\Statement\ParameterData;
 use NoreSources\SQL\Statement\StatementBuilder;
 use NoreSources\SQL\Structure\ColumnStructure;
 use NoreSources\SQL\Structure\PrimaryKeyTableConstraint;
@@ -68,7 +68,7 @@ class MySQLStatementBuilder extends StatementBuilder
 		return '`' . $identifier . '`';
 	}
 
-	public function getParameter($name, ParameterMap $parameters = null)
+	public function getParameter($name, ParameterData $parameters = null)
 	{
 		return '?';
 	}

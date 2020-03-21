@@ -19,6 +19,7 @@ use NoreSources\SQL\DBMS\PDO\PDOConstants as K;
 use NoreSources\SQL\DBMS\SQLite\ConnectionException;
 use NoreSources\SQL\QueryResult\GenericInsertionQueryResult;
 use NoreSources\SQL\QueryResult\GenericRowModificationQueryResult;
+use NoreSources\SQL\Statement\ParameterData;
 use NoreSources\SQL\Statement\ParametrizedStatement;
 use NoreSources\SQL\Statement\Statement;
 
@@ -224,15 +225,15 @@ class PDOConnection implements Connection
 
 			foreach ($parameters as $key => $entry)
 			{
-				$name = '';
+				$dbmsName = '';
 				if ($statement instanceof ParametrizedStatement)
-					$name = $statement->getParameters()->get($key);
+					$dbmsName = $statement->getParameters()->get($key)[ParameterData::DBMSNAME];
 				else
-					$name = ':' . $key;
+					$dbmsName = ':' . $key;
 
 				$value = ($entry instanceof ParameterValue) ? ConnectionHelper::serializeParameterValue(
 					$this, $entry) : $entry;
-				$pdo->bindValue($name, $value);
+				$pdo->bindValue($dbmsName, $value);
 			}
 
 			$result = $pdo->execute();

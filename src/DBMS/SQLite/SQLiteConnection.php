@@ -21,6 +21,7 @@ use NoreSources\SQL\DBMS\SQLite\SQLiteConstants as K;
 use NoreSources\SQL\Expression\Literal;
 use NoreSources\SQL\QueryResult\GenericInsertionQueryResult;
 use NoreSources\SQL\QueryResult\GenericRowModificationQueryResult;
+use NoreSources\SQL\Statement\ParameterData;
 use NoreSources\SQL\Statement\ParametrizedStatement;
 use NoreSources\SQL\Statement\Statement;
 
@@ -288,11 +289,11 @@ class SQLiteConnection implements Connection
 
 			foreach ($parameters as $key => $entry)
 			{
-				$name = $key;
+				$dbmsName = $key;
 				if ($statement instanceof ParametrizedStatement)
-					$name = $statement->getParameters()->get($key);
+					$dbmsName = $statement->getParameters()->get($key)[ParameterData::DBMSNAME];
 				else
-					$name = $this->getStatementBuilder()->getParameter($key, null);
+					$dbmsName = $this->getStatementBuilder()->getParameter($key, null);
 
 				$value = ($entry instanceof ParameterValue) ? ConnectionHelper::serializeParameterValue(
 					$this, $entry) : $entry;
@@ -316,9 +317,10 @@ class SQLiteConnection implements Connection
 				}
 
 				$type = self::sqliteDataTypeFromDataType($type);
-				$bindResult = $stmt->bindValue($name, $value, $type);
+				$bindResult = $stmt->bindValue($dbmsName, $value, $type);
 				if (!$bindResult)
-					throw new ConnectionException($this, 'Failed to bind "' . $name . '"');
+					throw new ConnectionException($this,
+						'Failed to bind "' . $key . '" (' . $dbmsName . ')');
 			}
 
 			$result = @$stmt->execute();

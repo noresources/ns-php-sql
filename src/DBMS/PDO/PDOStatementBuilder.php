@@ -12,7 +12,7 @@ namespace NoreSources\SQL\DBMS\PDO;
 // Aliases
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\BasicType;
-use NoreSources\SQL\Statement\ParameterMap;
+use NoreSources\SQL\Statement\ParameterData;
 use NoreSources\SQL\Statement\StatementBuilder;
 use NoreSources\SQL\Structure\ColumnStructure;
 
@@ -62,7 +62,7 @@ class PDOStatementBuilder extends StatementBuilder
 		$this->driverName = $connection->getAttribute(\PDO::ATTR_DRIVER_NAME);
 	}
 
-	public function getParameter($name, ParameterMap $parameters = null)
+	public function getParameter($name, ParameterData $parameters = null)
 	{
 		return (':' . $parameters->count());
 	}
