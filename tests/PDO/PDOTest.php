@@ -227,22 +227,12 @@ final class PDOTest extends \PHPUnit\Framework\TestCase
 		$sql = 'select * from employees';
 		$prepared = $pdo->prepare($sql);
 		$result = $prepared->execute();
-		var_dump($result);
-		foreach ($prepared as $row)
-		{
-			var_dump($row);
-		}
 
 		$sql = 'select * from "TableName" where name = :n';
 		$prepared = $pdo->prepare($sql);
 		$prepared->bindValue(':n', 'now');
 
 		$result = $prepared->execute();
-		var_dump($result);
-		foreach ($prepared as $row)
-		{
-			var_dump($row);
-		}
 	}
 
 	/**

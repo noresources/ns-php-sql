@@ -5,7 +5,7 @@ CREATE TABLE `ns_unittests`.`types` (
   `int` bigint(20) DEFAULT 3, 
   `large_int` bigint(12), 
   `small_int` tinyint(3), 
-  `float` decimal DEFAULT 1.23, 
+  `float` decimal(30, 2) DEFAULT 1.23, 
   `timestamp` datetime DEFAULT '2010-11-12 13:14:15', 
   `timestamp_tz` datetime DEFAULT '2010-11-12 13:14:15', 
   CONSTRAINT `pk_types` PRIMARY KEY (`base`, `int`)

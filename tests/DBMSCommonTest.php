@@ -90,6 +90,40 @@ final class DBMSCommonTest extends TestCase
 				'timestamp_tz' => [
 					'expected' => new \DateTime('2010-11-12T13:14:15+0100')
 				]
+			],
+			'arbitrary data' => [
+				'base' => [
+					'insert' => 123,
+					'expected' => '123'
+				],
+				'binary' => [
+					'expected' => 'abc',
+					K::COLUMN_PROPERTY_DATA_TYPE => K::DATATYPE_BINARY
+				],
+				'boolean' => [
+					'insert' => false,
+					'expected' => false
+				],
+				'int' => [
+					'insert' => 42,
+					'expected' => 42
+				],
+				'large_int' => [
+					'insert' => 161234567890,
+					'expected' => 161234567890
+				],
+				'small_int' => [
+					'insert' => 255,
+					'expected' => 255
+				],
+				'float' => [
+					'insert' => 4.56,
+					'expected' => 4.56
+				],
+				'timestamp_tz' => [
+					'insert' => new \DateTime('2010-11-12T13:14:15+0100'),
+					'expected' => new \DateTime('2010-11-12T13:14:15+0100')
+				]
 			]
 		];
 
@@ -119,11 +153,26 @@ final class DBMSCommonTest extends TestCase
 		$recordset->setFlags($recordset->getFlags() | Recordset::FETCH_UNSERIALIZE);
 
 		if ($recordset instanceof \Countable)
-			$this->assertCount(\count($rows), $recordset, $dbmsName . ' ' . $label . ' record count');
+		{
+			$this->assertCount(\count($rows), $recordset,
+				$dbmsName . ' ' . $label . ' record count (Countable interface)');
+		}
+		else
+		{
+			$c = clone $q;
+			$c->columns([
+				'count (base)' => 'c'
+			]);
+			$cd = ConnectionHelper::getStatementData($connection, $c, $tableStructure);
+			$cr = $connection->executeStatement($cd);
+			$this->assertInstanceOf(Recordset::class, $cr, $dbmsName . ' select count ()');
+
+			$cv = $cr->current();
+		}
 
 		reset($rows);
 		$count = 0;
-		foreach ($recordset as $record)
+		foreach ($recordset as $index => $record)
 		{
 			list ($label, $columns) = each($rows);
 			$count++;
@@ -134,7 +183,7 @@ final class DBMSCommonTest extends TestCase
 
 				$expected = $specs['expected'];
 				$this->assertEquals($record[$columnName], $expected,
-					$dbmsName . ':' . $label . ':' . $columnName . ' value');
+					$dbmsName . ':' . $index . ':' . $label . ':' . $columnName . ' value');
 			}
 		}
 

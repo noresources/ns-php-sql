@@ -38,7 +38,7 @@ trait GenericDataUnserializerTrait
 		if ($type == K::DATATYPE_BINARY)
 			$data = $this->unserializeBinaryColumnData($column, $data);
 		elseif ($type == K::DATATYPE_BOOLEAN)
-			$data = TypeConversion::toBoolean($data);
+			$data = $this->unserializeBooleanColumnData($column, $data);
 		elseif ($type & K::DATATYPE_TIMESTAMP)
 			$data = TypeConversion::toDateTime($data);
 		elseif ($type & K::DATATYPE_NUMBER)
@@ -61,6 +61,11 @@ trait GenericDataUnserializerTrait
 		}
 
 		return $data;
+	}
+
+	protected function unserializeBooleanColumnData(ColumnPropertyMap $column, $data)
+	{
+		return TypeConversion::toBoolean($data);
 	}
 
 	/**

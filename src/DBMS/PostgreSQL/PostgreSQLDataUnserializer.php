@@ -10,6 +10,7 @@
 namespace NoreSources\SQL\DBMS\PostgreSQL;
 
 use NoreSources\SingletonTrait;
+use NoreSources\TypeConversion;
 use NoreSources\SQL\DataUnserializer;
 use NoreSources\SQL\GenericDataUnserializerTrait;
 use NoreSources\SQL\Structure\ColumnPropertyMap;
@@ -23,5 +24,12 @@ class PostgreSQLDataUnserializer implements DataUnserializer
 	protected function unserializeBinaryColumnData(ColumnPropertyMap $column, $data)
 	{
 		return \pg_unescape_bytea($data);
+	}
+
+	protected function unserializeBooleanColumnData(ColumnPropertyMap $column, $data)
+	{
+		if (\is_string($data))
+			return ($data == 't');
+		return TypeConversion::toBoolean($data);
 	}
 }
