@@ -40,4 +40,11 @@ class MySQLConstants extends Constants
 	 * Use pipe to connect to server
 	 */
 	const CONNECTION_PARAMETER_PROTOCOL_PIPE = 'mysqlprotocolpipe';
+
+	/**
+	 * The maximum size of a key column (in bytes)
+	 *
+	 * @var integer
+	 */
+	const KEY_MAX_LENGTH = 767;
 }

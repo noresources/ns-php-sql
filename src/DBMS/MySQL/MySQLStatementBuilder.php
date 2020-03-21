@@ -11,6 +11,7 @@ namespace NoreSources\SQL\DBMS\MySQL;
 
 use NoreSources\Container;
 use NoreSources\TypeConversion;
+use NoreSources\SQL\DBMS\ArrayObjectType;
 use NoreSources\SQL\DBMS\BasicType;
 use NoreSources\SQL\DBMS\TypeHelper;
 use NoreSources\SQL\DBMS\MySQL\MySQLConstants as K;
@@ -32,10 +33,13 @@ class MySQLStatementBuilder extends StatementBuilder
 		parent::__construct();
 		$this->connection = $connection;
 
-	/**
-	 *
-	 * @todo builder flags
-	 */
+		/**
+		 *
+		 * @todo builder flags
+		 */
+
+		$createTableFlags = K::BUILDER_CREATE_PRIMARY_KEY_MANDATORY_LENGTH;
+		$this->setBuilderFlags(K::BUILDER_DOMAIN_CREATE_TABLE, $createTableFlags);
 	}
 
 	public function serializeString($value)
@@ -121,8 +125,8 @@ class MySQLStatementBuilder extends StatementBuilder
 	public function getColumnType(ColumnStructure $column)
 	{
 		$types = MySQLType::getMySQLTypes();
-		$count = Container::count($types);
 		$table = $column->parent();
+		$isPrimaryKey = false;
 
 		if ($table instanceof TableStructure)
 		{
@@ -137,8 +141,9 @@ class MySQLStatementBuilder extends StatementBuilder
 			}
 
 			if ($pk instanceof PrimaryKeyTableConstraint &&
-				Container::valueExists($pk->getColumns(), $column->getName()))
+				Container::keyExists($pk->getColumns(), $column->getName()))
 			{
+				$isPrimaryKey = true;
 				// Types must have a key length
 				$types = Container::filter($types,
 					function ($_, $type) {
@@ -146,108 +151,50 @@ class MySQLStatementBuilder extends StatementBuilder
 						 *
 						 * @var TypeInterface $type
 						 */
-						return ((TypeHelper::getProperty($type, K::TYPE_PROPERTY_FLAGS) &
-						K::TYPE_FLAG_LENGTH) == K::TYPE_FLAG_LENGTH);
-					});
 
-				$count = Container::count($types);
-			}
-		}
-
-		// Some types does not accepts non-null default value
-		if ($column->hasColumnProperty(K::COLUMN_PROPERTY_DEFAULT_VALUE))
-		{
-			$dflt = $column->getColumnProperty(K::COLUMN_PROPERTY_DEFAULT_VALUE);
-			if (!(($dflt instanceof Literal) && ($dflt->getExpressionDataType() == K::DATATYPE_NULL)))
-			{
-				$types = Container::filter($types,
-					function ($_, $type) {
-						return ((TypeHelper::getProperty($type, K::TYPE_PROPERTY_FLAGS) &
-						K::TYPE_FLAG_DEFAULT_VALUE) == K::TYPE_FLAG_DEFAULT_VALUE);
-					});
-
-				$count = Container::count($types);
-			}
-		}
-
-		$dataType = K::DATATYPE_UNDEFINED;
-		if ($column->hasColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE))
-			$dataType = $column->getColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE);
-
-		if ($dataType != K::DATATYPE_UNDEFINED)
-		{
-			$types = Container::filter($types,
-				function ($_, $type) use ($dataType) {
-					if (!$type->has(K::TYPE_PROPERTY_DATA_TYPE))
+						if ((TypeHelper::getProperty($type, K::TYPE_PROPERTY_FLAGS) &
+						K::TYPE_FLAG_LENGTH) == K::TYPE_FLAG_LENGTH)
+						{
+							$maxLength = TypeHelper::getMaxLength($type);
+							return !\is_infinite($maxLength);
+						}
 						return false;
-					$typeDataType = $type->get(K::TYPE_PROPERTY_DATA_TYPE);
-					return (($typeDataType & $dataType) == $dataType);
-				});
-
-			$count = Container::count($types);
-			if ($count == 0)
-				throw new \RuntimeException(
-					'No MySQL type found for column type ' . K::dataTypeName($dataType));
-		}
-
-		if ($count == 1)
-		{
-			list ($oid, $type) = each($types);
-			return $type;
-		}
-
-		if ($column->hasColumnProperty(K::COLUMN_PROPERTY_LENGTH))
-		{
-			$glyphCount = intval($column->getColumnProperty(K::COLUMN_PROPERTY_LENGTH));
-
-			$filtered = Container::filter($types,
-				function ($_, $type) use ($dataType, $glyphCount) {
-					return TypeHelper::getMaxGlyphCount($type) >= $glyphCount;
-				});
-
-			$c = Container::count($filtered);
-			if ($c)
-			{
-				// Prefer the smallest type
-				usort($filtered,
-					function ($a, $b) {
-						if ($a->has(K::TYPE_PROPERTY_SIZE) && $b->has(K::TYPE_PROPERTY_SIZE))
-							return ($a->get(K::TYPE_PROPERTY_SIZE) - $b->get(K::TYPE_PROPERTY_SIZE));
-						if ($a->has(K::TYPE_PROPERTY_FIXED_LENGTH) &&
-						$b->has(K::TYPE_PROPERTY_FIXED_LENGTH))
-							return ($a->get(K::TYPE_PROPERTY_FIXED_LENGTH) -
-							$b->get(K::TYPE_PROPERTY_FIXED_LENGTH));
-						return 0;
 					});
-
-				$count = $c;
-				$types = $filtered;
 			}
 		}
-		else
+
+		$types = TypeHelper::getMatchingTypes($column, $types);
+
+		if (Container::count($types) > 0)
 		{
+			list ($key, $type) = each($types);
 			/**
 			 *
-			 * @todo remove types with MANDATORY glyph count
+			 * @var ArrayObjectType $type
 			 */
 
-			// Prefer types without padding
-			usort($types,
-				function ($a, $b) {
-					if ($a->has(K::TYPE_PROPERTY_PADDING_GLYPH))
-						return ($b->has(K::TYPE_PROPERTY_PADDING_GLYPH) ? 0 : 1);
+			if ($isPrimaryKey)
+			{
 
-					return ($b->has(K::TYPE_PROPERTY_PADDING_GLYPH) ? 0 : -1);
-				});
-		}
+				/**
+				 * Use active character set maxlen instead
+				 *
+				 * @var integer $glyphLength
+				 */
+				$glyphLength = 4;
+				$keyMaxLength = intval(floor(K::KEY_MAX_LENGTH / $glyphLength));
+				$typeMaxLength = TypeHelper::getMaxLength($type);
 
-		/**
-		 *
-		 * @todo Media type
-		 */
-		if ($count)
-		{
-			list ($oid, $type) = each($types);
+				if ($typeMaxLength > $keyMaxLength)
+				{
+					$type = new ArrayObjectType(
+						\array_merge($type->getArrayCopy(),
+							[
+								K::TYPE_PROPERTY_MAX_LENGTH => $keyMaxLength
+							]));
+				}
+			}
+
 			return $type;
 		}
 

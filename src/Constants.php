@@ -480,6 +480,13 @@ class Constants
 	const BUILDER_DOMAIN_CREATE_TABLE = 'createtable';
 
 	/**
+	 * Primary key column require a length specification.
+	 *
+	 * @var number
+	 */
+	const BUILDER_CREATE_PRIMARY_KEY_MANDATORY_LENGTH = 0x01000000;
+
+	/**
 	 * CREATE SCHEMA statements
 	 *
 	 * @var string

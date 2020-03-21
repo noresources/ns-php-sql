@@ -171,20 +171,37 @@ class MySQLConnection implements Connection
 		$result = null;
 		if (Container::count($parameters))
 		{
+			/*
+			 $bindArguments = [];
+			 $bindArguments[0] = '';
+			 $map = $prepared->getParameters();
+			 $iterator = $map->getIndexedParameterIterator();
+
+			 foreach ($iterator as $index => $p)
+			 {
+			 var_dump($index . ' ' . $p);
+			 }
+			 */
 			throw new \Exception('Not implemented');
 		}
 
 		$result = false;
 		$success = @$stmt->execute();
 		if ($success)
+		{
+			/**
+			 * Returns a resultset for successful SELECT queries, or FALSE for other DML queries or on failure.
+			 * The mysqli_errno() function can be used to distinguish between the two types of failure.
+			 */
 			$result = $stmt->get_result();
+		}
 
-		if ($result === false)
+		if (!$success || ($result === false && $stmt->errno != 0))
 			throw new ConnectionException($this, $stmt->error);
 
 		if ($result instanceof \mysqli_result)
 		{
-			return MySQLRecordset($result, $statement);
+			return new MySQLRecordset($result, $statement);
 		}
 		elseif ($statementType & K::QUERY_FAMILY_ROWMODIFICATION)
 		{
@@ -195,7 +212,7 @@ class MySQLConnection implements Connection
 			return new GenericInsertionQueryResult($stmt->insert_id);
 		}
 
-		return ($result === true);
+		return true;
 	}
 
 	/**

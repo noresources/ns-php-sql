@@ -102,6 +102,7 @@ class MySQLType
 				],
 				'binary' => [
 					K::TYPE_PROPERTY_DATA_TYPE => K::DATATYPE_BINARY,
+					K::TYPE_PROPERTY_MAX_LENGTH => 255,
 					K::TYPE_PROPERTY_FLAGS => (K::TYPE_FLAG_LENGTH | K::TYPE_FLAG_NULL |
 					K::TYPE_FLAG_DEFAULT_VALUE | K::TYPE_FLAG_MANDATORY_LENGTH),
 					K::TYPE_PROPERTY_PADDING_DIRECTION => K::TYPE_PADDING_DIRECTION_RIGHT,
@@ -109,6 +110,7 @@ class MySQLType
 				],
 				'varbinary' => [
 					K::TYPE_PROPERTY_DATA_TYPE => K::DATATYPE_BINARY,
+					K::TYPE_PROPERTY_MAX_LENGTH => 255,
 					K::TYPE_PROPERTY_FLAGS => (K::TYPE_FLAG_LENGTH | K::TYPE_FLAG_NULL |
 					K::TYPE_FLAG_DEFAULT_VALUE | K::TYPE_FLAG_MANDATORY_LENGTH)
 				],
@@ -120,7 +122,12 @@ class MySQLType
 				'blob' => [
 					K::TYPE_PROPERTY_MAX_LENGTH => 4294967295,
 					K::TYPE_PROPERTY_DATA_TYPE => K::DATATYPE_BINARY,
-					K::TYPE_PROPERTY_FLAGS => (K::TYPE_FLAG_LENGTH | K::TYPE_FLAG_NULL)
+					/**
+					 *
+					 * @see K::TYPE_PROPERTY_FLAGS => (K::TYPE_FLAG_LENGTH | K::TYPE_FLAG_NULL)
+					 */
+					//K::TYPE_PROPERTY_FLAGS => (K::TYPE_FLAG_LENGTH | K::TYPE_FLAG_NULL)
+					K::TYPE_PROPERTY_FLAGS => (K::TYPE_FLAG_NULL)
 				],
 				'mediumblob' => [
 					K::TYPE_PROPERTY_MAX_LENGTH => 65535,
@@ -147,7 +154,12 @@ class MySQLType
 				'text' => [
 					K::TYPE_PROPERTY_MAX_LENGTH => 65535,
 					K::TYPE_PROPERTY_DATA_TYPE => K::DATATYPE_STRING,
-					K::TYPE_PROPERTY_FLAGS => (K::TYPE_FLAG_LENGTH | K::TYPE_FLAG_NULL)
+					/**
+					 *
+					 * @see https://stackoverflow.com/questions/1827063/mysql-error-key-specification-without-a-key-length
+					 */
+					// K::TYPE_PROPERTY_FLAGS => (K::TYPE_FLAG_LENGTH | K::TYPE_FLAG_NULL)
+					K::TYPE_PROPERTY_FLAGS => (K::TYPE_FLAG_NULL)
 				],
 				'mediumtext' => [
 					K::TYPE_PROPERTY_MAX_LENGTH => 16777215,
