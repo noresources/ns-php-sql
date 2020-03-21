@@ -148,12 +148,11 @@ class CreateTableQuery extends Statement
 			$fractionScaleSupport = (($typeFlags & K::TYPE_FLAG_FRACTION_SCALE) ==
 				K::TYPE_FLAG_FRACTION_SCALE);
 
-			if ($column->hasColumnProperty(K::COLUMN_PROPERTY_LENGTH) && $lengthSupport)
+			$hasLength = $column->hasColumnProperty(K::COLUMN_PROPERTY_LENGTH);
+			$hasFractionScale = $column->hasColumnProperty(K::COLUMN_PROPERTY_FRACTION_SCALE);
+
+			if ($hasLength && $lengthSupport)
 			{
-				/**
-				 *
-				 * @todo only if supported
-				 */
 				$stream->text('(')->literal($column->getColumnProperty(K::COLUMN_PROPERTY_LENGTH));
 
 				if ($column->hasColumnProperty(K::COLUMN_PROPERTY_FRACTION_SCALE) &&
@@ -164,6 +163,24 @@ class CreateTableQuery extends Statement
 				}
 
 				$stream->text(')');
+			}
+			elseif ($hasFractionScale && $fractionScaleSupport)
+			{
+				$scale = $column->getColumnProperty(K::COLUMN_PROPERTY_FRACTION_SCALE);
+				$length = TypeHelper::getMaxLength($type);
+				if (\is_infinite($maxLength))
+				{
+					/**
+					 *
+					 * @todo trigger warning
+					 */
+					$length = $scal * 2;
+				}
+				$stream->text('(')
+					->literal($length)
+					->text(',')
+					->literal($scale)
+					->text(')');
 			}
 			elseif ($typeFlags & K::TYPE_FLAG_MANDATORY_LENGTH ||
 				($isPrimary && ($builderFlags & K::BUILDER_CREATE_PRIMARY_KEY_MANDATORY_LENGTH)))
