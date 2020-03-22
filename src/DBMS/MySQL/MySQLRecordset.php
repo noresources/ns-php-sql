@@ -91,13 +91,19 @@ class MySQLRecordset extends Recordset implements \Countable, \SeekableIterator
 
 	public function reset()
 	{
-		if ($this->mysqlResult->num_rows)
-			$this->mysqlResult->data_seek(0);
+		if ($this->mysqlResult->num_rows == 0)
+			return false;
+
+		$result = $this->mysqlResult->data_seek(0);
+		if (!$result)
+			return $result;
+
+		return $this->mysqlResult->fetch_row();
 	}
 
 	protected function fetch($index)
 	{
-		$this->mysqlResult->fetch_row();
+		return $this->mysqlResult->fetch_row();
 	}
 
 	protected function seekRecord($position)

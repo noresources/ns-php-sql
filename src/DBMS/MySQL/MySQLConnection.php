@@ -9,16 +9,21 @@
  */
 namespace NoreSources\SQL\DBMS\MySQL;
 
-// Aliases
 use NoreSources\Container;
 use NoreSources\TypeDescription;
+use NoreSources\SQL\ParameterValue;
 use NoreSources\SQL\DBMS\Connection;
 use NoreSources\SQL\DBMS\ConnectionException;
+use NoreSources\SQL\DBMS\ConnectionHelper;
 use NoreSources\SQL\DBMS\ConnectionStructureTrait;
 use NoreSources\SQL\DBMS\MySQL\MySQLConstants as K;
+use NoreSources\SQL\Expression\Literal;
 use NoreSources\SQL\QueryResult\GenericInsertionQueryResult;
 use NoreSources\SQL\QueryResult\GenericRowModificationQueryResult;
+use NoreSources\SQL\Statement\ParameterData;
 use NoreSources\SQL\Statement\Statement;
+
+// Aliases
 
 /**
  * MySQL or MariaDB connection
@@ -171,18 +176,29 @@ class MySQLConnection implements Connection
 		$result = null;
 		if (Container::count($parameters))
 		{
-			/*
-			 $bindArguments = [];
-			 $bindArguments[0] = '';
-			 $map = $prepared->getParameters();
-			 $iterator = $map->getIndexedParameterIterator();
+			$bindArguments = [];
+			$bindArguments[0] = '';
+			$map = $prepared->getParameters();
+			$values = [];
 
-			 foreach ($iterator as $index => $p)
-			 {
-			 var_dump($index . ' ' . $p);
-			 }
-			 */
-			throw new \Exception('Not implemented');
+			foreach ($map as $index => $data)
+			{
+				$key = $data[ParameterData::KEY];
+				$entry = Container::keyValue($parameters, $key, null);
+				$bindArguments[0] .= self::getParameterValueTypeKey($entry);
+				$values[$index] = ($entry instanceof ParameterValue) ? ConnectionHelper::serializeParameterValue(
+					$this, $entry) : $entry;
+
+				$bindArguments[] = &$values[$index];
+			}
+
+			$result = \call_user_func_array([
+				$stmt,
+				'bind_param'
+			], $bindArguments);
+
+			if ($result === false)
+				throw new ConnectionException($this, 'Failed to bind parameters');
 		}
 
 		$result = false;
@@ -222,6 +238,24 @@ class MySQLConnection implements Connection
 	public function getServerLink()
 	{
 		return $this->link;
+	}
+
+	private static function getParameterValueTypeKey($p)
+	{
+		$dataType = K::DATATYPE_UNDEFINED;
+		if ($p instanceof ParameterValue)
+			$dataType = $p->type;
+		else
+			$dataType = Literal::dataTypeFromValue($p);
+
+		if ($dataType == K::DATATYPE_INTEGER)
+			return 'i';
+		elseif ($dataType & K::DATATYPE_FLOAT)
+			return 'd';
+		elseif ($dataType == K::DATATYPE_BINARY)
+			return 'b';
+
+		return 's';
 	}
 
 	/**
