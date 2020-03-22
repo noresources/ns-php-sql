@@ -61,6 +61,12 @@ interface Connection extends StatementBuilderAwareInterface
 
 	/**
 	 *
+	 * @return \NoreSources\SQL\Statement\StatementFactoryInterface
+	 */
+	function getStatementFactory();
+
+	/**
+	 *
 	 * @param \NoreSources\SQL\Statement\\StatementData|string $statement
 	 * @return PreparedStatement
 	 */

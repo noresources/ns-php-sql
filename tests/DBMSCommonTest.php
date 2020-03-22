@@ -14,7 +14,6 @@ use NoreSources\SQL\Expression\Literal;
 use NoreSources\SQL\Expression\TimestampFormatFunction;
 use NoreSources\SQL\QueryResult\InsertionQueryResult;
 use NoreSources\SQL\QueryResult\Recordset;
-use NoreSources\SQL\Statement\CreateTableQuery;
 use NoreSources\SQL\Statement\DropTableQuery;
 use NoreSources\SQL\Statement\InsertQuery;
 use NoreSources\SQL\Statement\SelectQuery;
@@ -74,12 +73,8 @@ final class DBMSCommonTest extends TestCase
 				'boolean' => [
 					'expected' => true
 				],
-				'int' => [
-					'expected' => 3
-				],
 				'large_int' => [
-					'insert' => 16123456789,
-					'expected' => 16123456789
+					'expected' => 123456789012
 				],
 				'small_int' => [
 					'expected' => null
@@ -103,10 +98,6 @@ final class DBMSCommonTest extends TestCase
 				'boolean' => [
 					'insert' => false,
 					'expected' => false
-				],
-				'int' => [
-					'insert' => 42,
-					'expected' => 42
 				],
 				'large_int' => [
 					'insert' => 161234567890,
@@ -146,6 +137,7 @@ final class DBMSCommonTest extends TestCase
 		}
 
 		$q = new SelectQuery($tableStructure);
+		$q->orderBy('int');
 		$data = ConnectionHelper::getStatementData($connection, $q, $tableStructure);
 
 		$recordset = $connection->executeStatement($data);
@@ -204,6 +196,7 @@ final class DBMSCommonTest extends TestCase
 				$fileName . ' binary insert');
 
 			$s = new SelectQuery($tableStructure);
+			$s->orderBy('int');
 			$s->columns('binary');
 			$s->where([
 				'base' => new Literal($fileName)
@@ -268,6 +261,7 @@ final class DBMSCommonTest extends TestCase
 			foreach ($formats as $label => $format)
 			{
 				$s = new SelectQuery($tableStructure);
+				$s->orderBy('int');
 				$s->columns('timestamp',
 					[
 						new TimestampFormatFunction($format, new Column('timestamp')),
@@ -491,7 +485,8 @@ final class DBMSCommonTest extends TestCase
 		catch (ConnectionException $e)
 		{}
 
-		$createTable = new CreateTableQuery($tableStructure);
+		$factory = $connection->getStatementFactory();
+		$createTable = $factory->newStatement(K::QUERY_CREATE_TABLE, $tableStructure);
 		$result = false;
 		$data = ConnectionHelper::getStatementData($connection, $createTable, $tableStructure);
 		$sql = \SqlFormatter::format(strval($data), false);

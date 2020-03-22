@@ -9,23 +9,24 @@
  */
 namespace NoreSources\SQL\DBMS\SQLite;
 
-// Aliases
 use NoreSources\Container;
-use NoreSources\SQL;
 use NoreSources\TypeDescription;
 use NoreSources\SQL\ParameterValue;
 use NoreSources\SQL\DBMS\Connection;
+use NoreSources\SQL\DBMS\ConnectionException;
 use NoreSources\SQL\DBMS\ConnectionHelper;
 use NoreSources\SQL\DBMS\ConnectionStructureTrait;
 use NoreSources\SQL\DBMS\SQLite\SQLiteConstants as K;
 use NoreSources\SQL\Expression\Literal;
 use NoreSources\SQL\QueryResult\GenericInsertionQueryResult;
 use NoreSources\SQL\QueryResult\GenericRowModificationQueryResult;
+use NoreSources\SQL\Statement\ClassMapStatementFactory;
 use NoreSources\SQL\Statement\ParameterData;
 use NoreSources\SQL\Statement\ParametrizedStatement;
 use NoreSources\SQL\Statement\Statement;
+use NoreSources\SQL\Statement\StatementFactoryInterface;
 
-class ConnectionException extends SQL\DBMS\ConnectionException
+class SQLiteConnectionException extends ConnectionException
 {
 
 	public function __construct(SQLiteConnection $connection = null, $message, $code = null)
@@ -156,7 +157,7 @@ class SQLiteConnection implements Connection
 		{
 			if ($flags & \SQLITE3_OPEN_READONLY)
 			{
-				throw new ConnectionException($this,
+				throw new SQLiteConnectionException($this,
 					'Unable to set Auto-create and Read only flags at the same time');
 			}
 
@@ -177,7 +178,7 @@ class SQLiteConnection implements Connection
 
 			if (\in_array($name, $names))
 			{
-				throw new ConnectionException($this, 'Duplicated tableset name ' . $name);
+				throw new SQLiteConnectionException($this, 'Duplicated tableset name ' . $name);
 			}
 
 			$names[] = $name;
@@ -208,7 +209,7 @@ class SQLiteConnection implements Connection
 			{
 				$result = @$this->connection->exec($sql);
 				if ($result === false)
-					throw new ConnectionException($this, 'Failed to attach database');
+					throw new SQLiteConnectionException($this, 'Failed to attach database');
 			}
 		}
 
@@ -216,7 +217,7 @@ class SQLiteConnection implements Connection
 		{
 			$result = $this->connection->exec('PRAGMA ' . $pragma . '=' . $value);
 			if ($result === false)
-				throw new ConnectionException($this, 'Failed to set ' . $pragma . ' pragma');
+				throw new SQLiteConnectionException($this, 'Failed to set ' . $pragma . ' pragma');
 		}
 
 		if (Container::keyExists($parameters, K::CONNECTION_PARAMETER_STRUCTURE))
@@ -231,7 +232,7 @@ class SQLiteConnection implements Connection
 	public function disconnect()
 	{
 		if (!($this->connection instanceof \SQLite3))
-			throw new ConnectionException($this, 'Not connected');
+			throw new SQLiteConnectionException($this, 'Not connected');
 		$this->connection->close();
 		$this->connection = null;
 	}
@@ -239,6 +240,19 @@ class SQLiteConnection implements Connection
 	public function getStatementBuilder()
 	{
 		return $this->builder;
+	}
+
+	public function getStatementFactory()
+	{
+		if (!($this->statementFactory instanceof StatementFactoryInterface))
+		{
+			$this->statementFactory = new ClassMapStatementFactory(
+				[
+					K::QUERY_CREATE_TABLE => SQLiteCreateTableQuery::class
+				]);
+		}
+
+		return $this->statementFactory;
 	}
 
 	/**
@@ -249,11 +263,11 @@ class SQLiteConnection implements Connection
 	public function prepareStatement($statement)
 	{
 		if (!($this->connection instanceof \SQLite3))
-			throw new ConnectionException($this, 'Not connected');
+			throw new SQLiteConnectionException($this, 'Not connected');
 
 		$stmt = $this->connection->prepare($statement);
 		if (!($stmt instanceof \SQLite3Stmt))
-			throw new ConnectionException($this, 'Unable to create SQLite statement');
+			throw new SQLiteConnectionException($this, 'Unable to create SQLite statement');
 
 		return new SQLitePreparedStatement($stmt, $statement);
 	}
@@ -261,11 +275,11 @@ class SQLiteConnection implements Connection
 	public function executeStatement($statement, $parameters = array())
 	{
 		if (!($this->connection instanceof \SQLite3))
-			throw new ConnectionException($this, 'Not connected');
+			throw new SQLiteConnectionException($this, 'Not connected');
 
 		if (!($statement instanceof SQLitePreparedStatement ||
 			TypeDescription::hasStringRepresentation($statement)))
-			throw new ConnectionException($this,
+			throw new SQLiteConnectionException($this,
 				'Invalid statement type ' . TypeDescription::getName($statement) .
 				'. Expect PreparedStatement or stringifiable');
 		;
@@ -319,7 +333,7 @@ class SQLiteConnection implements Connection
 				$type = self::sqliteDataTypeFromDataType($type);
 				$bindResult = $stmt->bindValue($dbmsName, $value, $type);
 				if (!$bindResult)
-					throw new ConnectionException($this,
+					throw new SQLiteConnectionException($this,
 						'Failed to bind "' . $key . '" (' . $dbmsName . ')');
 			}
 
@@ -334,7 +348,7 @@ class SQLiteConnection implements Connection
 		}
 
 		if ($result === false)
-			throw new ConnectionException($this,
+			throw new SQLiteConnectionException($this,
 				'Failed to execute statement of type ' . $statementType);
 
 		if ($statementType & K::QUERY_FAMILY_ROWMODIFICATION)
@@ -356,12 +370,13 @@ class SQLiteConnection implements Connection
 			if ($result instanceof \SQLite3Result)
 				return new SQLiteRecordset($result, $statement);
 			else
-				throw new ConnectionException($this, 'Invalid execution result');
+				throw new SQLiteConnectionException($this, 'Invalid execution result');
 		}
 		else
 			return (($result instanceof \SQLite3Result) || $result);
 
-		throw new ConnectionException($this, 'Failed to execute statement of type ' . $statementType);
+		throw new SQLiteConnectionException($this,
+			'Failed to execute statement of type ' . $statementType);
 	}
 
 	/**
@@ -430,6 +445,12 @@ class SQLiteConnection implements Connection
 	 * @var SQLiteStatementBuilder
 	 */
 	private $builder;
+
+	/**
+	 *
+	 * @var \NoreSources\SQL\Statement\StatementFactoryInterface
+	 */
+	private $statementFactory;
 
 	/**
 	 * DBMS connection

@@ -9,8 +9,11 @@
  */
 namespace NoreSources\SQL\Structure;
 
-class ColumnTableConstraint extends TableConstraint implements \ArrayAccess, \IteratorAggregate,
-	\Countable
+use NoreSources\SQL\Constants as K;
+use Psr\Container\ContainerInterface;
+
+class ColumnTableConstraint extends TableConstraint implements \IteratorAggregate, \Countable,
+	ContainerInterface
 {
 
 	/**
@@ -28,7 +31,7 @@ class ColumnTableConstraint extends TableConstraint implements \ArrayAccess, \It
 
 	/**
 	 *
-	 * @return ArrayObject
+	 * @return ColumnStructure[]
 	 */
 	public function getColumns()
 	{
@@ -37,18 +40,8 @@ class ColumnTableConstraint extends TableConstraint implements \ArrayAccess, \It
 
 	/**
 	 *
-	 * @property-read \ArrayObject $columns Column names on which the key applies.
-	 * @param string $member
-	 * @throws \InvalidArgumentException
-	 * @return \ArrayObject
+	 * @return integer Number of columns
 	 */
-	public function __get($member)
-	{
-		if ($member == 'columns')
-			return $this->columns;
-		throw new \InvalidArgumentException($member);
-	}
-
 	public function count()
 	{
 		return $this->columns->count();
@@ -56,33 +49,68 @@ class ColumnTableConstraint extends TableConstraint implements \ArrayAccess, \It
 
 	/**
 	 * Get an interator on columns
-	 *
-	 * {@inheritdoc}
-	 * @see IteratorAggregate::getIterator()
 	 */
 	public function getIterator()
 	{
 		return $this->columns->getIterator();
 	}
 
-	public function offsetExists($offset)
+	/**
+	 *
+	 * @param ColumnStructure $column
+	 */
+	public function append(ColumnStructure $column)
 	{
-		return $this->columns->offsetExists($offset);
+		$this->columns->offsetSet($column->getName(), $column);
+		$this->postprocessColumnModification();
 	}
 
-	public function offsetSet($offset, $value)
+	/**
+	 *
+	 * @param ColumnStructure|string $column
+	 * @return boolean
+	 */
+	public function has($column)
 	{
-		return $this->columns->offsetSet($offset, $value);
+		return $this->columns->offsetExists(
+			($column instanceof ColumnStructure) ? $column->getName() : $column);
 	}
 
-	public function offsetGet($offset)
+	/**
+	 *
+	 * @param ColumnStructure|string $column
+	 * @throws \InvalidArgumentException
+	 * @return ColumnStructure
+	 */
+	public function get($column)
 	{
-		return $this->columns->offsetGet($offset);
+		if (!$this->has($column))
+			throw new \InvalidArgumentException('Column not found');
+
+		return $this->columns->offsetGet(
+			($column instanceof ColumnStructure) ? $column->getName() : $column);
 	}
 
-	public function offsetUnset($offset)
+	protected function postprocessColumnModification()
 	{
-		return $this->columns->offsetUnset($offset);
+		$this->columns->uasort(
+			function ($a, $b) {
+				/**
+				 *
+				 * @var ColumnStructure $a
+				 * @var ColumnStructure $b
+				 */
+
+				$autoA = ($a->hasColumnProperty(K::COLUMN_PROPERTY_AUTO_INCREMENT) &&
+				$a->getColumnProperty(K::COLUMN_PROPERTY_AUTO_INCREMENT));
+
+				$autoB = ($b->hasColumnProperty(K::COLUMN_PROPERTY_AUTO_INCREMENT) &&
+				$b->getColumnProperty(K::COLUMN_PROPERTY_AUTO_INCREMENT));
+
+				if ($autoA)
+					return ($autoB ? 0 : -1);
+				return ($autoB ? 1 : 0);
+			});
 	}
 
 	/**

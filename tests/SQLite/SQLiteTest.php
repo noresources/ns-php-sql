@@ -4,6 +4,7 @@ namespace NoreSources\SQL;
 use NoreSources\Container;
 use NoreSources\DateTime;
 use NoreSources\TypeDescription;
+use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\ConnectionHelper;
 use NoreSources\SQL\DBMS\SQLite\SQLiteStatementBuilder;
 use NoreSources\SQL\Expression\FunctionCall;
@@ -278,7 +279,8 @@ final class SQLiteTest extends \PHPUnit\Framework\TestCase
 		if ($this->createdTables->offsetExists($path))
 			return true;
 
-		$q = new Statement\CreateTableQuery($tableStructure);
+		$factory = $this->connection->getStatementFactory();
+		$q = $factory->newStatement(K::QUERY_CREATE_TABLE, $tableStructure);
 		$prepared = ConnectionHelper::prepareStatement($this->connection, $q);
 
 		$this->assertInstanceOf(DBMS\SQLite\SQLitePreparedStatement::class, $prepared);

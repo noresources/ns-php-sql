@@ -101,6 +101,8 @@ class SQLiteStatementBuilder extends StatementBuilder
 				return 1;
 			case K::KEYWORD_FALSE:
 				return 0;
+			case K::KEYWORD_AUTOINCREMENT:
+				return 'AUTOINCREMENT';
 		}
 
 		return parent::getKeyword($keyword);

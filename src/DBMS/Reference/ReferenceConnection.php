@@ -14,17 +14,22 @@ use NoreSources\Container;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\Connection;
 use NoreSources\SQL\DBMS\ConnectionStructureTrait;
+use NoreSources\SQL\Statement\ClassMapStatementFactoryTrait;
+use NoreSources\SQL\Statement\StatementFactoryInterface;
 
 /**
  * SQLite connection
  */
-class ReferenceConnection implements Connection
+class ReferenceConnection implements Connection, StatementFactoryInterface
 {
 	use ConnectionStructureTrait;
+
+	use ClassMapStatementFactoryTrait;
 
 	public function __construct()
 	{
 		$this->builder = new ReferenceStatementBuilder();
+		$this->initializeStatementFactory();
 	}
 
 	public function beginTransation()
@@ -53,6 +58,11 @@ class ReferenceConnection implements Connection
 	public function getStatementBuilder()
 	{
 		return $this->builder;
+	}
+
+	public function getStatementFactory()
+	{
+		return $this;
 	}
 
 	public function executeStatement($statement, $parameters = array())

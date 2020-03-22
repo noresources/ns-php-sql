@@ -20,10 +20,12 @@ use NoreSources\SQL\DBMS\ConnectionStructureTrait;
 use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLConstants as K;
 use NoreSources\SQL\QueryResult\GenericInsertionQueryResult;
 use NoreSources\SQL\QueryResult\GenericRowModificationQueryResult;
+use NoreSources\SQL\Statement\ClassMapStatementFactory;
 use NoreSources\SQL\Statement\InputData;
 use NoreSources\SQL\Statement\ParameterData;
 use NoreSources\SQL\Statement\ParametrizedStatement;
 use NoreSources\SQL\Statement\Statement;
+use NoreSources\SQL\Statement\StatementFactoryInterface;
 
 class PostgreSQLConnection implements Connection
 {
@@ -143,6 +145,16 @@ class PostgreSQLConnection implements Connection
 	public function getStatementBuilder()
 	{
 		return $this->builder;
+	}
+
+	public function getStatementFactory()
+	{
+		if (!($this->statementFactory instanceof StatementFactoryInterface))
+		{
+			$this->statementFactory = new ClassMapStatementFactory();
+		}
+
+		return $this->statementFactory;
 	}
 
 	/**
@@ -344,6 +356,12 @@ class PostgreSQLConnection implements Connection
 	 * @var PostgreSQLStatementBuilder
 	 */
 	private $builder;
+
+	/**
+	 *
+	 * @var \NoreSources\SQL\Statement\StatementFactoryInterface
+	 */
+	private $statementFactory;
 
 	const VERSION_EXPECTED = 0;
 

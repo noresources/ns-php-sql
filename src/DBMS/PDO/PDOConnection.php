@@ -19,9 +19,11 @@ use NoreSources\SQL\DBMS\PDO\PDOConstants as K;
 use NoreSources\SQL\DBMS\SQLite\ConnectionException;
 use NoreSources\SQL\QueryResult\GenericInsertionQueryResult;
 use NoreSources\SQL\QueryResult\GenericRowModificationQueryResult;
+use NoreSources\SQL\Statement\ClassMapStatementFactory;
 use NoreSources\SQL\Statement\ParameterData;
 use NoreSources\SQL\Statement\ParametrizedStatement;
 use NoreSources\SQL\Statement\Statement;
+use NoreSources\SQL\Statement\StatementFactoryInterface;
 
 // Aliases
 
@@ -158,6 +160,16 @@ class PDOConnection implements Connection
 	public function getStatementBuilder()
 	{
 		return $this->builder;
+	}
+
+	public function getStatementFactory()
+	{
+		if (!($this->statementFactory instanceof StatementFactoryInterface))
+		{
+			$this->statementFactory = new ClassMapStatementFactory();
+		}
+
+		return $this->statementFactory;
 	}
 
 	/**
@@ -325,6 +337,12 @@ class PDOConnection implements Connection
 	 * @var PDOStatementBuilder
 	 */
 	private $builder;
+
+	/**
+	 *
+	 * @var \NoreSources\SQL\Statement\StatementFactoryInterface
+	 */
+	private $statementFactory;
 
 	/**
 	 * DBMS connection

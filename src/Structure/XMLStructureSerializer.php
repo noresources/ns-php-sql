@@ -194,7 +194,7 @@ class XMLStructureSerializer extends StructureSerializer
 					throw new StructureException('Invalid primary column "' . $name . '"',
 						$structure);
 				}
-				$constraint->offsetSet($name, $structure->offsetGet($name));
+				$constraint->append($structure->offsetGet($name));
 			}
 
 			$structure->addConstraint($constraint);

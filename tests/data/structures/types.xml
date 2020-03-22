@@ -22,17 +22,17 @@
 			</sql:column>
 			<sql:column name="int">
 				<sql:datatype>
-					<sql:numeric />
+					<sql:numeric autoincrement="yes" />
 				</sql:datatype>
-				<sql:default>
-					<sql:integer>3</sql:integer>
-				</sql:default>
 			</sql:column>
 			<sql:column name="large_int">
 				<sql:comment>A large int with size spec.</sql:comment>
 				<sql:datatype>
 					<sql:numeric length="12"  />
 				</sql:datatype>
+				<sql:default>
+					<sql:number>123456789012</sql:number>
+				</sql:default>
 			</sql:column>
 			<sql:column name="small_int">
 				<sql:comment>A quite small int with size spec.</sql:comment>
@@ -68,7 +68,6 @@
 				</sql:default>
 			</sql:column>
 			<sql:primarykey name="pk_types">
-				<sql:column name="base" />
 				<sql:column name="int" />
 			</sql:primarykey>
 		</sql:table>

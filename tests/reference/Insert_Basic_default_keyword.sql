@@ -1,1 +1,1 @@
-INSERT INTO [ns_unittests].[types] ([binary], [boolean], [int], [float], [timestamp], [timestamp_tz]) VALUES (DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT)
+INSERT INTO [ns_unittests].[types] ([binary], [boolean], [large_int], [float], [timestamp], [timestamp_tz]) VALUES (DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT)
