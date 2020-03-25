@@ -176,10 +176,13 @@ class MySQLType
 					K::TYPE_PROPERTY_DATA_TYPE => K::DATATYPE_DATE
 				],
 				'datetime' => [
-					K::TYPE_PROPERTY_DATA_TYPE => K::DATATYPE_TIMESTAMP
+					K::TYPE_PROPERTY_DATA_TYPE => K::DATATYPE_DATETIME
 				],
 				'time' => [
 					K::TYPE_PROPERTY_DATA_TYPE => K::DATATYPE_TIME
+				],
+				'timestamp' => [
+					K::TYPE_PROPERTY_DATA_TYPE => K::DATATYPE_TIMESTAMP
 				]
 			/**
 			 *

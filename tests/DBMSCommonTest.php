@@ -81,10 +81,15 @@ final class DBMSCommonTest extends TestCase
 				],
 				'float' => [
 					'expected' => 1.23
-				],
-				'timestamp_tz' => [
-					'expected' => new \DateTime('2010-11-12T13:14:15+0100')
 				]
+			/**
+			 * Unfortunately some DBMS does not really support time zone spec
+			 * (ex MySQL)
+			 */
+			//,
+			//'timestamp_tz' => [
+			//	'expected' => new \DateTime('2010-11-12T13:14:15+0100')
+			//]
 			],
 			'arbitrary data' => [
 				'base' => [
@@ -104,19 +109,25 @@ final class DBMSCommonTest extends TestCase
 					'expected' => 161234567890
 				],
 				'small_int' => [
-					'insert' => 255,
-					'expected' => 255
+					'insert' => 127,
+					'expected' => 127
 				],
 				'float' => [
 					'insert' => 4.56,
 					'expected' => 4.56
-				],
-				'timestamp_tz' => [
-					'insert' => new \DateTime('2010-11-12T13:14:15+0100'),
-					'expected' => new \DateTime('2010-11-12T13:14:15+0100')
 				]
+			/**
+			 * Unfortunately some DBMS does not really support time zone spec
+			 * (ex MySQL)
+			 */
+			//'timestamp_tz' => [
+			//	'insert' => new \DateTime('2010-11-12T13:14:15+0400'),
+			//	'expected' => new \DateTime('2010-11-12T13:14:15+0400')
+			//]
 			]
 		];
+
+		$rowQueries = [];
 
 		foreach ($rows as $label => $columns)
 		{
@@ -131,6 +142,7 @@ final class DBMSCommonTest extends TestCase
 			}
 
 			$data = ConnectionHelper::getStatementData($connection, $q, $tableStructure);
+			$rowQueries[$label] = \strval($data);
 			$result = $connection->executeStatement($data);
 
 			$this->assertInstanceOf(InsertionQueryResult::class, $result, $label);
@@ -174,8 +186,10 @@ final class DBMSCommonTest extends TestCase
 					continue;
 
 				$expected = $specs['expected'];
-				$this->assertEquals($record[$columnName], $expected,
-					$dbmsName . ':' . $index . ':' . $label . ':' . $columnName . ' value');
+				$actual = $record[$columnName];
+				$this->assertEquals($expected, $actual,
+					$dbmsName . ':' . $index . ':' . $label . ':' . $columnName . ' value' . PHP_EOL .
+					$rowQueries[$label]);
 			}
 		}
 

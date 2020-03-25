@@ -83,45 +83,6 @@ class MySQLStatementBuilder extends StatementBuilder
 		return parent::translateFunction($metaFunction);
 	}
 
-	public static function getMySQLColumnTypeName(ColumnStructure $column)
-	{
-		$dataType = K::DATATYPE_UNDEFINED;
-		if ($column->hasColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE))
-			$dataType = $column->getColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE);
-
-		/**
-		 *
-		 * @todo more accurate type selection based on size etc.
-		 */
-
-		if ($dataType & K::DATATYPE_TIMESTAMP)
-		{
-			if ($dataType == K::DATATYPE_DATE)
-				return 'DATE';
-			if ($dataType == K::DATATYPE_TIME)
-				return 'TIME';
-
-			return 'DATETIME';
-		}
-
-		switch ($dataType)
-		{
-			case K::DATATYPE_BINARY:
-				return 'BLOB';
-			case K::DATATYPE_NUMBER:
-			case K::DATATYPE_FLOAT:
-				return 'DOUBLE';
-			case K::DATATYPE_BOOLEAN:
-				return 'BOOLEAN';
-			case K::DATATYPE_INTEGER:
-				return 'INT';
-			case K::DATATYPE_NULL:
-				return 'NULL';
-		}
-
-		return 'TEXT';
-	}
-
 	public function getColumnType(ColumnStructure $column)
 	{
 		$types = MySQLType::getMySQLTypes();
@@ -203,10 +164,11 @@ class MySQLStatementBuilder extends StatementBuilder
 
 	public function getKeyword($keyword)
 	{
-		/**
-		 *
-		 * @todo may require adjustements
-		 */
+		switch ($keyword)
+		{
+			case K::KEYWORD_AUTOINCREMENT:
+				return 'AUTO_INCREMENT';
+		}
 		return parent::getKeyword($keyword);
 	}
 
@@ -228,55 +190,75 @@ class MySQLStatementBuilder extends StatementBuilder
 	 */
 	public static function getTimestampFormatTranslations()
 	{
-		throw new \Exception(__METHOD__ . ' Not implemented');
 		if (!Container::isArray(self::$timestampFormatTranslations))
 		{
 			self::$timestampFormatTranslations = new \ArrayObject(
 				[
+					// YEAR
 					'Y' => '%Y',
-					'y' => [
-						'%Y',
-						'Two digits year number format is not available'
-					],
-					'o' => '%G',
+					'y' => '%y',
+					'o' => false,
 					'L' => false,
-					'M' => false,
-					'F' => false,
+
+					// Month
+
+					// Abbreviated month name, based on the locale (an alias of %b)
+					'M' => '%b',
+					// Full month name, based on the locale
+					'F' => '%M',
+					// Two digit representation of the month
 					'm' => '%m',
-					'n' => [
-						'%m',
-						'Month number without leading zero is not available'
-					],
-					'W' => '%W',
-					'l' => false,
+					// Month number without leading zero
+					'n' => '%c',
+					// ISO week number of the year
+					'W' => '%v',
+					// A full textual representation of the day
+					'l' => '%W',
+					// Number of day in the current month
 					't' => false,
-					'D' => false,
+					// An abbreviated textual representation of the day
+					'D' => '%a',
+					// Two-digit day of the month (with leading zeros)
 					'd' => '%d',
-					'j' => '%d',
+					// Day of the month, with a space preceding single digits.
+					'j' => '%j',
 					'z' => [
 						'%j',
 						'Day of year range will be [1-366] instead of [0-365]'
 					],
+					// Day of the year, 3 digits with leading zeros
 					'N' => [
 						'%w',
 						'Week day "sunday" will be 0 instead of 7'
 					],
+					// English ordinal suffix for the day of the month, 2 character
 					'S' => false,
+					// Numeric representation of the day of the week
 					'w' => '%w',
-					'H' => '%H', // it's 00-24 insteand of 23 but it's 99% ok. No need to notice
-					'G' => [
-						'%H',
-						'24-Hour without leading zero is not available'
-					],
-					'h' => false,
-					'g' => false,
+
+					// Hours
+					'H' => '%H',
+					// Hour in 24-hour format, with a space preceding single digits
+					'G' => '%k',
+					// Two digit representation of the hour in 12-hour format
+					'h' => '%h',
+					// Hour in 12-hour format, with a space preceding single digits
+					'g' => '%l',
+					// Swatch internet time
 					'B' => false,
-					'A' => false,
+					// UPPER-CASE 'AM' or 'PM' based on the given time
+					'A' => '%p',
+					// lower case am/pm
 					'a' => false,
-					'i' => '%M',
+
+					// Minutes
+					'i' => '%i',
+
 					's' => '%S',
+					// Milliseconds
 					'v' => false,
-					'u' => false,
+					// Microseconds
+					'u' => '%f',
 					'Z' => false,
 					'O' => false,
 					'P' => false,
@@ -341,8 +323,6 @@ class MySQLStatementBuilder extends StatementBuilder
 
 	private function translateTimestampFormatFunction(MetaFunctionCall $metaFunction)
 	{
-		throw new \Exception(__METHOD__ . ' Not implemented');
-
 		$format = $metaFunction->getArgument(0);
 		if ($format instanceof Literal)
 		{
@@ -393,9 +373,9 @@ class MySQLStatementBuilder extends StatementBuilder
 		}
 
 		$timestamp = $metaFunction->getArgument(1);
-		$strftime = new FunctionCall('strftime', [
-			$format,
-			$timestamp
+		$strftime = new FunctionCall('date_format', [
+			$timestamp,
+			$format
 		]);
 
 		return $strftime;
