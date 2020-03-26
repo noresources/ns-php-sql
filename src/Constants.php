@@ -197,12 +197,37 @@ class Constants
 	 */
 	const COLUMN_PROPERTY_DATA_TYPE = 'datatype';
 
+	/**
+	 * Column property flags
+	 *
+	 * @var string
+	 */
 	const COLUMN_PROPERTY_FLAGS = 'volumnflags';
 
-	const COLUMN_FLAG_AUTO_INCREMENT = 0x01;
+	/**
+	 * Column accepts NULL as a valid value
+	 *
+	 * @var unknown
+	 */
+	const COLUMN_FLAG_ACCEPT_NULL = 0x01;
 
-	const COLUMN_FLAG_ACCEPT_NULL = 0x02;
+	/**
+	 * Column is auto incremented.
+	 *
+	 * For integer column only. On most DBMS, this property is also only available for primary key column
+	 * and should appear only once per table.
+	 *
+	 * @var unknown
+	 */
+	const COLUMN_FLAG_AUTO_INCREMENT = 0x02;
 
+	/**
+	 * Column value is unsigned.
+	 *
+	 * For numberic column only.
+	 *
+	 * @var unknown
+	 */
 	const COLUMN_FLAG_UNSIGNED = 0x04;
 
 	const COLUMN_FLAGS_DEFAULT = self::COLUMN_FLAG_ACCEPT_NULL;
