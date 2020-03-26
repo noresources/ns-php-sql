@@ -101,11 +101,11 @@ class ColumnTableConstraint extends TableConstraint implements \IteratorAggregat
 				 * @var ColumnStructure $b
 				 */
 
-				$autoA = ($a->hasColumnProperty(K::COLUMN_PROPERTY_AUTO_INCREMENT) &&
-				$a->getColumnProperty(K::COLUMN_PROPERTY_AUTO_INCREMENT));
+				$autoA = ($a->getColumnProperty(K::COLUMN_PROPERTY_FLAGS) &
+				K::COLUMN_FLAG_AUTO_INCREMENT) ? true : false;
 
-				$autoB = ($b->hasColumnProperty(K::COLUMN_PROPERTY_AUTO_INCREMENT) &&
-				$b->getColumnProperty(K::COLUMN_PROPERTY_AUTO_INCREMENT));
+				$autoB = ($b->getColumnProperty(K::COLUMN_PROPERTY_FLAGS) &
+				K::COLUMN_FLAG_AUTO_INCREMENT) ? true : false;
 
 				if ($autoA)
 					return ($autoB ? 0 : -1);

@@ -19,8 +19,6 @@ class ColumnStructure extends StructureElement implements ColumnPropertyMap
 
 	const DATATYPE = K::COLUMN_PROPERTY_DATA_TYPE;
 
-	const AUTO_INCREMENT = K::COLUMN_PROPERTY_AUTO_INCREMENT;
-
 	const FLAGS = K::COLUMN_PROPERTY_FLAGS;
 
 	const DATA_SIZE = K::COLUMN_PROPERTY_LENGTH;

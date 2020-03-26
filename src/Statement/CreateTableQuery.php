@@ -200,8 +200,7 @@ class CreateTableQuery extends Statement
 					->expression($v, $context);
 			}
 
-			if ($column->hasColumnProperty(K::COLUMN_PROPERTY_AUTO_INCREMENT) &&
-				$column->getColumnProperty(K::COLUMN_PROPERTY_AUTO_INCREMENT))
+			if ($columnFlags & K::COLUMN_FLAG_AUTO_INCREMENT)
 			{
 				$ai = $context->getStatementBuilder()->getKeyword(K::KEYWORD_AUTOINCREMENT);
 				if (\strlen($ai))

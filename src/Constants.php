@@ -233,12 +233,6 @@ class Constants
 	const COLUMN_FLAGS_DEFAULT = self::COLUMN_FLAG_ACCEPT_NULL;
 
 	/**
-	 * The column value is auto-incremented (integer column type only).
-	 * Value type: boolean
-	 */
-	const COLUMN_PROPERTY_AUTO_INCREMENT = 'autoincrement';
-
-	/**
 	 * Maximum number of digits or characters
 	 *
 	 *

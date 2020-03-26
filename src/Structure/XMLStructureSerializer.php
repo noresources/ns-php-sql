@@ -296,7 +296,9 @@ class XMLStructureSerializer extends StructureSerializer
 			$type = K::DATATYPE_INTEGER;
 			if ($typeNode->hasAttribute('autoincrement'))
 			{
-				$structure->setColumnProperty(K::COLUMN_PROPERTY_AUTO_INCREMENT, true);
+				$flg = $structure->getColumnProperty(K::COLUMN_PROPERTY_FLAGS);
+				$structure->setColumnProperty(K::COLUMN_PROPERTY_FLAGS,
+					$flg | K::COLUMN_FLAG_AUTO_INCREMENT);
 			}
 			if ($typeNode->hasAttribute('length'))
 			{

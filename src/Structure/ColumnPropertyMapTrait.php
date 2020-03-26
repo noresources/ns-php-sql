@@ -23,7 +23,6 @@ trait ColumnPropertyMapTrait
 	{
 		$this->columnProperties = [
 			K::COLUMN_PROPERTY_FLAGS => K::COLUMN_FLAGS_DEFAULT,
-			K::COLUMN_PROPERTY_AUTO_INCREMENT => false,
 			K::COLUMN_PROPERTY_DATA_TYPE => K::DATATYPE_STRING
 		];
 
@@ -137,7 +136,6 @@ class ColumnPropertyDefault
 	{
 		self::$defaultValues = [
 			K::COLUMN_PROPERTY_FLAGS => K::COLUMN_FLAGS_DEFAULT,
-			K::COLUMN_PROPERTY_AUTO_INCREMENT => false,
 			K::COLUMN_PROPERTY_FRACTION_SCALE => 0,
 			K::COLUMN_PROPERTY_LENGTH => 0,
 			K::COLUMN_PROPERTY_DATA_TYPE => K::DATATYPE_STRING,

@@ -90,8 +90,7 @@ class SQLiteCreateTableQuery extends CreateTableQuery
 				->space()
 				->identifier($typeName);
 
-			if ($column->hasColumnProperty(K::COLUMN_PROPERTY_AUTO_INCREMENT) &&
-				$column->getColumnProperty(K::COLUMN_PROPERTY_AUTO_INCREMENT))
+			if ($columnFlags & K::COLUMN_FLAG_AUTO_INCREMENT)
 			{
 				if (!$isPrimary)
 					throw new StatementException($this,

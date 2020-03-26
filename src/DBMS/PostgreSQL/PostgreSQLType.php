@@ -62,13 +62,14 @@ class PostgreSQLType
 	 */
 	public static function columnPropertyToType(ColumnPropertyMap $column)
 	{
+		$columnFlags = $column->getColumnProperty(K::COLUMN_PROPERTY_FLAGS);
+
 		if (!\is_array(self::$typePropertiesMap))
 			self::initialize();
 
-		if ($column->hasColumnProperty(K::COLUMN_PROPERTY_AUTO_INCREMENT))
+		if ($columnFlags & K::COLUMN_FLAG_AUTO_INCREMENT)
 		{
-			if ($column->getColumnProperty(K::COLUMN_PROPERTY_AUTO_INCREMENT))
-				return new BasicType('serial');
+			return new BasicType('serial');
 		}
 
 		$dataType = K::DATATYPE_UNDEFINED;
