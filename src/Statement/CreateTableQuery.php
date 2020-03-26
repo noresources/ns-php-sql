@@ -102,8 +102,10 @@ class CreateTableQuery extends Statement
 
 			/**
 			 *
-			 * @var ColumnStructure $column
+			 * @var \NoreSources\SQL\Structure\ColumnStructure $column
 			 */
+
+			$columnFlags = $column->getColumnProperty(K::COLUMN_PROPERTY_FLAGS);
 
 			if ($c++ > 0)
 				$stream->text(',')->space();
@@ -180,7 +182,7 @@ class CreateTableQuery extends Statement
 					->text(')');
 			}
 
-			if (!$column->getColumnProperty(K::COLUMN_PROPERTY_ACCEPT_NULL))
+			if (!($columnFlags & K::COLUMN_FLAG_ACCEPT_NULL))
 			{
 				$stream->space()
 					->keyword('NOT')

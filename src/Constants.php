@@ -197,17 +197,21 @@ class Constants
 	 */
 	const COLUMN_PROPERTY_DATA_TYPE = 'datatype';
 
+	const COLUMN_PROPERTY_FLAGS = 'volumnflags';
+
+	const COLUMN_FLAG_AUTO_INCREMENT = 0x01;
+
+	const COLUMN_FLAG_ACCEPT_NULL = 0x02;
+
+	const COLUMN_FLAG_UNSIGNED = 0x04;
+
+	const COLUMN_FLAGS_DEFAULT = self::COLUMN_FLAG_ACCEPT_NULL;
+
 	/**
 	 * The column value is auto-incremented (integer column type only).
 	 * Value type: boolean
 	 */
 	const COLUMN_PROPERTY_AUTO_INCREMENT = 'autoincrement';
-
-	/**
-	 * The column accepts null values.
-	 * Value type: boolean
-	 */
-	const COLUMN_PROPERTY_ACCEPT_NULL = 'null';
 
 	/**
 	 * Maximum number of digits or characters

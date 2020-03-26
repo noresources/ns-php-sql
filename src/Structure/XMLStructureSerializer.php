@@ -218,7 +218,9 @@ class XMLStructureSerializer extends StructureSerializer
 		$notNullNode = self::getSingleElementByTagName($this->schemaNamespaceURI, $node, 'notnull');
 		if ($notNullNode instanceof \DOMNode)
 		{
-			$structure->setColumnProperty(K::COLUMN_PROPERTY_ACCEPT_NULL, false);
+			$flg = $structure->getColumnProperty(K::COLUMN_PROPERTY_FLAGS);
+			$structure->setColumnProperty(K::COLUMN_PROPERTY_FLAGS,
+				($flg & ~K::COLUMN_FLAG_ACCEPT_NULL));
 		}
 
 		$type = K::DATATYPE_UNDEFINED;

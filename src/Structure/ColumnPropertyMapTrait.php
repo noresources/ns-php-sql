@@ -10,9 +10,9 @@
 namespace NoreSources\SQL\Structure;
 
 use NoreSources\Container;
-use NoreSources\MediaType;
 use NoreSources\TypeConversion;
 use NoreSources\TypeDescription;
+use NoreSources\MediaType\MediaType;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DataUnserializer;
 
@@ -22,7 +22,7 @@ trait ColumnPropertyMapTrait
 	public function initializeColumnProperties($properties = array())
 	{
 		$this->columnProperties = [
-			K::COLUMN_PROPERTY_ACCEPT_NULL => true,
+			K::COLUMN_PROPERTY_FLAGS => K::COLUMN_FLAGS_DEFAULT,
 			K::COLUMN_PROPERTY_AUTO_INCREMENT => false,
 			K::COLUMN_PROPERTY_DATA_TYPE => K::DATATYPE_STRING
 		];
@@ -60,9 +60,6 @@ trait ColumnPropertyMapTrait
 
 		switch ($key)
 		{
-			case K::COLUMN_PROPERTY_ACCEPT_NULL:
-				$value = ($value ? true : false);
-			break;
 			case K::COLUMN_PROPERTY_LENGTH:
 			case K::COLUMN_PROPERTY_DATA_TYPE:
 			case K::COLUMN_PROPERTY_FRACTION_SCALE:
@@ -139,7 +136,7 @@ class ColumnPropertyDefault
 	private static function initialize()
 	{
 		self::$defaultValues = [
-			K::COLUMN_PROPERTY_ACCEPT_NULL => true,
+			K::COLUMN_PROPERTY_FLAGS => K::COLUMN_FLAGS_DEFAULT,
 			K::COLUMN_PROPERTY_AUTO_INCREMENT => false,
 			K::COLUMN_PROPERTY_FRACTION_SCALE => 0,
 			K::COLUMN_PROPERTY_LENGTH => 0,

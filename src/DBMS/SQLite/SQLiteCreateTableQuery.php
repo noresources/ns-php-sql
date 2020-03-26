@@ -71,6 +71,8 @@ class SQLiteCreateTableQuery extends CreateTableQuery
 			 * @var \NoreSources\SQL\Structure\ColumnStructure $column
 			 */
 
+			$columnFlags = $column->getColumnProperty(K::COLUMN_PROPERTY_FLAGS);
+
 			$isPrimary = Container::keyExists($primaryKeyColumns, $name);
 
 			if ($c++ > 0)
@@ -106,7 +108,7 @@ class SQLiteCreateTableQuery extends CreateTableQuery
 					->keyword($builder->getKeyword(K::KEYWORD_AUTOINCREMENT));
 			}
 
-			if (!$column->getColumnProperty(K::COLUMN_PROPERTY_ACCEPT_NULL))
+			if (!($columnFlags & K::COLUMN_FLAG_ACCEPT_NULL))
 			{
 				$stream->space()
 					->keyword('NOT')

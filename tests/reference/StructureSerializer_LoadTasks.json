@@ -7,55 +7,55 @@
                 "types": {
                     "columns": {
                         "base": {
-                            "null": true,
+                            "volumnflags": 2,
                             "autoincrement": false,
                             "datatype": 2
                         },
                         "binary": {
-                            "null": true,
+                            "volumnflags": 2,
                             "autoincrement": false,
                             "datatype": 256,
                             "default": {}
                         },
                         "boolean": {
-                            "null": true,
+                            "volumnflags": 2,
                             "autoincrement": false,
                             "datatype": 128,
                             "default": {}
                         },
                         "int": {
-                            "null": true,
+                            "volumnflags": 2,
                             "autoincrement": true,
                             "datatype": 4
                         },
                         "large_int": {
-                            "null": true,
+                            "volumnflags": 2,
                             "autoincrement": false,
                             "datatype": 4,
                             "length": 12,
                             "default": {}
                         },
                         "small_int": {
-                            "null": true,
+                            "volumnflags": 2,
                             "autoincrement": false,
                             "datatype": 4,
                             "length": 3
                         },
                         "float": {
-                            "null": true,
+                            "volumnflags": 2,
                             "autoincrement": false,
                             "datatype": 8,
                             "fractionscale": 2,
                             "default": {}
                         },
                         "timestamp": {
-                            "null": true,
+                            "volumnflags": 2,
                             "autoincrement": false,
                             "datatype": 48,
                             "default": {}
                         },
                         "timestamp_tz": {
-                            "null": true,
+                            "volumnflags": 2,
                             "autoincrement": false,
                             "datatype": 112,
                             "default": {}

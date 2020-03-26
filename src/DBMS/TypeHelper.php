@@ -26,6 +26,7 @@ class TypeHelper
 	public static function getMatchingTypes(ColumnStructure $column, $types)
 	{
 		$scores = [];
+		$columnFlags = $column->getColumnProperty(K::COLUMN_PROPERTY_FLAGS);
 		foreach ($types as $typeKey => $type)
 		{
 			$scores[$typeKey] = 0;
@@ -68,15 +69,12 @@ class TypeHelper
 				}
 			}
 
-			if ($column->hasColumnProperty(K::COLUMN_PROPERTY_ACCEPT_NULL))
+			if ($columnFlags & K::COLUMN_FLAG_ACCEPT_NULL)
 			{
-				if ($column->getColumnProperty(K::COLUMN_PROPERTY_ACCEPT_NULL))
+				if (($typeFlags & K::TYPE_FLAG_NULL) == 0)
 				{
-					if (($typeFlags & K::TYPE_FLAG_NULL) == 0)
-					{
-						$scores[$typeKey] = -1000;
-						continue;
-					}
+					$scores[$typeKey] = -1000;
+					continue;
 				}
 			}
 
