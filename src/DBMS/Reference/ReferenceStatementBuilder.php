@@ -102,7 +102,7 @@ class ReferenceStatementBuilder extends StatementBuilder
 		}
 
 		$props = [
-			K::TYPE_PROPERTY_NAME => $typeName
+			K::TYPE_NAME => $typeName
 		];
 
 		$typeFlags = 0;
@@ -119,7 +119,7 @@ class ReferenceStatementBuilder extends StatementBuilder
 				$props[$key] = $column->getColumnProperty($key);
 		}
 
-		$props[K::TYPE_PROPERTY_FLAGS] = $typeFlags;
+		$props[K::TYPE_FLAGS] = $typeFlags;
 
 		return new ArrayObjectType($props);
 	}

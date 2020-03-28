@@ -40,7 +40,7 @@ class PostgreSQLType
 		if (!Container::keyExists(self::$typePropertiesMap, $oid))
 			return K::DATATYPE_UNDEFINED;
 
-		return self::$typePropertiesMap[$oid][K::TYPE_PROPERTY_NAME];
+		return self::$typePropertiesMap[$oid][K::TYPE_NAME];
 	}
 
 	public static function typeNameToDataType($name)
@@ -78,7 +78,7 @@ class PostgreSQLType
 
 		$matchingTypes = \array_filter(self::$typePropertiesMap,
 			function ($type) use ($dataType) {
-				$typeDataType = $type->get(K::TYPE_PROPERTY_DATA_TYPE);
+				$typeDataType = $type->get(K::TYPE_DATA_TYPE);
 				return (($typeDataType & $dataType) == $dataType);
 			});
 
@@ -102,7 +102,7 @@ class PostgreSQLType
 
 				$filtered = \array_filter($matchingTypes,
 					function ($type) use ($glyphCount) {
-						if (!$type->has(K::TYPE_PROPERTY_SIZE))
+						if (!$type->has(K::TYPE_SIZE))
 							return false;
 						$maxDigit = TypeHelper::getMaxGlyphCount($type);
 						return ($maxDigit >= $glyphCount);
@@ -114,8 +114,8 @@ class PostgreSQLType
 					// Prefer the smallest type
 					usort($filtered,
 						function ($a, $b) {
-							$sa = $a->get(K::TYPE_PROPERTY_SIZE);
-							$sb = $b->get(K::TYPE_PROPERTY_SIZE);
+							$sa = $a->get(K::TYPE_SIZE);
+							$sb = $b->get(K::TYPE_SIZE);
 							return ($sa - $sb);
 						});
 
@@ -126,7 +126,7 @@ class PostgreSQLType
 
 			$filtered = \array_filter($matchingTypes,
 				function ($type) {
-					$flags = TypeHelper::getProperty($type, K::TYPE_PROPERTY_FLAGS);
+					$flags = TypeHelper::getProperty($type, K::TYPE_FLAGS);
 					return (($flags & K::TYPE_FLAG_LENGTH) == K::TYPE_FLAG_LENGTH);
 				});
 
@@ -146,9 +146,9 @@ class PostgreSQLType
 
 			$filtered = \array_filter($matchingTypes,
 				function ($type) {
-					$typeFlags = TypeHelper::getProperty($type, K::TYPE_PROPERTY_FLAGS);
+					$typeFlags = TypeHelper::getProperty($type, K::TYPE_FLAGS);
 					return ((($typeFlags & K::TYPE_FLAG_LENGTH) == 0) &&
-					!$type->has(K::TYPE_PROPERTY_SIZE));
+					!$type->has(K::TYPE_SIZE));
 				});
 
 			$c = \count($filtered);
@@ -166,13 +166,13 @@ class PostgreSQLType
 				function ($type) use ($column) {
 					if ($column->hasColumnProperty(K::COLUMN_MEDIA_TYPE))
 					{
-						if ($type->has(K::TYPE_PROPERTY_MEDIA_TYPE))
+						if ($type->has(K::TYPE_MEDIA_TYPE))
 							return (\strval($column->getProperty(K::COLUMN_MEDIA_TYPE)) ==
-							\strval($type->get(K::TYPE_PROPERTY_MEDIA_TYPE)));
+							\strval($type->get(K::TYPE_MEDIA_TYPE)));
 						return false;
 					}
 					else
-						return !$type->has(K::TYPE_PROPERTY_MEDIA_TYPE);
+						return !$type->has(K::TYPE_MEDIA_TYPE);
 				});
 
 			$c = \count($filtered);

@@ -31,14 +31,14 @@ class TypeHelper
 		{
 			$scores[$typeKey] = 0;
 
-			$typeFlags = self::getProperty($type, K::TYPE_PROPERTY_FLAGS);
+			$typeFlags = self::getProperty($type, K::TYPE_FLAGS);
 
 			// Data type
 			$dataTypeScore = 0;
 			if ($column->hasColumnProperty(K::COLUMN_DATA_TYPE))
 			{
 				$dataType = $column->getColumnProperty(K::COLUMN_DATA_TYPE);
-				$typeDataType = self::getProperty($type, K::TYPE_PROPERTY_DATA_TYPE);
+				$typeDataType = self::getProperty($type, K::TYPE_DATA_TYPE);
 
 				if ($typeDataType == $dataType) // Exact match
 					$dataTypeScore = 4;
@@ -113,20 +113,20 @@ class TypeHelper
 			if ($column->hasColumnProperty(K::COLUMN_PADDING_DIRECTION))
 			{
 				$cd = $column->getColumnProperty(K::COLUMN_PADDING_DIRECTION);
-				if ($type->has(K::TYPE_PROPERTY_PADDING_DIRECTION))
+				if ($type->has(K::TYPE_PADDING_DIRECTION))
 				{
 					$paddingScore++;
 
-					$td = $type->get(K::TYPE_PROPERTY_PADDING_DIRECTION);
+					$td = $type->get(K::TYPE_PADDING_DIRECTION);
 					if ($cd == $tc)
 						$paddingScore++;
 
 					if ($column->hasColumnProperty(K::COLUMN_PADDING_GLYPH))
 					{
-						if ($type->has(K::TYPE_PROPERTY_PADDING_GLYPH))
+						if ($type->has(K::TYPE_PADDING_GLYPH))
 						{
 							if ($column->getColumnProperty(K::COLUMN_PADDING_GLYPH) ==
-								$type->get(K::TYPE_PROPERTY_PADDING_GLYPH))
+								$type->get(K::TYPE_PADDING_GLYPH))
 								$paddingScore++;
 							else
 								$paddingScore--;
@@ -138,7 +138,7 @@ class TypeHelper
 			}
 			else
 			{
-				if ($type->has(K::TYPE_PROPERTY_PADDING_DIRECTION))
+				if ($type->has(K::TYPE_PADDING_DIRECTION))
 					$paddingScore--;
 			}
 
@@ -148,13 +148,13 @@ class TypeHelper
 			if ($column->hasColumnProperty(K::COLUMN_MEDIA_TYPE))
 			{
 				$columnMediaType = $column->getColumnProperty(K::COLUMN_MEDIA_TYPE);
-				if (!$type->has(K::TYPE_PROPERTY_MEDIA_TYPE))
+				if (!$type->has(K::TYPE_MEDIA_TYPE))
 				{
 					$scores[$typeKey] = -1000;
 					continue;
 				}
 
-				$typeMediaType = $type->get(K::TYPE_PROPERTY_MEDIA_TYPE);
+				$typeMediaType = $type->get(K::TYPE_MEDIA_TYPE);
 
 				if (TypeConversion::toString($columnMediaType) ==
 					TypeConversion::toString($typeMediaType))
@@ -177,7 +177,7 @@ class TypeHelper
 					continue;
 				}
 			}
-			elseif ($type->has(K::TYPE_PROPERTY_MEDIA_TYPE))
+			elseif ($type->has(K::TYPE_MEDIA_TYPE))
 			{
 				$scores[$typeKey] = -1000;
 				continue;
@@ -257,19 +257,19 @@ class TypeHelper
 
 	public static function getMaxLength(TypeInterface $type)
 	{
-		if ($type->has(K::TYPE_PROPERTY_MAX_LENGTH))
-			return $type->get(K::TYPE_PROPERTY_MAX_LENGTH);
+		if ($type->has(K::TYPE_MAX_LENGTH))
+			return $type->get(K::TYPE_MAX_LENGTH);
 
-		if ($type->has(K::TYPE_PROPERTY_DATA_TYPE))
+		if ($type->has(K::TYPE_DATA_TYPE))
 		{
-			$dataType = $type->get(K::TYPE_PROPERTY_DATA_TYPE);
+			$dataType = $type->get(K::TYPE_DATA_TYPE);
 			if ($dataType & K::DATATYPE_NUMBER)
 				return self::getIntegerTypeMaxLength(
-					Container::keyValue($type, K::TYPE_PROPERTY_SIZE, 0));
+					Container::keyValue($type, K::TYPE_SIZE, 0));
 			elseif ($dataType == K::DATATYPE_STRING)
 			{
-				if ($type->has(K::TYPE_PROPERTY_SIZE))
-					return intval($type->get(K::TYPE_PROPERTY_SIZE) / 8);
+				if ($type->has(K::TYPE_SIZE))
+					return intval($type->get(K::TYPE_SIZE) / 8);
 			}
 		}
 
@@ -310,8 +310,8 @@ class TypeHelper
 		{
 			self::$typeDefaultProperties = new \ArrayObject(
 				[
-					K::TYPE_PROPERTY_DATA_TYPE => K::DATATYPE_STRING,
-					K::TYPE_PROPERTY_FLAGS => K::TYPE_FLAG_NULL | K::TYPE_FLAG_DEFAULT_VALUE
+					K::TYPE_DATA_TYPE => K::DATATYPE_STRING,
+					K::TYPE_FLAGS => K::TYPE_FLAG_NULL | K::TYPE_FLAG_DEFAULT_VALUE
 				]);
 		}
 

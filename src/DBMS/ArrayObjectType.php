@@ -25,7 +25,7 @@ class ArrayObjectType implements TypeInterface, ArrayRepresentation
 			$this->typeProperties = $properties;
 		elseif (\is_string($properties))
 			$this->typeProperties = new \ArrayObject([
-				K::TYPE_PROPERTY_NAME => $properties
+				K::TYPE_NAME => $properties
 			]);
 		else
 			$this->typeProperties = new \ArrayObject($properties);
@@ -43,7 +43,7 @@ class ArrayObjectType implements TypeInterface, ArrayRepresentation
 
 	public function getTypeName()
 	{
-		return $this->typeProperties->offsetGet(K::TYPE_PROPERTY_NAME);
+		return $this->typeProperties->offsetGet(K::TYPE_NAME);
 	}
 
 	public function has($id)

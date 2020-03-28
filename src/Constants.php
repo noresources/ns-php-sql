@@ -286,14 +286,14 @@ class Constants
 	 *
 	 * @var integer
 	 */
-	const TYPE_PROPERTY_DATA_TYPE = self::COLUMN_DATA_TYPE;
+	const TYPE_DATA_TYPE = self::COLUMN_DATA_TYPE;
 
 	/**
 	 * DBMS type name
 	 *
 	 * @var string
 	 */
-	const TYPE_PROPERTY_NAME = 'typename';
+	const TYPE_NAME = 'typename';
 
 	/**
 	 * DBMS type data size in bits.
@@ -301,7 +301,7 @@ class Constants
 	 *
 	 * @var string
 	 */
-	const TYPE_PROPERTY_SIZE = 'typesize';
+	const TYPE_SIZE = 'typesize';
 
 	/**
 	 * Type property flags
@@ -309,7 +309,7 @@ class Constants
 	 *
 	 * @var string
 	 */
-	const TYPE_PROPERTY_FLAGS = 'typeflags';
+	const TYPE_FLAGS = 'typeflags';
 
 	const TYPE_FLAG_DEFAULT_VALUE = 0x01;
 
@@ -344,7 +344,7 @@ class Constants
 	 *
 	 * @var string
 	 */
-	const TYPE_PROPERTY_MAX_LENGTH = 'maxlength';
+	const TYPE_MAX_LENGTH = 'maxlength';
 
 	/**
 	 * Media Type
@@ -353,7 +353,7 @@ class Constants
 	 *
 	 * @var string
 	 */
-	const TYPE_PROPERTY_MEDIA_TYPE = self::COLUMN_MEDIA_TYPE;
+	const TYPE_MEDIA_TYPE = self::COLUMN_MEDIA_TYPE;
 
 	/**
 	 * Value padding
@@ -368,7 +368,7 @@ class Constants
 	 *
 	 * @var string
 	 */
-	const TYPE_PROPERTY_PADDING_DIRECTION = self::COLUMN_PADDING_DIRECTION;
+	const TYPE_PADDING_DIRECTION = self::COLUMN_PADDING_DIRECTION;
 
 	const TYPE_PADDING_DIRECTION_LEFT = -1;
 
@@ -380,7 +380,7 @@ class Constants
 	 *
 	 * @var string
 	 */
-	const TYPE_PROPERTY_PADDING_GLYPH = self::COLUMN_PADDING_GLYPH;
+	const TYPE_PADDING_GLYPH = self::COLUMN_PADDING_GLYPH;
 
 	// JOIN operator
 	const JOIN_NATURAL = 0x01;

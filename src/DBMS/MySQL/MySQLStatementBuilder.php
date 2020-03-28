@@ -113,7 +113,7 @@ class MySQLStatementBuilder extends StatementBuilder
 						 * @var TypeInterface $type
 						 */
 
-						if ((TypeHelper::getProperty($type, K::TYPE_PROPERTY_FLAGS) &
+						if ((TypeHelper::getProperty($type, K::TYPE_FLAGS) &
 						K::TYPE_FLAG_LENGTH) == K::TYPE_FLAG_LENGTH)
 						{
 							$maxLength = TypeHelper::getMaxLength($type);
@@ -151,7 +151,7 @@ class MySQLStatementBuilder extends StatementBuilder
 					$type = new ArrayObjectType(
 						\array_merge($type->getArrayCopy(),
 							[
-								K::TYPE_PROPERTY_MAX_LENGTH => $keyMaxLength
+								K::TYPE_MAX_LENGTH => $keyMaxLength
 							]));
 				}
 			}

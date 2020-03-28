@@ -38,12 +38,12 @@ class BasicType implements TypeInterface
 
 	public function has($id)
 	{
-		return ($id == K::TYPE_PROPERTY_NAME);
+		return ($id == K::TYPE_NAME);
 	}
 
 	public function get($id)
 	{
-		if ($id == self::TYPE_PROPERTY_NAME)
+		if ($id == self::TYPE_NAME)
 			return $this->typeName;
 
 		throw new TypePropertyNotFoundException($this, $id);

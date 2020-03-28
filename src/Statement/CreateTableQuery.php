@@ -127,7 +127,7 @@ class CreateTableQuery extends Statement
 				->space()
 				->identifier($typeName);
 
-			$typeFlags = TypeHelper::getProperty($type, K::TYPE_PROPERTY_FLAGS);
+			$typeFlags = TypeHelper::getProperty($type, K::TYPE_FLAGS);
 
 			$lengthSupport = (($typeFlags & K::TYPE_FLAG_LENGTH) == K::TYPE_FLAG_LENGTH);
 
