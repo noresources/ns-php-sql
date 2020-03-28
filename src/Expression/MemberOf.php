@@ -21,7 +21,7 @@ class MemberOf extends Set implements TokenizableExpression, ExpressionReturnTyp
 	/**
 	 * Indicate if the left operand should be a member of the set or not
 	 *
-	 * @var unknown
+	 * @var boolean
 	 */
 	public $memberOf;
 

@@ -207,7 +207,7 @@ class Constants
 	/**
 	 * Column accepts NULL as a valid value
 	 *
-	 * @var unknown
+	 * @var integer
 	 */
 	const COLUMN_FLAG_NULLABLE = 0x01;
 
@@ -217,7 +217,7 @@ class Constants
 	 * For integer column only. On most DBMS, this property is also only available for primary key column
 	 * and should appear only once per table.
 	 *
-	 * @var unknown
+	 * @var integer
 	 */
 	const COLUMN_FLAG_AUTO_INCREMENT = 0x02;
 
@@ -226,7 +226,7 @@ class Constants
 	 *
 	 * For numberic column only.
 	 *
-	 * @var unknown
+	 * @var integer
 	 */
 	const COLUMN_FLAG_UNSIGNED = 0x04;
 
@@ -314,14 +314,14 @@ class Constants
 	/**
 	 * Type accepts default values
 	 *
-	 * @var unknown
+	 * @var integer
 	 */
 	const TYPE_FLAG_DEFAULT_VALUE = 0x01;
 
 	/**
 	 * Type accepts NULL values
 	 *
-	 * @var unknown
+	 * @var integer
 	 */
 	const TYPE_FLAG_NULLABLE = 0x02;
 
@@ -336,7 +336,7 @@ class Constants
 	 * Indicates if the DBMS type supports fraction scale specification
 	 * Implies TYPE_FLAG_LENGTH
 	 *
-	 * @var unknown
+	 * @var integer
 	 */
 	const TYPE_FLAG_FRACTION_SCALE = 0x0c;
 
@@ -627,6 +627,13 @@ class Constants
 	 */
 	const METAFUNCTION_TIMESTAMP_FORMAT = 'timestampformat';
 
+	/**
+	 *
+	 * @param integer $dataType
+	 *        	Data type identifier
+	 *
+	 * @return string A string representation of the data type
+	 */
 	public static function dataTypeName($dataType)
 	{
 		static $names = [

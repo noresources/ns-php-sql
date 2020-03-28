@@ -47,7 +47,7 @@ class Group implements TokenizableExpression, ExpressionReturnType
 
 	/**
 	 *
-	 * @return unknown
+	 * @return string
 	 */
 	public function getClosingText()
 	{

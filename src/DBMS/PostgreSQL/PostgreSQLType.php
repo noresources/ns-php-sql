@@ -29,7 +29,7 @@ class PostgreSQLType
 
 	/**
 	 *
-	 * @param unknown $oid
+	 * @param integer $oid
 	 * @return mixed|array|\ArrayAccess|\Psr\Container\ContainerInterface|\Traversable
 	 */
 	public static function oidToDataType($oid)
@@ -147,8 +147,7 @@ class PostgreSQLType
 			$filtered = \array_filter($matchingTypes,
 				function ($type) {
 					$typeFlags = TypeHelper::getProperty($type, K::TYPE_FLAGS);
-					return ((($typeFlags & K::TYPE_FLAG_LENGTH) == 0) &&
-					!$type->has(K::TYPE_SIZE));
+					return ((($typeFlags & K::TYPE_FLAG_LENGTH) == 0) && !$type->has(K::TYPE_SIZE));
 				});
 
 			$c = \count($filtered);

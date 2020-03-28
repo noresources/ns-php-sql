@@ -12,7 +12,8 @@ namespace NoreSources\SQL\Expression;
 use NoreSources\Expression as xpr;
 use NoreSources\SQL\Constants as K;
 
-class BinaryOperation extends xpr\BinaryOperation implements TokenizableExpression, ExpressionReturnType
+class BinaryOperation extends xpr\BinaryOperation implements TokenizableExpression,
+	ExpressionReturnType
 {
 
 	const EQUAL = '=';
@@ -21,7 +22,8 @@ class BinaryOperation extends xpr\BinaryOperation implements TokenizableExpressi
 
 	/**
 	 *
-	 * @param unknown $operator
+	 * @param string $operator
+	 *        	Operator text
 	 * @param TokenizableExpression $left
 	 * @param TokenizableExpression $right
 	 */

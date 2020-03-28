@@ -54,7 +54,7 @@ abstract class Statement implements X\TokenizableExpression
 	 * Attempt to guess statement type from statement data
 	 *
 	 * @param mixed $data
-	 * @return string|unknown|number
+	 * @return string|integer Statement type
 	 */
 	public static function statementTypeFromData($data)
 	{

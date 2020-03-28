@@ -18,7 +18,8 @@ interface DataSerializer
 	 * Serialize a value to be stored in a DBMS storage system
 	 *
 	 * @param ColumnPropertyMap $column
-	 * @param unknown $data
+	 * @param mixed $data
+	 *        	Data to serialize
 	 */
 	function serializeColumnData(ColumnPropertyMap $column, $data);
 }

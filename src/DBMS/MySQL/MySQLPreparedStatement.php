@@ -23,7 +23,7 @@ class MySQLPreparedStatement extends PreparedStatement
 	/**
 	 *
 	 * @param \mysqli_stmt $statement
-	 * @param unknown $data
+	 * @param string|\NoreSources\SQL\Statement\OutputData $data
 	 * @throws \Exception
 	 */
 	public function __construct(\mysqli_stmt $statement, $data = null)
