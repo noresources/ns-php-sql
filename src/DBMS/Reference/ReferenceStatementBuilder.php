@@ -66,8 +66,8 @@ class ReferenceStatementBuilder extends StatementBuilder
 	public function getColumnType(ColumnStructure $column)
 	{
 		$dataType = K::DATATYPE_UNDEFINED;
-		if ($column->hasColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE))
-			$dataType = $column->getColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE);
+		if ($column->hasColumnProperty(K::COLUMN_DATA_TYPE))
+			$dataType = $column->getColumnProperty(K::COLUMN_DATA_TYPE);
 
 		$typeName = 'TEXT';
 
@@ -106,13 +106,13 @@ class ReferenceStatementBuilder extends StatementBuilder
 		];
 
 		$typeFlags = 0;
-		if ($column->hasColumnProperty(K::COLUMN_PROPERTY_LENGTH))
+		if ($column->hasColumnProperty(K::COLUMN_LENGTH))
 			$typeFlags |= K::TYPE_FLAG_LENGTH;
-		if ($column->hasColumnProperty(K::COLUMN_PROPERTY_FRACTION_SCALE))
+		if ($column->hasColumnProperty(K::COLUMN_FRACTION_SCALE))
 			$typeFlags |= K::TYPE_FLAG_FRACTION_SCALE;
 
 		foreach ([
-			K::COLUMN_PROPERTY_MEDIA_TYPE
+			K::COLUMN_MEDIA_TYPE
 		] as $key)
 		{
 			if ($column->hasColumnProperty($key))

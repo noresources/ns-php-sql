@@ -195,14 +195,14 @@ class Constants
 	 * The type of Datasource column.
 	 * Value type: integer
 	 */
-	const COLUMN_PROPERTY_DATA_TYPE = 'datatype';
+	const COLUMN_DATA_TYPE = 'datatype';
 
 	/**
 	 * Column property flags
 	 *
 	 * @var string
 	 */
-	const COLUMN_PROPERTY_FLAGS = 'volumnflags';
+	const COLUMN_FLAGS = 'volumnflags';
 
 	/**
 	 * Column accepts NULL as a valid value
@@ -238,37 +238,37 @@ class Constants
 	 *
 	 * Value type: integer
 	 */
-	const COLUMN_PROPERTY_LENGTH = 'length';
+	const COLUMN_LENGTH = 'length';
 
 	/**
 	 * Maximum number of digit to represents the fractional part of a floating-point number
 	 *
 	 * Value type: integer
 	 */
-	const COLUMN_PROPERTY_FRACTION_SCALE = 'fractionscale';
+	const COLUMN_FRACTION_SCALE = 'fractionscale';
 
 	/**
 	 * List of valid values.
 	 * Value type: array
 	 */
-	const COLUMN_PROPERTY_ENUMERATION = 'enum';
+	const COLUMN_ENUMERATION = 'enum';
 
 	/**
 	 * Default value.
 	 * Value type: mixed
 	 */
-	const COLUMN_PROPERTY_DEFAULT_VALUE = 'default';
+	const COLUMN_DEFAULT_VALUE = 'default';
 
-	const COLUMN_PROPERTY_PADDING_DIRECTION = 'paddingdirection';
+	const COLUMN_PADDING_DIRECTION = 'paddingdirection';
 
-	const COLUMN_PROPERTY_PADDING_GLYPH = 'paddingglyph';
+	const COLUMN_PADDING_GLYPH = 'paddingglyph';
 
 	/**
 	 * Define a custom deta unserializer for a column
 	 *
 	 * @var string
 	 */
-	const COLUMN_PROPERTY_UNSERIALIZER = 'unserializer';
+	const COLUMN_UNSERIALIZER = 'unserializer';
 
 	/**
 	 * Column content media type as described in RFC 6838
@@ -277,7 +277,7 @@ class Constants
 	 *
 	 * @var string
 	 */
-	const COLUMN_PROPERTY_MEDIA_TYPE = 'mediatype';
+	const COLUMN_MEDIA_TYPE = 'mediatype';
 
 	/**
 	 * DBMS type data type affinity
@@ -286,7 +286,7 @@ class Constants
 	 *
 	 * @var integer
 	 */
-	const TYPE_PROPERTY_DATA_TYPE = self::COLUMN_PROPERTY_DATA_TYPE;
+	const TYPE_PROPERTY_DATA_TYPE = self::COLUMN_DATA_TYPE;
 
 	/**
 	 * DBMS type name
@@ -353,7 +353,7 @@ class Constants
 	 *
 	 * @var string
 	 */
-	const TYPE_PROPERTY_MEDIA_TYPE = self::COLUMN_PROPERTY_MEDIA_TYPE;
+	const TYPE_PROPERTY_MEDIA_TYPE = self::COLUMN_MEDIA_TYPE;
 
 	/**
 	 * Value padding
@@ -368,7 +368,7 @@ class Constants
 	 *
 	 * @var string
 	 */
-	const TYPE_PROPERTY_PADDING_DIRECTION = self::COLUMN_PROPERTY_PADDING_DIRECTION;
+	const TYPE_PROPERTY_PADDING_DIRECTION = self::COLUMN_PADDING_DIRECTION;
 
 	const TYPE_PADDING_DIRECTION_LEFT = -1;
 
@@ -380,7 +380,7 @@ class Constants
 	 *
 	 * @var string
 	 */
-	const TYPE_PROPERTY_PADDING_GLYPH = self::COLUMN_PROPERTY_PADDING_GLYPH;
+	const TYPE_PROPERTY_PADDING_GLYPH = self::COLUMN_PADDING_GLYPH;
 
 	// JOIN operator
 	const JOIN_NATURAL = 0x01;

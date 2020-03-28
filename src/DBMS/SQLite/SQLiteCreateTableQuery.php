@@ -71,7 +71,7 @@ class SQLiteCreateTableQuery extends CreateTableQuery
 			 * @var \NoreSources\SQL\Structure\ColumnStructure $column
 			 */
 
-			$columnFlags = $column->getColumnProperty(K::COLUMN_PROPERTY_FLAGS);
+			$columnFlags = $column->getColumnProperty(K::COLUMN_FLAGS);
 
 			$isPrimary = Container::keyExists($primaryKeyColumns, $name);
 
@@ -115,10 +115,10 @@ class SQLiteCreateTableQuery extends CreateTableQuery
 					->keyword('NULL');
 			}
 
-			if ($column->hasColumnProperty(K::COLUMN_PROPERTY_DEFAULT_VALUE))
+			if ($column->hasColumnProperty(K::COLUMN_DEFAULT_VALUE))
 			{
 				$v = Evaluator::evaluate(
-					$column->getColumnProperty(K::COLUMN_PROPERTY_DEFAULT_VALUE));
+					$column->getColumnProperty(K::COLUMN_DEFAULT_VALUE));
 				$stream->space()
 					->keyword('DEFAULT')
 					->space()

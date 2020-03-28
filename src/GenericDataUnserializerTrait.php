@@ -32,8 +32,8 @@ trait GenericDataUnserializerTrait
 	public function unserializeColumnData(ColumnPropertyMap $column, $data)
 	{
 		$type = K::DATATYPE_UNDEFINED;
-		if ($column->hasColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE))
-			$type = $column->getColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE);
+		if ($column->hasColumnProperty(K::COLUMN_DATA_TYPE))
+			$type = $column->getColumnProperty(K::COLUMN_DATA_TYPE);
 
 		if ($type == K::DATATYPE_BINARY)
 			$data = $this->unserializeBinaryColumnData($column, $data);
@@ -51,9 +51,9 @@ trait GenericDataUnserializerTrait
 		elseif ($type == K::DATATYPE_NULL)
 			$data = null;
 
-		if ($column->hasColumnProperty(K::COLUMN_PROPERTY_MEDIA_TYPE))
+		if ($column->hasColumnProperty(K::COLUMN_MEDIA_TYPE))
 		{
-			$mediaType = $column->getColumnProperty(K::COLUMN_PROPERTY_MEDIA_TYPE);
+			$mediaType = $column->getColumnProperty(K::COLUMN_MEDIA_TYPE);
 			if ($mediaType instanceof MediaType)
 			{
 				$data = $this->unserializeStructuredSyntaxColumnData($column, $mediaType, $data);

@@ -22,8 +22,8 @@ trait ColumnPropertyMapTrait
 	public function initializeColumnProperties($properties = array())
 	{
 		$this->columnProperties = [
-			K::COLUMN_PROPERTY_FLAGS => K::COLUMN_FLAGS_DEFAULT,
-			K::COLUMN_PROPERTY_DATA_TYPE => K::DATATYPE_STRING
+			K::COLUMN_FLAGS => K::COLUMN_FLAGS_DEFAULT,
+			K::COLUMN_DATA_TYPE => K::DATATYPE_STRING
 		];
 
 		if ($properties)
@@ -59,16 +59,16 @@ trait ColumnPropertyMapTrait
 
 		switch ($key)
 		{
-			case K::COLUMN_PROPERTY_LENGTH:
-			case K::COLUMN_PROPERTY_DATA_TYPE:
-			case K::COLUMN_PROPERTY_FRACTION_SCALE:
+			case K::COLUMN_LENGTH:
+			case K::COLUMN_DATA_TYPE:
+			case K::COLUMN_FRACTION_SCALE:
 				$value = TypeConversion::toInteger($value);
 			break;
-			case K::COLUMN_PROPERTY_MEDIA_TYPE:
+			case K::COLUMN_MEDIA_TYPE:
 				if (!($value instanceof MediaType))
 					$value = new MediaType($value);
 			break;
-			case K::COLUMN_PROPERTY_UNSERIALIZER:
+			case K::COLUMN_UNSERIALIZER:
 				if (!($value instanceof DataUnserializer))
 					throw new \InvalidArgumentException(
 						'Invalid value type ' . TypeDescription::getName($value) . ' for property ' .
@@ -110,11 +110,11 @@ class ColumnPropertyDefault
 
 		switch ($key)
 		{
-			case K::COLUMN_PROPERTY_UNSERIALIZER:
+			case K::COLUMN_UNSERIALIZER:
 				return ($value instanceof DataUnserializer);
-			case K::COLUMN_PROPERTY_DATA_TYPE:
-			case K::COLUMN_PROPERTY_LENGTH:
-			case K::COLUMN_PROPERTY_FRACTION_SCALE:
+			case K::COLUMN_DATA_TYPE:
+			case K::COLUMN_LENGTH:
+			case K::COLUMN_FRACTION_SCALE:
 				return is_int($value);
 		}
 
@@ -135,12 +135,12 @@ class ColumnPropertyDefault
 	private static function initialize()
 	{
 		self::$defaultValues = [
-			K::COLUMN_PROPERTY_FLAGS => K::COLUMN_FLAGS_DEFAULT,
-			K::COLUMN_PROPERTY_FRACTION_SCALE => 0,
-			K::COLUMN_PROPERTY_LENGTH => 0,
-			K::COLUMN_PROPERTY_DATA_TYPE => K::DATATYPE_STRING,
-			K::COLUMN_PROPERTY_ENUMERATION => null,
-			K::COLUMN_PROPERTY_DEFAULT_VALUE => null
+			K::COLUMN_FLAGS => K::COLUMN_FLAGS_DEFAULT,
+			K::COLUMN_FRACTION_SCALE => 0,
+			K::COLUMN_LENGTH => 0,
+			K::COLUMN_DATA_TYPE => K::DATATYPE_STRING,
+			K::COLUMN_ENUMERATION => null,
+			K::COLUMN_DEFAULT_VALUE => null
 		];
 	}
 

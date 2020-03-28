@@ -44,8 +44,8 @@ class ResultColumn implements ColumnPropertyMap
 	{
 		if ($member == 'dataType')
 		{
-			if ($this->hasColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE))
-				return $this->getColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE);
+			if ($this->hasColumnProperty(K::COLUMN_DATA_TYPE))
+				return $this->getColumnProperty(K::COLUMN_DATA_TYPE);
 			return K::DATATYPE_UNDEFINED;
 		}
 
@@ -64,7 +64,7 @@ class ResultColumn implements ColumnPropertyMap
 	{
 		if ($member == 'dataType')
 		{
-			$this->setColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE, $value);
+			$this->setColumnProperty(K::COLUMN_DATA_TYPE, $value);
 			return;
 		}
 

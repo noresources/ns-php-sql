@@ -105,7 +105,7 @@ class CreateTableQuery extends Statement
 			 * @var \NoreSources\SQL\Structure\ColumnStructure $column
 			 */
 
-			$columnFlags = $column->getColumnProperty(K::COLUMN_PROPERTY_FLAGS);
+			$columnFlags = $column->getColumnProperty(K::COLUMN_FLAGS);
 
 			if ($c++ > 0)
 				$stream->text(',')->space();
@@ -134,25 +134,25 @@ class CreateTableQuery extends Statement
 			$fractionScaleSupport = (($typeFlags & K::TYPE_FLAG_FRACTION_SCALE) ==
 				K::TYPE_FLAG_FRACTION_SCALE);
 
-			$hasLength = $column->hasColumnProperty(K::COLUMN_PROPERTY_LENGTH);
-			$hasFractionScale = $column->hasColumnProperty(K::COLUMN_PROPERTY_FRACTION_SCALE);
+			$hasLength = $column->hasColumnProperty(K::COLUMN_LENGTH);
+			$hasFractionScale = $column->hasColumnProperty(K::COLUMN_FRACTION_SCALE);
 
 			if ($hasLength && $lengthSupport)
 			{
-				$stream->text('(')->literal($column->getColumnProperty(K::COLUMN_PROPERTY_LENGTH));
+				$stream->text('(')->literal($column->getColumnProperty(K::COLUMN_LENGTH));
 
-				if ($column->hasColumnProperty(K::COLUMN_PROPERTY_FRACTION_SCALE) &&
+				if ($column->hasColumnProperty(K::COLUMN_FRACTION_SCALE) &&
 					$fractionScaleSupport)
 				{
 					$stream->text(', ')->literal(
-						$column->getColumnProperty(K::COLUMN_PROPERTY_FRACTION_SCALE));
+						$column->getColumnProperty(K::COLUMN_FRACTION_SCALE));
 				}
 
 				$stream->text(')');
 			}
 			elseif ($hasFractionScale && $fractionScaleSupport)
 			{
-				$scale = $column->getColumnProperty(K::COLUMN_PROPERTY_FRACTION_SCALE);
+				$scale = $column->getColumnProperty(K::COLUMN_FRACTION_SCALE);
 				$length = TypeHelper::getMaxLength($type);
 				if (\is_infinite($maxLength))
 				{
@@ -190,10 +190,10 @@ class CreateTableQuery extends Statement
 					->keyword('NULL');
 			}
 
-			if ($column->hasColumnProperty(K::COLUMN_PROPERTY_DEFAULT_VALUE))
+			if ($column->hasColumnProperty(K::COLUMN_DEFAULT_VALUE))
 			{
 				$v = Evaluator::evaluate(
-					$column->getColumnProperty(K::COLUMN_PROPERTY_DEFAULT_VALUE));
+					$column->getColumnProperty(K::COLUMN_DEFAULT_VALUE));
 				$stream->space()
 					->keyword('DEFAULT')
 					->space()

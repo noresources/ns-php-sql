@@ -284,8 +284,8 @@ abstract class Recordset implements \Iterator, OutputData, QueryResult, ArrayRep
 				if ($this->flags & self::FETCH_UNSERIALIZE)
 				{
 					$u = $this;
-					if ($column->hasColumnProperty(K::COLUMN_PROPERTY_UNSERIALIZER))
-						$u = $column->getColumnProperty(K::COLUMN_PROPERTY_UNSERIALIZER);
+					if ($column->hasColumnProperty(K::COLUMN_UNSERIALIZER))
+						$u = $column->getColumnProperty(K::COLUMN_UNSERIALIZER);
 
 					$value = $u->unserializeColumnData($column, $value);
 				}

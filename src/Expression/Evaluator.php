@@ -60,7 +60,7 @@ class Evaluator
 	{
 		if ($type instanceof ColumnStructure)
 		{
-			$type = $type->getColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE);
+			$type = $type->getColumnProperty(K::COLUMN_DATA_TYPE);
 		}
 
 		return new Literal($value, $type);

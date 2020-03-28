@@ -62,7 +62,7 @@ class PostgreSQLType
 	 */
 	public static function columnPropertyToType(ColumnPropertyMap $column)
 	{
-		$columnFlags = $column->getColumnProperty(K::COLUMN_PROPERTY_FLAGS);
+		$columnFlags = $column->getColumnProperty(K::COLUMN_FLAGS);
 
 		if (!\is_array(self::$typePropertiesMap))
 			self::initialize();
@@ -73,8 +73,8 @@ class PostgreSQLType
 		}
 
 		$dataType = K::DATATYPE_UNDEFINED;
-		if ($column->hasColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE))
-			$dataType = $column->getColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE);
+		if ($column->hasColumnProperty(K::COLUMN_DATA_TYPE))
+			$dataType = $column->getColumnProperty(K::COLUMN_DATA_TYPE);
 
 		$matchingTypes = \array_filter(self::$typePropertiesMap,
 			function ($type) use ($dataType) {
@@ -93,9 +93,9 @@ class PostgreSQLType
 			return $type;
 		}
 
-		if ($column->hasColumnProperty(K::COLUMN_PROPERTY_LENGTH))
+		if ($column->hasColumnProperty(K::COLUMN_LENGTH))
 		{
-			$glyphCount = intval($column->getColumnProperty(K::COLUMN_PROPERTY_LENGTH));
+			$glyphCount = intval($column->getColumnProperty(K::COLUMN_LENGTH));
 			if ($dataType == K::DATATYPE_INTEGER)
 			{
 				// Prefer fixed precision types
@@ -164,10 +164,10 @@ class PostgreSQLType
 		{
 			$filtered = \array_filter($matchingTypes,
 				function ($type) use ($column) {
-					if ($column->hasColumnProperty(K::COLUMN_PROPERTY_MEDIA_TYPE))
+					if ($column->hasColumnProperty(K::COLUMN_MEDIA_TYPE))
 					{
 						if ($type->has(K::TYPE_PROPERTY_MEDIA_TYPE))
-							return (\strval($column->getProperty(K::COLUMN_PROPERTY_MEDIA_TYPE)) ==
+							return (\strval($column->getProperty(K::COLUMN_MEDIA_TYPE)) ==
 							\strval($type->get(K::TYPE_PROPERTY_MEDIA_TYPE)));
 						return false;
 					}

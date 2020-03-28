@@ -70,8 +70,8 @@ class PDOStatementBuilder extends StatementBuilder
 	public function getColumnType(ColumnStructure $column)
 	{
 		$dataType = K::DATATYPE_UNDEFINED;
-		if ($column->hasColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE))
-			$dataType = $column->getColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE);
+		if ($column->hasColumnProperty(K::COLUMN_DATA_TYPE))
+			$dataType = $column->getColumnProperty(K::COLUMN_DATA_TYPE);
 
 		$typeName = 'TEXT';
 

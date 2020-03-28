@@ -55,14 +55,14 @@ class MySQLRecordset extends Recordset implements \Countable, \SeekableIterator
 				$column->name = Container::keyValue($field, 'name',
 					Container::keyValue($field, 'orgname'));
 
-			if (!$column->hasColumnProperty(K::COLUMN_PROPERTY_FRACTION_SCALE) &&
+			if (!$column->hasColumnProperty(K::COLUMN_FRACTION_SCALE) &&
 				Container::keyExists($field, 'decimals'))
-				$column->setColumnProperty(K::COLUMN_PROPERTY_FRACTION_SCALE,
+				$column->setColumnProperty(K::COLUMN_FRACTION_SCALE,
 					intval($field->decimals));
 
-			if (!$column->hasColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE) &&
+			if (!$column->hasColumnProperty(K::COLUMN_DATA_TYPE) &&
 				Container::keyExists($field, 'type'))
-				$column->setColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE,
+				$column->setColumnProperty(K::COLUMN_DATA_TYPE,
 					MySQLStatementBuilder::dataTypeFromMysqlType($field->type));
 
 			if ($created)

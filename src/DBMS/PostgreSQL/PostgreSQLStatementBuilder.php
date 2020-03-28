@@ -99,7 +99,7 @@ class PostgreSQLStatementBuilder extends StatementBuilder
 
 	public function getColumnType(ColumnStructure $column)
 	{
-		$columnFlags = $column->getColumnProperty(K::COLUMN_PROPERTY_FLAGS);
+		$columnFlags = $column->getColumnProperty(K::COLUMN_FLAGS);
 
 		// Special case for auto-increment column
 		if ($columnFlags & K::COLUMN_FLAG_AUTO_INCREMENT)

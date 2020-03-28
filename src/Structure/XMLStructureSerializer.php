@@ -218,8 +218,8 @@ class XMLStructureSerializer extends StructureSerializer
 		$notNullNode = self::getSingleElementByTagName($this->schemaNamespaceURI, $node, 'notnull');
 		if ($notNullNode instanceof \DOMNode)
 		{
-			$flg = $structure->getColumnProperty(K::COLUMN_PROPERTY_FLAGS);
-			$structure->setColumnProperty(K::COLUMN_PROPERTY_FLAGS,
+			$flg = $structure->getColumnProperty(K::COLUMN_FLAGS);
+			$structure->setColumnProperty(K::COLUMN_FLAGS,
 				($flg & ~K::COLUMN_FLAG_ACCEPT_NULL));
 		}
 
@@ -296,19 +296,19 @@ class XMLStructureSerializer extends StructureSerializer
 			$type = K::DATATYPE_INTEGER;
 			if ($typeNode->hasAttribute('autoincrement'))
 			{
-				$flg = $structure->getColumnProperty(K::COLUMN_PROPERTY_FLAGS);
-				$structure->setColumnProperty(K::COLUMN_PROPERTY_FLAGS,
+				$flg = $structure->getColumnProperty(K::COLUMN_FLAGS);
+				$structure->setColumnProperty(K::COLUMN_FLAGS,
 					$flg | K::COLUMN_FLAG_AUTO_INCREMENT);
 			}
 			if ($typeNode->hasAttribute('length'))
 			{
-				$structure->setColumnProperty(K::COLUMN_PROPERTY_LENGTH,
+				$structure->setColumnProperty(K::COLUMN_LENGTH,
 					intval($typeNode->getAttribute('length')));
 			}
 			if ($typeNode->hasAttribute('decimals'))
 			{
 				$count = intval($typeNode->getAttribute('decimals'));
-				$structure->setColumnProperty(K::COLUMN_PROPERTY_FRACTION_SCALE, $count);
+				$structure->setColumnProperty(K::COLUMN_FRACTION_SCALE, $count);
 				if ($count > 0)
 				{
 					$type = K::DATATYPE_FLOAT;
@@ -317,7 +317,7 @@ class XMLStructureSerializer extends StructureSerializer
 		}
 
 		if ($type != K::DATATYPE_UNDEFINED)
-			$structure->setColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE, $type);
+			$structure->setColumnProperty(K::COLUMN_DATA_TYPE, $type);
 
 		$defaultNode = self::getSingleElementByTagName($this->schemaNamespaceURI, $node, 'default');
 		if ($defaultNode instanceof \DOMElement)
@@ -399,7 +399,7 @@ class XMLStructureSerializer extends StructureSerializer
 					$value = X::literal($value, $valueType);
 				}
 
-				$structure->setColumnProperty(K::COLUMN_PROPERTY_DEFAULT_VALUE, $value);
+				$structure->setColumnProperty(K::COLUMN_DEFAULT_VALUE, $value);
 
 				break;
 			} // for each default value type

@@ -109,8 +109,8 @@ class UpdateQuery extends Statement implements \ArrayAccess
 			if (!($value instanceof TokenizableExpression))
 			{
 				$type = K::DATATYPE_UNDEFINED;
-				if ($column->hasColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE))
-					$type = $column->getColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE);
+				if ($column->hasColumnProperty(K::COLUMN_DATA_TYPE))
+					$type = $column->getColumnProperty(K::COLUMN_DATA_TYPE);
 
 				$value = new Literal($value, $type);
 			}

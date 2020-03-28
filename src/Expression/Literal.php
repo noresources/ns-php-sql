@@ -103,7 +103,7 @@ class Literal implements TokenizableExpression, ExpressionReturnType
 		elseif (\is_integer($type))
 			$this->serializationTarget = new ArrayColumnPropertyMap(
 				[
-					K::COLUMN_PROPERTY_DATA_TYPE => $type
+					K::COLUMN_DATA_TYPE => $type
 				]);
 		else
 			throw new \InvalidArgumentException(
@@ -115,8 +115,8 @@ class Literal implements TokenizableExpression, ExpressionReturnType
 	{
 		if ($this->serializationTarget instanceof ColumnPropertyMap)
 		{
-			if ($this->serializationTarget->hasColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE))
-				return $this->serializationTarget->getColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE);
+			if ($this->serializationTarget->hasColumnProperty(K::COLUMN_DATA_TYPE))
+				return $this->serializationTarget->getColumnProperty(K::COLUMN_DATA_TYPE);
 		}
 
 		return Helper::getExpressionDataType($this->getValue());

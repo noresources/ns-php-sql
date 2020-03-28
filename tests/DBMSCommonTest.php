@@ -68,7 +68,7 @@ final class DBMSCommonTest extends TestCase
 				],
 				'binary' => [
 					'expected' => 'abc',
-					K::COLUMN_PROPERTY_DATA_TYPE => K::DATATYPE_BINARY
+					K::COLUMN_DATA_TYPE => K::DATATYPE_BINARY
 				],
 				'boolean' => [
 					'expected' => true
@@ -98,7 +98,7 @@ final class DBMSCommonTest extends TestCase
 				],
 				'binary' => [
 					'expected' => 'abc',
-					K::COLUMN_PROPERTY_DATA_TYPE => K::DATATYPE_BINARY
+					K::COLUMN_DATA_TYPE => K::DATATYPE_BINARY
 				],
 				'boolean' => [
 					'insert' => false,

@@ -26,7 +26,7 @@ class TypeHelper
 	public static function getMatchingTypes(ColumnStructure $column, $types)
 	{
 		$scores = [];
-		$columnFlags = $column->getColumnProperty(K::COLUMN_PROPERTY_FLAGS);
+		$columnFlags = $column->getColumnProperty(K::COLUMN_FLAGS);
 		foreach ($types as $typeKey => $type)
 		{
 			$scores[$typeKey] = 0;
@@ -35,9 +35,9 @@ class TypeHelper
 
 			// Data type
 			$dataTypeScore = 0;
-			if ($column->hasColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE))
+			if ($column->hasColumnProperty(K::COLUMN_DATA_TYPE))
 			{
-				$dataType = $column->getColumnProperty(K::COLUMN_PROPERTY_DATA_TYPE);
+				$dataType = $column->getColumnProperty(K::COLUMN_DATA_TYPE);
 				$typeDataType = self::getProperty($type, K::TYPE_PROPERTY_DATA_TYPE);
 
 				if ($typeDataType == $dataType) // Exact match
@@ -60,7 +60,7 @@ class TypeHelper
 
 			$scores[$typeKey] += ($dataTypeScore * self::SCORE_MULTIPLIER_DATA_TYPE);
 
-			if ($column->hasColumnProperty(K::COLUMN_PROPERTY_DEFAULT_VALUE))
+			if ($column->hasColumnProperty(K::COLUMN_DEFAULT_VALUE))
 			{
 				if (($typeFlags & K::TYPE_FLAG_DEFAULT_VALUE) == 0)
 				{
@@ -78,10 +78,10 @@ class TypeHelper
 				}
 			}
 
-			if ($column->hasColumnProperty(K::COLUMN_PROPERTY_LENGTH))
+			if ($column->hasColumnProperty(K::COLUMN_LENGTH))
 			{
 				$length = TypeConversion::toInteger(
-					$column->getColumnProperty(K::COLUMN_PROPERTY_LENGTH));
+					$column->getColumnProperty(K::COLUMN_LENGTH));
 
 				$typeLength = self::getMaxLength($type);
 				if ($typeLength > 0)
@@ -93,10 +93,10 @@ class TypeHelper
 					}
 				}
 
-				if ($column->hasColumnProperty(K::COLUMN_PROPERTY_FRACTION_SCALE))
+				if ($column->hasColumnProperty(K::COLUMN_FRACTION_SCALE))
 				{
 					$scale = TypeConversion::toInteger(
-						$column->getColumnProperty(K::COLUMN_PROPERTY_FRACTION_SCALE));
+						$column->getColumnProperty(K::COLUMN_FRACTION_SCALE));
 
 					if ($scale > 0)
 					{
@@ -110,9 +110,9 @@ class TypeHelper
 			} // length
 
 			$paddingScore = 0;
-			if ($column->hasColumnProperty(K::COLUMN_PROPERTY_PADDING_DIRECTION))
+			if ($column->hasColumnProperty(K::COLUMN_PADDING_DIRECTION))
 			{
-				$cd = $column->getColumnProperty(K::COLUMN_PROPERTY_PADDING_DIRECTION);
+				$cd = $column->getColumnProperty(K::COLUMN_PADDING_DIRECTION);
 				if ($type->has(K::TYPE_PROPERTY_PADDING_DIRECTION))
 				{
 					$paddingScore++;
@@ -121,11 +121,11 @@ class TypeHelper
 					if ($cd == $tc)
 						$paddingScore++;
 
-					if ($column->hasColumnProperty(K::COLUMN_PROPERTY_PADDING_GLYPH))
+					if ($column->hasColumnProperty(K::COLUMN_PADDING_GLYPH))
 					{
 						if ($type->has(K::TYPE_PROPERTY_PADDING_GLYPH))
 						{
-							if ($column->getColumnProperty(K::COLUMN_PROPERTY_PADDING_GLYPH) ==
+							if ($column->getColumnProperty(K::COLUMN_PADDING_GLYPH) ==
 								$type->get(K::TYPE_PROPERTY_PADDING_GLYPH))
 								$paddingScore++;
 							else
@@ -145,9 +145,9 @@ class TypeHelper
 			$scores[$typeKey] += $paddingScore * self::SCORE_MULTIPLIER_PADDING;
 
 			$mediaTypeScore = 0;
-			if ($column->hasColumnProperty(K::COLUMN_PROPERTY_MEDIA_TYPE))
+			if ($column->hasColumnProperty(K::COLUMN_MEDIA_TYPE))
 			{
-				$columnMediaType = $column->getColumnProperty(K::COLUMN_PROPERTY_MEDIA_TYPE);
+				$columnMediaType = $column->getColumnProperty(K::COLUMN_MEDIA_TYPE);
 				if (!$type->has(K::TYPE_PROPERTY_MEDIA_TYPE))
 				{
 					$scores[$typeKey] = -1000;
@@ -206,7 +206,7 @@ class TypeHelper
 				// Smallest first
 				$v = self::compareTypeLength($ta, $tb);
 
-				if (!$column->hasColumnProperty(K::COLUMN_PROPERTY_LENGTH))
+				if (!$column->hasColumnProperty(K::COLUMN_LENGTH))
 				{
 					// Larger first
 					$v = -$v;
