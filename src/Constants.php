@@ -209,7 +209,7 @@ class Constants
 	 *
 	 * @var unknown
 	 */
-	const COLUMN_FLAG_ACCEPT_NULL = 0x01;
+	const COLUMN_FLAG_NULLABLE = 0x01;
 
 	/**
 	 * Column is auto incremented.
@@ -230,7 +230,7 @@ class Constants
 	 */
 	const COLUMN_FLAG_UNSIGNED = 0x04;
 
-	const COLUMN_FLAGS_DEFAULT = self::COLUMN_FLAG_ACCEPT_NULL;
+	const COLUMN_FLAGS_DEFAULT = self::COLUMN_FLAG_NULLABLE;
 
 	/**
 	 * Maximum number of digits or characters
@@ -311,9 +311,19 @@ class Constants
 	 */
 	const TYPE_FLAGS = 'typeflags';
 
+	/**
+	 * Type accepts default values
+	 *
+	 * @var unknown
+	 */
 	const TYPE_FLAG_DEFAULT_VALUE = 0x01;
 
-	const TYPE_FLAG_NULL = 0x02;
+	/**
+	 * Type accepts NULL values
+	 *
+	 * @var unknown
+	 */
+	const TYPE_FLAG_NULLABLE = 0x02;
 
 	/**
 	 * Indicates if the DBMS type supports glyph count / length specification

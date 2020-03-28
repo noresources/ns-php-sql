@@ -69,9 +69,9 @@ class TypeHelper
 				}
 			}
 
-			if ($columnFlags & K::COLUMN_FLAG_ACCEPT_NULL)
+			if ($columnFlags & K::COLUMN_FLAG_NULLABLE)
 			{
-				if (($typeFlags & K::TYPE_FLAG_NULL) == 0)
+				if (($typeFlags & K::TYPE_FLAG_NULLABLE) == 0)
 				{
 					$scores[$typeKey] = -1000;
 					continue;
@@ -311,7 +311,7 @@ class TypeHelper
 			self::$typeDefaultProperties = new \ArrayObject(
 				[
 					K::TYPE_DATA_TYPE => K::DATATYPE_STRING,
-					K::TYPE_FLAGS => K::TYPE_FLAG_NULL | K::TYPE_FLAG_DEFAULT_VALUE
+					K::TYPE_FLAGS => K::TYPE_FLAG_NULLABLE | K::TYPE_FLAG_DEFAULT_VALUE
 				]);
 		}
 

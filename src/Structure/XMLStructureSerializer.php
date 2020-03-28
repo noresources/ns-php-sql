@@ -220,7 +220,7 @@ class XMLStructureSerializer extends StructureSerializer
 		{
 			$flg = $structure->getColumnProperty(K::COLUMN_FLAGS);
 			$structure->setColumnProperty(K::COLUMN_FLAGS,
-				($flg & ~K::COLUMN_FLAG_ACCEPT_NULL));
+				($flg & ~K::COLUMN_FLAG_NULLABLE));
 		}
 
 		$type = K::DATATYPE_UNDEFINED;

@@ -107,7 +107,7 @@ class SQLiteCreateTableQuery extends CreateTableQuery
 					->keyword($builder->getKeyword(K::KEYWORD_AUTOINCREMENT));
 			}
 
-			if (!($columnFlags & K::COLUMN_FLAG_ACCEPT_NULL))
+			if (!($columnFlags & K::COLUMN_FLAG_NULLABLE))
 			{
 				$stream->space()
 					->keyword('NOT')

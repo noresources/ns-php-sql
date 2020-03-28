@@ -182,7 +182,7 @@ class CreateTableQuery extends Statement
 					->text(')');
 			}
 
-			if (!($columnFlags & K::COLUMN_FLAG_ACCEPT_NULL))
+			if (!($columnFlags & K::COLUMN_FLAG_NULLABLE))
 			{
 				$stream->space()
 					->keyword('NOT')
