@@ -21,5 +21,5 @@ class PostgreSQLConstants extends Constants
 	 * @see https://www.postgresql.org/docs/10/libpq-connect.html#LIBPQ-PARAMKEYWORDS
 	 * @var string
 	 */
-	const CONNECTION_PARAMETER_PGSQL = 'pgsq-specific';
+	const CONNECTION_PGSQL = 'pgsq-specific';
 }

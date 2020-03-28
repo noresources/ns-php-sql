@@ -7,5 +7,5 @@ use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLConnection;
  */
 
 return [
-	K::CONNECTION_PARAMETER_TYPE => PostgreSQLConnection::class
+	K::CONNECTION_TYPE => PostgreSQLConnection::class
 ];

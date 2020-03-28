@@ -19,27 +19,27 @@ class MySQLConstants extends Constants
 	 *
 	 * Accepted values are
 	 * <ul>
-	 * <li>CONNECTION_PARAMETER_PROTOCOL_TCP</li>
-	 * <li>CONNECTION_PARAMETER_PROTOCOL_SOCKET</li>
-	 * <li>CONNECTION_PARAMETER_PROTOCOL_PIPE</li>
+	 * <li>CONNECTION_PROTOCOL_TCP</li>
+	 * <li>CONNECTION_PROTOCOL_SOCKET</li>
+	 * <li>CONNECTION_PROTOCOL_PIPE</li>
 	 * </ul>
 	 */
-	const CONNECTION_PARAMETER_PROTOCOL = 'mysqlprotocol';
+	const CONNECTION_PROTOCOL = 'mysqlprotocol';
 
 	/**
 	 * Use TCP to connect to server
 	 */
-	const CONNECTION_PARAMETER_PROTOCOL_TCP = 'mysqlprotocoltcp';
+	const CONNECTION_PROTOCOL_TCP = 'mysqlprotocoltcp';
 
 	/**
 	 * Use socket to connect to server
 	 */
-	const CONNECTION_PARAMETER_PROTOCOL_SOCKET = 'mysqlprotocolsocket';
+	const CONNECTION_PROTOCOL_SOCKET = 'mysqlprotocolsocket';
 
 	/**
 	 * Use pipe to connect to server
 	 */
-	const CONNECTION_PARAMETER_PROTOCOL_PIPE = 'mysqlprotocolpipe';
+	const CONNECTION_PROTOCOL_PIPE = 'mysqlprotocolpipe';
 
 	/**
 	 * The maximum size of a key column (in bytes)

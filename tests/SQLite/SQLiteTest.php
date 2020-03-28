@@ -308,11 +308,11 @@ final class SQLiteTest extends \PHPUnit\Framework\TestCase
 
 		$this->connection = ConnectionHelper::createConnection(
 			[
-				DBMS\SQLite\SQLiteConstants::CONNECTION_PARAMETER_CREATE => true,
-				DBMS\SQLite\SQLiteConstants::CONNECTION_PARAMETER_SOURCE => [
+				DBMS\SQLite\SQLiteConstants::CONNECTION_CREATE => true,
+				DBMS\SQLite\SQLiteConstants::CONNECTION_SOURCE => [
 					'ns_unittests' => $sqliteFile
 				],
-				DBMS\SQLite\SQLiteConstants::CONNECTION_PARAMETER_TYPE => DBMS\SQLite\SQLiteConnection::class
+				DBMS\SQLite\SQLiteConstants::CONNECTION_TYPE => DBMS\SQLite\SQLiteConnection::class
 			]);
 
 		$this->assertInstanceOf(DBMS\SQLite\SQLiteConnection::class, $this->connection,

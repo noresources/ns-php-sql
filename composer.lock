@@ -51,7 +51,7 @@
             "source": {
                 "type": "git",
                 "url": "ssh://okami/volume1/repository/git/ns-php-core.git",
-                "reference": "d98d53d4e9fc3c7ecfbc7bad3c108a7bf68e79c9"
+                "reference": "25b5c05eb5e9cbc0625d38aede47edfb9306a069"
             },
             "require": {
                 "ext-json": "*",
@@ -102,7 +102,7 @@
             "support": {
                 "issues": "https://github.com/noresources/ns-php-core/issues"
             },
-            "time": "2020-02-23T20:57:32+00:00"
+            "time": "2020-03-14T17:15:55+00:00"
         },
         {
             "name": "noresources/ns-php-expression",
@@ -263,12 +263,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-fig/log.git",
-                "reference": "e1cb6eca27ccfd46567a2837eeba62bc5fecdee2"
+                "reference": "0f73288fd15629204f9d42b7055f72dacbe811fc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-fig/log/zipball/e1cb6eca27ccfd46567a2837eeba62bc5fecdee2",
-                "reference": "e1cb6eca27ccfd46567a2837eeba62bc5fecdee2",
+                "url": "https://api.github.com/repos/php-fig/log/zipball/0f73288fd15629204f9d42b7055f72dacbe811fc",
+                "reference": "0f73288fd15629204f9d42b7055f72dacbe811fc",
                 "shasum": ""
             },
             "require": {
@@ -302,7 +302,7 @@
                 "psr",
                 "psr-3"
             ],
-            "time": "2020-02-28T08:38:25+00:00"
+            "time": "2020-03-23T09:12:05+00:00"
         }
     ],
     "packages-dev": [
@@ -1041,12 +1041,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "35b4c697008ca08168c2e91b975e1fc40879690e"
+                "reference": "fb668be523b1975b0fb9ee22afbfa8f5acdb840e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/35b4c697008ca08168c2e91b975e1fc40879690e",
-                "reference": "35b4c697008ca08168c2e91b975e1fc40879690e",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/fb668be523b1975b0fb9ee22afbfa8f5acdb840e",
+                "reference": "fb668be523b1975b0fb9ee22afbfa8f5acdb840e",
                 "shasum": ""
             },
             "require": {
@@ -1116,7 +1116,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2020-03-20T06:58:40+00:00"
+            "time": "2020-03-25T06:16:24+00:00"
         },
         {
             "name": "sebastian/code-unit-reverse-lookup",

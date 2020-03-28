@@ -33,10 +33,10 @@ class ConnectionHelper
 	{
 		if (!Container::isArray($settings))
 			$settings = [
-				K::CONNECTION_PARAMETER_TYPE => $settings
+				K::CONNECTION_TYPE => $settings
 			];
 
-		$type = Container::keyValue($settings, K::CONNECTION_PARAMETER_TYPE, 'Reference');
+		$type = Container::keyValue($settings, K::CONNECTION_TYPE, 'Reference');
 		$connection = null;
 		$className = null;
 

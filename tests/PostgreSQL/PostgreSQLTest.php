@@ -112,7 +112,7 @@ final class PostgreSQLTest extends \PHPUnit\Framework\TestCase
 			return $this->connection;
 
 		$settings = [
-			K::CONNECTION_PARAMETER_TYPE => \NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLConnection::class
+			K::CONNECTION_TYPE => \NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLConnection::class
 		];
 		$settingsFile = __DIR__ . '/../settings/' . basename(__DIR__) . '.php';
 		if (\file_exists($settingsFile))

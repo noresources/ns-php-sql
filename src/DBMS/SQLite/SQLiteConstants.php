@@ -19,16 +19,16 @@ class SQLiteConstants extends Constants
 	 *
 	 * @var string
 	 */
-	const CONNECTION_PARAMETER_ENCRYPTION_KEY = 'encryptionkey';
+	const CONNECTION_ENCRYPTION_KEY = 'encryptionkey';
 
 	/**
 	 * An associative array of SQLite pragma and their values
 	 *
-	 * @seeconst CONNECTION_PARAMETER_ENCRYPTION_KEY = 'encryptionkey';
+	 * @seeconst CONNECTION_ENCRYPTION_KEY = 'encryptionkey';
 	 *
 	 * @var string
 	 */
-	const CONNECTION_PARAMETER_SQLITE_PRAGMAS = 'pragmas';
+	const CONNECTION_SQLITE_PRAGMAS = 'pragmas';
 
 	/**
 	 * ROLLBACK conflict class

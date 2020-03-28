@@ -115,35 +115,35 @@ class Constants
 	 * @var string DBMS Connection class name or
 	 *      one of the types registered using ConnectionHelper::registerConnectionClass()
 	 */
-	const CONNECTION_PARAMETER_TYPE = 'type';
+	const CONNECTION_TYPE = 'type';
 
 	/**
 	 * DBMS hostname, IP address or databalse file(s) path
 	 *
 	 * @var string
 	 */
-	const CONNECTION_PARAMETER_SOURCE = 'source';
+	const CONNECTION_SOURCE = 'source';
 
 	/**
 	 * DBMS network port
 	 *
 	 * @var string
 	 */
-	const CONNECTION_PARAMETER_PORT = 'port';
+	const CONNECTION_PORT = 'port';
 
 	/**
 	 * Account login
 	 *
 	 * @var string
 	 */
-	const CONNECTION_PARAMETER_USER = 'user';
+	const CONNECTION_USER = 'user';
 
 	/**
 	 * Account password
 	 *
 	 * @var string
 	 */
-	const CONNECTION_PARAMETER_PASSWORD = 'password';
+	const CONNECTION_PASSWORD = 'password';
 
 	/**
 	 * DBMS database.
@@ -151,7 +151,7 @@ class Constants
 	 *
 	 * @var string
 	 */
-	const CONNECTION_PARAMETER_DATABASE = 'database';
+	const CONNECTION_DATABASE = 'database';
 
 	/**
 	 * Use persistent connection if available.
@@ -160,28 +160,28 @@ class Constants
 	 *
 	 * @var string
 	 */
-	const CONNECTION_PARAMETER_PERSISTENT = 'persistent';
+	const CONNECTION_PERSISTENT = 'persistent';
 
 	/**
 	 * Create Database if it does not exists yer
 	 *
 	 * @var string
 	 */
-	const CONNECTION_PARAMETER_CREATE = 'create';
+	const CONNECTION_CREATE = 'create';
 
 	/**
 	 * Read-only access to database
 	 *
 	 * @var string
 	 */
-	const CONNECTION_PARAMETER_READONLY = 'readonly';
+	const CONNECTION_READONLY = 'readonly';
 
 	/**
 	 * StructureElement or file path of a strcture description
 	 *
 	 * @var string
 	 */
-	const CONNECTION_PARAMETER_STRUCTURE = 'structure';
+	const CONNECTION_STRUCTURE = 'structure';
 
 	/**
 	 * DBMS version.
@@ -189,7 +189,7 @@ class Constants
 	 *
 	 * @var string
 	 */
-	const CONNECTION_PARAMETER_VERSION = 'version';
+	const CONNECTION_VERSION = 'version';
 
 	/**
 	 * The type of Datasource column.

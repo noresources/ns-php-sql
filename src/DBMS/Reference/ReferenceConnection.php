@@ -43,8 +43,8 @@ class ReferenceConnection implements Connection, StatementFactoryInterface
 
 	public function connect($parameters)
 	{
-		if (Container::keyExists($parameters, K::CONNECTION_PARAMETER_STRUCTURE))
-			$this->setStructure($structure)[K::CONNECTION_PARAMETER_STRUCTURE];
+		if (Container::keyExists($parameters, K::CONNECTION_STRUCTURE))
+			$this->setStructure($structure)[K::CONNECTION_STRUCTURE];
 	}
 
 	public function isConnected()

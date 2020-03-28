@@ -11,7 +11,7 @@ use NoreSources\Test\DerivedFileManager;
 
 // Globals
 $sqliteConnectionParameters = [
-	K::CONNECTION_PARAMETER_SOURCE => [
+	K::CONNECTION_SOURCE => [
 		'sqlite',
 		realpath(__DIR__ . '/../data/Company.sqlite')
 	]
@@ -94,7 +94,7 @@ final class PDOTest extends \PHPUnit\Framework\TestCase
 	public function testSQLiteCreateInsertUpdateDelete()
 	{
 		$settings = [
-			K::CONNECTION_PARAMETER_SOURCE => [
+			K::CONNECTION_SOURCE => [
 				'sqlite',
 				':memory:'
 			]

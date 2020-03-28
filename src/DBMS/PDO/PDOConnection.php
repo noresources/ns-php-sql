@@ -89,10 +89,10 @@ class PDOConnection implements Connection
 	 * @param array $parameters
 	 *        	Parameters array. Supported parameters are
 	 *        	<ul>
-	 *        	<li>CONNECTION_PARAMETER_SOURCE</li>
-	 *        	<li>CONNECTION_PARAMETER_USER</li>
-	 *        	<li>CONNECTION_PARAMETER_PASSWORD</li>
-	 *        	<li>CONNECTION_PARAMETER_OPTIONS</li>
+	 *        	<li>CONNECTION_SOURCE</li>
+	 *        	<li>CONNECTION_USER</li>
+	 *        	<li>CONNECTION_PASSWORD</li>
+	 *        	<li>CONNECTION_OPTIONS</li>
 	 *        	</ul>
 	 *
 	 */
@@ -101,10 +101,10 @@ class PDOConnection implements Connection
 		if ($this->connection instanceof \PDO)
 			$this->connection->close();
 
-		$dsn = Container::keyValue($parameters, K::CONNECTION_PARAMETER_SOURCE, null);
-		$user = Container::keyValue($parameters, K::CONNECTION_PARAMETER_USER, null);
-		$password = Container::keyValue($parameters, K::CONNECTION_PARAMETER_PASSWORD, null);
-		$options = Container::keyValue($parameters, K::CONNECTION_PARAMETER_OPTIONS, null);
+		$dsn = Container::keyValue($parameters, K::CONNECTION_SOURCE, null);
+		$user = Container::keyValue($parameters, K::CONNECTION_USER, null);
+		$password = Container::keyValue($parameters, K::CONNECTION_PASSWORD, null);
+		$options = Container::keyValue($parameters, K::CONNECTION_OPTIONS, null);
 
 		if (Container::isArray($dsn))
 		{
@@ -126,8 +126,8 @@ class PDOConnection implements Connection
 			throw new ConnectionException($this, $e->getMessage(), $e->getCode());
 		}
 
-		if (Container::keyExists($parameters, K::CONNECTION_PARAMETER_STRUCTURE))
-			$this->setStructure($structure)[K::CONNECTION_PARAMETER_STRUCTURE];
+		if (Container::keyExists($parameters, K::CONNECTION_STRUCTURE))
+			$this->setStructure($structure)[K::CONNECTION_STRUCTURE];
 		;
 	}
 

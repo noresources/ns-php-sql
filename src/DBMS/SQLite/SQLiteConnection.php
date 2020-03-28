@@ -107,7 +107,7 @@ class SQLiteConnection implements Connection
 	 * @param \ArrayAccess $parameters
 	 *        	SQLiteConnection parameters. Accepted keys are
 	 *        	<ul>
-	 *        	<li>CONNECTION_PARAMETER_SOURCE (string|array):
+	 *        	<li>CONNECTION_SOURCE (string|array):
 	 *        	<ul>
 	 *        	<li>If unspecified, use a in-memory storage</li>
 	 *        	<li>If the parameter value is a string, the database will be loaded as the "main" database</li>
@@ -115,11 +115,11 @@ class SQLiteConnection implements Connection
 	 *        	the values represents the database
 	 *        	file name. If the key is not a string, the base file name is used as tableet name</li>
 	 *        	</ul>
-	 *        	<li>CONNECTION_PARAMETER_DATABASE (string): Overrides the tableset name if CONNECTION_PARAMETER_SOURCE value is a
+	 *        	<li>CONNECTION_DATABASE (string): Overrides the tableset name if CONNECTION_SOURCE value is a
 	 *        	string</li>
-	 *        	<li>CONNECTION_PARAMETER_CREATE (bool): Create database file if it does not exists</li>
-	 *        	<li>CONNECTION_PARAMETER_READONLY (bool): Indicates the database is read only</li>
-	 *        	<li>CONNECTION_PARAMETER_ENCRYPTION_KEY (string): Database encryption key</li>
+	 *        	<li>CONNECTION_CREATE (bool): Create database file if it does not exists</li>
+	 *        	<li>CONNECTION_READONLY (bool): Indicates the database is read only</li>
+	 *        	<li>CONNECTION_ENCRYPTION_KEY (string): Database encryption key</li>
 	 *        	</ul>
 	 */
 	public function connect($parameters)
@@ -129,22 +129,22 @@ class SQLiteConnection implements Connection
 
 		$this->connection = null;
 
-		$pragmas = Container::keyValue($parameters, K::CONNECTION_PARAMETER_SQLITE_PRAGMAS,
+		$pragmas = Container::keyValue($parameters, K::CONNECTION_SQLITE_PRAGMAS,
 			[
 				'foreign_keys' => 1,
 				'busy_timeout' => 5000
 			]);
 
-		$defaultTablesetName = Container::keyValue($parameters, K::CONNECTION_PARAMETER_DATABASE,
+		$defaultTablesetName = Container::keyValue($parameters, K::CONNECTION_DATABASE,
 			self::TABLESET_NAME_DEFAULT);
 
-		$sources = Container::keyValue($parameters, K::CONNECTION_PARAMETER_SOURCE,
+		$sources = Container::keyValue($parameters, K::CONNECTION_SOURCE,
 			[
 				$defaultTablesetName => self::SOURCE_MEMORY
 			]);
 
 		$flags = 0;
-		if (Container::keyValue($parameters, K::CONNECTION_PARAMETER_READONLY, false))
+		if (Container::keyValue($parameters, K::CONNECTION_READONLY, false))
 		{
 			$flags |= \SQLITE3_OPEN_READONLY;
 		}
@@ -153,7 +153,7 @@ class SQLiteConnection implements Connection
 			$flags |= \SQLITE3_OPEN_READWRITE;
 		}
 
-		if (Container::keyValue($parameters, K::CONNECTION_PARAMETER_CREATE, false))
+		if (Container::keyValue($parameters, K::CONNECTION_CREATE, false))
 		{
 			if ($flags & \SQLITE3_OPEN_READONLY)
 			{
@@ -193,7 +193,7 @@ class SQLiteConnection implements Connection
 			}
 			else
 			{
-				$key = Container::keyValue($parameters, K::CONNECTION_PARAMETER_ENCRYPTION_KEY, null);
+				$key = Container::keyValue($parameters, K::CONNECTION_ENCRYPTION_KEY, null);
 				if ($name == self::TABLESET_NAME_DEFAULT)
 				{
 					$this->connection = new \SQLite3($source, $flags, $key);
@@ -220,8 +220,8 @@ class SQLiteConnection implements Connection
 				throw new SQLiteConnectionException($this, 'Failed to set ' . $pragma . ' pragma');
 		}
 
-		if (Container::keyExists($parameters, K::CONNECTION_PARAMETER_STRUCTURE))
-			$this->setStructure($structure)[K::CONNECTION_PARAMETER_STRUCTURE];
+		if (Container::keyExists($parameters, K::CONNECTION_STRUCTURE))
+			$this->setStructure($structure)[K::CONNECTION_STRUCTURE];
 	}
 
 	public function isConnected()

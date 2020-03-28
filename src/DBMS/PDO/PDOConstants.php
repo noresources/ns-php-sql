@@ -19,5 +19,5 @@ class PDOConstants extends Constants
 	 *
 	 * @var string
 	 */
-	const CONNECTION_PARAMETER_OPTIONS = 'pdo.options';
+	const CONNECTION_OPTIONS = 'pdo.options';
 }

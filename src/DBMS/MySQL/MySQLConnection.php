@@ -78,21 +78,21 @@ class MySQLConnection implements Connection
 		if ($this->isConnected())
 			$this->disconnect();
 
-		$persistent = Container::keyValue($parameters, K::CONNECTION_PARAMETER_PERSISTENT, false);
-		$protocol = Container::keyValue($parameters, K::CONNECTION_PARAMETER_PROTOCOL,
-			K::CONNECTION_PARAMETER_PROTOCOL_TCP);
+		$persistent = Container::keyValue($parameters, K::CONNECTION_PERSISTENT, false);
+		$protocol = Container::keyValue($parameters, K::CONNECTION_PROTOCOL,
+			K::CONNECTION_PROTOCOL_TCP);
 
-		if ($protocol == K::CONNECTION_PARAMETER_PROTOCOL_TCP)
+		if ($protocol == K::CONNECTION_PROTOCOL_TCP)
 		{
-			$host = Container::keyValue($parameters, K::CONNECTION_PARAMETER_SOURCE,
+			$host = Container::keyValue($parameters, K::CONNECTION_SOURCE,
 				ini_get('mysqli.default_host'));
-			$port = Container::keyValue($parameters, K::CONNECTION_PARAMETER_PORT,
+			$port = Container::keyValue($parameters, K::CONNECTION_PORT,
 				ini_get('mysqli.default_port'));
-			$user = Container::keyValue($parameters, K::CONNECTION_PARAMETER_USER,
+			$user = Container::keyValue($parameters, K::CONNECTION_USER,
 				ini_get('mysqli.default_user'));
-			$password = Container::keyValue($parameters, K::CONNECTION_PARAMETER_PASSWORD,
+			$password = Container::keyValue($parameters, K::CONNECTION_PASSWORD,
 				ini_get('mysqli.default_pw'));
-			$database = Container::keyValue($parameters, K::CONNECTION_PARAMETER_DATABASE, '');
+			$database = Container::keyValue($parameters, K::CONNECTION_DATABASE, '');
 
 			if ($persistent && (substr($host, 0, 2) != 'p:'))
 				$host = 'p:' . $host;
@@ -101,7 +101,7 @@ class MySQLConnection implements Connection
 		}
 		else // Socket or pipe
 		{
-			$path = Container::keyValue($parameters, K::CONNECTION_PARAMETER_SOURCE,
+			$path = Container::keyValue($parameters, K::CONNECTION_SOURCE,
 				ini_get("mysqli.default_socket"));
 			if ($persistent && (substr($path, 0, 2) != 'p:'))
 				$path = 'p:' . $path;

@@ -74,17 +74,17 @@ class PostgreSQLConnection implements Connection
 		if (\is_resource($this->resource))
 			$this->disconnect();
 
-		if (Container::keyExists($parameters, K::CONNECTION_PARAMETER_VERSION))
+		if (Container::keyExists($parameters, K::CONNECTION_VERSION))
 			$this->versions[self::VERSION_EXPECTED] = new SemanticVersion(
-				Container::keyValue($parameters, K::CONNECTION_PARAMETER_VERSION));
+				Container::keyValue($parameters, K::CONNECTION_VERSION));
 
 		$dsn = [];
 		foreach ([
-			K::CONNECTION_PARAMETER_SOURCE => 'host',
-			K::CONNECTION_PARAMETER_PORT => 'port',
-			K::CONNECTION_PARAMETER_DATABASE => 'dbname',
-			K::CONNECTION_PARAMETER_USER => 'user',
-			K::CONNECTION_PARAMETER_PASSWORD => 'password'
+			K::CONNECTION_SOURCE => 'host',
+			K::CONNECTION_PORT => 'port',
+			K::CONNECTION_DATABASE => 'dbname',
+			K::CONNECTION_USER => 'user',
+			K::CONNECTION_PASSWORD => 'password'
 		] as $key => $name)
 		{
 			if (Container::keyExists($parameters, $key))
@@ -95,9 +95,9 @@ class PostgreSQLConnection implements Connection
 			return $k . " = '" . $v . "'";
 		});
 
-		if (Container::keyExists($parameters, K::CONNECTION_PARAMETER_PGSQL))
+		if (Container::keyExists($parameters, K::CONNECTION_PGSQL))
 		{
-			$value = Container::keyValue($parameters, K::CONNECTION_PARAMETER_PGSQL, $key);
+			$value = Container::keyValue($parameters, K::CONNECTION_PGSQL, $key);
 			if (\is_string($value))
 				$dsn .= ' ' . $value;
 			elseif (Container::isTraversable($value))
@@ -110,7 +110,7 @@ class PostgreSQLConnection implements Connection
 			}
 		}
 
-		$connectionFunction = Container::keyValue($parameters, K::CONNECTION_PARAMETER_PERSISTENT,
+		$connectionFunction = Container::keyValue($parameters, K::CONNECTION_PERSISTENT,
 			false) ? '\pg_pconnect' : '\pg_connect';
 
 		$this->resource = @call_user_func($connectionFunction, $dsn);

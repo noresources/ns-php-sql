@@ -7,9 +7,9 @@ use NoreSources\SQL\DBMS\SQLite\SQLiteConnection;
  */
 
 return [
-	K::CONNECTION_PARAMETER_TYPE => SQLiteConnection::class,
-	K::CONNECTION_PARAMETER_SOURCE => [
+	K::CONNECTION_TYPE => SQLiteConnection::class,
+	K::CONNECTION_SOURCE => [
 		'ns_unittests' => __DIR__ . '/../derived/sqlite_test_database.sqlite'
 	],
-	K::CONNECTION_PARAMETER_CREATE => true
+	K::CONNECTION_CREATE => true
 ];
