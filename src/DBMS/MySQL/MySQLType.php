@@ -36,49 +36,49 @@ class MySQLType
 					K::TYPE_SIZE => 8,
 					K::TYPE_DATA_TYPE => K::DATATYPE_INTEGER,
 					K::TYPE_FLAGS => (K::TYPE_FLAG_LENGTH | K::TYPE_FLAG_NULLABLE |
-					K::TYPE_FLAG_DEFAULT_VALUE)
+					K::TYPE_FLAG_DEFAULT_VALUE | K::TYPE_FLAG_SIGNNESS)
 				],
 				'smallint' => [
 					K::TYPE_SIZE => 16,
 					K::TYPE_DATA_TYPE => K::DATATYPE_INTEGER,
 					K::TYPE_FLAGS => (K::TYPE_FLAG_LENGTH | K::TYPE_FLAG_NULLABLE |
-					K::TYPE_FLAG_DEFAULT_VALUE)
+					K::TYPE_FLAG_DEFAULT_VALUE | K::TYPE_FLAG_SIGNNESS)
 				],
 				'mediumint' => [
 					K::TYPE_SIZE => 24,
 					K::TYPE_DATA_TYPE => K::DATATYPE_INTEGER,
 					K::TYPE_FLAGS => (K::TYPE_FLAG_LENGTH | K::TYPE_FLAG_NULLABLE |
-					K::TYPE_FLAG_DEFAULT_VALUE)
+					K::TYPE_FLAG_DEFAULT_VALUE | K::TYPE_FLAG_SIGNNESS)
 				],
 				'int' => [
 					K::TYPE_SIZE => 32,
 					K::TYPE_DATA_TYPE => K::DATATYPE_INTEGER,
 					K::TYPE_FLAGS => (K::TYPE_FLAG_LENGTH | K::TYPE_FLAG_NULLABLE |
-					K::TYPE_FLAG_DEFAULT_VALUE)
+					K::TYPE_FLAG_DEFAULT_VALUE | K::TYPE_FLAG_SIGNNESS)
 				],
 				'bigint' => [
 					K::TYPE_SIZE => 64,
 					K::TYPE_DATA_TYPE => K::DATATYPE_INTEGER,
 					K::TYPE_FLAGS => (K::TYPE_FLAG_LENGTH | K::TYPE_FLAG_NULLABLE |
-					K::TYPE_FLAG_DEFAULT_VALUE)
+					K::TYPE_FLAG_DEFAULT_VALUE | K::TYPE_FLAG_SIGNNESS)
 				],
 				'decimal' => [
 					K::TYPE_DATA_TYPE => K::DATATYPE_FLOAT,
 					K::TYPE_MAX_LENGTH => 30,
 					K::TYPE_FLAGS => (K::TYPE_FLAG_LENGTH | K::TYPE_FLAG_FRACTION_SCALE |
-					K::TYPE_FLAG_DEFAULT_VALUE | K::TYPE_FLAG_NULLABLE)
+					K::TYPE_FLAG_DEFAULT_VALUE | K::TYPE_FLAG_NULLABLE | K::TYPE_FLAG_SIGNNESS)
 				],
 				'float' => [
 					K::TYPE_SIZE => 32, // not sure about that
 					K::TYPE_DATA_TYPE => K::DATATYPE_FLOAT,
 					K::TYPE_FLAGS => (K::TYPE_FLAG_LENGTH | K::TYPE_FLAG_FRACTION_SCALE |
-					K::TYPE_FLAG_DEFAULT_VALUE | K::TYPE_FLAG_NULLABLE)
+					K::TYPE_FLAG_DEFAULT_VALUE | K::TYPE_FLAG_NULLABLE | K::TYPE_FLAG_SIGNNESS)
 				],
 				'double' => [
 					K::TYPE_SIZE => 64, // not sure about that
 					K::TYPE_DATA_TYPE => K::DATATYPE_FLOAT,
 					K::TYPE_FLAGS => (K::TYPE_FLAG_LENGTH | K::TYPE_FLAG_FRACTION_SCALE |
-					K::TYPE_FLAG_DEFAULT_VALUE | K::TYPE_FLAG_NULLABLE)
+					K::TYPE_FLAG_DEFAULT_VALUE | K::TYPE_FLAG_NULLABLE | K::TYPE_FLAG_SIGNNESS)
 				],
 				// Alias of tinyint (1)
 				'boolean' => [
@@ -222,10 +222,9 @@ class MySQLType
 			foreach ($table as $alias)
 			{
 				self::$typesMap[$alias] = new ArrayObjectType(
-					\array_merge(self::$typesMap[$name]->getArrayCopy(),
-						[
-							K::TYPE_NAME => $alias
-						]));
+					\array_merge(self::$typesMap[$name]->getArrayCopy(), [
+						K::TYPE_NAME => $alias
+					]));
 			}
 		}
 

@@ -141,8 +141,7 @@ class CreateTableQuery extends Statement
 			{
 				$stream->text('(')->literal($column->getColumnProperty(K::COLUMN_LENGTH));
 
-				if ($column->hasColumnProperty(K::COLUMN_FRACTION_SCALE) &&
-					$fractionScaleSupport)
+				if ($column->hasColumnProperty(K::COLUMN_FRACTION_SCALE) && $fractionScaleSupport)
 				{
 					$stream->text(', ')->literal(
 						$column->getColumnProperty(K::COLUMN_FRACTION_SCALE));
@@ -182,6 +181,9 @@ class CreateTableQuery extends Statement
 					->text(')');
 			}
 
+			if (($typeFlags & K::TYPE_FLAG_SIGNNESS) && ($columnFlags & K::COLUMN_FLAG_UNSIGNED))
+				$stream->space()->keyword('unsigned');
+
 			if (!($columnFlags & K::COLUMN_FLAG_NULLABLE))
 			{
 				$stream->space()
@@ -192,8 +194,7 @@ class CreateTableQuery extends Statement
 
 			if ($column->hasColumnProperty(K::COLUMN_DEFAULT_VALUE))
 			{
-				$v = Evaluator::evaluate(
-					$column->getColumnProperty(K::COLUMN_DEFAULT_VALUE));
+				$v = Evaluator::evaluate($column->getColumnProperty(K::COLUMN_DEFAULT_VALUE));
 				$stream->space()
 					->keyword('DEFAULT')
 					->space()

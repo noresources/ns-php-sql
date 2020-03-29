@@ -222,9 +222,7 @@ class Constants
 	const COLUMN_FLAG_AUTO_INCREMENT = 0x02;
 
 	/**
-	 * Column value is unsigned.
-	 *
-	 * For numberic column only.
+	 * Numeric value is always positive
 	 *
 	 * @var integer
 	 */
@@ -347,6 +345,13 @@ class Constants
 	 * @var number
 	 */
 	const TYPE_FLAG_MANDATORY_LENGTH = 0x10;
+
+	/**
+	 * Type accepts signness specification (SIGNED / UNSIGNED)
+	 *
+	 * @var integer
+	 */
+	const TYPE_FLAG_SIGNNESS = 0x20;
 
 	/**
 	 * Maximum glyph count / length.
