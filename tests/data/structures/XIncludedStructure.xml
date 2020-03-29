@@ -3,10 +3,9 @@
 	<database name="ns_unittests">
 		<table name="XIncluded">
 			<column name="xid">
-				<datatype>
+				<datatype nullable="no">
 					<numeric autoincrement="yes" />
 				</datatype>
-				<notnull />
 			</column>
 			<field name="xidName">
 				<datatype>

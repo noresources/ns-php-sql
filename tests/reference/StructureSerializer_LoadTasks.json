@@ -31,7 +31,7 @@
                             "default": {}
                         },
                         "small_int": {
-                            "volumnflags": 1,
+                            "volumnflags": 5,
                             "datatype": 4,
                             "length": 3
                         },

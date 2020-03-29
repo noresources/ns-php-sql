@@ -83,9 +83,9 @@ class XMLStructureSerializer extends StructureSerializer
 				$this->schemaNamespaceURI = $node->nodeValue;
 
 				$validDocument = true;
-				$version = trim(trim(substr($node->nodeValue, strlen(K::XML_NAMESPACE_BASEURI))),
+				$version = trim(trim(substr($node->nodeValue, \strlen(K::XML_NAMESPACE_BASEURI))),
 					'/');
-				if (strlen($version) == 0)
+				if (\strlen($version) == 0)
 					$version = '1.0.0';
 				$this->schemaVersion = new SemanticVersion($version);
 			}
@@ -215,12 +215,15 @@ class XMLStructureSerializer extends StructureSerializer
 		if ($node->hasAttribute('id'))
 			$this->identifiedElements->offsetSet($node->getAttribute('id'), $structure);
 
-		$notNullNode = self::getSingleElementByTagName($this->schemaNamespaceURI, $node, 'notnull');
-		if ($notNullNode instanceof \DOMNode)
+		if ($this->schemaVersion->getIntegerValue() < 20000)
 		{
-			$flg = $structure->getColumnProperty(K::COLUMN_FLAGS);
-			$structure->setColumnProperty(K::COLUMN_FLAGS,
-				($flg & ~K::COLUMN_FLAG_NULLABLE));
+			$notNullNode = self::getSingleElementByTagName($this->schemaNamespaceURI, $node,
+				'notnull');
+			if ($notNullNode instanceof \DOMNode)
+			{
+				$flg = $structure->getColumnProperty(K::COLUMN_FLAGS);
+				$structure->setColumnProperty(K::COLUMN_FLAGS, ($flg & ~K::COLUMN_FLAG_NULLABLE));
+			}
 		}
 
 		$type = K::DATATYPE_UNDEFINED;
@@ -229,6 +232,16 @@ class XMLStructureSerializer extends StructureSerializer
 		$dataTypeNode = self::getSingleElementByTagName($this->schemaNamespaceURI, $node, 'datatype');
 		if ($dataTypeNode instanceof \DOMElement)
 		{
+			if ($dataTypeNode->hasAttribute('nullable'))
+			{
+				$nullable = $dataTypeNode->getAttribute('nullable');
+				$flg = $structure->getColumnProperty(K::COLUMN_FLAGS);
+				if ($nullable == 'yes')
+					$structure->setColumnProperty(K::COLUMN_FLAGS, ($flg | K::COLUMN_FLAG_NULLABLE));
+				else
+					$structure->setColumnProperty(K::COLUMN_FLAGS, ($flg & ~K::COLUMN_FLAG_NULLABLE));
+			}
+
 			$a = [
 				'binary' => K::DATATYPE_BINARY,
 				'boolean' => K::DATATYPE_BOOLEAN,
@@ -293,21 +306,30 @@ class XMLStructureSerializer extends StructureSerializer
 		}
 		elseif ($type & K::DATATYPE_NUMBER)
 		{
+			$scaleAttribute = ($this->schemaVersion->getIntegerValue() < 20000) ? 'decimals' : 'scale';
 			$type = K::DATATYPE_INTEGER;
+			if ($typeNode->hasAttribute('signed'))
+			{
+				$flg = $structure->getColumnProperty(K::COLUMN_FLAGS);
+				$signed = $typeNode->getAttribute('signed');
+				if ($signed == 'yes')
+					$structure->setColumnProperty(K::COLUMN_FLAGS, $flg & ~K::COLUMN_FLAG_UNSIGNED);
+				else
+					$structure->setColumnProperty(K::COLUMN_FLAGS, $flg | K::COLUMN_FLAG_UNSIGNED);
+			}
 			if ($typeNode->hasAttribute('autoincrement'))
 			{
 				$flg = $structure->getColumnProperty(K::COLUMN_FLAGS);
-				$structure->setColumnProperty(K::COLUMN_FLAGS,
-					$flg | K::COLUMN_FLAG_AUTO_INCREMENT);
+				$structure->setColumnProperty(K::COLUMN_FLAGS, $flg | K::COLUMN_FLAG_AUTO_INCREMENT);
 			}
 			if ($typeNode->hasAttribute('length'))
 			{
 				$structure->setColumnProperty(K::COLUMN_LENGTH,
 					intval($typeNode->getAttribute('length')));
 			}
-			if ($typeNode->hasAttribute('decimals'))
+			if ($typeNode->hasAttribute($scaleAttribute))
 			{
-				$count = intval($typeNode->getAttribute('decimals'));
+				$count = intval($typeNode->getAttribute($scaleAttribute));
 				$structure->setColumnProperty(K::COLUMN_FRACTION_SCALE, $count);
 				if ($count > 0)
 				{
@@ -363,7 +385,7 @@ class XMLStructureSerializer extends StructureSerializer
 					case 'now':
 					case 'datetime':
 						$valueType = K::DATATYPE_TIMESTAMP; // deprecated
-						if (strlen($value))
+						if (\strlen($value))
 							$value = \DateTime::createFromFormat(\DateTime::ISO8601, $value);
 						else
 							$value = new Keyword(K::KEYWORD_CURRENT_TIMESTAMP);

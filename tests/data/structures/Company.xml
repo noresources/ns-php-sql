@@ -4,10 +4,9 @@
 		<sql:table name="Employees" id="nsut.tables.Employees">
 			<sql:comment>Company employees</sql:comment>
 			<sql:column name="id">
-				<sql:datatype>
+				<sql:datatype nullable="no">
 					<sql:numeric />
 				</sql:datatype>
-				<sql:notnull />
 			</sql:column>
 			<sql:column name="name">
 				<sql:datatype>
@@ -26,7 +25,7 @@
 			</sql:column>
 			<sql:column name="salary">
 				<sql:datatype>
-					<sql:numeric length="7" decimals="2" />
+					<sql:numeric length="7" scale="2" />
 				</sql:datatype>
 			</sql:column>
 			<sql:primarykey name="pk_id">
@@ -41,16 +40,14 @@
 
 		<sql:table name="Hierarchy">
 			<sql:column name="managerId">
-				<sql:datatype>
+				<sql:datatype nullable="no">
 					<sql:numeric />
 				</sql:datatype>
-				<sql:notnull />
 			</sql:column>
 			<sql:column name="manageeId">
-				<sql:datatype>
+				<sql:datatype nullable="no">
 					<sql:numeric />
 				</sql:datatype>
-				<sql:notnull />
 			</sql:column>
 
 			<sql:primarykey>

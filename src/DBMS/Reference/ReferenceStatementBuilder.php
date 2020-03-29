@@ -70,6 +70,7 @@ class ReferenceStatementBuilder extends StatementBuilder
 			$dataType = $column->getColumnProperty(K::COLUMN_DATA_TYPE);
 
 		$typeName = 'TEXT';
+		$columnFlags = $column->getColumnProperty(K::COLUMN_FLAGS);
 
 		switch ($dataType)
 		{
@@ -110,6 +111,8 @@ class ReferenceStatementBuilder extends StatementBuilder
 			$typeFlags |= K::TYPE_FLAG_LENGTH;
 		if ($column->hasColumnProperty(K::COLUMN_FRACTION_SCALE))
 			$typeFlags |= K::TYPE_FLAG_FRACTION_SCALE;
+		if ($columnFlags & K::COLUMN_FLAG_UNSIGNED)
+			$typeFlags = K::TYPE_FLAG_SIGNNESS;
 
 		foreach ([
 			K::COLUMN_MEDIA_TYPE

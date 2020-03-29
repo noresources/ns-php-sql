@@ -37,12 +37,12 @@
 			<sql:column name="small_int">
 				<sql:comment>A quite small int with size spec.</sql:comment>
 				<sql:datatype>
-					<sql:numeric length="3"  />
+					<sql:numeric length="3" signed="no"  />
 				</sql:datatype>
 			</sql:column>
 			<sql:column name="float">
 				<sql:datatype>
-					<sql:numeric decimals="2" />
+					<sql:numeric scale="2" />
 				</sql:datatype>
 				<sql:default>
 					<sql:number>1.23</sql:number>

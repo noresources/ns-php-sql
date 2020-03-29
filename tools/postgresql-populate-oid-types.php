@@ -31,108 +31,108 @@ EOF;
 $typePropertiesMap = [
 	// Range tool limited
 	// 'abstime' => [
-	// 		K::TYPE_PROPERTY_DATA_TYPE => 'K::DATATYPE_DATETIME'
+	// 		K::TYPE_DATA_TYPE => 'K::DATATYPE_DATETIME'
 	// ],
 	'boolean' => [
-		K::TYPE_PROPERTY_DATA_TYPE => 'K::DATATYPE_BOOLEAN'
+		K::TYPE_DATA_TYPE => 'K::DATATYPE_BOOLEAN'
 	],
 	'bigint' => [
-		K::TYPE_PROPERTY_DATA_TYPE => 'K::DATATYPE_INTEGER'
+		K::TYPE_DATA_TYPE => 'K::DATATYPE_INTEGER'
 	],
 	//  Require a strict glyph count property
 	// 'bit' => [
-	// 		K::TYPE_PROPERTY_DATA_TYPE => 'K::DATATYPE_STRING',
+	// 		K::TYPE_DATA_TYPE => 'K::DATATYPE_STRING',
 	// ],
 
 	/* @todo A way to make distinction with "text" */
 
 	// 'bit varying' => [
-	// 		K::TYPE_PROPERTY_DATA_TYPE => 'K::DATATYPE_STRING',
-	// 		K::TYPE_PROPERTY_FLAGS => K::TYPE_FLAG_FRACTION_SCALE
+	// 		K::TYPE_DATA_TYPE => 'K::DATATYPE_STRING',
+	// 		K::TYPE_FLAGS => K::TYPE_FLAG_FRACTION_SCALE
 	// ],
 	'bytea' => [
-		K::TYPE_PROPERTY_DATA_TYPE => 'K::DATATYPE_BINARY'
+		K::TYPE_DATA_TYPE => 'K::DATATYPE_BINARY'
 	],
 	'"char"' => [
-		K::TYPE_PROPERTY_DATA_TYPE => 'K::DATATYPE_STRING',
-		K::TYPE_PROPERTY_MAX_LENGTH => 1
+		K::TYPE_DATA_TYPE => 'K::DATATYPE_STRING',
+		K::TYPE_MAX_LENGTH => 1
 	],
 	// 'character' => [
-	// 	K::TYPE_PROPERTY_DATA_TYPE => 'K::DATATYPE_STRING',
-	// K::TYPE_PROPERTY_FLAGS => K::TYPE_FLAG_FRACTION_SCALE
-	// K::TYPE_PROPERTY_PADDING_DIRECTION => 1
+	// 	K::TYPE_DATA_TYPE => 'K::DATATYPE_STRING',
+	// K::TYPE_FLAGS => K::TYPE_FLAG_FRACTION_SCALE
+	// K::TYPE_PADDING_DIRECTION => 1
 	// ],
 	'character varying' => [
-		K::TYPE_PROPERTY_DATA_TYPE => 'K::DATATYPE_STRING',
-		K::TYPE_PROPERTY_FLAGS => TypeHelper::getDefaultTypeProperties()[K::TYPE_PROPERTY_FLAGS] |
+		K::TYPE_DATA_TYPE => 'K::DATATYPE_STRING',
+		K::TYPE_FLAGS => TypeHelper::getDefaultTypeProperties()[K::TYPE_FLAGS] |
 		K::TYPE_FLAG_FRACTION_SCALE
 	],
 	// 	'cstring' => [
-	// 		K::TYPE_PROPERTY_DATA_TYPE => 'K::DATATYPE_STRING'
+	// 		K::TYPE_DATA_TYPE => 'K::DATATYPE_STRING'
 	//
 	'date' => [
-		K::TYPE_PROPERTY_DATA_TYPE => 'K::DATATYPE_DATE'
+		K::TYPE_DATA_TYPE => 'K::DATATYPE_DATE'
 	],
 	'double precision' => [
-		K::TYPE_PROPERTY_DATA_TYPE => 'K::DATATYPE_FLOAT'
+		K::TYPE_DATA_TYPE => 'K::DATATYPE_FLOAT'
 	],
 
 	// This is an alias of int4
 	'integer' => [
-		K::TYPE_PROPERTY_DATA_TYPE => 'K::DATATYPE_INTEGER'
+		K::TYPE_DATA_TYPE => 'K::DATATYPE_INTEGER'
 	],
 	'json' => [
-		K::TYPE_PROPERTY_DATA_TYPE => 'K::DATATYPE_STRING',
-		K::TYPE_PROPERTY_MEDIA_TYPE => '\'application/json\''
+		K::TYPE_DATA_TYPE => 'K::DATATYPE_STRING',
+		K::TYPE_MEDIA_TYPE => '\'application/json\''
 	],
 	'jsonb' => [
-		K::TYPE_PROPERTY_DATA_TYPE => 'K::DATATYPE_BINARY',
-		K::TYPE_PROPERTY_MEDIA_TYPE => '\'application/json\''
+		K::TYPE_DATA_TYPE => 'K::DATATYPE_BINARY',
+		K::TYPE_MEDIA_TYPE => '\'application/json\''
 	],
 	// 'money' => [
-	// 	K::TYPE_PROPERTY_DATA_TYPE => 'K::DATATYPE_NUMBER',
-	// 	K::TYPE_PROPERTY_TEXT_PATTERN => 'TBD'
+	// 	K::TYPE_DATA_TYPE => 'K::DATATYPE_NUMBER',
+	// 	K::TYPE_TEXT_PATTERN => 'TBD'
 	// ],
 	'numeric' => [
-		K::TYPE_PROPERTY_DATA_TYPE => 'K::DATATYPE_NUMBER',
-		K::TYPE_PROPERTY_FLAGS => TypeHelper::getDefaultTypeProperties()[K::TYPE_PROPERTY_FLAGS] |
+		K::TYPE_DATA_TYPE => 'K::DATATYPE_NUMBER',
+		K::TYPE_FLAGS => TypeHelper::getDefaultTypeProperties()[K::TYPE_FLAGS] |
 		K::TYPE_FLAG_FRACTION_SCALE
 	],
 
 	//	'oid' => [
-	//		K::TYPE_PROPERTY_DATA_TYPE => 'K::DATATYPE_INTEGER'
+	//		K::TYPE_DATA_TYPE => 'K::DATATYPE_INTEGER'
 	//	],
 	'real' => [
-		K::TYPE_PROPERTY_DATA_TYPE => 'K::DATATYPE_FLOAT'
+		K::TYPE_DATA_TYPE => 'K::DATATYPE_FLOAT'
 	],
 	// Too specific
 	// 'reltime' => [
-	// 		K::TYPE_PROPERTY_DATA_TYPE => 'K::DATATYPE_DATETIME',
+	// 		K::TYPE_DATA_TYPE => 'K::DATATYPE_DATETIME',
 	// ],
 	'smallint' => [
-		K::TYPE_PROPERTY_DATA_TYPE => 'K::DATATYPE_INTEGER'
+		K::TYPE_DATA_TYPE => 'K::DATATYPE_INTEGER'
 	],
 	'text' => [
-		K::TYPE_PROPERTY_DATA_TYPE => 'K::DATATYPE_STRING'
+		K::TYPE_DATA_TYPE => 'K::DATATYPE_STRING'
 	],
 	'time without time zone' => [
-		K::TYPE_PROPERTY_DATA_TYPE => 'K::DATATYPE_TIME'
+		K::TYPE_DATA_TYPE => 'K::DATATYPE_TIME'
 	],
 	'timestamp without time zone' => [
-		K::TYPE_PROPERTY_DATA_TYPE => 'K::DATATYPE_DATETIME'
+		K::TYPE_DATA_TYPE => 'K::DATATYPE_DATETIME'
 	],
 	'timestamp with time zone' => [
-		K::TYPE_PROPERTY_DATA_TYPE => 'K::DATATYPE_TIMESTAMP'
+		K::TYPE_DATA_TYPE => 'K::DATATYPE_TIMESTAMP'
 	],
 	'time with time zone' => [
-		K::TYPE_PROPERTY_DATA_TYPE => 'K::DATATYPE_TIME | K::DATATYPE_TIMEZONE'
+		K::TYPE_DATA_TYPE => 'K::DATATYPE_TIME | K::DATATYPE_TIMEZONE'
 	],
 	// 'uuid' => [
-	// 	K::TYPE_PROPERTY_DATA_TYPE => 'K::DATATYPE_STRING'
+	// 	K::TYPE_DATA_TYPE => 'K::DATATYPE_STRING'
 	// ],
 	'xml' => [
-		K::TYPE_PROPERTY_DATA_TYPE => 'K::DATATYPE_STRING',
-		K::TYPE_PROPERTY_MEDIA_TYPE => '\'text/xml\''
+		K::TYPE_DATA_TYPE => 'K::DATATYPE_STRING',
+		K::TYPE_MEDIA_TYPE => '\'text/xml\''
 	]
 ];
 
@@ -158,8 +158,8 @@ while ($row = pg_fetch_assoc($result))
 	if (\array_key_exists($name, $typePropertiesMap))
 	{
 		if ($size > 0)
-			$typePropertiesMap[$name][K::TYPE_PROPERTY_SIZE] = $size;
-		$oidToDataType[$oid] = $typePropertiesMap[$name][K::COLUMN_PROPERTY_DATA_TYPE];
+			$typePropertiesMap[$name][K::TYPE_SIZE] = $size;
+		$oidToDataType[$oid] = $typePropertiesMap[$name][K::COLUMN_DATA_TYPE];
 	}
 }
 
@@ -175,7 +175,7 @@ $typePropertiesMapContent = Container::implode($typePropertiesMap, ',' . PHP_EOL
 		$s = '';
 		$s .= $oid . ' => new ArrayObjectType([ ' . PHP_EOL;
 		// name
-		$s .= "'" . K::TYPE_PROPERTY_NAME . "' => '" . $cleanName . "'," . PHP_EOL;
+		$s .= "'" . K::TYPE_NAME . "' => '" . $cleanName . "'," . PHP_EOL;
 		foreach ($properties as $k => $v)
 		{
 			$s .= "'" . $k . "' => " . $v . ', ' . PHP_EOL;
