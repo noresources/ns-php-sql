@@ -13,27 +13,6 @@ namespace NoreSources\SQL\Structure;
 use NoreSources\TypeDescription;
 use NoreSources\SQL\Statement\StatementBuilderInterface;
 
-class StructureException extends \Exception
-{
-
-	public function __construct($message, StructureElement $element = null)
-	{
-		parent::__construct($message);
-		$this->structure = $element;
-	}
-
-	public function getStructureElement()
-	{
-		return $this->structure();
-	}
-
-	/**
-	 *
-	 * @var StructureElement
-	 */
-	private $structure;
-}
-
 abstract class StructureElement implements \ArrayAccess, \IteratorAggregate, \Countable
 {
 
