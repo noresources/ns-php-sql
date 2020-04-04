@@ -86,7 +86,7 @@ class MySQLStatementBuilder extends StatementBuilder
 	public function getColumnType(ColumnStructure $column)
 	{
 		$types = MySQLType::getMySQLTypes();
-		$table = $column->parent();
+		$table = $column->getParent();
 		$isPrimaryKey = false;
 
 		if ($table instanceof TableStructure)
@@ -113,8 +113,8 @@ class MySQLStatementBuilder extends StatementBuilder
 						 * @var TypeInterface $type
 						 */
 
-						if ((TypeHelper::getProperty($type, K::TYPE_FLAGS) &
-						K::TYPE_FLAG_LENGTH) == K::TYPE_FLAG_LENGTH)
+						if ((TypeHelper::getProperty($type, K::TYPE_FLAGS) & K::TYPE_FLAG_LENGTH) ==
+						K::TYPE_FLAG_LENGTH)
 						{
 							$maxLength = TypeHelper::getMaxLength($type);
 							return !\is_infinite($maxLength);
@@ -149,10 +149,9 @@ class MySQLStatementBuilder extends StatementBuilder
 				if ($typeMaxLength > $keyMaxLength)
 				{
 					$type = new ArrayObjectType(
-						\array_merge($type->getArrayCopy(),
-							[
-								K::TYPE_MAX_LENGTH => $keyMaxLength
-							]));
+						\array_merge($type->getArrayCopy(), [
+							K::TYPE_MAX_LENGTH => $keyMaxLength
+						]));
 				}
 			}
 

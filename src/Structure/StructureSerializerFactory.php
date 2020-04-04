@@ -78,16 +78,14 @@ class StructureSerializerFactory
 		if (!\is_array(self::$mimeTypeClassMap))
 		{
 			self::$mimeTypeClassMap = [
-				'text/xml' => XMLStructureSerializer::class,
-				'application/json' => JSONStructureSerializer::class
+				'text/xml' => XMLStructureSerializer::class
 			];
 		}
 
 		if (!\is_array(self::$fileExtensionClassMap))
 		{
 			self::$fileExtensionClassMap = [
-				'xml' => XMLStructureSerializer::class,
-				'json' => JSONStructureSerializer::class
+				'xml' => XMLStructureSerializer::class
 			];
 		}
 	}

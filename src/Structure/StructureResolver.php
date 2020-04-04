@@ -150,7 +150,7 @@ class StructureResolver implements StructureResolverInterface
 		$datasource = $this->pivot;
 		while ($datasource && !($datasource instanceof DatasourceStructure))
 		{
-			$datasource = $datasource->parent();
+			$datasource = $datasource->getParent();
 		}
 
 		$tableset = ($datasource instanceof DatasourceStructure) ? $datasource->offsetGet($path) : null;
@@ -201,9 +201,9 @@ class StructureResolver implements StructureResolverInterface
 		elseif ($this->pivot instanceof TablesetStructure)
 			return $this->pivot;
 		elseif ($this->pivot instanceof TableStructure)
-			return $this->pivot->parent();
+			return $this->pivot->getParent();
 		elseif ($this->pivot instanceof ColumnStructure)
-			return $this->pivot->parent(2);
+			return $this->pivot->getParent(2);
 
 		throw new StructureResolverException('Default tableset');
 	}
@@ -212,7 +212,7 @@ class StructureResolver implements StructureResolverInterface
 	{
 		if ($this->pivot instanceof ColumnStructure)
 		{
-			return $this->pivot->parent();
+			return $this->pivot->getParent();
 		}
 		elseif ($this->pivot instanceof TableStructure)
 		{

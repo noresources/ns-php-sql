@@ -11,25 +11,25 @@ namespace NoreSources\SQL\Structure;
 
 class StructureResolverContext
 {
-	
+
 	/**
 	 *
 	 * @var StructureElement
 	 */
 	public $pivot;
-	
+
 	/**
 	 *
 	 * @var \ArrayObject
 	 */
 	public $cache;
-	
+
 	/**
 	 *
 	 * @var \ArrayObject
 	 */
 	public $aliases;
-	
+
 	public function __construct(StructureElement $pivot)
 	{
 		$this->pivot = $pivot;
@@ -41,16 +41,16 @@ class StructureResolverContext
 				DatasourceStructure::class => new \ArrayObject()
 			]);
 		$this->aliases = new \ArrayObject();
-		
+
 		$key = get_class($pivot);
 		$this->cache[$key]->offsetSet($pivot->getName(), $pivot);
 		$this->cache[$key]->offsetSet($pivot->getPath(), $pivot);
-		$p = $pivot->parent();
+		$p = $pivot->getParent();
 		while ($p instanceof StructureElement)
 		{
 			$key = get_class($p);
 			$this->cache[$key]->offsetSet($p->getName(), $p);
-			$p = $p->parent();
+			$p = $p->getParent();
 		}
 	}
 }

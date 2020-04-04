@@ -159,11 +159,11 @@ trait StatementBuilderTrait
 	public function getCanonicalName(StructureElement $structure)
 	{
 		$s = $this->escapeIdentifier($structure->getName());
-		$p = $structure->parent();
+		$p = $structure->getParent();
 		while ($p && !($p instanceof DatasourceStructure))
 		{
 			$s = $this->escapeIdentifier($p->getName()) . '.' . $s;
-			$p = $p->parent();
+			$p = $p->getParent();
 		}
 
 		return $s;

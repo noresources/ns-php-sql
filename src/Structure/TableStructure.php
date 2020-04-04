@@ -32,7 +32,7 @@ class TableStructure extends StructureElement
 
 	/**
 	 *
-	 * @return ArrayObject
+	 * @return TableConstraint[]
 	 */
 	public function getConstraints()
 	{

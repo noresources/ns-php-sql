@@ -28,7 +28,7 @@ abstract class StructureElement implements \ArrayAccess, \IteratorAggregate, \Co
 			throw new StructureException(
 				'Invalid element name (' . TypeDescription::getName($name) . ')');
 		$this->elementName = $name;
-		$this->parentElement = $parent;
+		$this->getParentElement = $parent;
 
 		$this->subElements = new \ArrayObject([]);
 	}
@@ -126,12 +126,12 @@ abstract class StructureElement implements \ArrayAccess, \IteratorAggregate, \Co
 	{
 		$s = ($builder instanceof StatementBuilderInterface) ? $builder->escapeIdentifier(
 			$this->getName()) : $this->getName();
-		$p = $this->parent();
+		$p = $this->getParent();
 		while ($p && !($p instanceof DatasourceStructure))
 		{
 			$s = (($builder instanceof StatementBuilderInterface) ? $builder->escapeIdentifier(
 				$p->getName()) : $p->getName()) . '.' . $s;
-			$p = $p->parent();
+			$p = $p->getParent();
 		}
 
 		return $s;
@@ -143,12 +143,12 @@ abstract class StructureElement implements \ArrayAccess, \IteratorAggregate, \Co
 	 * @param number $depth
 	 * @return \NoreSources\SQL\StructureElement
 	 */
-	public function parent($depth = 1)
+	public function getParent($depth = 1)
 	{
-		$p = $this->parentElement;
+		$p = $this->getParentElement;
 		while ($p && ($depth > 1))
 		{
-			$p = $p->parentElement;
+			$p = $p->getParentElement;
 			$depth--;
 		}
 
@@ -157,11 +157,34 @@ abstract class StructureElement implements \ArrayAccess, \IteratorAggregate, \Co
 
 	/**
 	 *
+	 * @deprecated use getParent()
+	 * @param number $depth
+	 * @return \NoreSources\SQL\StructureElement
+	 */
+	public function parent($depth = 1)
+	{
+		trigger_error('Deprecated: use getParent()', E_USER_DEPRECATED);
+		return $this->getParent($depth);
+	}
+
+	/**
+	 *
+	 * @return array
+	 */
+	public function getChildren()
+	{
+		return $this->subElements->getArrayCopy();
+	}
+
+	/**
+	 *
+	 * @deprecated Use getChildren()
 	 * @return array
 	 */
 	public function children()
 	{
-		return $this->subElements->getArrayCopy();
+		trigger_error('Deprecated: use getChildren()', E_USER_DEPRECATED);
+		return $this->getChildren();
 	}
 
 	/**
@@ -183,7 +206,7 @@ abstract class StructureElement implements \ArrayAccess, \IteratorAggregate, \Co
 	 */
 	public function detach()
 	{
-		$this->parentElement = null;
+		$this->getParentElement = null;
 	}
 
 	protected function clear()
@@ -195,12 +218,12 @@ abstract class StructureElement implements \ArrayAccess, \IteratorAggregate, \Co
 	 *
 	 * @return StructureElement
 	 */
-	protected function root()
+	protected function getRootElement()
 	{
 		$res = $this;
-		while ($res->parent())
+		while ($res->getParent())
 		{
-			$res = $res->parent();
+			$res = $res->getParent();
 		}
 
 		return $res;
@@ -219,7 +242,7 @@ abstract class StructureElement implements \ArrayAccess, \IteratorAggregate, \Co
 
 	public function setParent(StructureElement $parent = null)
 	{
-		$this->parentElement = $parent;
+		$this->getParentElement = $parent;
 	}
 
 	/**

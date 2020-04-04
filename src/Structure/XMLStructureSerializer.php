@@ -12,12 +12,10 @@ namespace NoreSources\SQL\Structure;
 use NoreSources\Container;
 use NoreSources\SemanticVersion;
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\Expression\Evaluator as X;
+use NoreSources\SQL\Expression\Evaluator;
 use NoreSources\SQL\Expression\Keyword;
 use NoreSources\SQL\Expression\TokenizableExpression;
 
-/**
- */
 class XMLStructureSerializer extends StructureSerializer
 {
 
@@ -29,21 +27,7 @@ class XMLStructureSerializer extends StructureSerializer
 	}
 
 	public function serialize()
-	{
-		if ($this->structureElement instanceof StructureElement)
-			throw new StructureException('Nothing to serialize');
-
-		$impl = new \DOMImplementation();
-		$document = $impl->createDocument($this->schemaNamespaceURI,
-			self::XSLT_NAMESPACE_PREFIX . ':' . self::getXmlNodeName($this->structureElement));
-
-		/**
-		 *
-		 * @todo
-		 */
-
-		return $document->saveXML();
-	}
+	{}
 
 	public function unserializeFromFile($filename)
 	{
@@ -418,7 +402,7 @@ class XMLStructureSerializer extends StructureSerializer
 
 				if (!($value instanceof TokenizableExpression))
 				{
-					$value = X::literal($value, $valueType);
+					$value = Evaluator::literal($value, $valueType);
 				}
 
 				$structure->setColumnProperty(K::COLUMN_DEFAULT_VALUE, $value);
@@ -428,13 +412,19 @@ class XMLStructureSerializer extends StructureSerializer
 		} // default node
 	}
 
-	public function getXmlNodeName(StructureElement $element)
+	public static function getXmlNamespaceURI(SemanticVersion $schemaVersion)
+	{
+		return K::XML_NAMESPACE_BASEURI . '/' .
+			$schemaVersion->slice(SemanticVersion::MAJOR, SemanticVersion::MINOR);
+	}
+
+	public static function getXmlNodeName(StructureElement $element, SemanticVersion $schemaVersion)
 	{
 		if ($element instanceof DatasourceStructure)
 			return 'datasource';
 		elseif ($element instanceof TablesetStructure)
 		{
-			if ($this->schemaVersion->getIntegerValue() < 20000)
+			if ($schemaVersion->getIntegerValue() < 20000)
 				return 'database';
 			return 'tableset';
 		}
