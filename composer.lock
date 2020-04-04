@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "f65d996e2f158ffc9f2f59dce6211410",
+    "content-hash": "47f31bdf6cb70d51f9745926c403a37c",
     "packages": [
         {
             "name": "ferno/loco",
@@ -462,6 +462,64 @@
                 "object graph"
             ],
             "time": "2020-03-12T21:49:07+00:00"
+        },
+        {
+            "name": "noresources/ns-xml",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "ssh://okami/volume1/repository/git/ns-xml.git",
+                "reference": "850ee335654a43c64e178e5f9c041dc74f1229fd"
+            },
+            "require": {
+                "php": ">= 5.3"
+            },
+            "require-dev": {
+                "noresources/ns-php-xslt": "^2.0"
+            },
+            "bin": [
+                "ns/sh/build-php.sh",
+                "ns/sh/xsltdeps.sh",
+                "ns/sh/prgproc.sh",
+                "ns/sh/new-xsh.sh",
+                "ns/sh/build-xulapp.sh",
+                "ns/sh/sampleapp.sh",
+                "ns/sh/build-python.sh",
+                "ns/sh/build-shellscript.sh",
+                "ns/sh/build-c.sh"
+            ],
+            "type": "project",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "NoreSources\\NSXML\\Composer\\": "tools/php/composer//"
+                }
+            },
+            "scripts": {
+                "post-update-cmd": [
+                    "@php tools/php/update-bundled-files.php"
+                ]
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Renaud Guillard",
+                    "email": "dev@nore.fr",
+                    "role": "lead"
+                }
+            ],
+            "description": "A collection of NSXML-based tools to generate source code and programs",
+            "homepage": "https://ns-xml.nore.fr",
+            "support": {
+                "issues": "https://github.com/noresources/ns-xml/issues"
+            },
+            "time": "2020-04-03T21:43:15+00:00"
         },
         {
             "name": "phar-io/manifest",
@@ -1041,12 +1099,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "0a2f51f272cd866152728181abfa063b837d3898"
+                "reference": "6f19efdc4bf8113f72e2eaccd12ad758df4ba789"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/0a2f51f272cd866152728181abfa063b837d3898",
-                "reference": "0a2f51f272cd866152728181abfa063b837d3898",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/6f19efdc4bf8113f72e2eaccd12ad758df4ba789",
+                "reference": "6f19efdc4bf8113f72e2eaccd12ad758df4ba789",
                 "shasum": ""
             },
             "require": {
@@ -1116,7 +1174,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2020-03-29T15:13:54+00:00"
+            "time": "2020-04-03T05:57:47+00:00"
         },
         {
             "name": "sebastian/code-unit-reverse-lookup",
@@ -1884,7 +1942,8 @@
     "minimum-stability": "dev",
     "stability-flags": {
         "ferno/loco": 20,
-        "jdorn/sql-formatter": 20
+        "jdorn/sql-formatter": 20,
+        "noresources/ns-xml": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,
