@@ -2,7 +2,6 @@
 namespace NoreSources\SQL;
 
 use NoreSources\SQL\Structure\DatasourceStructure;
-use NoreSources\SQL\Structure\JSONStructureSerializer;
 use NoreSources\SQL\Structure\XMLStructureSerializer;
 use NoreSources\Test\DerivedFileManager;
 
@@ -20,14 +19,6 @@ final class StructureSerializerTest extends \PHPUnit\Framework\TestCase
 		$serializer = new XMLStructureSerializer();
 		$serializer->unserialize($this->getStructureFileContent('types'));
 		$this->assertInstanceOf(DatasourceStructure::class, $serializer->structureElement);
-
-		$j = new JSONStructureSerializer($serializer->structureElement, JSON_PRETTY_PRINT);
-		$text = $j->serialize();
-		$this->assertEquals('string', gettype($text));
-		$a = json_decode($text, true);
-		$this->assertArrayHasKey('tablesets', $a);
-
-		$this->derivedFileManager->assertDerivedFile($text, __METHOD__, null, 'json');
 	}
 
 	public function testBinarySerialize()
