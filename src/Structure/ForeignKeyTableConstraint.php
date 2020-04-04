@@ -47,25 +47,20 @@ class ForeignKeyTableConstraint extends TableConstraint implements \IteratorAggr
 
 	/**
 	 *
-	 * @param string $member
-	 * @property-read TableStructure $foreignTable
-	 * @property-read \ArrayObject $columns
-	 * @throws \InvalidArgumentException
-	 * @return \NoreSources\SQL\TableStructure|ArrayObject
+	 * @return Number of columns on which the foreign key is applied
 	 */
-	public function __get($member)
-	{
-		if ($member == 'foreignTable')
-			return $this->foreignTable;
-		if ($member == 'columns')
-			return $this->columns;
-
-		throw new \InvalidArgumentException($member);
-	}
-
 	public function count()
 	{
 		return $this->columns->count();
+	}
+
+	/**
+	 *
+	 * @return \NoreSources\SQL\Structure\TableStructure
+	 */
+	public function getForeignTable()
+	{
+		return $this->foreignTable;
 	}
 
 	public function getIterator()

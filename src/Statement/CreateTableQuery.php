@@ -226,7 +226,7 @@ class CreateTableQuery extends Statement
 	protected function tokenizeTableConstraint(TableConstraint $constraint, TokenStream $stream,
 		TokenStreamContext $context)
 	{
-		if (strlen($constraint->constraintName))
+		if (\strlen($constraint->constraintName))
 		{
 			$stream->keyword('constraint')
 				->space()
@@ -277,7 +277,7 @@ class CreateTableQuery extends Statement
 				->space()
 				->identifier(
 				$context->getStatementBuilder()
-					->getCanonicalName($constraint->foreignTable))
+					->getCanonicalName($constraint->getForeignTable()))
 				->space()
 				->text('(');
 
