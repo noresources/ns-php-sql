@@ -19,6 +19,8 @@ use NoreSources\SQL\Structure\XMLStructureFileConstants as K;
 class XMLStructureSerializer extends StructureSerializer
 {
 
+	use XMLStructureFileTrait;
+
 	public function __construct(StructureElement $element = null)
 	{
 		parent::__construct($element);
@@ -410,48 +412,6 @@ class XMLStructureSerializer extends StructureSerializer
 				break;
 			} // for each default value type
 		} // default node
-	}
-
-	public static function getXmlNamespaceURI(SemanticVersion $schemaVersion)
-	{
-		return K::XML_NAMESPACE_BASEURI . '/' .
-			$schemaVersion->slice(SemanticVersion::MAJOR, SemanticVersion::MINOR);
-	}
-
-	public static function getXmlNodeName(StructureElement $element, SemanticVersion $schemaVersion)
-	{
-		if ($element instanceof DatasourceStructure)
-			return 'datasource';
-		elseif ($element instanceof TablesetStructure)
-		{
-			if ($schemaVersion->getIntegerValue() < 20000)
-				return 'database';
-			return 'tableset';
-		}
-		elseif ($element instanceof TableStructure)
-			return 'table';
-		elseif ($element instanceof ColumnStructure)
-			return 'column';
-		throw new \InvalidArgumentException();
-	}
-
-	private static function getSingleElementByTagName($namespace, \DOMElement $element, $localName,
-		$required = false)
-	{
-		$list = $element->getElementsByTagNameNS($namespace, $localName);
-
-		if ($list->length > 1)
-			throw new StructureException(
-				'Invalid number of ' . $localName . ' nodes. At most 1 expected');
-		if ($list->length == 0)
-		{
-			if ($required)
-				throw new StructureException($localName . ' not found');
-
-			return null;
-		}
-
-		return $list->item(0);
 	}
 
 	/**
