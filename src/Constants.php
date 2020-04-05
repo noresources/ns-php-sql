@@ -448,7 +448,7 @@ class Constants
 
 	/**
 	 * Foreign key action "SET NULL".
-	 * The constant value is used in StructureSerializer
+	 * The constant value is used in StructureFileImporterInterface
 	 *
 	 * @var string
 	 */
@@ -456,7 +456,7 @@ class Constants
 
 	/**
 	 * Foreign key action "DEFAULT".
-	 * The constant value is used in StructureSerializer
+	 * The constant value is used in StructureFileImporterInterface
 	 *
 	 * @var string
 	 */
@@ -464,7 +464,7 @@ class Constants
 
 	/**
 	 * Foreign key action "CASCADE"
-	 * The constant value is used in StructureSerializer
+	 * The constant value is used in StructureFileImporterInterface
 	 *
 	 * @var string
 	 */
@@ -472,7 +472,7 @@ class Constants
 
 	/**
 	 * Foreign key action "RESTRICT".
-	 * The constant value is used in StructureSerializer
+	 * The constant value is used in StructureFileImporterInterface
 	 *
 	 * @var string
 	 */

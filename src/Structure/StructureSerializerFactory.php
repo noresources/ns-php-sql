@@ -11,6 +11,7 @@ namespace NoreSources\SQL\Structure;
 
 use NoreSources\Container;
 use NoreSources\StaticallyCallableSingletonTrait;
+use NoreSources\MediaType\MediaType;
 use NoreSources\MediaType\MediaTypeFactory;
 use NoreSources\MediaType\MediaTypeInterface;
 
@@ -59,8 +60,34 @@ class StructureSerializerFactory
 	 * @param StructureElement $structure
 	 * @param string $filename
 	 */
-	public function structureToFile(StructureElement $structure, $filename)
-	{}
+	public function structureToFile(StructureElement $structure, $filename, $mediaType = null)
+	{
+		if (!isset($this))
+			return self::getInstance()->structureToFile($filename, $filename);
+
+		if (\is_string($mediaType))
+			$mediaType = MediaTypeFactory::fromString($mediaType);
+
+		if (!($mediaType instanceof MediaType))
+			$mediaType = MediaTypeFactory::fromMedia($filename);
+
+		$exporter = Container::keyValue($this->fileExporters, \strval($mediaType));
+		if (!\is_subclass_of($exporter, StructureFileExporterInterface::class, true))
+			$exporter = Container::keyValue($this->fileExporters, $mediaType->getStructuredSyntax());
+
+		if (!\is_subclass_of($exporter, StructureFileExporterInterface::class, true))
+			throw new StructureException(
+				'No ' . StructureFileExporterInterface::class . ' found for file ' . $filename . '(' .
+				\strval($mediaType) . ')');
+
+		if (!($exporter instanceof StructureFileExporterInterface))
+		{
+			$cls = new \ReflectionClass($exporter);
+			$exporter = $cls->newInstance();
+		}
+
+		return $exporter->exportStructureToFile($structure, $filename);
+	}
 
 	/**
 	 *

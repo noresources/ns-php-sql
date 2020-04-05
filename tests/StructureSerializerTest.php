@@ -2,7 +2,7 @@
 namespace NoreSources\SQL;
 
 use NoreSources\SQL\Structure\DatasourceStructure;
-use NoreSources\SQL\Structure\XMLStructureSerializer;
+use NoreSources\SQL\Structure\StructureSerializerFactory;
 use NoreSources\Test\DerivedFileManager;
 
 final class StructureSerializerTest extends \PHPUnit\Framework\TestCase
@@ -14,22 +14,19 @@ final class StructureSerializerTest extends \PHPUnit\Framework\TestCase
 		$this->derivedFileManager = new DerivedFileManager(__DIR__);
 	}
 
-	public function testLoadTasks()
-	{
-		$serializer = new XMLStructureSerializer();
-		$serializer->unserialize($this->getStructureFileContent('types'));
-		$this->assertInstanceOf(DatasourceStructure::class, $serializer->structureElement);
-	}
-
 	public function testBinarySerialize()
 	{
-		$serializer = new XMLStructureSerializer();
-		$serializer->unserialize($this->getStructureFileContent('types'));
-		$this->assertInstanceOf(DatasourceStructure::class, $serializer->structureElement);
+		$structure = StructureSerializerFactory::structureFromFile($this->getStructureFile('types'));
+		$this->assertInstanceOf(DatasourceStructure::class, $structure);
 
-		$serialized = \serialize($serializer->structureElement);
+		$serialized = \serialize($structure);
 		$unserialized = \unserialize($serialized);
 		$this->assertInstanceOf(DatasourceStructure::class, $unserialized);
+	}
+
+	private function getStructureFile($name)
+	{
+		return realpath(__DIR__ . '/data/structures/' . $name . '.xml');
 	}
 
 	private function getStructureFileContent($name)
