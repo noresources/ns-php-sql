@@ -81,10 +81,20 @@ class PostgreSQLStatementBuilder extends StatementBuilder
 	{
 		$key = strval($name);
 
-		if ($parameters->has($key))
-			return $parameters->get($key)[ParameterData::DBMSNAME];
+		if (false)
+		{
+			/**
+			 * Cannot re-use the same parameter number because it may
+			 * produce "inconsistent types deduced for parameter"
+			 */
 
-		return '$' . ($parameters->getDistinctParameterCount() + 1);
+			if ($parameters->has($key))
+				return $parameters->get($key)[ParameterData::DBMSNAME];
+
+			return '$' . ($parameters->getDistinctParameterCount() + 1);
+		}
+
+		return '$' . ($parameters->getParameterCount() + 1);
 	}
 
 	public function translateFunction(MetaFunctionCall $metaFunction)

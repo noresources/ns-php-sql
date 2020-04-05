@@ -110,8 +110,7 @@ class PostgreSQLConnection implements Connection
 			}
 		}
 
-		$connectionFunction = Container::keyValue($parameters, K::CONNECTION_PERSISTENT,
-			false) ? '\pg_pconnect' : '\pg_connect';
+		$connectionFunction = Container::keyValue($parameters, K::CONNECTION_PERSISTENT, false) ? '\pg_pconnect' : '\pg_connect';
 
 		$this->resource = @call_user_func($connectionFunction, $dsn);
 
@@ -276,11 +275,14 @@ class PostgreSQLConnection implements Connection
 			$map = $statement->getParameters();
 			foreach ($map->getKeyIterator() as $key => $data)
 			{
-				$dbmsName = $data[ParameterData::DBMSNAME];
-				$index = intval(\substr($dbmsName, 1)) - 1; // '$3 -> index 2
-				$entry = Container::keyValue($parameters, $key, null);
-				$value = ($entry instanceof ParameterValue) ? $entry->value : $entry;
-				$a[$index] = $value;
+				foreach ($data[ParameterData::POSITIONS] as $index)
+				{
+					$p = $map->get($index);
+					$dbmsName = $p[ParameterData::DBMSNAME];
+					$entry = Container::keyValue($parameters, $key, null);
+					$value = ($entry instanceof ParameterValue) ? $entry->value : $entry;
+					$a[$index] = $value;
+				}
 			}
 
 			ksort($a);
