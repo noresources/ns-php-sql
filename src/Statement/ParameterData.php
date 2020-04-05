@@ -11,9 +11,11 @@
 // Namespace
 namespace NoreSources\SQL\Statement;
 
+use NoreSources\ArrayRepresentation;
 use Psr\Container\ContainerInterface;
 
-class ParameterData implements ContainerInterface, \IteratorAggregate, \Countable
+class ParameterData implements ContainerInterface, \IteratorAggregate, \Countable,
+	ArrayRepresentation
 {
 
 	/**
@@ -150,6 +152,16 @@ class ParameterData implements ContainerInterface, \IteratorAggregate, \Countabl
 			throw new ParameterNotFoundException($keyOrIndex);
 
 		return $this->entries->offsetGet($keyOrIndex);
+	}
+
+	/**
+	 * For debug purpose
+	 *
+	 * @return array
+	 */
+	public function getArrayCopy()
+	{
+		return $this->entries->getArrayCopy();
 	}
 
 	/**

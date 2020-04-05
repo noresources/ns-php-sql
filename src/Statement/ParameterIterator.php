@@ -61,6 +61,9 @@ class ParameterIterator implements \Iterator
 	public function rewind()
 	{
 		$this->iterator->rewind();
+		if ($this->iterator->valid() &&
+			TypeDescription::getName($this->iterator->key()) != $this->keyType)
+			$this->next();
 	}
 
 	/**
