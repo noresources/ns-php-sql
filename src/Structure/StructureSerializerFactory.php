@@ -10,9 +10,14 @@
 namespace NoreSources\SQL\Structure;
 
 use NoreSources\Container;
+use NoreSources\StaticallyCallableSingletonTrait;
+use NoreSources\MediaType\MediaTypeFactory;
+use NoreSources\MediaType\MediaTypeInterface;
 
 class StructureSerializerFactory
 {
+
+	use StaticallyCallableSingletonTrait;
 
 	/**
 	 *
@@ -25,17 +30,28 @@ class StructureSerializerFactory
 	 * @throws StructureException
 	 * @return StructureElement
 	 */
-	public static function structureFromFile($filename)
+	public function structureFromFile($filename)
 	{
-		if (!file_exists($filename))
-			throw new StructureException('Structure definition file not found');
+		if (!isset($this))
+			return self::getInstance()->structureFromFile($filename);
 
-		$type = mime_content_type($filename);
+		$mediaType = MediaTypeFactory::fromMedia($filename);
+		$importer = Container::keyValue($this->fileImporters, \strval($mediaType));
+		if (!\is_subclass_of($importer, StructureFileImporterInterface::class, true))
+			$importer = Container::keyValue($this->fileImporters, $mediaType->getStructuredSyntax());
 
-		$serializerClass = self::getSerializeClassForFile($filename);
-		$serializer = $serializerClass->newInstance();
-		$serializer->unserializeFromFile($filename);
-		return $serializer->structureElement;
+		if (!\is_subclass_of($importer, StructureFileImporterInterface::class, true))
+			throw new StructureException(
+				'No ' . StructureFileImporterInterface::class . ' found for file "' . $filename .
+				'" (' . \strval($mediaType) . '"');
+
+		if (!($importer instanceof StructureFileImporterInterface))
+		{
+			$cls = new \ReflectionClass($importer);
+			$importer = $cls->newInstance();
+		}
+
+		return $importer->importStructureFromFile($filename);
 	}
 
 	/**
@@ -43,56 +59,62 @@ class StructureSerializerFactory
 	 * @param StructureElement $structure
 	 * @param string $filename
 	 */
-	public static function structureToFile(StructureElement $structure, $filename)
+	public function structureToFile(StructureElement $structure, $filename)
+	{}
+
+	/**
+	 *
+	 * @param MediaTypeInterface|string $mediaType
+	 *        	Media type
+	 * @param StructureFileImporterInterface|string $fileImporter
+	 *        	Importer class or class name
+	 */
+	public function registerFileImporter($mediaType, $fileImporter)
 	{
-		$serializerClass = self::getSerializeClassForFile($filename);
-		$serializer = $serializerClass->newInstance($structure);
-		$serializer->serializeToFile($filename);
+		$this->fileImporters[\strval($mediaType)] = $fileImporter;
+		if ($mediaType instanceof MediaTypeInterface)
+		{
+			$syntax = $mediaType->getStructuredSyntax();
+			$this->fileImporters[$syntax] = $fileImporter;
+		}
 	}
 
 	/**
 	 *
-	 * @param string $filename
-	 * @throws StructureException
-	 * @return \ReflectionClass
+	 * @param MediaTypeInterface|string $mediaType
+	 *        	Media type
+	 * @param StructureFileExporterInterface|string $fileExporter
+	 *        	Exporter class or class name
 	 */
-	public static function getSerializeClassForFile($filename)
+	public function registerFileExporter($mediaType, $fileExporter)
 	{
-		if (\is_file($filename))
+		$this->fileExporters[\strval($mediaType)] = $fileExporter;
+		if ($mediaType instanceof MediaTypeInterface)
 		{
-			$type = mime_content_type($filename);
-			if (Container::keyExists(self::$mimeTypeClassMap, $type))
-				return new \ReflectionClass(self::$mimeTypeClassMap[$type]);
-		}
-
-		$x = pathinfo($filename, \PATHINFO_EXTENSION);
-		if (Container::keyExists(self::$fileExtensionClassMap, $x))
-			return new \ReflectionClass(self::$fileExtensionClassMap[$x]);
-
-		throw new StructureException(
-			'Unable to find a StructureSerializer for file ' . basename($filename));
-	}
-
-	public static function initialize()
-	{
-		if (!\is_array(self::$mimeTypeClassMap))
-		{
-			self::$mimeTypeClassMap = [
-				'text/xml' => XMLStructureSerializer::class
-			];
-		}
-
-		if (!\is_array(self::$fileExtensionClassMap))
-		{
-			self::$fileExtensionClassMap = [
-				'xml' => XMLStructureSerializer::class
-			];
+			$syntax = $mediaType->getStructuredSyntax();
+			$this->fileExporters[$syntax] = $fileExporter;
 		}
 	}
 
-	private static $mimeTypeClassMap;
+	public function __construct()
+	{
+		$this->fileImporters = [];
+		$this->fileExporters = [];
 
-	private static $fileExtensionClassMap;
+		$this->registerFileExporter('text/xml', XMLStructureFileExporter::class);
+		$this->registerFileImporter('text/xml', XMLStructureFileImporter::class);
+	}
+
+	/**
+	 *
+	 * @var StructureFileExporterInterface[]
+	 */
+	private $fileExporters;
+
+	/**
+	 *
+	 * @var StructureFileImporterInterface
+	 */
+	private $fileImporters;
 }
 
-StructureSerializerFactory::initialize();

@@ -25,7 +25,7 @@ class DatasourceManager extends \PHPUnit\Framework\TestCase
 		if ($this->datasources->offsetExists($name))
 			return $this->datasources[$name];
 
-		$filename = $this->basePath . '/data/structures/' . $name . '.xml';
+		$filename = realpath($this->basePath . '/data/structures/' . $name . '.xml');
 
 		$this->assertFileExists($filename, $name . ' datasource loading');
 
