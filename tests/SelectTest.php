@@ -122,12 +122,12 @@ final class SelectTest extends \PHPUnit\Framework\TestCase
 	public function testSubQueriesAndAliases()
 	{
 		$structure = $this->datasources->get('Company');
-		$tablesetStructure = $structure['ns_unittests'];
-		$this->assertInstanceOf(Structure\TablesetStructure::class, $tablesetStructure);
+		$namespaceStructure = $structure['ns_unittests'];
+		$this->assertInstanceOf(Structure\NamespaceStructure::class, $namespaceStructure);
 
 		$builder = new ReferenceStatementBuilder();
 		$context = new BuildContext($builder);
-		$context->setPivot($tablesetStructure);
+		$context->setPivot($namespaceStructure);
 
 		$q = new Statement\SelectQuery('Employees', 'E');
 		$q->columns([

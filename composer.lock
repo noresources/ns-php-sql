@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "47f31bdf6cb70d51f9745926c403a37c",
+    "content-hash": "edb4eb42a337b90b738ccaff414e775f",
     "packages": [
         {
             "name": "ferno/loco",
@@ -469,7 +469,7 @@
             "source": {
                 "type": "git",
                 "url": "ssh://okami/volume1/repository/git/ns-xml.git",
-                "reference": "850ee335654a43c64e178e5f9c041dc74f1229fd"
+                "reference": "997e919d5317079fd874ed2493d93de4d30e3a0d"
             },
             "require": {
                 "php": ">= 5.3"
@@ -491,7 +491,8 @@
             "type": "project",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.0.x-dev"
+                    "dev-master": "1.1.x-dev",
+                    "dev-1.0.x": "1.0.x-dev"
                 }
             },
             "autoload": {
@@ -519,7 +520,7 @@
             "support": {
                 "issues": "https://github.com/noresources/ns-xml/issues"
             },
-            "time": "2020-04-03T21:43:15+00:00"
+            "time": "2020-04-05T12:57:52+00:00"
         },
         {
             "name": "phar-io/manifest",

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <sql:datasource xmlns:sql="http://xsd.nore.fr/sql/2.0" xmlns:xi="http://www.w3.org/2001/XInclude">
-	<sql:tableset name="ns_unittests">
+	<sql:namespace name="ns_unittests">
 		<sql:table name="Employees" id="nsut.tables.Employees">
 			<sql:comment>Company employees</sql:comment>
 			<sql:column name="id">
@@ -160,5 +160,5 @@
 
 		<xi:include href="./types.xml" xpointer="xmlns(sql=http://xsd.nore.fr/sql/2.0) xpointer(//sql:table)" />
 
-	</sql:tableset>
+	</sql:namespace>
 </sql:datasource>

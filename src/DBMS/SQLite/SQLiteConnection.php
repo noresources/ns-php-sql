@@ -66,11 +66,11 @@ class SQLiteConnection implements Connection
 	const SOURCE_TEMPORARY = '';
 
 	/**
-	 * The default tableset name
+	 * The default namespace name
 	 *
 	 * @var string
 	 */
-	const TABLESET_NAME_DEFAULT = 'main';
+	const NAMESPACE_NAME_DEFAULT = 'main';
 
 	public function __construct()
 	{
@@ -111,11 +111,11 @@ class SQLiteConnection implements Connection
 	 *        	<ul>
 	 *        	<li>If unspecified, use a in-memory storage</li>
 	 *        	<li>If the parameter value is a string, the database will be loaded as the "main" database</li>
-	 *        	<li>If the parameter value is an array, the elements key represents the tableset name,
+	 *        	<li>If the parameter value is an array, the elements key represents the namespace name,
 	 *        	the values represents the database
 	 *        	file name. If the key is not a string, the base file name is used as tableet name</li>
 	 *        	</ul>
-	 *        	<li>CONNECTION_DATABASE (string): Overrides the tableset name if CONNECTION_SOURCE value is a
+	 *        	<li>CONNECTION_DATABASE (string): Overrides the namespace name if CONNECTION_SOURCE value is a
 	 *        	string</li>
 	 *        	<li>CONNECTION_CREATE (bool): Create database file if it does not exists</li>
 	 *        	<li>CONNECTION_READONLY (bool): Indicates the database is read only</li>
@@ -135,12 +135,12 @@ class SQLiteConnection implements Connection
 				'busy_timeout' => 5000
 			]);
 
-		$defaultTablesetName = Container::keyValue($parameters, K::CONNECTION_DATABASE,
-			self::TABLESET_NAME_DEFAULT);
+		$defaultNamespaceName = Container::keyValue($parameters, K::CONNECTION_DATABASE,
+			self::NAMESPACE_NAME_DEFAULT);
 
 		$sources = Container::keyValue($parameters, K::CONNECTION_SOURCE,
 			[
-				$defaultTablesetName => self::SOURCE_MEMORY
+				$defaultNamespaceName => self::SOURCE_MEMORY
 			]);
 
 		$flags = 0;
@@ -167,18 +167,18 @@ class SQLiteConnection implements Connection
 		if (\is_string($sources))
 		{
 			$sources = [
-				$defaultTablesetName => $sources
+				$defaultNamespaceName => $sources
 			];
 		}
 
 		$names = [];
 		foreach ($sources as $name => $source)
 		{
-			$name = self::getTablesetName($name, $source);
+			$name = self::getNamespaceName($name, $source);
 
 			if (\in_array($name, $names))
 			{
-				throw new SQLiteConnectionException($this, 'Duplicated tableset name ' . $name);
+				throw new SQLiteConnectionException($this, 'Duplicated namespace name ' . $name);
 			}
 
 			$names[] = $name;
@@ -194,7 +194,7 @@ class SQLiteConnection implements Connection
 			else
 			{
 				$key = Container::keyValue($parameters, K::CONNECTION_ENCRYPTION_KEY, null);
-				if ($name == self::TABLESET_NAME_DEFAULT)
+				if ($name == self::NAMESPACE_NAME_DEFAULT)
 				{
 					$this->connection = new \SQLite3($source, $flags, $key);
 				}
@@ -419,7 +419,7 @@ class SQLiteConnection implements Connection
 	}
 
 	/**
-	 * Get a tableset name for the given database source
+	 * Get a namespace name for the given database source
 	 *
 	 * @param mixed $name
 	 *        	User-defined name
@@ -427,14 +427,14 @@ class SQLiteConnection implements Connection
 	 *        	Database source
 	 * @return string
 	 */
-	private static function getTablesetName($name, $source)
+	private static function getNamespaceName($name, $source)
 	{
 		if (is_string($name) && strlen($name))
 			return $name;
 
 		if ($source == self::SOURCE_MEMORY || $source == self::SOURCE_TEMPORARY)
 		{
-			return self::TABLESET_NAME_DEFAULT;
+			return self::NAMESPACE_NAME_DEFAULT;
 		}
 
 		return pathinfo($source, 'filename');

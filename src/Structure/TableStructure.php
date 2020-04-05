@@ -20,12 +20,12 @@ class TableStructure extends StructureElement
 
 	/**
 	 *
-	 * @param TablesetStructure $a_tablesetStructure
+	 * @param NamespaceStructure $a_namespaceStructure
 	 * @param string $name
 	 */
-	public function __construct(/*TablesetStructure */ $a_tablesetStructure, $name)
+	public function __construct(/*NamespaceStructure */ $a_namespaceStructure, $name)
 	{
-		parent::__construct($name, $a_tablesetStructure);
+		parent::__construct($name, $a_namespaceStructure);
 
 		$this->constraints = new \ArrayObject();
 	}

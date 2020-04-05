@@ -37,7 +37,7 @@ class StructureResolverContext
 			[
 				ColumnStructure::class => new \ArrayObject(),
 				TableStructure::class => new \ArrayObject(),
-				TablesetStructure::class => new \ArrayObject(),
+				NamespaceStructure::class => new \ArrayObject(),
 				DatasourceStructure::class => new \ArrayObject()
 			]);
 		$this->aliases = new \ArrayObject();

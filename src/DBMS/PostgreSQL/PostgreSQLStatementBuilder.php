@@ -145,10 +145,10 @@ class PostgreSQLStatementBuilder extends StatementBuilder
 	{
 		$createTableFlags = $this->getBuilderFlags(K::BUILDER_DOMAIN_CREATE_TABLE);
 		$dropTableFlags = $this->getBuilderFlags(K::BUILDER_DOMAIN_DROP_TABLE);
-		$createTablesetFlags = $this->getBuilderFlags(K::BUILDER_DOMAIN_CREATE_TABLESET);
+		$createNamespaceFlags = $this->getBuilderFlags(K::BUILDER_DOMAIN_CREATE_NAMESPACE);
 
 		$createTableFlags &= ~(K::BUILDER_IF_NOT_EXISTS);
-		$createTablesetFlags &= ~K::BUILDER_IF_NOT_EXISTS;
+		$createNamespaceFlags &= ~K::BUILDER_IF_NOT_EXISTS;
 
 		if (SemanticVersion::compareVersions($serverVersion, '8.2.0') >= 0)
 		{
@@ -162,11 +162,11 @@ class PostgreSQLStatementBuilder extends StatementBuilder
 
 		if (SemanticVersion::compareVersions($serverVersion, '9.3.0') >= 0)
 		{
-			$createTablesetFlags |= K::BUILDER_IF_NOT_EXISTS;
+			$createNamespaceFlags |= K::BUILDER_IF_NOT_EXISTS;
 		}
 
 		$this->setBuilderFlags(K::BUILDER_DOMAIN_CREATE_TABLE, $createTableFlags);
-		$this->setBuilderFlags(K::BUILDER_DOMAIN_CREATE_TABLESET, $createTablesetFlags);
+		$this->setBuilderFlags(K::BUILDER_DOMAIN_CREATE_NAMESPACE, $createNamespaceFlags);
 		$this->setBuilderFlags(K::BUILDER_DOMAIN_DROP_TABLE, $dropTableFlags);
 	}
 

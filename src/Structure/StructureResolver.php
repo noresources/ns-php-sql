@@ -82,10 +82,10 @@ class StructureResolver implements StructureResolverInterface
 		}
 		elseif ($c == 3)
 		{
-			$tableset = $this->findTableset($x[0]);
-			if ($tableset)
+			$namespace = $this->findNamespace($x[0]);
+			if ($namespace)
 			{
-				$table = $tableset->offsetGet($x[1]);
+				$table = $namespace->offsetGet($x[1]);
 			}
 		}
 
@@ -116,18 +116,18 @@ class StructureResolver implements StructureResolverInterface
 		$c = count($x);
 		$name = $x[$c - 1];
 
-		$tableset = null;
+		$namespace = null;
 
 		if ($c == 1)
 		{
-			$tableset = $this->getDefaultTableset();
+			$namespace = $this->getDefaultNamespace();
 		}
 		elseif ($c == 2)
 		{
-			$tableset = $this->findTableset($x[0]);
+			$namespace = $this->findNamespace($x[0]);
 		}
 
-		$table = ($tableset instanceof TablesetStructure) ? $tableset->offsetGet($name) : null;
+		$table = ($namespace instanceof NamespaceStructure) ? $namespace->offsetGet($name) : null;
 
 		if ($table instanceof TableStructure)
 		{
@@ -140,11 +140,11 @@ class StructureResolver implements StructureResolverInterface
 		return $table;
 	}
 
-	public function findTableset($path)
+	public function findNamespace($path)
 	{
-		if ($this->cache[TablesetStructure::class]->offsetExists($path))
+		if ($this->cache[NamespaceStructure::class]->offsetExists($path))
 		{
-			return $this->cache[TablesetStructure::class][$path];
+			return $this->cache[NamespaceStructure::class][$path];
 		}
 
 		$datasource = $this->pivot;
@@ -153,17 +153,17 @@ class StructureResolver implements StructureResolverInterface
 			$datasource = $datasource->getParent();
 		}
 
-		$tableset = ($datasource instanceof DatasourceStructure) ? $datasource->offsetGet($path) : null;
+		$namespace = ($datasource instanceof DatasourceStructure) ? $datasource->offsetGet($path) : null;
 
-		if ($tableset instanceof TablesetStructure)
+		if ($namespace instanceof NamespaceStructure)
 		{
-			$key = TablesetStructure::class;
-			$this->cache[$key]->offsetSet($path, $tableset);
+			$key = NamespaceStructure::class;
+			$this->cache[$key]->offsetSet($path, $namespace);
 		}
 		else
-			throw new StructureResolverException($path, 'tableset');
+			throw new StructureResolverException($path, 'namespace');
 
-		return $tableset;
+		return $namespace;
 	}
 
 	public function setAlias($alias, StructureElement $reference)
@@ -189,7 +189,7 @@ class StructureResolver implements StructureResolverInterface
 		return $this->contextStack->pop();
 	}
 
-	private function getDefaultTableset()
+	private function getDefaultNamespace()
 	{
 		if ($this->pivot instanceof DatasourceStructure)
 		{
@@ -198,14 +198,14 @@ class StructureResolver implements StructureResolverInterface
 				return $this->pivot->getIterator()->current();
 			}
 		}
-		elseif ($this->pivot instanceof TablesetStructure)
+		elseif ($this->pivot instanceof NamespaceStructure)
 			return $this->pivot;
 		elseif ($this->pivot instanceof TableStructure)
 			return $this->pivot->getParent();
 		elseif ($this->pivot instanceof ColumnStructure)
 			return $this->pivot->getParent(2);
 
-		throw new StructureResolverException('Default tableset');
+		throw new StructureResolverException('Default namespace');
 	}
 
 	private function getDefaultTable()
@@ -220,9 +220,9 @@ class StructureResolver implements StructureResolverInterface
 		}
 		else
 		{
-			$tableset = $this->getDefaultTableset();
-			if ($tableset instanceof TablesetStructure && ($tableset->count() == 1))
-				return $tableset->getIterator()->current();
+			$namespace = $this->getDefaultNamespace();
+			if ($namespace instanceof NamespaceStructure && ($namespace->count() == 1))
+				return $namespace->getIterator()->current();
 		}
 
 		throw new StructureResolverException('Default table');

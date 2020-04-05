@@ -529,7 +529,7 @@ class Constants
 	 *
 	 * @var string
 	 */
-	const BUILDER_DOMAIN_CREATE_TABLESET = 'createtableset';
+	const BUILDER_DOMAIN_CREATE_NAMESPACE = 'createnamespace';
 
 	// Tokens
 	const TOKEN_SPACE = 0;

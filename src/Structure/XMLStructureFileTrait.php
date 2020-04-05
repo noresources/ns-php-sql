@@ -47,11 +47,11 @@ trait XMLStructureFileTrait
 
 		if ($element == DatasourceStructure::class)
 			return 'datasource';
-		elseif ($element == TablesetStructure::class)
+		elseif ($element == NamespaceStructure::class)
 		{
 			if ($schemaVersion->getIntegerValue() < 20000)
 				return 'database';
-			return 'tableset';
+			return 'namespace';
 		}
 		elseif ($element == TableStructure::class)
 			return 'table';

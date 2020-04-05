@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <sql:datasource xmlns:sql="http://xsd.nore.fr/sql/2.0">
-	<sql:tableset name="ns_unittests">
+	<sql:namespace name="ns_unittests">
 		<sql:table name="types">
 			<sql:column name="base"></sql:column>
 			<sql:column name="binary">
@@ -71,5 +71,5 @@
 				<sql:column name="int" />
 			</sql:primarykey>
 		</sql:table>
-	</sql:tableset>
+	</sql:namespace>
 </sql:datasource>

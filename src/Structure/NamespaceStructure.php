@@ -15,7 +15,7 @@ use NoreSources\SQL\Constants as K;
 /**
  * Table set structure definition
  */
-class TablesetStructure extends StructureElement
+class NamespaceStructure extends StructureElement
 {
 
 	public function __construct(/*DatasourceStructure */$a_datasourceStructure, $name)

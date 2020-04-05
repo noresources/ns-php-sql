@@ -65,10 +65,10 @@ class XMLStructureFileImporter implements StructureFileImporterInterface
 			$this->importDatasourceNode($document->documentElement, $context->structureElement,
 				$context);
 		}
-		elseif ($document->documentElement->localName == 'tableset')
+		elseif ($document->documentElement->localName == 'namespace')
 		{
-			$context->structureElement = new TablesetStructure($name);
-			$this->importTablesetNode($document->documentElement, $context->structureElement,
+			$context->structureElement = new NamespaceStructure($name);
+			$this->importNamespaceNode($document->documentElement, $context->structureElement,
 				$context);
 		}
 		elseif ($document->documentElement->localName == 'table')
@@ -93,17 +93,17 @@ class XMLStructureFileImporter implements StructureFileImporterInterface
 			$context->identifiedElements->offsetSet($node->getAttribute('id'), $structure);
 
 		$nodeName = K::XML_NAMESPACE_PREFIX . ':' .
-			self::getXmlNodeName(TablesetStructure::class, $context->schemaVersion);
-		$tablesetNodes = $context->xpath->query($nodeName);
-		foreach ($tablesetNodes as $tablesetNode)
+			self::getXmlNodeName(NamespaceStructure::class, $context->schemaVersion);
+		$namespaceNodes = $context->xpath->query($nodeName);
+		foreach ($namespaceNodes as $namespaceNode)
 		{
-			$tableset = new TablesetStructure($structure, $tablesetNode->getAttribute('name'));
-			$structure->appendChild($tableset);
-			$this->importTablesetNode($tablesetNode, $tableset, $context);
+			$namespace = new NamespaceStructure($structure, $namespaceNode->getAttribute('name'));
+			$structure->appendChild($namespace);
+			$this->importNamespaceNode($namespaceNode, $namespace, $context);
 		}
 	}
 
-	public function importTablesetNode(\DOMNode $node, TablesetStructure $structure,
+	public function importNamespaceNode(\DOMNode $node, NamespaceStructure $structure,
 		XMLStructureFileImporterContext $context)
 	{
 		if ($node->hasAttribute('id'))

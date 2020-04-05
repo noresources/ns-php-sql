@@ -51,9 +51,9 @@ trait StructureResolverAwareTrait
 		return $this->structureResolver->findTable($path);
 	}
 
-	public function findTableset($path)
+	public function findNamespace($path)
 	{
-		return $this->structureResolver->findTableset($path);
+		return $this->structureResolver->findNamespace($path);
 	}
 
 	public function setAlias($alias, StructureElement $reference)

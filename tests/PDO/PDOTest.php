@@ -105,7 +105,7 @@ final class PDOTest extends \PHPUnit\Framework\TestCase
 		$tableStructure = $structure['ns_unittests']['Employees'];
 		$this->assertInstanceOf(Structure\TableStructure::class, $tableStructure);
 
-		// Detach table from tableset to avoid invalid tableset name
+		// Detach table from namespace to avoid invalid namespace name
 		$detachedTable = clone $tableStructure;
 		$detachedTable->detach();
 

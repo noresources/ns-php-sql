@@ -45,9 +45,9 @@ interface StructureResolverInterface
 	 *
 	 * @param string $path
 	 * @throws StructureResolverException
-	 * @return \NoreSources\SQL\TablesetStructure
+	 * @return \NoreSources\SQL\NamespaceStructure
 	 */
-	function findTableset($path);
+	function findNamespace($path);
 
 	/**
 	 *
