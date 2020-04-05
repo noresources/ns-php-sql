@@ -65,6 +65,7 @@ trait XMLStructureFileTrait
 	{
 		if (!Container::isArray(self::$dataTypeNodeNames))
 			self::initializeDataTypeNodeNames();
+
 		foreach (self::$dataTypeNodeNames as $dataType => $name)
 		{
 			if ($name == $nodeName)

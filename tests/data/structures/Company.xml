@@ -96,7 +96,7 @@
 					<sql:timestamp />
 				</sql:datatype>
 				<sql:default>
-					<sql:now />
+					<sql:timestamp />
 				</sql:default>
 			</sql:column>
 			<sql:column name="priority">
