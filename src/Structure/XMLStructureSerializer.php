@@ -11,10 +11,10 @@ namespace NoreSources\SQL\Structure;
 
 use NoreSources\Container;
 use NoreSources\SemanticVersion;
-use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Expression\Evaluator;
 use NoreSources\SQL\Expression\Keyword;
 use NoreSources\SQL\Expression\TokenizableExpression;
+use NoreSources\SQL\Structure\XMLStructureFileConstants as K;
 
 class XMLStructureSerializer extends StructureSerializer
 {

@@ -604,28 +604,6 @@ class Constants
 	const RECORDSET_PUBLIC_FLAGS = 0x07;
 
 	/**
-	 * SQL structure description XML namespace URI prefix
-	 *
-	 * @var string
-	 */
-	const XML_NAMESPACE_BASEURI = 'http://xsd.nore.fr/sql';
-
-	/**
-	 * The XML namespace prefix used internally to reference the
-	 * SQL structure description XML schema
-	 *
-	 * @var string
-	 */
-	const XML_NAMESPACE_PREFIX = 'sql';
-
-	/**
-	 * Index XML node name
-	 *
-	 * @var string
-	 */
-	const XML_ELEMENT_UBDEX = 'index';
-
-	/**
 	 * Timestamp formatting meta function name.
 	 *
 	 * @var string
