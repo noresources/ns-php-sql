@@ -312,6 +312,86 @@ final class DBMSCommonTest extends TestCase
 		}
 	}
 
+	public function testParametersTypes()
+	{
+		$settings = $this->connections->getAvailableConnectionNames();
+
+		foreach ($settings as $dbmsName)
+		{
+			$connection = $this->connections->get($dbmsName);
+			$this->assertInstanceOf(Connection::class, $connection, $dbmsName);
+			$this->assertTrue($connection->isConnected(), $dbmsName);
+
+			$structure = $this->structures->get('types');
+			$this->assertInstanceOf(StructureElement::class, $structure);
+			$tableStructure = $structure['ns_unittests']['types'];
+			$this->assertInstanceOf(TableStructure::class, $tableStructure);
+
+			$this->recreateTable($connection, $tableStructure);
+			$this->dbmsParametersTypes($connection, $tableStructure);
+		}
+	}
+
+	private function dbmsParametersTypes(Connection $connection, TableStructure $tableStructure)
+	{
+		$dbmsName = TypeDescription::getLocalName($connection);
+		$method = __CLASS__ . '::' . debug_backtrace()[1]['function'];
+		$i = new InsertQuery($tableStructure);
+		$i('int', ':even');
+		$i('large_int', ':odd');
+		$i('small_int', ':even');
+
+		$prepared = ConnectionHelper::prepareStatement($connection, $i, $tableStructure);
+		$sql = \SqlFormatter::format(\strval($prepared), false);
+		$this->derivedFileManager->assertDerivedFile($sql, $method, $dbmsName . '_insert', 'sql');
+
+		/**
+		 * Note: "int" column values must be in increasing order
+		 */
+		$tests = [
+			[
+				'parameters' => [
+					'even' => 2,
+					'odd' => 1
+				],
+				'expected' => [
+					'int' => 2,
+					'large_int' => 1,
+					'small_int' => 2
+				]
+			]
+		];
+
+		$select = new SelectQuery($tableStructure);
+		$select->orderBy('int');
+		$select = ConnectionHelper::getStatementData($connection, $select, $tableStructure);
+
+		foreach ($tests as $label => $test)
+		{
+			$result = $connection->executeStatement($prepared, $test['parameters']);
+			$this->assertInstanceOf(InsertionQueryResult::class, $result,
+				$dbmsName . ' ' . $method . ' insert test ' . $label);
+		}
+
+		$recordset = $connection->executeStatement($select);
+		if ($recordset instanceof \Countable)
+		{
+			$this->assertEquals(\count($tests), $recordset->count(),
+				$dbmsName . ' ' . $method . ' record count');
+		}
+
+		$recordCount = 0;
+		foreach ($recordset as $index => $record)
+		{
+			$test = $tests[$index];
+			foreach ($test['expected'] as $column => $expected)
+			{
+				$this->assertEquals($record[$column], $expected,
+					$dbmsName . ' ' . $method . 'test ' . $index . ' ' . $column);
+			}
+		}
+	}
+
 	public function testParametersEmployees()
 	{
 		$structure = $this->structures->get('Company');
@@ -333,6 +413,7 @@ final class DBMSCommonTest extends TestCase
 	private function employeesTest(TableStructure $tableStructure, Connection $connection)
 	{
 		$dbmsName = TypeDescription::getLocalName($connection);
+		$method = __CLASS__ . '::' . debug_backtrace()[1]['function'];
 		$this->recreateTable($connection, $tableStructure);
 
 		// Insert QUery
