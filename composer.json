@@ -39,7 +39,7 @@
 		"ext-mysql": "*"
 	},
 	"require-dev": {
-		"phpunit/phpunit": "~8.0",
+		"phpunit/phpunit": "~7.0",
 		"jdorn/sql-formatter": "^1.3@dev",
 		"noresources/ns-xml": "^1.1@dev"
 	}

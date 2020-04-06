@@ -14,6 +14,7 @@ use NoreSources\SQL\Expression\Literal;
 use NoreSources\SQL\Expression\TimestampFormatFunction;
 use NoreSources\SQL\QueryResult\InsertionQueryResult;
 use NoreSources\SQL\QueryResult\Recordset;
+use NoreSources\SQL\Statement\DeleteQuery;
 use NoreSources\SQL\Statement\DropTableQuery;
 use NoreSources\SQL\Statement\InsertQuery;
 use NoreSources\SQL\Statement\SelectQuery;
@@ -341,13 +342,16 @@ final class DBMSCommonTest extends TestCase
 		$i('large_int', ':odd');
 		$i('small_int', ':even');
 
-		$prepared = ConnectionHelper::prepareStatement($connection, $i, $tableStructure);
-		$sql = \SqlFormatter::format(\strval($prepared), false);
+		$select = ConnectionHelper::getStatementData($connection, new SelectQuery($tableStructure),
+			$tableStructure);
+
+		$delete = ConnectionHelper::getStatementData($connection, new DeleteQuery($tableStructure),
+			$tableStructure);
+
+		$insert = ConnectionHelper::prepareStatement($connection, $i, $tableStructure);
+		$sql = \SqlFormatter::format(\strval($insert), false);
 		$this->derivedFileManager->assertDerivedFile($sql, $method, $dbmsName . '_insert', 'sql');
 
-		/**
-		 * Note: "int" column values must be in increasing order
-		 */
 		$tests = [
 			[
 				'parameters' => [
@@ -362,33 +366,102 @@ final class DBMSCommonTest extends TestCase
 			]
 		];
 
-		$select = new SelectQuery($tableStructure);
-		$select->orderBy('int');
-		$select = ConnectionHelper::getStatementData($connection, $select, $tableStructure);
+		foreach ($tests as $label => $test)
+		{
+			$this->connections->queryTest($connection, $insert, $test['parameters'],
+				$test['expected'], $select, $delete);
+		}
+
+		$insert = new InsertQuery($tableStructure);
+		$insert('binary', ':bin');
+		$insert = ConnectionHelper::prepareStatement($connection, $insert, $tableStructure);
+
+		$tests = [
+			'int' => [
+				'parameters' => [
+					'bin' => 0xdeadbeef // 3735928559
+				],
+				'expected' => [
+					'binary' => 0xdeadbeef
+				]
+			],
+			'float' => [
+				'parameters' => [
+					'bin' => 1.2345
+				],
+				'expected' => [
+					'binary' => 1.2345
+				]
+			],
+			'text' => [
+				'parameters' => [
+					'bin' => 'Hello world'
+				],
+				'expected' => [
+					'binary' => 'Hello world'
+				]
+			],
+			'null' => [
+				'parameters' => [
+					'bin' => null
+				],
+				'expected' => [
+					'binary' => null
+				]
+			]
+		];
 
 		foreach ($tests as $label => $test)
 		{
-			$result = $connection->executeStatement($prepared, $test['parameters']);
-			$this->assertInstanceOf(InsertionQueryResult::class, $result,
-				$dbmsName . ' ' . $method . ' insert test ' . $label);
+			$this->connections->queryTest($connection, $insert, $test['parameters'],
+				$test['expected'], $select, $delete);
 		}
 
-		$recordset = $connection->executeStatement($select);
-		if ($recordset instanceof \Countable)
-		{
-			$this->assertEquals(\count($tests), $recordset->count(),
-				$dbmsName . ' ' . $method . ' record count');
-		}
+		$insert = new InsertQuery($tableStructure);
+		$insert('binary', ':bin');
+		$insert('base', ':base');
+		$insert('large_int', ':int');
+		$insert = ConnectionHelper::prepareStatement($connection, $insert, $tableStructure);
 
-		$recordCount = 0;
-		foreach ($recordset as $index => $record)
+		$tests = [
+			'missing bin' => [
+				'parameters' => [
+					'int' => 456,
+					'base' => 'Missing :bin parameter'
+				],
+				'expected' => [
+					'binary' => null,
+					'base' => 'Missing :bin parameter',
+					'large_int' => 456
+				]
+			],
+			'missing int' => [
+				'parameters' => [
+					'bin' => 0xcafe,
+					'base' => 'Missing :int parameter'
+				],
+				'expected' => [
+					'binary' => 0xcafe,
+					'base' => 'Missing :int parameter',
+					'large_int' => null
+				]
+			],
+			'missing int and bin' => [
+				'parameters' => [
+					'base' => 'Missing :int parameter'
+				],
+				'expected' => [
+					'binary' => null,
+					'base' => 'Missing :int parameter',
+					'large_int' => null
+				]
+			]
+		];
+
+		foreach ($tests as $label => $test)
 		{
-			$test = $tests[$index];
-			foreach ($test['expected'] as $column => $expected)
-			{
-				$this->assertEquals($record[$column], $expected,
-					$dbmsName . ' ' . $method . 'test ' . $index . ' ' . $column);
-			}
+			$this->connections->queryTest($connection, $insert, $test['parameters'],
+				$test['expected'], $select, $delete);
 		}
 	}
 
