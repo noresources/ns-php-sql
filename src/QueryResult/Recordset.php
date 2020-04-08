@@ -9,7 +9,6 @@
  */
 namespace NoreSources\SQL\QueryResult;
 
-// Aliases
 use NoreSources\ArrayRepresentation;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DataUnserializer;
@@ -18,6 +17,8 @@ use NoreSources\SQL\Statement\OutputData;
 use NoreSources\SQL\Statement\OutputDataTrait;
 use NoreSources\SQL\Statement\ResultColumnMap;
 use NoreSources\SQL\Structure\ColumnPropertyMap;
+
+// Aliases
 
 /**
  * Recordset query result
@@ -58,6 +59,26 @@ abstract class Recordset implements \Iterator, OutputData, QueryResult, ArrayRep
 	const FETCH_UNSERIALIZE = K::RECORDSET_FETCH_UBSERIALIZE;
 
 	/**
+	 * Set the default Recordset flags for all future Recordset instances
+	 *
+	 * @param integer $flags
+	 */
+	public static function setDefaultFlags($flags)
+	{
+		self::$defaultFlags = (self::$defaultFlags & ~self::PUBLIC_FLAGS) |
+			($flags & self::PUBLIC_FLAGS);
+	}
+
+	/**
+	 *
+	 * @return integer Default flags set for each new Recordset instance
+	 */
+	public static function getDefaultFlags()
+	{
+		return self::$defaultFlags;
+	}
+
+	/**
 	 *
 	 * @property-read string $rowIndex Current row index
 	 * @property-read integer $flags Recordset flags
@@ -86,8 +107,7 @@ abstract class Recordset implements \Iterator, OutputData, QueryResult, ArrayRep
 	{
 		$previousFlags = $this->flags;
 
-		$this->flags &= ~self::PUBLIC_FLAGS;
-		$flags &= self::PUBLIC_FLAGS;
+		$this->flags = ($this->flags & ~self::PUBLIC_FLAGS) | ($flags & self::PUBLIC_FLAGS);
 
 		$this->rowIndex = -1;
 		$this->flags |= $flags;
@@ -224,7 +244,7 @@ abstract class Recordset implements \Iterator, OutputData, QueryResult, ArrayRep
 	{
 		$this->initializeOutputData($data);
 
-		$this->flags = self::FETCH_BOTH;
+		$this->flags = self::getDefaultFlags();
 		$this->record = [];
 		$this->internalRecord = false;
 		$this->setIteratorPosition(-1, self::POSITION_BEGIN);
@@ -333,4 +353,12 @@ abstract class Recordset implements \Iterator, OutputData, QueryResult, ArrayRep
 	 * @var DataUnserializer
 	 */
 	private $unserializer;
+
+	/**
+	 *
+	 * @var integer
+	 */
+	private static $defaultFlags;
 }
+
+Recordset::setDefaultFlags(Recordset::FETCH_BOTH);
