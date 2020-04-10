@@ -51,7 +51,7 @@ class Literal implements TokenizableExpression, ExpressionReturnType
 	 * @param ColumnPropertyMap|integer|null $type
 	 *        	serialization target type
 	 */
-	public function __construct($value, $type = K::DATATYPE_STRING)
+	public function __construct($value, $type = K::DATATYPE_UNDEFINED)
 	{
 		$this->serializationTarget = K::DATATYPE_UNDEFINED;
 		$this->setValue($value, $type);
