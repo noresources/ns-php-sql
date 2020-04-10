@@ -1,0 +1,1 @@
+SELECT TO_CHAR("ns_unittests"."types"."timestamp", 'am') AS "format" FROM "ns_unittests"."types"

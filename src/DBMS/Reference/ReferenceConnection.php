@@ -16,6 +16,7 @@ use NoreSources\SQL\DBMS\Connection;
 use NoreSources\SQL\DBMS\ConnectionStructureTrait;
 use NoreSources\SQL\Statement\ClassMapStatementFactoryTrait;
 use NoreSources\SQL\Statement\StatementFactoryInterface;
+use Psr\Log\LoggerAwareTrait;
 
 /**
  * SQLite connection
@@ -23,6 +24,7 @@ use NoreSources\SQL\Statement\StatementFactoryInterface;
 class ReferenceConnection implements Connection, StatementFactoryInterface
 {
 	use ConnectionStructureTrait;
+	use LoggerAwareTrait;
 
 	use ClassMapStatementFactoryTrait;
 

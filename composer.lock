@@ -51,7 +51,7 @@
             "source": {
                 "type": "git",
                 "url": "ssh://okami/volume1/repository/git/ns-php-core.git",
-                "reference": "be88388acf79b46be3c2f1dce2940e02bd36e586"
+                "reference": "f0e60da1c5196e5a80efaf012ade3ac1213252e2"
             },
             "require": {
                 "ext-json": "*",
@@ -102,7 +102,7 @@
             "support": {
                 "issues": "https://github.com/noresources/ns-php-core/issues"
             },
-            "time": "2020-04-05T21:20:52+00:00"
+            "time": "2020-04-08T21:55:58+00:00"
         },
         {
             "name": "noresources/ns-php-expression",

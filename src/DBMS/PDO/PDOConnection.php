@@ -13,10 +13,10 @@ use NoreSources\Container;
 use NoreSources\TypeDescription;
 use NoreSources\SQL\ParameterValue;
 use NoreSources\SQL\DBMS\Connection;
+use NoreSources\SQL\DBMS\ConnectionException;
 use NoreSources\SQL\DBMS\ConnectionHelper;
 use NoreSources\SQL\DBMS\ConnectionStructureTrait;
 use NoreSources\SQL\DBMS\PDO\PDOConstants as K;
-use NoreSources\SQL\DBMS\SQLite\ConnectionException;
 use NoreSources\SQL\QueryResult\GenericInsertionQueryResult;
 use NoreSources\SQL\QueryResult\GenericRowModificationQueryResult;
 use NoreSources\SQL\Statement\ClassMapStatementFactory;
@@ -24,6 +24,7 @@ use NoreSources\SQL\Statement\ParameterData;
 use NoreSources\SQL\Statement\ParametrizedStatement;
 use NoreSources\SQL\Statement\Statement;
 use NoreSources\SQL\Statement\StatementFactoryInterface;
+use Psr\Log\LoggerAwareTrait;
 
 // Aliases
 
@@ -33,6 +34,7 @@ use NoreSources\SQL\Statement\StatementFactoryInterface;
 class PDOConnection implements Connection
 {
 	use ConnectionStructureTrait;
+	use LoggerAwareTrait;
 
 	const DRIVER_MYSQL = 'mysql';
 

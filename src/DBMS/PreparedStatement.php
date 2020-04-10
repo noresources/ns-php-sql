@@ -9,16 +9,15 @@
  */
 namespace NoreSources\SQL\DBMS;
 
-use NoreSources\StringRepresentation;
 use NoreSources\SQL\Statement\InputData;
 use NoreSources\SQL\Statement\InputDataTrait;
-use NoreSources\SQL\Statement\OutputData;
 use NoreSources\SQL\Statement\OutputDataTrait;
+use NoreSources\SQL\Statement\StatementData;
 
 /**
  * Pre-built statement
  */
-abstract class PreparedStatement implements InputData, OutputData, StringRepresentation
+abstract class PreparedStatement extends StatementData
 {
 
 	use InputDataTrait;

@@ -3,12 +3,15 @@ namespace NoreSources\SQL;
 
 use NoreSources\Container;
 use NoreSources\DateTime;
+use NoreSources\ErrorReporterLogger;
+use NoreSources\SingletonTrait;
 use NoreSources\TypeDescription;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\Connection;
 use NoreSources\SQL\DBMS\ConnectionException;
 use NoreSources\SQL\DBMS\ConnectionHelper;
 use NoreSources\SQL\DBMS\PreparedStatement;
+use NoreSources\SQL\Expression\CastFunction;
 use NoreSources\SQL\Expression\Column;
 use NoreSources\SQL\Expression\Literal;
 use NoreSources\SQL\Expression\TimestampFormatFunction;
@@ -18,6 +21,7 @@ use NoreSources\SQL\Statement\DeleteQuery;
 use NoreSources\SQL\Statement\DropTableQuery;
 use NoreSources\SQL\Statement\InsertQuery;
 use NoreSources\SQL\Statement\SelectQuery;
+use NoreSources\SQL\Structure\ArrayColumnPropertyMap;
 use NoreSources\SQL\Structure\StructureElement;
 use NoreSources\SQL\Structure\TableStructure;
 use NoreSources\Test\DatasourceManager;
@@ -25,6 +29,43 @@ use NoreSources\Test\DerivedFileManager;
 use NoreSources\Test\Generator;
 use NoreSources\Test\TestConnection;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
+use Psr\Log\LoggerTrait;
+
+class DBMSTestSilentLogger implements LoggerInterface, \Countable
+{
+	use LoggerTrait;
+	use SingletonTrait;
+
+	public function __construct()
+	{
+		$this->logs = [];
+	}
+
+	public function count()
+	{
+		return \count($this->logs);
+	}
+
+	public function clear()
+	{
+		$this->logs = [];
+	}
+
+	public function log($level, $message, $context = array())
+	{
+		$this->logs[] = [
+			$level,
+			$message
+		];
+	}
+
+	/**
+	 *
+	 * @var array
+	 */
+	public $logs;
+}
 
 final class DBMSCommonTest extends TestCase
 {
@@ -232,83 +273,118 @@ final class DBMSCommonTest extends TestCase
 			$this->assertEquals($content, $row['binary'],
 				$dbmsName . ' ' . $fileName . ' content from db');
 		}
+	}
 
-		// Timestamp formatting
+	public function testTimestampFormats()
+	{
+		$settings = $this->connections->getAvailableConnectionNames();
+
+		foreach ($settings as $dbmsName)
 		{
-			$timestamps = [];
-			for ($i = 0; $i < 10; $i++)
-			{
-				$timestamps[] = Generator::randomDateTime(
-					[
-						'yearRange' => [
-							// PostgreSQL wants a special format of BC dates
-							//
-							1,
-							2123
-						],
+			$connection = $this->connections->get($dbmsName);
+			$this->assertInstanceOf(Connection::class, $connection, $dbmsName);
+			$this->assertTrue($connection->isConnected(), $dbmsName);
+			$structure = $this->structures->get('types');
+			$this->assertInstanceOf(StructureElement::class, $structure);
+			$tableStructure = $structure['ns_unittests']['types'];
+			$this->assertInstanceOf(TableStructure::class, $tableStructure);
 
-						'timezone' => DateTime::getUTCTimezone()
-					]);
+			$this->recreateTable($connection, $tableStructure);
+			$this->dbmsTimestampFormats($connection, $tableStructure);
+		}
+	}
+
+	public function dbmsTimestampFormats(Connection $connection, TableStructure $tableStructure)
+	{
+		$dbmsName = TypeDescription::getLocalName($connection);
+		$method = __CLASS__ . '::' . debug_backtrace()[1]['function'];
+
+		$timestamps = [];
+		for ($i = 0; $i < 10; $i++)
+		{
+			$timestamps[] = Generator::randomDateTime(
+				[
+					'yearRange' => [
+						1789,
+						2049
+					],
+
+					'timezone' => DateTime::getUTCTimezone()
+				]);
+		}
+
+		// Some static timestamps
+		$timestamps[] = new DateTIme('@0', DateTIme::getUTCTimezone());
+
+		$formats = DateTime::getFormatTokenDescriptions();
+		$formats['Y-m-d'] = 'Date';
+		$formats['H:i:s'] = 'Time';
+
+		$delete = ConnectionHelper::prepareStatement($connection, new DeleteQuery($tableStructure),
+			$tableStructure);
+
+		$columnType = new ArrayColumnPropertyMap([
+			K::COLUMN_DATA_TYPE => K::DATATYPE_DATETIME
+		]);
+
+		foreach ($formats as $format => $desc)
+		{
+			$label = $desc;
+			if (Container::isArray($desc))
+			{
+				$label = Container::keyValue($desc, DateTime::FORMAT_LABEL, $format);
+				if (Container::keyExists($desc, DateTime::FORMAT_DETAILS))
+					$label .= ' (' . $desc[DateTime::FORMAT_DETAILS] . ')';
+				if (Container::keyExists($desc, DateTime::FORMAT_RANGE))
+					$label .= ' [' . implode('-', $desc[DateTime::FORMAT_RANGE]) . ']';
 			}
+			$select = new SelectQuery($tableStructure);
+			$select->columns(
+				[
+					new TimestampFormatFunction($format, new Column('timestamp')),
+					'format'
+				]);
 
-			$formats = [
-				'date' => 'Y-m-d',
-				'time' => 'H:i:s'
-			];
+			DBMSTestSilentLogger::getInstance()->clear();
+			$connection->setLogger(DBMSTestSilentLogger::getInstance());
+			$select = ConnectionHelper::prepareStatement($connection, $select, $tableStructure);
+			$connection->setLogger(ErrorReporterLogger::getInstance());
 
-			$i = new InsertQuery($tableStructure);
-			$i('base', ':id');
-			$i('timestamp', ':timestamp');
+			if (DBMSTestSilentLogger::getInstance()->count())
+				continue;
 
-			$prepared = ConnectionHelper::prepareStatement($connection, $i, $tableStructure);
+			$this->assertInstanceOf(PreparedStatement::class, $select,
+				$dbmsName . ' ' . $method . ' SELECT');
 
-			$c = \count($timestamps);
-			for ($i = 0; $i < $c; $i++)
+			$this->derivedFileManager->assertDerivedFile(\strval($select), $method,
+				$dbmsName . '_' . $format, 'sql');
+
+			foreach ($timestamps as $test => $timestamp)
 			{
-				$id = 'timestamp_format_' . $i;
-				$result = $connection->executeStatement($prepared,
-					[
-						'id' => $id,
-						'timestamp' => $timestamps[$i]
-					]);
-			}
+				$dateTime = new DateTime($timestamp, DateTIme::getUTCTimezone());
+				$expected = $dateTime->format($format);
 
-			foreach ($formats as $label => $format)
-			{
-				$s = new SelectQuery($tableStructure);
-				$s->orderBy('int');
-				$s->columns('timestamp',
+				$select = new SelectQuery();
+				$select->columns(
 					[
-						new TimestampFormatFunction($format, new Column('timestamp')),
+						new TimestampFormatFunction($format,
+							new CastFunction(new Literal($dateTime), $columnType)),
 						'format'
 					]);
-				$s->where("base like 'timestamp_format_%'")->orderBy('base');
 
-				$statement = ConnectionHelper::getStatementData($connection, $s, $tableStructure);
+				DBMSTestSilentLogger::getInstance()->clear();
+				$connection->setLogger(DBMSTestSilentLogger::getInstance());
+				$select = ConnectionHelper::prepareStatement($connection, $select, $tableStructure);
+				$connection->setLogger(ErrorReporterLogger::getInstance());
 
-				$result = $connection->executeStatement($statement);
-				$this->assertInstanceOf(Recordset::class, $result);
-
-				if ($result instanceof \Countable)
-					$this->assertCount(\count($timestamps), $result);
-
-				$i = 0;
-				//$result->setFlags($result->getFlags() | Recordset::FETCH_UNSERIALIZE);
-				foreach ($result as $row)
-				{
-					/*
-					 * Most of DBMS outputs UTC based values
-					 */
-					$dt = clone $timestamps[$i];
-					$dt->setTimezone(DateTime::getUTCTimezone());
-
-					$expected = $dt->format($format);
-					$actual = $row['format'];
-					$this->assertEquals($expected, $actual,
-						$dbmsName . ' timestamp format ' . $format . ' of #' . $i . ' ' .
-						$timestamps[0]->format(\DateTIme::ISO8601) . PHP_EOL . \strval($statement));
-					$i++;
-				}
+				$this->connections->queryTest($connection, [
+					'id' => 'Timestamp ' . $test
+				], [
+					'format' => $expected
+				], [
+					'select' => $select,
+					'label' => $dbmsName . ' [' . $format . '] ' . $label
+				]);
 			}
 		}
 	}
@@ -368,8 +444,12 @@ final class DBMSCommonTest extends TestCase
 
 		foreach ($tests as $label => $test)
 		{
-			$this->connections->queryTest($connection, $insert, $test['parameters'],
-				$test['expected'], $select, $delete);
+			$this->connections->queryTest($connection, $test['parameters'], $test['expected'],
+				[
+					'insert' => $insert,
+					'select' => $select,
+					'cleanup' => $delete
+				]);
 		}
 
 		$insert = new InsertQuery($tableStructure);
@@ -413,8 +493,12 @@ final class DBMSCommonTest extends TestCase
 
 		foreach ($tests as $label => $test)
 		{
-			$this->connections->queryTest($connection, $insert, $test['parameters'],
-				$test['expected'], $select, $delete);
+			$this->connections->queryTest($connection, $test['parameters'], $test['expected'],
+				[
+					'insert' => $insert,
+					'select' => $select,
+					'cleanup' => $delete
+				]);
 		}
 
 		$insert = new InsertQuery($tableStructure);
@@ -460,8 +544,12 @@ final class DBMSCommonTest extends TestCase
 
 		foreach ($tests as $label => $test)
 		{
-			$this->connections->queryTest($connection, $insert, $test['parameters'],
-				$test['expected'], $select, $delete);
+			$this->connections->queryTest($connection, $test['parameters'], $test['expected'],
+				[
+					'insert' => $insert,
+					'select' => $select,
+					'cleanup' => $delete
+				]);
 		}
 	}
 

@@ -20,9 +20,12 @@ use NoreSources\SQL\Expression\MetaFunctionCall;
 use NoreSources\SQL\Statement\ParameterData;
 use NoreSources\SQL\Statement\StatementBuilder;
 use NoreSources\SQL\Structure\ColumnStructure;
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerAwareTrait;
 
-class SQLiteStatementBuilder extends StatementBuilder
+class SQLiteStatementBuilder extends StatementBuilder implements LoggerAwareInterface
 {
+	use LoggerAwareTrait;
 
 	public function __construct()
 	{
@@ -139,7 +142,12 @@ class SQLiteStatementBuilder extends StatementBuilder
 						'%Y',
 						'Two digits year number format is not available'
 					],
-					'o' => '%G',
+					/**
+					 *
+					 * @todo uncler. May differ
+					 */
+					'o' => '%Y',
+
 					'L' => false,
 					'M' => false,
 					'F' => false,
@@ -148,12 +156,18 @@ class SQLiteStatementBuilder extends StatementBuilder
 						'%m',
 						'Month number without leading zero is not available'
 					],
-					'W' => '%W',
+					'W' => [
+						'%W',
+						'Not ISO-8601. Week number may differ'
+					],
 					'l' => false,
 					't' => false,
 					'D' => false,
 					'd' => '%d',
-					'j' => '%d',
+					'j' => [
+						'%d',
+						'Leading zero cannot be omited'
+					],
 					'z' => [
 						'%j',
 						'Day of year range will be [1-366] instead of [0-365]'
@@ -227,14 +241,14 @@ class SQLiteStatementBuilder extends StatementBuilder
 
 				if ($t === false)
 				{
-					trigger_error('Timestamp format "' . $c . ' " nut supported by SQLite strftime',
-						E_USER_WARNING);
+					$this->logger->warning(
+						'Timestamp format "' . $c . '" is nut supported by SQLite strftime');
 					continue;
 				}
 
 				if (\is_array($t))
 				{
-					trigger_error('Timestamp format "' . $c . '": ' . $t[1], E_USER_NOTICE);
+					$this->logger->notice('Timestamp format "' . $c . '": ' . $t[1]);
 					$t = $t[0];
 				}
 

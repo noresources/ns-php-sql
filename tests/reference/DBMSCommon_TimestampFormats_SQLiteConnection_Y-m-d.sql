@@ -1,0 +1,1 @@
+SELECT STRFTIME('%Y-%m-%d', "ns_unittests"."types"."timestamp") AS "format" FROM "ns_unittests"."types"

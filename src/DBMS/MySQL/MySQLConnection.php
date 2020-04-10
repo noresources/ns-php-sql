@@ -24,6 +24,8 @@ use NoreSources\SQL\Statement\ClassMapStatementFactory;
 use NoreSources\SQL\Statement\ParameterData;
 use NoreSources\SQL\Statement\Statement;
 use NoreSources\SQL\Statement\StatementFactoryInterface;
+use Psr\Log\LoggerAwareTrait;
+use Psr\Log\LoggerInterface;
 
 // Aliases
 
@@ -33,6 +35,7 @@ use NoreSources\SQL\Statement\StatementFactoryInterface;
 class MySQLConnection implements Connection
 {
 	use ConnectionStructureTrait;
+	use LoggerAwareTrait;
 
 	const STATE_CONNECTED = 0x01;
 
@@ -47,6 +50,12 @@ class MySQLConnection implements Connection
 	{
 		if ($this->mysqlFlags & self::STATE_CONNECTED)
 			$this->link->close();
+	}
+
+	public function setLogger(LoggerInterface $logger)
+	{
+		$this->logger = $logger;
+		$this->getStatementBuilder()->setLogger($logger);
 	}
 
 	public function beginTransation()

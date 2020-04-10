@@ -26,11 +26,14 @@ use NoreSources\SQL\Statement\ParameterData;
 use NoreSources\SQL\Statement\ParametrizedStatement;
 use NoreSources\SQL\Statement\Statement;
 use NoreSources\SQL\Statement\StatementFactoryInterface;
+use Psr\Log\LoggerAwareTrait;
+use Psr\Log\LoggerInterface;
 
 class PostgreSQLConnection implements Connection
 {
 
 	use ConnectionStructureTrait;
+	use LoggerAwareTrait;
 
 	/**
 	 *
@@ -52,6 +55,12 @@ class PostgreSQLConnection implements Connection
 	{
 		if (\is_resource($this->resource))
 			\pg_close($this->resource);
+	}
+
+	public function setLogger(LoggerInterface $logger)
+	{
+		$this->logger = $logger;
+		$this->getStatementBuilder()->setLogger($logger);
 	}
 
 	public function beginTransation()

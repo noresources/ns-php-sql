@@ -23,10 +23,14 @@ use NoreSources\SQL\Statement\StatementBuilder;
 use NoreSources\SQL\Structure\ColumnStructure;
 use NoreSources\SQL\Structure\PrimaryKeyTableConstraint;
 use NoreSources\SQL\Structure\TableStructure;
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerAwareTrait;
 
 // Aliases
-class MySQLStatementBuilder extends StatementBuilder
+class MySQLStatementBuilder extends StatementBuilder implements LoggerAwareInterface
 {
+
+	use LoggerAwareTrait;
 
 	public function __construct(MySQLConnection $connection)
 	{
@@ -219,8 +223,7 @@ class MySQLStatementBuilder extends StatementBuilder
 					'D' => '%a',
 					// Two-digit day of the month (with leading zeros)
 					'd' => '%d',
-					// Day of the month, with a space preceding single digits.
-					'j' => '%j',
+					'j' => '%e',
 					'z' => [
 						'%j',
 						'Day of year range will be [1-366] instead of [0-365]'
@@ -266,7 +269,7 @@ class MySQLStatementBuilder extends StatementBuilder
 					'I' => false,
 					'r' => false,
 					'c' => false,
-					'U' => '%s'
+					'U' => false
 				]);
 		}
 
@@ -354,14 +357,14 @@ class MySQLStatementBuilder extends StatementBuilder
 
 				if ($t === false)
 				{
-					trigger_error('Timestamp format "' . $c . ' " nut supported by MySQL strftime',
-						E_USER_WARNING);
+					$this->logger->warning(
+						'Timestamp format "' . $c . '" not supported by MySQL date_format()');
 					continue;
 				}
 
 				if (\is_array($t))
 				{
-					trigger_error('Timestamp format "' . $c . '": ' . $t[1], E_USER_NOTICE);
+					$this->logger->notice('Timestamp format "' . $c . '": ' . $t[1]);
 					$t = $t[0];
 				}
 

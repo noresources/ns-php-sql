@@ -10,13 +10,14 @@
 namespace NoreSources\SQL\DBMS;
 
 use NoreSources\SQL\Statement\StatementBuilderAwareInterface;
+use Psr\Log\LoggerAwareInterface;
 
 // Aliases
 
 /**
  * DMBS connection
  */
-interface Connection extends StatementBuilderAwareInterface
+interface Connection extends StatementBuilderAwareInterface, LoggerAwareInterface
 {
 
 	/**

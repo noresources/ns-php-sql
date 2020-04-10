@@ -1,12 +1,12 @@
 <?php
 namespace NoreSources\Test;
 
+use NoreSources\Container;
 use NoreSources\DataTree;
 use NoreSources\TypeDescription;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\Connection;
 use NoreSources\SQL\DBMS\ConnectionHelper;
-use NoreSources\SQL\DBMS\PreparedStatement;
 use NoreSources\SQL\QueryResult\InsertionQueryResult;
 use NoreSources\SQL\QueryResult\Recordset;
 use NoreSources\SQL\QueryResult\RowModificationQueryResult;
@@ -59,27 +59,37 @@ class TestConnection extends \PHPUnit\Framework\TestCase
 		return $this->connections[$name];
 	}
 
-	public function queryTest(Connection $connection, PreparedStatement $insert, $parameters,
-		$expectedValues, StatementData $select = null, StatementData $cleanup = null)
+	public function queryTest(Connection $connection, $parameters, $expectedValues,
+		$options = array())
 	{
 		$dbmsName = TypeDescription::getLocalName($connection);
-		$result = $connection->executeStatement($insert, $parameters);
-		if ($insert->getStatementType() & K::QUERY_INSERT)
-			$this->assertInstanceOf(InsertionQueryResult::class, $result);
-		elseif ($insert->getStatementType() & K::QUERY_FAMILY_ROWMODIFICATION)
-			$this->assertInstanceOf(RowModificationQueryResult::class, $result);
+		$insert = Container::keyValue($options, 'insert', null);
+		$select = Container::keyValue($options, 'select', null);
+		$cleanup = Container::keyValue($options, 'cleanup', null);
+		$label = Container::keyValue($options, 'label', $dbmsName);
+
+		if ($insert instanceof StatementData)
+		{
+			$result = $connection->executeStatement($insert, $parameters);
+			if ($insert->getStatementType() & K::QUERY_INSERT)
+				$this->assertInstanceOf(InsertionQueryResult::class, $result,
+					$label . ' - (insert result)');
+			elseif ($insert->getStatementType() & K::QUERY_FAMILY_ROWMODIFICATION)
+				$this->assertInstanceOf(RowModificationQueryResult::class, $result,
+					$dbmsName . ' (row modification result)');
+		}
 
 		if ($select)
 		{
 			$recordset = $connection->executeStatement($select);
-			$this->assertInstanceOf(Recordset::class, $recordset);
+			$this->assertInstanceOf(Recordset::class, $recordset, $label . ' - (select result)');
 
 			/**
 			 *
 			 * @var Recordset $recordset
 			 */
 
-			$recordset->setFlags($recordset->getFlags() | Recordset::FETCH_UNSERIALIZE);
+			$recordset->setFlags(Recordset::FETCH_ASSOCIATIVE | Recordset::FETCH_UNSERIALIZE);
 
 			if ($recordset instanceof \Countable)
 				$this->assertCount(1, $recordset);
@@ -90,7 +100,7 @@ class TestConnection extends \PHPUnit\Framework\TestCase
 
 			foreach ($expectedValues as $key => $value)
 			{
-				$this->assertEquals($value, $record[$key], $dbmsName . ' record ' . $key . ' value');
+				$this->assertEquals($value, $record[$key], $label . ' - record ' . $key . ' value');
 			}
 		}
 

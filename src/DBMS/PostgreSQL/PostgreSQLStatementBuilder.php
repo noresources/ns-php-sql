@@ -21,10 +21,14 @@ use NoreSources\SQL\Expression\MetaFunctionCall;
 use NoreSources\SQL\Statement\ParameterData;
 use NoreSources\SQL\Statement\StatementBuilder;
 use NoreSources\SQL\Structure\ColumnStructure;
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerAwareTrait;
 
 // Aliases
-class PostgreSQLStatementBuilder extends StatementBuilder
+class PostgreSQLStatementBuilder extends StatementBuilder implements LoggerAwareInterface
 {
+
+	use LoggerAwareTrait;
 
 	public function __construct(PostgreSQLConnection $connection = null)
 	{
@@ -230,15 +234,14 @@ class PostgreSQLStatementBuilder extends StatementBuilder
 
 					if ($t === false)
 					{
-						trigger_error(
-							'Timestamp format "' . $c . ' " nut supported by SQLite to_char',
-							E_USER_WARNING);
+						$this->logger->warning(
+							'Timestamp format "' . $c . '" nut supported by PostgreSQL to_char');
 						continue;
 					}
 
 					if (\is_array($t))
 					{
-						trigger_error('Timestamp format "' . $c . '": ' . $t[1], E_USER_NOTICE);
+						$this->logger->notice('Timestamp format "' . $c . '": ' . $t[1]);
 						$t = $t[0];
 					}
 				}
@@ -283,11 +286,11 @@ class PostgreSQLStatementBuilder extends StatementBuilder
 					'o' => 'IYYY',
 					'L' => false,
 					'M' => 'Mon',
-					'F' => 'Month',
+					'F' => 'FMMonth',
 					'm' => 'MM',
 					'n' => 'FMMM',
 					'W' => 'IW',
-					'l' => 'Day',
+					'l' => 'FMDay',
 					't' => false,
 					'D' => 'Dy',
 					'd' => 'DD',
@@ -319,9 +322,15 @@ class PostgreSQLStatementBuilder extends StatementBuilder
 					// Time zone
 					'Z' => false,
 					'O' => false,
-					'P' => 'OF',
+					'P' => [
+						'OF',
+						'Minute offset will not be included'
+					],
 					'e' => false,
-					'T' => 'TZ',
+					'T' => [
+						'TZ',
+						'Timezone abbreviations may differ and are not available on timestamp without timezone'
+					],
 					'I' => false,
 					'r' => false,
 					'c' => [

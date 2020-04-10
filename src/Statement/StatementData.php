@@ -9,9 +9,7 @@
  */
 namespace NoreSources\SQL\Statement;
 
-use NoreSources\StringRepresentation;
-
-class StatementData implements InputData, OutputData, StringRepresentation
+class StatementData implements StatementDataInterface
 {
 	use InputDataTrait;
 	use OutputDataTrait;

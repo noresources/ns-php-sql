@@ -1,0 +1,1 @@
+SELECT DATE_FORMAT(`ns_unittests`.`types`.`timestamp`, '%W') AS `format` FROM `ns_unittests`.`types`

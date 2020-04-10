@@ -10,6 +10,7 @@
 namespace NoreSources\SQL\DBMS\SQLite;
 
 use NoreSources\Container;
+use NoreSources\ErrorReporterLogger;
 use NoreSources\TypeDescription;
 use NoreSources\SQL\ParameterValue;
 use NoreSources\SQL\DBMS\Connection;
@@ -76,12 +77,19 @@ class SQLiteConnection implements Connection
 	{
 		$this->builder = new SQLiteStatementBuilder();
 		$this->connection = null;
+		$this->setLogger(ErrorReporterLogger::getInstance());
 	}
 
 	public function __destruct()
 	{
 		if ($this->connection instanceof \SQLite3)
 			$this->disconnect();
+	}
+
+	public function setLogger($logger)
+	{
+		$this->logger = $logger;
+		$this->builder->setLogger($logger);
 	}
 
 	public function __get($member)
