@@ -6,6 +6,7 @@ use NoreSources\SQL\DBMS\ConnectionHelper;
 use NoreSources\SQL\DBMS\Reference\ReferenceConnection;
 use NoreSources\SQL\DBMS\Reference\ReferenceStatementBuilder;
 use NoreSources\SQL\Expression\Evaluator as X;
+use NoreSources\SQL\Expression\Literal;
 use NoreSources\SQL\Expression\MemberOf;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Statement\BuildContext;
@@ -62,6 +63,27 @@ final class SelectTest extends \PHPUnit\Framework\TestCase
 		$sql = \SqlFormatter::format(strval($result), false);
 
 		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, null, 'sql');
+	}
+
+	public function testStructurelessSelect()
+	{
+		$builder = new ReferenceStatementBuilder();
+		$context = new BuildContext($builder);
+
+		$select = new SelectQuery();
+		$column = new Literal(true);
+		$this->assertEquals(K::DATATYPE_BOOLEAN, $column->getExpressionDataType(),
+			'Column value type');
+
+		$select->columns($column);
+
+		$stream = new TokenStream();
+		$select->tokenize($stream, $context);
+		$result = $builder->finalizeStatement($stream, $context);
+
+		$this->assertEquals(K::QUERY_SELECT, $result->getStatementType(), 'Statement type');
+
+		$this->derivedFileManager->assertDerivedFile(\strval($result), __METHOD__, 'true', 'sql');
 	}
 
 	public function testSelectCompanyTasks()

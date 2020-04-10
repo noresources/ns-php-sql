@@ -171,22 +171,12 @@ class SelectQuery extends Statement
 	 *        	Table structure path
 	 * @param string|null $alias
 	 */
-	public function __construct($table, $alias = null)
+	public function __construct($table = null, $alias = null)
 	{
-		if ($table instanceof TableStructure)
-		{
-			$table = $table->getPath();
-		}
-
-		if (!\is_string($table))
-			throw new \InvalidArgumentException(
-				'Invalid type for $table argument. ' . TableStructure::class .
-				' or string expected. Got ' . TypeDescription::getName($table));
-
 		$this->parts = [
 			self::PART_DISTINCT => false,
 			self::PART_COLUMNS => new \ArrayObject(),
-			self::PART_TABLE => new TableReference($table, $alias),
+			self::PART_TABLE => null,
 			self::PART_JOINS => new \ArrayObject(),
 			self::PART_WHERE => new \ArrayObject(),
 			self::PART_GROUPBY => new \ArrayObject(),
@@ -198,6 +188,29 @@ class SelectQuery extends Statement
 				'offset' => 0
 			]
 		];
+
+		if ($table)
+			$this->table($table, $alias);
+	}
+
+	/**
+	 *
+	 * @param TableStructure|string $table
+	 *        	Table structure path
+	 * @param string|null $alias
+	 */
+	public function table($table, $alias = null)
+	{
+		if ($table instanceof TableStructure)
+			$table = $table->getPath();
+
+		if (!\is_string($table))
+			throw new \InvalidArgumentException(
+				'Invalid type for $table argument. ' . TableStructure::class .
+				' or string expected. Got ' . TypeDescription::getName($table));
+
+		$this->parts[self::PART_TABLE] = new TableReference($table, $alias);
+		return $this;
 	}
 
 	/**
@@ -402,16 +415,25 @@ class SelectQuery extends Statement
 		$builderFlags = $context->getStatementBuilder()->getBuilderFlags(K::BUILDER_DOMAIN_GENERIC);
 		$builderFlags |= $context->getStatementBuilder()->getBuilderFlags(K::BUILDER_DOMAIN_SELECT);
 
-		$tableStructure = $context->findTable($this->parts[self::PART_TABLE]->path);
-
-		$context->pushResolverContext($tableStructure);
 		$context->setStatementType(K::QUERY_SELECT);
 
-		# Resolve and build table-related parts
-
-		if ($this->parts[self::PART_TABLE]->alias)
+		$table = $this->parts[self::PART_TABLE];
+		/**
+		 *
+		 * @var TableReference $table
+		 */
+		$tableStructure = null;
+		if ($table instanceof TableReference)
 		{
-			$context->setAlias($this->parts[self::PART_TABLE]->alias, $tableStructure);
+			$tableStructure = $context->findTable($table->path);
+			$context->pushResolverContext($tableStructure);
+		}
+
+		# Resolve and b'from'uild table-related parts
+
+		if ($table instanceof TableReference && $table->alias)
+		{
+			$context->setAlias($table->alias, $tableStructure);
 		}
 
 		foreach ($this->parts[self::PART_JOINS] as $join)
@@ -431,22 +453,24 @@ class SelectQuery extends Statement
 		}
 
 		$tableAndJoins = new TokenStream();
-		$tableAndJoins->identifier(
-			$context->getStatementBuilder()
-				->getCanonicalName($tableStructure));
-		if ($this->parts[self::PART_TABLE]->alias)
+		if ($table instanceof TableReference)
 		{
-			$tableAndJoins->space()
-				->keyword('as')
-				->space()
-				->identifier(
+			$tableAndJoins->identifier(
 				$context->getStatementBuilder()
-					->escapeIdentifier($this->parts[self::PART_TABLE]->alias));
-		}
+					->getCanonicalName($tableStructure));
+			if ($table->alias)
+			{
+				$tableAndJoins->space()
+					->keyword('as')
+					->space()
+					->identifier($context->getStatementBuilder()
+					->escapeIdentifier($table->alias));
+			}
 
-		foreach ($this->parts[self::PART_JOINS] as $join)
-		{
-			$tableAndJoins->space()->expression($join, $context);
+			foreach ($this->parts[self::PART_JOINS] as $join)
+			{
+				$tableAndJoins->space()->expression($join, $context);
+			}
 		}
 
 		if ($builderFlags & K::BUILDER_SELECT_EXTENDED_RESULTCOLUMN_ALIAS_RESOLUTION)
@@ -524,7 +548,7 @@ class SelectQuery extends Statement
 				}
 			}
 		}
-		else
+		elseif ($table instanceof TableReference)
 		{
 			$columnIndex = 0;
 			foreach ($tableStructure as $name => $column)
@@ -536,10 +560,11 @@ class SelectQuery extends Statement
 			$stream->space()->keyword('*');
 		}
 
-		$stream->space()
-			->keyword('from')
-			->space()
-			->stream($tableAndJoins);
+		if ($table instanceof TableReference)
+			$stream->space()
+				->keyword('from')
+				->space()
+				->stream($tableAndJoins);
 
 		$stream->stream($where);
 
@@ -616,7 +641,8 @@ class SelectQuery extends Statement
 			}
 		}
 
-		$context->popResolverContext();
+		if ($table instanceof TableReference)
+			$context->popResolverContext();
 		return $stream;
 	}
 
