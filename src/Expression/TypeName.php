@@ -1,0 +1,94 @@
+<?php
+/**
+ * Copyright © 2012 - 2020 by Renaud Guillard (dev@nore.fr)
+ * Distributed under the terms of the MIT License, see LICENSE
+ */
+/**
+ *
+ * @package SQL
+ */
+namespace NoreSources\SQL\Expression;
+
+use NoreSources\TypeDescription;
+use NoreSources\SQL\DBMS\TypeInterface;
+use NoreSources\SQL\Structure\ColumnPropertyMap;
+use NoreSources\SQL\Structure\ColumnStructure;
+
+/**
+ * Type name identifier
+ */
+class TypeName implements TokenizableExpression
+{
+
+	/**
+	 *
+	 * @param \NoreSources\SQL\Structure\ColumnPropertyMap|\NoreSources\SQL\DBMS\TypeInterface $type
+	 */
+	public function __construct($type)
+	{
+		$this->setType($type);
+	}
+
+	/**
+	 *
+	 * @return \NoreSources\SQL\Structure\ColumnPropertyMap|\NoreSources\SQL\DBMS\TypeInterface
+	 */
+	public function getType()
+	{
+		return $this->type;
+	}
+
+	/**
+	 *
+	 * @param \NoreSources\SQL\Structure\ColumnPropertyMap|\NoreSources\SQL\DBMS\TypeInterface $type
+	 */
+	public function setType($type)
+	{
+		if (!($type instanceof TypeInterface || $type instanceof ColumnPropertyMap))
+		{
+			throw new \InvalidArgumentException(
+				TypeInterface::class . ' or ' . ColumnPropertyMap::class . ' expected');
+			$this->type = $type;
+		}
+
+		$this->type = $type;
+	}
+
+	public function tokenize(TokenStream $stream, TokenStreamContext $context)
+	{
+		$type = $this->type;
+		if ($type instanceof ColumnPropertyMap)
+		{
+			if (!($type instanceof ColumnStructure))
+			{
+				if ($type instanceof ColumnPropertyMap)
+				{
+					$s = new ColumnStructure(null, 'runtime_type');
+					foreach ($type->getColumnProperties() as $key => $value)
+						$s->setColumnProperty($key, $value);
+					$type = $s;
+				}
+			}
+
+			$type = $context->getStatementBuilder()->getColumnType($type);
+		}
+
+		if (!($type instanceof TypeInterface))
+			throw new \RuntimeException(
+				'Unable to get ' . TypeInterface::class . ' from ' .
+				TypeDescription::getName($this->type));
+
+		/**
+		 *
+		 * @var TypeInterface $type
+		 */
+
+		return $stream->identifier($type->getTypeName());
+	}
+
+	/**
+	 *
+	 * @var \NoreSources\SQL\Structure\ColumnPropertyMap|\NoreSources\SQL\DBMS\TypeInterface
+	 */
+	private $type;
+}
