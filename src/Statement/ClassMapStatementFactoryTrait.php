@@ -19,6 +19,13 @@ use NoreSources\SQL\Constants as K;
 trait ClassMapStatementFactoryTrait
 {
 
+	/**
+	 *
+	 * @param integer $statementType
+	 *        	Statement type
+	 * @throws \InvalidArgumentException
+	 * @return Statement
+	 */
 	public function newStatement($statementType)
 	{
 		if (!$this->statementClassMap->offsetExists($statementType))

@@ -32,7 +32,7 @@ class MySQLStatementBuilder extends StatementBuilder implements LoggerAwareInter
 
 	use LoggerAwareTrait;
 
-	public function __construct(MySQLConnection $connection)
+	public function __construct(MySQLConnection $connection = null)
 	{
 		parent::__construct();
 		$this->connection = $connection;

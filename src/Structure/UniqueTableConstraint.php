@@ -9,8 +9,9 @@
  */
 namespace NoreSources\SQL\Structure;
 
-use NoreSources\SQL\Constants as K;
-
+/**
+ * UNIQUE table constraint
+ */
 class UniqueTableConstraint extends ColumnTableConstraint
 {
 

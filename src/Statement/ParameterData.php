@@ -14,6 +14,9 @@ namespace NoreSources\SQL\Statement;
 use NoreSources\ArrayRepresentation;
 use Psr\Container\ContainerInterface;
 
+/**
+ * Internal class used to bind logical parameter key and DBMS parameter names
+ */
 class ParameterData implements ContainerInterface, \IteratorAggregate, \Countable,
 	ArrayRepresentation
 {

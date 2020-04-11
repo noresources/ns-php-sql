@@ -13,7 +13,7 @@ use NoreSources\Expression\Set;
 use NoreSources\SQL\Constants as K;
 
 /**
- * In operator
+ * IN SQL operator
  */
 class MemberOf extends Set implements TokenizableExpression, ExpressionReturnType
 {

@@ -14,6 +14,11 @@ use NoreSources\TypeConversion;
 use NoreSources\SQL\Expression\Literal;
 use NoreSources\SQL\Structure\XMLStructureFileConstants as K;
 
+/**
+ * Export Structure to a XML file following ns-xml SQL schema definition
+ *
+ * @see https://github.com/noresources/ns-xml
+ */
 class XMLStructureFileExporter implements StructureFileExporterInterface
 {
 

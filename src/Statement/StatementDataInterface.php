@@ -11,6 +11,9 @@ namespace NoreSources\SQL\Statement;
 
 use NoreSources\StringRepresentation;
 
+/**
+ * Aggregate interface
+ */
 interface StatementDataInterface extends InputData, OutputData, StringRepresentation
 {
 }

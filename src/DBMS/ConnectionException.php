@@ -30,7 +30,7 @@ class ConnectionException extends \ErrorException
 
 	/**
 	 *
-	 * @return \NoreSources\SQL\ConnectionInterface
+	 * @return ConnectionInterface
 	 */
 	public function getConnection()
 	{

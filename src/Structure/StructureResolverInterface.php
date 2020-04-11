@@ -9,6 +9,9 @@
  */
 namespace NoreSources\SQL\Structure;
 
+/**
+ * Resolve dot-separated structure path and alias to StructureElement
+ */
 interface StructureResolverInterface
 {
 

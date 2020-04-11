@@ -9,6 +9,9 @@
  */
 namespace NoreSources\SQL\Structure;
 
+/**
+ * Describe table or result column properties
+ */
 interface ColumnDescriptionInterface
 {
 

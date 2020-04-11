@@ -12,6 +12,9 @@ namespace NoreSources\SQL\Expression;
 use NoreSources\Expression as xpr;
 use NoreSources\SQL\Constants as K;
 
+/**
+ * Binary operator expression
+ */
 class BinaryOperation extends xpr\BinaryOperation implements TokenizableExpression,
 	ExpressionReturnType
 {

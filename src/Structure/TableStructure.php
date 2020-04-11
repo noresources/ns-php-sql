@@ -11,7 +11,7 @@
 namespace NoreSources\SQL\Structure;
 
 /**
- * Table properties
+ * Table structure definition
  *
  * @todo table constraints (primary keys etc. & index)
  */

@@ -12,6 +12,8 @@ namespace NoreSources\SQL\Expression;
 use NoreSources\SQL\Constants as K;
 
 /**
+ * Shorthand expression for SQL BETWEEN operator.
+ *
  * expression BETWEEN expression AND expression
  */
 class Between implements TokenizableExpression, ExpressionReturnType
@@ -30,8 +32,8 @@ class Between implements TokenizableExpression, ExpressionReturnType
 	 * @param TokenizableExpression $min
 	 * @param TokenizableExpression $max
 	 */
-	public function __construct(TokenizableExpression $leftOperand, TokenizableExpression $min, TokenizableExpression $max,
-		$inside = true)
+	public function __construct(TokenizableExpression $leftOperand, TokenizableExpression $min,
+		TokenizableExpression $max, $inside = true)
 	{
 		$this->inside = true;
 		$this->leftOperand = $leftOperand;

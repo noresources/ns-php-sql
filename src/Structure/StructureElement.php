@@ -13,6 +13,9 @@ namespace NoreSources\SQL\Structure;
 use NoreSources\TypeDescription;
 use NoreSources\SQL\Statement\StatementBuilderInterface;
 
+/**
+ * Represent an element of a DBMS structure
+ */
 abstract class StructureElement implements \ArrayAccess, \IteratorAggregate, \Countable
 {
 

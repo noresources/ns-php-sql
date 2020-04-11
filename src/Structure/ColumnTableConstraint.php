@@ -12,6 +12,9 @@ namespace NoreSources\SQL\Structure;
 use NoreSources\SQL\Constants as K;
 use Psr\Container\ContainerInterface;
 
+/**
+ * Table column constraint roule
+ */
 class ColumnTableConstraint extends TableConstraint implements \IteratorAggregate, \Countable,
 	ContainerInterface
 {
@@ -101,11 +104,9 @@ class ColumnTableConstraint extends TableConstraint implements \IteratorAggregat
 				 * @var ColumnStructure $b
 				 */
 
-				$autoA = ($a->getColumnProperty(K::COLUMN_FLAGS) &
-				K::COLUMN_FLAG_AUTO_INCREMENT) ? true : false;
+				$autoA = ($a->getColumnProperty(K::COLUMN_FLAGS) & K::COLUMN_FLAG_AUTO_INCREMENT) ? true : false;
 
-				$autoB = ($b->getColumnProperty(K::COLUMN_FLAGS) &
-				K::COLUMN_FLAG_AUTO_INCREMENT) ? true : false;
+				$autoB = ($b->getColumnProperty(K::COLUMN_FLAGS) & K::COLUMN_FLAG_AUTO_INCREMENT) ? true : false;
 
 				if ($autoA)
 					return ($autoB ? 0 : -1);

@@ -9,8 +9,9 @@
  */
 namespace NoreSources\SQL\Structure;
 
-use NoreSources\SQL\Constants as K;
-
+/**
+ * Implementation of ColumnDescriptionInterface using an \ArrayObject of column properties
+ */
 class ArrayColumnDescription implements ColumnDescriptionInterface
 {
 	use ColumnDescriptionTrait;

@@ -12,9 +12,17 @@ namespace NoreSources\SQL\Expression;
 use NoreSources\Container;
 use NoreSources\SQL\Structure\TableStructure;
 
+/**
+ * Table name reference
+ */
 class Table extends StructureElementIdentifier
 {
 
+	/**
+	 *
+	 * @param string $path
+	 *        	Dot-separated structure path
+	 */
 	public function __construct($path)
 	{
 		parent::__construct($path);

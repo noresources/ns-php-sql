@@ -9,6 +9,9 @@
  */
 namespace NoreSources\SQL\Structure;
 
+/**
+ * For object holding a reference to a StructureElement
+ */
 interface StructureAwareInterface
 {
 

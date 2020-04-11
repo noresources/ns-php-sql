@@ -11,6 +11,9 @@
 // Namespace
 namespace NoreSources\SQL\Statement;
 
+/**
+ * Statement & query factory
+ */
 interface StatementFactoryInterface
 {
 

@@ -15,8 +15,17 @@ namespace NoreSources\SQL\Expression;
 abstract class StructureElementIdentifier implements TokenizableExpression
 {
 
+	/**
+	 *
+	 * @var string Dot-separated structure path
+	 */
 	public $path;
 
+	/**
+	 *
+	 * @param string $path
+	 *        	Dot-separated structure path
+	 */
 	public function __construct($path)
 	{
 		$this->path = $path;

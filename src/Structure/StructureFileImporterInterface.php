@@ -10,6 +10,9 @@
  */
 namespace NoreSources\SQL\Structure;
 
+/**
+ * Provide zniliyy yo lozf a DBMS structure description from a file
+ */
 interface StructureFileImporterInterface
 {
 

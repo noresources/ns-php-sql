@@ -9,6 +9,9 @@
  */
 namespace NoreSources\SQL\Statement;
 
+/**
+ * For classes which holds a StatementBuilder
+ */
 interface StatementBuilderAwareInterface
 {
 

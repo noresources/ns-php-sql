@@ -13,7 +13,7 @@ use NoreSources\Container;
 use NoreSources\SQL\Structure\ColumnStructure;
 
 /**
- * Table column
+ * Table column reference
  */
 class Column extends StructureElementIdentifier
 {

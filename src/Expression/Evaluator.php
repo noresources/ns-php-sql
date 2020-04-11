@@ -18,7 +18,10 @@ use NoreSources\TypeDescription;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Structure\ColumnStructure;
 
-class EvaluatorExceptioion extends \ErrorException
+/**
+ * Exception raised when an expression failed to be evaluated
+ */
+class EvaluatorException extends \ErrorException
 {
 
 	public function __construct($message)
@@ -27,6 +30,9 @@ class EvaluatorExceptioion extends \ErrorException
 	}
 }
 
+/**
+ * Expression evaluator
+ */
 class Evaluator
 {
 
@@ -133,7 +139,7 @@ class Evaluator
 	 * Evalute expression description
 	 *
 	 * @param string|mixed $string
-	 * @return \NoreSources\SQL\TokenizableExpression|NULL|mixed
+	 * @return mixed
 	 */
 	public function __invoke($evaluable)
 	{
@@ -275,8 +281,7 @@ class Evaluator
 			}
 		}
 
-		throw new EvaluatorExceptioion(
-			TypeDescription::getName($evaluable) . ' cannot be evaluated');
+		throw new EvaluatorException(TypeDescription::getName($evaluable) . ' cannot be evaluated');
 	}
 
 	/**
@@ -363,7 +368,7 @@ class Evaluator
 			$o = Container::keyValue($this->operators['*'], $key, false);
 
 		if (!($o instanceof PolishNotationOperation))
-			throw new EvaluatorExceptioion(
+			throw new EvaluatorException(
 				'Unable to evalate Polish notation ' . $key . ' => [' . $c . ' argument(s)... ]');
 
 		if ($o->className === MemberOf::class)
@@ -404,7 +409,7 @@ class Evaluator
 
 			if (!($expression instanceof TokenizableExpression))
 			{
-				throw new EvaluatorExceptioion(
+				throw new EvaluatorException(
 					'Unable to create expression (got ' . var_export($expression, true) . ')');
 			}
 
@@ -418,7 +423,7 @@ class Evaluator
 
 		if (!($result instanceof TokenizableExpression))
 		{
-			throw new EvaluatorExceptioion('Unable to create expression');
+			throw new EvaluatorException('Unable to create expression');
 		}
 
 		return $result;
@@ -442,7 +447,7 @@ class Evaluator
 		}
 		catch (Loco\ParseFailureException $e)
 		{
-			throw new EvaluatorExceptioion($e->getMessage());
+			throw new EvaluatorException($e->getMessage());
 		}
 	}
 
@@ -1162,7 +1167,7 @@ class PolishNotationOperation
 			($context == Evaluator::class || is_subclass_of($context, self::class, true))))
 		{
 			$context = ($context ? $context : 'global');
-			throw new EvaluatorExceptioion(
+			throw new EvaluatorException(
 				self::class . ' is a private class of ' . Evaluator::class . ' (not allowed in ' .
 				$context . ' context)');
 		}

@@ -9,6 +9,9 @@
  */
 namespace NoreSources\SQL\Statement;
 
+/**
+ * Reference implementation of StatementDataInterface
+ */
 class StatementData implements StatementDataInterface
 {
 	use InputDataTrait;

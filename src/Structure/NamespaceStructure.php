@@ -10,8 +10,6 @@
  */
 namespace NoreSources\SQL\Structure;
 
-use NoreSources\SQL\Constants as K;
-
 /**
  * Table set structure definition
  */
@@ -23,6 +21,10 @@ class NamespaceStructure extends StructureElement
 		parent::__construct($name, $a_datasourceStructure);
 	}
 
+	/**
+	 *
+	 * @param TableStructure $a_table
+	 */
 	public final function addTableStructure(TableStructure $a_table)
 	{
 		$this->appendChild($a_table);

@@ -9,10 +9,8 @@
  */
 namespace NoreSources\SQL\Structure;
 
-use NoreSources\SQL\Constants as K;
-
 /**
- * Data source structure definition
+ * Top-level structure container definition
  */
 class DatasourceStructure extends StructureElement
 {

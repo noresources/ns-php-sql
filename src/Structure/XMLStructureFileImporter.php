@@ -16,6 +16,9 @@ use NoreSources\SQL\Expression\Keyword;
 use NoreSources\SQL\Expression\TokenizableExpression;
 use NoreSources\SQL\Structure\XMLStructureFileConstants as K;
 
+/**
+ * ns-xml SQL schema definition file importer
+ */
 class XMLStructureFileImporter implements StructureFileImporterInterface
 {
 
@@ -33,6 +36,12 @@ class XMLStructureFileImporter implements StructureFileImporterInterface
 		return $this->importStructureFromDocument($document);
 	}
 
+	/**
+	 *
+	 * @param \DOMDocument $document
+	 * @throws StructureException
+	 * @return \NoreSources\SQL\Structure\StructureElement
+	 */
 	public function importStructureFromDocument(\DOMDocument $document)
 	{
 		$context = new XMLStructureFileImporterContext($document);

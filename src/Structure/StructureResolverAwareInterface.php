@@ -9,6 +9,9 @@
  */
 namespace NoreSources\SQL\Structure;
 
+/**
+ * For classes which holds a StructureResolver
+ */
 interface StructureResolverAwareInterface
 {
 

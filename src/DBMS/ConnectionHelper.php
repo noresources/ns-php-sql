@@ -20,6 +20,9 @@ use NoreSources\SQL\Statement\BuildContext;
 use NoreSources\SQL\Statement\Statement;
 use NoreSources\SQL\Structure\StructureElement;
 
+/**
+ * Helper method for creation of Connection, statement and prepared statement
+ */
 class ConnectionHelper
 {
 
@@ -133,7 +136,7 @@ class ConnectionHelper
 	 *        	Parameter value to serialize
 	 * @param integer|NULL $dataType
 	 *        	Parameter target type (if $value is not a ParameterValue)
-	 * @return number|boolean|NULL|unknown|\NoreSources\SQL\ParameterValue|\DateTimeInterface
+	 * @return number|boolean|NULL|\NoreSources\SQL\ParameterValue|\DateTimeInterface
 	 */
 	public static function serializeParameterValue(ConnectionInterface $connection, $value,
 		$dataType = null)

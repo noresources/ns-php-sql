@@ -10,7 +10,6 @@
 namespace NoreSources\SQL\Expression;
 
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\Statement\BuildContext;
 
 /**
  * Sequence of SQL language tokens
@@ -27,49 +26,96 @@ class TokenStream implements \IteratorAggregate, \Countable
 		$this->tokens = new \ArrayObject();
 	}
 
+	/**
+	 * Add a space to stream
+	 *
+	 * @return \NoreSources\SQL\Expression\TokenStream
+	 */
 	public function space()
 	{
 		return $this->append(' ', K::TOKEN_SPACE);
 	}
 
+	/**
+	 * Add a literal to stream
+	 *
+	 * @param mixed $value
+	 *        	Literal value
+	 * @return \NoreSources\SQL\Expression\TokenStream
+	 */
 	public function literal($value)
 	{
 		return $this->append($value, K::TOKEN_LITERAL);
 	}
 
+	/**
+	 * Add a structure identifier to the stream
+	 *
+	 * @param string $value
+	 *        	Structure element identifier, type name etc.
+	 * @return \NoreSources\SQL\Expression\TokenStream
+	 */
 	public function identifier($value)
 	{
 		return $this->append($value, K::TOKEN_IDENTIFIER);
 	}
 
+	/**
+	 * Add SQL syntax keyword to stream
+	 *
+	 * @param string $value
+	 *        	Keyword
+	 * @return \NoreSources\SQL\Expression\TokenStream
+	 */
 	public function keyword($value)
 	{
 		return $this->append(strtoupper(trim($value)), K::TOKEN_KEYWORD);
 	}
 
+	/**
+	 * Add arbitrary text to the stream
+	 *
+	 * @param string $value
+	 * @return \NoreSources\SQL\Expression\TokenStream
+	 */
 	public function text($value)
 	{
 		return $this->append($value, K::TOKEN_TEXT);
 	}
 
+	/**
+	 * Add Logical parameter key to stream
+	 *
+	 * @param string $value
+	 *        	parameter key
+	 * @return \NoreSources\SQL\Expression\TokenStream
+	 */
 	public function parameter($value)
 	{
 		return $this->append($value, K::TOKEN_PARAMETER);
 	}
 
-	public function expression(TokenizableExpression $expression, BuildContext $context)
+	/**
+	 * Add an expression to the stream
+	 *
+	 * @param TokenizableExpression $expression
+	 * @param TokenStreamContext $context
+	 * @return \NoreSources\SQL\Expression\TokenStream
+	 */
+	public function expression(TokenizableExpression $expression, TokenStreamContext $context)
 	{
 		$expression->tokenize($this, $context);
 		return $this;
 	}
 
 	/**
+	 * Add TableConstraint expression to stream
 	 *
 	 * @param array|\Traversable $constraints
-	 * @param BuildContext $context
-	 * @return \NoreSources\SQL\TokenizableExpression\TokenStream
+	 * @param TokenStreamContext $context
+	 * @return \NoreSources\SQL\Expression\TokenStream
 	 */
-	public function constraints($constraints, BuildContext $context)
+	public function constraints($constraints, TokenStreamContext $context)
 	{
 		$c = null;
 		foreach ($constraints as $constraint)
@@ -87,6 +133,15 @@ class TokenStream implements \IteratorAggregate, \Countable
 		return $this;
 	}
 
+	/**
+	 * Append arbitrary token to stream
+	 *
+	 * @param mixed $token
+	 *        	Token value
+	 * @param integer $type
+	 *        	Token type
+	 * @return \NoreSources\SQL\Expression\TokenStream
+	 */
 	public function append($token, $type)
 	{
 		$this->tokens->append(array(
@@ -96,6 +151,12 @@ class TokenStream implements \IteratorAggregate, \Countable
 		return $this;
 	}
 
+	/**
+	 * Merge a TokenStream to the stream
+	 *
+	 * @param TokenStream $stream
+	 * @return \NoreSources\SQL\Expression\TokenStream
+	 */
 	public function stream(TokenStream $stream)
 	{
 		foreach ($stream as $token)
@@ -105,6 +166,10 @@ class TokenStream implements \IteratorAggregate, \Countable
 		return $this;
 	}
 
+	/**
+	 *
+	 * @return Number of token in the stream
+	 */
 	public function count()
 	{
 		return $this->tokens->count();

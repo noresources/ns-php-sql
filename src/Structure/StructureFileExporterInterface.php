@@ -10,6 +10,9 @@
  */
 namespace NoreSources\SQL\Structure;
 
+/**
+ * Provide serialization of StructureElement to a file
+ */
 interface StructureFileExporterInterface
 {
 

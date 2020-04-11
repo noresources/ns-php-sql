@@ -9,8 +9,6 @@
  */
 namespace NoreSources\SQL\Expression;
 
-/**
- */
 class Group implements TokenizableExpression, ExpressionReturnType
 {
 
@@ -29,7 +27,7 @@ class Group implements TokenizableExpression, ExpressionReturnType
 
 	/**
 	 *
-	 * @return \NoreSources\TokenizableExpression\Expression
+	 * @return \NoreSources\SQL\Expression\TokenizableExpression
 	 */
 	public function getExpression()
 	{

@@ -9,6 +9,9 @@
  */
 namespace NoreSources\SQL\Structure;
 
+/**
+ * Exception raised while attempting to resolve structure element path or alias
+ */
 class StructureResolverException extends \Exception
 {
 

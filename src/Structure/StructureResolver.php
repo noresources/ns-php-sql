@@ -9,6 +9,9 @@
  */
 namespace NoreSources\SQL\Structure;
 
+/**
+ * Reference implementation of StructureResolverInterface
+ */
 class StructureResolver implements StructureResolverInterface
 {
 

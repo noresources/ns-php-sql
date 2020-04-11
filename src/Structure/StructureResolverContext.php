@@ -9,6 +9,9 @@
  */
 namespace NoreSources\SQL\Structure;
 
+/**
+ * Internal Structure element resolver context
+ */
 class StructureResolverContext
 {
 

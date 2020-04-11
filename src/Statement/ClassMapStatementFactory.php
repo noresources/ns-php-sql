@@ -11,10 +11,18 @@
 // Namespace
 namespace NoreSources\SQL\Statement;
 
+/**
+ * Implementation of a StatementFactoryInterface using a class map
+ */
 class ClassMapStatementFactory implements StatementFactoryInterface
 {
 	use ClassMapStatementFactoryTrait;
 
+	/**
+	 *
+	 * @param array $overrides
+	 *        	Query type -> class name map
+	 */
 	public function __construct($overrides = array())
 	{
 		$this->initializeStatementFactory($overrides);

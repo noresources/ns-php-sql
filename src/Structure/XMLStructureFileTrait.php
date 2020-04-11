@@ -13,6 +13,9 @@ use NoreSources\Container;
 use NoreSources\SemanticVersion;
 use NoreSources\SQL\Structure\XMLStructureFileConstants as K;
 
+/**
+ * Common code to XML structure file importer and exporter
+ */
 trait XMLStructureFileTrait
 {
 

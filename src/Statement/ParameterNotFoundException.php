@@ -13,6 +13,9 @@ namespace NoreSources\SQL\Statement;
 
 use Psr\Container\NotFoundExceptionInterface;
 
+/**
+ * Exception raised while attempting to a parameter key which does not exists
+ */
 class ParameterNotFoundException extends \Exception implements NotFoundExceptionInterface
 {
 

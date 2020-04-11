@@ -16,6 +16,9 @@ use NoreSources\MediaType\MediaType;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DataUnserializer;
 
+/**
+ * Reference implementation of ColumnDescriptionInterface
+ */
 trait ColumnDescriptionTrait
 {
 

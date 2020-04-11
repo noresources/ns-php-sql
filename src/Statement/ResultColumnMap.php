@@ -29,11 +29,19 @@ class ResultColumnMap implements \Countable, \IteratorAggregate
 		return $this->getColumn($key);
 	}
 
+	/**
+	 *
+	 * @return \Iterator of ResultColumn
+	 */
 	public function getIterator()
 	{
 		return $this->columns->getIterator();
 	}
 
+	/**
+	 *
+	 * @return number of ResultColumn
+	 */
 	public function count()
 	{
 		return $this->columns->count();

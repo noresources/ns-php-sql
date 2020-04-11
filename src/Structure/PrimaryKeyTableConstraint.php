@@ -9,8 +9,9 @@
  */
 namespace NoreSources\SQL\Structure;
 
-use NoreSources\SQL\Constants as K;
-
+/**
+ * Primary key table column constraint
+ */
 class PrimaryKeyTableConstraint extends ColumnTableConstraint
 {
 

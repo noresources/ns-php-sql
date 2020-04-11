@@ -13,6 +13,9 @@ use NoreSources\SQL\Statement\OutputData;
 use NoreSources\SQL\Statement\StatementBuilderAwareInterface;
 use NoreSources\SQL\Structure\StructureResolverInterface;
 
+/**
+ * Statement tokenization context
+ */
 interface TokenStreamContext extends StructureResolverInterface, StatementBuilderAwareInterface,
 	OutputData
 {

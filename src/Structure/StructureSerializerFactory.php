@@ -15,6 +15,9 @@ use NoreSources\MediaType\MediaType;
 use NoreSources\MediaType\MediaTypeFactory;
 use NoreSources\MediaType\MediaTypeInterface;
 
+/**
+ * Provide serialization and deserialization of StructureElement
+ */
 class StructureSerializerFactory
 {
 

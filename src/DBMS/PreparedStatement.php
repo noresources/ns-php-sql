@@ -15,7 +15,7 @@ use NoreSources\SQL\Statement\OutputDataTrait;
 use NoreSources\SQL\Statement\StatementData;
 
 /**
- * Pre-built statement
+ * Reference to a prepared statement
  */
 abstract class PreparedStatement extends StatementData
 {
