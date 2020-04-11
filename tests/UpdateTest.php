@@ -4,7 +4,7 @@ namespace NoreSources\SQL;
 use NoreSources\SQL\DBMS\ConnectionHelper;
 use NoreSources\SQL\DBMS\Reference\ReferenceStatementBuilder;
 use NoreSources\SQL\Expression\TokenStream;
-use NoreSources\SQL\Statement\BuildContext;
+use NoreSources\SQL\Statement\StatementTokenStreamContext;
 use NoreSources\Test\DatasourceManager;
 use NoreSources\Test\DerivedFileManager;
 
@@ -28,7 +28,7 @@ final class UpdateTest extends \PHPUnit\Framework\TestCase
 		$connection = ConnectionHelper::createConnection('Reference');
 
 		$builder = $connection->getStatementBuilder();
-		$context = new BuildContext($builder);
+		$context = new StatementTokenStreamContext($builder);
 		$context->setPivot($tableStructure);
 
 		$sets = [
@@ -108,7 +108,7 @@ final class UpdateTest extends \PHPUnit\Framework\TestCase
 		$this->assertInstanceOf(Structure\TableStructure::class, $tableStructure,
 			'TableStructure instance');
 		$builder = new ReferenceStatementBuilder();
-		$context = new BuildContext($builder);
+		$context = new StatementTokenStreamContext($builder);
 		$context->setPivot($tableStructure);
 
 		$q = new Statement\UpdateQuery($tableStructure);
@@ -147,7 +147,7 @@ final class UpdateTest extends \PHPUnit\Framework\TestCase
 		$this->assertInstanceOf(Structure\TableStructure::class, $tableStructure,
 			'TableStructure instance');
 		$builder = new ReferenceStatementBuilder();
-		$context = new BuildContext($builder);
+		$context = new StatementTokenStreamContext($builder);
 		$context->setPivot($tableStructure);
 
 		$q = new Statement\UpdateQuery($tableStructure);

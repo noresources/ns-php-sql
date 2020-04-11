@@ -6,7 +6,7 @@ use NoreSources\SQL\DBMS\Reference\ReferenceStatementBuilder;
 use NoreSources\SQL\Expression\Evaluator as X;
 use NoreSources\SQL\Expression\TokenizableExpression;
 use NoreSources\SQL\Expression\TokenStream;
-use NoreSources\SQL\Statement\BuildContext;
+use NoreSources\SQL\Statement\StatementTokenStreamContext;
 use NoreSources\Test\DatasourceManager;
 use NoreSources\Test\DerivedFileManager;
 
@@ -37,7 +37,7 @@ final class InsertTest extends \PHPUnit\Framework\TestCase
 		foreach ($builderFlags as $key => $flags)
 		{
 			$builder = new ReferenceStatementBuilder($flags);
-			$context = new BuildContext($builder);
+			$context = new StatementTokenStreamContext($builder);
 			$context->setPivot($t);
 
 			$stream = new TokenStream();
@@ -55,7 +55,7 @@ final class InsertTest extends \PHPUnit\Framework\TestCase
 		$tableStructure = $structure['ns_unittests']['Tasks'];
 		$this->assertInstanceOf(Structure\TableStructure::class, $tableStructure);
 		$builder = new ReferenceStatementBuilder();
-		$context = new BuildContext($builder);
+		$context = new StatementTokenStreamContext($builder);
 
 		$tests = array(
 			'empty' => array(),

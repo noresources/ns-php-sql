@@ -82,7 +82,7 @@ abstract class Statement implements X\TokenizableExpression
 
 			if ($data instanceof PreparedStatement)
 				$data = $data->getStatement();
-			elseif ($data instanceof BuildContext)
+			elseif ($data instanceof StatementTokenStreamContext)
 				$data = strval($data);
 		}
 

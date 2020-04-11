@@ -3,7 +3,7 @@ namespace NoreSources\SQL;
 
 use NoreSources\SQL\DBMS\Reference\ReferenceStatementBuilder;
 use NoreSources\SQL\Expression\TokenStream;
-use NoreSources\SQL\Statement\BuildContext;
+use NoreSources\SQL\Statement\StatementTokenStreamContext;
 use NoreSources\Test\DatasourceManager;
 use NoreSources\Test\DerivedFileManager;
 
@@ -23,7 +23,7 @@ final class DeleteTest extends \PHPUnit\Framework\TestCase
 		$tableStructure = $structure['ns_unittests']['Employees'];
 		$this->assertInstanceOf(Structure\TableStructure::class, $tableStructure);
 		$builder = new ReferenceStatementBuilder();
-		$context = new BuildContext($builder);
+		$context = new StatementTokenStreamContext($builder);
 		$context->setPivot($tableStructure);
 		$q = new Statement\DeleteQuery($tableStructure);
 

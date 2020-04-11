@@ -26,7 +26,7 @@ abstract class PreparedStatement extends StatementData
 	/**
 	 *
 	 * @param
-	 *        	string|BuildContext Statement data
+	 *        	string|InputData Statement data
 	 */
 	public function __construct($data)
 	{

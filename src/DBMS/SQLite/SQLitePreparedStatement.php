@@ -13,7 +13,7 @@ namespace NoreSources\SQL\DBMS\SQLite;
 use NoreSources\TypeConversion;
 use NoreSources\TypeDescription;
 use NoreSources\SQL\DBMS\PreparedStatement;
-use NoreSources\SQL\Statement\BuildContext;
+use NoreSources\SQL\Statement\StatementTokenStreamContext;
 use NoreSources\SQL\Statement\ParametrizedStatement;
 
 /**
@@ -25,7 +25,7 @@ class SQLitePreparedStatement extends PreparedStatement
 	/**
 	 *
 	 * @param \SQLite3Stmt $statement
-	 * @param BuildContext|string $data
+	 * @param StatementTokenStreamContext|string $data
 	 * @throws \Exception
 	 * @throws \BadMethodCallException
 	 */
@@ -38,7 +38,7 @@ class SQLitePreparedStatement extends PreparedStatement
 
 		if (version_compare(PHP_VERSION, '7.4.0') < 0) // stmp->getSQL
 		{
-			if ($data instanceof BuildContext || TypeDescription::hasStringRepresentation($data))
+			if ($data instanceof StatementTokenStreamContext || TypeDescription::hasStringRepresentation($data))
 			{
 				$this->sql = TypeConversion::toString($data);
 			}

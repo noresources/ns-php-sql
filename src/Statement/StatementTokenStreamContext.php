@@ -19,7 +19,7 @@ use NoreSources\SQL\Structure\StructureResolverAwareTrait;
 /**
  * Statement building context data
  */
-class BuildContext implements InputData, StructureResolverAwareInterface, TokenStreamContext
+class StatementTokenStreamContext implements InputData, StructureResolverAwareInterface, TokenStreamContext
 {
 	use InputDataTrait;
 	use OutputDataTrait;

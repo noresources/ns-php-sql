@@ -16,7 +16,7 @@ use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\ParameterValue;
 use NoreSources\SQL\Expression\Literal;
 use NoreSources\SQL\Expression\TokenStream;
-use NoreSources\SQL\Statement\BuildContext;
+use NoreSources\SQL\Statement\StatementTokenStreamContext;
 use NoreSources\SQL\Statement\Statement;
 use NoreSources\SQL\Structure\StructureElement;
 
@@ -94,7 +94,7 @@ class ConnectionHelper
 	{
 		$reference = ($reference instanceof StructureElement) ? $reference : $connection->getStructure();
 		$builder = $connection->getStatementBuilder();
-		$context = new BuildContext($builder);
+		$context = new StatementTokenStreamContext($builder);
 		if ($reference instanceof StructureElement)
 			$context->setPivot($reference);
 		$stream = new TokenStream();
@@ -114,7 +114,7 @@ class ConnectionHelper
 	{
 		$reference = ($reference instanceof StructureElement) ? $reference : $connection->getStructure();
 		$builder = $connection->getStatementBuilder();
-		$context = new BuildContext($builder);
+		$context = new StatementTokenStreamContext($builder);
 		if ($reference instanceof StructureElement)
 			$context->setPivot($reference);
 		$stream = new TokenStream();

@@ -9,7 +9,7 @@ use NoreSources\SQL\Expression\Evaluator as X;
 use NoreSources\SQL\Expression\Literal;
 use NoreSources\SQL\Expression\MemberOf;
 use NoreSources\SQL\Expression\TokenStream;
-use NoreSources\SQL\Statement\BuildContext;
+use NoreSources\SQL\Statement\StatementTokenStreamContext;
 use NoreSources\SQL\Statement\SelectQuery;
 use NoreSources\Test\DatasourceManager;
 use NoreSources\Test\DerivedFileManager;
@@ -30,7 +30,7 @@ final class SelectTest extends \PHPUnit\Framework\TestCase
 		$tableStructure = $structure['ns_unittests']['Employees'];
 		$this->assertInstanceOf(Structure\TableStructure::class, $tableStructure);
 		$builder = new ReferenceStatementBuilder();
-		$context = new BuildContext($builder);
+		$context = new StatementTokenStreamContext($builder);
 		$context->setPivot($tableStructure);
 		$q = new Statement\SelectQuery($tableStructure, 't');
 
@@ -68,7 +68,7 @@ final class SelectTest extends \PHPUnit\Framework\TestCase
 	public function testStructurelessSelect()
 	{
 		$builder = new ReferenceStatementBuilder();
-		$context = new BuildContext($builder);
+		$context = new StatementTokenStreamContext($builder);
 
 		$select = new SelectQuery();
 		$column = new Literal(true);
@@ -93,7 +93,7 @@ final class SelectTest extends \PHPUnit\Framework\TestCase
 		$this->assertInstanceOf(Structure\TableStructure::class, $tableStructure);
 		$builder = new ReferenceStatementBuilder(
 			K::BUILDER_SELECT_EXTENDED_RESULTCOLUMN_ALIAS_RESOLUTION);
-		$context = new BuildContext($builder);
+		$context = new StatementTokenStreamContext($builder);
 		$context->setPivot($tableStructure);
 		$q = new Statement\SelectQuery($tableStructure, 't');
 
@@ -148,7 +148,7 @@ final class SelectTest extends \PHPUnit\Framework\TestCase
 		$this->assertInstanceOf(Structure\NamespaceStructure::class, $namespaceStructure);
 
 		$builder = new ReferenceStatementBuilder();
-		$context = new BuildContext($builder);
+		$context = new StatementTokenStreamContext($builder);
 		$context->setPivot($namespaceStructure);
 
 		$q = new Statement\SelectQuery('Employees', 'E');

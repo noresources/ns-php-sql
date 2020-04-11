@@ -12,7 +12,7 @@ namespace NoreSources\SQL\DBMS\PostgreSQL;
 use NoreSources\TypeConversion;
 use NoreSources\TypeDescription;
 use NoreSources\SQL\DBMS\PreparedStatement;
-use NoreSources\SQL\Statement\BuildContext;
+use NoreSources\SQL\Statement\StatementTokenStreamContext;
 
 class PostgreSQLPreparedStatement extends PreparedStatement
 {
@@ -34,10 +34,8 @@ class PostgreSQLPreparedStatement extends PreparedStatement
 		parent::__construct($data);
 		$this->identifier = $identifier;
 		$this->sql = false;
-		if ($data instanceof BuildContext || TypeDescription::hasStringRepresentation($data))
-		{
+		if ($data instanceof StatementTokenStreamContext || TypeDescription::hasStringRepresentation($data))
 			$this->sql = TypeConversion::toString($data);
-		}
 	}
 
 	public function getStatement()
