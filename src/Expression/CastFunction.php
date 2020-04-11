@@ -10,7 +10,7 @@
 namespace NoreSources\SQL\Expression;
 
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\Structure\ArrayColumnPropertyMap;
+use NoreSources\SQL\Structure\ArrayColumnDescription;
 
 /**
  * CAST (expression AS type) shorthand
@@ -21,7 +21,7 @@ class CastFunction extends FunctionCall
 	/**
 	 *
 	 * @param TokenizableExpression $expression
-	 * @param \NoreSources\SQL\Structure\ColumnPropertyMap|\NoreSources\SQL\DBMS\TypeInterface|TypeName|integer $type
+	 * @param \NoreSources\SQL\Structure\ArrayColumnDescription|\NoreSources\SQL\DBMS\TypeInterface|TypeName|integer $type
 	 *        	Type. description
 	 */
 	public function __construct(TokenizableExpression $expression, $type)
@@ -29,7 +29,7 @@ class CastFunction extends FunctionCall
 		parent::__construct('cast');
 
 		if (\is_integer($type))
-			$type = new ArrayColumnPropertyMap([
+			$type = new ArrayColumnDescription([
 				K::COLUMN_DATA_TYPE => $type
 			]);
 

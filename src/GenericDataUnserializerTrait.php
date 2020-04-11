@@ -12,7 +12,7 @@ namespace NoreSources\SQL;
 use NoreSources\TypeConversion;
 use NoreSources\MediaType\MediaType;
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\Structure\ColumnPropertyMap;
+use NoreSources\SQL\Structure\ColumnDescriptionInterface;
 
 /**
  * Implements DataUnserializer
@@ -24,12 +24,12 @@ trait GenericDataUnserializerTrait
 
 	/**
 	 *
-	 * @param ColumnPropertyMap $column
+	 * @param ColumnDescriptionInterface $column
 	 * @param mixed $data
 	 *        	Data retrieved from DBMS storage
 	 * @return mixed Unserialized data
 	 */
-	public function unserializeColumnData(ColumnPropertyMap $column, $data)
+	public function unserializeColumnData(ColumnDescriptionInterface $column, $data)
 	{
 		$type = K::DATATYPE_UNDEFINED;
 		if ($column->hasColumnProperty(K::COLUMN_DATA_TYPE))
@@ -63,32 +63,32 @@ trait GenericDataUnserializerTrait
 		return $data;
 	}
 
-	protected function unserializeBooleanColumnData(ColumnPropertyMap $column, $data)
+	protected function unserializeBooleanColumnData(ColumnDescriptionInterface $column, $data)
 	{
 		return TypeConversion::toBoolean($data);
 	}
 
 	/**
 	 *
-	 * @param ColumnPropertyMap $column
+	 * @param ColumnDescriptionInterface $column
 	 * @param mixed $data
 	 *        	Data from DBMS storage
 	 * @return mixed
 	 */
-	protected function unserializeBinaryColumnData(ColumnPropertyMap $column, $data)
+	protected function unserializeBinaryColumnData(ColumnDescriptionInterface $column, $data)
 	{
 		return $data;
 	}
 
 	/**
 	 *
-	 * @param ColumnPropertyMap $column
+	 * @param ColumnDescriptionInterface $column
 	 * @param MediaType $mediaType
 	 * @param mixed $data
 	 *        	Text data from DBMS storage
 	 * @return mixed
 	 */
-	protected function unserializeStructuredSyntaxColumnData(ColumnPropertyMap $column,
+	protected function unserializeStructuredSyntaxColumnData(ColumnDescriptionInterface $column,
 		MediaType $mediaType, $data)
 	{
 		$syntax = $mediaType->getStructuredSyntax();

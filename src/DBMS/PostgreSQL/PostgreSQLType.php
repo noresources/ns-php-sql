@@ -14,7 +14,7 @@ use NoreSources\SQL\DBMS\ArrayObjectType;
 use NoreSources\SQL\DBMS\BasicType;
 use NoreSources\SQL\DBMS\TypeHelper;
 use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLConstants as K;
-use NoreSources\SQL\Structure\ColumnPropertyMap;
+use NoreSources\SQL\Structure\ColumnDescriptionInterface;
 
 class PostgreSQLType
 {
@@ -60,7 +60,7 @@ class PostgreSQLType
 	 *        	Generic data type
 	 * @return TypeInterface
 	 */
-	public static function columnPropertyToType(ColumnPropertyMap $column)
+	public static function columnPropertyToType(ColumnDescriptionInterface $column)
 	{
 		$columnFlags = $column->getColumnProperty(K::COLUMN_FLAGS);
 

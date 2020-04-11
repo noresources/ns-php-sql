@@ -16,7 +16,7 @@ use NoreSources\MediaType\MediaType;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DataUnserializer;
 
-trait ColumnPropertyMapTrait
+trait ColumnDescriptionTrait
 {
 
 	public function initializeColumnProperties($properties = array())

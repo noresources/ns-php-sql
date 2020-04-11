@@ -9,7 +9,7 @@
  */
 namespace NoreSources\SQL\Structure;
 
-interface ColumnPropertyMap
+interface ColumnDescriptionInterface
 {
 
 	/**

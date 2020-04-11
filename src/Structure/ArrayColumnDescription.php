@@ -11,9 +11,9 @@ namespace NoreSources\SQL\Structure;
 
 use NoreSources\SQL\Constants as K;
 
-class ArrayColumnPropertyMap implements ColumnPropertyMap
+class ArrayColumnDescription implements ColumnDescriptionInterface
 {
-	use ColumnPropertyMapTrait;
+	use ColumnDescriptionTrait;
 
 	public function __construct($properties = array())
 	{

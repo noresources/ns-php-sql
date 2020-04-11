@@ -11,8 +11,8 @@ namespace NoreSources\SQL\Expression;
 
 use NoreSources\TypeDescription;
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\Structure\ArrayColumnPropertyMap;
-use NoreSources\SQL\Structure\ColumnPropertyMap;
+use NoreSources\SQL\Structure\ArrayColumnDescription;
+use NoreSources\SQL\Structure\ColumnDescriptionInterface;
 
 /**
  * Literal value
@@ -48,7 +48,7 @@ class Literal implements TokenizableExpression, ExpressionReturnType
 	 *
 	 * @param mixed $value
 	 *        	Literal value
-	 * @param ColumnPropertyMap|integer|null $type
+	 * @param ColumnDescriptionInterface|integer|null $type
 	 *        	serialization target type
 	 */
 	public function __construct($value, $type = K::DATATYPE_UNDEFINED)
@@ -70,7 +70,7 @@ class Literal implements TokenizableExpression, ExpressionReturnType
 	 *
 	 * @param mixed $value
 	 *        	Literal value
-	 * @param ColumnPropertyMap|integer|null $type
+	 * @param ColumnDescriptionInterface|integer|null $type
 	 *        	Serialization target type. If NULL, the previous value is kept.
 	 * @throws \LogicException
 	 */
@@ -93,15 +93,15 @@ class Literal implements TokenizableExpression, ExpressionReturnType
 	/**
 	 * Set to which type the value should be serialized
 	 *
-	 * @param ArrayColumnPropertyMap|integer $type
+	 * @param ColumnDescriptionInterface|integer $type
 	 * @throws \InvalidArgumentException
 	 */
 	public function setSerializationTarget($type)
 	{
-		if ($type instanceof ColumnPropertyMap)
+		if ($type instanceof ColumnDescriptionInterface)
 			$this->serializationTarget = $type;
 		elseif (\is_integer($type))
-			$this->serializationTarget = new ArrayColumnPropertyMap(
+			$this->serializationTarget = new ArrayColumnDescription(
 				[
 					K::COLUMN_DATA_TYPE => $type
 				]);
@@ -113,7 +113,7 @@ class Literal implements TokenizableExpression, ExpressionReturnType
 
 	public function getExpressionDataType()
 	{
-		if ($this->serializationTarget instanceof ColumnPropertyMap)
+		if ($this->serializationTarget instanceof ColumnDescriptionInterface)
 		{
 			if ($this->serializationTarget->hasColumnProperty(K::COLUMN_DATA_TYPE))
 				return $this->serializationTarget->getColumnProperty(K::COLUMN_DATA_TYPE);
@@ -131,7 +131,7 @@ class Literal implements TokenizableExpression, ExpressionReturnType
 
 	/**
 	 *
-	 * @var ColumnPropertyMap Literal type
+	 * @var \Noresources\SQL\Structure\ColumnDescriptionInterface Literal type
 	 */
 	private $serializationTarget;
 

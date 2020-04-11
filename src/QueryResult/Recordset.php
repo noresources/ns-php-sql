@@ -16,7 +16,7 @@ use NoreSources\SQL\GenericDataUnserializer;
 use NoreSources\SQL\Statement\OutputData;
 use NoreSources\SQL\Statement\OutputDataTrait;
 use NoreSources\SQL\Statement\ResultColumnMap;
-use NoreSources\SQL\Structure\ColumnPropertyMap;
+use NoreSources\SQL\Structure\ColumnDescriptionInterface;
 
 // Aliases
 
@@ -231,7 +231,7 @@ abstract class Recordset implements \Iterator, OutputData, QueryResult, ArrayRep
 		$this->unserializer = $unserializer;
 	}
 
-	public function unserializeColumnData(ColumnPropertyMap $column, $data)
+	public function unserializeColumnData(ColumnDescriptionInterface $column, $data)
 	{
 		$unserializer = $this->unserializer;
 		if (!($unserializer instanceof DataUnserializer))

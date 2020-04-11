@@ -17,7 +17,7 @@ use NoreSources\SQL\Expression\FunctionCall;
 use NoreSources\SQL\Expression\MetaFunctionCall;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Expression\TokenStreamContext;
-use NoreSources\SQL\Structure\ColumnPropertyMap;
+use NoreSources\SQL\Structure\ColumnDescriptionInterface;
 use NoreSources\SQL\Structure\DatasourceStructure;
 use NoreSources\SQL\Structure\StructureElement;
 
@@ -28,7 +28,7 @@ use NoreSources\SQL\Structure\StructureElement;
 trait StatementBuilderTrait
 {
 
-	public function serializeColumnData(ColumnPropertyMap $column, $value)
+	public function serializeColumnData(ColumnDescriptionInterface $column, $value)
 	{
 		$type = K::DATATYPE_UNDEFINED;
 		if ($column->hasColumnProperty(K::COLUMN_DATA_TYPE))

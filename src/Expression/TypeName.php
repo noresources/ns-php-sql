@@ -11,7 +11,7 @@ namespace NoreSources\SQL\Expression;
 
 use NoreSources\TypeDescription;
 use NoreSources\SQL\DBMS\TypeInterface;
-use NoreSources\SQL\Structure\ColumnPropertyMap;
+use NoreSources\SQL\Structure\ColumnDescriptionInterface;
 use NoreSources\SQL\Structure\ColumnStructure;
 
 /**
@@ -22,7 +22,7 @@ class TypeName implements TokenizableExpression
 
 	/**
 	 *
-	 * @param \NoreSources\SQL\Structure\ColumnPropertyMap|\NoreSources\SQL\DBMS\TypeInterface $type
+	 * @param \NoreSources\SQL\Structure\ColumnDescriptionInterface|\NoreSources\SQL\DBMS\TypeInterface $type
 	 */
 	public function __construct($type)
 	{
@@ -31,7 +31,7 @@ class TypeName implements TokenizableExpression
 
 	/**
 	 *
-	 * @return \NoreSources\SQL\Structure\ColumnPropertyMap|\NoreSources\SQL\DBMS\TypeInterface
+	 * @return \NoreSources\SQL\Structure\ColumnDescriptionInterface|\NoreSources\SQL\DBMS\TypeInterface
 	 */
 	public function getType()
 	{
@@ -40,14 +40,14 @@ class TypeName implements TokenizableExpression
 
 	/**
 	 *
-	 * @param \NoreSources\SQL\Structure\ColumnPropertyMap|\NoreSources\SQL\DBMS\TypeInterface $type
+	 * @param \NoreSources\SQL\Structure\ColumnDescriptionInterface|\NoreSources\SQL\DBMS\TypeInterface $type
 	 */
 	public function setType($type)
 	{
-		if (!($type instanceof TypeInterface || $type instanceof ColumnPropertyMap))
+		if (!($type instanceof TypeInterface || $type instanceof ColumnDescriptionInterface))
 		{
 			throw new \InvalidArgumentException(
-				TypeInterface::class . ' or ' . ColumnPropertyMap::class . ' expected');
+				TypeInterface::class . ' or ' . ColumnDescriptionInterface::class . ' expected');
 			$this->type = $type;
 		}
 
@@ -57,11 +57,11 @@ class TypeName implements TokenizableExpression
 	public function tokenize(TokenStream $stream, TokenStreamContext $context)
 	{
 		$type = $this->type;
-		if ($type instanceof ColumnPropertyMap)
+		if ($type instanceof ColumnDescriptionInterface)
 		{
 			if (!($type instanceof ColumnStructure))
 			{
-				if ($type instanceof ColumnPropertyMap)
+				if ($type instanceof ColumnDescriptionInterface)
 				{
 					$s = new ColumnStructure(null, 'runtime_type');
 					foreach ($type->getColumnProperties() as $key => $value)
@@ -88,7 +88,7 @@ class TypeName implements TokenizableExpression
 
 	/**
 	 *
-	 * @var \NoreSources\SQL\Structure\ColumnPropertyMap|\NoreSources\SQL\DBMS\TypeInterface
+	 * @var \NoreSources\SQL\Structure\ColumnDescriptionInterface|\NoreSources\SQL\DBMS\TypeInterface
 	 */
 	private $type;
 }

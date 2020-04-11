@@ -9,7 +9,7 @@
  */
 namespace NoreSources\SQL;
 
-use NoreSources\SQL\Structure\ColumnPropertyMap;
+use NoreSources\SQL\Structure\ColumnDescriptionInterface;
 
 interface DataSerializer
 {
@@ -17,9 +17,9 @@ interface DataSerializer
 	/**
 	 * Serialize a value to be stored in a DBMS storage system
 	 *
-	 * @param ColumnPropertyMap $column
+	 * @param ColumnDescriptionInterface $column
 	 * @param mixed $data
 	 *        	Data to serialize
 	 */
-	function serializeColumnData(ColumnPropertyMap $column, $data);
+	function serializeColumnData(ColumnDescriptionInterface $column, $data);
 }

@@ -21,7 +21,7 @@ use NoreSources\SQL\Statement\DeleteQuery;
 use NoreSources\SQL\Statement\DropTableQuery;
 use NoreSources\SQL\Statement\InsertQuery;
 use NoreSources\SQL\Statement\SelectQuery;
-use NoreSources\SQL\Structure\ArrayColumnPropertyMap;
+use NoreSources\SQL\Structure\ArrayColumnDescription;
 use NoreSources\SQL\Structure\StructureElement;
 use NoreSources\SQL\Structure\TableStructure;
 use NoreSources\Test\DatasourceManager;
@@ -323,7 +323,7 @@ final class DBMSCommonTest extends TestCase
 		$delete = ConnectionHelper::prepareStatement($connection, new DeleteQuery($tableStructure),
 			$tableStructure);
 
-		$columnType = new ArrayColumnPropertyMap([
+		$columnType = new ArrayColumnDescription([
 			K::COLUMN_DATA_TYPE => K::DATATYPE_DATETIME
 		]);
 

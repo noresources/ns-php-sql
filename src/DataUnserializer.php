@@ -9,7 +9,7 @@
  */
 namespace NoreSources\SQL;
 
-use NoreSources\SQL\Structure\ColumnPropertyMap;
+use NoreSources\SQL\Structure\ColumnDescriptionInterface;
 
 interface DataUnserializer
 {
@@ -17,12 +17,12 @@ interface DataUnserializer
 	/**
 	 * Unserialize data from DBMS record column
 	 *
-	 * @param ColumnPropertyMap $column
+	 * @param ColumnDescriptionInterface $column
 	 *        	Column properties
 	 * @param mixed $data
 	 *        	Data to unserialize
 	 * @return mixed Unserialized data
 	 */
-	function unserializeColumnData(ColumnPropertyMap $column, $data);
+	function unserializeColumnData(ColumnDescriptionInterface $column, $data);
 }
 

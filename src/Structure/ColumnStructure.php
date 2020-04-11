@@ -14,7 +14,7 @@ use NoreSources\SQL\Constants as K;
 /**
  * Table column properties
  */
-class ColumnStructure extends StructureElement implements ColumnPropertyMap
+class ColumnStructure extends StructureElement implements ColumnDescriptionInterface
 {
 
 	const DATATYPE = K::COLUMN_DATA_TYPE;
@@ -29,7 +29,7 @@ class ColumnStructure extends StructureElement implements ColumnPropertyMap
 
 	const DEFAULT_VALUE = K::COLUMN_DEFAULT_VALUE;
 
-	use ColumnPropertyMapTrait;
+	use ColumnDescriptionTrait;
 
 	public function __construct(/*TableStructure */$a_tableStructure, $name)
 	{

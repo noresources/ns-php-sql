@@ -15,17 +15,17 @@ namespace NoreSources\SQL\Statement;
 use NoreSources\TypeConversion;
 use NoreSources\TypeDescription;
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\Structure\ColumnPropertyMap;
-use NoreSources\SQL\Structure\ColumnPropertyMapTrait;
+use NoreSources\SQL\Structure\ColumnDescriptionInterface;
+use NoreSources\SQL\Structure\ColumnDescriptionTrait;
 use NoreSources\SQL\Structure\ColumnStructure;
 
 /**
  * Record column description
  */
-class ResultColumn implements ColumnPropertyMap
+class ResultColumn implements ColumnDescriptionInterface
 {
 
-	use ColumnPropertyMapTrait;
+	use ColumnDescriptionTrait;
 
 	/**
 	 *
