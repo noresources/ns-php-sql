@@ -3,13 +3,13 @@ namespace NoreSources\SQL;
 
 use NoreSources\Container;
 use NoreSources\DateTime;
-use NoreSources\ErrorReporterLogger;
 use NoreSources\SingletonTrait;
 use NoreSources\TypeDescription;
+use NoreSources\Logger\ErrorReporterLogger;
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\ConnectionException;
 use NoreSources\SQL\DBMS\ConnectionHelper;
+use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\PreparedStatement;
 use NoreSources\SQL\Expression\CastFunction;
 use NoreSources\SQL\Expression\Literal;
@@ -294,7 +294,8 @@ final class DBMSCommonTest extends TestCase
 		}
 	}
 
-	public function dbmsTimestampFormats(ConnectionInterface $connection, TableStructure $tableStructure)
+	public function dbmsTimestampFormats(ConnectionInterface $connection,
+		TableStructure $tableStructure)
 	{
 		$dbmsName = TypeDescription::getLocalName($connection);
 		$method = __CLASS__ . '::' . debug_backtrace()[1]['function'];
@@ -403,7 +404,8 @@ final class DBMSCommonTest extends TestCase
 		}
 	}
 
-	private function dbmsParametersTypes(ConnectionInterface $connection, TableStructure $tableStructure)
+	private function dbmsParametersTypes(ConnectionInterface $connection,
+		TableStructure $tableStructure)
 	{
 		$dbmsName = TypeDescription::getLocalName($connection);
 		$method = __CLASS__ . '::' . debug_backtrace()[1]['function'];

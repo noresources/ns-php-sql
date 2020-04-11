@@ -10,8 +10,8 @@
 namespace NoreSources\SQL\DBMS\SQLite;
 
 use NoreSources\Container;
-use NoreSources\ErrorReporterLogger;
 use NoreSources\TypeDescription;
+use NoreSources\Logger\ErrorReporterLogger;
 use NoreSources\SQL\ParameterValue;
 use NoreSources\SQL\DBMS\ConnectionException;
 use NoreSources\SQL\DBMS\ConnectionHelper;
