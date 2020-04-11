@@ -1,1 +1,1 @@
-SELECT STRFTIME('%H:%M:%S', "ns_unittests"."types"."timestamp") AS "format" FROM "ns_unittests"."types"
+SELECT STRFTIME('%H:%M:%S', CAST(:timestamp as TEXT)) AS "format"

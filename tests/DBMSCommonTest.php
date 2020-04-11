@@ -12,8 +12,8 @@ use NoreSources\SQL\DBMS\ConnectionException;
 use NoreSources\SQL\DBMS\ConnectionHelper;
 use NoreSources\SQL\DBMS\PreparedStatement;
 use NoreSources\SQL\Expression\CastFunction;
-use NoreSources\SQL\Expression\Column;
 use NoreSources\SQL\Expression\Literal;
+use NoreSources\SQL\Expression\Parameter;
 use NoreSources\SQL\Expression\TimestampFormatFunction;
 use NoreSources\SQL\QueryResult\InsertionQueryResult;
 use NoreSources\SQL\QueryResult\Recordset;
@@ -338,25 +338,28 @@ final class DBMSCommonTest extends TestCase
 				if (Container::keyExists($desc, DateTime::FORMAT_RANGE))
 					$label .= ' [' . implode('-', $desc[DateTime::FORMAT_RANGE]) . ']';
 			}
-			$select = new SelectQuery($tableStructure);
+			$select = new SelectQuery();
 			$select->columns(
 				[
-					new TimestampFormatFunction($format, new Column('timestamp')),
+					new TimestampFormatFunction($format,
+						new CastFunction(new Parameter('timestamp'), $columnType)),
 					'format'
 				]);
 
 			DBMSTestSilentLogger::getInstance()->clear();
 			$connection->setLogger(DBMSTestSilentLogger::getInstance());
-			$select = ConnectionHelper::prepareStatement($connection, $select, $tableStructure);
+			$select = ConnectionHelper::prepareStatement($connection, $select);
 			$connection->setLogger(ErrorReporterLogger::getInstance());
-
-			if (DBMSTestSilentLogger::getInstance()->count())
-				continue;
 
 			$this->assertInstanceOf(PreparedStatement::class, $select,
 				$dbmsName . ' ' . $method . ' SELECT');
 
-			$this->derivedFileManager->assertDerivedFile(\strval($select), $method,
+			$this->assertCount(1, $select->getParameters(), 'Number of parameters of SELECT');
+
+			if (DBMSTestSilentLogger::getInstance()->count())
+				continue;
+
+			$this->derivedFileManager->assertDerivedFile(\strval($select) . PHP_EOL, $method,
 				$dbmsName . '_' . $format, 'sql');
 
 			foreach ($timestamps as $test => $timestamp)
@@ -364,27 +367,18 @@ final class DBMSCommonTest extends TestCase
 				$dateTime = new DateTime($timestamp, DateTIme::getUTCTimezone());
 				$expected = $dateTime->format($format);
 
-				$select = new SelectQuery();
-				$select->columns(
-					[
-						new TimestampFormatFunction($format,
-							new CastFunction(new Literal($dateTime), $columnType)),
-						'format'
-					]);
-
-				DBMSTestSilentLogger::getInstance()->clear();
-				$connection->setLogger(DBMSTestSilentLogger::getInstance());
-				$select = ConnectionHelper::prepareStatement($connection, $select, $tableStructure);
-				$connection->setLogger(ErrorReporterLogger::getInstance());
-
 				$this->connections->queryTest($connection, [
-					'id' => 'Timestamp ' . $test
-				], [
 					'format' => $expected
-				], [
-					'select' => $select,
-					'label' => $dbmsName . ' [' . $format . '] ' . $label
-				]);
+				],
+					[
+						'select' => [
+							$select,
+							[
+								'timestamp' => $dateTime
+							]
+						],
+						'label' => $dbmsName . ' [' . $format . '] ' . $label
+					]);
 			}
 		}
 	}
@@ -444,9 +438,12 @@ final class DBMSCommonTest extends TestCase
 
 		foreach ($tests as $label => $test)
 		{
-			$this->connections->queryTest($connection, $test['parameters'], $test['expected'],
+			$this->connections->queryTest($connection, $test['expected'],
 				[
-					'insert' => $insert,
+					'insert' => [
+						$insert,
+						$test['parameters']
+					],
 					'select' => $select,
 					'cleanup' => $delete
 				]);
@@ -493,9 +490,12 @@ final class DBMSCommonTest extends TestCase
 
 		foreach ($tests as $label => $test)
 		{
-			$this->connections->queryTest($connection, $test['parameters'], $test['expected'],
+			$this->connections->queryTest($connection, $test['expected'],
 				[
-					'insert' => $insert,
+					'insert' => [
+						$insert,
+						$test['parameters']
+					],
 					'select' => $select,
 					'cleanup' => $delete
 				]);
@@ -544,9 +544,12 @@ final class DBMSCommonTest extends TestCase
 
 		foreach ($tests as $label => $test)
 		{
-			$this->connections->queryTest($connection, $test['parameters'], $test['expected'],
+			$this->connections->queryTest($connection, $test['expected'],
 				[
-					'insert' => $insert,
+					'insert' => [
+						$insert,
+						$test['parameters']
+					],
 					'select' => $select,
 					'cleanup' => $delete
 				]);

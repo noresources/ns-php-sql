@@ -59,18 +59,30 @@ class TestConnection extends \PHPUnit\Framework\TestCase
 		return $this->connections[$name];
 	}
 
-	public function queryTest(Connection $connection, $parameters, $expectedValues,
-		$options = array())
+	public function queryTest(Connection $connection, $expectedValues, $options = array())
 	{
 		$dbmsName = TypeDescription::getLocalName($connection);
+		$insertParameters = array();
 		$insert = Container::keyValue($options, 'insert', null);
+		if (\is_array($insert))
+		{
+			$insertParameters = $insert[1];
+			$insert = $insert[0];
+		}
+
+		$selectParameters = array();
 		$select = Container::keyValue($options, 'select', null);
+		if (\is_array($select))
+		{
+			$selectParameters = $select[1];
+			$select = $select[0];
+		}
 		$cleanup = Container::keyValue($options, 'cleanup', null);
 		$label = Container::keyValue($options, 'label', $dbmsName);
 
 		if ($insert instanceof StatementData)
 		{
-			$result = $connection->executeStatement($insert, $parameters);
+			$result = $connection->executeStatement($insert, $insertParameters);
 			if ($insert->getStatementType() & K::QUERY_INSERT)
 				$this->assertInstanceOf(InsertionQueryResult::class, $result,
 					$label . ' - (insert result)');
@@ -81,7 +93,7 @@ class TestConnection extends \PHPUnit\Framework\TestCase
 
 		if ($select)
 		{
-			$recordset = $connection->executeStatement($select);
+			$recordset = $connection->executeStatement($select, $selectParameters);
 			$this->assertInstanceOf(Recordset::class, $recordset, $label . ' - (select result)');
 
 			/**

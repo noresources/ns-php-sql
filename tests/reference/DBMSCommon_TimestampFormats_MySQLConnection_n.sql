@@ -1,1 +1,1 @@
-SELECT DATE_FORMAT(`ns_unittests`.`types`.`timestamp`, '%c') AS `format` FROM `ns_unittests`.`types`
+SELECT DATE_FORMAT(CAST(? as datetime), '%c') AS `format`

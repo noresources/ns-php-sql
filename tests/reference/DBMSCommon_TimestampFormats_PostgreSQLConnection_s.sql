@@ -1,1 +1,1 @@
-SELECT TO_CHAR("ns_unittests"."types"."timestamp", 'SS') AS "format" FROM "ns_unittests"."types"
+SELECT TO_CHAR(CAST($1 as timestamp without time zone), 'SS') AS "format"
