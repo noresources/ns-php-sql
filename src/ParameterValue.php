@@ -15,7 +15,7 @@ use NoreSources\SQL\Expression\Literal;
 /**
  * Value of statement parameter.
  *
- * This class is intented to be used in a array given to Connection::executeStatement() method
+ * This class is intented to be used in a array given to ConnectionInterface::executeStatement() method
  */
 class ParameterValue
 {

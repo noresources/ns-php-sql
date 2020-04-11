@@ -15,14 +15,14 @@ class ConnectionException extends \ErrorException
 
 	/**
 	 *
-	 * @param Connection $connection
-	 *        	Connection object which raise the exception
+	 * @param ConnectionInterface $connection
+	 *        	ConnectionInterface object which raise the exception
 	 * @param string $message
 	 *        	Error message
 	 * @param integer $code
 	 *        	Error code
 	 */
-	public function __construct(Connection $connection = null, $message, $code = null)
+	public function __construct(ConnectionInterface $connection = null, $message, $code = null)
 	{
 		parent::__construct($message, $code);
 		$this->connection = $connection;
@@ -30,7 +30,7 @@ class ConnectionException extends \ErrorException
 
 	/**
 	 *
-	 * @return \NoreSources\SQL\Connection
+	 * @return \NoreSources\SQL\ConnectionInterface
 	 */
 	public function getConnection()
 	{
@@ -39,7 +39,7 @@ class ConnectionException extends \ErrorException
 
 	/**
 	 *
-	 * @var Connection
+	 * @var ConnectionInterface
 	 */
 	private $connection;
 }

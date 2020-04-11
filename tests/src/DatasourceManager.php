@@ -2,7 +2,7 @@
 namespace NoreSources\Test;
 
 use NoreSources\TypeDescription;
-use NoreSources\SQL\DBMS\Connection;
+use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\ConnectionHelper;
 use NoreSources\SQL\Statement\CreateTableQuery;
 use NoreSources\SQL\Structure\DatasourceStructure;
@@ -39,7 +39,7 @@ class DatasourceManager extends \PHPUnit\Framework\TestCase
 		return $structure;
 	}
 
-	public static function createTable(TestCase $test, Connection $connection,
+	public static function createTable(TestCase $test, ConnectionInterface $connection,
 		TableStructure $tableStructure, $stored = false)
 	{
 		if ($stored)

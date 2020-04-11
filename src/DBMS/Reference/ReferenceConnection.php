@@ -12,18 +12,18 @@ namespace NoreSources\SQL\DBMS\Reference;
 // Aliases
 use NoreSources\Container;
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\DBMS\Connection;
-use NoreSources\SQL\DBMS\ConnectionStructureTrait;
+use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\Statement\ClassMapStatementFactoryTrait;
 use NoreSources\SQL\Statement\StatementFactoryInterface;
+use NoreSources\SQL\Structure\StructureAwareTrait;
 use Psr\Log\LoggerAwareTrait;
 
 /**
  * SQLite connection
  */
-class ReferenceConnection implements Connection, StatementFactoryInterface
+class ReferenceConnection implements ConnectionInterface, StatementFactoryInterface
 {
-	use ConnectionStructureTrait;
+	use StructureAwareTrait;
 	use LoggerAwareTrait;
 
 	use ClassMapStatementFactoryTrait;
@@ -75,7 +75,7 @@ class ReferenceConnection implements Connection, StatementFactoryInterface
 	/**
 	 *
 	 * {@inheritdoc}
-	 * @see \NoreSources\SQL\DBMS\Connection::prepareStatement()
+	 * @see \NoreSources\SQL\DBMS\ConnectionInterface::prepareStatement()
 	 */
 	public function prepareStatement($statement)
 	{

@@ -7,7 +7,7 @@ use NoreSources\ErrorReporterLogger;
 use NoreSources\SingletonTrait;
 use NoreSources\TypeDescription;
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\DBMS\Connection;
+use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\ConnectionException;
 use NoreSources\SQL\DBMS\ConnectionHelper;
 use NoreSources\SQL\DBMS\PreparedStatement;
@@ -91,7 +91,7 @@ final class DBMSCommonTest extends TestCase
 	public function dbmsTestTypes($dbmsName)
 	{
 		$connection = $this->connections->get($dbmsName);
-		$this->assertInstanceOf(Connection::class, $connection, $dbmsName);
+		$this->assertInstanceOf(ConnectionInterface::class, $connection, $dbmsName);
 		$this->assertTrue($connection->isConnected(), $dbmsName);
 
 		$structure = $this->structures->get('types');
@@ -282,7 +282,7 @@ final class DBMSCommonTest extends TestCase
 		foreach ($settings as $dbmsName)
 		{
 			$connection = $this->connections->get($dbmsName);
-			$this->assertInstanceOf(Connection::class, $connection, $dbmsName);
+			$this->assertInstanceOf(ConnectionInterface::class, $connection, $dbmsName);
 			$this->assertTrue($connection->isConnected(), $dbmsName);
 			$structure = $this->structures->get('types');
 			$this->assertInstanceOf(StructureElement::class, $structure);
@@ -294,7 +294,7 @@ final class DBMSCommonTest extends TestCase
 		}
 	}
 
-	public function dbmsTimestampFormats(Connection $connection, TableStructure $tableStructure)
+	public function dbmsTimestampFormats(ConnectionInterface $connection, TableStructure $tableStructure)
 	{
 		$dbmsName = TypeDescription::getLocalName($connection);
 		$method = __CLASS__ . '::' . debug_backtrace()[1]['function'];
@@ -390,7 +390,7 @@ final class DBMSCommonTest extends TestCase
 		foreach ($settings as $dbmsName)
 		{
 			$connection = $this->connections->get($dbmsName);
-			$this->assertInstanceOf(Connection::class, $connection, $dbmsName);
+			$this->assertInstanceOf(ConnectionInterface::class, $connection, $dbmsName);
 			$this->assertTrue($connection->isConnected(), $dbmsName);
 
 			$structure = $this->structures->get('types');
@@ -403,7 +403,7 @@ final class DBMSCommonTest extends TestCase
 		}
 	}
 
-	private function dbmsParametersTypes(Connection $connection, TableStructure $tableStructure)
+	private function dbmsParametersTypes(ConnectionInterface $connection, TableStructure $tableStructure)
 	{
 		$dbmsName = TypeDescription::getLocalName($connection);
 		$method = __CLASS__ . '::' . debug_backtrace()[1]['function'];
@@ -567,14 +567,14 @@ final class DBMSCommonTest extends TestCase
 		foreach ($settings as $dbmsName)
 		{
 			$connection = $this->connections->get($dbmsName);
-			$this->assertInstanceOf(Connection::class, $connection, $dbmsName);
+			$this->assertInstanceOf(ConnectionInterface::class, $connection, $dbmsName);
 			$this->assertTrue($connection->isConnected(), $dbmsName);
 
 			$this->employeesTest($tableStructure, $connection);
 		}
 	}
 
-	private function employeesTest(TableStructure $tableStructure, Connection $connection)
+	private function employeesTest(TableStructure $tableStructure, ConnectionInterface $connection)
 	{
 		$dbmsName = TypeDescription::getLocalName($connection);
 		$method = __CLASS__ . '::' . debug_backtrace()[1]['function'];
@@ -732,7 +732,7 @@ final class DBMSCommonTest extends TestCase
 		}
 	}
 
-	private function recreateTable(Connection $connection, TableStructure $tableStructure)
+	private function recreateTable(ConnectionInterface $connection, TableStructure $tableStructure)
 	{
 		$dbmsName = TypeDescription::getLocalName($connection);
 		try // PostgreSQL < 8.2 does not support DROP IF EXISTS and may fail

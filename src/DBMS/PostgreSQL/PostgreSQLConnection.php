@@ -13,10 +13,9 @@ use NoreSources\Container;
 use NoreSources\SemanticVersion;
 use NoreSources\TypeDescription;
 use NoreSources\SQL\ParameterValue;
-use NoreSources\SQL\DBMS\Connection;
 use NoreSources\SQL\DBMS\ConnectionException;
 use NoreSources\SQL\DBMS\ConnectionHelper;
-use NoreSources\SQL\DBMS\ConnectionStructureTrait;
+use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLConstants as K;
 use NoreSources\SQL\QueryResult\GenericInsertionQueryResult;
 use NoreSources\SQL\QueryResult\GenericRowModificationQueryResult;
@@ -26,13 +25,14 @@ use NoreSources\SQL\Statement\ParameterData;
 use NoreSources\SQL\Statement\ParametrizedStatement;
 use NoreSources\SQL\Statement\Statement;
 use NoreSources\SQL\Statement\StatementFactoryInterface;
+use NoreSources\SQL\Structure\StructureAwareTrait;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
 
-class PostgreSQLConnection implements Connection
+class PostgreSQLConnection implements ConnectionInterface
 {
 
-	use ConnectionStructureTrait;
+	use StructureAwareTrait;
 	use LoggerAwareTrait;
 
 	/**
@@ -168,7 +168,7 @@ class PostgreSQLConnection implements Connection
 	/**
 	 *
 	 * {@inheritdoc}
-	 * @see \NoreSources\SQL\DBMS\Connection::prepareStatement()
+	 * @see \NoreSources\SQL\DBMS\ConnectionInterface::prepareStatement()
 	 */
 	public function prepareStatement($statement)
 	{

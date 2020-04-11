@@ -10,6 +10,7 @@
 namespace NoreSources\SQL\DBMS;
 
 use NoreSources\SQL\Statement\StatementBuilderAwareInterface;
+use NoreSources\SQL\Structure\StructureAwareInterface;
 use Psr\Log\LoggerAwareInterface;
 
 // Aliases
@@ -17,7 +18,8 @@ use Psr\Log\LoggerAwareInterface;
 /**
  * DMBS connection
  */
-interface Connection extends StatementBuilderAwareInterface, LoggerAwareInterface
+interface ConnectionInterface extends StatementBuilderAwareInterface, LoggerAwareInterface,
+	StructureAwareInterface
 {
 
 	/**
@@ -39,7 +41,7 @@ interface Connection extends StatementBuilderAwareInterface, LoggerAwareInterfac
 	 * Connect to DBMS
 	 *
 	 * @param array $parameters
-	 *        	Connection parameters
+	 *        	ConnectionInterface parameters
 	 */
 	function connect($parameters);
 

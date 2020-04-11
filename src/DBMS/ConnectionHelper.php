@@ -25,9 +25,9 @@ class ConnectionHelper
 	/**
 	 *
 	 * @param array|\ArrayObject $settings
-	 *        	Connection settings
+	 *        	ConnectionInterface settings
 	 * @throws ConnectionException
-	 * @return \NoreSources\SQL\SQLite\Connection
+	 * @return \NoreSources\SQL\SQLite\ConnectionInterface
 	 */
 	public static function createConnection($settings)
 	{
@@ -53,7 +53,8 @@ class ConnectionHelper
 
 		foreach ($classNames as $className)
 		{
-			if (\class_exists($className) && \is_subclass_of($className, Connection::class, true))
+			if (\class_exists($className) &&
+				\is_subclass_of($className, ConnectionInterface::class, true))
 			{
 				$cls = new \ReflectionClass($className);
 				$connection = $cls->newInstance();
@@ -61,11 +62,11 @@ class ConnectionHelper
 			}
 		}
 
-		if ($connection instanceof Connection)
+		if ($connection instanceof ConnectionInterface)
 			$connection->connect($settings);
 		else
 			throw new ConnectionException(null,
-				'Unable to create a Connection using classes ' . implode(', ', $classNames));
+				'Unable to create a ConnectionInterface using classes ' . implode(', ', $classNames));
 
 		return $connection;
 	}
@@ -73,7 +74,7 @@ class ConnectionHelper
 	/**
 	 * Get the DBMS-specific SQL string representation of the given statement
 	 *
-	 * @param Connection $connection
+	 * @param ConnectionInterface $connection
 	 *        	DBMS connection
 	 * @param Statement $statement
 	 *        	Statement to convert to string
@@ -99,12 +100,12 @@ class ConnectionHelper
 
 	/**
 	 *
-	 * @param Connection $connection
+	 * @param ConnectionInterface $connection
 	 * @param Statement $statement
 	 * @param StructureElement $reference
 	 * @return PreparedStatement
 	 */
-	public static function prepareStatement(Connection $connection, Statement $statement,
+	public static function prepareStatement(ConnectionInterface $connection, Statement $statement,
 		StructureElement $reference = null)
 	{
 		$reference = ($reference instanceof StructureElement) ? $reference : $connection->getStructure();
@@ -124,7 +125,7 @@ class ConnectionHelper
 		self::$connectionClassMap->offsetSet($type, $className);
 	}
 
-	public static function serializeParameterValue(Connection $connection,
+	public static function serializeParameterValue(ConnectionInterface $connection,
 		ParameterValue $parameterValue)
 	{
 		if ($parameterValue->type & K::DATATYPE_NUMBER)

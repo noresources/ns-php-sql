@@ -12,10 +12,9 @@ namespace NoreSources\SQL\DBMS\PDO;
 use NoreSources\Container;
 use NoreSources\TypeDescription;
 use NoreSources\SQL\ParameterValue;
-use NoreSources\SQL\DBMS\Connection;
 use NoreSources\SQL\DBMS\ConnectionException;
 use NoreSources\SQL\DBMS\ConnectionHelper;
-use NoreSources\SQL\DBMS\ConnectionStructureTrait;
+use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\PDO\PDOConstants as K;
 use NoreSources\SQL\QueryResult\GenericInsertionQueryResult;
 use NoreSources\SQL\QueryResult\GenericRowModificationQueryResult;
@@ -24,6 +23,7 @@ use NoreSources\SQL\Statement\ParameterData;
 use NoreSources\SQL\Statement\ParametrizedStatement;
 use NoreSources\SQL\Statement\Statement;
 use NoreSources\SQL\Statement\StatementFactoryInterface;
+use NoreSources\SQL\Structure\StructureAwareTrait;
 use Psr\Log\LoggerAwareTrait;
 
 // Aliases
@@ -31,9 +31,9 @@ use Psr\Log\LoggerAwareTrait;
 /**
  * PDO connection
  */
-class PDOConnection implements Connection
+class PDOConnection implements ConnectionInterface
 {
-	use ConnectionStructureTrait;
+	use StructureAwareTrait;
 	use LoggerAwareTrait;
 
 	const DRIVER_MYSQL = 'mysql';
@@ -157,7 +157,7 @@ class PDOConnection implements Connection
 	/**
 	 *
 	 * {@inheritdoc}
-	 * @see \NoreSources\SQL\DBMS\Connection::getStatementBuilder()
+	 * @see \NoreSources\SQL\DBMS\ConnectionInterface::getStatementBuilder()
 	 */
 	public function getStatementBuilder()
 	{

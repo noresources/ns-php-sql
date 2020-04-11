@@ -141,7 +141,7 @@ final class PostgreSQLTest extends \PHPUnit\Framework\TestCase
 
 	/**
 	 *
-	 * @var Connection
+	 * @var ConnectionInterface
 	 */
 	private $connection;
 }

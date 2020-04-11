@@ -13,10 +13,9 @@ use NoreSources\Container;
 use NoreSources\ErrorReporterLogger;
 use NoreSources\TypeDescription;
 use NoreSources\SQL\ParameterValue;
-use NoreSources\SQL\DBMS\Connection;
 use NoreSources\SQL\DBMS\ConnectionException;
 use NoreSources\SQL\DBMS\ConnectionHelper;
-use NoreSources\SQL\DBMS\ConnectionStructureTrait;
+use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\SQLite\SQLiteConstants as K;
 use NoreSources\SQL\Expression\Literal;
 use NoreSources\SQL\QueryResult\GenericInsertionQueryResult;
@@ -26,6 +25,7 @@ use NoreSources\SQL\Statement\ParameterData;
 use NoreSources\SQL\Statement\ParametrizedStatement;
 use NoreSources\SQL\Statement\Statement;
 use NoreSources\SQL\Statement\StatementFactoryInterface;
+use NoreSources\SQL\Structure\StructureAwareTrait;
 
 class SQLiteConnectionException extends ConnectionException
 {
@@ -45,9 +45,9 @@ class SQLiteConnectionException extends ConnectionException
 /**
  * SQLite connection
  */
-class SQLiteConnection implements Connection
+class SQLiteConnection implements ConnectionInterface
 {
-	use ConnectionStructureTrait;
+	use StructureAwareTrait;
 
 	/**
 	 * Special in-memory database name

@@ -297,7 +297,7 @@ final class SQLiteTest extends \PHPUnit\Framework\TestCase
 
 	private function createDatabase()
 	{
-		if ($this->connection instanceof DBMS\Connection)
+		if ($this->connection instanceof DBMS\ConnectionInterface)
 			return true;
 
 		$sqliteFile = $this->derivedFileManager->registerDerivedFile('SQLite', __METHOD__, 'db',
@@ -343,7 +343,7 @@ final class SQLiteTest extends \PHPUnit\Framework\TestCase
 
 	/**
 	 *
-	 * @var Connection
+	 * @var ConnectionInterface
 	 */
 	private $connection;
 }

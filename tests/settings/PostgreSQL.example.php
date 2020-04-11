@@ -3,7 +3,7 @@ use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLConnection;
 
 /**
- * Connection settings for PostgreSQL
+ * ConnectionInterface settings for PostgreSQL
  */
 
 return [

@@ -12,10 +12,9 @@ namespace NoreSources\SQL\DBMS\MySQL;
 use NoreSources\Container;
 use NoreSources\TypeDescription;
 use NoreSources\SQL\ParameterValue;
-use NoreSources\SQL\DBMS\Connection;
 use NoreSources\SQL\DBMS\ConnectionException;
 use NoreSources\SQL\DBMS\ConnectionHelper;
-use NoreSources\SQL\DBMS\ConnectionStructureTrait;
+use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\MySQL\MySQLConstants as K;
 use NoreSources\SQL\Expression\Literal;
 use NoreSources\SQL\QueryResult\GenericInsertionQueryResult;
@@ -24,6 +23,7 @@ use NoreSources\SQL\Statement\ClassMapStatementFactory;
 use NoreSources\SQL\Statement\ParameterData;
 use NoreSources\SQL\Statement\Statement;
 use NoreSources\SQL\Statement\StatementFactoryInterface;
+use NoreSources\SQL\Structure\StructureAwareTrait;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
 
@@ -32,9 +32,9 @@ use Psr\Log\LoggerInterface;
 /**
  * MySQL or MariaDB connection
  */
-class MySQLConnection implements Connection
+class MySQLConnection implements ConnectionInterface
 {
-	use ConnectionStructureTrait;
+	use StructureAwareTrait;
 	use LoggerAwareTrait;
 
 	const STATE_CONNECTED = 0x01;
@@ -157,7 +157,7 @@ class MySQLConnection implements Connection
 	/**
 	 *
 	 * {@inheritdoc}
-	 * @see \NoreSources\SQL\DBMS\Connection::prepareStatement()
+	 * @see \NoreSources\SQL\DBMS\ConnectionInterface::prepareStatement()
 	 *
 	 * @return MySQLPreparedStatement
 	 */
@@ -176,7 +176,7 @@ class MySQLConnection implements Connection
 	/**
 	 *
 	 * {@inheritdoc}
-	 * @see \NoreSources\SQL\DBMS\Connection::executeStatement()
+	 * @see \NoreSources\SQL\DBMS\ConnectionInterface::executeStatement()
 	 */
 	public function executeStatement($statement, $parameters = array())
 	{

@@ -14,7 +14,6 @@ use NoreSources\Container;
 use NoreSources\TypeDescription;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS;
-use NoreSources\SQL\DBMS\PDO\PDOConnection as Connection;
 use NoreSources\SQL\Statement\ResultColumn;
 use NoreSources\SQL\Statement\Statement;
 
@@ -70,7 +69,7 @@ class PDOPreparedStatement extends DBMS\PreparedStatement
 
 					if ($column->dataType == K::DATATYPE_UNDEFINED)
 					{
-						$column->dataType = Connection::getDataTypeFromPDOType(
+						$column->dataType = PDOConnection::getDataTypeFromPDOType(
 							Container::keyValue($meta, 'pdo_type', \PDO::PARAM_STR));
 						$map->setColumn($i, $column);
 					}

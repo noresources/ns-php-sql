@@ -7,14 +7,15 @@
  *
  * @package SQL
  */
-namespace NoreSources\SQL\DBMS;
+namespace NoreSources\SQL\Structure;
 
 // Aliases
 use NoreSources\TypeDescription;
-use NoreSources\SQL\Structure\StructureElement;
-use NoreSources\SQL\Structure\StructureSerializerFactory;
 
-trait ConnectionStructureTrait
+/**
+ * Implements StructureAwareInterface
+ */
+trait StructureAwareTrait
 {
 
 	public function getStructure()

@@ -5,7 +5,7 @@ use NoreSources\Container;
 use NoreSources\DataTree;
 use NoreSources\TypeDescription;
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\DBMS\Connection;
+use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\ConnectionHelper;
 use NoreSources\SQL\QueryResult\InsertionQueryResult;
 use NoreSources\SQL\QueryResult\Recordset;
@@ -59,7 +59,7 @@ class TestConnection extends \PHPUnit\Framework\TestCase
 		return $this->connections[$name];
 	}
 
-	public function queryTest(Connection $connection, $expectedValues, $options = array())
+	public function queryTest(ConnectionInterface $connection, $expectedValues, $options = array())
 	{
 		$dbmsName = TypeDescription::getLocalName($connection);
 		$insertParameters = array();

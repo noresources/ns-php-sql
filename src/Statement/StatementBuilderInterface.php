@@ -82,7 +82,7 @@ interface StatementBuilderInterface extends DataSerializer
 	function getJoinOperator($joinTypeFlags);
 
 	/**
-	 * Get the \DateTime timestamp format accepted by the Connection
+	 * Get the \DateTime timestamp format accepted by the ConnectionInterface
 	 *
 	 * @param integer $type
 	 *        	Timestamp parts. Combination of

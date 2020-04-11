@@ -112,7 +112,7 @@ class Constants
 	/**
 	 * DBMS type
 	 *
-	 * @var string DBMS Connection class name or
+	 * @var string DBMS ConnectionInterface class name or
 	 *      one of the types registered using ConnectionHelper::registerConnectionClass()
 	 */
 	const CONNECTION_TYPE = 'type';
