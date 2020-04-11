@@ -13,8 +13,8 @@ namespace NoreSources\SQL\DBMS\SQLite;
 use NoreSources\TypeConversion;
 use NoreSources\TypeDescription;
 use NoreSources\SQL\DBMS\PreparedStatement;
-use NoreSources\SQL\Statement\StatementTokenStreamContext;
 use NoreSources\SQL\Statement\ParametrizedStatement;
+use NoreSources\SQL\Statement\StatementTokenStreamContext;
 
 /**
  * SQLite3 implementation of NoreSources\SQL\SQLitePreparedStatement
@@ -38,14 +38,13 @@ class SQLitePreparedStatement extends PreparedStatement
 
 		if (version_compare(PHP_VERSION, '7.4.0') < 0) // stmp->getSQL
 		{
-			if ($data instanceof StatementTokenStreamContext || TypeDescription::hasStringRepresentation($data))
-			{
+			if ($data instanceof StatementTokenStreamContext ||
+				TypeDescription::hasStringRepresentation($data))
 				$this->sql = TypeConversion::toString($data);
-			}
 			else
-			{
-				throw new \Exception('Unable to get SQL string from SQLite statement nor InputData');
-			}
+				throw new \Exception(
+					'Unable to get SQL string from SQLite statement nor ' .
+					StatementTokenStreamContext::class);
 		}
 
 		if ($data instanceof ParametrizedStatement)
@@ -54,8 +53,9 @@ class SQLitePreparedStatement extends PreparedStatement
 			if ($npc != $statement->paramCount())
 			{
 				throw new \BadMethodCallException(
-					'SQLite statement and Statement\InputData parameter mismatch. Got ' . $npc .
-					' for Statement\InputData and ' . $statement->paramCount() . ' for SQLiteStmt');
+					'SQLite statement and ' . ParametrizedStatement::class .
+					' parameter mismatch. Got ' . $npc . ' for ' . ParametrizedStatement::class .
+					' and ' . $statement->paramCount() . ' for SQLiteStmt');
 			}
 		}
 	}

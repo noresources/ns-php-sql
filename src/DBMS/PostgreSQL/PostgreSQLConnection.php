@@ -20,7 +20,6 @@ use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLConstants as K;
 use NoreSources\SQL\QueryResult\GenericInsertionQueryResult;
 use NoreSources\SQL\QueryResult\GenericRowModificationQueryResult;
 use NoreSources\SQL\Statement\ClassMapStatementFactory;
-use NoreSources\SQL\Statement\InputData;
 use NoreSources\SQL\Statement\ParameterData;
 use NoreSources\SQL\Statement\ParametrizedStatement;
 use NoreSources\SQL\Statement\Statement;
@@ -298,7 +297,7 @@ class PostgreSQLConnection implements ConnectionInterface
 		else
 			throw \InvalidArgumentException(
 				'Invalid parameter list. Indexed array is mandatory if the statement does not implement ' .
-				InputData::class);
+				ParametrizedStatement::class);
 
 		return $a;
 	}
