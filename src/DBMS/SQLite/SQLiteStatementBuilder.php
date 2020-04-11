@@ -146,7 +146,10 @@ class SQLiteStatementBuilder extends StatementBuilder implements LoggerAwareInte
 					 *
 					 * @todo uncler. May differ
 					 */
-					'o' => '%Y',
+					'o' => [
+						'%Y',
+						'Not the ISO 8601 week numbering year'
+					],
 
 					'L' => false,
 					'M' => false,

@@ -297,7 +297,8 @@ final class DBMSCommonTest extends TestCase
 	public function dbmsTimestampFormats(ConnectionInterface $connection,
 		TableStructure $tableStructure)
 	{
-		$dbmsName = TypeDescription::getLocalName($connection);
+		$dbmsName = \preg_replace('/Connection/', '', TypeDescription::getLocalName($connection));
+
 		$method = __CLASS__ . '::' . debug_backtrace()[1]['function'];
 
 		$timestamps = [];
@@ -315,7 +316,10 @@ final class DBMSCommonTest extends TestCase
 		}
 
 		// Some static timestamps
-		$timestamps[] = new DateTIme('@0', DateTIme::getUTCTimezone());
+		$timestamps['UNIX epoch'] = new DateTIme('@0', DateTIme::getUTCTimezone());
+
+		$timestamps['A year where "Y" (1806) and "o" (1807) differ'] = new DateTime(
+			'1806-12-29T23:02:01+0000');
 
 		$formats = DateTime::getFormatTokenDescriptions();
 		$formats['Y-m-d'] = 'Date';
@@ -363,9 +367,10 @@ final class DBMSCommonTest extends TestCase
 			$this->derivedFileManager->assertDerivedFile(\strval($select) . PHP_EOL, $method,
 				$dbmsName . '_' . $format, 'sql');
 
-			foreach ($timestamps as $test => $timestamp)
+			foreach ($timestamps as $test => $dateTime)
 			{
-				$dateTime = new DateTime($timestamp, DateTIme::getUTCTimezone());
+				if (!($dateTime instanceof \DateTimeInterface))
+					$dateTime = new DateTime($dateTime, DateTIme::getUTCTimezone());
 				$expected = $dateTime->format($format);
 
 				$this->connections->queryTest($connection, [
@@ -378,7 +383,8 @@ final class DBMSCommonTest extends TestCase
 								'timestamp' => $dateTime
 							]
 						],
-						'label' => $dbmsName . ' [' . $format . '] ' . $label
+						'label' => $dateTime->format(\DateTime::ISO8601) . ': ' . $dbmsName . ' [' .
+						$format . '] ' . $label
 					]);
 			}
 		}
