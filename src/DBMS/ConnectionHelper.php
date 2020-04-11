@@ -14,6 +14,7 @@ use NoreSources\Container;
 use NoreSources\TypeConversion;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\ParameterValue;
+use NoreSources\SQL\Expression\Literal;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Statement\BuildContext;
 use NoreSources\SQL\Statement\Statement;
@@ -125,30 +126,46 @@ class ConnectionHelper
 		self::$connectionClassMap->offsetSet($type, $className);
 	}
 
-	public static function serializeParameterValue(ConnectionInterface $connection,
-		ParameterValue $parameterValue)
+	/**
+	 *
+	 * @param ConnectionInterface $connection
+	 * @param ParameterValue|mixed $value
+	 *        	Parameter value to serialize
+	 * @param integer|NULL $dataType
+	 *        	Parameter target type (if $value is not a ParameterValue)
+	 * @return number|boolean|NULL|unknown|\NoreSources\SQL\ParameterValue|\DateTimeInterface
+	 */
+	public static function serializeParameterValue(ConnectionInterface $connection, $value,
+		$dataType = null)
 	{
-		if ($parameterValue->type & K::DATATYPE_NUMBER)
+		$type = (\is_integer($dataType) && $dataType) ? $dataType : K::DATATYPE_UNDEFINED;
+		if ($value instanceof ParameterValue)
 		{
-			if ($parameterValue->type == K::DATATYPE_INTEGER)
-				return TypeConversion::toInteger($parameterValue->value);
-			else
-				return TypeConversion::toFloat($parameterValue->value);
+			$type = $value->type;
+			$value = $value;
 		}
-		elseif ($parameterValue->type == K::DATATYPE_BOOLEAN)
-			return TypeConversion::toBoolean($parameterValue->value);
-		elseif ($parameterValue->type == K::DATATYPE_NULL)
+
+		if ($type == K::DATATYPE_UNDEFINED)
+			$type = Literal::dataTypeFromValue($value);
+
+		if ($type & K::DATATYPE_NUMBER)
+		{
+			if ($type == K::DATATYPE_INTEGER)
+				return TypeConversion::toInteger($value);
+			return TypeConversion::toFloat($value);
+		}
+		elseif ($type == K::DATATYPE_BOOLEAN)
+			return TypeConversion::toBoolean($value);
+		elseif ($type == K::DATATYPE_NULL)
 			return null;
-		elseif ($parameterValue->value instanceof \DateTimeInterface)
+		elseif ($value instanceof \DateTimeInterface)
 		{
-			$f = $connection->getStatementBuilder()->getTimestampFormat(K::DATATYPE_TIMESTAMP);
-			if ($parameterValue->type & K::DATATYPE_TIMESTAMP)
-				$f = $connection->getStatementBuilder()->getTimestampFormat($parameterValue->type);
-
-			return $parameterValue->value->format($f);
+			return $value->format(
+				$connection->getStatementBuilder()
+					->getTimestampFormat($type & K::DATATYPE_TIMESTAMP));
 		}
 
-		return $parameterValue->value;
+		return $value;
 	}
 
 	public static function initialize()

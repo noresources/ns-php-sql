@@ -305,9 +305,7 @@ class SQLiteConnection implements ConnectionInterface
 				$stmt->reset();
 			}
 			else
-			{
 				$stmt = $this->connection->prepare($statement);
-			}
 
 			foreach ($parameters as $key => $entry)
 			{
@@ -317,8 +315,7 @@ class SQLiteConnection implements ConnectionInterface
 				else
 					$dbmsName = $this->getStatementBuilder()->getParameter($key, null);
 
-				$value = ($entry instanceof ParameterValue) ? ConnectionHelper::serializeParameterValue(
-					$this, $entry) : $entry;
+				$value = ConnectionHelper::serializeParameterValue($this, $entry);
 				$type = ($entry instanceof ParameterValue) ? $entry->type : K::DATATYPE_UNDEFINED;
 
 				if ($type == K::DATATYPE_UNDEFINED)

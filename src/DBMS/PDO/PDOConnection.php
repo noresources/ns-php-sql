@@ -11,7 +11,6 @@ namespace NoreSources\SQL\DBMS\PDO;
 
 use NoreSources\Container;
 use NoreSources\TypeDescription;
-use NoreSources\SQL\ParameterValue;
 use NoreSources\SQL\DBMS\ConnectionException;
 use NoreSources\SQL\DBMS\ConnectionHelper;
 use NoreSources\SQL\DBMS\ConnectionInterface;
@@ -245,8 +244,7 @@ class PDOConnection implements ConnectionInterface
 				else
 					$dbmsName = ':' . $key;
 
-				$value = ($entry instanceof ParameterValue) ? ConnectionHelper::serializeParameterValue(
-					$this, $entry) : $entry;
+				$value = ConnectionHelper::serializeParameterValue($this, $entry);
 				$pdo->bindValue($dbmsName, $value);
 			}
 

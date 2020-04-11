@@ -207,8 +207,7 @@ class MySQLConnection implements ConnectionInterface
 				$key = $data[ParameterData::KEY];
 				$entry = Container::keyValue($parameters, $key, null);
 				$bindArguments[0] .= self::getParameterValueTypeKey($entry);
-				$values[$index] = ($entry instanceof ParameterValue) ? ConnectionHelper::serializeParameterValue(
-					$this, $entry) : $entry;
+				$values[$index] = ConnectionHelper::serializeParameterValue($this, $entry);
 
 				$bindArguments[] = &$values[$index];
 			}

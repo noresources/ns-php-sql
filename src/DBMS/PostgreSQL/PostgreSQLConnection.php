@@ -272,8 +272,7 @@ class PostgreSQLConnection implements ConnectionInterface
 		{
 			foreach ($parameters as $entry)
 			{
-				$a[] = ($entry instanceof ParameterValue) ? ConnectionHelper::serializeParameterValue(
-					$this, $entry) : $value;
+				$a[] = ConnectionHelper::serializeParameterValue($this, $entry);
 			}
 
 			return $a;
