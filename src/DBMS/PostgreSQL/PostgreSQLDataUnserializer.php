@@ -11,11 +11,11 @@ namespace NoreSources\SQL\DBMS\PostgreSQL;
 
 use NoreSources\SingletonTrait;
 use NoreSources\TypeConversion;
-use NoreSources\SQL\DataUnserializer;
+use NoreSources\SQL\DataUnserializerInterface;
 use NoreSources\SQL\GenericDataUnserializerTrait;
 use NoreSources\SQL\Structure\ColumnDescriptionInterface;
 
-class PostgreSQLDataUnserializer implements DataUnserializer
+class PostgreSQLDataUnserializer implements DataUnserializerInterface
 {
 	use GenericDataUnserializerTrait;
 

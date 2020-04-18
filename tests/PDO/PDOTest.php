@@ -5,6 +5,7 @@ namespace NoreSources\SQL;
 use NoreSources\SQL\DBMS\ConnectionHelper;
 use NoreSources\SQL\DBMS\PDO\PDOConnection;
 use NoreSources\SQL\DBMS\PDO\PDOConstants as K;
+use NoreSources\SQL\QueryResult\RowModificationQueryResultInterface;
 use NoreSources\SQL\Statement\UpdateQuery;
 use NoreSources\Test\DatasourceManager;
 use NoreSources\Test\DerivedFileManager;
@@ -202,7 +203,7 @@ final class PDOTest extends \PHPUnit\Framework\TestCase
 			'update', 'sql');
 
 		$result = $connection->executeStatement($prepared);
-		$this->assertInstanceOf(QueryResult\RowModificationQueryResult::class, $result);
+		$this->assertInstanceOf(RowModificationQueryResultInterface::class, $result);
 
 		$result = $connection->executeStatement($preparedSelect);
 		$this->assertInstanceOf(DBMS\PDO\PDORecordset::class, $result);

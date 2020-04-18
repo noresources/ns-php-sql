@@ -11,14 +11,14 @@ namespace NoreSources\SQL\Expression;
 
 use NoreSources\Expression as xpr;
 
-interface TokenizableExpression extends xpr\Expression
+interface TokenizableExpressionInterface extends xpr\Expression
 {
 
 	/**
 	 *
 	 * {@inheritdoc}
-	 * @see \NoreSources\SQL\TokenizableExpression::tokenize()
+	 * @see \NoreSources\SQL\TokenizableExpressionInterface::tokenize()
 	 * @return TokenStream
 	 */
-	function tokenize(TokenStream $stream, TokenStreamContext $context);
+	function tokenize(TokenStream $stream, TokenStreamContextInterface $context);
 }

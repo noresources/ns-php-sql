@@ -11,18 +11,15 @@ namespace NoreSources\SQL;
 
 use NoreSources\SQL\Structure\ColumnDescriptionInterface;
 
-interface DataUnserializer
+interface DataSerializerInterface
 {
 
 	/**
-	 * Unserialize data from DBMS record column
+	 * Serialize a value to be stored in a DBMS storage system
 	 *
 	 * @param ColumnDescriptionInterface $column
-	 *        	Column properties
 	 * @param mixed $data
-	 *        	Data to unserialize
-	 * @return mixed Unserialized data
+	 *        	Data to serialize
 	 */
-	function unserializeColumnData(ColumnDescriptionInterface $column, $data);
+	function serializeColumnData(ColumnDescriptionInterface $column, $data);
 }
-

@@ -12,7 +12,7 @@ namespace NoreSources\SQL\Expression;
 /**
  * Structure element path or alias
  */
-abstract class StructureElementIdentifier implements TokenizableExpression
+abstract class StructureElementIdentifier implements TokenizableExpressionInterface
 {
 
 	/**

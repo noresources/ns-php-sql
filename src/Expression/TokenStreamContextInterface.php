@@ -9,16 +9,16 @@
  */
 namespace NoreSources\SQL\Expression;
 
-use NoreSources\SQL\Statement\OutputData;
-use NoreSources\SQL\Statement\ParametrizedStatement;
+use NoreSources\SQL\Statement\StatementOutputDataInterface;
+use NoreSources\SQL\Statement\ParameterDataAwareInterface;
 use NoreSources\SQL\Statement\StatementBuilderAwareInterface;
 use NoreSources\SQL\Structure\StructureResolverInterface;
 
 /**
  * Statement tokenization context
  */
-interface TokenStreamContext extends StructureResolverInterface, StatementBuilderAwareInterface,
-	ParametrizedStatement, OutputData
+interface TokenStreamContextInterface extends StructureResolverInterface, StatementBuilderAwareInterface,
+	ParameterDataAwareInterface, StatementOutputDataInterface
 {
 
 	/**

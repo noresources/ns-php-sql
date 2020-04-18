@@ -15,7 +15,7 @@ use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Structure\ColumnDescriptionInterface;
 
 /**
- * Implements DataUnserializer
+ * Implements DataUnserializerInterface
  *
  * Provide flexible, overridable sub methods to unserialize certain types
  */
@@ -63,6 +63,12 @@ trait GenericDataUnserializerTrait
 		return $data;
 	}
 
+	/**
+	 *
+	 * @param ColumnDescriptionInterface $column
+	 * @param mixed $data
+	 * @return boolean
+	 */
 	protected function unserializeBooleanColumnData(ColumnDescriptionInterface $column, $data)
 	{
 		return TypeConversion::toBoolean($data);

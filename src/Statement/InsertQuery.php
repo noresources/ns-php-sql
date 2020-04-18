@@ -14,12 +14,12 @@ namespace NoreSources\SQL\Statement;
 // Aliases
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Expression\Evaluator;
-use NoreSources\SQL\Expression\TokenizableExpression;
+use NoreSources\SQL\Expression\TokenizableExpressionInterface;
 use NoreSources\SQL\Expression\Keyword;
 use NoreSources\SQL\Expression\Literal;
 use NoreSources\SQL\Expression\TableReference;
 use NoreSources\SQL\Expression\TokenStream;
-use NoreSources\SQL\Expression\TokenStreamContext;
+use NoreSources\SQL\Expression\TokenStreamContextInterface;
 use NoreSources\SQL\Structure\TableStructure;
 
 /**
@@ -47,7 +47,7 @@ class InsertQuery extends Statement implements \ArrayAccess
 		$this->columnValues = new \ArrayObject();
 	}
 
-	public function tokenize(TokenStream $stream, TokenStreamContext $context)
+	public function tokenize(TokenStream $stream, TokenStreamContextInterface $context)
 	{
 		$builderFlags = $context->getStatementBuilder()->getBuilderFlags(K::BUILDER_DOMAIN_GENERIC);
 		$builderFlags |= $context->getStatementBuilder()->getBuilderFlags(K::BUILDER_DOMAIN_INSERT);
@@ -98,7 +98,7 @@ class InsertQuery extends Statement implements \ArrayAccess
 			 *
 			 * @var ColumnStructure $column
 			 */
-			if (!($value instanceof TokenizableExpression))
+			if (!($value instanceof TokenizableExpressionInterface))
 			{
 				$type = K::DATATYPE_UNDEFINED;
 				if ($column->hasColumnProperty(K::COLUMN_DATA_TYPE))

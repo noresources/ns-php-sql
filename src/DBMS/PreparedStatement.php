@@ -9,7 +9,7 @@
  */
 namespace NoreSources\SQL\DBMS;
 
-use NoreSources\SQL\Statement\InputData;
+use NoreSources\SQL\Statement\StatementInputDataInterface;
 use NoreSources\SQL\Statement\InputDataTrait;
 use NoreSources\SQL\Statement\OutputDataTrait;
 use NoreSources\SQL\Statement\StatementData;
@@ -26,11 +26,11 @@ abstract class PreparedStatement extends StatementData
 	/**
 	 *
 	 * @param
-	 *        	string|InputData Statement data
+	 *        	string|StatementInputDataInterface Statement data
 	 */
 	public function __construct($data)
 	{
-		if ($data instanceof InputData)
+		if ($data instanceof StatementInputDataInterface)
 			$this->initializeInputData($data);
 		else
 			$this->initializeInputData(null);

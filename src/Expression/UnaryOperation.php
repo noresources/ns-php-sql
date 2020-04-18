@@ -15,16 +15,16 @@ use NoreSources\SQL\Constants as K;
 /**
  * Unary operator expression
  */
-class UnaryOperation extends xpr\UnaryOperation implements TokenizableExpression,
-	ExpressionReturnType
+class UnaryOperation extends xpr\UnaryOperation implements TokenizableExpressionInterface,
+	ExpressionReturnTypeInterface
 {
 
-	public function __construct($operator, TokenizableExpression $operand)
+	public function __construct($operator, TokenizableExpressionInterface $operand)
 	{
 		parent::__construct($operator, $operand);
 	}
 
-	public function tokenize(TokenStream $stream, TokenStreamContext $context)
+	public function tokenize(TokenStream $stream, TokenStreamContextInterface $context)
 	{
 		$stream->text($this->getOperator());
 		if (\preg_match('/[a-z][0-9]/i', $this->getOperator()))
@@ -38,7 +38,7 @@ class UnaryOperation extends xpr\UnaryOperation implements TokenizableExpression
 		switch ($this->getOperator())
 		{
 			case self::MINUS:
-				return Helper::getExpressionDataType($this->getOperand());
+				return ExpressionHelper::getExpressionDataType($this->getOperand());
 			case self::BITWISE_NOT:
 				return K::DATATYPE_INTEGER;
 			case self::LOGICAL_NOT:

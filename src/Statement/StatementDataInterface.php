@@ -14,6 +14,6 @@ use NoreSources\StringRepresentation;
 /**
  * Aggregate interface
  */
-interface StatementDataInterface extends InputData, OutputData, StringRepresentation
+interface StatementDataInterface extends StatementInputDataInterface, StatementOutputDataInterface, StringRepresentation
 {
 }

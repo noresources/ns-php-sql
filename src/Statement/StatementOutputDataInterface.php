@@ -12,14 +12,21 @@
 namespace NoreSources\SQL\Statement;
 
 /**
- * Describe statements parameters
+ * Statement building data
  */
-interface ParametrizedStatement
+interface StatementOutputDataInterface
 {
 
 	/**
 	 *
-	 * @return ParameterData The statement parameters
+	 * @return integer
 	 */
-	function getParameters();
+	function getStatementType();
+
+	/**
+	 *
+	 * @return ResultColumnMap
+	 */
+	function getResultColumns();
 }
+

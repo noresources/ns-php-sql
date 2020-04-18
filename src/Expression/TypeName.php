@@ -17,7 +17,7 @@ use NoreSources\SQL\Structure\ColumnStructure;
 /**
  * Type name identifier
  */
-class TypeName implements TokenizableExpression
+class TypeName implements TokenizableExpressionInterface
 {
 
 	/**
@@ -54,7 +54,7 @@ class TypeName implements TokenizableExpression
 		$this->type = $type;
 	}
 
-	public function tokenize(TokenStream $stream, TokenStreamContext $context)
+	public function tokenize(TokenStream $stream, TokenStreamContextInterface $context)
 	{
 		$type = $this->type;
 		if ($type instanceof ColumnDescriptionInterface)

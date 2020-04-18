@@ -30,7 +30,7 @@ trait ColumnValueTrait
 	 *        	string Column name
 	 * @param
 	 *        	Evaluable Evaluable expression
-	 *        	
+	 *
 	 * @throws \BadMethodCallException
 	 * @throws \InvalidArgumentException
 	 */
@@ -84,7 +84,7 @@ trait ColumnValueTrait
 	 *
 	 * @param
 	 *        	string Column name
-	 *        	
+	 *
 	 * @return mixed Column current value or @c null if not set
 	 */
 	public function offsetGet($offset)
@@ -121,7 +121,7 @@ trait ColumnValueTrait
 	 *
 	 * @var \ArrayObject Associative array where
 	 *      keys are column names
-	 *      and values are \NoreSources\SQL\TokenizableExpression
+	 *      and values are \NoreSources\SQL\TokenizableExpressionInterface
 	 */
 	private $columnValues;
 }

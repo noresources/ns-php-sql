@@ -15,7 +15,7 @@ use NoreSources\SQL\Constants as K;
 /**
  * IN SQL operator
  */
-class MemberOf extends Set implements TokenizableExpression, ExpressionReturnType
+class MemberOf extends Set implements TokenizableExpressionInterface, ExpressionReturnTypeInterface
 {
 
 	/**
@@ -27,13 +27,13 @@ class MemberOf extends Set implements TokenizableExpression, ExpressionReturnTyp
 
 	/**
 	 *
-	 * @param TokenizableExpression $leftOperand
+	 * @param TokenizableExpressionInterface $leftOperand
 	 * @param array $expressionList
 	 *        	List of expression
 	 * @param boolean $memberOf
 	 *        	Indicate if @c $leftOperand should be a momber of the @c $expressionList or not
 	 */
-	public function __construct(TokenizableExpression $leftOperand, $expressionList = array(),
+	public function __construct(TokenizableExpressionInterface $leftOperand, $expressionList = array(),
 		$memberOf = true)
 	{
 		parent::__construct();
@@ -48,9 +48,9 @@ class MemberOf extends Set implements TokenizableExpression, ExpressionReturnTyp
 	/**
 	 *
 	 * {@inheritdoc}
-	 * @see \NoreSources\SQL\TokenizableExpression::tokenize()
+	 * @see \NoreSources\SQL\TokenizableExpressionInterface::tokenize()
 	 */
-	public function tokenize(TokenStream $stream, TokenStreamContext $context)
+	public function tokenize(TokenStream $stream, TokenStreamContextInterface $context)
 	{
 		$stream->expression($this->leftOperand, $context);
 		if (!$this->memberOf)
@@ -79,12 +79,12 @@ class MemberOf extends Set implements TokenizableExpression, ExpressionReturnTyp
 
 	protected function isValidElement($element)
 	{
-		return ($element instanceof TokenizableExpression);
+		return ($element instanceof TokenizableExpressionInterface);
 	}
 
 	/**
 	 *
-	 * @var TokenizableExpression
+	 * @var TokenizableExpressionInterface
 	 */
 	private $leftOperand;
 }

@@ -17,7 +17,7 @@ use NoreSources\SQL\Structure\ColumnDescriptionInterface;
 /**
  * Literal value
  */
-class Literal implements TokenizableExpression, ExpressionReturnType
+class Literal implements TokenizableExpressionInterface, ExpressionReturnTypeInterface
 {
 
 	/**
@@ -76,8 +76,8 @@ class Literal implements TokenizableExpression, ExpressionReturnType
 	 */
 	public function setValue($value, $type = null)
 	{
-		if ($value instanceof TokenizableExpression)
-			throw new \LogicException('Literal is already an TokenizableExpression');
+		if ($value instanceof TokenizableExpressionInterface)
+			throw new \LogicException('Literal is already an TokenizableExpressionInterface');
 
 		$this->literalValue = $value;
 
@@ -119,10 +119,10 @@ class Literal implements TokenizableExpression, ExpressionReturnType
 				return $this->serializationTarget->getColumnProperty(K::COLUMN_DATA_TYPE);
 		}
 
-		return Helper::getExpressionDataType($this->getValue());
+		return ExpressionHelper::getExpressionDataType($this->getValue());
 	}
 
-	public function tokenize(TokenStream $stream, TokenStreamContext $context)
+	public function tokenize(TokenStream $stream, TokenStreamContextInterface $context)
 	{
 		return $stream->literal(
 			$context->getStatementBuilder()

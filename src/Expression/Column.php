@@ -23,7 +23,7 @@ class Column extends StructureElementIdentifier
 		parent::__construct($path);
 	}
 
-	public function tokenize(TokenStream $stream, TokenStreamContext $context)
+	public function tokenize(TokenStream $stream, TokenStreamContextInterface $context)
 	{
 		$target = $context->findColumn($this->path);
 		if ($target instanceof ColumnStructure)

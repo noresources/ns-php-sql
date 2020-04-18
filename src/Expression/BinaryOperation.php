@@ -15,8 +15,8 @@ use NoreSources\SQL\Constants as K;
 /**
  * Binary operator expression
  */
-class BinaryOperation extends xpr\BinaryOperation implements TokenizableExpression,
-	ExpressionReturnType
+class BinaryOperation extends xpr\BinaryOperation implements TokenizableExpressionInterface,
+	ExpressionReturnTypeInterface
 {
 
 	const EQUAL = '=';
@@ -27,10 +27,10 @@ class BinaryOperation extends xpr\BinaryOperation implements TokenizableExpressi
 	 *
 	 * @param string $operator
 	 *        	Operator text
-	 * @param TokenizableExpression $left
-	 * @param TokenizableExpression $right
+	 * @param TokenizableExpressionInterface $left
+	 * @param TokenizableExpressionInterface $right
 	 */
-	public function __construct($operator, TokenizableExpression $left, TokenizableExpression $right)
+	public function __construct($operator, TokenizableExpressionInterface $left, TokenizableExpressionInterface $right)
 	{
 		parent::__construct($operator, $left, $right);
 	}
@@ -52,15 +52,15 @@ class BinaryOperation extends xpr\BinaryOperation implements TokenizableExpressi
 		$type = K::DATATYPE_UNDEFINED;
 		if ($this->isArithmetic())
 		{
-			$type = Helper::getExpressionDataType($this->getLeftOperand());
+			$type = ExpressionHelper::getExpressionDataType($this->getLeftOperand());
 			if ($type == K::DATATYPE_UNDEFINED)
-				return Helper::getExpressionDataType($this->getRightOperand());
+				return ExpressionHelper::getExpressionDataType($this->getRightOperand());
 		}
 
 		return $type;
 	}
 
-	public function tokenize(TokenStream $stream, TokenStreamContext $context)
+	public function tokenize(TokenStream $stream, TokenStreamContextInterface $context)
 	{
 		return $stream->expression($this->getLeftOperand(), $context)
 			->space()

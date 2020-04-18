@@ -3,9 +3,9 @@ namespace NoreSources\SQL;
 
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\Reference\ReferenceStatementBuilder;
-use NoreSources\SQL\Expression\Helper;
+use NoreSources\SQL\Expression\ExpressionHelper;
 use NoreSources\SQL\Expression\TokenStream;
-use NoreSources\SQL\Expression\TokenizableExpression;
+use NoreSources\SQL\Expression\TokenizableExpressionInterface;
 use NoreSources\SQL\Statement\StatementTokenStreamContext;
 use NoreSources\Test\DatasourceManager;
 use NoreSources\Test\DerivedFileManager;
@@ -43,8 +43,8 @@ final class InsertTest extends \PHPUnit\Framework\TestCase
 			$stream = new TokenStream();
 			$q->tokenize($stream, $context);
 			$result = $builder->finalizeStatement($stream, $context);
-			$this->assertInstanceOf(Statement\OutputData::class, $result,
-				'Result is (at least) a Statement\OutputData');
+			$this->assertInstanceOf(Statement\StatementOutputDataInterface::class, $result,
+				'Result is (at least) a Statement\StatementOutputDataInterface');
 			$this->derivedFileManager->assertDerivedFile(strval($result), __METHOD__, $key, 'sql');
 		}
 	}
@@ -61,18 +61,18 @@ final class InsertTest extends \PHPUnit\Framework\TestCase
 			'empty' => array(),
 			'literals' => [
 				'name' => [
-					Helper::literal('Test task'),
+					ExpressionHelper::literal('Test task'),
 					null
 				],
 				'creationDateTime' => [
-					Helper::literal(
+					ExpressionHelper::literal(
 						\DateTime::createFromFormat(\DateTime::ISO8601, '2012-01-16T16:35:26+0100')),
 					null
 				]
 			],
 			'polish' => [
 				'name' => [
-					Helper::literal('Random priority'),
+					ExpressionHelper::literal('Random priority'),
 					null
 				],
 				'priority' => [
@@ -105,7 +105,7 @@ final class InsertTest extends \PHPUnit\Framework\TestCase
 
 			foreach ($values as $column => $value)
 			{
-				if ($value instanceof TokenizableExpression)
+				if ($value instanceof TokenizableExpressionInterface)
 					$q[$column] = $value;
 				else
 					$q->setColumnValue($column, $value[0], $value[1]);

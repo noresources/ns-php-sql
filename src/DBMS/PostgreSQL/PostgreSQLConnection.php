@@ -21,7 +21,7 @@ use NoreSources\SQL\QueryResult\GenericInsertionQueryResult;
 use NoreSources\SQL\QueryResult\GenericRowModificationQueryResult;
 use NoreSources\SQL\Statement\ClassMapStatementFactory;
 use NoreSources\SQL\Statement\ParameterData;
-use NoreSources\SQL\Statement\ParametrizedStatement;
+use NoreSources\SQL\Statement\ParameterDataAwareInterface;
 use NoreSources\SQL\Statement\Statement;
 use NoreSources\SQL\Statement\StatementFactoryInterface;
 use NoreSources\SQL\Structure\StructureAwareTrait;
@@ -277,7 +277,7 @@ class PostgreSQLConnection implements ConnectionInterface
 			return $a;
 		}
 
-		if ($statement instanceof ParametrizedStatement)
+		if ($statement instanceof ParameterDataAwareInterface)
 		{
 			$map = $statement->getParameters();
 			foreach ($map->getKeyIterator() as $key => $data)
@@ -297,7 +297,7 @@ class PostgreSQLConnection implements ConnectionInterface
 		else
 			throw \InvalidArgumentException(
 				'Invalid parameter list. Indexed array is mandatory if the statement does not implement ' .
-				ParametrizedStatement::class);
+				ParameterDataAwareInterface::class);
 
 		return $a;
 	}

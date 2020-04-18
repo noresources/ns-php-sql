@@ -9,7 +9,7 @@
  */
 namespace NoreSources\SQL\QueryResult;
 
-class GenericInsertionQueryResult implements InsertionQueryResult
+class GenericInsertionQueryResult implements InsertionQueryResultInterface
 {
 
 	public function __construct($insretId)

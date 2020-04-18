@@ -6,10 +6,10 @@ namespace NoreSources\SQL\Expression;
  *
  * @see https://www.sqlite.org/lang_expr.html
  */
-class AlternativeList implements TokenizableExpression
+class AlternativeList implements TokenizableExpressionInterface
 {
 
-	public function __construct(TokenizableExpression $subject)
+	public function __construct(TokenizableExpressionInterface $subject)
 	{
 		$this->subject = $subject;
 		$this->alternatives = [];
@@ -21,12 +21,12 @@ class AlternativeList implements TokenizableExpression
 		$this->alternatives[] = $alternative;
 	}
 
-	public function setOtherwise(TokenizableExpression $else = null)
+	public function setOtherwise(TokenizableExpressionInterface $else = null)
 	{
 		$this->otherwise = $else;
 	}
 
-	public function tokenize(TokenStream $stream, TokenStreamContext $context)
+	public function tokenize(TokenStream $stream, TokenStreamContextInterface $context)
 	{
 		$stream->keyword('case')
 			->space()
@@ -36,7 +36,7 @@ class AlternativeList implements TokenizableExpression
 			$stream->space()->expression($alternative, $context);
 		}
 
-		if ($this->otherwise instanceof TokenizableExpression)
+		if ($this->otherwise instanceof TokenizableExpressionInterface)
 		{
 			$stream->space()
 				->keyword('else')
@@ -55,7 +55,7 @@ class AlternativeList implements TokenizableExpression
 
 	/**
 	 *
-	 * @var array<TokenizableExpression>
+	 * @var array<TokenizableExpressionInterface>
 	 */
 	private $alternatives;
 

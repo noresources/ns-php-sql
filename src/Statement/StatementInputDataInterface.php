@@ -8,13 +8,12 @@
  * @package SQL
  */
 
-// Namespace
 namespace NoreSources\SQL\Statement;
 
 /**
  * Statement information about parameters etc.
  */
-interface InputData extends ParametrizedStatement
+interface StatementInputDataInterface extends ParameterDataAwareInterface
 {
 
 	/**
@@ -22,7 +21,7 @@ interface InputData extends ParametrizedStatement
 	 * This method have to be called in constructors of
 	 * class that use this trait.
 	 *
-	 * @param InputData $data
+	 * @param StatementInputDataInterface $data
 	 */
-	function initializeInputData(InputData $data = null);
+	function initializeInputData(StatementInputDataInterface $data = null);
 }

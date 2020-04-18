@@ -17,7 +17,7 @@ use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Expression\Evaluator;
 use NoreSources\SQL\Expression\TableReference;
 use NoreSources\SQL\Expression\TokenStream;
-use NoreSources\SQL\Expression\TokenStreamContext;
+use NoreSources\SQL\Expression\TokenStreamContextInterface;
 use NoreSources\SQL\Structure\TableStructure;
 
 /**
@@ -61,7 +61,7 @@ class DeleteQuery extends Statement
 		}
 	}
 
-	public function tokenize(TokenStream $stream, TokenStreamContext $context)
+	public function tokenize(TokenStream $stream, TokenStreamContextInterface $context)
 	{
 		$tableStructure = $context->findTable($this->table->path);
 

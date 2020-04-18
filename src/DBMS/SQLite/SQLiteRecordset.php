@@ -12,7 +12,7 @@ namespace NoreSources\SQL\DBMS\SQLite;
 // Aliases
 use NoreSources\SQL\DBMS\SQLite\SQLiteConstants as K;
 use NoreSources\SQL\QueryResult\Recordset;
-use NoreSources\SQL\Statement\OutputData;
+use NoreSources\SQL\Statement\StatementOutputDataInterface;
 use NoreSources\SQL\Statement\ResultColumn;
 use NoreSources\SQL\Statement\ResultColumnMap;
 
@@ -23,7 +23,7 @@ class SQLiteRecordset extends Recordset
 	{
 		parent::__construct($data);
 		$this->result = $result;
-		if (!($data instanceof OutputData))
+		if (!($data instanceof StatementOutputDataInterface))
 		{
 			$map = $this->getResultColumns();
 			for ($i = 0; $i < $result->numColumns(); $i++)

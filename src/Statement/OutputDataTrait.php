@@ -12,7 +12,7 @@
 namespace NoreSources\SQL\Statement;
 
 /**
- * Implementation of Statement\OutputData
+ * Implementation of Statement\StatementOutputDataInterface
  */
 trait OutputDataTrait
 {
@@ -29,7 +29,7 @@ trait OutputDataTrait
 
 	public function initializeOutputData($data = null)
 	{
-		if ($data instanceof OutputData)
+		if ($data instanceof StatementOutputDataInterface)
 		{
 			$this->statementType = $data->getStatementType();
 			$this->resultColumns = $data->getResultColumns();

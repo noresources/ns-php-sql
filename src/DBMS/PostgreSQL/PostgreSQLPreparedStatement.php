@@ -26,8 +26,8 @@ class PostgreSQLPreparedStatement extends PreparedStatement
 	 *
 	 * @param string $identifier
 	 *        	Prepared statement identifier
-	 * @param OutputData|string $data
-	 *        	OutputData or SQL statement string
+	 * @param StatementOutputDataInterface|string $data
+	 *        	StatementOutputDataInterface or SQL statement string
 	 */
 	public function __construct($identifier, $data = null)
 	{

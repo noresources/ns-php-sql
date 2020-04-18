@@ -17,7 +17,7 @@ use NoreSources\SQL\DBMS\TypeHelper;
 use NoreSources\SQL\DBMS\TypeInterface;
 use NoreSources\SQL\Expression\Evaluator;
 use NoreSources\SQL\Expression\TokenStream;
-use NoreSources\SQL\Expression\TokenStreamContext;
+use NoreSources\SQL\Expression\TokenStreamContextInterface;
 use NoreSources\SQL\Structure\ColumnTableConstraint;
 use NoreSources\SQL\Structure\ForeignKeyTableConstraint;
 use NoreSources\SQL\Structure\PrimaryKeyTableConstraint;
@@ -57,7 +57,7 @@ class CreateTableQuery extends Statement
 		return $this->structure->$member;
 	}
 
-	public function tokenize(TokenStream $stream, TokenStreamContext $context)
+	public function tokenize(TokenStream $stream, TokenStreamContextInterface $context)
 	{
 		$builderFlags = $context->getStatementBuilder()->getBuilderFlags(K::BUILDER_DOMAIN_GENERIC);
 		$builderFlags |= $context->getStatementBuilder()->getBuilderFlags(
@@ -224,7 +224,7 @@ class CreateTableQuery extends Statement
 	}
 
 	protected function tokenizeTableConstraint(TableConstraint $constraint, TokenStream $stream,
-		TokenStreamContext $context)
+		TokenStreamContextInterface $context)
 	{
 		if (\strlen($constraint->constraintName))
 		{

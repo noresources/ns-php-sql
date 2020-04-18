@@ -19,7 +19,7 @@ use NoreSources\SQL\QueryResult\GenericInsertionQueryResult;
 use NoreSources\SQL\QueryResult\GenericRowModificationQueryResult;
 use NoreSources\SQL\Statement\ClassMapStatementFactory;
 use NoreSources\SQL\Statement\ParameterData;
-use NoreSources\SQL\Statement\ParametrizedStatement;
+use NoreSources\SQL\Statement\ParameterDataAwareInterface;
 use NoreSources\SQL\Statement\Statement;
 use NoreSources\SQL\Statement\StatementFactoryInterface;
 use NoreSources\SQL\Structure\StructureAwareTrait;
@@ -239,7 +239,7 @@ class PDOConnection implements ConnectionInterface
 			foreach ($parameters as $key => $entry)
 			{
 				$dbmsName = '';
-				if ($statement instanceof ParametrizedStatement)
+				if ($statement instanceof ParameterDataAwareInterface)
 					$dbmsName = $statement->getParameters()->get($key)[ParameterData::DBMSNAME];
 				else
 					$dbmsName = ':' . $key;

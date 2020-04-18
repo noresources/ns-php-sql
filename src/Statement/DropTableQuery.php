@@ -15,7 +15,7 @@ namespace NoreSources\SQL\Statement;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Expression\Table;
 use NoreSources\SQL\Expression\TokenStream;
-use NoreSources\SQL\Expression\TokenStreamContext;
+use NoreSources\SQL\Expression\TokenStreamContextInterface;
 use NoreSources\SQL\Structure\TableStructure;
 
 /**
@@ -34,7 +34,7 @@ class DropTableQuery extends Statement
 		$this->table = new Table($table);
 	}
 
-	public function tokenize(TokenStream $stream, TokenStreamContext $context)
+	public function tokenize(TokenStream $stream, TokenStreamContextInterface $context)
 	{
 		$builderFlags = $context->getStatementBuilder()->getBuilderFlags(K::BUILDER_DOMAIN_GENERIC);
 		$builderFlags |= $context->getStatementBuilder()->getBuilderFlags(K::BUILDER_DOMAIN_DROP_TABLE);

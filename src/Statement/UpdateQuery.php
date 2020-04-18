@@ -14,11 +14,11 @@ namespace NoreSources\SQL\Statement;
 // Aliases
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Expression\Evaluator as X;
-use NoreSources\SQL\Expression\TokenizableExpression;
+use NoreSources\SQL\Expression\TokenizableExpressionInterface;
 use NoreSources\SQL\Expression\Literal;
 use NoreSources\SQL\Expression\TableReference;
 use NoreSources\SQL\Expression\TokenStream;
-use NoreSources\SQL\Expression\TokenStreamContext;
+use NoreSources\SQL\Expression\TokenStreamContextInterface;
 use NoreSources\SQL\Structure\TableStructure;
 
 /**
@@ -57,7 +57,7 @@ class UpdateQuery extends Statement implements \ArrayAccess
 		for ($i = 0; $i < $c; $i++)
 		{
 			$x = func_get_arg($i);
-			if (!($x instanceof TokenizableExpression))
+			if (!($x instanceof TokenizableExpressionInterface))
 				$x = X::evaluate($x);
 
 			$this->whereConstraints->append($x);
@@ -66,7 +66,7 @@ class UpdateQuery extends Statement implements \ArrayAccess
 		return $this;
 	}
 
-	public function tokenize(TokenStream $stream, TokenStreamContext $context)
+	public function tokenize(TokenStream $stream, TokenStreamContextInterface $context)
 	{
 		if ($this->columnValues->count() == 0)
 		{
@@ -106,7 +106,7 @@ class UpdateQuery extends Statement implements \ArrayAccess
 			 * @var ColumnStructure $column
 			 */
 
-			if (!($value instanceof TokenizableExpression))
+			if (!($value instanceof TokenizableExpressionInterface))
 			{
 				$type = K::DATATYPE_UNDEFINED;
 				if ($column->hasColumnProperty(K::COLUMN_DATA_TYPE))

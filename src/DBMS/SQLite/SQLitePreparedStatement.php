@@ -13,7 +13,7 @@ namespace NoreSources\SQL\DBMS\SQLite;
 use NoreSources\TypeConversion;
 use NoreSources\TypeDescription;
 use NoreSources\SQL\DBMS\PreparedStatement;
-use NoreSources\SQL\Statement\ParametrizedStatement;
+use NoreSources\SQL\Statement\ParameterDataAwareInterface;
 use NoreSources\SQL\Statement\StatementTokenStreamContext;
 
 /**
@@ -47,14 +47,14 @@ class SQLitePreparedStatement extends PreparedStatement
 					StatementTokenStreamContext::class);
 		}
 
-		if ($data instanceof ParametrizedStatement)
+		if ($data instanceof ParameterDataAwareInterface)
 		{
 			$npc = $data->getParameters()->getDistinctParameterCount();
 			if ($npc != $statement->paramCount())
 			{
 				throw new \BadMethodCallException(
-					'SQLite statement and ' . ParametrizedStatement::class .
-					' parameter mismatch. Got ' . $npc . ' for ' . ParametrizedStatement::class .
+					'SQLite statement and ' . ParameterDataAwareInterface::class .
+					' parameter mismatch. Got ' . $npc . ' for ' . ParameterDataAwareInterface::class .
 					' and ' . $statement->paramCount() . ' for SQLiteStmt');
 			}
 		}

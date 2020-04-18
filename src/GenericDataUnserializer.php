@@ -12,9 +12,9 @@ namespace NoreSources\SQL;
 use NoreSources\SingletonTrait;
 
 /**
- * Reference implementation of DataUnserializer
+ * Reference implementation of DataUnserializerInterface
  */
-class GenericDataUnserializer implements DataUnserializer
+class GenericDataUnserializer implements DataUnserializerInterface
 {
 	use GenericDataUnserializerTrait;
 

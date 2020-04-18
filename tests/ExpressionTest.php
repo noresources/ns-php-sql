@@ -285,7 +285,7 @@ final class ExpressionEvaluatorTest extends \PHPUnit\Framework\TestCase
 					"func()" => [
 						2,
 						'column',
-						Helper::literal('string')
+						ExpressionHelper::literal('string')
 					]
 				],
 				'main' => FunctionCall::class,

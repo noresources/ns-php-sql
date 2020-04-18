@@ -12,7 +12,7 @@ namespace NoreSources\SQL\DBMS\PostgreSQL;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\QueryResult\Recordset;
 use NoreSources\SQL\QueryResult\SeekableRecordsetTrait;
-use NoreSources\SQL\Statement\OutputData;
+use NoreSources\SQL\Statement\StatementOutputDataInterface;
 use NoreSources\SQL\Statement\ResultColumn;
 use NoreSources\SQL\Statement\ResultColumnMap;
 
@@ -30,7 +30,7 @@ class PostgreSQLRecordset extends Recordset implements \SeekableIterator, \Count
 	{
 		parent::__construct($data);
 		$this->resource = $resource;
-		if (!($data instanceof OutputData))
+		if (!($data instanceof StatementOutputDataInterface))
 		{
 			$map = $this->getResultColumns();
 			for ($i = 0; $i < \pg_num_fields($this->resource); $i++)

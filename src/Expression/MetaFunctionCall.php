@@ -25,7 +25,7 @@ class MetaFunctionCall extends FunctionCall
 		parent::__construct($name, $arguments);
 	}
 
-	public function tokenize(TokenStream $stream, TokenStreamContext $context)
+	public function tokenize(TokenStream $stream, TokenStreamContextInterface $context)
 	{
 		return $context->getStatementBuilder()
 			->translateFunction($this)

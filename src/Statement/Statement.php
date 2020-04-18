@@ -47,7 +47,7 @@ class StatementException extends \Exception
 /**
  * SQL statement
  */
-abstract class Statement implements X\TokenizableExpression
+abstract class Statement implements X\TokenizableExpressionInterface
 {
 
 	/**
@@ -74,7 +74,7 @@ abstract class Statement implements X\TokenizableExpression
 				return K::QUERY_DROP_TABLE;
 
 			$type = 0;
-			if ($data instanceof OutputData)
+			if ($data instanceof StatementOutputDataInterface)
 				$type = $data->getStatementType();
 
 			if ($type != 0)

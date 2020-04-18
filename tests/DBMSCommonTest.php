@@ -15,7 +15,7 @@ use NoreSources\SQL\Expression\CastFunction;
 use NoreSources\SQL\Expression\Literal;
 use NoreSources\SQL\Expression\Parameter;
 use NoreSources\SQL\Expression\TimestampFormatFunction;
-use NoreSources\SQL\QueryResult\InsertionQueryResult;
+use NoreSources\SQL\QueryResult\InsertionQueryResultInterface;
 use NoreSources\SQL\QueryResult\Recordset;
 use NoreSources\SQL\Statement\DeleteQuery;
 use NoreSources\SQL\Statement\DropTableQuery;
@@ -187,7 +187,7 @@ final class DBMSCommonTest extends TestCase
 			$rowQueries[$label] = \strval($data);
 			$result = $connection->executeStatement($data);
 
-			$this->assertInstanceOf(InsertionQueryResult::class, $result, $label);
+			$this->assertInstanceOf(InsertionQueryResultInterface::class, $result, $label);
 		}
 
 		$q = new SelectQuery($tableStructure);
@@ -248,7 +248,7 @@ final class DBMSCommonTest extends TestCase
 			$result = $connection->executeStatement(
 				ConnectionHelper::getStatementData($connection, $i, $tableStructure));
 
-			$this->assertInstanceOf(InsertionQueryResult::class, $result,
+			$this->assertInstanceOf(InsertionQueryResultInterface::class, $result,
 				$fileName . ' binary insert');
 
 			$s = new SelectQuery($tableStructure);
@@ -614,13 +614,13 @@ final class DBMSCommonTest extends TestCase
 		];
 
 		$result = $connection->executeStatement($preparedInsert, $p);
-		$this->assertInstanceOf(QueryResult\InsertionQueryResult::class, $result,
+		$this->assertInstanceOf(InsertionQueryResultInterface::class, $result,
 			$dbmsName . ' ' . $preparedInsert);
 
 		$p['identifier'] = 2;
 		$p['nameValue'] = 'Ron';
 		$result = $connection->executeStatement($preparedInsert, $p);
-		$this->assertInstanceOf(QueryResult\InsertionQueryResult::class, $result,
+		$this->assertInstanceOf(InsertionQueryResultInterface::class, $result,
 			$dbmsName . ' ' . $preparedInsert);
 
 		// Test result column count when no column are specified (select * from ...)

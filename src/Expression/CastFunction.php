@@ -20,11 +20,11 @@ class CastFunction extends FunctionCall
 
 	/**
 	 *
-	 * @param TokenizableExpression $expression
+	 * @param TokenizableExpressionInterface $expression
 	 * @param \NoreSources\SQL\Structure\ArrayColumnDescription|\NoreSources\SQL\DBMS\TypeInterface|TypeName|integer $type
 	 *        	Type. description
 	 */
-	public function __construct(TokenizableExpression $expression, $type)
+	public function __construct(TokenizableExpressionInterface $expression, $type)
 	{
 		parent::__construct('cast');
 

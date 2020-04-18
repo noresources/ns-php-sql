@@ -15,7 +15,7 @@ use NoreSources\SQL\Constants as K;
 /**
  * Timestamp formatting meta function
  */
-class TimestampFormatFunction extends MetaFunctionCall implements ExpressionReturnType
+class TimestampFormatFunction extends MetaFunctionCall implements ExpressionReturnTypeInterface
 {
 
 	/**
@@ -30,9 +30,9 @@ class TimestampFormatFunction extends MetaFunctionCall implements ExpressionRetu
 	 */
 	public function __construct($format, $timestamp)
 	{
-		if (!($format instanceof TokenizableExpression))
+		if (!($format instanceof TokenizableExpressionInterface))
 			$format = new Literal($format, K::DATATYPE_STRING);
-		if (!($timestamp instanceof TokenizableExpression))
+		if (!($timestamp instanceof TokenizableExpressionInterface))
 			$timestamp = new Literal(new DateTime($timestamp), K::DATATYPE_TIMESTAMP);
 
 		parent::__construct(K::METAFUNCTION_TIMESTAMP_FORMAT, [

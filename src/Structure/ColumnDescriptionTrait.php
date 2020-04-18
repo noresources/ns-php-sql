@@ -14,7 +14,7 @@ use NoreSources\TypeConversion;
 use NoreSources\TypeDescription;
 use NoreSources\MediaType\MediaType;
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\DataUnserializer;
+use NoreSources\SQL\DataUnserializerInterface;
 
 /**
  * Reference implementation of ColumnDescriptionInterface
@@ -72,7 +72,7 @@ trait ColumnDescriptionTrait
 					$value = new MediaType($value);
 			break;
 			case K::COLUMN_UNSERIALIZER:
-				if (!($value instanceof DataUnserializer))
+				if (!($value instanceof DataUnserializerInterface))
 					throw new \InvalidArgumentException(
 						'Invalid value type ' . TypeDescription::getName($value) . ' for property ' .
 						$key);
@@ -114,7 +114,7 @@ class ColumnPropertyDefault
 		switch ($key)
 		{
 			case K::COLUMN_UNSERIALIZER:
-				return ($value instanceof DataUnserializer);
+				return ($value instanceof DataUnserializerInterface);
 			case K::COLUMN_DATA_TYPE:
 			case K::COLUMN_LENGTH:
 			case K::COLUMN_FRACTION_SCALE:

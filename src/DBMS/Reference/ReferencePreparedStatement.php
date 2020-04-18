@@ -20,7 +20,7 @@ class ReferencePreparedStatement extends PreparedStatement
 
 	/**
 	 *
-	 * @param \NoreSources\SQL\Statement\ParametrizedStatement $data
+	 * @param \NoreSources\SQL\Statement\ParameterDataAwareInterface $data
 	 */
 	public function __construct($data)
 	{

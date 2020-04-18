@@ -4,10 +4,10 @@ namespace NoreSources\SQL\Expression;
 /**
  * CASE expression
  */
-class Alternative implements TokenizableExpression, ExpressionReturnType
+class Alternative implements TokenizableExpressionInterface, ExpressionReturnTypeInterface
 {
 
-	public function __construct(TokenizableExpression $when, TokenizableExpression $then)
+	public function __construct(TokenizableExpressionInterface $when, TokenizableExpressionInterface $then)
 	{
 		$this->when = $when;
 		$this->then = $then;
@@ -15,7 +15,7 @@ class Alternative implements TokenizableExpression, ExpressionReturnType
 
 	public function getExpressionDataType()
 	{
-		return Helper::getExpressionDataType($this->then);
+		return ExpressionHelper::getExpressionDataType($this->then);
 	}
 
 	public function getCondition()
@@ -28,7 +28,7 @@ class Alternative implements TokenizableExpression, ExpressionReturnType
 		return $this->then;
 	}
 
-	public function tokenize(TokenStream $stream, TokenStreamContext $context)
+	public function tokenize(TokenStream $stream, TokenStreamContextInterface $context)
 	{
 		return $stream->keyword('when')
 			->space()
@@ -41,13 +41,13 @@ class Alternative implements TokenizableExpression, ExpressionReturnType
 
 	/**
 	 *
-	 * @var TokenizableExpression
+	 * @var TokenizableExpressionInterface
 	 */
 	private $when;
 
 	/**
 	 *
-	 * @var TokenizableExpression
+	 * @var TokenizableExpressionInterface
 	 */
 	private $then;
 }

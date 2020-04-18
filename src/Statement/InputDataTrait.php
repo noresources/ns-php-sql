@@ -12,7 +12,7 @@
 namespace NoreSources\SQL\Statement;
 
 /**
- * Implementation of InputData
+ * Implementation of StatementInputDataInterface
  */
 trait InputDataTrait
 {
@@ -26,7 +26,7 @@ trait InputDataTrait
 		return $this->parameters;
 	}
 
-	public function initializeInputData(InputData $data = null)
+	public function initializeInputData(StatementInputDataInterface $data = null)
 	{
 		if ($data)
 			$this->parameters = $data->getParameters();

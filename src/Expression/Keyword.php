@@ -12,7 +12,7 @@ namespace NoreSources\SQL\Expression;
 /**
  * SQL language keyword which may have different translation in DBMS dialect
  */
-class Keyword implements TokenizableExpression
+class Keyword implements TokenizableExpressionInterface
 {
 
 	/**
@@ -32,7 +32,7 @@ class Keyword implements TokenizableExpression
 		$this->keyword = $keyword;
 	}
 
-	public function tokenize(TokenStream $stream, TokenStreamContext $context)
+	public function tokenize(TokenStream $stream, TokenStreamContextInterface $context)
 	{
 		return $stream->keyword($context->getStatementBuilder()
 			->getKeyword($this->keyword));

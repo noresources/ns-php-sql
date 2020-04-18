@@ -10,7 +10,7 @@
 namespace NoreSources\SQL\Statement;
 
 use NoreSources\Stack;
-use NoreSources\SQL\Expression\TokenStreamContext;
+use NoreSources\SQL\Expression\TokenStreamContextInterface;
 use NoreSources\SQL\Structure\StructureElement;
 use NoreSources\SQL\Structure\StructureResolver;
 use NoreSources\SQL\Structure\StructureResolverAwareInterface;
@@ -19,7 +19,8 @@ use NoreSources\SQL\Structure\StructureResolverAwareTrait;
 /**
  * Statement building context data
  */
-class StatementTokenStreamContext implements InputData, StructureResolverAwareInterface, TokenStreamContext
+class StatementTokenStreamContext implements StatementInputDataInterface,
+	StructureResolverAwareInterface, TokenStreamContextInterface
 {
 	use InputDataTrait;
 	use OutputDataTrait;

@@ -7,9 +7,9 @@ use NoreSources\TypeDescription;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\ConnectionHelper;
-use NoreSources\SQL\QueryResult\InsertionQueryResult;
+use NoreSources\SQL\QueryResult\InsertionQueryResultInterface;
 use NoreSources\SQL\QueryResult\Recordset;
-use NoreSources\SQL\QueryResult\RowModificationQueryResult;
+use NoreSources\SQL\QueryResult\RowModificationQueryResultInterface;
 use NoreSources\SQL\Statement\StatementData;
 
 class TestConnection extends \PHPUnit\Framework\TestCase
@@ -84,10 +84,10 @@ class TestConnection extends \PHPUnit\Framework\TestCase
 		{
 			$result = $connection->executeStatement($insert, $insertParameters);
 			if ($insert->getStatementType() & K::QUERY_INSERT)
-				$this->assertInstanceOf(InsertionQueryResult::class, $result,
+				$this->assertInstanceOf(InsertionQueryResultInterface::class, $result,
 					$label . ' - (insert result)');
 			elseif ($insert->getStatementType() & K::QUERY_FAMILY_ROWMODIFICATION)
-				$this->assertInstanceOf(RowModificationQueryResult::class, $result,
+				$this->assertInstanceOf(RowModificationQueryResultInterface::class, $result,
 					$dbmsName . ' (row modification result)');
 		}
 

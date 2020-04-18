@@ -16,7 +16,7 @@ use NoreSources\SQL\Constants as K;
  *
  * expression BETWEEN expression AND expression
  */
-class Between implements TokenizableExpression, ExpressionReturnType
+class Between implements TokenizableExpressionInterface, ExpressionReturnTypeInterface
 {
 
 	/**
@@ -28,12 +28,12 @@ class Between implements TokenizableExpression, ExpressionReturnType
 
 	/**
 	 *
-	 * @param TokenizableExpression $leftOperand
-	 * @param TokenizableExpression $min
-	 * @param TokenizableExpression $max
+	 * @param TokenizableExpressionInterface $leftOperand
+	 * @param TokenizableExpressionInterface $min
+	 * @param TokenizableExpressionInterface $max
 	 */
-	public function __construct(TokenizableExpression $leftOperand, TokenizableExpression $min,
-		TokenizableExpression $max, $inside = true)
+	public function __construct(TokenizableExpressionInterface $leftOperand, TokenizableExpressionInterface $min,
+		TokenizableExpressionInterface $max, $inside = true)
 	{
 		$this->inside = true;
 		$this->leftOperand = $leftOperand;
@@ -50,7 +50,7 @@ class Between implements TokenizableExpression, ExpressionReturnType
 
 	/**
 	 *
-	 * @return \NoreSources\SQL\TokenizableExpression\Expression
+	 * @return \NoreSources\SQL\Expression\TokenizableExpressionInterface
 	 */
 	public function getLeftOperand()
 	{
@@ -59,7 +59,7 @@ class Between implements TokenizableExpression, ExpressionReturnType
 
 	/**
 	 *
-	 * @return array<integer,TokenizableExpression>
+	 * @return array<integer,TokenizableExpressionInterface>
 	 */
 	public function getRange()
 	{
@@ -68,7 +68,7 @@ class Between implements TokenizableExpression, ExpressionReturnType
 
 	/**
 	 *
-	 * @return TokenizableExpression Range min boundary
+	 * @return TokenizableExpressionInterface Range min boundary
 	 */
 	public function getMin()
 	{
@@ -77,7 +77,7 @@ class Between implements TokenizableExpression, ExpressionReturnType
 
 	/**
 	 *
-	 * @return TokenizableExpression Range max boundary
+	 * @return TokenizableExpressionInterface Range max boundary
 	 */
 	public function getMax()
 	{
@@ -87,9 +87,9 @@ class Between implements TokenizableExpression, ExpressionReturnType
 	/**
 	 *
 	 * {@inheritdoc}
-	 * @see \NoreSources\SQL\TokenizableExpression::tokenize()
+	 * @see \NoreSources\SQL\TokenizableExpressionInterface::tokenize()
 	 */
-	public function tokenize(TokenStream $stream, TokenStreamContext $context)
+	public function tokenize(TokenStream $stream, TokenStreamContextInterface $context)
 	{
 		$stream->expression($this->leftOperand, $context);
 		if (!$this->inside)
@@ -107,13 +107,13 @@ class Between implements TokenizableExpression, ExpressionReturnType
 
 	/**
 	 *
-	 * @var TokenizableExpression
+	 * @var TokenizableExpressionInterface
 	 */
 	private $leftOperand;
 
 	/**
 	 *
-	 * @var \array<integer,TokenizableExpression>
+	 * @var \array<integer,TokenizableExpressionInterface>
 	 */
 	private $range;
 }

@@ -13,7 +13,7 @@ use NoreSources\Container;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Expression\Evaluator;
 use NoreSources\SQL\Expression\TokenStream;
-use NoreSources\SQL\Expression\TokenStreamContext;
+use NoreSources\SQL\Expression\TokenStreamContextInterface;
 use NoreSources\SQL\Statement\CreateTableQuery;
 use NoreSources\SQL\Statement\StatementException;
 use NoreSources\SQL\Structure\PrimaryKeyTableConstraint;
@@ -27,7 +27,7 @@ class SQLiteCreateTableQuery extends CreateTableQuery
 		parent::__construct($table);
 	}
 
-	public function tokenize(TokenStream $stream, TokenStreamContext $context)
+	public function tokenize(TokenStream $stream, TokenStreamContextInterface $context)
 	{
 		$builder = $context->getStatementBuilder();
 		$builderFlags = $builder->getBuilderFlags(K::BUILDER_DOMAIN_GENERIC);

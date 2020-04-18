@@ -17,11 +17,11 @@ use NoreSources\TypeDescription;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Expression\Column;
 use NoreSources\SQL\Expression\Evaluator;
-use NoreSources\SQL\Expression\ExpressionReturnType;
+use NoreSources\SQL\Expression\ExpressionReturnTypeInterface;
 use NoreSources\SQL\Expression\TableReference;
 use NoreSources\SQL\Expression\TokenStream;
-use NoreSources\SQL\Expression\TokenStreamContext;
-use NoreSources\SQL\Expression\TokenizableExpression;
+use NoreSources\SQL\Expression\TokenStreamContextInterface;
+use NoreSources\SQL\Expression\TokenizableExpressionInterface;
 use NoreSources\SQL\Structure\TableStructure;
 
 /**
@@ -33,7 +33,7 @@ class ResultColumnReference
 	/**
 	 * Result column
 	 *
-	 * @var TokenizableExpression
+	 * @var TokenizableExpressionInterface
 	 */
 	public $expression;
 
@@ -46,10 +46,10 @@ class ResultColumnReference
 	/**
 	 *
 	 * @param
-	 *        	TokenizableExpression
+	 *        	TokenizableExpressionInterface
 	 * @param string $alias
 	 */
-	public function __construct(TokenizableExpression $expression, $alias)
+	public function __construct(TokenizableExpressionInterface $expression, $alias)
 	{
 		$this->expression = $expression;
 		$this->alias = $alias;
@@ -59,7 +59,7 @@ class ResultColumnReference
 /**
  * SELECT query JOIN clause
  */
-class JoinClause implements TokenizableExpression
+class JoinClause implements TokenizableExpressionInterface
 {
 
 	/**
@@ -91,7 +91,7 @@ class JoinClause implements TokenizableExpression
 		], $args);
 	}
 
-	public function tokenize(TokenStream $stream, TokenStreamContext $context)
+	public function tokenize(TokenStream $stream, TokenStreamContextInterface $context)
 	{
 		$stream->keyword($context->getStatementBuilder()
 			->getJoinOperator($this->operator));
@@ -126,7 +126,7 @@ class JoinClause implements TokenizableExpression
 		for ($i = 0; $i < $c; $i++)
 		{
 			$x = func_get_arg($i);
-			if (!($x instanceof TokenizableExpression))
+			if (!($x instanceof TokenizableExpressionInterface))
 				$x = Evaluator::evaluate($x);
 			$this->constraints->append($x);
 		}
@@ -246,7 +246,7 @@ class SelectQuery extends Statement
 				else
 					$expression = $arg;
 
-				if (!($expression instanceof TokenizableExpression))
+				if (!($expression instanceof TokenizableExpressionInterface))
 					$expression = Evaluator::evaluate($expression);
 
 				$this->parts[self::PART_COLUMNS]->append(
@@ -323,7 +323,7 @@ class SelectQuery extends Statement
 	{
 		foreach ($args as $x)
 		{
-			if (!($x instanceof TokenizableExpression))
+			if (!($x instanceof TokenizableExpressionInterface))
 				$x = Evaluator::evaluate($x);
 			$this->parts[$part]->append($x);
 		}
@@ -362,7 +362,7 @@ class SelectQuery extends Statement
 	 */
 	public function orderBy($reference, $direction = K::ORDERING_ASC, $collation = null)
 	{
-		if (!($reference instanceof TokenizableExpression))
+		if (!($reference instanceof TokenizableExpressionInterface))
 			$reference = Evaluator::evaluate($reference);
 
 		$this->parts[self::PART_ORDERBY]->append(
@@ -410,7 +410,7 @@ class SelectQuery extends Statement
 		return Container::count($this->parts[self::PART_ORDERBY]);
 	}
 
-	public function tokenize(TokenStream $stream, TokenStreamContext $context)
+	public function tokenize(TokenStream $stream, TokenStreamContextInterface $context)
 	{
 		$builderFlags = $context->getStatementBuilder()->getBuilderFlags(K::BUILDER_DOMAIN_GENERIC);
 		$builderFlags |= $context->getStatementBuilder()->getBuilderFlags(K::BUILDER_DOMAIN_SELECT);
@@ -532,7 +532,7 @@ class SelectQuery extends Statement
 				else
 				{
 					$type = K::DATATYPE_UNDEFINED;
-					if ($column->expression instanceof ExpressionReturnType)
+					if ($column->expression instanceof ExpressionReturnTypeInterface)
 						$type = $column->expression->getExpressionDataType();
 					$context->setResultColumn($columnIndex, $type, $column->alias);
 				}
@@ -646,7 +646,7 @@ class SelectQuery extends Statement
 		return $stream;
 	}
 
-	protected function resolveResultColumns(TokenStreamContext $context)
+	protected function resolveResultColumns(TokenStreamContextInterface $context)
 	{
 		foreach ($this->parts[self::PART_COLUMNS] as $column)
 		{

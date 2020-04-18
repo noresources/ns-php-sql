@@ -99,12 +99,12 @@ class Evaluator
 
 	/**
 	 *
-	 * @method TokenizableExpression evaluate ($evaluable)
+	 * @method TokenizableExpressionInterface evaluate ($evaluable)
 	 *
 	 * @param string $name
 	 * @param array $args
 	 *
-	 * @return TokenizableExpression
+	 * @return TokenizableExpressionInterface
 	 *
 	 * @throws \BadMethodCallException
 	 */
@@ -123,12 +123,12 @@ class Evaluator
 
 	/**
 	 *
-	 * @method TokenizableExpression evaluate ($evaluable)
+	 * @method TokenizableExpressionInterface evaluate ($evaluable)
 	 *
 	 * @param string $name
 	 * @param array $args
 	 *
-	 * @return TokenizableExpression
+	 * @return TokenizableExpressionInterface
 	 *
 	 * @throws \BadMethodCallException
 	 */
@@ -159,7 +159,7 @@ class Evaluator
 	{
 		if (\is_object($evaluable))
 		{
-			if ($evaluable instanceof TokenizableExpression)
+			if ($evaluable instanceof TokenizableExpressionInterface)
 			{
 				return $evaluable;
 			}
@@ -222,7 +222,7 @@ class Evaluator
 				foreach ($evaluable as $v)
 				{
 					$x = $this->evaluateEvaluable($v);
-					if ($e instanceof TokenizableExpression)
+					if ($e instanceof TokenizableExpressionInterface)
 						$e = new BinaryOperation(BinaryOperation::LOGICAL_AND, $e, $x);
 					else
 						$e = $x;
@@ -358,13 +358,13 @@ class Evaluator
 
 			$expression = $this->evaluatePolishNotationElement($key, $operands);
 
-			if (!($expression instanceof TokenizableExpression))
+			if (!($expression instanceof TokenizableExpressionInterface))
 			{
 				throw new EvaluatorException(
 					'Unable to create expression (got ' . var_export($expression, true) . ')');
 			}
 
-			if ($result instanceof TokenizableExpression)
+			if ($result instanceof TokenizableExpressionInterface)
 			{
 				$result = new BinaryOperation(BinaryOperation::LOGICAL_AND, $result, $expression);
 			}
@@ -372,7 +372,7 @@ class Evaluator
 				$result = $expression;
 		}
 
-		if (!($result instanceof TokenizableExpression))
+		if (!($result instanceof TokenizableExpressionInterface))
 		{
 			throw new EvaluatorException('Unable to create expression');
 		}
@@ -489,7 +489,7 @@ class Evaluator
 			function ($a) {
 				if (\is_null($a))
 					return [];
-				elseif ($a instanceof TokenizableExpression)
+				elseif ($a instanceof TokenizableExpressionInterface)
 					return [
 						$a
 					];

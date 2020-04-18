@@ -98,11 +98,11 @@ class TokenStream implements \IteratorAggregate, \Countable
 	/**
 	 * Add an expression to the stream
 	 *
-	 * @param TokenizableExpression $expression
-	 * @param TokenStreamContext $context
+	 * @param TokenizableExpressionInterface $expression
+	 * @param TokenStreamContextInterface $context
 	 * @return \NoreSources\SQL\Expression\TokenStream
 	 */
-	public function expression(TokenizableExpression $expression, TokenStreamContext $context)
+	public function expression(TokenizableExpressionInterface $expression, TokenStreamContextInterface $context)
 	{
 		$expression->tokenize($this, $context);
 		return $this;
@@ -112,22 +112,22 @@ class TokenStream implements \IteratorAggregate, \Countable
 	 * Add TableConstraint expression to stream
 	 *
 	 * @param array|\Traversable $constraints
-	 * @param TokenStreamContext $context
+	 * @param TokenStreamContextInterface $context
 	 * @return \NoreSources\SQL\Expression\TokenStream
 	 */
-	public function constraints($constraints, TokenStreamContext $context)
+	public function constraints($constraints, TokenStreamContextInterface $context)
 	{
 		$c = null;
 		foreach ($constraints as $constraint)
 		{
 			$e = Evaluator::evaluate($constraint);
-			if ($c instanceof TokenizableExpression)
+			if ($c instanceof TokenizableExpressionInterface)
 				$c = new BinaryOperation('AND', $c, $e);
 			else
 				$c = $e;
 		}
 
-		if ($c instanceof TokenizableExpression)
+		if ($c instanceof TokenizableExpressionInterface)
 			return $this->expression($c, $context);
 
 		return $this;

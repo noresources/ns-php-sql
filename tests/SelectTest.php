@@ -5,7 +5,7 @@ use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\ConnectionHelper;
 use NoreSources\SQL\DBMS\Reference\ReferenceConnection;
 use NoreSources\SQL\DBMS\Reference\ReferenceStatementBuilder;
-use NoreSources\SQL\Expression\Helper;
+use NoreSources\SQL\Expression\ExpressionHelper;
 use NoreSources\SQL\Expression\Literal;
 use NoreSources\SQL\Expression\MemberOf;
 use NoreSources\SQL\Expression\TokenStream;
@@ -40,7 +40,7 @@ final class SelectTest extends \PHPUnit\Framework\TestCase
 		]);
 		$q->columns('name');
 
-		$q->where(new MemberOf(Helper::column('id'), [
+		$q->where(new MemberOf(ExpressionHelper::column('id'), [
 			2,
 			4,
 			6,

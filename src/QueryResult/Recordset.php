@@ -11,9 +11,9 @@ namespace NoreSources\SQL\QueryResult;
 
 use NoreSources\ArrayRepresentation;
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\DataUnserializer;
+use NoreSources\SQL\DataUnserializerInterface;
 use NoreSources\SQL\GenericDataUnserializer;
-use NoreSources\SQL\Statement\OutputData;
+use NoreSources\SQL\Statement\StatementOutputDataInterface;
 use NoreSources\SQL\Statement\OutputDataTrait;
 use NoreSources\SQL\Statement\ResultColumnMap;
 use NoreSources\SQL\Structure\ColumnDescriptionInterface;
@@ -23,8 +23,8 @@ use NoreSources\SQL\Structure\ColumnDescriptionInterface;
 /**
  * Recordset query result
  */
-abstract class Recordset implements \Iterator, OutputData, QueryResult, ArrayRepresentation,
-	\JsonSerializable, DataUnserializer
+abstract class Recordset implements \Iterator, StatementOutputDataInterface, QueryResultInterface, ArrayRepresentation,
+	\JsonSerializable, DataUnserializerInterface
 {
 
 	use OutputDataTrait;
@@ -226,7 +226,7 @@ abstract class Recordset implements \Iterator, OutputData, QueryResult, ArrayRep
 		}
 	}
 
-	public function setDataUnserializer(DataUnserializer $unserializer)
+	public function setDataUnserializer(DataUnserializerInterface $unserializer)
 	{
 		$this->unserializer = $unserializer;
 	}
@@ -234,7 +234,7 @@ abstract class Recordset implements \Iterator, OutputData, QueryResult, ArrayRep
 	public function unserializeColumnData(ColumnDescriptionInterface $column, $data)
 	{
 		$unserializer = $this->unserializer;
-		if (!($unserializer instanceof DataUnserializer))
+		if (!($unserializer instanceof DataUnserializerInterface))
 			$unserializer = GenericDataUnserializer::getInstance();
 
 		return $unserializer->unserializeColumnData($column, $data);
@@ -350,7 +350,7 @@ abstract class Recordset implements \Iterator, OutputData, QueryResult, ArrayRep
 
 	/**
 	 *
-	 * @var DataUnserializer
+	 * @var DataUnserializerInterface
 	 */
 	private $unserializer;
 

@@ -16,7 +16,7 @@ use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Expression\FunctionCall;
 use NoreSources\SQL\Expression\MetaFunctionCall;
 use NoreSources\SQL\Expression\TokenStream;
-use NoreSources\SQL\Expression\TokenStreamContext;
+use NoreSources\SQL\Expression\TokenStreamContextInterface;
 use NoreSources\SQL\Structure\ColumnDescriptionInterface;
 use NoreSources\SQL\Structure\DatasourceStructure;
 use NoreSources\SQL\Structure\StructureElement;
@@ -185,7 +185,7 @@ trait StatementBuilderTrait
 		return 'NO ACTION';
 	}
 
-	public function finalizeStatement(TokenStream $stream, TokenStreamContext &$context)
+	public function finalizeStatement(TokenStream $stream, TokenStreamContextInterface &$context)
 	{
 		$data = new StatementData($context);
 		$sql = '';

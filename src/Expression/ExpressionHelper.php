@@ -12,7 +12,7 @@ namespace NoreSources\SQL\Expression;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Structure\ColumnStructure;
 
-class Helper
+class ExpressionHelper
 {
 
 	/**
@@ -71,7 +71,7 @@ class Helper
 	 */
 	public static function getExpressionDataType($expression)
 	{
-		if ($expression instanceof ExpressionReturnType)
+		if ($expression instanceof ExpressionReturnTypeInterface)
 		{
 			return $expression->getExpressionDataType();
 		}

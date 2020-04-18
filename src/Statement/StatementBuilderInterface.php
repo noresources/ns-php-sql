@@ -9,17 +9,17 @@
  */
 namespace NoreSources\SQL\Statement;
 
-use NoreSources\SQL\DataSerializer;
+use NoreSources\SQL\DataSerializerInterface;
 use NoreSources\SQL\Expression\MetaFunctionCall;
 use NoreSources\SQL\Expression\TokenStream;
-use NoreSources\SQL\Expression\TokenStreamContext;
+use NoreSources\SQL\Expression\TokenStreamContextInterface;
 use NoreSources\SQL\Structure\ColumnStructure;
 use NoreSources\SQL\Structure\StructureElement;
 
 /**
  * Build a SQL statement string to be used in a SQL engine
  */
-interface StatementBuilderInterface extends DataSerializer
+interface StatementBuilderInterface extends DataSerializerInterface
 {
 
 	/**
@@ -115,9 +115,9 @@ interface StatementBuilderInterface extends DataSerializer
 	 *
 	 * @param TokenStream $stream
 	 *        	A token stream containing statement tokens
-	 * @param TokenStreamContext $context
+	 * @param TokenStreamContextInterface $context
 	 *        	The stream context used to fill the token stream
 	 * @return StatementData
 	 */
-	function finalizeStatement(TokenStream $stream, TokenStreamContext &$context);
+	function finalizeStatement(TokenStream $stream, TokenStreamContextInterface &$context);
 }

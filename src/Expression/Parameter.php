@@ -12,7 +12,7 @@ namespace NoreSources\SQL\Expression;
 /**
  * Statement named parameter
  */
-class Parameter implements TokenizableExpression
+class Parameter implements TokenizableExpressionInterface
 {
 
 	/**
@@ -31,7 +31,7 @@ class Parameter implements TokenizableExpression
 		$this->name = $name;
 	}
 
-	public function tokenize(TokenStream $stream, TokenStreamContext $context)
+	public function tokenize(TokenStream $stream, TokenStreamContextInterface $context)
 	{
 		return $stream->parameter($this->name);
 	}

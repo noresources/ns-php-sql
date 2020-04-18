@@ -12,7 +12,7 @@ namespace NoreSources\SQL\QueryResult;
 /**
  * Interface for all results of a query that add rows in tables.
  */
-interface InsertionQueryResult extends QueryResult
+interface InsertionQueryResultInterface extends QueryResultInterface
 {
 
 	/**

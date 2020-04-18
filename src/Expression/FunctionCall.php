@@ -14,7 +14,7 @@ use NoreSources\Expression\ProcedureInvocation;
 /**
  * SQL function call expression
  */
-class FunctionCall extends ProcedureInvocation implements TokenizableExpression
+class FunctionCall extends ProcedureInvocation implements TokenizableExpressionInterface
 {
 
 	/**
@@ -34,7 +34,7 @@ class FunctionCall extends ProcedureInvocation implements TokenizableExpression
 	 */
 	public function appendArgument($argument)
 	{
-		if (!($argument instanceof TokenizableExpression))
+		if (!($argument instanceof TokenizableExpressionInterface))
 		{
 			$argument = Evaluator::evaluate($argument);
 		}
@@ -42,7 +42,7 @@ class FunctionCall extends ProcedureInvocation implements TokenizableExpression
 		return parent::appendArgument($argument);
 	}
 
-	public function tokenize(TokenStream $stream, TokenStreamContext $context)
+	public function tokenize(TokenStream $stream, TokenStreamContextInterface $context)
 	{
 		$stream->keyword($this->getFunctionName())
 			->text('(');

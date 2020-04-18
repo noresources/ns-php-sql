@@ -3,22 +3,15 @@ ns-php-sql
 
 SQL abstraction layer for SQL engine and SQL language
 
+# Features
 
-# Terminology
-* Datasource: A connection to a set of data on a SQL engine
- * MySQL: A connection to a MySQL server
- * SQLite: A connection to one or more SQLite database file
- * Postgres: A connection to a Postgres server on a given Postgres database
-* TableSet: The SQL object which holds a set of tables
- * MySQL: A MySQL DATABASE
- * SQLite: A SQLite file
- * Postgres: A Postgres SCHEMA
-* Table: A SQL table
+* Abstract data structure description system
+ * Loadable from XML schema 
+* Easy and powerful DBMS-independent statement building using literal expression and/or polish notation
+* Accurate translation to DBMS dialect
+ * DBMS-specific query syntax (ex. SQLite CREATE TABLE primary key syntax)
+ * Value formatting
+ * Identifier escaping (ex. backquote for MySQL, double quotes for PostgreSQL) 
+ * Keyword name variations (ex. `AUTO INCREMENT`, `AUTOINCREMENT`, `AUTO_INCREMENT`)  
+* SQLite, PostgreSQL and MySQL/MariaDB support as well as PDO (less accurate)
 
-# Expression
-## Timestamp
-
-Timestamp must follow the ISO 8601 format with the following restrictions
-
-* The midnight notation 24:00 is not supported
-* Fractional time is only accepted for seconds   
