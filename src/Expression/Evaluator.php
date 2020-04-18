@@ -16,7 +16,6 @@ use Ferno\Loco\StringParser;
 use NoreSources\Container;
 use NoreSources\TypeDescription;
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\Structure\ColumnStructure;
 
 /**
  * Exception raised when an expression failed to be evaluated
@@ -35,54 +34,6 @@ class EvaluatorException extends \ErrorException
  */
 class Evaluator
 {
-
-	/**
-	 * Create Column
-	 *
-	 * @param string|ColumnStructure $column
-	 * @return Column
-	 */
-	public static function column($column)
-	{
-		if ($column instanceof ColumnStructure)
-		{
-			$column = $column->getPath();
-		}
-
-		return new Column($column);
-	}
-
-	/**
-	 * Create a Literal
-	 *
-	 * @param mixed $value
-	 *        	Literal value
-	 * @param integer|ColumnStructure $type
-	 *        	Data type hint
-	 *
-	 * @return \NoreSources\SQL\TokenizableExpression\Literal
-	 */
-	public static function literal($value, $type = K::DATATYPE_UNDEFINED)
-	{
-		if ($type instanceof ColumnStructure)
-		{
-			$type = $type->getColumnProperty(K::COLUMN_DATA_TYPE);
-		}
-
-		return new Literal($value, $type);
-	}
-
-	/**
-	 *
-	 * @param string $name
-	 *        	Parameter name
-	 *
-	 * @return \NoreSources\SQL\TokenizableExpression\Parameter
-	 */
-	public static function parameter($name)
-	{
-		return new Parameter($name);
-	}
 
 	public function __construct()
 	{

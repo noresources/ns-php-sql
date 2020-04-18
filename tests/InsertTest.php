@@ -3,9 +3,9 @@ namespace NoreSources\SQL;
 
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\Reference\ReferenceStatementBuilder;
-use NoreSources\SQL\Expression\Evaluator as X;
-use NoreSources\SQL\Expression\TokenizableExpression;
+use NoreSources\SQL\Expression\Helper;
 use NoreSources\SQL\Expression\TokenStream;
+use NoreSources\SQL\Expression\TokenizableExpression;
 use NoreSources\SQL\Statement\StatementTokenStreamContext;
 use NoreSources\Test\DatasourceManager;
 use NoreSources\Test\DerivedFileManager;
@@ -61,18 +61,18 @@ final class InsertTest extends \PHPUnit\Framework\TestCase
 			'empty' => array(),
 			'literals' => [
 				'name' => [
-					X::literal('Test task'),
+					Helper::literal('Test task'),
 					null
 				],
 				'creationDateTime' => [
-					X::literal(
+					Helper::literal(
 						\DateTime::createFromFormat(\DateTime::ISO8601, '2012-01-16T16:35:26+0100')),
 					null
 				]
 			],
 			'polish' => [
 				'name' => [
-					X::literal('Random priority'),
+					Helper::literal('Random priority'),
 					null
 				],
 				'priority' => [

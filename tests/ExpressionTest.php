@@ -3,7 +3,6 @@ namespace NoreSources\SQL\Expression;
 
 use NoreSources\SQL\ColumnExpression;
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\Expression\Evaluator as X;
 use NoreSources\Test\DatasourceManager;
 
 final class ExpressionEvaluatorTest extends \PHPUnit\Framework\TestCase
@@ -286,7 +285,7 @@ final class ExpressionEvaluatorTest extends \PHPUnit\Framework\TestCase
 					"func()" => [
 						2,
 						'column',
-						X::literal('string')
+						Helper::literal('string')
 					]
 				],
 				'main' => FunctionCall::class,

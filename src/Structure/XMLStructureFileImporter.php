@@ -11,7 +11,7 @@ namespace NoreSources\SQL\Structure;
 
 use NoreSources\Container;
 use NoreSources\SemanticVersion;
-use NoreSources\SQL\Expression\Evaluator;
+use NoreSources\SQL\Expression\Helper;
 use NoreSources\SQL\Expression\Keyword;
 use NoreSources\SQL\Expression\TokenizableExpression;
 use NoreSources\SQL\Structure\XMLStructureFileConstants as K;
@@ -365,7 +365,7 @@ class XMLStructureFileImporter implements StructureFileImporterInterface
 				}
 
 				if (!($value instanceof TokenizableExpression))
-					$value = Evaluator::literal($value, $defaultValueType);
+					$value = Helper::literal($value, $defaultValueType);
 
 				$structure->setColumnProperty(K::COLUMN_DEFAULT_VALUE, $value);
 

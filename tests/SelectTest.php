@@ -5,12 +5,12 @@ use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\ConnectionHelper;
 use NoreSources\SQL\DBMS\Reference\ReferenceConnection;
 use NoreSources\SQL\DBMS\Reference\ReferenceStatementBuilder;
-use NoreSources\SQL\Expression\Evaluator as X;
+use NoreSources\SQL\Expression\Helper;
 use NoreSources\SQL\Expression\Literal;
 use NoreSources\SQL\Expression\MemberOf;
 use NoreSources\SQL\Expression\TokenStream;
-use NoreSources\SQL\Statement\StatementTokenStreamContext;
 use NoreSources\SQL\Statement\SelectQuery;
+use NoreSources\SQL\Statement\StatementTokenStreamContext;
 use NoreSources\Test\DatasourceManager;
 use NoreSources\Test\DerivedFileManager;
 
@@ -40,7 +40,7 @@ final class SelectTest extends \PHPUnit\Framework\TestCase
 		]);
 		$q->columns('name');
 
-		$q->where(new MemberOf(X::column('id'), [
+		$q->where(new MemberOf(Helper::column('id'), [
 			2,
 			4,
 			6,
