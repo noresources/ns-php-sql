@@ -9,7 +9,7 @@
  */
 namespace NoreSources\SQL\DBMS\Reference;
 
-// Aliases
+
 use NoreSources\Container;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\ConnectionInterface;

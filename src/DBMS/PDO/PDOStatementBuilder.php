@@ -9,7 +9,7 @@
  */
 namespace NoreSources\SQL\DBMS\PDO;
 
-// Aliases
+
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\BasicType;
 use NoreSources\SQL\Statement\ParameterData;

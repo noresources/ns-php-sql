@@ -24,7 +24,7 @@ use NoreSources\SQL\Structure\ColumnStructure;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 
-// Aliases
+
 class PostgreSQLStatementBuilder extends StatementBuilder implements LoggerAwareInterface
 {
 

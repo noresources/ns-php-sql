@@ -9,7 +9,7 @@
  */
 namespace NoreSources\SQL\DBMS\SQLite;
 
-// Aliases
+
 use NoreSources\Container;
 use NoreSources\Text;
 use NoreSources\SQL\Constants as K;

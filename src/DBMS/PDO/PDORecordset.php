@@ -9,7 +9,7 @@
  */
 namespace NoreSources\SQL\DBMS\PDO;
 
-// Aliases
+
 use NoreSources\SQL\QueryResult\Recordset;
 
 class PDORecordset extends Recordset

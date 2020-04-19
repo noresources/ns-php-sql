@@ -9,7 +9,7 @@
  */
 namespace NoreSources\SQL\DBMS\MySQL;
 
-// Aliases
+
 use NoreSources\TypeConversion;
 use NoreSources\TypeDescription;
 use NoreSources\SQL\DBMS\PreparedStatement;

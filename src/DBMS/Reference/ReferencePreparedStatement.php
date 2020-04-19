@@ -9,7 +9,7 @@
  */
 namespace NoreSources\SQL\DBMS\Reference;
 
-// Aliases
+
 use NoreSources\SQL\DBMS\PreparedStatement;
 
 /**

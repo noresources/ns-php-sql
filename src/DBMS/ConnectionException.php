@@ -9,7 +9,7 @@
  */
 namespace NoreSources\SQL\DBMS;
 
-// Aliases
+
 class ConnectionException extends \ErrorException
 {
 

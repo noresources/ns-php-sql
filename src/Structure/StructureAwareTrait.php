@@ -9,7 +9,7 @@
  */
 namespace NoreSources\SQL\Structure;
 
-// Aliases
+
 use NoreSources\TypeDescription;
 
 /**

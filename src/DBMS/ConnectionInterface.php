@@ -13,7 +13,7 @@ use NoreSources\SQL\Statement\StatementBuilderAwareInterface;
 use NoreSources\SQL\Structure\StructureAwareInterface;
 use Psr\Log\LoggerAwareInterface;
 
-// Aliases
+
 
 /**
  * DMBS connection

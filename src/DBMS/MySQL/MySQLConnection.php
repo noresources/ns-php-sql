@@ -27,7 +27,7 @@ use NoreSources\SQL\Structure\StructureAwareTrait;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
 
-// Aliases
+
 
 /**
  * MySQL or MariaDB connection

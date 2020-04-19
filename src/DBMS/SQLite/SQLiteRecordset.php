@@ -9,7 +9,7 @@
  */
 namespace NoreSources\SQL\DBMS\SQLite;
 
-// Aliases
+
 use NoreSources\SQL\DBMS\SQLite\SQLiteConstants as K;
 use NoreSources\SQL\QueryResult\Recordset;
 use NoreSources\SQL\Statement\StatementOutputDataInterface;

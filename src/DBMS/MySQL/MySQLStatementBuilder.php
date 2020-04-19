@@ -26,7 +26,7 @@ use NoreSources\SQL\Structure\TableStructure;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 
-// Aliases
+
 class MySQLStatementBuilder extends StatementBuilder implements LoggerAwareInterface
 {
 

@@ -9,7 +9,7 @@
  */
 namespace NoreSources\SQL\DBMS;
 
-// Aliases
+
 use NoreSources\Container;
 use NoreSources\TypeConversion;
 use NoreSources\SQL\Constants as K;

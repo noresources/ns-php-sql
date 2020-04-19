@@ -8,10 +8,10 @@
  * @package SQL
  */
 
-// Namespace
+// 
 namespace NoreSources\SQL\Expression;
 
-// Aliases
+
 
 /**
  * SQL Table reference in a SQL query

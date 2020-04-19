@@ -25,7 +25,7 @@ use NoreSources\SQL\Statement\StatementFactoryInterface;
 use NoreSources\SQL\Structure\StructureAwareTrait;
 use Psr\Log\LoggerAwareTrait;
 
-// Aliases
+
 
 /**
  * PDO connection

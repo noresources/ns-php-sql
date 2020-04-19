@@ -18,7 +18,7 @@ use NoreSources\SQL\Statement\OutputDataTrait;
 use NoreSources\SQL\Statement\ResultColumnMap;
 use NoreSources\SQL\Structure\ColumnDescriptionInterface;
 
-// Aliases
+
 
 /**
  * Recordset query result
