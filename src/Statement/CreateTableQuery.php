@@ -168,7 +168,7 @@ class CreateTableQuery extends Statement
 					->text(')');
 			}
 			elseif ($typeFlags & K::TYPE_FLAG_MANDATORY_LENGTH ||
-				($isPrimary && ($builderFlags & K::BUILDER_CREATE_PRIMARY_KEY_MANDATORY_LENGTH)))
+				($isPrimary && ($builderFlags & K::BUILDER_CREATE_COLUMN_KEY_MANDATORY_LENGTH)))
 			{
 				$maxLength = TypeHelper::getMaxLength($type);
 				if (\is_infinite($maxLength))

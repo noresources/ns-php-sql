@@ -42,7 +42,7 @@ class MySQLStatementBuilder extends StatementBuilder implements LoggerAwareInter
 		 * @todo builder flags
 		 */
 
-		$createTableFlags = K::BUILDER_CREATE_PRIMARY_KEY_MANDATORY_LENGTH;
+		$createTableFlags = K::BUILDER_CREATE_COLUMN_KEY_MANDATORY_LENGTH;
 		$this->setBuilderFlags(K::BUILDER_DOMAIN_CREATE_TABLE, $createTableFlags);
 	}
 

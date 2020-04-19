@@ -517,15 +517,30 @@ class Constants
 
 	const BUILDER_DOMAIN_CREATE_TABLE = 'createtable';
 
+	const BUILDER_DOMAIN_CREATE_INDEX = 'createindex';
+
 	/**
 	 * Primary key column require a length specification.
 	 *
+	 * Usable in the following domains
+	 * <ul>
+	 * <li>BUILDER_DOMAIN_CREATE_TABLE</li>
+	 * <li>BUILDER_DOMAIN_CREATE_INDEX</li>
+	 * </ul>
+	 *
 	 * @var number
 	 */
-	const BUILDER_CREATE_PRIMARY_KEY_MANDATORY_LENGTH = 0x01000000;
+	const BUILDER_CREATE_COLUMN_KEY_MANDATORY_LENGTH = 0x01000000;
 
 	/**
-	 * CREATE SCHEMA statements
+	 * Index name is global for all
+	 *
+	 * @var unknown
+	 */
+	const BUILDER_INDEX_NAME_GLOBAL = 0x02000000;
+
+	/**
+	 * CREATE SCHEMA / DATABASE statements
 	 *
 	 * @var string
 	 */

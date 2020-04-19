@@ -226,18 +226,14 @@ class SelectQuery extends Statement
 			$expression = null;
 			$alias = null;
 			if ($arg instanceof ResultColumnReference)
-			{
 				$this->parts[self::PART_COLUMNS]->append($arg);
-			}
 			else
 			{
 				if (Container::isArray($arg))
 				{
 					// column expression => alias
 					if (Container::isAssociative($arg))
-					{
 						list ($expression, $alias) = each($arg);
-					}
 					else // [ column expression, alias ]
 					{
 						$expression = Container::keyValue($arg, 0, null);

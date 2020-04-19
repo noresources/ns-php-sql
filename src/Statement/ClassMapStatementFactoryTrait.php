@@ -8,7 +8,7 @@
  * @package SQL
  */
 
-// 
+//
 namespace NoreSources\SQL\Statement;
 
 use NoreSources\SQL\Constants as K;
@@ -44,6 +44,7 @@ trait ClassMapStatementFactoryTrait
 			[
 				//K::QUERY_CREATE_INDEX => null,
 				K::QUERY_CREATE_TABLE => CreateTableQuery::class,
+				K::QUERY_CREATE_INDEX => CreateIndexQuery::class,
 				K::QUERY_SELECT => SelectQuery::class,
 				K::QUERY_INSERT => InsertQuery::class,
 				K::QUERY_UPDATE => UpdateQuery::class,
