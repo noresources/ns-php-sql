@@ -8,7 +8,7 @@
  * @package SQL
  */
 
-// Namespace
+// 
 namespace NoreSources\SQL\Statement;
 
 use NoreSources\Container;
@@ -25,7 +25,7 @@ use NoreSources\SQL\Structure\TableConstraint;
 use NoreSources\SQL\Structure\TableStructure;
 use NoreSources\SQL\Structure\UniqueTableConstraint;
 
-// Aliases
+
 
 /**
  * CREATE TABLE statement

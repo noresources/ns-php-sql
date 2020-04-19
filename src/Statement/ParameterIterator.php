@@ -8,7 +8,7 @@
  * @package SQL
  */
 
-// Namespace
+// 
 namespace NoreSources\SQL\Statement;
 
 use NoreSources\TypeDescription;

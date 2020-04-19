@@ -8,10 +8,10 @@
  * @package SQL
  */
 
-// Namespace
+// 
 namespace NoreSources\SQL\Statement;
 
-// Aliases
+
 use NoreSources\TypeConversion;
 use NoreSources\TypeDescription;
 use NoreSources\SQL\Constants as K;

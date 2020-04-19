@@ -8,10 +8,9 @@
  * @package SQL
  */
 
-// Namespace
+//
 namespace NoreSources\SQL\Statement;
 
-// Aliases
 use NoreSources\Container;
 use NoreSources\TypeDescription;
 use NoreSources\SQL\Constants as K;
@@ -22,6 +21,7 @@ use NoreSources\SQL\Expression\TableReference;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Expression\TokenStreamContextInterface;
 use NoreSources\SQL\Expression\TokenizableExpressionInterface;
+use NoreSources\SQL\Statement\Traits\ConstraintExpressionListTrait;
 use NoreSources\SQL\Structure\TableStructure;
 
 /**
@@ -164,6 +164,7 @@ class UnionClause
  */
 class SelectQuery extends Statement
 {
+	use ConstraintExpressionListTrait;
 
 	/**
 	 *
@@ -215,7 +216,7 @@ class SelectQuery extends Statement
 
 	/**
 	 *
-	 * @return \NoreSources\SQL\SelectQuery
+	 * @return SelectQuery
 	 */
 	public function columns(/*...*/ )
 	{
@@ -262,7 +263,7 @@ class SelectQuery extends Statement
 	 * @param integer|JoinClause $operatorOrJoin
 	 * @param string|TableReference|SelectQuery $subject
 	 * @param mixed $constraints
-	 * @return \NoreSources\SQL\SelectQuery
+	 * @return SelectQuery
 	 */
 	public function join($operatorOrJoin, $subject = null /*, $constraints */)
 	{
@@ -309,33 +310,34 @@ class SelectQuery extends Statement
 		return $this;
 	}
 
+	/**
+	 *
+	 * @param Evaluable $args...
+	 *        	A list of evaluable expressions
+	 * @return SelectQuery
+	 */
 	public function where()
 	{
-		return $this->whereOrHaving(self::PART_WHERE, func_get_args());
+		return $this->addConstraints($this->parts[self::PART_WHERE], func_get_args());
 	}
 
+	/**
+	 *
+	 * @param Evaluable $args...
+	 *        	A list of evaluable expressions
+	 *
+	 * @return SelectQuery
+	 */
 	public function having()
 	{
-		return $this->whereOrHaving(self::PART_HAVING, func_get_args());
-	}
-
-	private function whereOrHaving($part, $args)
-	{
-		foreach ($args as $x)
-		{
-			if (!($x instanceof TokenizableExpressionInterface))
-				$x = Evaluator::evaluate($x);
-			$this->parts[$part]->append($x);
-		}
-
-		return $this;
+		return $this->addConstraints($this->parts[self::PART_HAVING], func_get_args());
 	}
 
 	/**
 	 *
 	 * @param
 	 *        	string (variadic) List of result columns
-	 * @return \NoreSources\SQL\SelectQuery
+	 * @return SelectQuery
 	 */
 	public function groupBy()
 	{
@@ -347,9 +349,17 @@ class SelectQuery extends Statement
 		return $this;
 	}
 
+	/**
+	 *
+	 * @param SelectQuery $query
+	 * @param boolean $all
+	 *        	UNION ALL
+	 * @return \NoreSources\SQL\Statement\SelectQuery
+	 */
 	public function union(SelectQuery $query, $all = false)
 	{
 		$this->parts[self::PART_UNION][] = new UnionClause($query, $all);
+		return $this;
 	}
 
 	/**
@@ -358,7 +368,7 @@ class SelectQuery extends Statement
 	 *        	Result column reference
 	 * @param integer $direction
 	 * @param mixed $collation
-	 * @return \NoreSources\SQL\SelectQuery
+	 * @return SelectQuery
 	 */
 	public function orderBy($reference, $direction = K::ORDERING_ASC, $collation = null)
 	{
@@ -378,7 +388,7 @@ class SelectQuery extends Statement
 	 *
 	 * @param integer $count
 	 * @param integer $offset
-	 * @return \NoreSources\SQL\SelectQuery
+	 * @return SelectQuery
 	 */
 	public function limit($count, $offset = 0)
 	{
@@ -387,6 +397,10 @@ class SelectQuery extends Statement
 		return $this;
 	}
 
+	/**
+	 *
+	 * @return boolean
+	 */
 	public function hasUnion()
 	{
 		return Container::count($this->parts[self::PART_UNION]);

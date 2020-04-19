@@ -8,17 +8,16 @@
  * @package SQL
  */
 
-// Namespace
+//
 namespace NoreSources\SQL\Statement;
 
-// Aliases
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\Expression\Evaluator as X;
-use NoreSources\SQL\Expression\TokenizableExpressionInterface;
 use NoreSources\SQL\Expression\Literal;
 use NoreSources\SQL\Expression\TableReference;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Expression\TokenStreamContextInterface;
+use NoreSources\SQL\Expression\TokenizableExpressionInterface;
+use NoreSources\SQL\Statement\Traits\WhereConstraintTrait;
 use NoreSources\SQL\Structure\TableStructure;
 
 /**
@@ -28,6 +27,7 @@ class UpdateQuery extends Statement implements \ArrayAccess
 {
 
 	use ColumnValueTrait;
+	use WhereConstraintTrait;
 
 	/**
 	 *
@@ -35,6 +35,8 @@ class UpdateQuery extends Statement implements \ArrayAccess
 	 */
 	public function __construct($table)
 	{
+		$this->initializeWhereConstraints();
+
 		if ($table instanceof TableStructure)
 		{
 			$table = $table->getPath();
@@ -42,28 +44,17 @@ class UpdateQuery extends Statement implements \ArrayAccess
 
 		$this->table = new TableReference($table);
 		$this->columnValues = new \ArrayObject();
-		$this->whereConstraints = new \ArrayObject();
 	}
 
 	/**
-	 * WHERE constraints
 	 *
-	 * @param
-	 *        	Evaluable ...
+	 * @param Evaluable $args...
+	 *        	Evaluable expression list
+	 * @return \NoreSources\SQL\Statement\UpdateQuery
 	 */
 	public function where()
 	{
-		$c = func_num_args();
-		for ($i = 0; $i < $c; $i++)
-		{
-			$x = func_get_arg($i);
-			if (!($x instanceof TokenizableExpressionInterface))
-				$x = X::evaluate($x);
-
-			$this->whereConstraints->append($x);
-		}
-
-		return $this;
+		return $this->addConstraints($this->whereConstraints, func_get_args());
 	}
 
 	public function tokenize(TokenStream $stream, TokenStreamContextInterface $context)
@@ -140,11 +131,4 @@ class UpdateQuery extends Statement implements \ArrayAccess
 	 * @var TableReference
 	 */
 	private $table;
-
-	/**
-	 * WHERE conditions
-	 *
-	 * @var \ArrayObject
-	 */
-	private $whereConstraints;
 }

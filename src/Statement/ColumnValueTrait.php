@@ -8,10 +8,10 @@
  * @package SQL
  */
 
-// Namespace
+// 
 namespace NoreSources\SQL\Statement;
 
-// Aliases
+
 use NoreSources\Expression\Expression;
 use NoreSources\SQL\Expression\Evaluator;
 

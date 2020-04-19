@@ -8,10 +8,10 @@
  * @package SQL
  */
 
-// Namespace
+// 
 namespace NoreSources\SQL\Statement;
 
-// Aliases
+
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Expression\Table;
 use NoreSources\SQL\Expression\TokenStream;

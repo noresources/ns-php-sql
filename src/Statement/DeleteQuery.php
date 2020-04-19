@@ -7,17 +7,13 @@
  *
  * @package SQL
  */
-
-// Namespace
 namespace NoreSources\SQL\Statement;
 
-// Aliases
-use NoreSources\Expression\Expression;
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\Expression\Evaluator;
 use NoreSources\SQL\Expression\TableReference;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Expression\TokenStreamContextInterface;
+use NoreSources\SQL\Statement\Traits\WhereConstraintTrait;
 use NoreSources\SQL\Structure\TableStructure;
 
 /**
@@ -26,39 +22,33 @@ use NoreSources\SQL\Structure\TableStructure;
 class DeleteQuery extends Statement
 {
 
+	use WhereConstraintTrait;
+
 	/**
 	 *
 	 * @param TableStructure|string $table
 	 */
 	public function __construct($table)
 	{
+		$this->initializeWhereConstraints();
+
 		if ($table instanceof TableStructure)
 		{
 			$table = $table->getPath();
 		}
 
 		$this->table = new TableReference($table);
-
-		$this->whereConstraints = new \ArrayObject();
 	}
 
 	/**
-	 * WHERE constraints
 	 *
-	 * @param
-	 *        	Evaluable ...
+	 * @param Evaluable $args...
+	 *        	Evaluable expression list
+	 * @return \NoreSources\SQL\Statement\DeleteQuery
 	 */
 	public function where()
 	{
-		$c = func_num_args();
-		for ($i = 0; $i < $c; $i++)
-		{
-			$x = func_get_arg($i);
-			if (!($x instanceof Expression))
-				$x = Evaluator::evaluate($x);
-
-			$this->whereConstraints->append($x);
-		}
+		return $this->addConstraints($this->whereConstraints, func_get_args());
 	}
 
 	public function tokenize(TokenStream $stream, TokenStreamContextInterface $context)
@@ -74,7 +64,7 @@ class DeleteQuery extends Statement
 			->space()
 			->expression($this->table, $context);
 
-		if ($this->whereConstraints->count())
+		if ($this->whereConstraints instanceof \ArrayObject && $this->whereConstraints->count())
 		{
 			$stream->space()
 				->keyword('where')
@@ -91,11 +81,4 @@ class DeleteQuery extends Statement
 	 * @var TableReference
 	 */
 	private $table;
-
-	/**
-	 * WHERE conditions
-	 *
-	 * @var \ArrayObject
-	 */
-	private $whereConstraints;
 }
