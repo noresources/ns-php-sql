@@ -9,9 +9,10 @@
  */
 namespace NoreSources\SQL\DBMS;
 
-
-class ConnectionException extends \ErrorException
+class ConnectionException extends \ErrorException implements ConnectionAwareInterface
 {
+
+	use ConnectionAwareTrait;
 
 	/**
 	 *
@@ -25,21 +26,6 @@ class ConnectionException extends \ErrorException
 	public function __construct(ConnectionInterface $connection = null, $message, $code = null)
 	{
 		parent::__construct($message, $code);
-		$this->connection = $connection;
+		$this->setConnection($connection);
 	}
-
-	/**
-	 *
-	 * @return ConnectionInterface
-	 */
-	public function getConnection()
-	{
-		return $this->connection;
-	}
-
-	/**
-	 *
-	 * @var ConnectionInterface
-	 */
-	private $connection;
 }
