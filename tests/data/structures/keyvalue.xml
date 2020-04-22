@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sql:datasource xmlns:sql="http://xsd.nore.fr/sql/2.0">
+	<sql:namespace name="ns_unittests">
+		<sql:table name="keyvalue">
+			<sql:column name="id">
+				<sql:datatype>
+					<sql:numeric/>
+				</sql:datatype>
+			</sql:column>
+			<sql:column name="text" />
+			
+			<sql:primarykey>
+				<sql:column name="id"/>
+			</sql:primarykey>
+		</sql:table>
+	</sql:namespace>
+</sql:datasource>

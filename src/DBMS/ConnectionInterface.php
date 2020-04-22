@@ -13,29 +13,12 @@ use NoreSources\SQL\Statement\StatementBuilderAwareInterface;
 use NoreSources\SQL\Structure\StructureAwareInterface;
 use Psr\Log\LoggerAwareInterface;
 
-
-
 /**
  * DMBS connection
  */
 interface ConnectionInterface extends StatementBuilderAwareInterface, LoggerAwareInterface,
 	StructureAwareInterface
 {
-
-	/**
-	 * Begin SQL transaction
-	 */
-	function beginTransation();
-
-	/**
-	 * Commit SQL transation
-	 */
-	function commitTransation();
-
-	/**
-	 * Rollback SQL transaction
-	 */
-	function rollbackTransaction();
 
 	/**
 	 * Connect to DBMS
@@ -55,6 +38,15 @@ interface ConnectionInterface extends StatementBuilderAwareInterface, LoggerAwar
 	 * @return boolean
 	 */
 	function isConnected();
+
+	/**
+	 *
+	 * @param string $name
+	 *        	Transaction block savepoint name
+	 *
+	 * @return TransactionBlockInterface
+	 */
+	function newTransactionBlock($name = null);
 
 	/**
 	 *

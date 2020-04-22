@@ -11,6 +11,8 @@ use NoreSources\SQL\DBMS\ConnectionException;
 use NoreSources\SQL\DBMS\ConnectionHelper;
 use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\PreparedStatement;
+use NoreSources\SQL\DBMS\TransactionBlockException;
+use NoreSources\SQL\DBMS\TransactionBlockInterface;
 use NoreSources\SQL\Expression\CastFunction;
 use NoreSources\SQL\Expression\Literal;
 use NoreSources\SQL\Expression\Parameter;
@@ -21,6 +23,7 @@ use NoreSources\SQL\Statement\DeleteQuery;
 use NoreSources\SQL\Statement\DropTableQuery;
 use NoreSources\SQL\Statement\InsertQuery;
 use NoreSources\SQL\Statement\SelectQuery;
+use NoreSources\SQL\Statement\UpdateQuery;
 use NoreSources\SQL\Structure\ArrayColumnDescription;
 use NoreSources\SQL\Structure\StructureElement;
 use NoreSources\SQL\Structure\TableStructure;
@@ -561,6 +564,164 @@ final class DBMSCommonTest extends TestCase
 					'select' => $select,
 					'cleanup' => $delete
 				]);
+		}
+	}
+
+	public function testTransaction()
+	{
+		$settings = $this->connections->getAvailableConnectionNames();
+		foreach ($settings as $dbmsName)
+		{
+			$connection = $this->connections->get($dbmsName);
+			$this->assertInstanceOf(ConnectionInterface::class, $connection, $dbmsName);
+			$this->assertTrue($connection->isConnected(), $dbmsName);
+
+			if (true)
+			{
+				$b = $connection->newTransactionBlock('A lonely transaction');
+				$this->assertInstanceOf(TransactionBlockInterface::class, $b);
+				$b->commit();
+				$this->assertEquals(K::TRANSACTION_STATE_COMMITTED, $b->getBlockState(),
+					'Lonely transaction state');
+			}
+
+			$structure = $this->structures->get('keyvalue');
+			$this->assertInstanceOf(StructureElement::class, $structure);
+			$tableStructure = $structure['ns_unittests']['keyvalue'];
+			$this->assertInstanceOf(TableStructure::class, $tableStructure);
+
+			$this->recreateTable($connection, $tableStructure);
+			$this->connectionTransactionTest($connection, $tableStructure);
+		}
+	}
+
+	private function connectionTransactionTest(ConnectionInterface $connection,
+		TableStructure $tableStructure)
+	{
+		$dbmsName = TypeDescription::getLocalName($connection);
+
+		$insert = new InsertQuery($tableStructure);
+		$insert('id', ':id');
+		$insert('text', ':text');
+		$insert = ConnectionHelper::prepareStatement($connection, $insert, $tableStructure);
+
+		$update = new UpdateQuery($tableStructure);
+		$update('text', ':text');
+		$update->where([
+			'id' => ':id'
+		]);
+		$update = ConnectionHelper::prepareStatement($connection, $update, $tableStructure);
+
+		$select = new SelectQuery();
+		$select->table($tableStructure)->where('id = :id');
+		$select = ConnectionHelper::prepareStatement($connection, $select, $tableStructure);
+
+		for ($i = 1; $i <= 5; $i++)
+		{
+			$blocks = [];
+			$initialValue = 'initial value';
+			$values = [
+				$initialValue
+			];
+			$states = [
+				(rand() % 2) == 0,
+				(rand() % 2) == 0,
+				(rand() % 2) == 0
+			];
+			$stateCount = \count($states);
+
+			$text = $this->connections->getRowValue($connection, $select, 'text', [
+				'id' => $i
+			]);
+
+			$statement = ($text === null) ? $insert : $update;
+			$result = $connection->executeStatement($statement,
+				[
+					'id' => $i,
+					'text' => $initialValue
+				]);
+
+			for ($b = 0; $b < $stateCount; $b++)
+			{
+				$blocks[$b] = $connection->newTransactionBlock('block_' . $i . '_' . ($b + 1));
+				$this->assertInstanceOf(TransactionBlockInterface::class, $blocks[$b],
+					$dbmsName . ' pass #' . ($i) . ' block ' . ($b + 1) . ' instance');
+				$values[] = $blocks[$b]->getBlockName();
+				$result = $connection->executeStatement($update,
+					[
+						'id' => $i,
+						'text' => $blocks[$b]->getBlockName()
+					]);
+			}
+
+			for ($b = 0; $b < $stateCount; $b++)
+			{
+				$this->assertEquals(TransactionBlockInterface::STATE_PENDING,
+					$blocks[$b]->getBlockState(),
+					$dbmsName . ' pass # ' . ($i) . ' block ' . ($b + 1) . ' state');
+			}
+
+			$indexes = [];
+			for ($b = 0; $b < $stateCount; $b++)
+				$indexes[] = $b;
+
+			$operations = [];
+
+			while (($c = Container::count($indexes)))
+			{
+				$index = rand() % $c;
+				$b = $indexes[$index];
+				Container::removeKey($indexes, $index, Container::REMOVE_INPLACE);
+				$indexes = \array_values($indexes);
+
+				$operations[] = [
+					'block' => $b,
+					'commit' => $states[$b],
+					'change' => ($blocks[$b]->getBlockState() ==
+					TransactionBlockInterface::STATE_PENDING)
+				];
+
+				try
+				{
+					if ($states[$b])
+						$blocks[$b]->commit();
+					else
+						$blocks[$b]->rollback();
+				}
+				catch (TransactionBlockException $e)
+				{
+					if ($e->getCode() != TransactionBlockException::INVALID_STATE)
+						throw $e;
+				}
+			}
+
+			$max = $stateCount;
+			foreach ($operations as $operation)
+			{
+				if ($operation['change'] && !$operation['commit'] && $operation['block'] < $max)
+				{
+					$max = $operation['block'];
+				}
+			}
+
+			$expoected = $values[$max];
+
+			$operations = Container::implodeValues($operations, ', ',
+				function ($operation) use ($blocks) {
+					$s = ($operation['commit'] ? 'commit' : 'rollback') . ' ' .
+					$blocks[$operation['block']]->getBlockName();
+					if (!$operation['change'])
+						$s .= ' (no-op)';
+					return $s;
+				});
+
+			$text = $this->connections->getRowValue($connection, $select, 'text', [
+				'id' => $i
+			]);
+
+			$this->assertEquals($expoected, $text,
+				$dbmsName . ' pass # ' . ($i) . ' execution of ' . $stateCount .
+				' randomly committed/rolledback blocks (' . $operations . ')');
 		}
 	}
 

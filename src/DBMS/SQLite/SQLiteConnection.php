@@ -13,9 +13,9 @@ use NoreSources\Container;
 use NoreSources\TypeDescription;
 use NoreSources\Logger\ErrorReporterLogger;
 use NoreSources\SQL\ParameterValue;
-use NoreSources\SQL\DBMS\ConnectionException;
 use NoreSources\SQL\DBMS\ConnectionHelper;
 use NoreSources\SQL\DBMS\ConnectionInterface;
+use NoreSources\SQL\DBMS\TransactionStackTrait;
 use NoreSources\SQL\DBMS\SQLite\SQLiteConstants as K;
 use NoreSources\SQL\Expression\Literal;
 use NoreSources\SQL\QueryResult\GenericInsertionQueryResult;
@@ -27,27 +27,13 @@ use NoreSources\SQL\Statement\Statement;
 use NoreSources\SQL\Statement\StatementFactoryInterface;
 use NoreSources\SQL\Structure\StructureAwareTrait;
 
-class SQLiteConnectionException extends ConnectionException
-{
-
-	public function __construct(SQLiteConnection $connection = null, $message, $code = null)
-	{
-		if ($code === null && ($connection instanceof SQLiteConnection))
-		{
-			$code = $connection->sqliteConnection->lastErrorCode();
-			if ($code != 0)
-				$message .= ' (' . $connection->sqliteConnection->lastErrorMsg() . ')';
-		}
-		parent::__construct($connection, $message, $code);
-	}
-}
-
 /**
  * SQLite connection
  */
 class SQLiteConnection implements ConnectionInterface
 {
 	use StructureAwareTrait;
+	use TransactionStackTrait;
 
 	/**
 	 * Special in-memory database name
@@ -78,10 +64,16 @@ class SQLiteConnection implements ConnectionInterface
 		$this->builder = new SQLiteStatementBuilder();
 		$this->connection = null;
 		$this->setLogger(ErrorReporterLogger::getInstance());
+
+		$this->setTransactionBlockFactory(
+			function ($depth, $name) {
+				return new SQLiteTransactionBlock($this, $name);
+			});
 	}
 
 	public function __destruct()
 	{
+		$this->endTransactions(false);
 		if ($this->connection instanceof \SQLite3)
 			$this->disconnect();
 	}
@@ -99,15 +91,6 @@ class SQLiteConnection implements ConnectionInterface
 
 		return parent::__get($key);
 	}
-
-	public function beginTransation()
-	{}
-
-	public function commitTransation()
-	{}
-
-	public function rollbackTransaction()
-	{}
 
 	/**
 	 * Connect to DBMS
@@ -239,6 +222,7 @@ class SQLiteConnection implements ConnectionInterface
 
 	public function disconnect()
 	{
+		$this->endTransactions(false);
 		if (!($this->connection instanceof \SQLite3))
 			throw new SQLiteConnectionException($this, 'Not connected');
 		$this->connection->close();
@@ -354,7 +338,7 @@ class SQLiteConnection implements ConnectionInterface
 
 		if ($result === false)
 			throw new SQLiteConnectionException($this,
-				'Failed to execute statement of type ' . $statementType);
+				'Failed to execute statement of type ' . K::statementTypeName($statementType));
 
 		if ($statementType & K::QUERY_FAMILY_ROWMODIFICATION)
 		{
@@ -381,7 +365,7 @@ class SQLiteConnection implements ConnectionInterface
 			return (($result instanceof \SQLite3Result) || $result);
 
 		throw new SQLiteConnectionException($this,
-			'Failed to execute statement of type ' . $statementType);
+			'Failed to execute statement of type ' . K::statementTypeName($statementType));
 	}
 
 	/**
@@ -421,6 +405,11 @@ class SQLiteConnection implements ConnectionInterface
 		}
 
 		return K::DATATYPE_STRING;
+	}
+
+	public function getSQLite()
+	{
+		return $this->connection;
 	}
 
 	/**

@@ -16,6 +16,7 @@ use NoreSources\SQL\ParameterValue;
 use NoreSources\SQL\DBMS\ConnectionException;
 use NoreSources\SQL\DBMS\ConnectionHelper;
 use NoreSources\SQL\DBMS\ConnectionInterface;
+use NoreSources\SQL\DBMS\TransactionStackTrait;
 use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLConstants as K;
 use NoreSources\SQL\QueryResult\GenericInsertionQueryResult;
 use NoreSources\SQL\QueryResult\GenericRowModificationQueryResult;
@@ -33,6 +34,7 @@ class PostgreSQLConnection implements ConnectionInterface
 
 	use StructureAwareTrait;
 	use LoggerAwareTrait;
+	use TransactionStackTrait;
 
 	/**
 	 *
@@ -42,6 +44,10 @@ class PostgreSQLConnection implements ConnectionInterface
 
 	public function __construct()
 	{
+		$this->setTransactionBlockFactory(
+			function ($depth, $name) {
+				return new PostgreSQLTransactionBlock($this, $name);
+			});
 		$this->resource = null;
 		$this->builder = new PostgreSQLStatementBuilder($this);
 		$this->versions = [
@@ -52,6 +58,7 @@ class PostgreSQLConnection implements ConnectionInterface
 
 	public function __destruct()
 	{
+		$this->endTransactions(false);
 		if (\is_resource($this->resource))
 			\pg_close($this->resource);
 	}
@@ -60,21 +67,6 @@ class PostgreSQLConnection implements ConnectionInterface
 	{
 		$this->logger = $logger;
 		$this->getStatementBuilder()->setLogger($logger);
-	}
-
-	public function beginTransation()
-	{
-		return ($this->executeInstruction('BEGIN') !== false);
-	}
-
-	public function commitTransation()
-	{
-		return $this->executeInstruction('COMMIT') !== false;
-	}
-
-	public function rollbackTransaction()
-	{
-		return $this->executeInstruction('ROLLBACK') !== false;
 	}
 
 	public function connect($parameters)
@@ -142,6 +134,7 @@ class PostgreSQLConnection implements ConnectionInterface
 
 	public function disconnect()
 	{
+		$this->endTransactions(false);
 		if (\is_resource($this->resource))
 			\pg_close($this->resource);
 		$this->versions[self::VERSION_CONNECTION] = null;
@@ -258,6 +251,10 @@ class PostgreSQLConnection implements ConnectionInterface
 		return $this->versions[self::VERSION_EXPECTED];
 	}
 
+	/**
+	 *
+	 * @return resource The innert PostgreSQL connection resource
+	 */
 	public function getConnectionResource()
 	{
 		return $this->resource;

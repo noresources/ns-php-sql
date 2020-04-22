@@ -5,8 +5,8 @@ use NoreSources\Container;
 use NoreSources\DataTree;
 use NoreSources\TypeDescription;
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\ConnectionHelper;
+use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\QueryResult\InsertionQueryResultInterface;
 use NoreSources\SQL\QueryResult\Recordset;
 use NoreSources\SQL\QueryResult\RowModificationQueryResultInterface;
@@ -44,6 +44,11 @@ class TestConnection extends \PHPUnit\Framework\TestCase
 		return \array_keys($this->files->getArrayCopy());
 	}
 
+	/**
+	 *
+	 * @param unknown $name
+	 * @return \NoreSources\SQL\DBMS\ConnectionInterface
+	 */
 	public function get($name)
 	{
 		if ($this->connections->offsetExists($name))
@@ -57,6 +62,17 @@ class TestConnection extends \PHPUnit\Framework\TestCase
 
 		$this->connections[$name] = ConnectionHelper::createConnection($parameters);
 		return $this->connections[$name];
+	}
+
+	public function getRowValue(ConnectionInterface $connection, StatementData $query, $column,
+		$parameters = array())
+	{
+		$result = $connection->executeStatement($query, $parameters);
+		$this->assertInstanceOf(Recordset::class, $result);
+		$row = $result->current();
+		if (Container::isArray($row))
+			return Container::keyValue($row, $column);
+		return null;
 	}
 
 	public function queryTest(ConnectionInterface $connection, $expectedValues, $options = array())

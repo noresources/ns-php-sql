@@ -14,7 +14,9 @@ use NoreSources\TypeDescription;
 use NoreSources\SQL\DBMS\ConnectionException;
 use NoreSources\SQL\DBMS\ConnectionHelper;
 use NoreSources\SQL\DBMS\ConnectionInterface;
+use NoreSources\SQL\DBMS\TransactionStackTrait;
 use NoreSources\SQL\DBMS\PDO\PDOConstants as K;
+use NoreSources\SQL\DBMS\Reference\ReferenceTransactionBlock;
 use NoreSources\SQL\QueryResult\GenericInsertionQueryResult;
 use NoreSources\SQL\QueryResult\GenericRowModificationQueryResult;
 use NoreSources\SQL\Statement\ClassMapStatementFactory;
@@ -25,8 +27,6 @@ use NoreSources\SQL\Statement\StatementFactoryInterface;
 use NoreSources\SQL\Structure\StructureAwareTrait;
 use Psr\Log\LoggerAwareTrait;
 
-
-
 /**
  * PDO connection
  */
@@ -34,6 +34,7 @@ class PDOConnection implements ConnectionInterface
 {
 	use StructureAwareTrait;
 	use LoggerAwareTrait;
+	use TransactionStackTrait;
 
 	const DRIVER_MYSQL = 'mysql';
 
@@ -62,27 +63,17 @@ class PDOConnection implements ConnectionInterface
 	{
 		$this->builder = new PDOStatementBuilder($this);
 		$this->connection = null;
+		$this->setTransactionBlockFactory(
+			function ($depth, $name) {
+				return new ReferenceTransactionBlock($this, $name);
+			});
 	}
 
 	public function __destruct()
 	{
+		$this->endTransactions(false);
 		if ($this->connection instanceof \PDO)
 			$this->disconnect();
-	}
-
-	public function beginTransation()
-	{
-		$this->connection->beginTransaction();
-	}
-
-	public function commitTransation()
-	{
-		$this->connection->commit();
-	}
-
-	public function rollbackTransaction()
-	{
-		$this->connection->rollBack();
 	}
 
 	/**
@@ -150,7 +141,13 @@ class PDOConnection implements ConnectionInterface
 
 	public function disconnect()
 	{
+		$this->endTransactions(false);
 		$this->connection = null;
+	}
+
+	public function newTransactionBlock($name = null)
+	{
+		return null;
 	}
 
 	/**

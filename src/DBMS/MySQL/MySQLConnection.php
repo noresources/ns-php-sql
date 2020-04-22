@@ -15,6 +15,7 @@ use NoreSources\SQL\ParameterValue;
 use NoreSources\SQL\DBMS\ConnectionException;
 use NoreSources\SQL\DBMS\ConnectionHelper;
 use NoreSources\SQL\DBMS\ConnectionInterface;
+use NoreSources\SQL\DBMS\TransactionStackTrait;
 use NoreSources\SQL\DBMS\MySQL\MySQLConstants as K;
 use NoreSources\SQL\Expression\Literal;
 use NoreSources\SQL\QueryResult\GenericInsertionQueryResult;
@@ -27,8 +28,6 @@ use NoreSources\SQL\Structure\StructureAwareTrait;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
 
-
-
 /**
  * MySQL or MariaDB connection
  */
@@ -36,11 +35,16 @@ class MySQLConnection implements ConnectionInterface
 {
 	use StructureAwareTrait;
 	use LoggerAwareTrait;
+	use TransactionStackTrait;
 
 	const STATE_CONNECTED = 0x01;
 
 	public function __construct()
 	{
+		$this->setTransactionBlockFactory(
+			function ($depth, $name) {
+				return new MySQLTransactionBlock($this, $name);
+			});
 		$this->mysqlFlags = 0;
 		$this->link = new \mysqli();
 		$this->builder = new MySQLStatementBuilder($this);
@@ -48,6 +52,7 @@ class MySQLConnection implements ConnectionInterface
 
 	public function __destruct()
 	{
+		$this->endTransactions(false);
 		if ($this->mysqlFlags & self::STATE_CONNECTED)
 			$this->link->close();
 	}
@@ -56,21 +61,6 @@ class MySQLConnection implements ConnectionInterface
 	{
 		$this->logger = $logger;
 		$this->getStatementBuilder()->setLogger($logger);
-	}
-
-	public function beginTransation()
-	{
-		return $this->link->begin_transaction();
-	}
-
-	public function commitTransation()
-	{
-		return $this->link->commit();
-	}
-
-	public function rollbackTransaction()
-	{
-		return $this->link->rollback();
 	}
 
 	/**
@@ -133,6 +123,8 @@ class MySQLConnection implements ConnectionInterface
 
 	public function disconnect()
 	{
+		$this->endTransactions(false);
+
 		if ($this->mysqlFlags & self::STATE_CONNECTED)
 			$this->link->close();
 
@@ -253,7 +245,7 @@ class MySQLConnection implements ConnectionInterface
 
 	/**
 	 *
-	 * @return mysqli
+	 * @return \mysqli
 	 */
 	public function getServerLink()
 	{

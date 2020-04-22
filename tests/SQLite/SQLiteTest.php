@@ -11,6 +11,7 @@ use NoreSources\SQL\Expression\FunctionCall;
 use NoreSources\SQL\Expression\TimestampFormatFunction;
 use NoreSources\SQL\QueryResult\InsertionQueryResultInterface;
 use NoreSources\SQL\QueryResult\Recordset;
+use NoreSources\SQL\Statement\StatementData;
 use NoreSources\SQL\Structure\TableStructure;
 use NoreSources\Test\DatasourceManager;
 use NoreSources\Test\DerivedFileManager;
@@ -274,6 +275,19 @@ final class SQLiteTest extends \PHPUnit\Framework\TestCase
 		}
 	}
 
+	private function getRowValue(StatementData $query, $column, $parameters = array())
+	{
+		$result = $this->connection->executeStatement($query, $parameters);
+		$this->assertInstanceOf(Recordset::class, $result);
+		if ($result instanceof Recordset)
+		{
+			$row = $result->current();
+			if (Container::isArray($row))
+				return Container::keyValue($row, $column);
+		}
+		return null;
+	}
+
 	private function createTable(TableStructure $tableStructure)
 	{
 		$path = $tableStructure->getPath();
@@ -344,7 +358,7 @@ final class SQLiteTest extends \PHPUnit\Framework\TestCase
 
 	/**
 	 *
-	 * @var ConnectionInterface
+	 * @var \NoreSOurces\SQL\DBMS\ConnectionInterface
 	 */
 	private $connection;
 }

@@ -11,6 +11,9 @@ namespace NoreSources\SQL;
 
 use NoreSources\Container;
 
+/**
+ * Constant definition class.
+ */
 class Constants
 {
 
@@ -619,6 +622,42 @@ class Constants
 	const RECORDSET_PUBLIC_FLAGS = 0x07;
 
 	/**
+	 * Transaction block state.
+	 *
+	 * The transaction block is not initialized.
+	 *
+	 * @var integer
+	 */
+	const TRANSACTION_STATE_UNDEFINED = -1000;
+
+	/**
+	 * Transaction block state.
+	 *
+	 * The transaction block is in progress, waiting for commit or rollback.
+	 *
+	 * @var integer
+	 */
+	const TRANSACTION_STATE_PENDING = 0;
+
+	/**
+	 * Transaction block state.
+	 *
+	 * The transaction block was committed.
+	 *
+	 * @var integer
+	 */
+	const TRANSACTION_STATE_COMMITTED = 1;
+
+	/**
+	 * Transaction block state.
+	 *
+	 * The transaction block wass rolled back.
+	 *
+	 * @var integer
+	 */
+	const TRANSACTION_STATE_ROLLED_BACK = -1;
+
+	/**
 	 * Timestamp formatting meta function name.
 	 *
 	 * @var string
@@ -649,5 +688,34 @@ class Constants
 		];
 
 		return Container::keyValue($names, $dataType, 'unknown');
+	}
+
+	public static function statementTypeName($statementType)
+	{
+		static $names = [
+			self::QUERY_CREATE_INDEX => 'CREATE INDEX',
+			self::QUERY_CREATE_TABLE => 'CREATE TABLE',
+			self::QUERY_DELETE => 'DELETE',
+			self::QUERY_DROP_TABLE => 'DROP TABLE',
+			self::QUERY_INSERT => 'INSERT',
+			self::QUERY_UPDATE => 'UPDATE'
+		];
+
+		if (Container::keyExists($names, $statementType))
+			return Container::keyValue($names, $statementType);
+
+		static $families = [
+			self::QUERY_FAMILY_CREATE => 'Creation',
+			self::QUERY_FAMILY_DROP => 'Drop',
+			self::QUERY_FAMILY_ROWMODIFICATION => 'Row modification'
+		];
+
+		foreach ($families as $family => $name)
+		{
+			if ($statementType & $family)
+				return $name;
+		}
+
+		return $statementType;
 	}
 }

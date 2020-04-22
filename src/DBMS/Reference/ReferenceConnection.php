@@ -9,10 +9,10 @@
  */
 namespace NoreSources\SQL\DBMS\Reference;
 
-
 use NoreSources\Container;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\ConnectionInterface;
+use NoreSources\SQL\DBMS\TransactionStackTrait;
 use NoreSources\SQL\Statement\ClassMapStatementFactoryTrait;
 use NoreSources\SQL\Statement\StatementFactoryInterface;
 use NoreSources\SQL\Structure\StructureAwareTrait;
@@ -25,6 +25,7 @@ class ReferenceConnection implements ConnectionInterface, StatementFactoryInterf
 {
 	use StructureAwareTrait;
 	use LoggerAwareTrait;
+	use TransactionStackTrait;
 
 	use ClassMapStatementFactoryTrait;
 
@@ -32,16 +33,11 @@ class ReferenceConnection implements ConnectionInterface, StatementFactoryInterf
 	{
 		$this->builder = new ReferenceStatementBuilder();
 		$this->initializeStatementFactory();
+		$this->setTransactionBlockFactory(
+			function ($depth, $name) {
+				return new ReferenceTransactionBlock($this, $name);
+			});
 	}
-
-	public function beginTransation()
-	{}
-
-	public function commitTransation()
-	{}
-
-	public function rollbackTransaction()
-	{}
 
 	public function connect($parameters)
 	{
@@ -55,7 +51,9 @@ class ReferenceConnection implements ConnectionInterface, StatementFactoryInterf
 	}
 
 	public function disconnect()
-	{}
+	{
+		$this->endTransactions(false);
+	}
 
 	public function getStatementBuilder()
 	{
