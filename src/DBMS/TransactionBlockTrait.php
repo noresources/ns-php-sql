@@ -132,8 +132,12 @@ trait TransactionBlockTrait
 	public function propagateBlockState($newState)
 	{
 		$this->blockState = $newState;
-		if ($this->getNextElement() instanceof TransactionBlockInterface)
+		$n = $this->getNextElement();
+		if ($n instanceof TransactionBlockInterface &&
+			($n->getBlockState() == TransactionBlockInterface::STATE_PENDING))
+		{
 			$this->getNextElement()->propagateBlockState($newState);
+		}
 	}
 
 	/**
