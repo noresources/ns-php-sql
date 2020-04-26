@@ -583,6 +583,16 @@ class Constants
 
 	const QUERY_FAMILY_DROP = 0x40;
 
+	// SELECT query flags
+	/**
+	 * SELECT qurey flags.
+	 *
+	 * Only report distinct rows
+	 *
+	 * @var integer
+	 */
+	const SELECT_QUERY_DISTINCT = 0x01;
+
 	// Recordset flags
 
 	/**

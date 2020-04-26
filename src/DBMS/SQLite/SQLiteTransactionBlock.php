@@ -31,7 +31,6 @@ class SQLiteTransactionBlock implements TransactionBlockInterface, ConnectionAwa
 	public function __construct(SQLiteConnection $connection, $name)
 	{
 		$this->initializeTransactionBlock($name);
-		$this->blockIdentifier = $connection->getStatementBuilder()->escapeIdentifier($name);
 		$this->setConnection($connection);
 	}
 
@@ -39,19 +38,28 @@ class SQLiteTransactionBlock implements TransactionBlockInterface, ConnectionAwa
 	{
 		if ($this->getPreviousElement() === null)
 			$this->executeCommand('BEGIN');
-		$this->executeCommand('SAVEPOINT ' . $this->blockIdentifier);
+		$this->executeCommand(
+			'SAVEPOINT ' .
+			$this->connection->getStatementBuilder()
+				->escapeIdentifier($this->getBlockName()));
 	}
 
 	protected function commitTask()
 	{
-		$this->executeCommand('RELEASE ' . $this->blockIdentifier);
+		$this->executeCommand(
+			'RELEASE ' .
+			$this->connection->getStatementBuilder()
+				->escapeIdentifier($this->getBlockName()));
 		if ($this->getPreviousElement() === null)
 			$this->executeCommand('COMMIT');
 	}
 
 	protected function rollbackTask()
 	{
-		$this->executeCommand('ROLLBACK TO ' . $this->blockIdentifier);
+		$this->executeCommand(
+			'ROLLBACK TO ' .
+			$this->connection->getStatementBuilder()
+				->escapeIdentifier($this->getBlockName()));
 		if ($this->getPreviousElement() === null)
 			$this->executeCommand('ROLLBACK');
 	}
@@ -69,10 +77,4 @@ class SQLiteTransactionBlock implements TransactionBlockInterface, ConnectionAwa
 			throw new TransactionBlockException($sqlite->lastErrorMsg(),
 				TransactionBlockException::EXECUTION_ERROR);
 	}
-
-	/**
-	 *
-	 * @var string
-	 */
-	private $blockIdentifier;
 }

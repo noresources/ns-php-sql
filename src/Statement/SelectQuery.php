@@ -174,8 +174,9 @@ class SelectQuery extends Statement
 	 */
 	public function __construct($table = null, $alias = null)
 	{
+		$this->selectQueryFlags = 0;
+
 		$this->parts = [
-			self::PART_DISTINCT => false,
 			self::PART_COLUMNS => new \ArrayObject(),
 			self::PART_TABLE => null,
 			self::PART_JOINS => new \ArrayObject(),
@@ -192,6 +193,21 @@ class SelectQuery extends Statement
 
 		if ($table)
 			$this->table($table, $alias);
+	}
+
+	/**
+	 *
+	 * @param boolean $distinct
+	 *        	If TRUE, the SELECT query will only report rows with distinct values.
+	 * @return \NoreSources\SQL\Statement\SelectQuery
+	 */
+	public function distinct($distinct = true)
+	{
+		if ($distinct)
+			$this->selectQueryFlags |= K::SELECT_QUERY_DISTINCT;
+		else
+			$this->selectQueryFlags &= ~K::SELECT_QUERY_DISTINCT;
+		return $this;
 	}
 
 	/**
@@ -420,6 +436,15 @@ class SelectQuery extends Statement
 		return Container::count($this->parts[self::PART_ORDERBY]);
 	}
 
+	/**
+	 *
+	 * @return integer Query flags
+	 */
+	public function getSelectQueryFlags()
+	{
+		return $this->selectQueryFlags;
+	}
+
 	public function tokenize(TokenStream $stream, TokenStreamContextInterface $context)
 	{
 		$builderFlags = $context->getStatementBuilder()->getBuilderFlags(K::BUILDER_DOMAIN_GENERIC);
@@ -516,7 +541,7 @@ class SelectQuery extends Statement
 		// SELECT columns
 
 		$stream->keyword('select');
-		if ($this->parts[self::PART_DISTINCT])
+		if ($this->selectQueryFlags & K::SELECT_QUERY_DISTINCT)
 		{
 			$stream->space()->keyword('DISTINCT');
 		}
@@ -665,9 +690,13 @@ class SelectQuery extends Statement
 		}
 	}
 
-	private $parts;
+	/**
+	 *
+	 * @var integer
+	 */
+	private $selectQueryFlags;
 
-	const PART_DISTINCT = 'distinct';
+	private $parts;
 
 	const PART_COLUMNS = 'columns';
 
