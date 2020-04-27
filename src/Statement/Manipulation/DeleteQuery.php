@@ -45,7 +45,7 @@ class DeleteQuery extends Statement
 	 *
 	 * @param Evaluable $args...
 	 *        	Evaluable expression list
-	 * @return \NoreSources\SQL\Statement\DeleteQuery
+	 * @return \NoreSources\SQL\Statement\Manipulation\DeleteQuery
 	 */
 	public function where()
 	{

@@ -18,8 +18,8 @@ trait WhereConstraintTrait
 	/**
 	 * WHERE constraints
 	 *
-	 * @param
-	 *        	Evaluable ...
+	 * @param Evaluable[] $...
+	 *        	One or more evaluable element. Elements will be joined with the AND operator
 	 */
 	public function where()
 	{
@@ -29,6 +29,10 @@ trait WhereConstraintTrait
 		$this->addConstraints($this->whereConstraints, func_get_args());
 	}
 
+	/**
+	 * Initialize WhereConstraintTrait private members.
+	 * This should be called in class constructors.
+	 */
 	protected function initializeWhereConstraints()
 	{
 		$this->whereConstraints = new \ArrayObject();

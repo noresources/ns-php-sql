@@ -15,13 +15,16 @@ use NoreSources\TypeDescription;
 use NoreSources\SQL\Expression\TableReference;
 use NoreSources\SQL\Structure\TableStructure;
 
+/**
+ * Generic method to set the table to which the statement applies.
+ */
 trait StatementTableTrait
 {
 
 	/**
 	 *
 	 * @param TableStructure|string $table
-	 *        	Table structure path
+	 *        	Table structure path.
 	 * @param string|null $alias
 	 */
 	public function table($table, $alias = null)

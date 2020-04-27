@@ -17,6 +17,15 @@ use NoreSources\SQL\Expression\TokenizableExpressionInterface;
 trait ConstraintExpressionListTrait
 {
 
+	/**
+	 * Store a list of constraints.
+	 *
+	 * @param \ArrayObject $constraints
+	 *        	Array to which constraints definition are added.
+	 * @param Evaluable[] $args
+	 *        	List of constraints.
+	 * @return \NoreSources\SQL\Statement\Statement
+	 */
 	protected function addConstraints(\ArrayObject $constraints, $args)
 	{
 		foreach ($args as $x)

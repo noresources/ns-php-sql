@@ -344,7 +344,7 @@ class SelectQuery extends Statement
 	 * @param SelectQuery $query
 	 * @param boolean $all
 	 *        	UNION ALL
-	 * @return \NoreSources\SQL\Statement\SelectQuery
+	 * @return \NoreSources\SQL\Statement\Query\SelectQuery
 	 */
 	public function union(SelectQuery $query, $all = false)
 	{

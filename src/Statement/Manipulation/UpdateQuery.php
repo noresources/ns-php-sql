@@ -53,7 +53,7 @@ class UpdateQuery extends Statement implements \ArrayAccess
 	 *
 	 * @param Evaluable $args...
 	 *        	Evaluable expression list
-	 * @return \NoreSources\SQL\Statement\UpdateQuery
+	 * @return \NoreSources\SQL\Statement\Manipulation\UpdateQuery
 	 */
 	public function where()
 	{
