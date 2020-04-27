@@ -186,7 +186,7 @@ final class DBMSCommonTest extends TestCase
 				}
 			}
 
-			$data = ConnectionHelper::getStatementData($connection, $q, $tableStructure);
+			$data = ConnectionHelper::buildStatement($connection, $q, $tableStructure);
 			$rowQueries[$label] = \strval($data);
 			$result = $connection->executeStatement($data);
 
@@ -195,7 +195,7 @@ final class DBMSCommonTest extends TestCase
 
 		$q = new SelectQuery($tableStructure);
 		$q->orderBy('int');
-		$data = ConnectionHelper::getStatementData($connection, $q, $tableStructure);
+		$data = ConnectionHelper::buildStatement($connection, $q, $tableStructure);
 
 		$recordset = $connection->executeStatement($data);
 		$this->assertInstanceOf(Recordset::class, $recordset, $dbmsName);
@@ -212,7 +212,7 @@ final class DBMSCommonTest extends TestCase
 			$c->columns([
 				'count (base)' => 'c'
 			]);
-			$cd = ConnectionHelper::getStatementData($connection, $c, $tableStructure);
+			$cd = ConnectionHelper::buildStatement($connection, $c, $tableStructure);
 			$cr = $connection->executeStatement($cd);
 			$this->assertInstanceOf(Recordset::class, $cr, $dbmsName . ' select count ()');
 
@@ -249,7 +249,7 @@ final class DBMSCommonTest extends TestCase
 			$i['binary'] = $content;
 
 			$result = $connection->executeStatement(
-				ConnectionHelper::getStatementData($connection, $i, $tableStructure));
+				ConnectionHelper::buildStatement($connection, $i, $tableStructure));
 
 			$this->assertInstanceOf(InsertionQueryResultInterface::class, $result,
 				$fileName . ' binary insert');
@@ -262,7 +262,7 @@ final class DBMSCommonTest extends TestCase
 			]);
 
 			$result = $connection->executeStatement(
-				ConnectionHelper::getStatementData($connection, $s, $tableStructure));
+				ConnectionHelper::buildStatement($connection, $s, $tableStructure));
 
 			$this->assertInstanceOf(Recordset::class, $result,
 				$dbmsName . ' ' . $fileName . ' select');
@@ -423,10 +423,10 @@ final class DBMSCommonTest extends TestCase
 		$i('large_int', ':odd');
 		$i('small_int', ':even');
 
-		$select = ConnectionHelper::getStatementData($connection, new SelectQuery($tableStructure),
+		$select = ConnectionHelper::buildStatement($connection, new SelectQuery($tableStructure),
 			$tableStructure);
 
-		$delete = ConnectionHelper::getStatementData($connection, new DeleteQuery($tableStructure),
+		$delete = ConnectionHelper::buildStatement($connection, new DeleteQuery($tableStructure),
 			$tableStructure);
 
 		$insert = ConnectionHelper::prepareStatement($connection, $i, $tableStructure);
@@ -856,7 +856,7 @@ final class DBMSCommonTest extends TestCase
 		]);
 
 		// Not a prepared statement but containts enough informations
-		$backedSelectByName = ConnectionHelper::getStatementData($connection,
+		$backedSelectByName = ConnectionHelper::buildStatement($connection,
 			$selectByNameParamQuery, $tableStructure);
 
 		$tests = [
@@ -907,7 +907,7 @@ final class DBMSCommonTest extends TestCase
 		try // PostgreSQL < 8.2 does not support DROP IF EXISTS and may fail
 		{
 			$drop = new DropTableQuery($tableStructure);
-			$data = ConnectionHelper::getStatementData($connection, $drop, $tableStructure);
+			$data = ConnectionHelper::buildStatement($connection, $drop, $tableStructure);
 			$connection->executeStatement($data);
 		}
 		catch (ConnectionException $e)
@@ -916,7 +916,7 @@ final class DBMSCommonTest extends TestCase
 		$factory = $connection->getStatementFactory();
 		$createTable = $factory->newStatement(K::QUERY_CREATE_TABLE, $tableStructure);
 		$result = false;
-		$data = ConnectionHelper::getStatementData($connection, $createTable, $tableStructure);
+		$data = ConnectionHelper::buildStatement($connection, $createTable, $tableStructure);
 		$sql = \SqlFormatter::format(strval($data), false);
 		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__,
 			$dbmsName . '_create_' . $tableStructure->getName(), 'sql');

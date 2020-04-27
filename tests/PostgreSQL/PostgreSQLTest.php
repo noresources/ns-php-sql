@@ -50,7 +50,7 @@ final class PostgreSQLTest extends \PHPUnit\Framework\TestCase
 				$this->assertInstanceOf(PostgreSQLStatementBuilder::class, $builder);
 
 				$s = new CreateTableQuery($tableStructure);
-				$sql = ConnectionHelper::getStatementData($connection, $s, $tableStructure);
+				$sql = ConnectionHelper::buildStatement($connection, $s, $tableStructure);
 				$sql = \strval($sql);
 
 				$sql = \SqlFormatter::format($sql, false);
@@ -68,7 +68,7 @@ final class PostgreSQLTest extends \PHPUnit\Framework\TestCase
 		}
 
 		$dropTable = new DropTableQuery($tableStructure);
-		$data = ConnectionHelper::getStatementData($connection, $dropTable, $tableStructure);
+		$data = ConnectionHelper::buildStatement($connection, $dropTable, $tableStructure);
 		$sql = \SqlFormatter::format(\strval($data), false);
 		$suffix = 'drop_' . $versionString;
 		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, $suffix, 'sql');

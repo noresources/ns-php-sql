@@ -212,7 +212,7 @@ final class SelectTest extends \PHPUnit\Framework\TestCase
 		$a->union($b);
 
 		$reference = new ReferenceConnection();
-		$data = ConnectionHelper::getStatementData($reference, $a, $tableStructure);
+		$data = ConnectionHelper::buildStatement($reference, $a, $tableStructure);
 		$sql = \SqlFormatter::format(strval($data), false);
 		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, null, 'sql');
 	}

@@ -9,15 +9,16 @@
  */
 namespace NoreSources\SQL\DBMS;
 
-
 use NoreSources\Container;
 use NoreSources\TypeConversion;
+use NoreSources\TypeDescription;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\ParameterValue;
 use NoreSources\SQL\Expression\Literal;
 use NoreSources\SQL\Expression\TokenStream;
-use NoreSources\SQL\Statement\StatementTokenStreamContext;
 use NoreSources\SQL\Statement\Statement;
+use NoreSources\SQL\Statement\StatementData;
+use NoreSources\SQL\Statement\StatementTokenStreamContext;
 use NoreSources\SQL\Structure\StructureElement;
 
 /**
@@ -89,7 +90,7 @@ class ConnectionHelper
 	 * @note This method does not provide any informations about statement parameters or result column types.
 	 * Tf these information are needed, use ConnectionHelper::prepareStatement()
 	 */
-	public static function getStatementData($connection, Statement $statement,
+	public static function buildStatement($connection, Statement $statement,
 		StructureElement $reference = null)
 	{
 		$reference = ($reference instanceof StructureElement) ? $reference : $connection->getStructure();
@@ -105,22 +106,38 @@ class ConnectionHelper
 	/**
 	 *
 	 * @param ConnectionInterface $connection
-	 * @param Statement $statement
+	 * @param Statement|StatementDataInterface $statement
 	 * @param StructureElement $reference
 	 * @return PreparedStatement
 	 */
-	public static function prepareStatement(ConnectionInterface $connection, Statement $statement,
+	public static function prepareStatement(ConnectionInterface $connection, $statement,
 		StructureElement $reference = null)
 	{
 		$reference = ($reference instanceof StructureElement) ? $reference : $connection->getStructure();
-		$builder = $connection->getStatementBuilder();
-		$context = new StatementTokenStreamContext($builder);
-		if ($reference instanceof StructureElement)
-			$context->setPivot($reference);
-		$stream = new TokenStream();
-		$statement->tokenize($stream, $context);
-		$result = $builder->finalizeStatement($stream, $context);
-		$prepared = $connection->prepareStatement($result);
+		$statementData = null;
+		if ($statement instanceof StatementData)
+		{
+			$statementData = $statement;
+		}
+		elseif ($statement instanceof Statement)
+		{
+			$builder = $connection->getStatementBuilder();
+			$context = new StatementTokenStreamContext($builder);
+			if ($reference instanceof StructureElement)
+				$context->setPivot($reference);
+			$stream = new TokenStream();
+			$statement->tokenize($stream, $context);
+			$statementData = $builder->finalizeStatement($stream, $context);
+		}
+		elseif (TypeDescription::hasStringRepresentation($statement))
+		{
+			$statementData = TypeConversion::toString($statement);
+		}
+		else
+			throw ConnectionException($connection,
+				'Unable to prepare statement. ' . Statement::class . ', ' . StatementData::class .
+				' or stringifiable type expected. Got ' . TypeDescription::getName($statement));
+		$prepared = $connection->prepareStatement($statementData);
 		return $prepared;
 	}
 
