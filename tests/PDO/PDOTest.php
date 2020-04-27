@@ -6,7 +6,10 @@ use NoreSources\SQL\DBMS\ConnectionHelper;
 use NoreSources\SQL\DBMS\PDO\PDOConnection;
 use NoreSources\SQL\DBMS\PDO\PDOConstants as K;
 use NoreSources\SQL\QueryResult\RowModificationQueryResultInterface;
-use NoreSources\SQL\Statement\UpdateQuery;
+use NoreSources\SQL\Statement\Manipulation\InsertQuery;
+use NoreSources\SQL\Statement\Manipulation\UpdateQuery;
+use NoreSources\SQL\Statement\Query\SelectQuery;
+use NoreSources\SQL\Statement\Structure\CreateTableQuery;
 use NoreSources\Test\DatasourceManager;
 use NoreSources\Test\DerivedFileManager;
 
@@ -113,7 +116,7 @@ final class PDOTest extends \PHPUnit\Framework\TestCase
 		$connection = new PDOConnection();
 		$connection->connect($settings);
 
-		$create = new Statement\CreateTableQuery($detachedTable);
+		$create = new CreateTableQuery($detachedTable);
 		$sql = ConnectionHelper::getStatementData($connection, $create);
 		$sql = \strval($sql);
 
@@ -121,7 +124,7 @@ final class PDOTest extends \PHPUnit\Framework\TestCase
 			'create', 'sql');
 		$connection->executeStatement($sql);
 
-		$insert = new Statement\InsertQuery($detachedTable);
+		$insert = new InsertQuery($detachedTable);
 		$insert('name', ':name');
 		$insert('gender', ':gender');
 		$insert('salary', ':salary');
@@ -160,7 +163,7 @@ final class PDOTest extends \PHPUnit\Framework\TestCase
 			$connection->executeStatement($prepared, $employee);
 		}
 
-		$select = new Statement\SelectQuery($detachedTable);
+		$select = new SelectQuery($detachedTable);
 		$select->where([
 			'>' => [
 				'salary',

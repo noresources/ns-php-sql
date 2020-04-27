@@ -12,6 +12,8 @@ use NoreSources\SQL\Expression\TimestampFormatFunction;
 use NoreSources\SQL\QueryResult\InsertionQueryResultInterface;
 use NoreSources\SQL\QueryResult\Recordset;
 use NoreSources\SQL\Statement\StatementData;
+use NoreSources\SQL\Statement\Manipulation\InsertQuery;
+use NoreSources\SQL\Statement\Query\SelectQuery;
 use NoreSources\SQL\Structure\TableStructure;
 use NoreSources\Test\DatasourceManager;
 use NoreSources\Test\DerivedFileManager;
@@ -40,7 +42,7 @@ final class SQLiteTest extends \PHPUnit\Framework\TestCase
 			'Create table ' . $tableStructure->getPath());
 
 		// Default values
-		$statement = new Statement\InsertQuery($tableStructure);
+		$statement = new InsertQuery($tableStructure);
 
 		$prepared = ConnectionHelper::prepareStatement($this->connection, $statement,
 			$tableStructure);
@@ -51,7 +53,7 @@ final class SQLiteTest extends \PHPUnit\Framework\TestCase
 		$result = $this->connection->executeStatement($prepared);
 		$this->assertInstanceOf(InsertionQueryResultInterface::class, $result);
 
-		$selectStatement = new Statement\SelectQuery($tableStructure);
+		$selectStatement = new SelectQuery($tableStructure);
 		$selectPrepared = ConnectionHelper::prepareStatement($this->connection, $selectStatement,
 			$tableStructure);
 
@@ -82,7 +84,7 @@ final class SQLiteTest extends \PHPUnit\Framework\TestCase
 		$this->assertTrue($this->createTable($tableStructure),
 			'Create table ' . $tableStructure->getPath());
 
-		$statement = new Statement\InsertQuery($tableStructure);
+		$statement = new InsertQuery($tableStructure);
 		$statement['gender'] = 'M';
 		$statement('name', ':nameValue');
 		$statement('salary', ':salaryValue');
@@ -109,7 +111,7 @@ final class SQLiteTest extends \PHPUnit\Framework\TestCase
 		$result = $this->connection->executeStatement($prepared, $p);
 		$this->assertInstanceOf(InsertionQueryResultInterface::class, $result);
 
-		$statement = new Statement\SelectQuery($tableStructure);
+		$statement = new SelectQuery($tableStructure);
 
 		$prepared = ConnectionHelper::prepareStatement($this->connection, $statement,
 			$tableStructure);
@@ -119,7 +121,7 @@ final class SQLiteTest extends \PHPUnit\Framework\TestCase
 		$this->assertEquals(4, $prepared->getResultColumns()
 			->count(), 'Prepared statement result columns count');
 
-		$statement = new Statement\SelectQuery($tableStructure);
+		$statement = new SelectQuery($tableStructure);
 		$statement->columns('name', 'gender', 'salary');
 
 		$prepared = ConnectionHelper::prepareStatement($this->connection, $statement,

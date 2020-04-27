@@ -8,9 +8,8 @@
  * @package SQL
  */
 
-// 
-namespace NoreSources\SQL\Statement;
-
+//
+namespace NoreSources\SQL\Statement\Traits;
 
 use NoreSources\Expression\Expression;
 use NoreSources\SQL\Expression\Evaluator;
@@ -54,7 +53,7 @@ trait ColumnValueTrait
 	 *        	If @c true, the value will be evaluated at build stage. Otherwise, the value is considered as a
 	 *        	literal of the same type as the column data type..
 	 *        	If @c null, the
-	 * @return \NoreSources\SQL\UpdateQuery
+	 * @return \NoreSources\SQL\Statement\Manipulation\UpdateQuery
 	 */
 	public function setColumnValue($columnName, $columnValue, $evaluate = null)
 	{

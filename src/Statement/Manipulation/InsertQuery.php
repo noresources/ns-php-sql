@@ -8,18 +8,20 @@
  * @package SQL
  */
 
-// 
-namespace NoreSources\SQL\Statement;
-
+//
+namespace NoreSources\SQL\Statement\Manipulation;
 
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Expression\Evaluator;
-use NoreSources\SQL\Expression\TokenizableExpressionInterface;
 use NoreSources\SQL\Expression\Keyword;
 use NoreSources\SQL\Expression\Literal;
 use NoreSources\SQL\Expression\TableReference;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Expression\TokenStreamContextInterface;
+use NoreSources\SQL\Expression\TokenizableExpressionInterface;
+use NoreSources\SQL\Statement\Statement;
+use NoreSources\SQL\Statement\StatementException;
+use NoreSources\SQL\Statement\Traits\ColumnValueTrait;
 use NoreSources\SQL\Structure\TableStructure;
 
 /**

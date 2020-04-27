@@ -9,8 +9,8 @@ use NoreSources\SQL\Expression\ExpressionHelper;
 use NoreSources\SQL\Expression\Literal;
 use NoreSources\SQL\Expression\MemberOf;
 use NoreSources\SQL\Expression\TokenStream;
-use NoreSources\SQL\Statement\SelectQuery;
 use NoreSources\SQL\Statement\StatementTokenStreamContext;
+use NoreSources\SQL\Statement\Query\SelectQuery;
 use NoreSources\Test\DatasourceManager;
 use NoreSources\Test\DerivedFileManager;
 
@@ -32,7 +32,7 @@ final class SelectTest extends \PHPUnit\Framework\TestCase
 		$builder = new ReferenceStatementBuilder();
 		$context = new StatementTokenStreamContext($builder);
 		$context->setPivot($tableStructure);
-		$q = new Statement\SelectQuery($tableStructure, 't');
+		$q = new SelectQuery($tableStructure, 't');
 
 		$q->columns([
 			'id',
@@ -95,7 +95,7 @@ final class SelectTest extends \PHPUnit\Framework\TestCase
 			K::BUILDER_SELECT_EXTENDED_RESULTCOLUMN_ALIAS_RESOLUTION);
 		$context = new StatementTokenStreamContext($builder);
 		$context->setPivot($tableStructure);
-		$q = new Statement\SelectQuery($tableStructure, 't');
+		$q = new SelectQuery($tableStructure, 't');
 
 		$q->columns([
 			't.name',
@@ -151,14 +151,14 @@ final class SelectTest extends \PHPUnit\Framework\TestCase
 		$context = new StatementTokenStreamContext($builder);
 		$context->setPivot($namespaceStructure);
 
-		$q = new Statement\SelectQuery('Employees', 'E');
+		$q = new SelectQuery('Employees', 'E');
 		$q->columns([
 			'id' => 'I'
 		], [
 			'name' => 'N'
 		]);
 
-		$sub = new Statement\SelectQuery('Hierarchy', 'E');
+		$sub = new SelectQuery('Hierarchy', 'E');
 		$sub->columns([
 			'manageeId' => 'N'
 		]);

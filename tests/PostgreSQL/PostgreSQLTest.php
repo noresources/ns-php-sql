@@ -7,9 +7,9 @@ use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLConnection;
 use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLConstants as K;
 use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLPreparedStatement;
 use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLStatementBuilder;
-use NoreSources\SQL\Statement\CreateTableQuery;
-use NoreSources\SQL\Statement\DropTableQuery;
-use NoreSources\SQL\Statement\InsertQuery;
+use NoreSources\SQL\Statement\Manipulation\InsertQuery;
+use NoreSources\SQL\Statement\Structure\CreateTableQuery;
+use NoreSources\SQL\Statement\Structure\DropTableQuery;
 use NoreSources\Test\DatasourceManager;
 use NoreSources\Test\DerivedFileManager;
 

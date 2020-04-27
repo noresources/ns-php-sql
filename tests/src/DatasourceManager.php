@@ -2,9 +2,9 @@
 namespace NoreSources\Test;
 
 use NoreSources\TypeDescription;
-use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\ConnectionHelper;
-use NoreSources\SQL\Statement\CreateTableQuery;
+use NoreSources\SQL\DBMS\ConnectionInterface;
+use NoreSources\SQL\Statement\Structure\CreateTableQuery;
 use NoreSources\SQL\Structure\DatasourceStructure;
 use NoreSources\SQL\Structure\StructureSerializerFactory;
 use NoreSources\SQL\Structure\TableStructure;

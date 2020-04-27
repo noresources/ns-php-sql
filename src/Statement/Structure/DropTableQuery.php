@@ -8,14 +8,14 @@
  * @package SQL
  */
 
-// 
-namespace NoreSources\SQL\Statement;
-
+//
+namespace NoreSources\SQL\Statement\Structure;
 
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Expression\Table;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Expression\TokenStreamContextInterface;
+use NoreSources\SQL\Statement\Statement;
 use NoreSources\SQL\Structure\TableStructure;
 
 /**
@@ -37,7 +37,8 @@ class DropTableQuery extends Statement
 	public function tokenize(TokenStream $stream, TokenStreamContextInterface $context)
 	{
 		$builderFlags = $context->getStatementBuilder()->getBuilderFlags(K::BUILDER_DOMAIN_GENERIC);
-		$builderFlags |= $context->getStatementBuilder()->getBuilderFlags(K::BUILDER_DOMAIN_DROP_TABLE);
+		$builderFlags |= $context->getStatementBuilder()->getBuilderFlags(
+			K::BUILDER_DOMAIN_DROP_TABLE);
 
 		$tableStructure = $context->findTable($this->table->path);
 

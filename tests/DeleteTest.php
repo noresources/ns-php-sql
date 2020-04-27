@@ -4,6 +4,7 @@ namespace NoreSources\SQL;
 use NoreSources\SQL\DBMS\Reference\ReferenceStatementBuilder;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Statement\StatementTokenStreamContext;
+use NoreSources\SQL\Statement\Manipulation\DeleteQuery;
 use NoreSources\Test\DatasourceManager;
 use NoreSources\Test\DerivedFileManager;
 
@@ -25,7 +26,7 @@ final class DeleteTest extends \PHPUnit\Framework\TestCase
 		$builder = new ReferenceStatementBuilder();
 		$context = new StatementTokenStreamContext($builder);
 		$context->setPivot($tableStructure);
-		$q = new Statement\DeleteQuery($tableStructure);
+		$q = new DeleteQuery($tableStructure);
 
 		$q->where([
 			// Short form

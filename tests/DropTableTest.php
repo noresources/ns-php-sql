@@ -4,6 +4,7 @@ namespace NoreSources\SQL;
 use NoreSources\SQL\DBMS\Reference\ReferenceStatementBuilder;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Statement\StatementTokenStreamContext;
+use NoreSources\SQL\Statement\Structure\DropTableQuery;
 use NoreSources\Test\DatasourceManager;
 use NoreSources\Test\DerivedFileManager;
 
@@ -33,7 +34,7 @@ final class DropTableTest extends \PHPUnit\Framework\TestCase
 				'Finding ' . $tableName);
 			$context = new StatementTokenStreamContext($builder);
 			$context->setPivot($tableStructure);
-			$q = new Statement\DropTableQuery($tableStructure);
+			$q = new DropTableQuery($tableStructure);
 			$stream = new TokenStream();
 			$q->tokenize($stream, $context);
 			$result = $builder->finalizeStatement($stream, $context);

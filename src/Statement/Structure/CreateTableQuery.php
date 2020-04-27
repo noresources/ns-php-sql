@@ -8,8 +8,8 @@
  * @package SQL
  */
 
-// 
-namespace NoreSources\SQL\Statement;
+//
+namespace NoreSources\SQL\Statement\Structure;
 
 use NoreSources\Container;
 use NoreSources\SQL\Constants as K;
@@ -18,14 +18,14 @@ use NoreSources\SQL\DBMS\TypeInterface;
 use NoreSources\SQL\Expression\Evaluator;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Expression\TokenStreamContextInterface;
+use NoreSources\SQL\Statement\Statement;
+use NoreSources\SQL\Statement\StatementException;
 use NoreSources\SQL\Structure\ColumnTableConstraint;
 use NoreSources\SQL\Structure\ForeignKeyTableConstraint;
 use NoreSources\SQL\Structure\PrimaryKeyTableConstraint;
 use NoreSources\SQL\Structure\TableConstraint;
 use NoreSources\SQL\Structure\TableStructure;
 use NoreSources\SQL\Structure\UniqueTableConstraint;
-
-
 
 /**
  * CREATE TABLE statement

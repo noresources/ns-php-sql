@@ -5,6 +5,8 @@ use NoreSources\SQL\DBMS\ConnectionHelper;
 use NoreSources\SQL\DBMS\Reference\ReferenceStatementBuilder;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Statement\StatementTokenStreamContext;
+use NoreSources\SQL\Statement\Manipulation\UpdateQuery;
+use NoreSources\SQL\Statement\Query\SelectQuery;
 use NoreSources\Test\DatasourceManager;
 use NoreSources\Test\DerivedFileManager;
 
@@ -86,7 +88,7 @@ final class UpdateTest extends \PHPUnit\Framework\TestCase
 
 		foreach ($sets as $set => $columnValues)
 		{
-			$q = new Statement\UpdateQuery('types', 't');
+			$q = new UpdateQuery('types', 't');
 
 			foreach ($columnValues as $column => $value)
 			{
@@ -111,11 +113,11 @@ final class UpdateTest extends \PHPUnit\Framework\TestCase
 		$context = new StatementTokenStreamContext($builder);
 		$context->setPivot($tableStructure);
 
-		$q = new Statement\UpdateQuery($tableStructure);
+		$q = new UpdateQuery($tableStructure);
 
 		$q->setColumnValue('salary', 'salary * 2', true);
 
-		$sub = new Statement\SelectQuery('Employees', 'e');
+		$sub = new SelectQuery('Employees', 'e');
 		$sub->columns('id');
 		$sub->where('id > 2');
 
@@ -150,7 +152,7 @@ final class UpdateTest extends \PHPUnit\Framework\TestCase
 		$context = new StatementTokenStreamContext($builder);
 		$context->setPivot($tableStructure);
 
-		$q = new Statement\UpdateQuery($tableStructure);
+		$q = new UpdateQuery($tableStructure);
 
 		$q('salary', 'salary + 100');
 		$q->where([

@@ -8,46 +8,23 @@
  * @package SQL
  */
 
-// 
+//
 namespace NoreSources\SQL\Statement;
 
-
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\Expression as X;
 use NoreSources\SQL\DBMS\PreparedStatement;
-
-/**
- * Exception raised while building statement SQL string
- */
-class StatementException extends \Exception
-{
-
-	public function __construct(Statement $statement, $message)
-	{
-		parent::__construct($message);
-		$this->statement = $statement;
-	}
-
-	/**
-	 *
-	 * @return \NoreSources\SQL\Statement\Statement
-	 */
-	public function getStatement()
-	{
-		return $this->statement;
-	}
-
-	/**
-	 *
-	 * @var Statement
-	 */
-	private $statement;
-}
+use NoreSources\SQL\Expression\TokenizableExpressionInterface;
+use NoreSources\SQL\Statement\Manipulation\DeleteQuery;
+use NoreSources\SQL\Statement\Manipulation\InsertQuery;
+use NoreSources\SQL\Statement\Manipulation\UpdateQuery;
+use NoreSources\SQL\Statement\Query\SelectQuery;
+use NoreSources\SQL\Statement\Structure\CreateTableQuery;
+use NoreSources\SQL\Statement\Structure\DropTableQuery;
 
 /**
  * SQL statement
  */
-abstract class Statement implements X\TokenizableExpressionInterface
+abstract class Statement implements TokenizableExpressionInterface
 {
 
 	/**

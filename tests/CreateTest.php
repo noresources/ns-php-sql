@@ -3,9 +3,9 @@ namespace NoreSources\SQL;
 
 use NoreSources\SQL\DBMS\Reference\ReferenceStatementBuilder;
 use NoreSources\SQL\Expression\TokenStream;
-use NoreSources\SQL\Statement\CreateIndexQuery;
-use NoreSources\SQL\Statement\CreateTableQuery;
 use NoreSources\SQL\Statement\StatementTokenStreamContext;
+use NoreSources\SQL\Statement\Structure\CreateIndexQuery;
+use NoreSources\SQL\Statement\Structure\CreateTableQuery;
 use NoreSources\Test\DatasourceManager;
 use NoreSources\Test\DerivedFileManager;
 

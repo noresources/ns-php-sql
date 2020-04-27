@@ -14,8 +14,8 @@ use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Expression\Evaluator;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Expression\TokenStreamContextInterface;
-use NoreSources\SQL\Statement\CreateTableQuery;
 use NoreSources\SQL\Statement\StatementException;
+use NoreSources\SQL\Statement\Structure\CreateTableQuery;
 use NoreSources\SQL\Structure\PrimaryKeyTableConstraint;
 use NoreSources\SQL\Structure\TableStructure;
 
@@ -117,8 +117,7 @@ class SQLiteCreateTableQuery extends CreateTableQuery
 
 			if ($column->hasColumnProperty(K::COLUMN_DEFAULT_VALUE))
 			{
-				$v = Evaluator::evaluate(
-					$column->getColumnProperty(K::COLUMN_DEFAULT_VALUE));
+				$v = Evaluator::evaluate($column->getColumnProperty(K::COLUMN_DEFAULT_VALUE));
 				$stream->space()
 					->keyword('DEFAULT')
 					->space()

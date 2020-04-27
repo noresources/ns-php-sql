@@ -9,7 +9,7 @@
  */
 
 //
-namespace NoreSources\SQL\Statement;
+namespace NoreSources\SQL\Statement\Query;
 
 use NoreSources\Container;
 use NoreSources\TypeDescription;
@@ -21,6 +21,7 @@ use NoreSources\SQL\Expression\TableReference;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Expression\TokenStreamContextInterface;
 use NoreSources\SQL\Expression\TokenizableExpressionInterface;
+use NoreSources\SQL\Statement\Statement;
 use NoreSources\SQL\Statement\Traits\ConstraintExpressionListTrait;
 use NoreSources\SQL\Structure\TableStructure;
 
@@ -199,7 +200,7 @@ class SelectQuery extends Statement
 	 *
 	 * @param boolean $distinct
 	 *        	If TRUE, the SELECT query will only report rows with distinct values.
-	 * @return \NoreSources\SQL\Statement\SelectQuery
+	 * @return \NoreSources\SQL\Statement\Query\SelectQuery
 	 */
 	public function distinct($distinct = true)
 	{

@@ -12,6 +12,13 @@
 namespace NoreSources\SQL\Statement;
 
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\Statement\Manipulation\DeleteQuery;
+use NoreSources\SQL\Statement\Manipulation\InsertQuery;
+use NoreSources\SQL\Statement\Manipulation\UpdateQuery;
+use NoreSources\SQL\Statement\Query\SelectQuery;
+use NoreSources\SQL\Statement\Structure\CreateIndexQuery;
+use NoreSources\SQL\Statement\Structure\CreateTableQuery;
+use NoreSources\SQL\Statement\Structure\DropTableQuery;
 
 /**
  * Implements StatementFactoryInterface

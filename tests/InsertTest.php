@@ -7,6 +7,7 @@ use NoreSources\SQL\Expression\ExpressionHelper;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Expression\TokenizableExpressionInterface;
 use NoreSources\SQL\Statement\StatementTokenStreamContext;
+use NoreSources\SQL\Statement\Manipulation\InsertQuery;
 use NoreSources\Test\DatasourceManager;
 use NoreSources\Test\DerivedFileManager;
 
@@ -26,7 +27,7 @@ final class InsertTest extends \PHPUnit\Framework\TestCase
 		$t = $structure['ns_unittests']['types'];
 		$this->assertInstanceOf(Structure\TableStructure::class, $t);
 
-		$q = new Statement\InsertQuery($t);
+		$q = new InsertQuery($t);
 
 		$builderFlags = array(
 			'no_default' => 0,
@@ -100,7 +101,7 @@ final class InsertTest extends \PHPUnit\Framework\TestCase
 
 		foreach ($tests as $key => $values)
 		{
-			$q = new Statement\InsertQuery($tableStructure);
+			$q = new InsertQuery($tableStructure);
 			$context->setPivot($tableStructure);
 
 			foreach ($values as $column => $value)
