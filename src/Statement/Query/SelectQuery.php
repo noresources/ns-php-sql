@@ -12,7 +12,6 @@
 namespace NoreSources\SQL\Statement\Query;
 
 use NoreSources\Container;
-use NoreSources\TypeDescription;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Expression\Column;
 use NoreSources\SQL\Expression\Evaluator;
@@ -23,7 +22,7 @@ use NoreSources\SQL\Expression\TokenStreamContextInterface;
 use NoreSources\SQL\Expression\TokenizableExpressionInterface;
 use NoreSources\SQL\Statement\Statement;
 use NoreSources\SQL\Statement\Traits\ConstraintExpressionListTrait;
-use NoreSources\SQL\Structure\TableStructure;
+use NoreSources\SQL\Statement\Traits\StatementTableTrait;
 
 /**
  * SELECT query result column
@@ -62,6 +61,7 @@ class ResultColumnReference
  */
 class JoinClause implements TokenizableExpressionInterface
 {
+	use ConstraintExpressionListTrait;
 
 	/**
 	 *
@@ -80,7 +80,7 @@ class JoinClause implements TokenizableExpressionInterface
 	{
 		$this->operator = $operator;
 		$this->subject = $subject;
-		$this->constraints = new \ArrayObject();
+		$this->constraints = null;
 
 		$args = func_get_args();
 		array_shift($args);
@@ -123,16 +123,9 @@ class JoinClause implements TokenizableExpressionInterface
 	 */
 	public function on()
 	{
-		$c = func_num_args();
-		for ($i = 0; $i < $c; $i++)
-		{
-			$x = func_get_arg($i);
-			if (!($x instanceof TokenizableExpressionInterface))
-				$x = Evaluator::evaluate($x);
-			$this->constraints->append($x);
-		}
-
-		return $this;
+		if (!($this->constraints instanceof \ArrayObject))
+			$this->constraints = new \ArrayObject();
+		return $this->addConstraints($this->constraints, func_get_args());
 	}
 
 	private $constraints;
@@ -166,6 +159,7 @@ class UnionClause
 class SelectQuery extends Statement
 {
 	use ConstraintExpressionListTrait;
+	use StatementTableTrait;
 
 	/**
 	 *
@@ -177,19 +171,11 @@ class SelectQuery extends Statement
 	{
 		$this->selectQueryFlags = 0;
 
-		$this->parts = [
-			self::PART_COLUMNS => new \ArrayObject(),
-			self::PART_TABLE => null,
-			self::PART_JOINS => new \ArrayObject(),
-			self::PART_WHERE => new \ArrayObject(),
-			self::PART_GROUPBY => new \ArrayObject(),
-			self::PART_HAVING => new \ArrayObject(),
-			self::PART_ORDERBY => new \ArrayObject(),
-			self::PART_UNION => [],
-			self::PART_LIMIT => [
-				'count' => 0,
-				'offset' => 0
-			]
+		$this->whereConstraints = null;
+		$this->havingConstraints = null;
+		$this->limitClause = [
+			'count' => 0,
+			'offset' => 0
 		];
 
 		if ($table)
@@ -213,37 +199,19 @@ class SelectQuery extends Statement
 
 	/**
 	 *
-	 * @param TableStructure|string $table
-	 *        	Table structure path
-	 * @param string|null $alias
-	 */
-	public function table($table, $alias = null)
-	{
-		if ($table instanceof TableStructure)
-			$table = $table->getPath();
-
-		if (!\is_string($table))
-			throw new \InvalidArgumentException(
-				'Invalid type for $table argument. ' . TableStructure::class .
-				' or string expected. Got ' . TypeDescription::getName($table));
-
-		$this->parts[self::PART_TABLE] = new TableReference($table, $alias);
-		return $this;
-	}
-
-	/**
-	 *
 	 * @return SelectQuery
 	 */
 	public function columns(/*...*/ )
 	{
+		if (!($this->resultColumns instanceof \ArrayObject))
+			$this->resultColumns = new \ArrayObject();
 		$args = func_get_args();
 		foreach ($args as $arg)
 		{
 			$expression = null;
 			$alias = null;
 			if ($arg instanceof ResultColumnReference)
-				$this->parts[self::PART_COLUMNS]->append($arg);
+				$this->resultColumns->append($arg);
 			else
 			{
 				if (Container::isArray($arg))
@@ -263,8 +231,7 @@ class SelectQuery extends Statement
 				if (!($expression instanceof TokenizableExpressionInterface))
 					$expression = Evaluator::evaluate($expression);
 
-				$this->parts[self::PART_COLUMNS]->append(
-					new ResultColumnReference($expression, $alias));
+				$this->resultColumns->append(new ResultColumnReference($expression, $alias));
 			}
 		}
 
@@ -280,9 +247,12 @@ class SelectQuery extends Statement
 	 */
 	public function join($operatorOrJoin, $subject = null /*, $constraints */)
 	{
+		if (!($this->joins instanceof \ArrayObject))
+			$this->joins = new \ArrayObject();
+
 		if ($operatorOrJoin instanceof JoinClause)
 		{
-			$this->parts[self::PART_JOINS]->append($operatorOrJoin);
+			$this->joins->append($operatorOrJoin);
 		}
 		else
 		{
@@ -317,7 +287,7 @@ class SelectQuery extends Statement
 				'on'
 			], $args);
 
-			$this->parts[self::PART_JOINS]->append($j);
+			$this->joins->append($j);
 		}
 
 		return $this;
@@ -331,7 +301,9 @@ class SelectQuery extends Statement
 	 */
 	public function where()
 	{
-		return $this->addConstraints($this->parts[self::PART_WHERE], func_get_args());
+		if (!($this->whereConstraints instanceof \ArrayObject))
+			$this->whereConstraints = new \ArrayObject();
+		return $this->addConstraints($this->whereConstraints, func_get_args());
 	}
 
 	/**
@@ -343,7 +315,9 @@ class SelectQuery extends Statement
 	 */
 	public function having()
 	{
-		return $this->addConstraints($this->parts[self::PART_HAVING], func_get_args());
+		if (!($this->havingConstraints instanceof \ArrayObject))
+			$this->havingConstraints = new \ArrayObject();
+		return $this->addConstraints($this->havingConstraints, func_get_args());
 	}
 
 	/**
@@ -354,9 +328,12 @@ class SelectQuery extends Statement
 	 */
 	public function groupBy()
 	{
+		if (!($this->groupByClauses instanceof \ArrayObject))
+			$this->groupByClauses = new \ArrayObject();
+
 		for ($i = 0; $i < func_num_args(); $i++)
 		{
-			$this->parts[self::PART_GROUPBY]->append(new Column(func_get_arg($i)));
+			$this->groupByClauses->append(new Column(func_get_arg($i)));
 		}
 
 		return $this;
@@ -371,7 +348,9 @@ class SelectQuery extends Statement
 	 */
 	public function union(SelectQuery $query, $all = false)
 	{
-		$this->parts[self::PART_UNION][] = new UnionClause($query, $all);
+		if (!($this->unions instanceof \ArrayObject))
+			$this->unions = new \ArrayObject();
+		$this->unions->append(new UnionClause($query, $all));
 		return $this;
 	}
 
@@ -388,7 +367,10 @@ class SelectQuery extends Statement
 		if (!($reference instanceof TokenizableExpressionInterface))
 			$reference = Evaluator::evaluate($reference);
 
-		$this->parts[self::PART_ORDERBY]->append(
+		if (!($this->orderByClauses instanceof \ArrayObject))
+			$this->orderByClauses = new \ArrayObject();
+
+		$this->orderByClauses->append(
 			[
 				'expression' => $reference,
 				'direction' => $direction,
@@ -405,8 +387,8 @@ class SelectQuery extends Statement
 	 */
 	public function limit($count, $offset = 0)
 	{
-		$this->parts[self::PART_LIMIT]['count'] = $count;
-		$this->parts[self::PART_LIMIT]['offset'] = $offset;
+		$this->limitClause['count'] = $count;
+		$this->limitClause['offset'] = $offset;
 		return $this;
 	}
 
@@ -416,7 +398,7 @@ class SelectQuery extends Statement
 	 */
 	public function hasUnion()
 	{
-		return Container::count($this->parts[self::PART_UNION]);
+		return ($this->unions && $this->unions->count());
 	}
 
 	/**
@@ -425,7 +407,7 @@ class SelectQuery extends Statement
 	 */
 	public function hasLimitClause()
 	{
-		return ($this->parts[self::PART_LIMIT]['count'] > 0);
+		return ($this->limitClause['count'] > 0);
 	}
 
 	/**
@@ -434,7 +416,7 @@ class SelectQuery extends Statement
 	 */
 	public function hasOrderingClause()
 	{
-		return Container::count($this->parts[self::PART_ORDERBY]);
+		return ($this->orderByClauses && $this->orderByClauses->count());
 	}
 
 	/**
@@ -453,7 +435,7 @@ class SelectQuery extends Statement
 
 		$context->setStatementType(K::QUERY_SELECT);
 
-		$table = $this->parts[self::PART_TABLE];
+		$table = $this->getTable();
 		/**
 		 *
 		 * @var TableReference $table
@@ -472,21 +454,22 @@ class SelectQuery extends Statement
 			$context->setAlias($table->alias, $tableStructure);
 		}
 
-		foreach ($this->parts[self::PART_JOINS] as $join)
-		{
-			/**
-			 *
-			 * @var JoinClause $join
-			 */
-			if ($join->subject instanceof TableReference)
+		if ($this->joins instanceof \ArrayObject)
+			foreach ($this->joins as $join)
 			{
-				$structure = $context->findTable($join->subject->path);
-				if ($join->subject->alias)
+				/**
+				 *
+				 * @var JoinClause $join
+				 */
+				if ($join->subject instanceof TableReference)
 				{
-					$context->setAlias($join->subject->alias, $structure);
+					$structure = $context->findTable($join->subject->path);
+					if ($join->subject->alias)
+					{
+						$context->setAlias($join->subject->alias, $structure);
+					}
 				}
 			}
-		}
 
 		$tableAndJoins = new TokenStream();
 		if ($table instanceof TableReference)
@@ -503,10 +486,11 @@ class SelectQuery extends Statement
 					->escapeIdentifier($table->alias));
 			}
 
-			foreach ($this->parts[self::PART_JOINS] as $join)
-			{
-				$tableAndJoins->space()->expression($join, $context);
-			}
+			if ($this->joins instanceof \ArrayObject)
+				foreach ($this->joins as $join)
+				{
+					$tableAndJoins->space()->expression($join, $context);
+				}
 		}
 
 		if ($builderFlags & K::BUILDER_SELECT_EXTENDED_RESULTCOLUMN_ALIAS_RESOLUTION)
@@ -516,21 +500,21 @@ class SelectQuery extends Statement
 
 		$where = new TokenStream();
 
-		if ($this->parts[self::PART_WHERE]->count())
+		if ($this->whereConstraints && $this->whereConstraints->count())
 		{
 			$where->space()
 				->keyword('where')
 				->space()
-				->constraints($this->parts[self::PART_WHERE], $context);
+				->constraints($this->whereConstraints, $context);
 		}
 
 		$having = new TokenStream();
-		if ($this->parts[self::PART_HAVING]->count())
+		if ($this->havingConstraints && $this->havingConstraints->count())
 		{
 			$having->space()
 				->keyword('having')
 				->space()
-				->constraints($this->parts[self::PART_HAVING], $context);
+				->constraints($this->havingConstraints, $context);
 		}
 
 		# Resolve columns (inf not yet)
@@ -547,11 +531,11 @@ class SelectQuery extends Statement
 			$stream->space()->keyword('DISTINCT');
 		}
 
-		if ($this->parts[self::PART_COLUMNS]->count())
+		if ($this->resultColumns && $this->resultColumns->count())
 		{
 			$stream->space();
 			$c = 0;
-			foreach ($this->parts[self::PART_COLUMNS] as $column)
+			foreach ($this->resultColumns as $column)
 			{
 				$columnIndex = $c;
 
@@ -605,7 +589,7 @@ class SelectQuery extends Statement
 		$stream->stream($where);
 
 		// GROUP BY
-		if ($this->parts[self::PART_GROUPBY] && Container::count($this->parts[self::PART_GROUPBY]))
+		if ($this->groupByClauses && Container::count($this->groupByClauses))
 		{
 
 			$stream->space()
@@ -613,7 +597,7 @@ class SelectQuery extends Statement
 				->space();
 
 			$c = 0;
-			foreach ($this->parts[self::PART_GROUPBY] as $column)
+			foreach ($this->groupByClauses as $column)
 			{
 				if ($c++ > 0)
 					$stream->text(',')->space();
@@ -623,9 +607,9 @@ class SelectQuery extends Statement
 
 		$stream->stream($having);
 
-		if (Container::count($this->parts[self::PART_UNION]))
+		if ($this->hasUnion())
 		{
-			foreach ($this->parts[self::PART_UNION] as $union)
+			foreach ($this->unions as $union)
 			{
 				/**
 				 *
@@ -649,15 +633,16 @@ class SelectQuery extends Statement
 				->keyword('order by')
 				->space();
 			$c = 0;
-			foreach ($this->parts[self::PART_ORDERBY] as $clause)
-			{
-				if ($c++ > 0)
-					$stream->text(',')->space();
+			if ($this->orderByClauses instanceof \ArrayObject)
+				foreach ($this->orderByClauses as $clause)
+				{
+					if ($c++ > 0)
+						$stream->text(',')->space();
 
-				$stream->expression($clause['expression'], $context)
-					->space()
-					->keyword($clause['direction'] == K::ORDERING_ASC ? 'ASC' : 'DESC');
-			}
+					$stream->expression($clause['expression'], $context)
+						->space()
+						->keyword($clause['direction'] == K::ORDERING_ASC ? 'ASC' : 'DESC');
+				}
 		}
 
 		// LIMIT
@@ -666,14 +651,14 @@ class SelectQuery extends Statement
 			$stream->space()
 				->keyword('limit')
 				->space()
-				->literal($this->parts[self::PART_LIMIT]['count']);
+				->literal($this->limitClause['count']);
 
-			if ($this->parts[self::PART_LIMIT]['offset'] > 0)
+			if ($this->limitClause['offset'] > 0)
 			{
 				$stream->space()
 					->keyword('offset')
 					->space()
-					->literal($this->parts[self::PART_LIMIT]['offset']);
+					->literal($this->limitClause['offset']);
 			}
 		}
 
@@ -684,7 +669,10 @@ class SelectQuery extends Statement
 
 	protected function resolveResultColumns(TokenStreamContextInterface $context)
 	{
-		foreach ($this->parts[self::PART_COLUMNS] as $column)
+		if (!($this->resultColumns instanceof \ArrayObject))
+			return;
+
+		foreach ($this->resultColumns as $column)
 		{
 			if ($column->alias)
 				$context->setAlias($column->alias, $column->expression);
@@ -697,23 +685,51 @@ class SelectQuery extends Statement
 	 */
 	private $selectQueryFlags;
 
-	private $parts;
+	/**
+	 *
+	 * @var \ArrayObject
+	 */
+	private $resultColumns;
 
-	const PART_COLUMNS = 'columns';
+	/**
+	 *
+	 * @var \ArrayObject
+	 */
+	private $joins;
 
-	const PART_TABLE = 'table';
+	/**
+	 *
+	 * @var \ArrayObject
+	 */
+	private $whereConstraints;
 
-	const PART_JOINS = 'joins';
+	/**
+	 *
+	 * @var \ArrayObject
+	 */
+	private $groupByClauses;
 
-	const PART_WHERE = 'where';
+	/**
+	 *
+	 * @var \ArrayObject
+	 */
+	private $havingConstraints;
 
-	const PART_GROUPBY = 'groupby';
+	/**
+	 *
+	 * @var \ArrayObject
+	 */
+	private $orderByClauses;
 
-	const PART_HAVING = 'having';
+	/**
+	 *
+	 * @var array
+	 */
+	private $limitClause;
 
-	const PART_ORDERBY = 'orderby';
-
-	const PART_LIMIT = 'limit';
-
-	const PART_UNION = 'union';
+	/**
+	 *
+	 * @var \ArrayObject
+	 */
+	private $unions;
 }
