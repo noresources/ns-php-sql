@@ -21,7 +21,6 @@ interface StructureFileImporterInterface
 	 *
 	 * @param string $filename
 	 * @return StructureElement
-	 * @throws StructureException::
 	 */
 	function importStructureFromFile($filename);
 }

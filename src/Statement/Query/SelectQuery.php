@@ -21,6 +21,7 @@ use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Expression\TokenStreamContextInterface;
 use NoreSources\SQL\Expression\TokenizableExpressionInterface;
 use NoreSources\SQL\Statement\Statement;
+use NoreSources\SQL\Statement\StatementException;
 use NoreSources\SQL\Statement\Traits\ConstraintExpressionListTrait;
 use NoreSources\SQL\Statement\Traits\StatementTableTrait;
 
@@ -616,7 +617,8 @@ class SelectQuery extends Statement
 				 * @var UnionClause $union
 				 */
 				if ($union->query->hasLimitClause() || $union->query->hasOrderingClause())
-					throw new \LogicException('UNIONed query canont have LIMIT or ORDER BY clause');
+					throw new StatementException($this,
+						'UNIONed query canont have LIMIT or ORDER BY clause');
 
 				$stream->space()->keyword('union');
 				if ($union->all)

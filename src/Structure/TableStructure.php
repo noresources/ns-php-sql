@@ -54,9 +54,7 @@ class TableStructure extends StructureElement
 			foreach ($this->constraints as $value)
 			{
 				if ($value instanceof PrimaryKeyTableConstraint)
-				{
-					throw new StructureException($this, 'Primary key already exists.');
-				}
+					throw new StructureException('Primary key already exists.', $this);
 			}
 		}
 

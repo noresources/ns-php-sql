@@ -31,7 +31,7 @@ class StructureSerializerFactory
 	/**
 	 *
 	 * @param string $filename
-	 * @throws StructureException
+	 * @throws StructureSerializationException
 	 * @return StructureElement
 	 */
 	public function structureFromFile($filename)
@@ -45,7 +45,7 @@ class StructureSerializerFactory
 			$importer = Container::keyValue($this->fileImporters, $mediaType->getStructuredSyntax());
 
 		if (!\is_subclass_of($importer, StructureFileImporterInterface::class, true))
-			throw new StructureException(
+			throw new StructureSerializationException(
 				'No ' . StructureFileImporterInterface::class . ' found for file "' . $filename .
 				'" (' . \strval($mediaType) . '"');
 
@@ -79,7 +79,7 @@ class StructureSerializerFactory
 			$exporter = Container::keyValue($this->fileExporters, $mediaType->getStructuredSyntax());
 
 		if (!\is_subclass_of($exporter, StructureFileExporterInterface::class, true))
-			throw new StructureException(
+			throw new StructureSerializationException(
 				'No ' . StructureFileExporterInterface::class . ' found for file ' . $filename . '(' .
 				\strval($mediaType) . ')');
 

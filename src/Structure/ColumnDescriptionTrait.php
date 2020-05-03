@@ -58,7 +58,7 @@ trait ColumnDescriptionTrait
 	public function setColumnProperty($key, $value)
 	{
 		if (!ColumnPropertyDefault::isValidKey($key))
-			throw new \DomainException('Invalid column property key ' . $key);
+			throw new StructureException('Invalid column property key ' . $key);
 
 		switch ($key)
 		{
@@ -132,7 +132,7 @@ class ColumnPropertyDefault
 		if (\array_key_exists($key, self::$defaultValues))
 			return self::$defaultValues[$key];
 
-		throw new \DomainException('Invalid column property key ' . $key);
+		throw new StructureException('Invalid column property key ' . $key);
 	}
 
 	private static function initialize()

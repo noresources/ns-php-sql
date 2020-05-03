@@ -65,7 +65,8 @@ class XMLStructureFileImporter implements StructureFileImporterInterface
 
 		$versionNumber = $context->schemaVersion->getIntegerValue();
 		if (!$validDocument)
-			throw new StructureException('Invalid XML document. Schema namespace not found');
+			throw new StructureSerializationException(
+				'Invalid XML document. Schema namespace not found');
 
 		$name = $document->documentElement->getAttribute('name');
 		if ($document->documentElement->localName == 'datasource')
@@ -410,7 +411,7 @@ class XMLStructureFileImporter implements StructureFileImporterInterface
 			}
 
 			if (!($foreignTable instanceof TableStructure))
-				throw new StructureException('Invalid foreign key reference table');
+				throw new StructureException('Invalid foreign key reference table', $structure);
 
 			$foreignColumnNodes = $context->xpath->query($columnNodeName, $referenceNode);
 

@@ -135,12 +135,12 @@ trait XMLStructureFileTrait
 		$list = $element->getElementsByTagNameNS($namespace, $localName);
 
 		if ($list->length > 1)
-			throw new StructureException(
+			throw new StructureSerializationException(
 				'Invalid number of ' . $localName . ' nodes. At most 1 expected');
 		if ($list->length == 0)
 		{
 			if ($required)
-				throw new StructureException($localName . ' not found');
+				throw new StructureSerializationException($localName . ' not found');
 
 			return null;
 		}

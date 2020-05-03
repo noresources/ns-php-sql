@@ -88,7 +88,7 @@ class ColumnTableConstraint extends TableConstraint implements \IteratorAggregat
 	public function get($column)
 	{
 		if (!$this->has($column))
-			throw new \InvalidArgumentException('Column not found');
+			throw new StructureException('Column "' . $column . '" not found');
 
 		return $this->columns->offsetGet(
 			($column instanceof ColumnStructure) ? $column->getName() : $column);

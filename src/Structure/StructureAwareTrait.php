@@ -9,7 +9,6 @@
  */
 namespace NoreSources\SQL\Structure;
 
-
 use NoreSources\TypeDescription;
 
 /**
@@ -20,21 +19,21 @@ trait StructureAwareTrait
 
 	public function getStructure()
 	{
-		return $this->connectionStructure;
+		return $this->structureReference;
 	}
 
 	protected function setStructure($structure)
 	{
 		if ($structure instanceof StructureElement)
-			$this->connectionStructure = $structure;
+			$this->structureReference = $structure;
 		elseif (is_file($structure))
-			$this->connectionStructure = StructureSerializerFactory::structureFromFile($filename);
+			$this->structureReference = StructureSerializerFactory::structureFromFile($filename);
 		else
 			throw new \InvalidArgumentException(
 				TypeDescription::getName($structure) .
 				' is not a valid argument. Instance of StructureElement or filename expected');
 	}
 
-	private $connectionStructure;
+	private $structureReference;
 }
 

@@ -10,24 +10,16 @@
  */
 namespace NoreSources\SQL\Structure;
 
-class StructureException extends \Exception
+class StructureException extends \Exception implements StructureAwareInterface
 {
+
+	use StructureAwareTrait;
 
 	public function __construct($message, StructureElement $element = null)
 	{
 		parent::__construct($message);
-		$this->structure = $element;
+		if ($element instanceof StructureElement)
+			$this->setStructure($element);
 	}
-
-	public function getStructureElement()
-	{
-		return $this->structure();
-	}
-
-	/**
-	 *
-	 * @var StructureElement
-	 */
-	private $structure;
 }
 
