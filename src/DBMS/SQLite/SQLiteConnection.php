@@ -25,6 +25,8 @@ use NoreSources\SQL\Statement\ParameterData;
 use NoreSources\SQL\Statement\ParameterDataAwareInterface;
 use NoreSources\SQL\Statement\Statement;
 use NoreSources\SQL\Statement\StatementFactoryInterface;
+use NoreSources\SQL\Structure\DatasourceStructure;
+use NoreSources\SQL\Structure\NamespaceStructure;
 use NoreSources\SQL\Structure\StructureAwareTrait;
 
 /**
@@ -120,14 +122,29 @@ class SQLiteConnection implements ConnectionInterface
 
 		$this->connection = null;
 
+		if (Container::keyExists($parameters, K::CONNECTION_STRUCTURE))
+			$this->setStructure($structure)[K::CONNECTION_STRUCTURE];
+
 		$pragmas = Container::keyValue($parameters, K::CONNECTION_SQLITE_PRAGMAS,
 			[
 				'foreign_keys' => 1,
 				'busy_timeout' => 5000
 			]);
 
+		$defaultNamespaceName = self::NAMESPACE_NAME_DEFAULT;
+		$structure = $this->getStructure();
+		if ($structure instanceof NamespaceStructure)
+		{
+			$defaultNamespaceName = $structure->getName();
+		}
+		elseif ($structure instanceof DatasourceStructure && $structure->count() == 1)
+		{
+			list ($name, $namespace) = each($structure->getChildren());
+			$defaultNamespaceName = $name;
+		}
+
 		$defaultNamespaceName = Container::keyValue($parameters, K::CONNECTION_DATABASE,
-			self::NAMESPACE_NAME_DEFAULT);
+			$defaultNamespaceName);
 
 		$sources = Container::keyValue($parameters, K::CONNECTION_SOURCE,
 			[
@@ -210,9 +227,6 @@ class SQLiteConnection implements ConnectionInterface
 			if ($result === false)
 				throw new SQLiteConnectionException($this, 'Failed to set ' . $pragma . ' pragma');
 		}
-
-		if (Container::keyExists($parameters, K::CONNECTION_STRUCTURE))
-			$this->setStructure($structure)[K::CONNECTION_STRUCTURE];
 	}
 
 	public function isConnected()
