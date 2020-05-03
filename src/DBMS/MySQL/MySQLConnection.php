@@ -18,8 +18,8 @@ use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\TransactionStackTrait;
 use NoreSources\SQL\DBMS\MySQL\MySQLConstants as K;
 use NoreSources\SQL\Expression\Literal;
-use NoreSources\SQL\QueryResult\GenericInsertionQueryResult;
-use NoreSources\SQL\QueryResult\GenericRowModificationQueryResult;
+use NoreSources\SQL\Result\GenericInsertionStatementResult;
+use NoreSources\SQL\Result\GenericRowModificationStatementResult;
 use NoreSources\SQL\Statement\ClassMapStatementFactory;
 use NoreSources\SQL\Statement\ParameterData;
 use NoreSources\SQL\Statement\Statement;
@@ -233,11 +233,11 @@ class MySQLConnection implements ConnectionInterface
 		}
 		elseif ($statementType & K::QUERY_FAMILY_ROWMODIFICATION)
 		{
-			return new GenericRowModificationQueryResult($stmt->affected_rows);
+			return new GenericRowModificationStatementResult($stmt->affected_rows);
 		}
 		elseif ($statementType == K::QUERY_INSERT)
 		{
-			return new GenericInsertionQueryResult($stmt->insert_id);
+			return new GenericInsertionStatementResult($stmt->insert_id);
 		}
 
 		return true;

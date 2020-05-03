@@ -17,8 +17,8 @@ use NoreSources\SQL\Expression\CastFunction;
 use NoreSources\SQL\Expression\Literal;
 use NoreSources\SQL\Expression\Parameter;
 use NoreSources\SQL\Expression\TimestampFormatFunction;
-use NoreSources\SQL\QueryResult\InsertionQueryResultInterface;
-use NoreSources\SQL\QueryResult\Recordset;
+use NoreSources\SQL\Result\InsertionStatementResultInterface;
+use NoreSources\SQL\Result\Recordset;
 use NoreSources\SQL\Statement\Manipulation\DeleteQuery;
 use NoreSources\SQL\Statement\Manipulation\InsertQuery;
 use NoreSources\SQL\Statement\Manipulation\UpdateQuery;
@@ -190,7 +190,7 @@ final class DBMSCommonTest extends TestCase
 			$rowQueries[$label] = \strval($data);
 			$result = $connection->executeStatement($data);
 
-			$this->assertInstanceOf(InsertionQueryResultInterface::class, $result, $label);
+			$this->assertInstanceOf(InsertionStatementResultInterface::class, $result, $label);
 		}
 
 		$q = new SelectQuery($tableStructure);
@@ -251,7 +251,7 @@ final class DBMSCommonTest extends TestCase
 			$result = $connection->executeStatement(
 				ConnectionHelper::buildStatement($connection, $i, $tableStructure));
 
-			$this->assertInstanceOf(InsertionQueryResultInterface::class, $result,
+			$this->assertInstanceOf(InsertionStatementResultInterface::class, $result,
 				$fileName . ' binary insert');
 
 			$s = new SelectQuery($tableStructure);
@@ -775,13 +775,13 @@ final class DBMSCommonTest extends TestCase
 		];
 
 		$result = $connection->executeStatement($preparedInsert, $p);
-		$this->assertInstanceOf(InsertionQueryResultInterface::class, $result,
+		$this->assertInstanceOf(InsertionStatementResultInterface::class, $result,
 			$dbmsName . ' ' . $preparedInsert);
 
 		$p['identifier'] = 2;
 		$p['nameValue'] = 'Ron';
 		$result = $connection->executeStatement($preparedInsert, $p);
-		$this->assertInstanceOf(InsertionQueryResultInterface::class, $result,
+		$this->assertInstanceOf(InsertionStatementResultInterface::class, $result,
 			$dbmsName . ' ' . $preparedInsert);
 
 		// Test result column count when no column are specified (select * from ...)

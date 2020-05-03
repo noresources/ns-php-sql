@@ -7,7 +7,7 @@
  *
  * @package SQL
  */
-namespace NoreSources\SQL\QueryResult;
+namespace NoreSources\SQL\Result;
 
 class RecordsetException extends \ErrorException
 {

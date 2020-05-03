@@ -11,8 +11,8 @@ namespace NoreSources\SQL\DBMS\MySQL;
 
 use NoreSources\Container;
 use NoreSources\SQL\DBMS\MySQL\MySQLConstants as K;
-use NoreSources\SQL\QueryResult\Recordset;
-use NoreSources\SQL\QueryResult\SeekableRecordsetTrait;
+use NoreSources\SQL\Result\Recordset;
+use NoreSources\SQL\Result\SeekableRecordsetTrait;
 use NoreSources\SQL\Statement\ResultColumn;
 
 /**

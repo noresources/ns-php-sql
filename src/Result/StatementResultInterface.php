@@ -7,11 +7,11 @@
  *
  * @package SQL
  */
-namespace NoreSources\SQL\QueryResult;
+namespace NoreSources\SQL\Result;
 
 /**
  * Base class for all query result types
  */
-interface QueryResultInterface
+interface StatementResultInterface
 {
 }

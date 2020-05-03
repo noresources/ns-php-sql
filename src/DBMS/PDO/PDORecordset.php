@@ -10,7 +10,7 @@
 namespace NoreSources\SQL\DBMS\PDO;
 
 
-use NoreSources\SQL\QueryResult\Recordset;
+use NoreSources\SQL\Result\Recordset;
 
 class PDORecordset extends Recordset
 {

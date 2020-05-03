@@ -7,12 +7,12 @@
  *
  * @package SQL
  */
-namespace NoreSources\SQL\QueryResult;
+namespace NoreSources\SQL\Result;
 
 /**
  * Interface for all results of a query that modify or remove rows of a table.
  */
-interface RowModificationQueryResultInterface extends QueryResultInterface
+interface RowModificationStatementResultInterface extends StatementResultInterface
 {
 
 	function getAffectedRowCount();

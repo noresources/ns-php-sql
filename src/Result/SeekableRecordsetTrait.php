@@ -7,7 +7,7 @@
  *
  * @package SQL
  */
-namespace NoreSources\SQL\QueryResult;
+namespace NoreSources\SQL\Result;
 
 /**
  * SeekableRecordsetTrait should be used on Recordset implementing SeekableIterator.

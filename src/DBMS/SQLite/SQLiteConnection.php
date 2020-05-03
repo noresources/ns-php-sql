@@ -18,8 +18,8 @@ use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\TransactionStackTrait;
 use NoreSources\SQL\DBMS\SQLite\SQLiteConstants as K;
 use NoreSources\SQL\Expression\Literal;
-use NoreSources\SQL\QueryResult\GenericInsertionQueryResult;
-use NoreSources\SQL\QueryResult\GenericRowModificationQueryResult;
+use NoreSources\SQL\Result\GenericInsertionStatementResult;
+use NoreSources\SQL\Result\GenericRowModificationStatementResult;
 use NoreSources\SQL\Statement\ClassMapStatementFactory;
 use NoreSources\SQL\Statement\ParameterData;
 use NoreSources\SQL\Statement\ParameterDataAwareInterface;
@@ -344,14 +344,14 @@ class SQLiteConnection implements ConnectionInterface
 		{
 			if (($result instanceof \SQLite3Result) || $result)
 			{
-				return new GenericRowModificationQueryResult($this->connection->changes());
+				return new GenericRowModificationStatementResult($this->connection->changes());
 			}
 		}
 		elseif ($statementType == K::QUERY_INSERT)
 		{
 			if (($result instanceof \SQLite3Result) || $result)
 			{
-				return new GenericInsertionQueryResult($this->connection->lastInsertRowID());
+				return new GenericInsertionStatementResult($this->connection->lastInsertRowID());
 			}
 		}
 		elseif ($statementType == K::QUERY_SELECT)

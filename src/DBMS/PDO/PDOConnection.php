@@ -17,8 +17,8 @@ use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\TransactionStackTrait;
 use NoreSources\SQL\DBMS\PDO\PDOConstants as K;
 use NoreSources\SQL\DBMS\Reference\ReferenceTransactionBlock;
-use NoreSources\SQL\QueryResult\GenericInsertionQueryResult;
-use NoreSources\SQL\QueryResult\GenericRowModificationQueryResult;
+use NoreSources\SQL\Result\GenericInsertionStatementResult;
+use NoreSources\SQL\Result\GenericRowModificationStatementResult;
 use NoreSources\SQL\Statement\ClassMapStatementFactory;
 use NoreSources\SQL\Statement\ParameterData;
 use NoreSources\SQL\Statement\ParameterDataAwareInterface;
@@ -276,11 +276,11 @@ class PDOConnection implements ConnectionInterface
 		}
 		elseif ($type == K::QUERY_INSERT)
 		{
-			$result = new GenericInsertionQueryResult($this->connection->lastInsertId());
+			$result = new GenericInsertionStatementResult($this->connection->lastInsertId());
 		}
 		elseif ($type & K::QUERY_FAMILY_ROWMODIFICATION)
 		{
-			$result = new GenericRowModificationQueryResult($pdo->rowCount());
+			$result = new GenericRowModificationStatementResult($pdo->rowCount());
 		}
 
 		return $result;

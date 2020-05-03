@@ -7,9 +7,9 @@
  *
  * @package SQL
  */
-namespace NoreSources\SQL\QueryResult;
+namespace NoreSources\SQL\Result;
 
-class GenericRowModificationQueryResult implements RowModificationQueryResultInterface, \Countable
+class GenericRowModificationStatementResult implements RowModificationStatementResultInterface, \Countable
 {
 
 	public function __construct($c)

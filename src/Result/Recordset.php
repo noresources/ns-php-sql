@@ -7,7 +7,7 @@
  *
  * @package SQL
  */
-namespace NoreSources\SQL\QueryResult;
+namespace NoreSources\SQL\Result;
 
 use NoreSources\ArrayRepresentation;
 use NoreSources\SQL\Constants as K;
@@ -23,7 +23,7 @@ use NoreSources\SQL\Structure\ColumnDescriptionInterface;
 /**
  * Recordset query result
  */
-abstract class Recordset implements \Iterator, StatementOutputDataInterface, QueryResultInterface, ArrayRepresentation,
+abstract class Recordset implements \Iterator, StatementOutputDataInterface, StatementResultInterface, ArrayRepresentation,
 	\JsonSerializable, DataUnserializerInterface
 {
 

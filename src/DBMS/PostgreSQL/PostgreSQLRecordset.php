@@ -10,8 +10,8 @@
 namespace NoreSources\SQL\DBMS\PostgreSQL;
 
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\QueryResult\Recordset;
-use NoreSources\SQL\QueryResult\SeekableRecordsetTrait;
+use NoreSources\SQL\Result\Recordset;
+use NoreSources\SQL\Result\SeekableRecordsetTrait;
 use NoreSources\SQL\Statement\StatementOutputDataInterface;
 use NoreSources\SQL\Statement\ResultColumn;
 use NoreSources\SQL\Statement\ResultColumnMap;

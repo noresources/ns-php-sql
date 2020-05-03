@@ -9,8 +9,8 @@ use NoreSources\SQL\DBMS\ConnectionHelper;
 use NoreSources\SQL\DBMS\SQLite\SQLiteStatementBuilder;
 use NoreSources\SQL\Expression\FunctionCall;
 use NoreSources\SQL\Expression\TimestampFormatFunction;
-use NoreSources\SQL\QueryResult\InsertionQueryResultInterface;
-use NoreSources\SQL\QueryResult\Recordset;
+use NoreSources\SQL\Result\InsertionStatementResultInterface;
+use NoreSources\SQL\Result\Recordset;
 use NoreSources\SQL\Statement\StatementData;
 use NoreSources\SQL\Statement\Manipulation\InsertQuery;
 use NoreSources\SQL\Statement\Query\SelectQuery;
@@ -51,7 +51,7 @@ final class SQLiteTest extends \PHPUnit\Framework\TestCase
 		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, 'insert', 'sql');
 
 		$result = $this->connection->executeStatement($prepared);
-		$this->assertInstanceOf(InsertionQueryResultInterface::class, $result);
+		$this->assertInstanceOf(InsertionStatementResultInterface::class, $result);
 
 		$selectStatement = new SelectQuery($tableStructure);
 		$selectPrepared = ConnectionHelper::prepareStatement($this->connection, $selectStatement,
@@ -105,11 +105,11 @@ final class SQLiteTest extends \PHPUnit\Framework\TestCase
 		$p['nameValue'] = 'Bob';
 		$p['salaryValue'] = 2000;
 		$result = $this->connection->executeStatement($prepared, $p);
-		$this->assertInstanceOf(InsertionQueryResultInterface::class, $result);
+		$this->assertInstanceOf(InsertionStatementResultInterface::class, $result);
 
 		$p['nameValue'] = 'Ron';
 		$result = $this->connection->executeStatement($prepared, $p);
-		$this->assertInstanceOf(InsertionQueryResultInterface::class, $result);
+		$this->assertInstanceOf(InsertionStatementResultInterface::class, $result);
 
 		$statement = new SelectQuery($tableStructure);
 

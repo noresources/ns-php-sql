@@ -11,7 +11,7 @@ namespace NoreSources\SQL\DBMS\SQLite;
 
 
 use NoreSources\SQL\DBMS\SQLite\SQLiteConstants as K;
-use NoreSources\SQL\QueryResult\Recordset;
+use NoreSources\SQL\Result\Recordset;
 use NoreSources\SQL\Statement\StatementOutputDataInterface;
 use NoreSources\SQL\Statement\ResultColumn;
 use NoreSources\SQL\Statement\ResultColumnMap;

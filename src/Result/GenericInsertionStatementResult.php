@@ -7,9 +7,9 @@
  *
  * @package SQL
  */
-namespace NoreSources\SQL\QueryResult;
+namespace NoreSources\SQL\Result;
 
-class GenericInsertionQueryResult implements InsertionQueryResultInterface
+class GenericInsertionStatementResult implements InsertionStatementResultInterface
 {
 
 	public function __construct($insretId)

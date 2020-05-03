@@ -7,12 +7,12 @@
  *
  * @package SQL
  */
-namespace NoreSources\SQL\QueryResult;
+namespace NoreSources\SQL\Result;
 
 /**
  * Interface for all results of a query that add rows in tables.
  */
-interface InsertionQueryResultInterface extends QueryResultInterface
+interface InsertionStatementResultInterface extends StatementResultInterface
 {
 
 	/**
