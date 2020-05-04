@@ -418,22 +418,31 @@ class Constants
 	 *
 	 * @var integer
 	 */
-	const KEYWORD_CURRENT_TIMESTAMP = 0;
+	const KEYWORD_CURRENT_TIMESTAMP = 'currenttimestamp';
 
 	/**
 	 * NULL keyword
 	 *
 	 * @var integer
 	 */
-	const KEYWORD_NULL = 1;
+	const KEYWORD_NULL = 'null';
 
-	const KEYWORD_TRUE = 2;
+	const KEYWORD_TRUE = 'true';
 
-	const KEYWORD_FALSE = 3;
+	const KEYWORD_FALSE = 'false';
 
-	const KEYWORD_DEFAULT = 4;
+	const KEYWORD_DEFAULT = 'default';
 
-	const KEYWORD_AUTOINCREMENT = 5;
+	const KEYWORD_AUTOINCREMENT = 'autoincrement';
+
+	/**
+	 * Name of the object containing table.
+	 * This could be generally
+	 * DATABASE or SCHEMA.
+	 *
+	 * @var string
+	 */
+	const KEYWORD_NAMESPACE = 'namespace';
 
 	/**
 	 * Ascending ORDER BY
@@ -483,9 +492,34 @@ class Constants
 
 	const BUILDER_DOMAIN_GENERIC = 0;
 
+	/**
+	 * Builder supports the "DROM ...
+	 * IF EXISTS" syntax.
+	 *
+	 * This flag could be defined in drop* domains.
+	 *
+	 * @var integer
+	 */
 	const BUILDER_IF_EXISTS = 0x01;
 
+	/**
+	 * Builder supports the "CREATE ...
+	 * IF NOT EXISTS" syntax.
+	 *
+	 * This flag could be set in create* domains
+	 *
+	 * @var integer
+	 */
 	const BUILDER_IF_NOT_EXISTS = 0x02;
+
+	/**
+	 * Indicates the structure element can be declared inside a namesapce scope.
+	 *
+	 * This flag could be set for indexes, views etc.
+	 *
+	 * @var integer
+	 */
+	const BUILDER_SCOPED_STRUCTURE_DECLARATION = 0x04;
 
 	const BUILDER_DOMAIN_SELECT = 'select';
 
@@ -516,11 +550,26 @@ class Constants
 
 	const BUILDER_DOMAIN_DELETE = 'delete';
 
-	const BUILDER_DOMAIN_DROP_TABLE = 'droptable';
+	/**
+	 * CREATE SCHEMA / DATABASE statements
+	 *
+	 * @var string
+	 */
+	const BUILDER_DOMAIN_CREATE_NAMESPACE = 'createnamespace';
+
+	const BUILDER_DOMAIN_DROP_NAMESPACE = 'dropnamespace';
 
 	const BUILDER_DOMAIN_CREATE_TABLE = 'createtable';
 
+	const BUILDER_DOMAIN_DROP_TABLE = 'droptable';
+
+	const BUILDER_DOMAIN_CREATE_VIEW = 'createview';
+
+	const BUILDER_DOMAIN_DROP_VIEW = 'dropview';
+
 	const BUILDER_DOMAIN_CREATE_INDEX = 'createindex';
+
+	const BUILDER_DOMAIN_DROP_INDEX = 'dropindex';
 
 	/**
 	 * Primary key column require a length specification.
@@ -534,20 +583,6 @@ class Constants
 	 * @var number
 	 */
 	const BUILDER_CREATE_COLUMN_KEY_MANDATORY_LENGTH = 0x01000000;
-
-	/**
-	 * Index name is global for all
-	 *
-	 * @var unknown
-	 */
-	const BUILDER_INDEX_NAME_GLOBAL = 0x02000000;
-
-	/**
-	 * CREATE SCHEMA / DATABASE statements
-	 *
-	 * @var string
-	 */
-	const BUILDER_DOMAIN_CREATE_NAMESPACE = 'createnamespace';
 
 	// Tokens
 	const TOKEN_SPACE = 0;
@@ -573,15 +608,27 @@ class Constants
 
 	const QUERY_FAMILY_ROWMODIFICATION = 0x0C;
 
-	const QUERY_CREATE_TABLE = 0x10;
+	const QUERY_CREATE_TABLE = 0x0100;
 
-	const QUERY_CREATE_INDEX = 0x20;
+	const QUERY_CREATE_INDEX = 0x0200;
 
-	const QUERY_FAMILY_CREATE = 0x30;
+	const QUERY_CREATE_NAMESPACE = 0x0400;
 
-	const QUERY_DROP_TABLE = 0x40;
+	const QUERY_CREATE_VIEW = 0x0800;
 
-	const QUERY_FAMILY_DROP = 0x40;
+	const QUERY_FAMILY_CREATE = 0xFF00;
+
+	const QUERY_DROP_TABLE = 0x010000;
+
+	const QUERY_DROP_INDEX = 0x020000;
+
+	const QUERY_DROP_NAMESPACE = 0x040000;
+
+	const QUERY_DROP_VIEW = 0x080000;
+
+	const QUERY_FAMILY_DROP = 0xFF0000;
+
+	const QUERY_FAMILY_STRUCTURE = 0xFFFF00;
 
 	// SELECT query flags
 	/**
@@ -705,9 +752,20 @@ class Constants
 		static $names = [
 			self::QUERY_CREATE_INDEX => 'CREATE INDEX',
 			self::QUERY_CREATE_TABLE => 'CREATE TABLE',
+			self::QUERY_CREATE_NAMESPACE => 'CREATE NAMESPACE',
+			self::QUERY_CREATE_VIEW => 'CREATE VIEW',
+
 			self::QUERY_DELETE => 'DELETE',
+
+			self::QUERY_DROP_INDEX => 'DROP INDEX',
 			self::QUERY_DROP_TABLE => 'DROP TABLE',
+			self::QUERY_DROP_NAMESPACE => 'DROP NAMESPACE',
+			self::QUERY_DROP_VIEW => 'DROP VIEW',
+
 			self::QUERY_INSERT => 'INSERT',
+
+			self::QUERY_SELECT => 'SELECT',
+
 			self::QUERY_UPDATE => 'UPDATE'
 		];
 
@@ -717,7 +775,8 @@ class Constants
 		static $families = [
 			self::QUERY_FAMILY_CREATE => 'Creation',
 			self::QUERY_FAMILY_DROP => 'Drop',
-			self::QUERY_FAMILY_ROWMODIFICATION => 'Row modification'
+			self::QUERY_FAMILY_ROWMODIFICATION => 'Row modification',
+			self::QUERY_FAMILY_STRUCTURE => 'Structure'
 		];
 
 		foreach ($families as $family => $name)

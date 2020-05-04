@@ -19,11 +19,11 @@ interface StructureFileExporterInterface
 	/**
 	 * Serialize the given structure to a file
 	 *
-	 * @param StructureElement $structure
+	 * @param StructureElementInterface $structure
 	 *        	Structure to serialize
 	 * @param string $filename
 	 *        	Output file path
 	 * @return boolean TRUE on success, FALSE on error
 	 */
-	function exportStructureToFile(StructureElement $structure, $filename);
+	function exportStructureToFile(StructureElementInterface $structure, $filename);
 }

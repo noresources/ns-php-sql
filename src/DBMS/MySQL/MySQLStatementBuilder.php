@@ -26,7 +26,6 @@ use NoreSources\SQL\Structure\TableStructure;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 
-
 class MySQLStatementBuilder extends StatementBuilder implements LoggerAwareInterface
 {
 
@@ -90,7 +89,7 @@ class MySQLStatementBuilder extends StatementBuilder implements LoggerAwareInter
 	public function getColumnType(ColumnStructure $column)
 	{
 		$types = MySQLType::getMySQLTypes();
-		$table = $column->getParent();
+		$table = $column->getParentElement();
 		$isPrimaryKey = false;
 
 		if ($table instanceof TableStructure)
@@ -169,6 +168,8 @@ class MySQLStatementBuilder extends StatementBuilder implements LoggerAwareInter
 	{
 		switch ($keyword)
 		{
+			case K::KEYWORD_NAMESPACE:
+				return 'DATABASE';
 			case K::KEYWORD_AUTOINCREMENT:
 				return 'AUTO_INCREMENT';
 		}

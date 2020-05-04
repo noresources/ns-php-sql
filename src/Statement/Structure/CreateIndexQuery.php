@@ -14,7 +14,6 @@ namespace NoreSources\SQL\Statement\Structure;
 use NoreSources\TypeConversion;
 use NoreSources\TypeDescription;
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\Expression\Column;
 use NoreSources\SQL\Expression\TableReference;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Expression\TokenStreamContextInterface;
@@ -22,6 +21,7 @@ use NoreSources\SQL\Expression\TokenizableExpressionInterface;
 use NoreSources\SQL\Statement\Statement;
 use NoreSources\SQL\Statement\StatementException;
 use NoreSources\SQL\Statement\Traits\WhereConstraintTrait;
+use NoreSources\SQL\Structure\IndexStructure;
 use NoreSources\SQL\Structure\TableStructure;
 
 /**
@@ -35,17 +35,30 @@ class CreateIndexQuery extends Statement
 
 	const UNIQUE = 0x01;
 
-	public function __construct($table = null, $name = '')
+	public function __construct($table = null, $name = null)
 	{
 		$this->indexTable = null;
 		$this->indexFlags = 0;
 		$this->initializeWhereConstraints();
+		$this->indexColumns = [];
 
 		if ($table)
 			$this->table($table);
 
 		if ($name)
 			$this->name($name);
+	}
+
+	public function setFromIndexStructure(IndexStructure $index)
+	{
+		$this->table($index->getIndexTable());
+		$this->name($index->getName());
+		$this->indexColumns = [];
+		foreach ($index->getIndexColumns() as $column)
+		{
+			$this->indexColumns[] = $column->getName();
+		}
+		$this->indexFlags = $index->getIndexFlags();
 	}
 
 	/**
@@ -97,7 +110,7 @@ class CreateIndexQuery extends Statement
 			if ($column instanceof TokenizableExpressionInterface)
 				$this->indexColumns[] = $column;
 			elseif (TypeDescription::hasStringRepresentation($column))
-				$this->indexColumns[] = new Column(TypeConversion::toString($column));
+				$this->indexColumns[] = TypeConversion::toString($column);
 		}
 
 		return $this;
@@ -159,10 +172,10 @@ class CreateIndexQuery extends Statement
 		{
 			$stream->space();
 
-			if (!($builderFlags & K::BUILDER_INDEX_NAME_GLOBAL))
+			if (($builderFlags & K::BUILDER_SCOPED_STRUCTURE_DECLARATION))
 				$stream->identifier(
 					$context->getStatementBuilder()
-						->getCanonicalName($tableStructure->getParent()))
+						->getCanonicalName($tableStructure->getParentElement()))
 					->text('.');
 
 			$stream->identifier(
@@ -184,7 +197,12 @@ class CreateIndexQuery extends Statement
 			if ($i++)
 				$stream->text(',');
 
-			$stream->space()->expression($column, $context);
+			if ($column instanceof TokenizableExpressionInterface)
+				$stream->space()->expression($column, $context);
+			else
+				$stream->space()->identifier(
+					$context->getStatementBuilder()
+						->escapeIdentifier($column));
 		}
 
 		$stream->text(')');

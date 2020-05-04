@@ -14,8 +14,11 @@ use NoreSources\SQL\Constants as K;
 /**
  * Table column properties
  */
-class ColumnStructure extends StructureElement implements ColumnDescriptionInterface
+class ColumnStructure implements StructureElementInterface, ColumnDescriptionInterface
 {
+
+	use StructureElementTrait;
+	use ColumnDescriptionTrait;
 
 	const DATATYPE = K::COLUMN_DATA_TYPE;
 
@@ -29,11 +32,9 @@ class ColumnStructure extends StructureElement implements ColumnDescriptionInter
 
 	const DEFAULT_VALUE = K::COLUMN_DEFAULT_VALUE;
 
-	use ColumnDescriptionTrait;
-
-	public function __construct(/*TableStructure */$a_tableStructure, $name)
+	public function __construct($name, /*TableStructure */$tableStructure = null)
 	{
-		parent::__construct($name, $a_tableStructure);
+		$this->initializeStructureElement($name, $tableStructure);
 		$this->initializeColumnProperties();
 	}
 
@@ -42,7 +43,7 @@ class ColumnStructure extends StructureElement implements ColumnDescriptionInter
 	 */
 	public function __clone()
 	{
-		parent::__clone();
+		$this->cloneStructureElement();
 		if ($this->hasColumnProperty(self::DEFAULT_VALUE))
 		{
 			$this->setColumnProperty(self::DEFAULT_VALUE,

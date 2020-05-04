@@ -36,8 +36,6 @@ class PostgreSQLStatementBuilder extends StatementBuilder implements LoggerAware
 
 		$this->setBuilderFlags(K::BUILDER_DOMAIN_INSERT,
 			K::BUILDER_INSERT_DEFAULT_VALUES | K::BUILDER_INSERT_DEFAULT_KEYWORD);
-
-		$this->setBuilderFlags(K::BUILDER_DOMAIN_CREATE_INDEX, K::BUILDER_INDEX_NAME_GLOBAL);
 	}
 
 	public function serializeString($value)
@@ -133,6 +131,8 @@ class PostgreSQLStatementBuilder extends StatementBuilder implements LoggerAware
 	{
 		switch ($keyword)
 		{
+			case K::KEYWORD_NAMESPACE:
+				return 'SCHEMA';
 			case K::KEYWORD_AUTOINCREMENT:
 				return '';
 		}

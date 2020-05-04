@@ -111,7 +111,7 @@ final class PDOTest extends \PHPUnit\Framework\TestCase
 
 		// Detach table from namespace to avoid invalid namespace name
 		$detachedTable = clone $tableStructure;
-		$detachedTable->detach();
+		$detachedTable->detachElement();
 
 		$connection = new PDOConnection();
 		$connection->connect($settings);

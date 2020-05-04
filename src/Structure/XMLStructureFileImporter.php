@@ -107,8 +107,8 @@ class XMLStructureFileImporter implements StructureFileImporterInterface
 		$namespaceNodes = $context->xpath->query($nodeName);
 		foreach ($namespaceNodes as $namespaceNode)
 		{
-			$namespace = new NamespaceStructure($structure, $namespaceNode->getAttribute('name'));
-			$structure->appendChild($namespace);
+			$namespace = new NamespaceStructure($namespaceNode->getAttribute('name'), $structure);
+			$structure->appendElement($namespace);
 			$this->importNamespaceNode($namespaceNode, $namespace, $context);
 		}
 	}
@@ -119,16 +119,48 @@ class XMLStructureFileImporter implements StructureFileImporterInterface
 		if ($node->hasAttribute('id'))
 			$context->identifiedElements->offsetSet($node->getAttribute('id'), $structure);
 
-		$nodeName = K::XML_NAMESPACE_PREFIX . ':' .
+		$tableNodeName = K::XML_NAMESPACE_PREFIX . ':' .
 			self::getXmlNodeName(TableStructure::class, $context->schemaVersion);
-		$tableNodes = $context->xpath->query($nodeName, $node);
+		$tableNodes = $context->xpath->query($tableNodeName, $node);
 
 		foreach ($tableNodes as $tableNode)
 		{
-			$table = new TableStructure($structure, $tableNode->getAttribute('name'));
-			$structure->appendChild($table);
+			$table = new TableStructure($tableNode->getAttribute('name'), $structure);
+			$structure->appendElement($table);
 			$this->importTableNode($tableNode, $table, $context);
 		}
+
+		$indexNodeName = K::XML_NAMESPACE_PREFIX . ':' .
+			self::getXmlNodeName(IndexStructure::class, $context->schemaVersion);
+		$indexNodes = $context->xpath->query($indexNodeName, $node);
+
+		foreach ($indexNodes as $indexNode)
+		{
+			$index = new IndexStructure($indexNode->getAttribute('name'), $structure);
+			$structure->appendElement($index);
+			$this->importIndexNode($indexNode, $index, $context);
+		}
+	}
+
+	public function importIndexNode(\DOMNode $node, IndexStructure $structure,
+		XMLStructureFileImporterContext $context)
+	{
+		if ($node->hasAttribute('id'))
+			$context->identifiedElements->offsetSet($node->getAttribute('id'), $structure);
+
+		$flags = 0;
+
+		if ($node->hasAttribute('unique') && $node->getAttribute('unique') == 'yes')
+		{
+			$flags |= IndexStructure::UNIQUE;
+		}
+
+		$structure->setIndexFlags($flags);
+
+		$context->indexes->append([
+			'structure' => $structure,
+			'node' => $node
+		]);
 	}
 
 	public function importTableNode(\DOMNode $node, TableStructure $structure,
@@ -142,8 +174,8 @@ class XMLStructureFileImporter implements StructureFileImporterInterface
 		$columnNodes = $context->xpath->query($columnNodeName, $node);
 		foreach ($columnNodes as $columnNode)
 		{
-			$column = new ColumnStructure($structure, $columnNode->getAttribute('name'));
-			$structure->appendChild($column);
+			$column = new ColumnStructure($columnNode->getAttribute('name'), $structure);
+			$structure->appendElement($column);
 			$this->importColumnNode($columnNode, $column, $context);
 		}
 
@@ -382,6 +414,49 @@ class XMLStructureFileImporter implements StructureFileImporterInterface
 		$columnNodeName = K::XML_NAMESPACE_PREFIX . ':' .
 			self::getXmlNodeName(ColumnStructure::class, $context->schemaVersion);
 
+		foreach ($context->indexes as $entry)
+		{
+			/**
+			 *
+			 * @var IndexStructure $structure
+			 */
+			$structure = $entry['structure'];
+			$node = $entry['node'];
+			$pivot = $context->structureElement;
+			$parent = $structure->getParentElement();
+			if ($parent instanceof StructureElementInterface)
+				$pivot = $parent;
+			$resolver->setPivot($pivot);
+
+			$columnNodes = $context->xpath->query($columnNodeName, $node);
+
+			$referenceTableNode = self::getSingleElementByTagName($context->namespaceURI, $node,
+				'tableref', true);
+
+			$table = null;
+			if ($referenceTableNode->hasAttribute('id'))
+			{
+				$id = $referenceTableNode->getAttribute('id');
+				if (!$context->identifiedElements->offsetExists($id))
+					throw new StructureException('Invalid table identifier ' . $id, $structure);
+
+				$table = $context->identifiedElements->offsetGet($id);
+			}
+			elseif ($referenceTableNode->hasAttribute('name'))
+			{
+				$name = $referenceTableNode->getAttribute('name');
+				$table = $resolver->findTable($name);
+			}
+
+			$structure->setIndexTable($table);
+			$resolver->setPivot($table);
+
+			foreach ($columnNodes as $columnNode)
+			{
+				$structure->addIndexColumn($resolver->findColumn($columnNode->getAttribute('name')));
+			}
+		}
+
 		foreach ($context->foreignKeys as $entry)
 		{
 			$structure = $entry['table'];
@@ -485,6 +560,7 @@ class XMLStructureFileImporterContext
 		$this->document = $document;
 		$this->xpath = new \DOMXPath($document);
 		$this->foreignKeys = new \ArrayObject();
+		$this->indexes = new \ArrayObject();
 		$this->identifiedElements = new \ArrayObject();
 	}
 
@@ -525,6 +601,12 @@ class XMLStructureFileImporterContext
 	 * @var \ArrayObject
 	 */
 	public $foreignKeys;
+
+	/**
+	 *
+	 * @var \ArrayObject
+	 */
+	public $indexes;
 
 	public $identifiedElements;
 }

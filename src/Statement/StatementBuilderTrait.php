@@ -19,7 +19,7 @@ use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Expression\TokenStreamContextInterface;
 use NoreSources\SQL\Structure\ColumnDescriptionInterface;
 use NoreSources\SQL\Structure\DatasourceStructure;
-use NoreSources\SQL\Structure\StructureElement;
+use NoreSources\SQL\Structure\StructureElementInterface;
 
 /**
  * Implements most of StatementBuilderInterface methods
@@ -156,14 +156,14 @@ trait StatementBuilderTrait
 		return \DateTime::ISO8601;
 	}
 
-	public function getCanonicalName(StructureElement $structure)
+	public function getCanonicalName(StructureElementInterface $structure)
 	{
 		$s = $this->escapeIdentifier($structure->getName());
-		$p = $structure->getParent();
+		$p = $structure->getParentElement();
 		while ($p && !($p instanceof DatasourceStructure))
 		{
 			$s = $this->escapeIdentifier($p->getName()) . '.' . $s;
-			$p = $p->getParent();
+			$p = $p->getParentElement();
 		}
 
 		return $s;
@@ -280,8 +280,12 @@ trait StatementBuilderTrait
 			K::BUILDER_DOMAIN_UPDATE => 0,
 			K::BUILDER_DOMAIN_DELETE => 0,
 			K::BUILDER_DOMAIN_DROP_TABLE => 0,
+			K::BUILDER_DOMAIN_DROP_INDEX => 0,
+			K::BUILDER_DOMAIN_DROP_VIEW => 0,
+			K::BUILDER_DOMAIN_DROP_NAMESPACE => 0,
 			K::BUILDER_DOMAIN_CREATE_TABLE => 0,
 			K::BUILDER_DOMAIN_CREATE_INDEX => 0,
+			K::BUILDER_DOMAIN_CREATE_VIEW => 0,
 			K::BUILDER_DOMAIN_CREATE_NAMESPACE => 0
 		];
 	}

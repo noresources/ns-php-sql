@@ -14,7 +14,7 @@ use NoreSources\SQL\Expression\MetaFunctionCall;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Expression\TokenStreamContextInterface;
 use NoreSources\SQL\Structure\ColumnStructure;
-use NoreSources\SQL\Structure\StructureElement;
+use NoreSources\SQL\Structure\StructureElementInterface;
 
 /**
  * Build a SQL statement string to be used in a SQL engine
@@ -98,10 +98,10 @@ interface StatementBuilderInterface extends DataSerializerInterface
 
 	/**
 	 *
-	 * @param StructureElement $structure
+	 * @param StructureElementInterface $structure
 	 * @return string
 	 */
-	function getCanonicalName(StructureElement $structure);
+	function getCanonicalName(StructureElementInterface $structure);
 
 	/**
 	 * GET the SQL keyword associated to the given foreign key action

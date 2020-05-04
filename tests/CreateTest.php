@@ -4,12 +4,14 @@ namespace NoreSources\SQL;
 use NoreSources\SQL\DBMS\Reference\ReferenceStatementBuilder;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Statement\StatementTokenStreamContext;
+use NoreSources\SQL\Statement\Query\SelectQuery;
 use NoreSources\SQL\Statement\Structure\CreateIndexQuery;
 use NoreSources\SQL\Statement\Structure\CreateTableQuery;
+use NoreSources\SQL\Statement\Structure\CreateViewQuery;
 use NoreSources\Test\DatasourceManager;
 use NoreSources\Test\DerivedFileManager;
 
-final class CreateTableTest extends \PHPUnit\Framework\TestCase
+final class CreateTest extends \PHPUnit\Framework\TestCase
 {
 
 	public function __construct($name = null, array $data = [], $dataName = '')
@@ -38,6 +40,51 @@ final class CreateTableTest extends \PHPUnit\Framework\TestCase
 		$data = $builder->finalizeStatement($stream, $context);
 
 		$sql = \SqlFormatter::format(strval($data), false);
+		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, null, 'sql');
+	}
+
+	public function testCreateView()
+	{
+		$structure = $this->datasources->get('Company');
+		$tableStructure = $structure['ns_unittests']['Employees'];
+		$builder = new ReferenceStatementBuilder();
+
+		$select = new SelectQuery($tableStructure);
+		$select->columns('id', 'name')->where([
+			'gender' => "'M'"
+		]);
+
+		$view = new CreateViewQuery();
+		$view->name('Males')
+			->flags(CreateViewQuery::TEMPORARY)
+			->select($select);
+
+		$context = new StatementTokenStreamContext($builder);
+		$context->setPivot($tableStructure);
+		$stream = new TokenStream();
+		$view->tokenize($stream, $context);
+		$data = $builder->finalizeStatement($stream, $context);
+
+		$sql = \SqlFormatter::format(strval($data), false);
+		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, null, 'sql');
+	}
+
+	public function testCreateIndexFromStructure()
+	{
+		$structure = $this->datasources->get('Company');
+		$builder = new ReferenceStatementBuilder();
+		$indexStructure = $structure['ns_unittests']['index_employees_name'];
+		$this->assertInstanceOf(Structure\IndexStructure::class, $indexStructure);
+		$context = new StatementTokenStreamContext($builder);
+		$context->setPivot($indexStructure->getParentElement());
+
+		$q = new CreateIndexQuery();
+		$q->setFromIndexStructure($indexStructure);
+		$stream = new TokenStream();
+		$q->tokenize($stream, $context);
+		$result = $builder->finalizeStatement($stream, $context);
+
+		$sql = \SqlFormatter::format(strval($result), false);
 		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, null, 'sql');
 	}
 

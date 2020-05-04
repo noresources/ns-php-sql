@@ -15,10 +15,10 @@ class StructureException extends \Exception implements StructureAwareInterface
 
 	use StructureAwareTrait;
 
-	public function __construct($message, StructureElement $element = null)
+	public function __construct($message, StructureElementInterface $element = null)
 	{
 		parent::__construct($message);
-		if ($element instanceof StructureElement)
+		if ($element instanceof StructureElementInterface)
 			$this->setStructure($element);
 	}
 }

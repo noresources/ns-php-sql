@@ -17,17 +17,15 @@ class StructureResolver implements StructureResolverInterface
 
 	/**
 	 *
-	 * @param StructureElement $pivot
+	 * @param StructureElementInterface $pivot
 	 *        	Reference element
 	 */
-	public function __construct(StructureElement $pivot = null)
+	public function __construct(StructureElementInterface $pivot = null)
 	{
 		$this->contextStack = new \NoreSources\Stack();
 
-		if ($pivot instanceof StructureElement)
-		{
-			$this->contextStack->push(new StructureResolverContext($pivot));
-		}
+		if ($pivot instanceof StructureElementInterface)
+			$this->setPivot($pivot);
 	}
 
 	public function __get($member)
@@ -35,7 +33,7 @@ class StructureResolver implements StructureResolverInterface
 		if (!$this->contextStack->isEmpty())
 			return $this->contextStack->$member;
 
-		throw new \RuntimeException('Context stack not initialized');
+		throw new \RuntimeException('Context stack not initialized (get ' . $member . ')');
 	}
 
 	public function __set($member, $value)
@@ -49,40 +47,36 @@ class StructureResolver implements StructureResolverInterface
 		throw new \RuntimeException('Context stack not initialized');
 	}
 
-	public function setPivot(StructureElement $pivot)
+	public function setPivot(StructureElementInterface $pivot)
 	{
 		if ($this->contextStack->isEmpty())
 			$this->contextStack->push(new StructureResolverContext($pivot));
-
-		$this->pivot = $pivot;
+		else
+			$this->pivot = $pivot;
 	}
 
 	public function getPivot()
 	{
-		return $this->pivot;
+		if (!$this->contextStack->isEmpty())
+			return $this->contextStack->pivot;
+		return null;
 	}
 
 	public function findColumn($path)
 	{
 		if ($this->cache[ColumnStructure::class]->offsetExists($path))
-		{
 			return $this->cache[ColumnStructure::class][$path];
-		}
 
-		$x = explode('.', $path);
-		$c = count($x);
+		$x = \explode('.', $path);
+		$c = \count($x);
 		$name = $x[$c - 1];
 
 		$table = null;
 
 		if ($c == 1)
-		{
 			$table = $this->getDefaultTable();
-		}
 		elseif ($c == 2)
-		{
 			$table = $this->findTable($x[0]);
-		}
 		elseif ($c == 3)
 		{
 			$namespace = $this->findNamespace($x[0]);
@@ -116,7 +110,7 @@ class StructureResolver implements StructureResolverInterface
 		}
 
 		$x = explode('.', $path);
-		$c = count($x);
+		$c = \count($x);
 		$name = $x[$c - 1];
 
 		$namespace = null;
@@ -153,7 +147,7 @@ class StructureResolver implements StructureResolverInterface
 		$datasource = $this->pivot;
 		while ($datasource && !($datasource instanceof DatasourceStructure))
 		{
-			$datasource = $datasource->getParent();
+			$datasource = $datasource->getParentElement();
 		}
 
 		$namespace = ($datasource instanceof DatasourceStructure) ? $datasource->offsetGet($path) : null;
@@ -169,7 +163,7 @@ class StructureResolver implements StructureResolverInterface
 		return $namespace;
 	}
 
-	public function setAlias($alias, StructureElement $reference)
+	public function setAlias($alias, StructureElementInterface $reference)
 	{
 		$key = get_class($reference);
 		$this->cache[$key]->offsetSet($alias, $reference);
@@ -181,10 +175,11 @@ class StructureResolver implements StructureResolverInterface
 		return $this->aliases->offsetExists($identifier);
 	}
 
-	public function pushResolverContext(StructureElement $pivot = null)
+	public function pushResolverContext(StructureElementInterface $pivot = null)
 	{
 		$this->contextStack->push(
-			new StructureResolverContext(($pivot instanceof StructureElement) ? $pivot : $pivot));
+			new StructureResolverContext(
+				($pivot instanceof StructureElementInterface) ? $pivot : $pivot));
 	}
 
 	public function popResolverContext()
@@ -204,9 +199,9 @@ class StructureResolver implements StructureResolverInterface
 		elseif ($this->pivot instanceof NamespaceStructure)
 			return $this->pivot;
 		elseif ($this->pivot instanceof TableStructure)
-			return $this->pivot->getParent();
+			return $this->pivot->getParentElement();
 		elseif ($this->pivot instanceof ColumnStructure)
-			return $this->pivot->getParent(2);
+			return $this->pivot->getParentElement(2);
 
 		throw new StructureResolverException('Default namespace');
 	}
@@ -214,13 +209,9 @@ class StructureResolver implements StructureResolverInterface
 	private function getDefaultTable()
 	{
 		if ($this->pivot instanceof ColumnStructure)
-		{
-			return $this->pivot->getParent();
-		}
+			return $this->pivot->getParentElement();
 		elseif ($this->pivot instanceof TableStructure)
-		{
 			return $this->pivot;
-		}
 		else
 		{
 			$namespace = $this->getDefaultNamespace();

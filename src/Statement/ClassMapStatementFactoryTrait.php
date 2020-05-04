@@ -17,7 +17,9 @@ use NoreSources\SQL\Statement\Manipulation\InsertQuery;
 use NoreSources\SQL\Statement\Manipulation\UpdateQuery;
 use NoreSources\SQL\Statement\Query\SelectQuery;
 use NoreSources\SQL\Statement\Structure\CreateIndexQuery;
+use NoreSources\SQL\Statement\Structure\CreateNamespaceQuery;
 use NoreSources\SQL\Statement\Structure\CreateTableQuery;
+use NoreSources\SQL\Statement\Structure\DropIndexQuery;
 use NoreSources\SQL\Statement\Structure\DropTableQuery;
 
 /**
@@ -52,11 +54,13 @@ trait ClassMapStatementFactoryTrait
 				//K::QUERY_CREATE_INDEX => null,
 				K::QUERY_CREATE_TABLE => CreateTableQuery::class,
 				K::QUERY_CREATE_INDEX => CreateIndexQuery::class,
+				K::QUERY_CREATE_NAMESPACE => CreateNamespaceQuery::class,
 				K::QUERY_SELECT => SelectQuery::class,
 				K::QUERY_INSERT => InsertQuery::class,
 				K::QUERY_UPDATE => UpdateQuery::class,
 				K::QUERY_DELETE => DeleteQuery::class,
-				K::QUERY_DROP_TABLE => DropTableQuery::class
+				K::QUERY_DROP_TABLE => DropTableQuery::class,
+				K::QUERY_DROP_INDEX => DropIndexQuery::class
 			]);
 
 		foreach ($classMap as $type => $cls)

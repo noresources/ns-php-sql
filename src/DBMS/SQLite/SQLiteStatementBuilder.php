@@ -9,7 +9,6 @@
  */
 namespace NoreSources\SQL\DBMS\SQLite;
 
-
 use NoreSources\Container;
 use NoreSources\Text;
 use NoreSources\SQL\Constants as K;
@@ -32,7 +31,7 @@ class SQLiteStatementBuilder extends StatementBuilder implements LoggerAwareInte
 		parent::__construct();
 
 		$this->setBuilderFlags(K::BUILDER_DOMAIN_GENERIC,
-			K::BUILDER_IF_EXISTS | K::BUILDER_IF_NOT_EXISTS);
+			K::BUILDER_IF_EXISTS | K::BUILDER_IF_NOT_EXISTS | K::BUILDER_SCOPED_STRUCTURE_DECLARATION);
 		$this->setBuilderFlags(K::BUILDER_DOMAIN_SELECT,
 			K::BUILDER_SELECT_EXTENDED_RESULTCOLUMN_ALIAS_RESOLUTION);
 		$this->setBuilderFlags(K::BUILDER_DOMAIN_INSERT, K::BUILDER_INSERT_DEFAULT_VALUES);

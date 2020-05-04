@@ -15,19 +15,28 @@ namespace NoreSources\SQL\Structure;
  *
  * @todo table constraints (primary keys etc. & index)
  */
-class TableStructure extends StructureElement
+class TableStructure implements StructureElementContainerInterface, StructureElementInterface
 {
+
+	use StructureElementTrait;
+	use StructureElementContainerTrait;
 
 	/**
 	 *
-	 * @param NamespaceStructure $a_namespaceStructure
-	 * @param string $name
+	 * @param unknown $name
+	 * @param NamespaceStructure $parent
 	 */
-	public function __construct(/*NamespaceStructure */ $a_namespaceStructure, $name)
+	public function __construct($name, StructureElementContainerInterface $parent = null)
 	{
-		parent::__construct($name, $a_namespaceStructure);
-
+		$this->initializeStructureElement($name, $parent);
+		$this->initializeStructureElementContainer();
 		$this->constraints = new \ArrayObject();
+	}
+
+	public function __clone()
+	{
+		$this->cloneStructureElement();
+		$this->cloneStructureElementContainer();
 	}
 
 	/**

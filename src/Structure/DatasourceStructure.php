@@ -9,11 +9,16 @@
  */
 namespace NoreSources\SQL\Structure;
 
+use NoreSources\TypeDescription;
+
 /**
  * Top-level structure container definition
  */
-class DatasourceStructure extends StructureElement
+class DatasourceStructure implements StructureElementInterface, StructureElementContainerInterface
 {
+
+	use StructureElementContainerTrait;
+	use StructureElementTrait;
 
 	/**
 	 *
@@ -22,7 +27,9 @@ class DatasourceStructure extends StructureElement
 	 */
 	public function __construct($name = 'datasource')
 	{
-		parent::__construct(((is_string($name) && strlen($name)) ? $name : 'datasource'));
+		$name = (\is_string($name) && \strlen($name)) ? $name : TypeDescription::getLocalName(
+			static::class);
+		$this->initializeStructureElementContainer();
 	}
 }
 

@@ -60,10 +60,11 @@ class StructureSerializerFactory
 
 	/**
 	 *
-	 * @param StructureElement $structure
+	 * @param StructureElementInterface $structure
 	 * @param string $filename
 	 */
-	public function structureToFile(StructureElement $structure, $filename, $mediaType = null)
+	public function structureToFile(StructureElementInterface $structure, $filename,
+		$mediaType = null)
 	{
 		if (!isset($this))
 			return self::getInstance()->structureToFile($filename, $filename);

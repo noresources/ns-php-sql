@@ -29,17 +29,17 @@ class XMLStructureFileExporter implements StructureFileExporterInterface
 		$this->schemaVersion = new SemanticVersion($version);
 	}
 
-	public function exportStructureToFile(StructureElement $structure, $filename)
+	public function exportStructureToFile(StructureElementInterface $structure, $filename)
 	{
 		return $this->exportStructure($structure)->save($filename);
 	}
 
 	/**
 	 *
-	 * @param StructureElement $structure
+	 * @param StructureElementInterface $structure
 	 * @return \DOMDocument
 	 */
-	public function exportStructure(StructureElement $structure)
+	public function exportStructure(StructureElementInterface $structure)
 	{
 		$context = new XMLStructureFileExporterContext();
 		$namespaceURI = self::getXmlNamespaceURI($this->schemaVersion);
@@ -50,7 +50,7 @@ class XMLStructureFileExporter implements StructureFileExporterInterface
 		$context->parent = $context->dom->documentElement;
 
 		self::traverseStructure($structure,
-			function (StructureElement $structure) use ($context) {
+			function (StructureElementInterface $structure) use ($context) {
 				$path = $structure->getPath();
 				if (\strlen($path))
 					$context->identifiers[$path] = $path . '-' . \uniqid();
@@ -62,7 +62,7 @@ class XMLStructureFileExporter implements StructureFileExporterInterface
 		return $context->dom;
 	}
 
-	private function exportNode(StructureElement $structure,
+	private function exportNode(StructureElementInterface $structure,
 		XMLStructureFileExporterContext $context, \DOMNode $node)
 	{
 		$path = $structure->getPath();
@@ -307,7 +307,7 @@ class XMLStructureFileExporter implements StructureFileExporterInterface
 		}
 	}
 
-	private static function traverseStructure(StructureElement $structure, $callable)
+	private static function traverseStructure(StructureElementInterface $structure, $callable)
 	{
 		call_user_func($callable, $structure);
 		foreach ($structure as $name => $child)

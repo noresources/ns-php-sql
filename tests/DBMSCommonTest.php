@@ -25,7 +25,7 @@ use NoreSources\SQL\Statement\Manipulation\UpdateQuery;
 use NoreSources\SQL\Statement\Query\SelectQuery;
 use NoreSources\SQL\Statement\Structure\DropTableQuery;
 use NoreSources\SQL\Structure\ArrayColumnDescription;
-use NoreSources\SQL\Structure\StructureElement;
+use NoreSources\SQL\Structure\StructureElementInterface;
 use NoreSources\SQL\Structure\TableStructure;
 use NoreSources\Test\DatasourceManager;
 use NoreSources\Test\DerivedFileManager;
@@ -98,7 +98,7 @@ final class DBMSCommonTest extends TestCase
 		$this->assertTrue($connection->isConnected(), $dbmsName);
 
 		$structure = $this->structures->get('types');
-		$this->assertInstanceOf(StructureElement::class, $structure);
+		$this->assertInstanceOf(StructureElementInterface::class, $structure);
 		$tableStructure = $structure['ns_unittests']['types'];
 		$this->assertInstanceOf(TableStructure::class, $tableStructure);
 
@@ -288,7 +288,7 @@ final class DBMSCommonTest extends TestCase
 			$this->assertInstanceOf(ConnectionInterface::class, $connection, $dbmsName);
 			$this->assertTrue($connection->isConnected(), $dbmsName);
 			$structure = $this->structures->get('types');
-			$this->assertInstanceOf(StructureElement::class, $structure);
+			$this->assertInstanceOf(StructureElementInterface::class, $structure);
 			$tableStructure = $structure['ns_unittests']['types'];
 			$this->assertInstanceOf(TableStructure::class, $tableStructure);
 
@@ -404,7 +404,7 @@ final class DBMSCommonTest extends TestCase
 			$this->assertTrue($connection->isConnected(), $dbmsName);
 
 			$structure = $this->structures->get('types');
-			$this->assertInstanceOf(StructureElement::class, $structure);
+			$this->assertInstanceOf(StructureElementInterface::class, $structure);
 			$tableStructure = $structure['ns_unittests']['types'];
 			$this->assertInstanceOf(TableStructure::class, $tableStructure);
 
@@ -586,7 +586,7 @@ final class DBMSCommonTest extends TestCase
 			}
 
 			$structure = $this->structures->get('keyvalue');
-			$this->assertInstanceOf(StructureElement::class, $structure);
+			$this->assertInstanceOf(StructureElementInterface::class, $structure);
 			$tableStructure = $structure['ns_unittests']['keyvalue'];
 			$this->assertInstanceOf(TableStructure::class, $tableStructure);
 
@@ -856,8 +856,8 @@ final class DBMSCommonTest extends TestCase
 		]);
 
 		// Not a prepared statement but containts enough informations
-		$backedSelectByName = ConnectionHelper::buildStatement($connection,
-			$selectByNameParamQuery, $tableStructure);
+		$backedSelectByName = ConnectionHelper::buildStatement($connection, $selectByNameParamQuery,
+			$tableStructure);
 
 		$tests = [
 			'Bob only' => [

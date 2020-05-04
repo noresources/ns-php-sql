@@ -15,11 +15,16 @@ use NoreSources\TypeDescription;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\ParameterValue;
 use NoreSources\SQL\Expression\Literal;
+use NoreSources\SQL\Expression\StructureElementIdentifier;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Statement\Statement;
 use NoreSources\SQL\Statement\StatementData;
 use NoreSources\SQL\Statement\StatementTokenStreamContext;
-use NoreSources\SQL\Structure\StructureElement;
+use NoreSources\SQL\Structure\IndexStructure;
+use NoreSources\SQL\Structure\NamespaceStructure;
+use NoreSources\SQL\Structure\StructureElementContainerInterface;
+use NoreSources\SQL\Structure\StructureElementInterface;
+use NoreSources\SQL\Structure\TableStructure;
 
 /**
  * Helper method for creation of Connection, statement and prepared statement
@@ -76,6 +81,49 @@ class ConnectionHelper
 		return $connection;
 	}
 
+	public static function createStructure(ConnectionInterface $connection,
+		StructureElementInterface $structure = null)
+	{
+		if (!($structure instanceof StructureElementIdentifier))
+			$structure = $connection->getStructure();
+
+		if (!($structure instanceof StructureElementInterface))
+			throw new \Exception('No structure');
+
+		if ($structure instanceof NamespaceStructure)
+		{
+		/**
+		 *
+		 * @todo Create schema
+		 */
+		}
+		elseif ($structure instanceof TableStructure)
+		{
+			$q = $connection->getStatementFactory()->newStatement(K::QUERY_CREATE_TABLE, $structure);
+			$statement = self::buildStatement($connection, $statement, $structure);
+			return $connection->executeStatement($statement);
+		}
+		elseif ($structure instanceof IndexStructure)
+		{
+			/**
+			 *
+			 * @var \NoreSources\SQL\Statement\Structure\CreateIndexQuery $q
+			 */
+			$q = $connection->getStatementFactory()->newStatement(K::QUERY_CREATE_INDEX);
+			$q->setFromIndexStructure($structure);
+			$statement = self::buildStatement($connection, $statement, $structure);
+			return $connection->executeStatement($statement);
+		}
+
+		if ($structure instanceof StructureElementContainerInterface)
+		{
+			foreach ($structure as $e)
+			{
+				self::createStructure($connection, $e);
+			}
+		}
+	}
+
 	/**
 	 * Get the DBMS-specific SQL string representation of the given statement
 	 *
@@ -83,7 +131,7 @@ class ConnectionHelper
 	 *        	DBMS connection
 	 * @param Statement $statement
 	 *        	Statement to convert to string
-	 * @param StructureElement $reference
+	 * @param StructureElementInterface $reference
 	 *        	Pivot StructureElement
 	 * @return object SQL string representation and additional informations
 	 *
@@ -91,12 +139,12 @@ class ConnectionHelper
 	 * Tf these information are needed, use ConnectionHelper::prepareStatement()
 	 */
 	public static function buildStatement($connection, Statement $statement,
-		StructureElement $reference = null)
+		StructureElementInterface $reference = null)
 	{
-		$reference = ($reference instanceof StructureElement) ? $reference : $connection->getStructure();
+		$reference = ($reference instanceof StructureElementInterface) ? $reference : $connection->getStructure();
 		$builder = $connection->getStatementBuilder();
 		$context = new StatementTokenStreamContext($builder);
-		if ($reference instanceof StructureElement)
+		if ($reference instanceof StructureElementInterface)
 			$context->setPivot($reference);
 		$stream = new TokenStream();
 		$statement->tokenize($stream, $context);
@@ -107,13 +155,13 @@ class ConnectionHelper
 	 *
 	 * @param ConnectionInterface $connection
 	 * @param Statement|StatementDataInterface $statement
-	 * @param StructureElement $reference
+	 * @param StructureElementInterface $reference
 	 * @return PreparedStatement
 	 */
 	public static function prepareStatement(ConnectionInterface $connection, $statement,
-		StructureElement $reference = null)
+		StructureElementInterface $reference = null)
 	{
-		$reference = ($reference instanceof StructureElement) ? $reference : $connection->getStructure();
+		$reference = ($reference instanceof StructureElementInterface) ? $reference : $connection->getStructure();
 		$statementData = null;
 		if ($statement instanceof StatementData)
 		{
@@ -123,7 +171,7 @@ class ConnectionHelper
 		{
 			$builder = $connection->getStatementBuilder();
 			$context = new StatementTokenStreamContext($builder);
-			if ($reference instanceof StructureElement)
+			if ($reference instanceof StructureElementInterface)
 				$context->setPivot($reference);
 			$stream = new TokenStream();
 			$statement->tokenize($stream, $context);

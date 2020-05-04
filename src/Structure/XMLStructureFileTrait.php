@@ -37,7 +37,7 @@ trait XMLStructureFileTrait
 	/**
 	 * Get XML node name for the given StructureElement
 	 *
-	 * @param StructureElement $element
+	 * @param StructureElementInterface $element
 	 * @param SemanticVersion $schemaVersion
 	 *        	XML schema version
 	 * @throws \InvalidArgumentException
@@ -45,7 +45,7 @@ trait XMLStructureFileTrait
 	 */
 	public static function getXmlNodeName($element, SemanticVersion $schemaVersion)
 	{
-		if ($element instanceof StructureElement)
+		if ($element instanceof StructureElementInterface)
 			$element = get_class($element);
 
 		if ($element == DatasourceStructure::class)
@@ -56,6 +56,8 @@ trait XMLStructureFileTrait
 				return 'database';
 			return 'namespace';
 		}
+		elseif ($element == IndexStructure::class)
+			return 'index';
 		elseif ($element == TableStructure::class)
 			return 'table';
 		elseif ($element == ColumnStructure::class)

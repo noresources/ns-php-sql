@@ -11,7 +11,7 @@ namespace NoreSources\SQL\Statement;
 
 use NoreSources\Stack;
 use NoreSources\SQL\Expression\TokenStreamContextInterface;
-use NoreSources\SQL\Structure\StructureElement;
+use NoreSources\SQL\Structure\StructureElementInterface;
 use NoreSources\SQL\Structure\StructureResolver;
 use NoreSources\SQL\Structure\StructureResolverAwareInterface;
 use NoreSources\SQL\Structure\StructureResolverAwareTrait;
@@ -29,9 +29,10 @@ class StatementTokenStreamContext implements StatementInputDataInterface,
 	/**
 	 *
 	 * @param StatementBuilderInterface $builder
-	 * @param StructureElement $pivot
+	 * @param StructureElementInterface $pivot
 	 */
-	public function __construct(StatementBuilderInterface $builder, StructureElement $pivot = null)
+	public function __construct(StatementBuilderInterface $builder,
+		StructureElementInterface $pivot = null)
 	{
 		$this->initializeInputData(null);
 		$this->initializeOutputData(null);
@@ -73,7 +74,7 @@ class StatementTokenStreamContext implements StatementInputDataInterface,
 
 	public function setAlias($alias, $reference)
 	{
-		if ($reference instanceof StructureElement)
+		if ($reference instanceof StructureElementInterface)
 		{
 			return $this->structureResolver->setAlias($alias, $reference);
 		}
@@ -97,7 +98,7 @@ class StatementTokenStreamContext implements StatementInputDataInterface,
 		return $this->structureResolver->isAlias($identifier);
 	}
 
-	public function pushResolverContext(StructureElement $pivot = null)
+	public function pushResolverContext(StructureElementInterface $pivot = null)
 	{
 		$this->resultColumnAliases->push(new \ArrayObject());
 		$this->structureResolver->pushResolverContext($pivot);

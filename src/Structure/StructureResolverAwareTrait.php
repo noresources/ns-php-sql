@@ -31,7 +31,7 @@ trait StructureResolverAwareTrait
 		return $this->structureResolver;
 	}
 
-	public function setPivot(StructureElement $pivot)
+	public function setPivot(StructureElementInterface $pivot)
 	{
 		return $this->structureResolver->setPivot($pivot);
 	}
@@ -56,7 +56,7 @@ trait StructureResolverAwareTrait
 		return $this->structureResolver->findNamespace($path);
 	}
 
-	public function setAlias($alias, StructureElement $reference)
+	public function setAlias($alias, StructureElementInterface $reference)
 	{
 		return $this->structureResolver->setAlias($alias, $reference);
 	}
@@ -66,7 +66,7 @@ trait StructureResolverAwareTrait
 		return $this->structureResolver->isAlias($identifier);
 	}
 
-	public function pushResolverContext(StructureElement $pivot = null)
+	public function pushResolverContext(StructureElementInterface $pivot = null)
 	{
 		return $this->structureResolver->pushResolverContext($pivot);
 	}

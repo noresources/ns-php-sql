@@ -24,7 +24,7 @@ trait StructureAwareTrait
 
 	protected function setStructure($structure)
 	{
-		if ($structure instanceof StructureElement)
+		if ($structure instanceof StructureElementInterface)
 			$this->structureReference = $structure;
 		elseif (is_file($structure))
 			$this->structureReference = StructureSerializerFactory::structureFromFile($filename);

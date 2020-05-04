@@ -11,13 +11,20 @@
 namespace NoreSources\SQL\Structure;
 
 /**
- * Table set structure definition
+ * View structure definition
+ *
  */
-class NamespaceStructure implements StructureElementContainerInterface, StructureElementInterface
+class ViewStructure implements StructureElementContainerInterface, StructureElementInterface
 {
+
 	use StructureElementTrait;
 	use StructureElementContainerTrait;
 
+	/**
+	 *
+	 * @param string $name
+	 * @param NamespaceStructure $parent Parent element
+	 */
 	public function __construct($name, StructureElementContainerInterface $parent = null)
 	{
 		$this->initializeStructureElement($name, $parent);

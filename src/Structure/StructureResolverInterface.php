@@ -18,13 +18,13 @@ interface StructureResolverInterface
 	/**
 	 * Define the reference node and reset cache
 	 *
-	 * @param StructureElement $pivot
+	 * @param StructureElementInterface $pivot
 	 */
-	function setPivot(StructureElement $pivot);
+	function setPivot(StructureElementInterface $pivot);
 
 	/**
 	 *
-	 * @return \NoreSources\SQL\StructureElement
+	 * @return \NoreSources\SQL\Structure\StructureElementInterface|NULL
 	 */
 	function getPivot();
 
@@ -55,9 +55,9 @@ interface StructureResolverInterface
 	/**
 	 *
 	 * @param string $alias
-	 * @param StructureElement $structure
+	 * @param StructureElementInterface $structure
 	 */
-	function setAlias($alias, StructureElement $reference);
+	function setAlias($alias, StructureElementInterface $reference);
 
 	/**
 	 * Indicates if the given identifier is a structure element alias
@@ -71,9 +71,9 @@ interface StructureResolverInterface
 	 *
 	 * This should be used while traversing sub queries.
 	 *
-	 * @param StructureElement $pivot
+	 * @param StructureElementInterface $pivot
 	 */
-	function pushResolverContext(StructureElement $pivot = null);
+	function pushResolverContext(StructureElementInterface $pivot = null);
 
 	/**
 	 * Pop the structure resolver context in the context stack.
