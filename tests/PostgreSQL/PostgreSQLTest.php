@@ -10,6 +10,7 @@ use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLStatementBuilder;
 use NoreSources\SQL\Statement\Manipulation\InsertQuery;
 use NoreSources\SQL\Statement\Structure\CreateTableQuery;
 use NoreSources\SQL\Statement\Structure\DropTableQuery;
+use NoreSources\SQL\Structure\TableStructure;
 use NoreSources\Test\DatasourceManager;
 use NoreSources\Test\DerivedFileManager;
 
@@ -41,6 +42,9 @@ final class PostgreSQLTest extends \PHPUnit\Framework\TestCase
 
 		foreach ($structure['ns_unittests'] as $name => $tableStructure)
 		{
+			if (!($tableStructure instanceof TableStructure))
+				continue;
+
 			$previousFile = null;
 			foreach ($builders as $builderType => $builder)
 			{
@@ -65,13 +69,13 @@ final class PostgreSQLTest extends \PHPUnit\Framework\TestCase
 				}
 				$previousFile = $file;
 			}
-		}
 
-		$dropTable = new DropTableQuery($tableStructure);
-		$data = ConnectionHelper::buildStatement($connection, $dropTable, $tableStructure);
-		$sql = \SqlFormatter::format(\strval($data), false);
-		$suffix = 'drop_' . $versionString;
-		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, $suffix, 'sql');
+			$dropTable = new DropTableQuery($tableStructure);
+			$data = ConnectionHelper::buildStatement($connection, $dropTable, $tableStructure);
+			$sql = \SqlFormatter::format(\strval($data), false);
+			$suffix = 'drop_' . $name . '_' . $versionString;
+			$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, $suffix, 'sql');
+		}
 	}
 
 	public function testTypeMapping()
