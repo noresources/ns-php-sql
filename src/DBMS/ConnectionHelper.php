@@ -15,14 +15,13 @@ use NoreSources\TypeDescription;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\ParameterValue;
 use NoreSources\SQL\Expression\Literal;
-use NoreSources\SQL\Expression\StructureElementIdentifier;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Statement\Statement;
 use NoreSources\SQL\Statement\StatementData;
 use NoreSources\SQL\Statement\StatementTokenStreamContext;
+use NoreSources\SQL\Structure\DatasourceStructure;
 use NoreSources\SQL\Structure\IndexStructure;
 use NoreSources\SQL\Structure\NamespaceStructure;
-use NoreSources\SQL\Structure\StructureElementContainerInterface;
 use NoreSources\SQL\Structure\StructureElementInterface;
 use NoreSources\SQL\Structure\TableStructure;
 
@@ -82,18 +81,46 @@ class ConnectionHelper
 	public static function createStructure(ConnectionInterface $connection,
 		StructureElementInterface $structure = null)
 	{
-		if (!($structure instanceof StructureElementIdentifier))
+		if (!($structure instanceof StructureElementInterface))
 			$structure = $connection->getStructure();
 
 		if (!($structure instanceof StructureElementInterface))
 			throw new \Exception('No structure');
 
-		if ($structure instanceof NamespaceStructure)
+		if ($structure instanceof DatasourceStructure)
 		{
-		/**
-		 *
-		 * @todo Create schema
-		 */
+			foreach ($structure as $s)
+			{
+				$result = self::createStructure($connection, $s);
+				if (!$result)
+					return $result;
+			}
+			return $result;
+		}
+		elseif ($structure instanceof NamespaceStructure)
+		{
+			/**
+			 *
+			 * @var \NoreSources\SQL\Statement\Structure\CreateNamespaceQuery $q
+			 */
+			$q = $connection->getStatementFactory()->newStatement(K::QUERY_CREATE_NAMESPACE,
+				$structure);
+
+			$q->getStructure($structure);
+			$statement = self::buildStatement($connection, $statement, $structure);
+
+			$result = $connection->executeStatement($statement);
+			if (!$result)
+				return $result;
+
+			foreach ($structure as $e)
+			{
+				$result = self::createStructure($connection, $e);
+				if (!$result)
+					return $result;
+			}
+
+			return $result;
 		}
 		elseif ($structure instanceof TableStructure)
 		{
@@ -113,13 +140,8 @@ class ConnectionHelper
 			return $connection->executeStatement($statement);
 		}
 
-		if ($structure instanceof StructureElementContainerInterface)
-		{
-			foreach ($structure as $e)
-			{
-				self::createStructure($connection, $e);
-			}
-		}
+		throw new \InvalidArgumentException(
+			'Unsupported structure type ' . TypeDescription::getName($structure));
 	}
 
 	/**

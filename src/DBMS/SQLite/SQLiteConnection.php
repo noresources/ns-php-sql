@@ -262,7 +262,8 @@ class SQLiteConnection implements ConnectionInterface
 		{
 			$this->statementFactory = new ClassMapStatementFactory(
 				[
-					K::QUERY_CREATE_TABLE => SQLiteCreateTableQuery::class
+					K::QUERY_CREATE_TABLE => SQLiteCreateTableQuery::class,
+					K::QUERY_CREATE_NAMESPACE => SQLiteCreateNamespaceQuery::class
 				]);
 		}
 
