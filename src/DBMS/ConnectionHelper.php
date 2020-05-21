@@ -67,14 +67,12 @@ class ConnectionHelper
 				\is_subclass_of($className, ConnectionInterface::class, true))
 			{
 				$cls = new \ReflectionClass($className);
-				$connection = $cls->newInstance();
+				$connection = $cls->newInstance($settings);
 				break;
 			}
 		}
 
-		if ($connection instanceof ConnectionInterface)
-			$connection->connect($settings);
-		else
+		if (!($connection instanceof ConnectionInterface))
 			throw new ConnectionException(null,
 				'Unable to create a ConnectionInterface using classes ' . implode(', ', $classNames));
 

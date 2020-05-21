@@ -123,7 +123,7 @@ final class SelectTest extends \PHPUnit\Framework\TestCase
 		// Grouping
 		groupBy('N', 'id')
 			->
-		// 	Ordery
+		// Ordery
 		orderBy('substr(N, 3)')
 			->
 		// Limit
@@ -211,7 +211,7 @@ final class SelectTest extends \PHPUnit\Framework\TestCase
 
 		$a->union($b);
 
-		$reference = new ReferenceConnection();
+		$reference = new ReferenceConnection(array());
 		$data = ConnectionHelper::buildStatement($reference, $a, $tableStructure);
 		$sql = \SqlFormatter::format(strval($data), false);
 		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, null, 'sql');

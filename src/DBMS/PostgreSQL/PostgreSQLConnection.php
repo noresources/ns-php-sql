@@ -42,7 +42,7 @@ class PostgreSQLConnection implements ConnectionInterface
 	 */
 	const DEFAULT_VERSION = '9.0.0';
 
-	public function __construct()
+	public function __construct($parameters)
 	{
 		$this->setTransactionBlockFactory(
 			function ($depth, $name) {
@@ -54,23 +54,7 @@ class PostgreSQLConnection implements ConnectionInterface
 			self::VERSION_EXPECTED => new SemanticVersion(self::DEFAULT_VERSION),
 			self::VERSION_CONNECTION => null
 		];
-	}
 
-	public function __destruct()
-	{
-		$this->endTransactions(false);
-		if (\is_resource($this->resource))
-			\pg_close($this->resource);
-	}
-
-	public function setLogger(LoggerInterface $logger)
-	{
-		$this->logger = $logger;
-		$this->getStatementBuilder()->setLogger($logger);
-	}
-
-	public function connect($parameters)
-	{
 		if (\is_resource($this->resource))
 			$this->disconnect();
 
@@ -126,20 +110,27 @@ class PostgreSQLConnection implements ConnectionInterface
 		$this->builder->updateBuilderFlags($this->getPostgreSQLVersion());
 	}
 
-	public function isConnected()
-	{
-		return (\is_resource($this->resource) &&
-			(\pg_connection_status($this->resource) == PGSQL_CONNECTION_OK));
-	}
-
-	public function disconnect()
+	public function __destruct()
 	{
 		$this->endTransactions(false);
 		if (\is_resource($this->resource))
 			\pg_close($this->resource);
+
 		$this->versions[self::VERSION_CONNECTION] = null;
 		$this->builder->updateBuilderFlags($this->getPostgreSQLVersion());
 		$this->resource = null;
+	}
+
+	public function setLogger(LoggerInterface $logger)
+	{
+		$this->logger = $logger;
+		$this->getStatementBuilder()->setLogger($logger);
+	}
+
+	public function isConnected()
+	{
+		return (\is_resource($this->resource) &&
+			(\pg_connection_status($this->resource) == PGSQL_CONNECTION_OK));
 	}
 
 	public function getStatementBuilder()

@@ -11,8 +11,8 @@ namespace NoreSources\SQL\DBMS\SQLite;
 
 use NoreSources\Container;
 use NoreSources\Text;
-use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\BasicType;
+use NoreSources\SQL\DBMS\SQLite\SQLiteConstants as K;
 use NoreSources\SQL\Expression\FunctionCall;
 use NoreSources\SQL\Expression\Literal;
 use NoreSources\SQL\Expression\MetaFunctionCall;
@@ -30,11 +30,27 @@ class SQLiteStatementBuilder extends StatementBuilder implements LoggerAwareInte
 	{
 		parent::__construct();
 
+		$this->sqliteSettings = new \ArrayObject();
+
 		$this->setBuilderFlags(K::BUILDER_DOMAIN_GENERIC,
 			K::BUILDER_IF_EXISTS | K::BUILDER_IF_NOT_EXISTS | K::BUILDER_SCOPED_STRUCTURE_DECLARATION);
 		$this->setBuilderFlags(K::BUILDER_DOMAIN_SELECT,
 			K::BUILDER_SELECT_EXTENDED_RESULTCOLUMN_ALIAS_RESOLUTION);
 		$this->setBuilderFlags(K::BUILDER_DOMAIN_INSERT, K::BUILDER_INSERT_DEFAULT_VALUES);
+	}
+
+	public function getSQLiteSetting($key, $dflt = null)
+	{
+		return Container::keyValue($this->sqliteSettings, $key, $dflt);
+	}
+
+	public function setSQLiteSettings($array)
+	{
+		$dflts = [
+			K::CONNECTION_DATABASE_FILE_DIRECTORY => '.'
+		];
+
+		$this->sqliteSettings->exchangeArray(\array_merge($dflts, $array));
 	}
 
 	public function serializeString($value)
@@ -274,4 +290,10 @@ class SQLiteStatementBuilder extends StatementBuilder implements LoggerAwareInte
 	 * @var \ArrayObject
 	 */
 	private static $timestampFormatTranslations;
+
+	/**
+	 *
+	 * @var \ArrayObject
+	 */
+	private $sqliteSettings;
 }

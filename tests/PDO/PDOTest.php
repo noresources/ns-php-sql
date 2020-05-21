@@ -70,8 +70,7 @@ final class PDOTest extends \PHPUnit\Framework\TestCase
 	private function subtestSQLiteBase()
 	{
 		global $sqliteConnectionParameters;
-		$connection = new PDOConnection();
-		$connection->connect($sqliteConnectionParameters);
+		$connection = new PDOConnection($sqliteConnectionParameters);
 
 		$recordset = $connection->executeStatement('select * from employees');
 		$this->assertInstanceOf(DBMS\PDO\PDORecordset::class, $recordset);
@@ -113,8 +112,7 @@ final class PDOTest extends \PHPUnit\Framework\TestCase
 		$detachedTable = clone $tableStructure;
 		$detachedTable->detachElement();
 
-		$connection = new PDOConnection();
-		$connection->connect($settings);
+		$connection = new PDOConnection($settings);
 
 		$create = new CreateTableQuery($detachedTable);
 		$sql = ConnectionHelper::buildStatement($connection, $create);

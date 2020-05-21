@@ -61,39 +61,6 @@ class SQLiteConnection implements ConnectionInterface
 	 */
 	const NAMESPACE_NAME_DEFAULT = 'main';
 
-	public function __construct()
-	{
-		$this->builder = new SQLiteStatementBuilder();
-		$this->connection = null;
-		$this->setLogger(ErrorReporterLogger::getInstance());
-
-		$this->setTransactionBlockFactory(
-			function ($depth, $name) {
-				return new SQLiteTransactionBlock($this, $name);
-			});
-	}
-
-	public function __destruct()
-	{
-		$this->endTransactions(false);
-		if ($this->connection instanceof \SQLite3)
-			$this->disconnect();
-	}
-
-	public function setLogger($logger)
-	{
-		$this->logger = $logger;
-		$this->builder->setLogger($logger);
-	}
-
-	public function __get($member)
-	{
-		if ($member == 'sqliteConnection')
-			return $this->connection;
-
-		return parent::__get($key);
-	}
-
 	/**
 	 * Connect to DBMS
 	 *
@@ -103,20 +70,33 @@ class SQLiteConnection implements ConnectionInterface
 	 *        	<li>CONNECTION_SOURCE (string|array):
 	 *        	<ul>
 	 *        	<li>If unspecified, use a in-memory storage</li>
-	 *        	<li>If the parameter value is a string, the database will be loaded as the "main" database</li>
-	 *        	<li>If the parameter value is an array, the elements key represents the namespace name,
+	 *        	<li>If the parameter value is a string, the database will be loaded as the "main"
+	 *        	database</li>
+	 *        	<li>If the parameter value is an array, the elements key represents the namespace
+	 *        	name,
 	 *        	the values represents the database
-	 *        	file name. If the key is not a string, the base file name is used as tableet name</li>
+	 *        	file name. If the key is not a string, the base file name is used as tableet
+	 *        	name</li>
 	 *        	</ul>
-	 *        	<li>CONNECTION_DATABASE (string): Overrides the namespace name if CONNECTION_SOURCE value is a
+	 *        	<li>CONNECTION_DATABASE (string): Overrides the namespace name if
+	 *        	CONNECTION_SOURCE value is a
 	 *        	string</li>
 	 *        	<li>CONNECTION_CREATE (bool): Create database file if it does not exists</li>
 	 *        	<li>CONNECTION_READONLY (bool): Indicates the database is read only</li>
 	 *        	<li>CONNECTION_ENCRYPTION_KEY (string): Database encryption key</li>
 	 *        	</ul>
 	 */
-	public function connect($parameters)
+	public function __construct($parameters)
 	{
+		$this->builder = new SQLiteStatementBuilder();
+		$this->connection = null;
+		$this->setLogger(ErrorReporterLogger::getInstance());
+
+		$this->setTransactionBlockFactory(
+			function ($depth, $name) {
+				return new SQLiteTransactionBlock($this, $name);
+			});
+
 		if ($this->connection instanceof \SQLite3)
 			$this->connection->close();
 
@@ -219,6 +199,17 @@ class SQLiteConnection implements ConnectionInterface
 				if ($result === false)
 					throw new SQLiteConnectionException($this, 'Failed to attach database');
 			}
+
+			$settings = [];
+			foreach ([
+				K::CONNECTION_DATABASE_FILE_DIRECTORY
+			] as $setting)
+			{
+				if (Container::keyExists($parameters, $setting))
+					$settings[$setting] = $parameters[$setting];
+			}
+
+			$this->getStatementBuilder()->setSQLiteSettings($settings);
 		}
 
 		foreach ($pragmas as $pragma => $value)
@@ -229,12 +220,7 @@ class SQLiteConnection implements ConnectionInterface
 		}
 	}
 
-	public function isConnected()
-	{
-		return ($this->connection instanceof \SQLite3);
-	}
-
-	public function disconnect()
+	public function __destruct()
 	{
 		$this->endTransactions(false);
 		if (!($this->connection instanceof \SQLite3))
@@ -242,6 +228,28 @@ class SQLiteConnection implements ConnectionInterface
 		$this->connection->close();
 		$this->connection = null;
 	}
+
+	public function setLogger($logger)
+	{
+		$this->logger = $logger;
+		$this->builder->setLogger($logger);
+	}
+
+	public function __get($member)
+	{
+		if ($member == 'sqliteConnection')
+			return $this->connection;
+
+		return parent::__get($key);
+	}
+
+	public function isConnected()
+	{
+		return ($this->connection instanceof \SQLite3);
+	}
+
+	public function disconnect()
+	{}
 
 	public function getStatementBuilder()
 	{

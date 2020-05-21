@@ -59,23 +59,6 @@ class PDOConnection implements ConnectionInterface
 			});
 	}
 
-	public function __construct()
-	{
-		$this->builder = new PDOStatementBuilder($this);
-		$this->connection = null;
-		$this->setTransactionBlockFactory(
-			function ($depth, $name) {
-				return new ReferenceTransactionBlock($this, $name);
-			});
-	}
-
-	public function __destruct()
-	{
-		$this->endTransactions(false);
-		if ($this->connection instanceof \PDO)
-			$this->disconnect();
-	}
-
 	/**
 	 *
 	 * @param array $parameters
@@ -88,8 +71,15 @@ class PDOConnection implements ConnectionInterface
 	 *        	</ul>
 	 *
 	 */
-	public function connect($parameters)
+	public function __construct($parameters)
 	{
+		$this->builder = new PDOStatementBuilder($this);
+		$this->connection = null;
+		$this->setTransactionBlockFactory(
+			function ($depth, $name) {
+				return new ReferenceTransactionBlock($this, $name);
+			});
+
 		if ($this->connection instanceof \PDO)
 			$this->connection->close();
 
@@ -123,6 +113,13 @@ class PDOConnection implements ConnectionInterface
 		;
 	}
 
+	public function __destruct()
+	{
+		$this->endTransactions(false);
+		unset($this->connection);
+		$this->connection = null;
+	}
+
 	public function isConnected()
 	{
 		if (!($this->connection instanceof \PDO))
@@ -137,12 +134,6 @@ class PDOConnection implements ConnectionInterface
 		{}
 
 		return $status;
-	}
-
-	public function disconnect()
-	{
-		$this->endTransactions(false);
-		$this->connection = null;
 	}
 
 	public function newTransactionBlock($name = null)

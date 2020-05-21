@@ -31,6 +31,13 @@ class SQLiteConstants extends Constants
 	const CONNECTION_SQLITE_PRAGMAS = 'pragmas';
 
 	/**
+	 * File system directory path where new database files will be created.
+	 *
+	 * @var string
+	 */
+	const CONNECTION_DATABASE_FILE_DIRECTORY = 'databasefiledirectory';
+
+	/**
 	 * ROLLBACK conflict class
 	 *
 	 * @var string

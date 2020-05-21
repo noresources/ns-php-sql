@@ -21,19 +21,6 @@ interface ConnectionInterface extends StatementBuilderAwareInterface, LoggerAwar
 {
 
 	/**
-	 * Connect to DBMS
-	 *
-	 * @param array $parameters
-	 *        	ConnectionInterface parameters
-	 */
-	function connect($parameters);
-
-	/**
-	 * Disconnect to DBMS
-	 */
-	function disconnect();
-
-	/**
 	 *
 	 * @return boolean
 	 */

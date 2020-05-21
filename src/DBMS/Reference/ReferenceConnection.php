@@ -29,30 +29,28 @@ class ReferenceConnection implements ConnectionInterface, StatementFactoryInterf
 
 	use ClassMapStatementFactoryTrait;
 
-	public function __construct()
+	public function __construct($parameters)
 	{
 		$this->builder = new ReferenceStatementBuilder();
 		$this->initializeStatementFactory();
 		$this->setTransactionBlockFactory(
 			function ($depth, $name) {
+
 				return new ReferenceTransactionBlock($this, $name);
 			});
-	}
 
-	public function connect($parameters)
-	{
 		if (Container::keyExists($parameters, K::CONNECTION_STRUCTURE))
 			$this->setStructure($structure)[K::CONNECTION_STRUCTURE];
+	}
+
+	public function __destruct()
+	{
+		$this->endTransactions(false);
 	}
 
 	public function isConnected()
 	{
 		return true;
-	}
-
-	public function disconnect()
-	{
-		$this->endTransactions(false);
 	}
 
 	public function getStatementBuilder()

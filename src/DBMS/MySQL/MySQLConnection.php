@@ -39,7 +39,7 @@ class MySQLConnection implements ConnectionInterface
 
 	const STATE_CONNECTED = 0x01;
 
-	public function __construct()
+	public function __construct($parameters)
 	{
 		$this->setTransactionBlockFactory(
 			function ($depth, $name) {
@@ -48,34 +48,6 @@ class MySQLConnection implements ConnectionInterface
 		$this->mysqlFlags = 0;
 		$this->link = new \mysqli();
 		$this->builder = new MySQLStatementBuilder($this);
-	}
-
-	public function __destruct()
-	{
-		$this->endTransactions(false);
-		if ($this->mysqlFlags & self::STATE_CONNECTED)
-			$this->link->close();
-	}
-
-	public function setLogger(LoggerInterface $logger)
-	{
-		$this->logger = $logger;
-		$this->getStatementBuilder()->setLogger($logger);
-	}
-
-	/**
-	 *
-	 * @return boolean
-	 */
-	public function isConnected()
-	{
-		return (($this->mysqlFlags & self::STATE_CONNECTED) == self::STATE_CONNECTED);
-	}
-
-	public function connect($parameters)
-	{
-		if ($this->isConnected())
-			$this->disconnect();
 
 		$persistent = Container::keyValue($parameters, K::CONNECTION_PERSISTENT, false);
 		$protocol = Container::keyValue($parameters, K::CONNECTION_PROTOCOL,
@@ -114,21 +86,29 @@ class MySQLConnection implements ConnectionInterface
 		 */
 
 		if ($this->link->connect_errno === 0)
-		{
 			$this->mysqlFlags |= self::STATE_CONNECTED;
-		}
-
-		return $this->isConnected();
 	}
 
-	public function disconnect()
+	public function __destruct()
 	{
 		$this->endTransactions(false);
-
 		if ($this->mysqlFlags & self::STATE_CONNECTED)
 			$this->link->close();
+	}
 
-		$this->mysqlFlags &= ~self::STATE_CONNECTED;
+	public function setLogger(LoggerInterface $logger)
+	{
+		$this->logger = $logger;
+		$this->getStatementBuilder()->setLogger($logger);
+	}
+
+	/**
+	 *
+	 * @return boolean
+	 */
+	public function isConnected()
+	{
+		return (($this->mysqlFlags & self::STATE_CONNECTED) == self::STATE_CONNECTED);
 	}
 
 	public function getStatementBuilder()
@@ -218,8 +198,10 @@ class MySQLConnection implements ConnectionInterface
 		if ($success)
 		{
 			/**
-			 * Returns a resultset for successful SELECT queries, or FALSE for other DML queries or on failure.
-			 * The mysqli_errno() function can be used to distinguish between the two types of failure.
+			 * Returns a resultset for successful SELECT queries, or FALSE for other DML queries or
+			 * on failure.
+			 * The mysqli_errno() function can be used to distinguish between the two types of
+			 * failure.
 			 */
 			$result = $stmt->get_result();
 		}
