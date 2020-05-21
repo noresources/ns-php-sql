@@ -9,12 +9,14 @@
  */
 namespace NoreSources\SQL\Statement;
 
+use NoreSources\Container;
 use NoreSources\DateTime;
 use NoreSources\TypeConversion;
 use NoreSources\MediaType\MediaType;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Expression\FunctionCall;
 use NoreSources\SQL\Expression\MetaFunctionCall;
+use NoreSources\SQL\Expression\StructureElementIdentifier;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Expression\TokenStreamContextInterface;
 use NoreSources\SQL\Structure\ColumnDescriptionInterface;
@@ -156,17 +158,31 @@ trait StatementBuilderTrait
 		return \DateTime::ISO8601;
 	}
 
-	public function getCanonicalName(StructureElementInterface $structure)
+	public function getCanonicalName($structure)
 	{
-		$s = $this->escapeIdentifier($structure->getName());
-		$p = $structure->getParentElement();
-		while ($p && !($p instanceof DatasourceStructure))
+		if (\is_string($structure))
+			return $this->escapeString($structure);
+
+		if ($structure instanceof StructureElementInterface)
 		{
-			$s = $this->escapeIdentifier($p->getName()) . '.' . $s;
-			$p = $p->getParentElement();
+			$s = $this->escapeIdentifier($structure->getName());
+			$p = $structure->getParentElement();
+			while ($p && !($p instanceof DatasourceStructure))
+			{
+				$s = $this->escapeIdentifier($p->getName()) . '.' . $s;
+				$p = $p->getParentElement();
+			}
+
+			return $s;
 		}
 
-		return $s;
+		if ($structure instanceof StructureElementIdentifier)
+			$structure = $structure->getPathParts();
+
+		return Container::implodeValues($structure, '.',
+			function ($v) {
+				return $this->escapeIdentifier($v);
+			});
 	}
 
 	public function getForeignKeyAction($action)
@@ -251,7 +267,8 @@ trait StatementBuilderTrait
 	 * Fallback string escaping function.
 	 * Used when the DBMS does not provide text escaping method.
 	 *
-	 * Contrary to serializeString(), this function DOES NOT add single quote around the resulting text.
+	 * Contrary to serializeString(), this function DOES NOT add single quote around the resulting
+	 * text.
 	 *
 	 * @param string $text
 	 * @return string

@@ -34,7 +34,6 @@ class PostgreSQLTransactionBlock implements TransactionBlockInterface, Connectio
 		$pg = $this->getConnection()->getConnectionResource();
 		if ($this->getPreviousElement() === null)
 		{
-			//var_dump('begin ' . $this->getBlockName());
 			$result = \pg_query($pg, 'BEGIN');
 			if ($result === false)
 				throw new TransactionBlockException(\pg_last_error($pg));
@@ -49,7 +48,7 @@ class PostgreSQLTransactionBlock implements TransactionBlockInterface, Connectio
 			pg_free_result($result);
 		}
 
-		//var_dump('savepoint ' . $this->getBlockName());
+		// var_dump('savepoint ' . $this->getBlockName());
 		$result = \pg_query($pg, 'SAVEPOINT ' . $this->blockIdentifier);
 		if ($result === false)
 			throw new TransactionBlockException(\pg_last_error($pg));
@@ -66,7 +65,7 @@ class PostgreSQLTransactionBlock implements TransactionBlockInterface, Connectio
 
 	protected function commitTask()
 	{
-		//var_dump('release ' . $this->getBlockName());
+		// var_dump('release ' . $this->getBlockName());
 		$pg = $this->getConnection()->getConnectionResource();
 		$result = \pg_query($pg, 'RELEASE ' . $this->blockIdentifier);
 		if ($result === false)
@@ -83,7 +82,7 @@ class PostgreSQLTransactionBlock implements TransactionBlockInterface, Connectio
 
 		if ($this->getPreviousElement() === null)
 		{
-			//var_dump('commit ' . $this->getBlockName());
+			// var_dump('commit ' . $this->getBlockName());
 			$result = \pg_query($pg, 'COMMIT');
 			if ($result === false)
 				throw new TransactionBlockException(\pg_last_error($pg));
@@ -108,7 +107,7 @@ class PostgreSQLTransactionBlock implements TransactionBlockInterface, Connectio
 			$s .= ' TO ' . $this->blockIdentifier;
 		}
 
-		//var_dump('rollback ' . $s);
+		// var_dump('rollback ' . $s);
 
 		$result = \pg_query($pg, $s);
 		if ($result === false)
