@@ -15,7 +15,7 @@ use NoreSources\SQL\Structure\TableStructure;
 /**
  * Table name reference
  */
-class Table extends StructureElementIdentifier
+class Table extends StructureElementIdentifier implements TokenizableExpressionInterface
 {
 
 	/**

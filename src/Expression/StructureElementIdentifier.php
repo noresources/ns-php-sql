@@ -9,10 +9,12 @@
  */
 namespace NoreSources\SQL\Expression;
 
+use NoreSources\StringRepresentation;
+
 /**
  * Structure element path or alias
  */
-abstract class StructureElementIdentifier implements TokenizableExpressionInterface
+class StructureElementIdentifier implements StringRepresentation
 {
 
 	/**
@@ -29,5 +31,25 @@ abstract class StructureElementIdentifier implements TokenizableExpressionInterf
 	public function __construct($path)
 	{
 		$this->path = $path;
+	}
+
+	public function __toString()
+	{
+		return $this->path;
+	}
+
+	public function getPathParts()
+	{
+		return \explode('.', $this->path);
+	}
+
+	/**
+	 *
+	 * @return string Element local name
+	 */
+	public function getLocalName()
+	{
+		$x = \explode('.', $this->path);
+		return $x[\count($x) - 1];
 	}
 }

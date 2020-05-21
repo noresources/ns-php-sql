@@ -15,7 +15,7 @@ use NoreSources\SQL\Structure\ColumnStructure;
 /**
  * Table column reference
  */
-class Column extends StructureElementIdentifier
+class Column extends StructureElementIdentifier implements TokenizableExpressionInterface
 {
 
 	public function __construct($path)
