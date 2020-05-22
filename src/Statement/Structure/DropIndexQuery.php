@@ -12,6 +12,7 @@
 namespace NoreSources\SQL\Statement\Structure;
 
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\Expression\StructureElementIdentifier;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Expression\TokenStreamContextInterface;
 use NoreSources\SQL\Statement\Statement;
@@ -21,71 +22,94 @@ use NoreSources\SQL\Structure\NamespaceStructure;
 /**
  * DROP INDEX statement
  *
- * @see https://www.sqlite.org/lang_createindex.html
+ * References
+ * <dl>
+ * <dt>SQLite</dt>
+ * <dd>https://www.sqlite.org/lang_createindex.html</dd>
+ * <dt>MySQL</dt>
+ * <dd></dd>
+ * <dt>PostgreSQL</dt>
+ * <dd></dd>
+ * </dl>
  */
 class DropIndexQuery extends Statement
 {
 
-	public function __construct($name = null)
+	public function __construct($identifier = null)
 	{
-		$this->name($name);
+		$this->indexIdentifier = null;
+		if ($identifier != null)
+			$this->identifier($identifier);
 	}
 
 	/**
 	 *
-	 * @param string $name
-	 *        	Index name
-	 *
-	 * @return DropIndexQuery
+	 * @param string|IndexStructure|StructureElementIdentifier $identifier
+	 *        	Index identifier
+	 * @return \NoreSources\SQL\Statement\Structure\DropIndexQuery
 	 */
-	public function name($name)
+	public function identifier($identifier)
 	{
-		$this->indexName = $name;
+		if ($identifier instanceof IndexStructure)
+			$identifier = $identifier->getPath();
+
+		if ($identifier instanceof StructureElementIdentifier)
+			$this->indexIdentifier = $identifier;
+		else
+			$this->indexIdentifier = new StructureElementIdentifier(\strval($identifier));
+
 		return $this;
 	}
 
 	public function tokenize(TokenStream $stream, TokenStreamContextInterface $context)
 	{
-		$builderFlags = $context->getStatementBuilder()->getBuilderFlags(K::BUILDER_DOMAIN_GENERIC);
-		$builderFlags |= $context->getStatementBuilder()->getBuilderFlags(
-			K::BUILDER_DOMAIN_DROP_INDEX);
+		$builder = $context->getStatementBuilder();
+		$builderFlags = $builder->getBuilderFlags(K::BUILDER_DOMAIN_GENERIC);
+		$builderFlags |= $builder->getBuilderFlags(K::BUILDER_DOMAIN_DROP_INDEX);
 
 		$context->setStatementType(K::QUERY_DROP_INDEX);
-
-		$structure = $context->getPivot();
-		IF ($structure instanceof IndexStructure)
-			$structure = $structure->getParentElement();
-
-		/**
-		 *
-		 * @var TableStructure $tableStructure
-		 */
 
 		$stream->keyword('drop')
 			->space()
 			->keyword('index');
-
 		if ($builderFlags & K::BUILDER_IF_EXISTS)
-			$stream->keyword('if')
+		{
+			$stream->space()
+				->keyword('if')
 				->space()
 				->keyword('exists');
+		}
 
 		$stream->space();
 
-		if (($builderFlags & K::BUILDER_SCOPED_STRUCTURE_DECLARATION) &&
-			($structure instanceof NamespaceStructure))
-			$stream->identifier($context->getStatementBuilder()
-				->getCanonicalName($structure))
-				->text('.');
+		if ($builderFlags & K::BUILDER_SCOPED_STRUCTURE_DECLARATION)
+		{
+			$parts = $this->indexIdentifier->getPathParts();
+			if (\count($parts) > 1)
+				$stream->identifier($builder->getCanonicalName($parts));
+			else // Last chance to find the element namespace
+			{
+				$structure = $context->getPivot();
+				if ($stream instanceof IndexStructure)
+					$structure = $structure->getParentElement();
 
-		return $stream->identifier(
-			$context->getStatementBuilder()
-				->escapeIdentifier($this->indexName));
+				if ($structure instanceof NamespaceStructure)
+					$stream->identifier($builder->getCanonicalName($structure))
+						->text('.');
+
+				$stream->identifier($builder->escapeIdentifier($this->indexIdentifier->path));
+			}
+		}
+		else
+			$stream->identifier($builder->escapeIdentifier($this->indexIdentifier->getLocalName()));
+
+		return $stream;
 	}
 
 	/**
+	 * Index name
 	 *
-	 * @var string
+	 * @var StructureElementIdentifier
 	 */
-	private $indexName;
+	private $indexIdentifier;
 }

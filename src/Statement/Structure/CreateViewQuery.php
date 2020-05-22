@@ -12,6 +12,7 @@
 namespace NoreSources\SQL\Statement\Structure;
 
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\Expression\StructureElementIdentifier;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Expression\TokenStreamContextInterface;
 use NoreSources\SQL\Statement\Statement;
@@ -38,30 +39,45 @@ class CreateViewQuery extends Statement
 
 	const TEMPORARY = 0x01;
 
-	public function __construct($name = null)
+	/**
+	 *
+	 * @param string|StructureElementIdentifier|IndexStructure $identifier
+	 *        	View identifier
+	 */
+	public function __construct($identifier = null)
 	{
 		$this->viewFlags = 0;
-		$this->viewName = '';
+		$this->viewIdentifier = null;
 		$this->selectQuery = null;
 
-		if ($name)
-			$this->name($name);
+		if ($identifier !== null)
+			$this->identifier($identifier);
 	}
 
 	/**
 	 *
-	 * @param string $name
-	 *        	View name
+	 * @param string|StructureElementIdentifier|IndexStructure $identifier
+	 *        	View identifier
 	 * @return \NoreSources\SQL\Statement\Structure\DropViewQuery
 	 */
-	public function name($name)
+	public function identifier($identifier)
 	{
-		if ($name instanceof ViewStructure)
-			$name = $name->getName();
-		$this->viewName = $name;
+		if ($identifier instanceof ViewStructure)
+			$identifier = $identifier->getPath();
+
+		if ($identifier instanceof StructureElementIdentifier)
+			$this->viewIdentifier = $identifier;
+		else
+			$this->viewIdentifier = new StructureElementIdentifier(\strval($identifier));
+
 		return $this;
 	}
 
+	/**
+	 *
+	 * @param integer $flags
+	 * @return \NoreSources\SQL\Statement\Structure\CreateViewQuery
+	 */
 	public function flags($flags)
 	{
 		$this->viewFlags = $flags;
@@ -70,12 +86,12 @@ class CreateViewQuery extends Statement
 
 	/**
 	 *
-	 * @param SelectQuery $viewAs
+	 * @param SelectQuery $identifierAs
 	 * @return \NoreSources\SQL\Statement\Structure\CreateViewQuery
 	 */
-	public function select(SelectQuery $viewAs)
+	public function select(SelectQuery $identifierAs)
 	{
-		$this->selectQuery = $viewAs;
+		$this->selectQuery = $identifierAs;
 		return $this;
 	}
 
@@ -90,9 +106,7 @@ class CreateViewQuery extends Statement
 		$stream->keyword('create');
 
 		if ($this->viewFlags & self::TEMPORARY)
-		{
 			$stream->space()->keyword('temporary');
-		}
 
 		$stream->space()->keyword('view');
 		if ($builderFlags & K::BUILDER_IF_NOT_EXISTS)
@@ -109,29 +123,28 @@ class CreateViewQuery extends Statement
 
 		if ($builderFlags & K::BUILDER_SCOPED_STRUCTURE_DECLARATION)
 		{
-			$structure = $context->getPivot();
-			if ($structure instanceof ViewStructure && $structure->getName == $this->viewName)
+			$parts = $this->viewIdentifier->getPathParts();
+			if (\count($parts) > 1)
 			{
-				$stream->identifier($context->getStatementBuilder()
-					->getCanonicalName($structure));
+				$stream->identifier($builder->getCanonicalName($parts));
 			}
-			if ($structure instanceof NamespaceStructure)
+			else // Last chance to find the element namespace
 			{
-				$stream->identifier($context->getStatementBuilder()
-					->getCanonicalName($structure))
-					->text('.')
-					->identifier(
-					$context->getStatementBuilder()
-						->escapeIdentifier($this->viewName));
+				$structure = $context->getPivot();
+				if ($stream instanceof ViewStructure)
+					$structure = $structure->getParentElement();
+
+				if ($structure instanceof NamespaceStructure)
+					$stream->identifier($builder->getCanonicalName($structure))
+						->text('.');
+
+				$stream->identifier($builder->escapeIdentifier($this->viewIdentifier->path));
 			}
-			else
-				$stream->identifier(
-					$context->getStatementBuilder()
-						->escapeIdentifier($this->viewName));
 		}
 		else
-			$stream->identifier($context->getStatementBuilder()
-				->escapeIdentifier($this->viewName));
+			$stream->identifier(
+				$context->getStatementBuilder()
+					->escapeIdentifier($this->viewIdentifier));
 
 		return $stream->space()
 			->keyword('as')
@@ -143,14 +156,18 @@ class CreateViewQuery extends Statement
 	 *
 	 * @var integer
 	 */
-	private $viewFlags;
+	private $identifierFlags;
 
 	/**
 	 * View name
 	 *
-	 * @var string
+	 * @var StructureElementIdentifier
 	 */
-	private $viewName;
+	private $viewIdentifier;
 
+	/**
+	 *
+	 * @var SelectQuery
+	 */
 	private $selectQuery;
 }

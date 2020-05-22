@@ -12,6 +12,7 @@
 namespace NoreSources\SQL\Statement\Structure;
 
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\Expression\StructureElementIdentifier;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Expression\TokenStreamContextInterface;
 use NoreSources\SQL\Statement\Statement;
@@ -34,32 +35,37 @@ use NoreSources\SQL\Structure\ViewStructure;
 class DropViewQuery extends Statement
 {
 
-	public function __construct($name = null)
+	public function __construct($identifier = null)
 	{
-		$this->viewName = '';
-		if ($name)
-			$this->name($name);
+		$this->viewIdentifier = null;
+		if ($identifier != null)
+			$this->identifier($identifier);
 	}
 
 	/**
 	 *
-	 * @param string $name
-	 *        	View name
+	 * @param string|ViewStructure|StructureElementIdentifier $identifier
+	 *        	View identifier
 	 * @return \NoreSources\SQL\Statement\Structure\DropViewQuery
 	 */
-	public function name($name)
+	public function identifier($identifier)
 	{
-		if ($name instanceof ViewStructure)
-			$name = $name->getName();
-		$this->viewName = $name;
+		if ($identifier instanceof ViewStructure)
+			$identifier = $identifier->getPath();
+
+		if ($identifier instanceof StructureElementIdentifier)
+			$this->viewIdentifier = $identifier;
+		else
+			$this->viewIdentifier = new StructureElementIdentifier(\strval($identifier));
+
 		return $this;
 	}
 
 	public function tokenize(TokenStream $stream, TokenStreamContextInterface $context)
 	{
-		$builderFlags = $context->getStatementBuilder()->getBuilderFlags(K::BUILDER_DOMAIN_GENERIC);
-		$builderFlags |= $context->getStatementBuilder()->getBuilderFlags(
-			K::BUILDER_DOMAIN_DROP_VIEW);
+		$builder = $context->getStatementBuilder();
+		$builderFlags = $builder->getBuilderFlags(K::BUILDER_DOMAIN_GENERIC);
+		$builderFlags |= $builder->getBuilderFlags(K::BUILDER_DOMAIN_DROP_VIEW);
 
 		$context->setStatementType(K::QUERY_DROP_VIEW);
 
@@ -78,31 +84,24 @@ class DropViewQuery extends Statement
 
 		if ($builderFlags & K::BUILDER_SCOPED_STRUCTURE_DECLARATION)
 		{
-			$structure = $context->getPivot();
-			if ($structure instanceof ViewStructure && $structure->getName == $this->viewName)
+			$parts = $this->viewIdentifier->getPathParts();
+			if (\count($parts) > 1)
+				$stream->identifier($builder->getCanonicalName($parts));
+			else // Last chance to find the element namespace
 			{
-				$stream->identifier($context->getStatementBuilder()
-					->getCanonicalName($structure));
+				$structure = $context->getPivot();
+				if ($stream instanceof ViewStructure)
+					$structure = $structure->getParentElement();
+
+				if ($structure instanceof NamespaceStructure)
+					$stream->identifier($builder->getCanonicalName($structure))
+						->text('.');
+
+				$stream->identifier($builder->escapeIdentifier($this->viewIdentifier->path));
 			}
-			if ($structure instanceof NamespaceStructure)
-			{
-				$stream->identifier($context->getStatementBuilder()
-					->getCanonicalName($structure))
-					->text('.')
-					->identifier(
-					$context->getStatementBuilder()
-						->escapeIdentifier($this->viewName));
-			}
-			else
-				$stream->identifier(
-					$context->getStatementBuilder()
-						->escapeIdentifier($this->viewName));
 		}
 		else
-		{
-			$stream->identifier($context->getStatementBuilder()
-				->escapeIdentifier($this->viewName));
-		}
+			$stream->identifier($builder->escapeIdentifier($this->viewIdentifier->getLocalName()));
 
 		return $stream;
 	}
@@ -110,7 +109,7 @@ class DropViewQuery extends Statement
 	/**
 	 * View name
 	 *
-	 * @var string
+	 * @var StructureElementIdentifier
 	 */
-	private $viewName;
+	private $viewIdentifier;
 }

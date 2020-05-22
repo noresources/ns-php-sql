@@ -252,15 +252,11 @@ class SelectQuery extends Statement
 			$this->joins = new \ArrayObject();
 
 		if ($operatorOrJoin instanceof JoinClause)
-		{
 			$this->joins->append($operatorOrJoin);
-		}
 		else
 		{
 			if (is_string($subject))
-			{
 				$subject = new TableReference($subject);
-			}
 			elseif (Container::isArray($subject))
 			{
 				$name = null;
@@ -333,9 +329,7 @@ class SelectQuery extends Statement
 			$this->groupByClauses = new \ArrayObject();
 
 		for ($i = 0; $i < func_num_args(); $i++)
-		{
 			$this->groupByClauses->append(new Column(func_get_arg($i)));
-		}
 
 		return $this;
 	}
@@ -448,7 +442,7 @@ class SelectQuery extends Statement
 			$context->pushResolverContext($tableStructure);
 		}
 
-		# Resolve and b'from'uild table-related parts
+		// Resolve and b'from'uild table-related parts
 
 		if ($table instanceof TableReference && $table->alias)
 		{
@@ -518,7 +512,7 @@ class SelectQuery extends Statement
 				->constraints($this->havingConstraints, $context);
 		}
 
-		# Resolve columns (inf not yet)
+		// Resolve columns (inf not yet)
 		if (!($builderFlags & K::BUILDER_SELECT_EXTENDED_RESULTCOLUMN_ALIAS_RESOLUTION))
 		{
 			$this->resolveResultColumns($context);

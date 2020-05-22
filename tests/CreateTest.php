@@ -29,7 +29,7 @@ final class CreateTest extends \PHPUnit\Framework\TestCase
 
 		$index = new CreateIndexQuery();
 		$index->table('Hierarchy')
-			->name('managed')
+			->identifier('managed')
 			->columns('manageeId')
 			->where('managerId > 10');
 
@@ -55,7 +55,7 @@ final class CreateTest extends \PHPUnit\Framework\TestCase
 		]);
 
 		$view = new CreateViewQuery();
-		$view->name('Males')
+		$view->identifier('Males')
 			->flags(CreateViewQuery::TEMPORARY)
 			->select($select);
 

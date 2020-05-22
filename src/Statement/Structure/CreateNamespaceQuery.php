@@ -12,43 +12,68 @@
 namespace NoreSources\SQL\Statement\Structure;
 
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\Expression\StructureElementIdentifier;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Expression\TokenStreamContextInterface;
 use NoreSources\SQL\Statement\Statement;
-use NoreSources\SQL\Statement\StatementException;
 use NoreSources\SQL\Structure\NamespaceStructure;
-use NoreSources\SQL\Structure\StructureAwareInterface;
-use NoreSources\SQL\Structure\StructureAwareTrait;
 
 /**
  * CREATE DATABASE / SCHEMA
  */
-class CreateNamespaceQuery extends Statement implements StructureAwareInterface
+class CreateNamespaceQuery extends Statement
 {
 
-	use StructureAwareTrait;
-
-	public function __construct(NamespaceStructure $structure = null)
+	/**
+	 *
+	 * @param string $identifier
+	 *        	Namespace identifier
+	 */
+	public function __construct($identifier = null)
 	{
-		$this->structure = $structure;
+		if ($identifier !== null)
+			$this->name($identifier);
 	}
 
-	public function tokenize(TokenStream $stream, TokenStreamContextInterface $context)
+	/**
+	 *
+	 * @param string $identifier
+	 *        	Namespace identifier
+	 * @return \NoreSources\SQL\Statement\Structure\DropViewQuery
+	 */
+	public function identifier($identifier)
+	{
+		if ($identifier instanceof NamespaceStructure)
+			$identifier = $identifier->getPath();
+
+		if ($identifier instanceof StructureElementIdentifier)
+			$this->namespaceIdentifier = $identifier;
+		else
+			$this->namespaceIdentifier = new StructureElementIdentifier(\strval($identifier));
+
+		return $this;
+	}
+
+	function tokenize(TokenStream $stream, TokenStreamContextInterface $context)
 	{
 		$builder = $context->getStatementBuilder();
 
 		$builderFlags = $builder->getBuilderFlags(K::BUILDER_DOMAIN_GENERIC);
 		$builderFlags |= $builder->getBuilderFlags(K::BUILDER_DOMAIN_CREATE_NAMESPACE);
 
-		$structure = $this->getStructure();
-
-		if (!($structure instanceof NamespaceStructure && ($structure->count() > 0)))
-			throw new StatementException($this, 'Missing or invalid table structure');
+		$context->setStatementType(K::QUERY_CREATE_NAMESPACE);
 
 		return $stream->keyword('create')
 			->space()
 			->keyword($builder->getKeyword(K::KEYWORD_NAMESPACE))
 			->space()
-			->identifier($builder->escapeIdentifier($structure->getName()));
+			->identifier($builder->getCanonicalName($this->namespaceIdentifier));
 	}
+
+	/**
+	 * Namespace identifier
+	 *
+	 * @var StructureElementIdentifier
+	 */
+	private $namespaceIdentifier;
 }

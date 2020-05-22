@@ -21,7 +21,6 @@ use NoreSources\SQL\Result\InsertionStatementResultInterface;
 use NoreSources\SQL\Result\Recordset;
 use NoreSources\SQL\Statement\Manipulation\DeleteQuery;
 use NoreSources\SQL\Statement\Manipulation\InsertQuery;
-use NoreSources\SQL\Statement\Manipulation\UpdateQuery;
 use NoreSources\SQL\Statement\Query\SelectQuery;
 use NoreSources\SQL\Statement\Structure\DropTableQuery;
 use NoreSources\SQL\Structure\ArrayColumnDescription;
@@ -131,10 +130,10 @@ final class DBMSCommonTest extends TestCase
 			 * Unfortunately some DBMS does not really support time zone spec
 			 * (ex MySQL)
 			 */
-			//,
-			//'timestamp_tz' => [
-			//	'expected' => new \DateTime('2010-11-12T13:14:15+0100')
-			//]
+			// ,
+			// 'timestamp_tz' => [
+			// 'expected' => new \DateTime('2010-11-12T13:14:15+0100')
+			// ]
 			],
 			'arbitrary data' => [
 				'base' => [
@@ -165,10 +164,10 @@ final class DBMSCommonTest extends TestCase
 			 * Unfortunately some DBMS does not really support time zone spec
 			 * (ex MySQL)
 			 */
-			//'timestamp_tz' => [
-			//	'insert' => new \DateTime('2010-11-12T13:14:15+0400'),
-			//	'expected' => new \DateTime('2010-11-12T13:14:15+0400')
-			//]
+			// 'timestamp_tz' => [
+			// 'insert' => new \DateTime('2010-11-12T13:14:15+0400'),
+			// 'expected' => new \DateTime('2010-11-12T13:14:15+0400')
+			// ]
 			]
 		];
 
@@ -176,7 +175,12 @@ final class DBMSCommonTest extends TestCase
 
 		foreach ($rows as $label => $columns)
 		{
-			$q = new InsertQuery($tableStructure);
+			/**
+			 *
+			 * @var \NoreSources\SQL\Statement\Manipulation\InsertQuery $q
+			 */
+			$q = $connection->getStatementFactory()->newStatement(K::QUERY_INSERT);
+			$q->table($tableStructure);
 			foreach ($columns as $columnName => $specs)
 			{
 				if (Container::keyExists($specs, 'insert'))
@@ -418,7 +422,12 @@ final class DBMSCommonTest extends TestCase
 	{
 		$dbmsName = TypeDescription::getLocalName($connection);
 		$method = __CLASS__ . '::' . debug_backtrace()[1]['function'];
-		$i = new InsertQuery($tableStructure);
+		/**
+		 *
+		 * @var \NoreSources\SQL\Statement\Manipulation\InsertQuery $i
+		 */
+		$i = $connection->getStatementFactory()->newStatement(K::QUERY_INSERT);
+		$i->table($tableStructure);
 		$i('int', ':even');
 		$i('large_int', ':odd');
 		$i('small_int', ':even');
@@ -605,7 +614,12 @@ final class DBMSCommonTest extends TestCase
 		$insert('text', ':text');
 		$insert = ConnectionHelper::prepareStatement($connection, $insert, $tableStructure);
 
-		$update = new UpdateQuery($tableStructure);
+		/**
+		 *
+		 * @var UpdateQuery $update
+		 */
+		$update = $connection->getStatementFactory()->newStatement(K::QUERY_UPDATE);
+		$update->table($tableStructure);
 		$update('text', ':text');
 		$update->where([
 			'id' => ':id'

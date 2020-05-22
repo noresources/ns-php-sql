@@ -15,14 +15,13 @@ use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Expression\Evaluator;
 use NoreSources\SQL\Expression\Keyword;
 use NoreSources\SQL\Expression\Literal;
-use NoreSources\SQL\Expression\TableReference;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Expression\TokenStreamContextInterface;
 use NoreSources\SQL\Expression\TokenizableExpressionInterface;
 use NoreSources\SQL\Statement\Statement;
 use NoreSources\SQL\Statement\StatementException;
 use NoreSources\SQL\Statement\Traits\ColumnValueTrait;
-use NoreSources\SQL\Structure\TableStructure;
+use NoreSources\SQL\Statement\Traits\StatementTableTrait;
 
 /**
  * INSERT query
@@ -31,6 +30,7 @@ class InsertQuery extends Statement implements \ArrayAccess
 {
 
 	use ColumnValueTrait;
+	use StatementTableTrait;
 
 	/**
 	 *
@@ -38,14 +38,10 @@ class InsertQuery extends Statement implements \ArrayAccess
 	 * @param string $alias
 	 *        	Optional table alias
 	 */
-	public function __construct($table, $alias = null)
+	public function __construct($table = null, $alias = null)
 	{
-		if ($table instanceof TableStructure)
-		{
-			$table = $table->getPath();
-		}
-
-		$this->table = new TableReference($table);
+		if ($table !== null)
+			$this->table($table, $alias);
 		$this->columnValues = new \ArrayObject();
 	}
 
@@ -54,7 +50,7 @@ class InsertQuery extends Statement implements \ArrayAccess
 		$builderFlags = $context->getStatementBuilder()->getBuilderFlags(K::BUILDER_DOMAIN_GENERIC);
 		$builderFlags |= $context->getStatementBuilder()->getBuilderFlags(K::BUILDER_DOMAIN_INSERT);
 
-		$tableStructure = $context->findTable($this->table->path);
+		$tableStructure = $context->findTable($this->getTable()->path);
 		$context->setStatementType(K::QUERY_INSERT);
 
 		/**
@@ -70,12 +66,12 @@ class InsertQuery extends Statement implements \ArrayAccess
 			->space()
 			->identifier($context->getStatementBuilder()
 			->getCanonicalName($tableStructure));
-		if ($this->table->alias)
+		if ($this->getTable()->alias)
 		{
 			$stream->space()
 				->keyword('as')
 				->space()
-				->expression($this->table, $context);
+				->expression($this->getTable(), $context);
 		}
 
 		$columns = [];
@@ -172,10 +168,4 @@ class InsertQuery extends Statement implements \ArrayAccess
 		$context->popResolverContext();
 		return $stream;
 	}
-
-	/**
-	 *
-	 * @var TableReference
-	 */
-	private $table;
 }

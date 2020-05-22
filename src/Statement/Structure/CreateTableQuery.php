@@ -23,6 +23,7 @@ use NoreSources\SQL\Statement\StatementException;
 use NoreSources\SQL\Structure\ColumnTableConstraint;
 use NoreSources\SQL\Structure\ForeignKeyTableConstraint;
 use NoreSources\SQL\Structure\PrimaryKeyTableConstraint;
+use NoreSources\SQL\Structure\StructureAwareInterface;
 use NoreSources\SQL\Structure\TableConstraint;
 use NoreSources\SQL\Structure\TableStructure;
 use NoreSources\SQL\Structure\UniqueTableConstraint;
@@ -30,7 +31,7 @@ use NoreSources\SQL\Structure\UniqueTableConstraint;
 /**
  * CREATE TABLE statement
  */
-class CreateTableQuery extends Statement
+class CreateTableQuery extends Statement implements StructureAwareInterface
 {
 
 	/**
@@ -40,21 +41,19 @@ class CreateTableQuery extends Statement
 	 */
 	public function __construct(TableStructure $structure = null)
 	{
-		$this->structure = $structure;
+		if ($structure instanceof TableStructure)
+			$this->table($structure);
 	}
 
-	/**
-	 *
-	 * @property-read \NoreSources\SQL\TableStructure
-	 * @param mixed $member
-	 * @return \NoreSources\SQL\TableStructure
-	 */
-	public function __get($member)
+	public function getStructure()
 	{
-		if ($member == 'structure')
-			return $this->structure;
+		return $this->structure;
+	}
 
-		return $this->structure->$member;
+	public function table(TableStructure $table)
+	{
+		$this->structure = $table;
+		return $this;
 	}
 
 	public function tokenize(TokenStream $stream, TokenStreamContextInterface $context)

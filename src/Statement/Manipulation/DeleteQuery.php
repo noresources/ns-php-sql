@@ -10,12 +10,11 @@
 namespace NoreSources\SQL\Statement\Manipulation;
 
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\Expression\TableReference;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Expression\TokenStreamContextInterface;
 use NoreSources\SQL\Statement\Statement;
+use NoreSources\SQL\Statement\Traits\StatementTableTrait;
 use NoreSources\SQL\Statement\Traits\WhereConstraintTrait;
-use NoreSources\SQL\Structure\TableStructure;
 
 /**
  * DELETE query
@@ -24,37 +23,22 @@ class DeleteQuery extends Statement
 {
 
 	use WhereConstraintTrait;
+	use StatementTableTrait;
 
 	/**
 	 *
 	 * @param TableStructure|string $table
 	 */
-	public function __construct($table)
+	public function __construct($table = null)
 	{
 		$this->initializeWhereConstraints();
-
-		if ($table instanceof TableStructure)
-		{
-			$table = $table->getPath();
-		}
-
-		$this->table = new TableReference($table);
-	}
-
-	/**
-	 *
-	 * @param Evaluable $args...
-	 *        	Evaluable expression list
-	 * @return \NoreSources\SQL\Statement\Manipulation\DeleteQuery
-	 */
-	public function where()
-	{
-		return $this->addConstraints($this->whereConstraints, func_get_args());
+		if ($table !== null)
+			$this->table($table);
 	}
 
 	public function tokenize(TokenStream $stream, TokenStreamContextInterface $context)
 	{
-		$tableStructure = $context->findTable($this->table->path);
+		$tableStructure = $context->findTable($this->getTable()->path);
 
 		$context->pushResolverContext($tableStructure);
 		$context->setStatementType(K::QUERY_DELETE);
@@ -63,7 +47,7 @@ class DeleteQuery extends Statement
 			->space()
 			->keyword('from')
 			->space()
-			->expression($this->table, $context);
+			->expression($this->getTable(), $context);
 
 		if ($this->whereConstraints instanceof \ArrayObject && $this->whereConstraints->count())
 		{
@@ -76,10 +60,4 @@ class DeleteQuery extends Statement
 		$context->popResolverContext();
 		return $stream;
 	}
-
-	/**
-	 *
-	 * @var TableReference
-	 */
-	private $table;
 }

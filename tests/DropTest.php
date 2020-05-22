@@ -26,7 +26,8 @@ final class DropTest extends \PHPUnit\Framework\TestCase
 	{
 		$builder = new ReferenceStatementBuilder();
 
-		$structureless = new DropIndexQuery('structureless');
+		$structureless = new DropIndexQuery();
+		$structureless->identifier('structureless');
 		$context = new StatementTokenStreamContext($builder);
 		$stream = new TokenStream();
 		$structureless->tokenize($stream, $context);
@@ -37,7 +38,8 @@ final class DropTest extends \PHPUnit\Framework\TestCase
 
 		$structure = $this->datasources->get('Company');
 		$indexStructure = $structure['ns_unittests']['index_employees_name'];
-		$structured = new DropIndexQuery('structureless');
+		$structured = new DropIndexQuery();
+		$structured->identifier('structureless');
 		$context = new StatementTokenStreamContext($builder, $indexStructure);
 		$stream = new TokenStream();
 		$structured->tokenize($stream, $context);
@@ -54,7 +56,8 @@ final class DropTest extends \PHPUnit\Framework\TestCase
 				K::BUILDER_DOMAIN_GENERIC => K::BUILDER_SCOPED_STRUCTURE_DECLARATION
 			]);
 
-		$view = new DropViewQuery('Males');
+		$view = new DropViewQuery();
+		$view->identifier('Males');
 		$context = new StatementTokenStreamContext($builder);
 		$stream = new TokenStream();
 		$view->tokenize($stream, $context);

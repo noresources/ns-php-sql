@@ -7,7 +7,6 @@ use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLConnection;
 use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLConstants as K;
 use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLPreparedStatement;
 use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLStatementBuilder;
-use NoreSources\SQL\Statement\Manipulation\InsertQuery;
 use NoreSources\SQL\Statement\Structure\CreateTableQuery;
 use NoreSources\SQL\Statement\Structure\DropTableQuery;
 use NoreSources\SQL\Structure\TableStructure;
@@ -99,7 +98,12 @@ final class PostgreSQLTest extends \PHPUnit\Framework\TestCase
 		$tableStructure = $structure['ns_unittests']['Employees'];
 		$this->assertInstanceOf(Structure\TableStructure::class, $tableStructure);
 
-		$query = new InsertQuery($tableStructure);
+		/**
+		 *
+		 * @var \NoreSources\SQL\Statement\Manipulation\InsertQuery $query
+		 */
+		$query = $connection->getStatementFactory()->newStatement(K::QUERY_INSERT);
+		$query->table($tableStructure);
 		$query('gender', ':gender');
 
 		$prepared = ConnectionHelper::prepareStatement($connection, $query, $tableStructure);
@@ -110,6 +114,10 @@ final class PostgreSQLTest extends \PHPUnit\Framework\TestCase
 	public function _testSelect()
 	{}
 
+	/**
+	 *
+	 * @return \NoreSources\SQL\DBMS\ConnectionInterface
+	 */
 	private function createConnection()
 	{
 		if ($this->connection instanceof PostgreSQLConnection)

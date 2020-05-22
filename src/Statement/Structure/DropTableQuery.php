@@ -12,7 +12,7 @@
 namespace NoreSources\SQL\Statement\Structure;
 
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\Expression\Table;
+use NoreSources\SQL\Expression\StructureElementIdentifier;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Expression\TokenStreamContextInterface;
 use NoreSources\SQL\Statement\Statement;
@@ -24,29 +24,49 @@ use NoreSources\SQL\Structure\TableStructure;
 class DropTableQuery extends Statement
 {
 
-	public function __construct($table)
+	/**
+	 *
+	 * @param StructureElementIdentifier|TableStructure|string $identifier
+	 *        	Table identifier
+	 */
+	public function __construct($identifier = null)
 	{
-		if ($table instanceof TableStructure)
-		{
-			$table = $table->getPath();
-		}
+		$this->tableIdentifier = null;
+		if ($identifier != null)
+			$this->identifier($identifier);
+	}
 
-		$this->table = new Table($table);
+	/**
+	 *
+	 * @param StructureElementIdentifier|TableStructure|string $identifier
+	 *        	Table identifier
+	 * @return \NoreSources\SQL\Statement\Structure\DropTableQuery
+	 */
+	public function identifier($identifier)
+	{
+		if ($identifier instanceof TableStructure)
+			$identifier = $identifier->getPath();
+
+		if ($identifier instanceof StructureElementIdentifier)
+			$this->tableIdentifier = $identifier;
+		else
+			$this->tableIdentifier = new StructureElementIdentifier($identifier);
+
+		return $this;
 	}
 
 	public function tokenize(TokenStream $stream, TokenStreamContextInterface $context)
 	{
-		$builderFlags = $context->getStatementBuilder()->getBuilderFlags(K::BUILDER_DOMAIN_GENERIC);
-		$builderFlags |= $context->getStatementBuilder()->getBuilderFlags(
-			K::BUILDER_DOMAIN_DROP_TABLE);
+		$builder = $context->getStatementBuilder();
+		$builderFlags = $builder->getBuilderFlags(K::BUILDER_DOMAIN_GENERIC);
+		$builderFlags |= $builder->getBuilderFlags(K::BUILDER_DOMAIN_DROP_TABLE);
 
-		$tableStructure = $context->findTable($this->table->path);
-
-		$context->pushResolverContext($tableStructure);
+		$context->setStatementType(K::QUERY_DROP_TABLE);
 
 		$stream->keyword('drop')
 			->space()
 			->keyword('table');
+
 		if ($builderFlags & K::BUILDER_IF_EXISTS)
 		{
 			$stream->space()
@@ -55,14 +75,13 @@ class DropTableQuery extends Statement
 				->keyword('exists');
 		}
 
-		$stream->space()->expression($this->table, $context);
-		$context->popResolverContext();
-		return $stream;
+		return $stream->space()->identifier(
+			$builder->getCanonicalName($this->tableIdentifier->getPathParts()));
 	}
 
 	/**
 	 *
-	 * @var NoreSources\Expression\Table
+	 * @var \NoreSources\SQL\Expression\StructureElementIdentifier
 	 */
-	private $table;
+	private $tableIdentifier;
 }

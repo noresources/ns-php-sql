@@ -14,6 +14,7 @@ namespace NoreSources\SQL\Statement\Structure;
 use NoreSources\TypeConversion;
 use NoreSources\TypeDescription;
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\Expression\StructureElementIdentifier;
 use NoreSources\SQL\Expression\TableReference;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Expression\TokenStreamContextInterface;
@@ -22,6 +23,7 @@ use NoreSources\SQL\Statement\Statement;
 use NoreSources\SQL\Statement\StatementException;
 use NoreSources\SQL\Statement\Traits\WhereConstraintTrait;
 use NoreSources\SQL\Structure\IndexStructure;
+use NoreSources\SQL\Structure\NamespaceStructure;
 use NoreSources\SQL\Structure\TableStructure;
 
 /**
@@ -35,24 +37,21 @@ class CreateIndexQuery extends Statement
 
 	const UNIQUE = 0x01;
 
-	public function __construct($table = null, $name = null)
+	public function __construct($identifier = null)
 	{
 		$this->indexTable = null;
 		$this->indexFlags = 0;
 		$this->initializeWhereConstraints();
 		$this->indexColumns = [];
 
-		if ($table)
-			$this->table($table);
-
-		if ($name)
-			$this->name($name);
+		if ($identifier !== null)
+			$this->identifier($identifier);
 	}
 
 	public function setFromIndexStructure(IndexStructure $index)
 	{
 		$this->table($index->getIndexTable());
-		$this->name($index->getName());
+		$this->identifier($index);
 		$this->indexColumns = [];
 		foreach ($index->getIndexColumns() as $column)
 		{
@@ -63,14 +62,21 @@ class CreateIndexQuery extends Statement
 
 	/**
 	 *
-	 * @param string $name
-	 *        	Index name
+	 * @param StructureElementIdentifier|IndexStructure|string $identifier
+	 *        	Index identifier
 	 *
 	 * @return CreateIndexQuery
 	 */
-	public function name($name)
+	public function identifier($identifier)
 	{
-		$this->indexName = $name;
+		if ($identifier instanceof IndexStructure)
+			$identifier = $identifier->getPath();
+
+		if ($identifier instanceof StructureElementIdentifier)
+			$this->indexIdentifier = $identifier;
+		else
+			$this->indexIdentifier = new StructureElementIdentifier(\strval($identifier));
+
 		return $this;
 	}
 
@@ -99,7 +105,9 @@ class CreateIndexQuery extends Statement
 
 	/**
 	 *
-	 * @return \NoreSources\SQL\Statement\CreateIndexQuery
+	 * @param array $args...
+	 *        	Column names
+	 * @return \NoreSources\SQL\Statement\Structure\CreateIndexQuery
 	 */
 	public function columns()
 	{
@@ -137,14 +145,14 @@ class CreateIndexQuery extends Statement
 	 */
 	public function where()
 	{
-		$this->addConstraints($this->whereConstraints, func_get_args());
+		return $this->addConstraints($this->whereConstraints, func_get_args());
 	}
 
 	public function tokenize(TokenStream $stream, TokenStreamContextInterface $context)
 	{
-		$builderFlags = $context->getStatementBuilder()->getBuilderFlags(K::BUILDER_DOMAIN_GENERIC);
-		$builderFlags |= $context->getStatementBuilder()->getBuilderFlags(
-			K::BUILDER_DOMAIN_CREATE_INDEX);
+		$builder = $context->getStatementBuilder();
+		$builderFlags = $builder->getBuilderFlags(K::BUILDER_DOMAIN_GENERIC);
+		$builderFlags |= $builder->getBuilderFlags(K::BUILDER_DOMAIN_CREATE_INDEX);
 
 		$context->setStatementType(K::QUERY_CREATE_INDEX);
 
@@ -168,26 +176,37 @@ class CreateIndexQuery extends Statement
 				->space()
 				->keyword('exists');
 
-		if (\strlen($this->indexName))
+		if ($this->indexIdentifier instanceof StructureElementIdentifier)
 		{
 			$stream->space();
 
-			if (($builderFlags & K::BUILDER_SCOPED_STRUCTURE_DECLARATION))
-				$stream->identifier(
-					$context->getStatementBuilder()
-						->getCanonicalName($tableStructure->getParentElement()))
-					->text('.');
+			if ($builderFlags & K::BUILDER_SCOPED_STRUCTURE_DECLARATION)
+			{
+				$parts = $this->indexIdentifier->getPathParts();
+				if (\count($parts) > 1)
+					$stream->identifier($builder->getCanonicalName($parts));
+				else // Last chance to find the element namespace
+				{
+					$structure = $context->getPivot();
+					if ($stream instanceof IndexStructure)
+						$structure = $structure->getParentElement();
 
-			$stream->identifier(
-				$context->getStatementBuilder()
-					->escapeIdentifier($this->indexName));
+					if ($structure instanceof NamespaceStructure)
+						$stream->identifier($builder->getCanonicalName($structure))
+							->text('.');
+
+					$stream->identifier($builder->escapeIdentifier($this->indexIdentifier->path));
+				}
+			}
+			else
+				$stream->identifier(
+					$builder->escapeIdentifier($this->indexIdentifier->getLocalName()));
 		}
 
 		$stream->space()
 			->keyword('on')
 			->space()
-			->identifier($context->getStatementBuilder()
-			->getCanonicalName($tableStructure))
+			->identifier($builder->getCanonicalName($tableStructure))
 			->space()
 			->text('(');
 
@@ -200,9 +219,7 @@ class CreateIndexQuery extends Statement
 			if ($column instanceof TokenizableExpressionInterface)
 				$stream->space()->expression($column, $context);
 			else
-				$stream->space()->identifier(
-					$context->getStatementBuilder()
-						->escapeIdentifier($column));
+				$stream->space()->identifier($builder->escapeIdentifier($column));
 		}
 
 		$stream->text(')');
@@ -229,7 +246,7 @@ class CreateIndexQuery extends Statement
 	 *
 	 * @var string
 	 */
-	private $indexName;
+	private $indexIdentifier;
 
 	/**
 	 *

@@ -13,15 +13,14 @@ namespace NoreSources\SQL\Statement\Manipulation;
 
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Expression\Literal;
-use NoreSources\SQL\Expression\TableReference;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Expression\TokenStreamContextInterface;
 use NoreSources\SQL\Expression\TokenizableExpressionInterface;
 use NoreSources\SQL\Statement\Statement;
 use NoreSources\SQL\Statement\StatementException;
 use NoreSources\SQL\Statement\Traits\ColumnValueTrait;
+use NoreSources\SQL\Statement\Traits\StatementTableTrait;
 use NoreSources\SQL\Statement\Traits\WhereConstraintTrait;
-use NoreSources\SQL\Structure\TableStructure;
 
 /**
  * UPDATE query
@@ -30,44 +29,28 @@ class UpdateQuery extends Statement implements \ArrayAccess
 {
 
 	use ColumnValueTrait;
+	use StatementTableTrait;
 	use WhereConstraintTrait;
 
 	/**
 	 *
 	 * @param NamespaceStructure|string $table
 	 */
-	public function __construct($table)
+	public function __construct($table = null, $alias = null)
 	{
 		$this->initializeWhereConstraints();
-
-		if ($table instanceof TableStructure)
-		{
-			$table = $table->getPath();
-		}
-
-		$this->table = new TableReference($table);
 		$this->columnValues = new \ArrayObject();
-	}
 
-	/**
-	 *
-	 * @param Evaluable $args...
-	 *        	Evaluable expression list
-	 * @return \NoreSources\SQL\Statement\Manipulation\UpdateQuery
-	 */
-	public function where()
-	{
-		return $this->addConstraints($this->whereConstraints, func_get_args());
+		if ($table !== null)
+			$this->table($table, $alias);
 	}
 
 	public function tokenize(TokenStream $stream, TokenStreamContextInterface $context)
 	{
 		if ($this->columnValues->count() == 0)
-		{
 			throw new StatementException($this, 'No column value');
-		}
 
-		$tableStructure = $context->findTable($this->table->path);
+		$tableStructure = $context->findTable($this->getTable()->path);
 		$context->pushResolverContext($tableStructure);
 		$context->setStatementType(K::QUERY_UPDATE);
 		/**
@@ -128,10 +111,4 @@ class UpdateQuery extends Statement implements \ArrayAccess
 		$context->popResolverContext();
 		return $stream;
 	}
-
-	/**
-	 *
-	 * @var TableReference
-	 */
-	private $table;
 }

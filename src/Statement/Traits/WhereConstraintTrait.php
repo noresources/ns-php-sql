@@ -26,7 +26,7 @@ trait WhereConstraintTrait
 		if (!($this->whereConstraints instanceof \ArrayObject))
 			$this->initializeWhereConstraints();
 
-		$this->addConstraints($this->whereConstraints, func_get_args());
+		return $this->addConstraints($this->whereConstraints, func_get_args());
 	}
 
 	/**
