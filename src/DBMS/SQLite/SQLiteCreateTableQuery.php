@@ -33,7 +33,7 @@ class SQLiteCreateTableQuery extends CreateTableQuery
 		$builderFlags = $builder->getBuilderFlags(K::BUILDER_DOMAIN_GENERIC);
 		$builderFlags |= $builder->getBuilderFlags(K::BUILDER_DOMAIN_CREATE_TABLE);
 
-		$structure = $this->structure;
+		$structure = $this->getStructure();
 		if (!($structure instanceof TableStructure))
 			$structure = $context->getPivot();
 
@@ -59,12 +59,12 @@ class SQLiteCreateTableQuery extends CreateTableQuery
 			->keyword('if not exists');
 
 		$stream->space()
-			->identifier($builder->getCanonicalName($this->structure))
+			->identifier($builder->getCanonicalName($this->getStructure()))
 			->space()
 			->text('(');
 
 		$c = 0;
-		foreach ($this->structure as $name => $column)
+		foreach ($this->getStructure() as $name => $column)
 		{
 			/**
 			 *
