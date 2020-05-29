@@ -277,17 +277,19 @@ const kStructureValidatorClassname = 'validator_classname';
 /**
  * Display element using its full real name
  */
-const kExpressionElementName = 0x1;
+const kExpressionElementName = 0x01;
 
 /**
  * Display element using its alias if available
  */
-const kExpressionElementAlias = 0x2;
+const kExpressionElementAlias = 0x02;
 
 /**
  * Display element with its real name and declare its alias
  */
-const kExpressionElementDeclaration = 0x3;
+const kExpressionElementDeclaration = 0x03;
+
+const kExpressionElementUnion = 0x04;
 
 /**
  *

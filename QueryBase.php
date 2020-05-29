@@ -67,7 +67,7 @@ abstract class IQuery
 	 *
 	 * @var numeric
 	 */
-	const IS_UNION = 0x1;
+	const IS_UNION = kExpressionElementUnion;
 
 	/**
 	 * Indicates if query contains a UNION statement
