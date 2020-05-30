@@ -7,8 +7,12 @@ use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLConnection;
 use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLConstants as K;
 use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLPreparedStatement;
 use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLStatementBuilder;
+use NoreSources\SQL\Statement\Statement;
+use NoreSources\SQL\Statement\Structure\CreateIndexQuery;
 use NoreSources\SQL\Statement\Structure\CreateTableQuery;
+use NoreSources\SQL\Statement\Structure\DropIndexQuery;
 use NoreSources\SQL\Statement\Structure\DropTableQuery;
+use NoreSources\SQL\Structure\IndexStructure;
 use NoreSources\SQL\Structure\TableStructure;
 use NoreSources\Test\DatasourceManager;
 use NoreSources\Test\DerivedFileManager;
@@ -31,46 +35,45 @@ final class PostgreSQLTest extends \PHPUnit\Framework\TestCase
 
 		$connection = self::createConnection();
 
-		$builders = [
-			'connectionless' => new PostgreSQLStatementBuilder(null),
-			'connected' => $connection->getStatementBuilder()
-		];
+		$builder = $connection->getStatementBuilder();
+		$this->assertInstanceOf(PostgreSQLStatementBuilder::class, $builder);
 
 		$version = $connection->getPostgreSQLVersion();
 		$versionString = $version->slice(SemanticVersion::MAJOR, SemanticVersion::MINOR);
 
-		foreach ($structure['ns_unittests'] as $name => $tableStructure)
+		foreach ($structure['ns_unittests'] as $name => $elementStructure)
 		{
-			if (!($tableStructure instanceof TableStructure))
+			$s = null;
+			if ($elementStructure instanceof TableStructure)
+			{
+				$s = $connection->getStatementFactory()->newStatement(K::QUERY_CREATE_TABLE);
+				if ($s instanceof CreateTableQuery)
+					$s->table($elementStructure);
+			}
+			elseif ($elementStructure instanceof IndexStructure)
+			{
+				$s = $connection->getStatementFactory()->newStatement(K::QUERY_CREATE_INDEX);
+				if ($s instanceof CreateIndexQuery)
+					$s->setFromIndexStructure($elementStructure);
+			}
+			else
 				continue;
 
-			$previousFile = null;
-			foreach ($builders as $builderType => $builder)
-			{
-				if (!\is_resource($builder->getConnectionResource()))
-					$builder->updateBuilderFlags($version);
+			$this->assertInstanceOf(Statement::class, $s, 'Valid CREATE query');
 
-				$this->assertInstanceOf(PostgreSQLStatementBuilder::class, $builder);
+			$sql = ConnectionHelper::buildStatement($connection, $s, $elementStructure);
+			$sql = \strval($sql);
 
-				$s = new CreateTableQuery($tableStructure);
-				$sql = ConnectionHelper::buildStatement($connection, $s, $tableStructure);
-				$sql = \strval($sql);
+			$sql = \SqlFormatter::format($sql, false);
+			$suffix = 'create_' . $name . '_' . $versionString;
+			$file = $this->derivedFileManager->assertDerivedFile($sql, __METHOD__, $suffix, 'sql');
 
-				$sql = \SqlFormatter::format($sql, false);
-				$suffix = 'create_' . $name . '_' . $builderType . '_' . $versionString;
-				$file = $this->derivedFileManager->assertDerivedFile($sql, __METHOD__, $suffix,
-					'sql');
-
-				if (\is_file($previousFile))
-				{
-					$this->assertEquals(file_get_contents($previousFile), file_get_contents($file),
-						'Compare builder results');
-				}
-				$previousFile = $file;
-			}
-
-			$dropTable = new DropTableQuery($tableStructure);
-			$data = ConnectionHelper::buildStatement($connection, $dropTable, $tableStructure);
+			$drop = null;
+			if ($elementStructure instanceof TableStructure)
+				$drop = new DropTableQuery($elementStructure);
+			elseif ($elementStructure instanceof IndexStructure)
+				$drop = new DropIndexQuery($elementStructure);
+			$data = ConnectionHelper::buildStatement($connection, $drop, $elementStructure);
 			$sql = \SqlFormatter::format(\strval($data), false);
 			$suffix = 'drop_' . $name . '_' . $versionString;
 			$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, $suffix, 'sql');
@@ -91,7 +94,6 @@ final class PostgreSQLTest extends \PHPUnit\Framework\TestCase
 	public function testParameters()
 	{
 		$this->assertEquals(true, true);
-		return;
 
 		$connection = self::createConnection();
 		$structure = $this->datasources->get('Company');

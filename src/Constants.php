@@ -217,7 +217,8 @@ class Constants
 	/**
 	 * Column is auto incremented.
 	 *
-	 * For integer column only. On most DBMS, this property is also only available for primary key column
+	 * For integer column only. On most DBMS, this property is also only available for primary key
+	 * column
 	 * and should appear only once per table.
 	 *
 	 * @var integer
@@ -583,6 +584,13 @@ class Constants
 	 * @var number
 	 */
 	const BUILDER_CREATE_COLUMN_KEY_MANDATORY_LENGTH = 0x01000000;
+
+	/**
+	 * DROP query supports CASCADE modifiers
+	 *
+	 * @var integer
+	 */
+	const BUILDER_DROP_CASCADE = 0x01000000;
 
 	// Tokens
 	const TOKEN_SPACE = 0;

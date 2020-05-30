@@ -12,17 +12,20 @@
 namespace NoreSources\SQL\Statement\Structure;
 
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\Expression\StructureElementIdentifier;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Expression\TokenStreamContextInterface;
 use NoreSources\SQL\Statement\Statement;
-use NoreSources\SQL\Structure\TableStructure;
+use NoreSources\SQL\Statement\Traits\StatementTableTrait;
+use Psr\Log\LoggerInterface;
 
 /**
  * DROP TABLE statement
  */
 class DropTableQuery extends Statement
 {
+	use StatementTableTrait;
+
+	const CASCADE = 0x01;
 
 	/**
 	 *
@@ -31,27 +34,20 @@ class DropTableQuery extends Statement
 	 */
 	public function __construct($identifier = null)
 	{
-		$this->tableIdentifier = null;
+		$this->dropFlags = 0;
 		if ($identifier != null)
-			$this->identifier($identifier);
+			$this->table($identifier);
 	}
 
 	/**
+	 * Set DROP TABLE option flags
 	 *
-	 * @param StructureElementIdentifier|TableStructure|string $identifier
-	 *        	Table identifier
+	 * @param integer $flags
 	 * @return \NoreSources\SQL\Statement\Structure\DropTableQuery
 	 */
-	public function identifier($identifier)
+	public function flags($flags)
 	{
-		if ($identifier instanceof TableStructure)
-			$identifier = $identifier->getPath();
-
-		if ($identifier instanceof StructureElementIdentifier)
-			$this->tableIdentifier = $identifier;
-		else
-			$this->tableIdentifier = new StructureElementIdentifier($identifier);
-
+		$this->dropFlags = $flags;
 		return $this;
 	}
 
@@ -75,13 +71,24 @@ class DropTableQuery extends Statement
 				->keyword('exists');
 		}
 
-		return $stream->space()->identifier(
-			$builder->getCanonicalName($this->tableIdentifier->getPathParts()));
+		$stream->space()->identifier($builder->getCanonicalName($this->getTable()
+			->getPathParts()));
+
+		if ($this->dropFlags & self::CASCADE)
+		{
+			if ($builderFlags & K::BUILDER_DROP_CASCADE)
+				$stream->space()->keyword('cascade');
+			elseif ($builder instanceof LoggerInterface)
+				$builder->notice('CASCADE option is not supported');
+		}
+
+		return $stream;
 	}
 
 	/**
+	 * DROP TABLE options
 	 *
-	 * @var \NoreSources\SQL\Expression\StructureElementIdentifier
+	 * @var integer
 	 */
-	private $tableIdentifier;
+	private $dropFlags;
 }

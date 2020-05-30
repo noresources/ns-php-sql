@@ -918,14 +918,24 @@ final class DBMSCommonTest extends TestCase
 	private function recreateTable(ConnectionInterface $connection, TableStructure $tableStructure)
 	{
 		$dbmsName = TypeDescription::getLocalName($connection);
+
+		$builder = $connection->getStatementBuilder();
+		$builderFlags = $builder->getBuilderFlags(K::BUILDER_DOMAIN_GENERIC);
+		$builderFlags |= $builder->getBuilderFlags(K::BUILDER_DOMAIN_DROP_TABLE);
+
 		try // PostgreSQL < 8.2 does not support DROP IF EXISTS and may fail
 		{
-			$drop = new DropTableQuery($tableStructure);
+			$drop = $connection->getStatementFactory()->newStatement(K::QUERY_DROP_TABLE);
+			if ($drop instanceof DropTableQuery)
+				$drop->flags(DropTableQuery::CASCADE)->table($tableStructure);
 			$data = ConnectionHelper::buildStatement($connection, $drop, $tableStructure);
 			$connection->executeStatement($data);
 		}
 		catch (ConnectionException $e)
-		{}
+		{
+			if ($builderFlags & K::BUILDER_IF_EXISTS)
+				throw $e;
+		}
 
 		$factory = $connection->getStatementFactory();
 		$createTable = $factory->newStatement(K::QUERY_CREATE_TABLE, $tableStructure);

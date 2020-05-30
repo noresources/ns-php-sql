@@ -162,8 +162,14 @@ class PostgreSQLStatementBuilder extends StatementBuilder implements LoggerAware
 		$dropTableFlags = $this->getBuilderFlags(K::BUILDER_DOMAIN_DROP_TABLE);
 		$createNamespaceFlags = $this->getBuilderFlags(K::BUILDER_DOMAIN_CREATE_NAMESPACE);
 
+		$dropTableFlags &= ~(K::BUILDER_IF_EXISTS | K::BUILDER_DROP_CASCADE);
 		$createTableFlags &= ~(K::BUILDER_IF_NOT_EXISTS);
-		$createNamespaceFlags &= ~K::BUILDER_IF_NOT_EXISTS;
+		$createNamespaceFlags &= ~(K::BUILDER_IF_NOT_EXISTS);
+
+		if (SemanticVersion::compareVersions($serverVersion, '7.3.0') >= 0)
+		{
+			$dropTableFlags |= K::BUILDER_DROP_CASCADE;
+		}
 
 		if (SemanticVersion::compareVersions($serverVersion, '8.2.0') >= 0)
 		{

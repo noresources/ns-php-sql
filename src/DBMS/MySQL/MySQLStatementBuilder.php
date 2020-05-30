@@ -43,6 +43,9 @@ class MySQLStatementBuilder extends StatementBuilder implements LoggerAwareInter
 
 		$createTableFlags = K::BUILDER_CREATE_COLUMN_KEY_MANDATORY_LENGTH;
 		$this->setBuilderFlags(K::BUILDER_DOMAIN_CREATE_TABLE, $createTableFlags);
+
+		$dropTableFlags = K::BUILDER_DROP_CASCADE;
+		$this->setBuilderFlags(K::BUILDER_DOMAIN_DROP_TABLE, $dropTableFlags);
 	}
 
 	public function serializeString($value)
