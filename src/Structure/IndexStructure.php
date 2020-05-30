@@ -20,7 +20,8 @@ class IndexStructure implements StructureElementInterface
 
 	/**
 	 *
-	 * @param unknown $name
+	 * @param stringn $name
+	 *        	Index name
 	 *        	Index name
 	 * @param StructureElementInterface $parent
 	 *        	Parent structure

@@ -9,9 +9,9 @@
  */
 namespace NoreSources\SQL\DBMS;
 
-use NoreSources\NotFoundException;
+use Psr\Container\NotFoundExceptionInterface;
 
-class TypePropertyNotFoundException extends NotFoundException
+class TypePropertyNotFoundException extends \Exception implements NotFoundExceptionInterface
 {
 
 	/**

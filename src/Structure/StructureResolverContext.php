@@ -17,7 +17,7 @@ class StructureResolverContext
 
 	/**
 	 *
-	 * @var StructureElement
+	 * @var StructureElementInterface
 	 */
 	public $pivot;
 
@@ -40,6 +40,7 @@ class StructureResolverContext
 			[
 				ColumnStructure::class => new \ArrayObject(),
 				TableStructure::class => new \ArrayObject(),
+				ViewStructure::class => new \ArrayObject(),
 				NamespaceStructure::class => new \ArrayObject(),
 				DatasourceStructure::class => new \ArrayObject(),
 				IndexStructure::class => new \ArrayObject()

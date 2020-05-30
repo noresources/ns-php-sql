@@ -218,6 +218,61 @@ final class SelectTest extends \PHPUnit\Framework\TestCase
 	}
 
 	/**
+	 * select name from (SELECT name from Employees);
+	 */
+	public function testInlineDataRowContainers()
+	{
+		$this->assertTrue(true, 'Temp');
+		$connection = ConnectionHelper::createConnection();
+		$this->assertInstanceOf(ReferenceConnection::class, $connection,
+			'Reference connection instance');
+
+		$structure = $this->datasources->get('Company');
+		$employeesStructure = $structure['ns_unittests']['Employees'];
+
+		/**
+		 *
+		 * @var \NoreSources\SQL\Statement\Query\SelectQuery $innerSelect
+		 */
+		$innerSelect = $connection->getStatementFactory()->newStatement(K::QUERY_SELECT);
+		$innerSelect->from($employeesStructure);
+		$innerSelect->columns('id', 'name')->where([
+			'gender' => ':g'
+		]);
+		$innerData = ConnectionHelper::buildStatement($connection, $innerSelect, $employeesStructure);
+		$this->assertCount(2, $innerData->getResultColumns(), 'Inner query result columns');
+		$this->assertCount(1, $innerData->getParameters(), 'Inner parameter count');
+
+		/**
+		 *
+		 * @var SelectQuery $innerJoinSelect
+		 */
+		$innerJoinSelect = $connection->getStatementFactory()->newStatement(K::QUERY_SELECT);
+		$innerJoinSelect->from('Hierarchy');
+
+		/**
+		 *
+		 * @var \NoreSources\SQL\Statement\Query\SelectQuery $outerSelect
+		 */
+		$outerSelect = $connection->getStatementFactory()->newStatement(K::QUERY_SELECT);
+		$outerSelect->from($innerSelect, 'e')
+			->columns('id', 'e.name', 'H.manageeId')
+			->join(K::JOIN_INNER, [
+			$innerJoinSelect,
+			'H'
+		], [
+			'id' => 'H.managerId'
+		]);
+
+		$data = ConnectionHelper::buildStatement($connection, $outerSelect, $structure);
+		$this->assertCount(1, $data->getParameters(), 'Outer parameter count');
+
+		$sql = \SqlFormatter::format(strval($data), false);
+		//
+		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, null, 'sql');
+	}
+
+	/**
 	 *
 	 * @var DatasourceManager
 	 */

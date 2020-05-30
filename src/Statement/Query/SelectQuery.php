@@ -14,16 +14,18 @@ namespace NoreSources\SQL\Statement\Query;
 use NoreSources\Container;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Expression\Column;
+use NoreSources\SQL\Expression\DataRowContainerReference;
 use NoreSources\SQL\Expression\Evaluator;
 use NoreSources\SQL\Expression\ExpressionReturnTypeInterface;
-use NoreSources\SQL\Expression\TableReference;
+use NoreSources\SQL\Expression\Table;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Expression\TokenStreamContextInterface;
 use NoreSources\SQL\Expression\TokenizableExpressionInterface;
 use NoreSources\SQL\Statement\Statement;
 use NoreSources\SQL\Statement\StatementException;
 use NoreSources\SQL\Statement\Traits\ConstraintExpressionListTrait;
-use NoreSources\SQL\Statement\Traits\StatementTableTrait;
+use NoreSources\SQL\Structure\StructureElementContainerInterface;
+use NoreSources\SQL\Structure\StructureElementInterface;
 
 /**
  * SELECT query result column
@@ -58,109 +60,11 @@ class ResultColumnReference
 }
 
 /**
- * SELECT query JOIN clause
- */
-class JoinClause implements TokenizableExpressionInterface
-{
-	use ConstraintExpressionListTrait;
-
-	/**
-	 *
-	 * @var integer
-	 */
-	public $operator;
-
-	/**
-	 * Table or subquery
-	 *
-	 * @var TableReference|SelectQuery
-	 */
-	public $subject;
-
-	public function __construct($operator = null, TableReference $subject = null /*, on ...*/)
-	{
-		$this->operator = $operator;
-		$this->subject = $subject;
-		$this->constraints = null;
-
-		$args = func_get_args();
-		array_shift($args);
-		array_shift($args);
-
-		call_user_func_array([
-			$this,
-			'on'
-		], $args);
-	}
-
-	public function tokenize(TokenStream $stream, TokenStreamContextInterface $context)
-	{
-		$stream->keyword($context->getStatementBuilder()
-			->getJoinOperator($this->operator));
-
-		$stream->space()->expression($this->subject, $context);
-
-		if ($this->constraints->count())
-		{
-			$stream->space()
-				->keyword('on')
-				->space()
-				->constraints($this->constraints, $context);
-		}
-
-		return $stream;
-	}
-
-	public function getExpressionDataType()
-	{
-		return K::DATATYPE_UNDEFINED;
-	}
-
-	/**
-	 *
-	 * @param
-	 *        	... List of constraint expressions
-	 * @return \NoreSources\SQL\Statement\JoinClause
-	 */
-	public function on()
-	{
-		if (!($this->constraints instanceof \ArrayObject))
-			$this->constraints = new \ArrayObject();
-		return $this->addConstraints($this->constraints, func_get_args());
-	}
-
-	private $constraints;
-}
-
-class UnionClause
-{
-
-	/**
-	 *
-	 * @var SelectQuery
-	 */
-	public $query;
-
-	/**
-	 *
-	 * @var boolean
-	 */
-	public $all;
-
-	public function __construct(SelectQuery $q, $all = false)
-	{
-		$this->query = $q;
-		$this->all = $all;
-	}
-}
-
-/**
  * SELECT query statement
  */
 class SelectQuery extends Statement
 {
 	use ConstraintExpressionListTrait;
-	use StatementTableTrait;
 
 	/**
 	 *
@@ -180,7 +84,7 @@ class SelectQuery extends Statement
 		];
 
 		if ($table)
-			$this->table($table, $alias);
+			$this->from($table, $alias);
 	}
 
 	/**
@@ -241,6 +145,19 @@ class SelectQuery extends Statement
 
 	/**
 	 *
+	 * @param SelectQuery|TableStructure|ViewStructure|string $from
+	 * @param string $alias
+	 *        	Target alias
+	 * @return \NoreSources\SQL\Statement\Query\SelectQuery
+	 */
+	public function from($from, $alias = null)
+	{
+		$this->fromTarget = new DataRowContainerReference($from, $alias);
+		return $this;
+	}
+
+	/**
+	 *
 	 * @param integer|JoinClause $operatorOrJoin
 	 * @param string|TableReference|SelectQuery $subject
 	 * @param mixed $constraints
@@ -252,40 +169,34 @@ class SelectQuery extends Statement
 			$this->joins = new \ArrayObject();
 
 		if ($operatorOrJoin instanceof JoinClause)
-			$this->joins->append($operatorOrJoin);
-		else
 		{
-			if (is_string($subject))
-				$subject = new TableReference($subject);
-			elseif (Container::isArray($subject))
-			{
-				$name = null;
-				$alias = null;
-
-				if (Container::count($subject) == 1)
-				{
-					list ($name, $alias) = each($subject);
-				}
-				else
-				{
-					$name = Container::keyValue(0, $subject, null);
-					$alias = Container::keyValue(1, $subject, null);
-				}
-
-				$subject = new TableReference($name, $alias);
-			}
-
-			$j = new JoinClause($operatorOrJoin, $subject);
-			$args = func_get_args();
-			array_shift($args);
-			array_shift($args);
-			call_user_func_array([
-				$j,
-				'on'
-			], $args);
-
-			$this->joins->append($j);
+			$this->joins->append($operatorOrJoin);
+			return $this;
 		}
+
+		$alias = null;
+		$target = $subject;
+		if (Container::isArray($subject))
+		{
+			if (Container::count($subject) == 1)
+				list ($target, $alias) = Container::getFirstElement($subject);
+			else
+			{
+				$target = Container::keyValue($subject, 0);
+				$alias = Container::keyValue($subject, 1);
+			}
+		}
+
+		$j = new JoinClause($operatorOrJoin, new DataRowContainerReference($target, $alias));
+		$args = func_get_args();
+		array_shift($args);
+		array_shift($args);
+		call_user_func_array([
+			$j,
+			'on'
+		], $args);
+
+		$this->joins->append($j);
 
 		return $this;
 	}
@@ -430,61 +341,54 @@ class SelectQuery extends Statement
 
 		$context->setStatementType(K::QUERY_SELECT);
 
-		$table = $this->getTable();
 		/**
 		 *
 		 * @var TableReference $table
 		 */
-		$tableStructure = null;
-		if ($table instanceof TableReference)
+		$targetStructure = null;
+		if ($this->fromTarget instanceof DataRowContainerReference)
 		{
-			$tableStructure = $context->findTable($table->path);
-			$context->pushResolverContext($tableStructure);
+			if ($this->fromTarget->expression instanceof Table)
+			{
+				$targetStructure = $context->findTable($this->fromTarget->expression->path);
+				$context->pushResolverContext($targetStructure);
+			}
 		}
 
 		// Resolve and b'from'uild table-related parts
-
-		if ($table instanceof TableReference && $table->alias)
+		$targetAndJoins = new TokenStream();
+		if ($this->fromTarget instanceof DataRowContainerReference)
 		{
-			$context->setAlias($table->alias, $tableStructure);
-		}
-
-		if ($this->joins instanceof \ArrayObject)
-			foreach ($this->joins as $join)
+			// Pass 1: register aliases
+			if ($this->fromTarget->alias)
 			{
-				/**
-				 *
-				 * @var JoinClause $join
-				 */
-				if ($join->subject instanceof TableReference)
+				$reference = ($targetStructure instanceof StructureElementInterface) ? $targetStructure : $this->fromTarget;
+				$context->setAlias($this->fromTarget->alias, $reference);
+			}
+
+			if ($this->joins instanceof \ArrayObject)
+			{
+				foreach ($this->joins as $join)
+
 				{
-					$structure = $context->findTable($join->subject->path);
+
 					if ($join->subject->alias)
 					{
+						$structure = $join->subject;
+						if ($join->subject->expression instanceof Table)
+							$structure = $context->findTable($join->subject->expression->path);
 						$context->setAlias($join->subject->alias, $structure);
 					}
 				}
 			}
 
-		$tableAndJoins = new TokenStream();
-		if ($table instanceof TableReference)
-		{
-			$tableAndJoins->identifier(
-				$context->getStatementBuilder()
-					->getCanonicalName($tableStructure));
-			if ($table->alias)
-			{
-				$tableAndJoins->space()
-					->keyword('as')
-					->space()
-					->identifier($context->getStatementBuilder()
-					->escapeIdentifier($table->alias));
-			}
+			// Pass 2: tokenize
+			$targetAndJoins->expression($this->fromTarget, $context);
 
 			if ($this->joins instanceof \ArrayObject)
 				foreach ($this->joins as $join)
 				{
-					$tableAndJoins->space()->expression($join, $context);
+					$targetAndJoins->space()->expression($join, $context);
 				}
 		}
 
@@ -563,23 +467,26 @@ class SelectQuery extends Statement
 				}
 			}
 		}
-		elseif ($table instanceof TableReference)
+		elseif ($this->fromTarget instanceof DataRowContainerReference)
 		{
-			$columnIndex = 0;
-			foreach ($tableStructure as $name => $column)
+			if ($targetStructure instanceof StructureElementContainerInterface)
 			{
-				$context->setResultColumn($columnIndex, $column);
-				$columnIndex++;
+				$columnIndex = 0;
+				foreach ($targetStructure as $name => $column)
+				{
+					$context->setResultColumn($columnIndex, $column);
+					$columnIndex++;
+				}
 			}
 
 			$stream->space()->keyword('*');
 		}
 
-		if ($table instanceof TableReference)
+		if ($this->fromTarget instanceof DataRowContainerReference)
 			$stream->space()
 				->keyword('from')
 				->space()
-				->stream($tableAndJoins);
+				->stream($targetAndJoins);
 
 		$stream->stream($where);
 
@@ -658,8 +565,11 @@ class SelectQuery extends Statement
 			}
 		}
 
-		if ($table instanceof TableReference)
-			$context->popResolverContext();
+		if ($this->fromTarget instanceof DataRowContainerReference)
+		{
+			if ($targetStructure instanceof StructureElementContainerInterface)
+				$context->popResolverContext();
+		}
 		return $stream;
 	}
 
@@ -680,6 +590,12 @@ class SelectQuery extends Statement
 	 * @var integer
 	 */
 	private $selectQueryFlags;
+
+	/**
+	 *
+	 * @var DataRowContainerReference
+	 */
+	private $fromTarget;
 
 	/**
 	 *

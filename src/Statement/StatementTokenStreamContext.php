@@ -11,10 +11,36 @@ namespace NoreSources\SQL\Statement;
 
 use NoreSources\Stack;
 use NoreSources\SQL\Expression\TokenStreamContextInterface;
+use NoreSources\SQL\Structure\ColumnDescriptionMapInterface;
 use NoreSources\SQL\Structure\StructureElementInterface;
 use NoreSources\SQL\Structure\StructureResolver;
 use NoreSources\SQL\Structure\StructureResolverAwareInterface;
 use NoreSources\SQL\Structure\StructureResolverAwareTrait;
+
+class StatementElementDMap implements StatementOutputDataInterface
+{
+
+	use OutputDataTrait;
+
+	/**
+	 *
+	 * @var \ArrayObject
+	 */
+	public $aliases;
+
+	/**
+	 *
+	 * @var \ArrayObject
+	 */
+	public $temporaryTables;
+
+	public function __construct()
+	{
+		$this->initializeOutputData();
+		$this->aliases = new \ArrayObject();
+		$this->temporaryTables = new \ArrayObject();
+	}
+}
 
 /**
  * Statement building context data
@@ -37,10 +63,19 @@ class StatementTokenStreamContext implements StatementInputDataInterface,
 		$this->initializeInputData(null);
 		$this->initializeOutputData(null);
 		$this->builder = $builder;
-		$this->setStructureResolver(new StructureResolver($pivot));
-		$this->resultColumnAliases = new Stack();
+		$this->statementElements = new Stack();
+
+		$this->setStructureResolver(new StructureResolver());
+
+		if ($pivot instanceof StructureElementInterface)
+			$this->pushResolverContext($pivot);
 	}
 
+	/**
+	 *
+	 * {@inheritdoc}
+	 * @see \NoreSources\SQL\Statement\StatementBuilderAwareInterface::getStatementBuilder()
+	 */
 	public function getStatementBuilder()
 	{
 		return $this->builder;
@@ -48,26 +83,33 @@ class StatementTokenStreamContext implements StatementInputDataInterface,
 
 	public function setResultColumn($index, $data, $as = null)
 	{
-		if ($this->resultColumnAliases->count() > 1)
+		if ($this->statementElements->count() > 1)
+		{
+			$this->statementElements->getResultColumns()->setColumn($index, $data, $as);
 			return;
+		}
 
 		$this->resultColumns->setColumn($index, $data, $as);
 	}
 
 	public function setStatementType($type)
 	{
-		if ($this->resultColumnAliases->count() > 1)
+		if ($this->statementElements->count() > 1)
+		{
+			$this->statementElements->setStatementType($type);
 			return;
+		}
+
 		$this->statementType = $type;
 	}
 
 	public function findColumn($path)
 	{
-		if ($this->resultColumnAliases->isEmpty())
-			$this->resultColumnAliases->push(new \ArrayObject());
+		if ($this->statementElements->isEmpty())
+			$this->statementElements->push(new StatementElementDMap());
 
-		if ($this->resultColumnAliases->offsetExists($path))
-			return $this->resultColumnAliases->offsetGet($path);
+		if ($this->statementElements->aliases->offsetExists($path))
+			return $this->statementElements->aliases->offsetGet($path);
 
 		return $this->structureResolver->findColumn($path);
 	}
@@ -75,38 +117,46 @@ class StatementTokenStreamContext implements StatementInputDataInterface,
 	public function setAlias($alias, $reference)
 	{
 		if ($reference instanceof StructureElementInterface)
-		{
 			return $this->structureResolver->setAlias($alias, $reference);
-		}
 		else
 		{
-			if ($this->resultColumnAliases->isEmpty())
-				$this->resultColumnAliases->push(new \ArrayObject());
+			if ($this->statementElements->isEmpty())
+				$this->statementElements->push(new StatementElementDMap());
 
-			$this->resultColumnAliases->offsetSet($alias, $reference);
+			$this->statementElements->aliases->offsetSet($alias, $reference);
 		}
 	}
 
 	public function isAlias($identifier)
 	{
-		if ($this->resultColumnAliases->count())
+		if ($this->statementElements->count())
 		{
-			if ($this->resultColumnAliases->offsetExists($identifier))
+			if ($this->statementElements->aliases->offsetExists($identifier))
 				return true;
 		}
 
 		return $this->structureResolver->isAlias($identifier);
 	}
 
-	public function pushResolverContext(StructureElementInterface $pivot = null)
+	public function setTemporaryTable($name, ColumnDescriptionMapInterface $columns)
 	{
-		$this->resultColumnAliases->push(new \ArrayObject());
+		$this->getStructureResolver()->setTemporaryTable($name, $columns);
+	}
+
+	public function pushResolverContext(StructureElementInterface $pivot)
+	{
+		$this->statementElements->push(new StatementElementDMap());
 		$this->structureResolver->pushResolverContext($pivot);
 	}
 
 	public function popResolverContext()
 	{
-		$this->resultColumnAliases->pop();
+		/**
+		 *
+		 * @todo get result columns and data row container reference from current context
+		 *       and put them in the list of "available columns and table"
+		 */
+		$this->statementElements->pop();
 		$this->structureResolver->popResolverContext();
 	}
 
@@ -114,7 +164,7 @@ class StatementTokenStreamContext implements StatementInputDataInterface,
 	 *
 	 * @var \Noresources\Stack Stack of \ArrayObject
 	 */
-	private $resultColumnAliases;
+	private $statementElements;
 
 	/**
 	 *

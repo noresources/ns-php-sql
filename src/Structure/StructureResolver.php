@@ -9,6 +9,9 @@
  */
 namespace NoreSources\SQL\Structure;
 
+use NoreSources\Container;
+use NoreSources\Stack;
+
 /**
  * Reference implementation of StructureResolverInterface
  */
@@ -22,7 +25,7 @@ class StructureResolver implements StructureResolverInterface
 	 */
 	public function __construct(StructureElementInterface $pivot = null)
 	{
-		$this->contextStack = new \NoreSources\Stack();
+		$this->contextStack = new Stack();
 
 		if ($pivot instanceof StructureElementInterface)
 			$this->setPivot($pivot);
@@ -81,9 +84,7 @@ class StructureResolver implements StructureResolverInterface
 		{
 			$namespace = $this->findNamespace($x[0]);
 			if ($namespace)
-			{
 				$table = $namespace->offsetGet($x[1]);
-			}
 		}
 
 		if (!($table instanceof TableStructure))
@@ -104,10 +105,13 @@ class StructureResolver implements StructureResolverInterface
 
 	public function findTable($path)
 	{
-		if ($this->cache[TableStructure::class]->offsetExists($path))
-		{
-			return $this->cache[TableStructure::class][$path];
-		}
+		$cached = null;
+
+		if (($cached = Container::keyValue($this->cache[TableStructure::class], $path)))
+			return $cached;
+
+		if (($cached = Container::keyValue($this->cache[ViewStructure::class], $path)))
+			return $cached;
 
 		$x = explode('.', $path);
 		$c = \count($x);
@@ -116,19 +120,15 @@ class StructureResolver implements StructureResolverInterface
 		$namespace = null;
 
 		if ($c == 1)
-		{
 			$namespace = $this->getDefaultNamespace();
-		}
 		elseif ($c == 2)
-		{
 			$namespace = $this->findNamespace($x[0]);
-		}
 
 		$table = ($namespace instanceof NamespaceStructure) ? $namespace->offsetGet($name) : null;
 
-		if ($table instanceof TableStructure)
+		if (($table instanceof TableStructure) || ($table instanceof ViewStructure))
 		{
-			$key = TableStructure::class;
+			$key = \get_class($table);
 			$this->cache[$key]->offsetSet($path, $table);
 		}
 		else
@@ -175,7 +175,30 @@ class StructureResolver implements StructureResolverInterface
 		return $this->aliases->offsetExists($identifier);
 	}
 
-	public function pushResolverContext(StructureElementInterface $pivot = null)
+	public function setTemporaryTable($name, ColumnDescriptionMapInterface $columns)
+	{
+		$table = new TableStructure($name);
+		foreach ($columns->getColumnIterator() as $n => $c)
+		{
+			/**
+			 *
+			 * @var ColumnDescriptionInterface $c
+			 */
+
+			$column = new ColumnStructure($n, $table);
+			foreach ($c->getColumnProperties() as $key => $value)
+			{
+				$column->setColumnProperty($key, $value);
+			}
+
+			$table->appendElement($column);
+			$this->setAlias($n, $column);
+		}
+
+		$this->setAlias($name, $table);
+	}
+
+	public function pushResolverContext(StructureElementInterface $pivot)
 	{
 		$this->contextStack->push(
 			new StructureResolverContext(
@@ -198,7 +221,7 @@ class StructureResolver implements StructureResolverInterface
 		}
 		elseif ($this->pivot instanceof NamespaceStructure)
 			return $this->pivot;
-		elseif ($this->pivot instanceof TableStructure)
+		elseif ($this->pivot instanceof TableStructure || $this->pivot instanceof ViewStructure)
 			return $this->pivot->getParentElement();
 		elseif ($this->pivot instanceof ColumnStructure)
 			return $this->pivot->getParentElement(2);

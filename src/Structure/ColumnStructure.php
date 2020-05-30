@@ -32,6 +32,13 @@ class ColumnStructure implements StructureElementInterface, ColumnDescriptionInt
 
 	const DEFAULT_VALUE = K::COLUMN_DEFAULT_VALUE;
 
+	/**
+	 *
+	 * @param string $name
+	 *        	Column name
+	 * @param unknown $tableStructure
+	 *        	Parent table
+	 */
 	public function __construct($name, /*TableStructure */$tableStructure = null)
 	{
 		$this->initializeStructureElement($name, $tableStructure);

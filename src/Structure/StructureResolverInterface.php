@@ -37,6 +37,7 @@ interface StructureResolverInterface
 	function findColumn($path);
 
 	/**
+	 * Get Table, View or any other "row" container
 	 *
 	 * @param string $path
 	 * @throws StructureResolverException
@@ -67,13 +68,20 @@ interface StructureResolverInterface
 	function isAlias($identifier);
 
 	/**
+	 *
+	 * @param string $name
+	 * @param ColumnDescriptionMapInterface $columns
+	 */
+	function setTemporaryTable($name, ColumnDescriptionMapInterface $columns);
+
+	/**
 	 * Push a resolver context.
 	 *
 	 * This should be used while traversing sub queries.
 	 *
 	 * @param StructureElementInterface $pivot
 	 */
-	function pushResolverContext(StructureElementInterface $pivot = null);
+	function pushResolverContext(StructureElementInterface $pivot);
 
 	/**
 	 * Pop the structure resolver context in the context stack.

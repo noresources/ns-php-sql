@@ -8,15 +8,15 @@
  * @package SQL
  */
 
-// 
+//
 namespace NoreSources\SQL\Statement;
 
-
-use NoreSources\TypeDescription;
+use NoreSources\SQL\Structure\ColumnDescriptionMapInterface;
+use NoreSources\SQL\Structure\ColumnNotFoundException;
 
 /**
  */
-class ResultColumnMap implements \Countable, \IteratorAggregate
+class ResultColumnMap implements \Countable, ColumnDescriptionMapInterface, \IteratorAggregate
 {
 
 	public function __construct()
@@ -31,7 +31,7 @@ class ResultColumnMap implements \Countable, \IteratorAggregate
 
 	/**
 	 *
-	 * @return \Iterator of ResultColumn
+	 * @return \Iterator of ResultColumn where Iterator key is the column index
 	 */
 	public function getIterator()
 	{
@@ -47,27 +47,54 @@ class ResultColumnMap implements \Countable, \IteratorAggregate
 		return $this->columns->count();
 	}
 
+	public function getColumnCount()
+	{
+		return $this->count();
+	}
+
+	public function hasColumn($name)
+	{
+		if (\is_integer($name))
+			return $this->columns->offsetExists($name);
+
+		foreach ($this->columns as $column)
+		{
+			if (\strcasecmp($column->name, $name) == 0)
+				return true;
+		}
+
+		return true;
+	}
+
+	public function getColumnIterator()
+	{
+		return new ResultColumnIterator($this);
+	}
+
 	/**
 	 *
 	 * @param integer|string $key
-	 * @throws \InvalidArgumentException
+	 *        	Column name or index
+	 * @throws ColumnNotFoundException
 	 * @return ResultColumn
 	 */
 	public function getColumn($key)
 	{
-		if (!$this->columns->offsetExists($key))
+		if (\is_integer($key))
 		{
-			foreach ($this->columns as $column)
-			{
-				if ($column->name == $key)
-					return $column;
-			}
+			if (!$this->columns->offsetExists($key))
+				throw new ColumnNotFoundException($key);
 
-			throw new \InvalidArgumentException(
-				TypeDescription::getName($key) . ' ' . $key . ' is not a valid result column key');
+			return $this->columns->offsetGet($key);
 		}
 
-		return $this->columns->offsetGet($key);
+		foreach ($this->columns as $index => $column)
+		{
+			if (\strcasecmp($column->name, $key) == 0)
+				return $column;
+		}
+
+		throw new ColumnNotFoundException($key);
 	}
 
 	public function setColumn($index, $data, $as = null)
@@ -88,4 +115,42 @@ class ResultColumnMap implements \Countable, \IteratorAggregate
 	private $columns;
 }
 
+class ResultColumnIterator implements \Iterator
+{
 
+	public function __construct(ResultColumnMap $map)
+	{
+		$this->iterator = $map->getIterator();
+	}
+
+	public function current()
+	{
+		return $this->iterator->current();
+	}
+
+	public function key()
+	{
+		return $this->iterator->current()->name;
+	}
+
+	public function next()
+	{
+		return $this->iterator->next();
+	}
+
+	public function rewind()
+	{
+		$this->iterator->rewind();
+	}
+
+	public function valid()
+	{
+		return $this->iterator->valid();
+	}
+
+	/**
+	 *
+	 * @var \ArrayIterator
+	 */
+	private $iterator;
+}

@@ -627,7 +627,7 @@ final class DBMSCommonTest extends TestCase
 		$update = ConnectionHelper::prepareStatement($connection, $update, $tableStructure);
 
 		$select = new SelectQuery();
-		$select->table($tableStructure)->where('id = :id');
+		$select->from($tableStructure)->where('id = :id');
 		$select = ConnectionHelper::prepareStatement($connection, $select, $tableStructure);
 
 		for ($i = 1; $i <= 5; $i++)
@@ -835,16 +835,24 @@ final class DBMSCommonTest extends TestCase
 			]
 		];
 
-		list ($_, $expectedResultColumnKeys) = each($expected);
+		list ($_, $expectedResultColumnKeys) = Container::getFirstElement($expected);
 		$index = 0;
 		foreach ($expectedResultColumnKeys as $name => $_)
 		{
+			$this->assertTrue($result->getResultColumns()
+				->hasColumn($index), $dbmsName . ' column #' . $index . ' exists');
+
+			$this->assertTrue($result->getResultColumns()
+				->hasColumn($name), $dbmsName . ' column "' . $name . '" exists');
+
 			$byIndex = $result->getResultColumns()->getColumn($index);
 			$this->assertEquals($name, $byIndex->name,
 				$dbmsName . ' Recordset result column #' . $index);
+
 			$byName = $result->getResultColumns()->getColumn($name);
 			$this->assertEquals($name, $byName->name,
-				$dbmsName . ' Recordset result column ' . $name);
+				$dbmsName . ' Recordset result column "' . $name . '"');
+
 			$index++;
 		}
 

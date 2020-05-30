@@ -20,11 +20,25 @@ use Psr\Log\LoggerInterface;
 
 /**
  * DROP TABLE statement
+ *
+ * <dl>
+ * <dt>SQLite</dt>
+ * <dd>https://www.sqlite.org/lang_droptable.html</dd>
+ * <dt>PostgreSQL</dt>
+ * <dd>https://www.postgresql.org/docs/7.4/sql-droptable.html</dd>
+ * <dt>MySQL</dt>
+ * <dd>https://mariadb.com/kb/en/drop-table/</dd>
+ * </dl>
  */
 class DropTableQuery extends Statement
 {
 	use StatementTableTrait;
 
+	/**
+	 * Force to drop table and all elements related to it.
+	 *
+	 * @var integer
+	 */
 	const CASCADE = 0x01;
 
 	/**

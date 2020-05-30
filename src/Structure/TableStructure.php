@@ -15,7 +15,8 @@ namespace NoreSources\SQL\Structure;
  *
  * @todo table constraints (primary keys etc. & index)
  */
-class TableStructure implements StructureElementContainerInterface, StructureElementInterface
+class TableStructure implements StructureElementContainerInterface, StructureElementInterface,
+	ColumnDescriptionMapInterface
 {
 
 	use StructureElementTrait;
@@ -23,8 +24,10 @@ class TableStructure implements StructureElementContainerInterface, StructureEle
 
 	/**
 	 *
-	 * @param unknown $name
+	 * @param string $name
+	 *        	Table name
 	 * @param NamespaceStructure $parent
+	 *        	Parent namespace
 	 */
 	public function __construct($name, StructureElementContainerInterface $parent = null)
 	{
@@ -37,6 +40,41 @@ class TableStructure implements StructureElementContainerInterface, StructureEle
 	{
 		$this->cloneStructureElement();
 		$this->cloneStructureElementContainer();
+	}
+
+	public function getColumnCount()
+	{
+		return $this->count();
+	}
+
+	public function hasColumn($name)
+	{
+		foreach ($this->getIterator() as $key => $value)
+		{
+			if (\strcasecmp($key, $name) == 0)
+				return true;
+		}
+
+		return false;
+	}
+
+	public function getColumn($name)
+	{
+		if ($this->offsetExists($name))
+			return $this->offsetGet($name);
+
+		foreach ($this->getIterator() as $key => $value)
+		{
+			if (\strcasecmp($key, $name) == 0)
+				return $value;
+		}
+
+		throw new ColumnNotFoundException($name);
+	}
+
+	public function getColumnIterator()
+	{
+		return $this->getIterator();
 	}
 
 	/**
@@ -52,7 +90,8 @@ class TableStructure implements StructureElementContainerInterface, StructureEle
 	 * Add table constraint
 	 *
 	 * @param TableConstraint $constraint
-	 *        	Constraint to add. If The constraint is the primary key constraint, it will replace
+	 *        	Constraint to add. If The constraint is the primary key constraint, it will
+	 *        	replace
 	 *        	the existing one.
 	 * @throws StructureException
 	 */
@@ -70,10 +109,33 @@ class TableStructure implements StructureElementContainerInterface, StructureEle
 		$this->constraints->append($constraint);
 	}
 
+	/**
+	 *
+	 * @param TableConstraint|integer $constraint
+	 */
 	public function removeConstraint($constraint)
 	{
+		if (\is_integer($constraint))
+		{
+			$this->constraints->offsetUnset($constraint);
+			return;
+		}
+
 		foreach ($this->constraints as $i => $c)
 		{
+			/**
+			 *
+			 * @var TableConstraint $c
+			 */
+			if (\is_string($constraint))
+			{
+				if ($constraint->constraintName == $constraint)
+				{
+					$this->constraints->offsetUnset($i);
+					return;
+				}
+			}
+
 			if ($c === $constraint)
 				$this->constraints->offsetUnset($i);
 		}
