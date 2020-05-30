@@ -34,9 +34,9 @@ class SQLiteCreateNamespaceQuery extends CreateNamespaceQuery
 		$path = $this->getStructure()->getName() . '.sqlite';
 		if ($builder instanceof SQLiteStatementBuilder)
 		{
-			$directory = $builder->getSQLiteSettings(K::CONNECTION_DATABASE_FILE_DIRECTORY);
-			if (\is_string($directory))
-				$path = $directory . '/' . $path;
+			$provider = $builder->getSQLiteSettings(K::CONNECTION_DATABASE_FILE_PROVIDER);
+			if (\is_callable($provider))
+				$path = $provider($this->getStructure());
 		}
 
 		$path = new Literal($path, K::DATATYPE_STRING);

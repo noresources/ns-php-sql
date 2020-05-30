@@ -19,6 +19,7 @@ use NoreSources\SQL\Expression\MetaFunctionCall;
 use NoreSources\SQL\Statement\ParameterData;
 use NoreSources\SQL\Statement\StatementBuilder;
 use NoreSources\SQL\Structure\ColumnStructure;
+use NoreSources\SQL\Structure\StructureElementInterface;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 
@@ -47,10 +48,25 @@ class SQLiteStatementBuilder extends StatementBuilder implements LoggerAwareInte
 	public function setSQLiteSettings($array)
 	{
 		$dflts = [
-			K::CONNECTION_DATABASE_FILE_DIRECTORY => '.'
+			K::CONNECTION_DATABASE_FILE_PROVIDER => [
+				static::class,
+				'buildSQLiteFilePath'
+			]
 		];
 
 		$this->sqliteSettings->exchangeArray(\array_merge($dflts, $array));
+	}
+
+	public static function buildSQLiteFilePath(StructureElementInterface $structure)
+	{
+		$path = $structure->getName() . '.sqlite';
+		while ($structure->getParentElement())
+		{
+			$structure = $structure->getParentElement();
+			$path = $structure->getName() . '/' . $path;
+		}
+
+		return $path;
 	}
 
 	public function serializeString($value)

@@ -31,11 +31,14 @@ class SQLiteConstants extends Constants
 	const CONNECTION_SQLITE_PRAGMAS = 'pragmas';
 
 	/**
-	 * File system directory path where new database files will be created.
+	 * Parameter value must be a callable with the following prototype:
+	 * callable (StructureElementInterface) : string
+	 * and must return a SQLite file path
+	 *
 	 *
 	 * @var string
 	 */
-	const CONNECTION_DATABASE_FILE_DIRECTORY = 'databasefiledirectory';
+	const CONNECTION_DATABASE_FILE_PROVIDER = 'databasefileprovider';
 
 	/**
 	 * ROLLBACK conflict class

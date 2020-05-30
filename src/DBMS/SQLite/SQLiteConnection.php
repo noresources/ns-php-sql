@@ -202,7 +202,7 @@ class SQLiteConnection implements ConnectionInterface
 
 			$settings = [];
 			foreach ([
-				K::CONNECTION_DATABASE_FILE_DIRECTORY
+				K::CONNECTION_DATABASE_FILE_PROVIDER
 			] as $setting)
 			{
 				if (Container::keyExists($parameters, $setting))
