@@ -37,9 +37,9 @@ class ConnectionHelper
 	 * @param array|\ArrayObject $settings
 	 *        	ConnectionInterface settings
 	 * @throws ConnectionException
-	 * @return \NoreSources\SQL\SQLite\ConnectionInterface
+	 * @return \NoreSources\SQL\DBMS\ConnectionInterface
 	 */
-	public static function createConnection($settings)
+	public static function createConnection($settings = array())
 	{
 		if (!Container::isArray($settings))
 			$settings = [
