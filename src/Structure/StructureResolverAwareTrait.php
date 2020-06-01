@@ -56,7 +56,7 @@ trait StructureResolverAwareTrait
 		return $this->structureResolver->findNamespace($path);
 	}
 
-	public function setAlias($alias, StructureElementInterface $reference)
+	public function setAlias($alias, $reference)
 	{
 		return $this->structureResolver->setAlias($alias, $reference);
 	}

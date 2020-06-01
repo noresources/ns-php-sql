@@ -163,7 +163,7 @@ class StructureResolver implements StructureResolverInterface
 		return $namespace;
 	}
 
-	public function setAlias($alias, StructureElementInterface $reference)
+	public function setAlias($alias, $reference)
 	{
 		$key = get_class($reference);
 		$this->cache[$key]->offsetSet($alias, $reference);

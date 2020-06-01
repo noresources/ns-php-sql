@@ -28,6 +28,7 @@ use NoreSources\SQL\Statement\StatementFactoryInterface;
 use NoreSources\SQL\Structure\DatasourceStructure;
 use NoreSources\SQL\Structure\NamespaceStructure;
 use NoreSources\SQL\Structure\StructureAwareTrait;
+use Psr\Log\LoggerInterface;
 
 /**
  * SQLite connection
@@ -229,7 +230,7 @@ class SQLiteConnection implements ConnectionInterface
 		$this->connection = null;
 	}
 
-	public function setLogger($logger)
+	public function setLogger(LoggerInterface $logger)
 	{
 		$this->logger = $logger;
 		$this->builder->setLogger($logger);

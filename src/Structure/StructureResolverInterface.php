@@ -58,7 +58,7 @@ interface StructureResolverInterface
 	 * @param string $alias
 	 * @param StructureElementInterface $structure
 	 */
-	function setAlias($alias, StructureElementInterface $reference);
+	function setAlias($alias, $reference);
 
 	/**
 	 * Indicates if the given identifier is a structure element alias

@@ -47,7 +47,7 @@ class StructureSerializerFactory
 		if (!\is_subclass_of($importer, StructureFileImporterInterface::class, true))
 			throw new StructureSerializationException(
 				'No ' . StructureFileImporterInterface::class . ' found for file "' . $filename .
-				'" (' . \strval($mediaType) . '"');
+				'" (' . \strval($mediaType) . ')');
 
 		if (!($importer instanceof StructureFileImporterInterface))
 		{
@@ -133,7 +133,9 @@ class StructureSerializerFactory
 		$this->fileExporters = [];
 
 		$this->registerFileExporter('text/xml', XMLStructureFileExporter::class);
+		$this->registerFileExporter('application/xml', XMLStructureFileExporter::class);
 		$this->registerFileImporter('text/xml', XMLStructureFileImporter::class);
+		$this->registerFileImporter('application/xml', XMLStructureFileImporter::class);
 	}
 
 	/**
