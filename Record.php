@@ -4,6 +4,7 @@ namespace NoreSources\SQL;
 use NoreSources\ArrayUtil;
 use NoreSources\BinaryOperatorExpression;
 use NoreSources\DataTree;
+use NoreSources\IExpression;
 use NoreSources\Reporter;
 
 interface RecordQueryOption
@@ -56,20 +57,24 @@ const kRecordDistinct = PresentationSettings::DISTINCT;
 class ColumnSelectionFilter extends \ArrayObject implements RecordQueryOption
 {
 
+	/**
+	 *
+	 * @var string|IExpression
+	 */
 	public $columnNames;
 
 	public function __construct($columnNames)
 	{
 		$args = func_get_args();
-		foreach ($args as $value)
+		foreach ($args as $arg)
 		{
-			if (is_string($value))
+			if (is_string($arg) || $arg instanceof IExpression)
 			{
-				$this->append($value);
+				$this->append($arg);
 			}
 			else
 			{
-				foreach ($value as $columnName)
+				foreach ($arg as $columnName)
 				{
 					$this->append($columnName);
 				}
@@ -377,19 +382,25 @@ class LimitFilter implements RecordQueryOption
 class OrderingOption implements RecordQueryOption
 {
 
+	/**
+	 *
+	 * @var string|IExpression
+	 */
 	public $columnName;
 
 	public $ascending;
 
 	/**
 	 *
-	 * @param string|TableColumn $column
+	 * @param string|IExpression|TableColumnStructure $column
 	 *        	The column name or TableColumn
 	 * @param string $asc
 	 */
 	public function __construct($column, $asc = true)
 	{
-		$this->columnName = ($column instanceof TableColumn) ? $column->getName() : $column;
+		if ($column instanceof TableColumnStructure)
+			$column = $column->getName();
+		$this->columnName = $column;
 		$this->ascending = $asc;
 	}
 }
@@ -680,15 +691,20 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 				}
 				elseif ($option instanceof ColumnSelectionFilter)
 				{
-					foreach ($option as $columnName)
+					foreach ($option as $column)
 					{
-						if (!$structure->offsetExists($columnName))
+						if (\is_string($column))
 						{
-							continue;
+							if (!$structure->offsetExists($column))
+							{
+								continue;
+							}
 						}
+						elseif (!($column instanceof IExpression))
+							continue;
 
 						$withColumnSelection = true;
-						$s->addColumn($columnName);
+						$s->addColumn($column);
 					}
 				}
 				elseif ($option instanceof ColumnValueFilter)
@@ -709,11 +725,20 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 				}
 				elseif ($option instanceof OrderingOption)
 				{
-					if (!$structure->offsetExists($option->columnName))
+					$column = $option->columnName;
+					if (\is_string($column))
 					{
-						continue;
+						if (!$structure->offsetExists($column))
+						{
+							continue;
+						}
+
+						$column = $table->getColumn($option->columnName);
 					}
-					$column = $table->getColumn($option->columnName);
+
+					if (!($column instanceof IExpression))
+						continue;
+
 					$s->orderBy->addColumn($column, $option->ascending);
 				}
 				elseif ($option instanceof GroupingOption)
