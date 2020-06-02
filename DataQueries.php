@@ -1193,6 +1193,11 @@ class SelectQuery extends TableQuery implements ns\IExpression
 		}
 		return $qs;
 	}
+	
+	public function getColumns ()
+	{
+		return $this->m_columns;
+	}
 
 	/**
 	 *
