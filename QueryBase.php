@@ -55,6 +55,11 @@ abstract class IQuery
 	{
 		return $this->execute($flags);
 	}
+	
+	public function setDatasource (Datasource $ds)
+	{
+		$this->datasource = $ds;
+	}
 
 	/**
 	 * Execute query
@@ -156,6 +161,16 @@ abstract class TableQuery extends IQuery
 	{
 		parent::__construct($a_table->datasource);
 		$this->table = $a_table;
+	}
+	
+	/**
+	 * @param Table $table
+	 */
+	public function setQueryTable (Table $table)
+	{
+		$this->setDatasource($table->getDatasource());
+		$this->table = $table;
+		return $this;
 	}
 	
 	public function getQueryTable ()
