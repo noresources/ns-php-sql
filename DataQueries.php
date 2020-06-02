@@ -1111,6 +1111,12 @@ class SelectQuery extends TableQuery implements ns\IExpression
 		return parent::__call($member, $arguments);
 	}
 
+	public function setQueryTable(Table $table)
+	{
+		$this->m_joins = array();
+		return parent::setQueryTable($table);
+	}
+
 	// Inherited methods
 	/**
 	 *
@@ -1217,30 +1223,48 @@ class SelectQuery extends TableQuery implements ns\IExpression
 	public function addColumn(/* ... */)
 	{
 		$n = func_num_args();
+		$columnIndex = \count($this->m_columns);
+
 		for ($i = 0; $i < $n; $i++)
 		{
 			$c = func_get_arg($i);
-			if (($c instanceof ns\IExpression))
-			{
-				$this->m_columns[] = $c;
-			}
-			elseif (is_string($c))
-			{
-				if (!($c = $this->table->getColumn($c)))
-				{
-					return ns\Reporter::error($this, __METHOD__ . '(): Invalid field name', __FILE__,
-						__LINE__);
-				}
-				$this->m_columns[] = $c;
-			}
-			else
-			{
-				return ns\Reporter::error($this,
-					__METHOD__ . '(): Invalid parameter(ns\IExpression or table field name expected)',
-					__FILE__, __LINE__);
-			}
+			$this->setColumn($columnIndex, $c);
 		}
+
 		return $n;
+	}
+
+	public function removeColumn($index)
+	{
+		unset($this->m_columns[$index]);
+	}
+
+	public function insertColumn($index, $column)
+	{
+		$columns = [];
+		foreach ($this->m_columns as $i => $c)
+		{
+			$j = ($i < $index) ? $i : $i + 1;
+			ns\Reporter::debug ('', $i . ' -> ' . $j);
+			$columns[$j] = $c;
+		}
+
+		$this->m_columns = $columns;
+		$this->setColumn($index, $column);
+		ksort ($this->m_columns);
+	}
+	
+	public function setColumn($index, $column)
+	{
+		if (\is_string($column))
+			$column = $this->table->getColumn($column);
+
+		if (!($column instanceof ns\IExpression))
+			return ns\Reporter::error($this,
+				__METHOD__ . '(): Invalid parameter(ns\IExpression or table field name expected)',
+				__FILE__, __LINE__);
+
+		$this->m_columns[$index] = $column;
 	}
 
 	public function clearColumns()
