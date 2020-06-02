@@ -1245,7 +1245,6 @@ class SelectQuery extends TableQuery implements ns\IExpression
 		foreach ($this->m_columns as $i => $c)
 		{
 			$j = ($i < $index) ? $i : $i + 1;
-			ns\Reporter::debug ('', $i . ' -> ' . $j);
 			$columns[$j] = $c;
 		}
 
