@@ -119,7 +119,7 @@ class ColumnValueFilter implements RecordQueryOption
 	/**
 	 *
 	 * @param mixel $column
-	 *        	Column name or TableColumn
+	 *        	The column name or TableColumn
 	 * @param string $operator
 	 *        	<ul>
 	 *        	<li>"=": Equal. @c $value could be anything</li>
@@ -383,8 +383,8 @@ class OrderingOption implements RecordQueryOption
 
 	/**
 	 *
-	 * @param unknown $column
-	 *        	Column name or TableColumn
+	 * @param string|TableColumn $column
+	 *        	The column name or TableColumn
 	 * @param string $asc
 	 */
 	public function __construct($column, $asc = true)
@@ -831,7 +831,7 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 	 *
 	 * @param Table $table
 	 * @param array $values
-	 *        	Column name-value pairs
+	 *        	A column name-value pairs
 	 * @param integer $flags
 	 * @param string $className
 	 *        	Record object classname
@@ -975,8 +975,8 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 	/**
 	 * Remove column value
 	 *
-	 * @param $offset Column
-	 *        	name
+	 * @param mixed $offset
+	 *        	The column name
 	 * @see ArrayAccess::offsetUnset()
 	 */
 	public function offsetUnset($offset)
@@ -988,10 +988,10 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 	/**
 	 * Set column value
 	 *
-	 * @param $member Column
-	 *        	name
-	 * @param $value Column
-	 *        	value
+	 * @param string $member
+	 *        	The column name
+	 * @param mixed $value
+	 *        	The column value
 	 * @see ArrayAccess::offsetSet()
 	 */
 	public function offsetSet($member, $value)
@@ -1340,7 +1340,7 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 	/**
 	 *
 	 * @param mixed $column
-	 *        	Column name
+	 *        	The column name
 	 * @param mixed $value
 	 *        	Value to unserialize
 	 * @return mixed
@@ -1357,7 +1357,7 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 	 * @param Datasource $datasource
 	 * @param TableColumnStructure $columnStructure
 	 * @param unknown $value
-	 * @return NULL|\NoreSources\SQL\unknown|number|string|DateTime
+	 * @return NULL|\NoreSources\SQL\unknown|number|string|\DateTime
 	 */
 	public static function unserializeColumn(Datasource $datasource,
 		TableColumnStructure $columnStructure, $value)
