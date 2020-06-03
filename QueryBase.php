@@ -48,15 +48,16 @@ abstract class IQuery
 		if ($member == 'datasource')
 			return $this->datasource;
 
-		throw new \InvalidArgumentException($member);
+		throw new \InvalidArgumentException(
+			static::class . '::$' . $member . ' member is not availalbe');
 	}
 
 	public function __invoke($flags = 0)
 	{
 		return $this->execute($flags);
 	}
-	
-	public function setDatasource (Datasource $ds)
+
+	public function setDatasource(Datasource $ds)
 	{
 		$this->datasource = $ds;
 	}
@@ -157,22 +158,26 @@ abstract class TableQuery extends IQuery
 	 * @param Datasource $a_datasource
 	 * @param mixed $a_table
 	 */
-	protected function __construct(Table $a_table)
+	protected function __construct(TableInterface $a_table)
 	{
-		parent::__construct($a_table->datasource);
+		parent::__construct($a_table->getDatasource());
 		$this->table = $a_table;
 	}
 	
 	/**
 	 * @param Table $table
 	 */
-	public function setQueryTable (Table $table)
+	public function setQueryTable (TableInterface $table)
 	{
 		$this->setDatasource($table->getDatasource());
 		$this->table = $table;
 		return $this;
 	}
 	
+	/**
+	 * 
+	 * @return \NoreSources\SQL\TableInterface
+	 */
 	public function getQueryTable ()
 	{
 		return $this->table;
@@ -188,7 +193,7 @@ abstract class TableQuery extends IQuery
 
 	/**
 	 *
-	 * @var Table
+	 * @var TableInterface
 	 */
 	protected $table;
 }

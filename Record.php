@@ -507,7 +507,7 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 	 *        	Accepts QUERY_CREATE
 	 * @param string $className
 	 */
-	public static function getRecord(Table $table, $keys, $flags, $className = null)
+	public static function getRecord(TableInterface $table, $keys, $flags, $className = null)
 	{
 		if (!(is_string($className) && class_exists($className)))
 		{
@@ -572,7 +572,7 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 		$recordset = $s->execute();
 
 		if (!($recordset instanceof Recordset))
-			throw new \RuntimeException('Invalid resoult ' . @get_class($recordset));
+			throw new \RuntimeException(static::class . 'Invalid query result ' . @get_class($recordset));
 
 		$c = $recordset->rowCount;
 		if ($c == 1)
@@ -804,7 +804,7 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 
 		$recordset = $s->execute();
 		if (!($recordset instanceof Recordset))
-			throw new \RuntimeException('Invalid resoult ' . @get_class($recordset));
+			throw new \RuntimeException(static::class . ' Invalid result type ' . @get_class($recordset));
 
 		if ($flags & self::QUERY_COUNT)
 			return intval($recordset->current()[0]);

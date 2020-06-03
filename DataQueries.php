@@ -11,6 +11,7 @@ namespace NoreSources\SQL;
 use NoreSources\ArrayUtil;
 use NoreSources\BinaryOperatorExpression;
 use NoreSources\IExpression;
+use NoreSources\Reporter;
 use NoreSources as ns;
 
 /**
@@ -24,7 +25,7 @@ class InsertQuery extends TableQuery implements ns\IExpression
 	 *
 	 * @param Table $table
 	 */
-	public function __construct(Table $table)
+	public function __construct(TableInterface $table)
 	{
 		parent::__construct($table);
 		$this->columnValues = array();
@@ -154,7 +155,7 @@ class UpdateQuery extends TableQuery implements ns\IExpression
 	 *
 	 * @param Table $table
 	 */
-	public function __construct(Table $table)
+	public function __construct(TableInterface $table)
 	{
 		parent::__construct($table);
 		$this->columnValues = array();
@@ -501,7 +502,7 @@ class HavingQueryConditionStatement extends QueryConditionStatement
 class DeleteQuery extends TableQuery
 {
 
-	public function __construct(Table $table)
+	public function __construct(TableInterface $table)
 	{
 		parent::__construct($table);
 		$this->m_condition = new WhereQueryConditionStatement();
@@ -905,7 +906,7 @@ class SelectQueryNaturalJoin extends ISelectQueryJoin
 	 * @param Table $a_leftTable
 	 * @param Table $a_rightTable
 	 */
-	public function __construct(Table $a_leftTable, Table $a_rightTable)
+	public function __construct(TableInterface $a_leftTable, Table $a_rightTable)
 	{
 		parent::__construct(kJoinNatural, $a_leftTable, $a_rightTable);
 	}
@@ -987,7 +988,7 @@ class SelectQuery extends TableQuery implements ns\IExpression
 	 * @param Table $table
 	 *        	Main table of the SELECT query
 	 */
-	public function __construct(Table $table)
+	public function __construct(TableInterface $table)
 	{
 		parent::__construct($table);
 		$this->distinct = false;
@@ -1111,7 +1112,7 @@ class SelectQuery extends TableQuery implements ns\IExpression
 		return parent::__call($member, $arguments);
 	}
 
-	public function setQueryTable(Table $table)
+	public function setQueryTable(TableInterface $table)
 	{
 		$this->m_joins = array();
 		return parent::setQueryTable($table);
@@ -1264,8 +1265,8 @@ class SelectQuery extends TableQuery implements ns\IExpression
 			$column = $this->table->getColumn($column);
 
 		if (!($column instanceof ns\IExpression))
-			return ns\Reporter::error($this,
-				__METHOD__ . '(): Invalid parameter(ns\IExpression or table field name expected)',
+			return Reporter::error($this,
+				__METHOD__ . '(): Invalid parameter(ns\IExpression or table column name expected, got '.@get_class ($column).')',
 				__FILE__, __LINE__);
 
 		$this->m_columns[$index] = $column;
@@ -1283,7 +1284,7 @@ class SelectQuery extends TableQuery implements ns\IExpression
 	 * @param string $a_joinType
 	 * @return \NoreSources\SQL\SelectQueryJoin
 	 */
-	public function createJoin(Table $table, $a_joinType = kJoinNatural)
+	public function createJoin(TableInterface $table, $a_joinType = kJoinNatural)
 	{
 		$kw = $table->datasource->getDatasourceString($a_joinType);
 		if (!(is_string($kw) && strlen($kw) > 0))
@@ -1432,7 +1433,7 @@ class SelectQuery extends TableQuery implements ns\IExpression
 class TruncateQuery extends TableQuery implements ns\IExpression
 {
 
-	public function __construct(Table $table)
+	public function __construct(TableInterface $table)
 	{
 		parent::__construct($table);
 	}
