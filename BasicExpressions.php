@@ -14,10 +14,7 @@ namespace NoreSources\SQL;
 
 require_once ('base.php');
 
-/**
- * An expression relative to a data source connection
- */
-interface IExpression extends \NoreSources\IExpression
+interface DatasourceAwareInterface
 {
 
 	/**
@@ -28,6 +25,15 @@ interface IExpression extends \NoreSources\IExpression
 	 * @return Datasource
 	 */
 	function getDatasource();
+}
+
+/**
+ * An expression relative to a data source connection
+ *
+ * @deprecated Remove this
+ */
+interface IExpression extends \NoreSources\IExpression, DatasourceAwareInterface
+{
 }
 
 /**
