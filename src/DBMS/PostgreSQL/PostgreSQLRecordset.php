@@ -12,9 +12,9 @@ namespace NoreSources\SQL\DBMS\PostgreSQL;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Result\Recordset;
 use NoreSources\SQL\Result\SeekableRecordsetTrait;
-use NoreSources\SQL\Statement\StatementOutputDataInterface;
 use NoreSources\SQL\Statement\ResultColumn;
 use NoreSources\SQL\Statement\ResultColumnMap;
+use NoreSources\SQL\Statement\StatementOutputDataInterface;
 
 class PostgreSQLRecordset extends Recordset implements \SeekableIterator, \Countable
 {
@@ -64,7 +64,7 @@ class PostgreSQLRecordset extends Recordset implements \SeekableIterator, \Count
 	public function setResultColumns(ResultColumnMap $columns)
 	{
 		parent::setResultColumns($columns);
-		foreach ($columns as $index => &$column)
+		foreach ($columns as $index => $column)
 		{
 			$columns->name = \pg_field_name($this->resource, $index);
 		}

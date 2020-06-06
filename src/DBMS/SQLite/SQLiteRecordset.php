@@ -9,12 +9,11 @@
  */
 namespace NoreSources\SQL\DBMS\SQLite;
 
-
 use NoreSources\SQL\DBMS\SQLite\SQLiteConstants as K;
 use NoreSources\SQL\Result\Recordset;
-use NoreSources\SQL\Statement\StatementOutputDataInterface;
 use NoreSources\SQL\Statement\ResultColumn;
 use NoreSources\SQL\Statement\ResultColumnMap;
+use NoreSources\SQL\Statement\StatementOutputDataInterface;
 
 class SQLiteRecordset extends Recordset
 {
@@ -55,10 +54,8 @@ class SQLiteRecordset extends Recordset
 	public function setResultColumns(ResultColumnMap $columns)
 	{
 		parent::setResultColumns($columns);
-		foreach ($columns as $index => &$column)
-		{
+		foreach ($columns as $index => $column)
 			$columns->name = $this->result->columnName($index);
-		}
 	}
 
 	public function getColumnCount()

@@ -835,7 +835,7 @@ final class DBMSCommonTest extends TestCase
 			]
 		];
 
-		list ($_, $expectedResultColumnKeys) = Container::getFirstElement($expected);
+		list ($_, $expectedResultColumnKeys) = Container::first($expected);
 		$index = 0;
 		foreach ($expectedResultColumnKeys as $name => $_)
 		{

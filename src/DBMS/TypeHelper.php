@@ -80,8 +80,7 @@ class TypeHelper
 
 			if ($column->hasColumnProperty(K::COLUMN_LENGTH))
 			{
-				$length = TypeConversion::toInteger(
-					$column->getColumnProperty(K::COLUMN_LENGTH));
+				$length = TypeConversion::toInteger($column->getColumnProperty(K::COLUMN_LENGTH));
 
 				$typeLength = self::getMaxLength($type);
 				if ($typeLength > 0)
@@ -218,6 +217,16 @@ class TypeHelper
 		return $filtered;
 	}
 
+	/**
+	 *
+	 * @param TypeInterface $a
+	 * @param TypeInterface $b
+	 * @return number <ul>
+	 *         <li>&lt; 0 if Lenght of $a is lesser than length of $b</li>
+	 *         <li>&gt; 0 if Lenght of $a is greater than length of $b</li>
+	 *         <li>0 if length of $a and $b are equal</li>
+	 *         </ul>
+	 */
 	public static function compareTypeLength(TypeInterface $a, TypeInterface $b)
 	{
 		$a = self::getMaxLength($a);
@@ -255,6 +264,12 @@ class TypeHelper
 		throw new TypeException($type, 'Property ' . $property . ' not available');
 	}
 
+	/**
+	 *
+	 * @param TypeInterface $type
+	 * @return integer|INF Max data length or the infinite value (INF) if
+	 *         type does not define a size.
+	 */
 	public static function getMaxLength(TypeInterface $type)
 	{
 		if ($type->has(K::TYPE_MAX_LENGTH))
@@ -264,8 +279,7 @@ class TypeHelper
 		{
 			$dataType = $type->get(K::TYPE_DATA_TYPE);
 			if ($dataType & K::DATATYPE_NUMBER)
-				return self::getIntegerTypeMaxLength(
-					Container::keyValue($type, K::TYPE_SIZE, 0));
+				return self::getIntegerTypeMaxLength(Container::keyValue($type, K::TYPE_SIZE, 0));
 			elseif ($dataType == K::DATATYPE_STRING)
 			{
 				if ($type->has(K::TYPE_SIZE))

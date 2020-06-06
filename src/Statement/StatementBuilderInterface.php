@@ -118,5 +118,5 @@ interface StatementBuilderInterface extends DataSerializerInterface
 	 *        	The stream context used to fill the token stream
 	 * @return StatementData
 	 */
-	function finalizeStatement(TokenStream $stream, TokenStreamContextInterface &$context);
+	function finalizeStatement(TokenStream $stream, TokenStreamContextInterface $context);
 }

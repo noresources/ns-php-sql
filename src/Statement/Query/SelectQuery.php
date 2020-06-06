@@ -179,7 +179,7 @@ class SelectQuery extends Statement
 		if (Container::isArray($subject))
 		{
 			if (Container::count($subject) == 1)
-				list ($target, $alias) = Container::getFirstElement($subject);
+				list ($target, $alias) = each($subject);
 			else
 			{
 				$target = Container::keyValue($subject, 0);

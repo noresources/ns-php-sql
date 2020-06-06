@@ -201,7 +201,7 @@ trait StatementBuilderTrait
 		return 'NO ACTION';
 	}
 
-	public function finalizeStatement(TokenStream $stream, TokenStreamContextInterface &$context)
+	public function finalizeStatement(TokenStream $stream, TokenStreamContextInterface $context)
 	{
 		$data = new StatementData($context);
 		$sql = '';
