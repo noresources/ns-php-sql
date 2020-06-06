@@ -123,7 +123,7 @@ class SelectQuery extends Statement
 				{
 					// column expression => alias
 					if (Container::isAssociative($arg))
-						list ($expression, $alias) = each($arg);
+						list ($expression, $alias) = Container::first($arg);
 					else // [ column expression, alias ]
 					{
 						$expression = Container::keyValue($arg, 0, null);
@@ -179,7 +179,7 @@ class SelectQuery extends Statement
 		if (Container::isArray($subject))
 		{
 			if (Container::count($subject) == 1)
-				list ($target, $alias) = each($subject);
+				list ($target, $alias) = Container::first($subject);
 			else
 			{
 				$target = Container::keyValue($subject, 0);

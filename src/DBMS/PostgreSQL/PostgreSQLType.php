@@ -106,7 +106,7 @@ class PostgreSQLType
 
 		if ($count == 1)
 		{
-			list ($oid, $type) = each($matchingTypes);
+			list ($oid, $type) = Container::first($matchingTypes);
 			return $type;
 		}
 
@@ -202,12 +202,12 @@ class PostgreSQLType
 
 		if ($count == 1)
 		{
-			list ($oid, $type) = each($matchingTypes);
+			list ($oid, $type) = Container::first($matchingTypes);
 			return $type;
 		}
 		elseif ($count)
 		{
-			list ($oid, $type) = each($filtered);
+			list ($oid, $type) = Container::first($filtered);
 			return $type;
 		}
 

@@ -134,7 +134,7 @@ class MySQLStatementBuilder extends StatementBuilder implements LoggerAwareInter
 
 		if (Container::count($types) > 0)
 		{
-			list ($key, $type) = each($types);
+			list ($key, $type) = Container::first($types);
 			/**
 			 *
 			 * @var ArrayObjectType $type

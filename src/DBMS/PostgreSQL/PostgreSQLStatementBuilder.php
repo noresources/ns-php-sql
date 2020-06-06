@@ -123,7 +123,7 @@ class PostgreSQLStatementBuilder extends StatementBuilder implements LoggerAware
 		$types = PostgreSQLType::getPostgreSQLTypes();
 		$matchingTypes = TypeHelper::getMatchingTypes($column, $types);
 
-		list ($k, $type) = each($matchingTypes);
+		list ($k, $type) = Container::first($matchingTypes);
 		return $type;
 	}
 

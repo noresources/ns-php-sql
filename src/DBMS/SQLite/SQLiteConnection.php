@@ -120,7 +120,7 @@ class SQLiteConnection implements ConnectionInterface
 		}
 		elseif ($structure instanceof DatasourceStructure && $structure->count() == 1)
 		{
-			list ($name, $namespace) = each($structure->getChildElements());
+			list ($name, $namespace) = Container::first($structure->getChildElements());
 			$defaultNamespaceName = $name;
 		}
 

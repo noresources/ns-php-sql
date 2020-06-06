@@ -206,7 +206,7 @@ class Evaluator
 				{
 					// column = value
 					reset($evaluable);
-					list ($a, $b) = each($evaluable);
+					list ($a, $b) = Container::first($evaluable);
 					if (!\is_array($b))
 					{
 						return new BinaryOperation(BinaryOperation::EQUAL, $this->evaluate($a),
