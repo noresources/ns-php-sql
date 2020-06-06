@@ -186,7 +186,7 @@ class XMLStructureFileExporter implements StructureFileExporterInterface
 		$dataType = $structure->getColumnProperty(K::COLUMN_DATA_TYPE);
 
 		$flags = $structure->getColumnProperty(K::COLUMN_FLAGS);
-		if ($flags & K::COLUMN_FLAG_NULLABLE)
+		if (($flags & K::COLUMN_FLAG_NULLABLE) == 0)
 		{
 			if ($versionNumber >= 20000)
 				$dataTypeNode->setAttribute('nullable', 'no');
