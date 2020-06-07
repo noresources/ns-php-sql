@@ -124,8 +124,8 @@ class ConnectionHelper
 			$q = $connection->getStatementFactory()->newStatement(K::QUERY_CREATE_NAMESPACE,
 				$structure);
 
-			$q->getStructure($structure);
-			$statement = self::buildStatement($connection, $statement, $structure);
+			$q->identifier($structure);
+			$statement = self::buildStatement($connection, $q, $structure);
 
 			$result = $connection->executeStatement($statement);
 			if (!$result)
@@ -143,7 +143,7 @@ class ConnectionHelper
 		elseif ($structure instanceof TableStructure)
 		{
 			$q = $connection->getStatementFactory()->newStatement(K::QUERY_CREATE_TABLE, $structure);
-			$statement = self::buildStatement($connection, $statement, $structure);
+			$statement = self::buildStatement($connection, $q, $structure);
 			return $connection->executeStatement($statement);
 		}
 		elseif ($structure instanceof IndexStructure)

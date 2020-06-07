@@ -24,19 +24,23 @@ use NoreSources\SQL\Structure\NamespaceStructure;
 class SQLiteCreateNamespaceQuery extends CreateNamespaceQuery
 {
 
-	public function __construct(NamespaceStructure $structure = null)
-	{}
+	public function __construct($identifier = null)
+	{
+		parent::__construct($identifier);
+	}
 
 	public function tokenize(TokenStream $stream, TokenStreamContextInterface $context)
 	{
 		$builder = $context->getStatementBuilder();
 
-		$path = $this->getStructure()->getName() . '.sqlite';
+		$path = $this->getNamespaceIdentifier() . '.sqlite';
+		$structure = $context->findNamespace($this->getNamespaceIdentifier()
+			->getLocalName());
 		if ($builder instanceof SQLiteStatementBuilder)
 		{
-			$provider = $builder->getSQLiteSettings(K::CONNECTION_DATABASE_FILE_PROVIDER);
+			$provider = $builder->getSQLiteSetting(K::CONNECTION_DATABASE_FILE_PROVIDER);
 			if (\is_callable($provider))
-				$path = $provider($this->getStructure());
+				$path = $provider($structure);
 		}
 
 		$path = new Literal($path, K::DATATYPE_STRING);
@@ -48,7 +52,8 @@ class SQLiteCreateNamespaceQuery extends CreateNamespaceQuery
 			->expression($path, $context)
 			->space()
 			->keyword('as')
-			->identifier($builder->escapeIdentifier($this->getStructure()
-			->getName()));
+			->identifier(
+			$builder->escapeIdentifier($this->getNamespaceIdentifier()
+				->getLocalName()));
 	}
 }

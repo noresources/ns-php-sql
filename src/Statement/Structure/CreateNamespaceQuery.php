@@ -32,7 +32,7 @@ class CreateNamespaceQuery extends Statement
 	public function __construct($identifier = null)
 	{
 		if ($identifier !== null)
-			$this->name($identifier);
+			$this->identifier($identifier);
 	}
 
 	/**
@@ -52,6 +52,11 @@ class CreateNamespaceQuery extends Statement
 			$this->namespaceIdentifier = new StructureElementIdentifier(\strval($identifier));
 
 		return $this;
+	}
+
+	public function getNamespaceIdentifier()
+	{
+		return $this->namespaceIdentifier;
 	}
 
 	function tokenize(TokenStream $stream, TokenStreamContextInterface $context)

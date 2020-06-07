@@ -63,7 +63,9 @@ class SQLiteStatementBuilder extends StatementBuilder implements LoggerAwareInte
 		while ($structure->getParentElement())
 		{
 			$structure = $structure->getParentElement();
-			$path = $structure->getName() . '/' . $path;
+			$directory = $structure->getName();
+			if (\strlen($directory))
+				$path = $directory . '/' . $path;
 		}
 
 		return $path;
