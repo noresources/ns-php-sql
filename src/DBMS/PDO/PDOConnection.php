@@ -26,6 +26,7 @@ use NoreSources\SQL\Statement\Statement;
 use NoreSources\SQL\Statement\StatementFactoryInterface;
 use NoreSources\SQL\Structure\StructureAwareTrait;
 use Psr\Log\LoggerAwareTrait;
+use NoreSources\SQL\Structure\StructureElementInterface;
 
 /**
  * PDO connection
@@ -82,6 +83,10 @@ class PDOConnection implements ConnectionInterface
 
 		if ($this->connection instanceof \PDO)
 			$this->connection->close();
+
+		$structure = Container::keyValue($parameters, K::CONNECTION_STRUCTURE);
+		if ($structure instanceof StructureElementInterface)
+			$this->setStructure($structure);
 
 		$dsn = Container::keyValue($parameters, K::CONNECTION_SOURCE, null);
 		$user = Container::keyValue($parameters, K::CONNECTION_USER, null);
@@ -262,17 +267,11 @@ class PDOConnection implements ConnectionInterface
 		$type = Statement::statementTypeFromData($prepared);
 
 		if ($type == K::QUERY_SELECT)
-		{
 			$result = (new PDORecordset($prepared));
-		}
 		elseif ($type == K::QUERY_INSERT)
-		{
 			$result = new GenericInsertionStatementResult($this->connection->lastInsertId());
-		}
 		elseif ($type & K::QUERY_FAMILY_ROWMODIFICATION)
-		{
 			$result = new GenericRowModificationStatementResult($pdo->rowCount());
-		}
 
 		return $result;
 	}

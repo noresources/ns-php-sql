@@ -28,6 +28,7 @@ use NoreSources\SQL\Statement\StatementFactoryInterface;
 use NoreSources\SQL\Structure\StructureAwareTrait;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
+use NoreSources\SQL\Structure\StructureElementInterface;
 
 class PostgreSQLConnection implements ConnectionInterface
 {
@@ -55,8 +56,9 @@ class PostgreSQLConnection implements ConnectionInterface
 			self::VERSION_CONNECTION => null
 		];
 
-		if (\is_resource($this->resource))
-			$this->disconnect();
+		$structure = Container::keyValue($parameters, K::CONNECTION_STRUCTURE);
+		if ($structure instanceof StructureElementInterface)
+			$this->setStructure($structure);
 
 		if (Container::keyExists($parameters, K::CONNECTION_VERSION))
 			$this->versions[self::VERSION_EXPECTED] = new SemanticVersion(

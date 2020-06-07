@@ -17,6 +17,7 @@ use NoreSources\SQL\Statement\ClassMapStatementFactoryTrait;
 use NoreSources\SQL\Statement\StatementFactoryInterface;
 use NoreSources\SQL\Structure\StructureAwareTrait;
 use Psr\Log\LoggerAwareTrait;
+use NoreSources\SQL\Structure\StructureElementInterface;
 
 /**
  * SQLite connection
@@ -39,8 +40,9 @@ class ReferenceConnection implements ConnectionInterface, StatementFactoryInterf
 				return new ReferenceTransactionBlock($this, $name);
 			});
 
-		if (Container::keyExists($parameters, K::CONNECTION_STRUCTURE))
-			$this->setStructure($structure)[K::CONNECTION_STRUCTURE];
+		$structure = Container::keyValue($parameters, K::CONNECTION_STRUCTURE);
+		if ($structure instanceof StructureElementInterface)
+			$this->setStructure($structure);
 	}
 
 	public function __destruct()

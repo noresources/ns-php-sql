@@ -27,6 +27,7 @@ use NoreSources\SQL\Statement\StatementFactoryInterface;
 use NoreSources\SQL\Structure\StructureAwareTrait;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
+use NoreSources\SQL\Structure\StructureElementInterface;
 
 /**
  * MySQL or MariaDB connection
@@ -52,6 +53,10 @@ class MySQLConnection implements ConnectionInterface
 		$persistent = Container::keyValue($parameters, K::CONNECTION_PERSISTENT, false);
 		$protocol = Container::keyValue($parameters, K::CONNECTION_PROTOCOL,
 			K::CONNECTION_PROTOCOL_TCP);
+
+		$structure = Container::keyValue($parameters, K::CONNECTION_STRUCTURE);
+		if ($structure instanceof StructureElementInterface)
+			$this->setStructure($structure);
 
 		if ($protocol == K::CONNECTION_PROTOCOL_TCP)
 		{

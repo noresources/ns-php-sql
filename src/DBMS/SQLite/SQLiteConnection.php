@@ -29,6 +29,7 @@ use NoreSources\SQL\Structure\DatasourceStructure;
 use NoreSources\SQL\Structure\NamespaceStructure;
 use NoreSources\SQL\Structure\StructureAwareTrait;
 use Psr\Log\LoggerInterface;
+use NoreSources\SQL\Structure\StructureElementInterface;
 
 /**
  * SQLite connection
@@ -103,8 +104,9 @@ class SQLiteConnection implements ConnectionInterface
 
 		$this->connection = null;
 
-		if (Container::keyExists($parameters, K::CONNECTION_STRUCTURE))
-			$this->setStructure($structure)[K::CONNECTION_STRUCTURE];
+		$structure = Container::keyValue($parameters, K::CONNECTION_STRUCTURE);
+		if ($structure instanceof StructureElementInterface)
+			$this->setStructure($structure);
 
 		$pragmas = Container::keyValue($parameters, K::CONNECTION_SQLITE_PRAGMAS,
 			[
