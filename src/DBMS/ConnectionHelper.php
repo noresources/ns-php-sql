@@ -24,6 +24,9 @@ use NoreSources\SQL\Structure\IndexStructure;
 use NoreSources\SQL\Structure\NamespaceStructure;
 use NoreSources\SQL\Structure\StructureElementInterface;
 use NoreSources\SQL\Structure\TableStructure;
+use NoreSources\SQL\Expression\StructureElementIdentifier;
+use NoreSources\SQL\Structure\StructureFileImporterInterface;
+use NoreSources\SQL\Structure\StructureSerializerFactory;
 
 /**
  * Helper method for creation of Connection, statement and prepared statement
@@ -56,8 +59,23 @@ class ConnectionHelper
 		];
 
 		if (self::$connectionClassMap->offsetExists($type))
-		{
 			array_unshift($classNames, self::$connectionClassMap->offsetGet($type));
+
+		if (Container::keyExists($settings, K::CONNECTION_STRUCTURE))
+		{
+			$structure = $settings[K::CONNECTION_STRUCTURE];
+			if (\is_string($structure))
+			{
+				if (!\file_exists($structure))
+					throw new \InvalidArgumentException(
+						K::CONNECTION_STRUCTURE . ' setting must be a ' .
+						StructureElementInterface::class . ' or a valid file path');
+
+				$factory = new StructureSerializerFactory();
+				$structure = $factory->structureFromFile($structure);
+			}
+
+			$settings[K::CONNECTION_STRUCTURE] = $structure;
 		}
 
 		foreach ($classNames as $className)
