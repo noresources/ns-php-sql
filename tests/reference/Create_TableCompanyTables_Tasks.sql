@@ -7,6 +7,6 @@ CREATE TABLE [ns_unittests].[Tasks] (
   [creator] INTEGER DEFAULT NULL, 
   [assignedTo] INTEGER DEFAULT NULL, 
   CONSTRAINT [pk_tid] PRIMARY KEY ([id]), 
-  CONSTRAINT [fk_creator] FOREIGN KEY ([creator]) REFERENCES [ns_unittests].[Employees] ([id]) ON UPDATE CASCADE ON DELETE CASCADE, 
-  FOREIGN KEY ([assignedTo]) REFERENCES [ns_unittests].[Employees] ([id]) ON UPDATE CASCADE ON DELETE CASCADE
+  CONSTRAINT [fk_creator] FOREIGN KEY ([creator]) REFERENCES [Employees] ([id]) ON UPDATE CASCADE ON DELETE CASCADE, 
+  FOREIGN KEY ([assignedTo]) REFERENCES [Employees] ([id]) ON UPDATE CASCADE ON DELETE CASCADE
 )

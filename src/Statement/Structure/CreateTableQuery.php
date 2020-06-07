@@ -225,6 +225,10 @@ class CreateTableQuery extends Statement implements StructureAwareInterface
 	protected function tokenizeTableConstraint(TableConstraint $constraint, TokenStream $stream,
 		TokenStreamContextInterface $context)
 	{
+		$structure = $this->structure;
+		if (!($structure instanceof TableStructure))
+			$structure = $context->getPivot();
+
 		if (\strlen($constraint->constraintName))
 		{
 			$stream->keyword('constraint')
@@ -273,12 +277,20 @@ class CreateTableQuery extends Statement implements StructureAwareInterface
 
 			$stream->space()
 				->keyword('references')
-				->space()
-				->identifier(
-				$context->getStatementBuilder()
-					->getCanonicalName($constraint->getForeignTable()))
-				->space()
-				->text('(');
+				->space();
+
+			$ft = $constraint->getForeignTable();
+			if ($ft->getParentElement() == $structure->getParentElement())
+				$stream->identifier(
+					$context->getStatementBuilder()
+						->escapeIdentifier($ft->getName()));
+			else
+
+				$stream->identifier(
+					$context->getStatementBuilder()
+						->getCanonicalName($constraint->getForeignTable()));
+
+			$stream->space()->text('(');
 
 			$i = 0;
 			foreach ($constraint as $column => $reference)
