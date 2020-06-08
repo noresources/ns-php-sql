@@ -586,6 +586,13 @@ class Constants
 	const BUILDER_CREATE_COLUMN_KEY_MANDATORY_LENGTH = 0x01000000;
 
 	/**
+	 * Column description supports ENUM () syntax
+	 *
+	 * @var integer
+	 */
+	const BUILDER_CREATE_COLUMN_INLINE_ENUM = 0x02000000;
+
+	/**
 	 * DROP query supports CASCADE modifiers
 	 *
 	 * @var integer

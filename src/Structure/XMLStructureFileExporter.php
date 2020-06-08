@@ -243,13 +243,27 @@ class XMLStructureFileExporter implements StructureFileExporterInterface
 		{
 			$typeNode = $context->dom->createElementNS($namespaceURI, $typeNodeName);
 
-			if ($dataType & K::DATATYPE_NUMBER)
+			if ($dataType == K::DATATYPE_STRING)
+			{
+				if ($structure->hasColumnProperty(K::COLUMN_ENUMERATION))
+				{
+					$values = $structure->getColumnProperty(K::COLUMN_ENUMERATION);
+					$enumerationNode = $context->dom->createElementNS($namespaceURI, 'enumeration');
+					foreach ($values as $value)
+					{
+						$valueNode = $context->dom->createElementNS($namespaceURI, 'value');
+						$valueNode->appendChild($context->dom->createTextNode($value));
+						$enumerationNode->appendChild($valueNode);
+					}
+					$typeNode->appendChild($enumerationNode);
+				}
+			}
+			elseif ($dataType & K::DATATYPE_NUMBER)
 			{
 				if ($flags & K::COLUMN_FLAG_UNSIGNED && ($versionNumber >= 20000))
 					$typeNode->setAttribute('signed', 'no');
 			}
-
-			if ($dataType & K::DATATYPE_TIMESTAMP)
+			elseif ($dataType & K::DATATYPE_TIMESTAMP)
 			{
 				if ($versionNumber >= 20000)
 				{

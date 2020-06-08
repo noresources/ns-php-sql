@@ -136,7 +136,23 @@ class CreateTableQuery extends Statement implements StructureAwareInterface
 			$hasLength = $column->hasColumnProperty(K::COLUMN_LENGTH);
 			$hasFractionScale = $column->hasColumnProperty(K::COLUMN_FRACTION_SCALE);
 
-			if ($hasLength && $lengthSupport)
+			$hasEnumeration = $column->hasColumnProperty(K::COLUMN_ENUMERATION);
+			$enumerationSupport = ($builderFlags & K::BUILDER_CREATE_COLUMN_INLINE_ENUM);
+
+			if ($hasEnumeration && $enumerationSupport)
+			{
+				$stream->text('(');
+				$values = $column->getColumnProperty(K::COLUMN_ENUMERATION);
+				$i = 0;
+				foreach ($values as $value)
+				{
+					if ($i++ > 0)
+						$stream->text(', ');
+					$stream->expression($value, $context);
+				}
+				$stream->text(')');
+			}
+			elseif ($hasLength && $lengthSupport)
 			{
 				$stream->text('(')->literal($column->getColumnProperty(K::COLUMN_LENGTH));
 

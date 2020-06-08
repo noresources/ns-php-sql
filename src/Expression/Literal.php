@@ -9,6 +9,7 @@
  */
 namespace NoreSources\SQL\Expression;
 
+use NoreSources\StringRepresentation;
 use NoreSources\TypeDescription;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Structure\ArrayColumnDescription;
@@ -17,7 +18,8 @@ use NoreSources\SQL\Structure\ColumnDescriptionInterface;
 /**
  * Literal value
  */
-class Literal implements TokenizableExpressionInterface, ExpressionReturnTypeInterface
+class Literal implements TokenizableExpressionInterface, ExpressionReturnTypeInterface,
+	StringRepresentation
 {
 
 	/**
@@ -55,6 +57,11 @@ class Literal implements TokenizableExpressionInterface, ExpressionReturnTypeInt
 	{
 		$this->serializationTarget = K::DATATYPE_UNDEFINED;
 		$this->setValue($value, $type);
+	}
+
+	public function __toString()
+	{
+		return \NoreSources\TypeConversion::toString($this->getValue());
 	}
 
 	/**

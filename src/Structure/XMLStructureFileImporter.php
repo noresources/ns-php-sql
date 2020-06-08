@@ -13,6 +13,7 @@ use NoreSources\Container;
 use NoreSources\SemanticVersion;
 use NoreSources\SQL\Expression\ExpressionHelper;
 use NoreSources\SQL\Expression\Keyword;
+use NoreSources\SQL\Expression\Literal;
 use NoreSources\SQL\Expression\TokenizableExpressionInterface;
 use NoreSources\SQL\Structure\XMLStructureFileConstants as K;
 
@@ -323,6 +324,21 @@ class XMLStructureFileImporter implements StructureFileImporterInterface
 				{
 					$dataType = K::DATATYPE_FLOAT;
 				}
+			}
+		}
+		elseif ($dataType == K::DATATYPE_STRING && ($typeNode instanceof \DOMNode))
+		{
+			$enumerationNode = self::getSingleElementByTagName($context->namespaceURI, $typeNode,
+				'enumeration');
+			if ($enumerationNode instanceof \DOMNode)
+			{
+				$values = [];
+				$valueNodes = $context->xpath->query(K::XML_NAMESPACE_PREFIX . ':value',
+					$enumerationNode);
+				foreach ($valueNodes as $valueNode)
+					$values[] = new Literal($valueNode->nodeValue, K::DATATYPE_STRING);
+
+				$structure->setColumnProperty(K::COLUMN_ENUMERATION, $values);
 			}
 		}
 

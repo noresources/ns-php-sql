@@ -14,6 +14,7 @@ use NoreSources\TypeConversion;
 use NoreSources\SQL\DBMS\ArrayObjectType;
 use NoreSources\SQL\DBMS\BasicType;
 use NoreSources\SQL\DBMS\TypeHelper;
+use NoreSources\SQL\DBMS\TypeInterface;
 use NoreSources\SQL\DBMS\MySQL\MySQLConstants as K;
 use NoreSources\SQL\Expression\FunctionCall;
 use NoreSources\SQL\Expression\Literal;
@@ -25,6 +26,7 @@ use NoreSources\SQL\Structure\PrimaryKeyTableConstraint;
 use NoreSources\SQL\Structure\TableStructure;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
+use ArrayObject;
 
 class MySQLStatementBuilder extends StatementBuilder implements LoggerAwareInterface
 {
@@ -41,7 +43,9 @@ class MySQLStatementBuilder extends StatementBuilder implements LoggerAwareInter
 		 * @todo builder flags
 		 */
 
-		$createTableFlags = K::BUILDER_CREATE_COLUMN_KEY_MANDATORY_LENGTH;
+		$createTableFlags = $this->getBuilderFlags(K::BUILDER_DOMAIN_CREATE_TABLE);
+		$createTableFlags |= K::BUILDER_CREATE_COLUMN_KEY_MANDATORY_LENGTH |
+			K::BUILDER_CREATE_COLUMN_INLINE_ENUM;
 		$this->setBuilderFlags(K::BUILDER_DOMAIN_CREATE_TABLE, $createTableFlags);
 
 		$dropTableFlags = K::BUILDER_DROP_CASCADE;
@@ -91,6 +95,11 @@ class MySQLStatementBuilder extends StatementBuilder implements LoggerAwareInter
 
 	public function getColumnType(ColumnStructure $column)
 	{
+		if ($column->hasColumnProperty(K::COLUMN_ENUMERATION))
+		{
+			return new BasicType('ENUM');
+		}
+
 		$types = MySQLType::getMySQLTypes();
 		$table = $column->getParentElement();
 		$isPrimaryKey = false;
