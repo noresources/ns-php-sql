@@ -1233,7 +1233,7 @@ class SelectQuery extends TableQuery implements IExpression
 		for ($i = 0; $i < $n; $i++)
 		{
 			$c = func_get_arg($i);
-			$this->setColumn($columnIndex, $c);
+			$this->setColumn($columnIndex++, $c);
 		}
 
 		return $n;
