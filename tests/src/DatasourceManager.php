@@ -51,7 +51,12 @@ class DatasourceManager extends \PHPUnit\Framework\TestCase
 				return true;
 		}
 
-		$q = new CreateTableQuery($tableStructure);
+		/**
+		 *
+		 * @var CreateTableQuery
+		 */
+		$q = $connection->getStatementFactory()->newStatement(K::QUERY_CREATE);
+		$q->table($structure);
 		$sql = ConnectionHelper::buildStatement($connection, $q);
 		return $connection->executeStatement($sql);
 	}

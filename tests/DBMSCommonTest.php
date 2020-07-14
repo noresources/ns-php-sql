@@ -21,6 +21,7 @@ use NoreSources\SQL\Result\InsertionStatementResultInterface;
 use NoreSources\SQL\Result\Recordset;
 use NoreSources\SQL\Statement\Manipulation\DeleteQuery;
 use NoreSources\SQL\Statement\Manipulation\InsertQuery;
+use NoreSources\SQL\Statement\Manipulation\UpdateQuery;
 use NoreSources\SQL\Statement\Query\SelectQuery;
 use NoreSources\SQL\Statement\Structure\DropTableQuery;
 use NoreSources\SQL\Structure\ArrayColumnDescription;
@@ -685,7 +686,7 @@ final class DBMSCommonTest extends TestCase
 			{
 				$index = rand() % $c;
 				$b = $indexes[$index];
-				Container::removeKey($indexes, $index, Container::REMOVE_INPLACE);
+				Container::removeKey($indexes, $index);
 				$indexes = \array_values($indexes);
 
 				$operations[] = [

@@ -14,6 +14,7 @@ use Ferno\Loco\EmptyParser;
 use Ferno\Loco\LazyAltParser;
 use Ferno\Loco\StringParser;
 use NoreSources\Container;
+use NoreSources\SingletonTrait;
 use NoreSources\TypeDescription;
 use NoreSources\SQL\Constants as K;
 
@@ -34,6 +35,8 @@ class EvaluatorException extends \ErrorException
  */
 class Evaluator
 {
+
+	use SingletonTrait;
 
 	public function __construct()
 	{
@@ -67,19 +70,25 @@ class Evaluator
 				'%' => new BinaryPolishNotationOperation('%'),
 				'and' => new BinaryPolishNotationOperation('AND',
 					PolishNotationOperation::KEYWORD | PolishNotationOperation::SPACE),
+				'is' => new BinaryPolishNotationOperation('IS',
+					PolishNotationOperation::KEYWORD | PolishNotationOperation::SPACE),
+				'!is' => new BinaryPolishNotationOperation('IS NOT',
+					PolishNotationOperation::KEYWORD | PolishNotationOperation::SPACE),
+				'is not' => new BinaryPolishNotationOperation('IS NOT',
+					PolishNotationOperation::KEYWORD | PolishNotationOperation::SPACE),
 				'or' => new BinaryPolishNotationOperation('OR',
 					PolishNotationOperation::KEYWORD | PolishNotationOperation::SPACE),
 				'like' => new BinaryPolishNotationOperation('LIKE',
 					PolishNotationOperation::KEYWORD | PolishNotationOperation::SPACE)
 			],
 			'*' => [
-				'in' => new BinaryPolishNotationOperation('in',
+				'in' => new BinaryPolishNotationOperation('IN',
 					PolishNotationOperation::PRE_SPACE | PolishNotationOperation::POST_WHITESPACE,
 					MemberOf::class),
-				'!in' => new BinaryPolishNotationOperation('in',
+				'!in' => new BinaryPolishNotationOperation('IN',
 					PolishNotationOperation::PRE_SPACE | PolishNotationOperation::POST_WHITESPACE,
 					MemberOf::class),
-				'not in' => new BinaryPolishNotationOperation('in',
+				'not in' => new BinaryPolishNotationOperation('IN',
 					PolishNotationOperation::PRE_SPACE | PolishNotationOperation::POST_WHITESPACE,
 					MemberOf::class)
 			]
@@ -136,13 +145,8 @@ class Evaluator
 	{
 		if ($name == 'evaluate')
 		{
-			if (!(self::$instance instanceof Evaluator))
-			{
-				self::$instance = new Evaluator();
-			}
-
 			return call_user_func_array([
-				self::$instance,
+				self::getInstance(),
 				'evaluateEvaluable'
 			], $args);
 		}
@@ -163,7 +167,7 @@ class Evaluator
 			{
 				return $evaluable;
 			}
-			elseif ($evaluable instanceof \DateTime)
+			elseif ($evaluable instanceof \DateTimeImmutable)
 			{
 				return new Literal($evaluable, K::DATATYPE_TIMESTAMP);
 			}
@@ -197,24 +201,26 @@ class Evaluator
 		{
 			return $this->evaluateString($evaluable);
 		}
-		elseif (Container::isArray($evaluable))
+		elseif (\is_array($evaluable))
 		{
 			if (Container::isAssociative($evaluable))
 			{
+
 				// Polish notation or "column => value"
 				if (\count($evaluable) == 1)
 				{
 					// column = value
-					reset($evaluable);
 					list ($a, $b) = Container::first($evaluable);
 					if (!\is_array($b))
 					{
 						return new BinaryOperation(BinaryOperation::EQUAL, $this->evaluate($a),
 							$this->evaluate($b));
 					}
+
+					return $this->evaluatePolishNotationElement($a, $b);
 				}
 
-				return $this->evaluatePolishNotation($evaluable);
+				throw new EvaluatorException('Unsupported syntax');
 			}
 			else
 			{
@@ -299,10 +305,32 @@ class Evaluator
 	 */
 	private function evaluatePolishNotationElement($key, $operands)
 	{
-		$key = trim($key);
-		$length = strlen($key);
+		$key = \trim($key);
+		$length = \strlen($key);
 
-		if (strpos($key, '()') === ($length - 2))
+		/*
+		 *  Automatically fix missing  [] around polish operation operands
+		 */
+		if (\count($operands) == 1 && Container::isAssociative($operands))
+			$operands = [
+				$operands
+			];
+
+		$operands = \array_map(function ($operand) {
+			return $this->evaluateEvaluable($operand);
+		}, $operands);
+
+		// Group
+		if ($key == '()')
+		{
+			if (\count($operands) != 1)
+				throw new EvaluatorException('Group operator expect exactly one operand');
+
+			$operand = Container::firstValue($operands);
+			return new Group($operand);
+		}
+		// Function
+		elseif (\strpos($key, '()') === ($length - 2))
 		{
 			if (\strpos($key, '@') === 0)
 				return new MetaFunctionCall(substr($key, 1, $length - 3), $operands);
@@ -310,7 +338,7 @@ class Evaluator
 			return new FunctionCall(substr($key, 0, $length - 2), $operands);
 		}
 
-		$c = count($operands);
+		$c = \count($operands);
 		$o = false;
 		if (\array_key_exists($c, $this->operators))
 			$o = Container::keyValue($this->operators[$c], $key, false);
@@ -320,7 +348,7 @@ class Evaluator
 
 		if (!($o instanceof PolishNotationOperation))
 			throw new EvaluatorException(
-				'Unable to evalate Polish notation ' . $key . ' => [' . $c . ' argument(s)... ]');
+				'Unable to evalate Polish notation "' . $key . '" => [' . $c . ' argument(s)... ]');
 
 		if ($o->className === MemberOf::class)
 		{
@@ -339,45 +367,6 @@ class Evaluator
 				$o->operator
 			], $operands));
 		}
-	}
-
-	/**
-	 *
-	 * @param array $polishTree
-	 */
-	private function evaluatePolishNotation($polishTree)
-	{
-		$result = null;
-		foreach ($polishTree as $key => $operands)
-		{
-			$key = strtolower($key);
-			$operands = array_map([
-				$this,
-				'evaluateEvaluable'
-			], $operands);
-
-			$expression = $this->evaluatePolishNotationElement($key, $operands);
-
-			if (!($expression instanceof TokenizableExpressionInterface))
-			{
-				throw new EvaluatorException(
-					'Unable to create expression (got ' . var_export($expression, true) . ')');
-			}
-
-			if ($result instanceof TokenizableExpressionInterface)
-			{
-				$result = new BinaryOperation(BinaryOperation::LOGICAL_AND, $result, $expression);
-			}
-			else
-				$result = $expression;
-		}
-
-		if (!($result instanceof TokenizableExpressionInterface))
-		{
-			throw new EvaluatorException('Unable to create expression');
-		}
-
-		return $result;
 	}
 
 	/**
@@ -1076,8 +1065,6 @@ class Evaluator
 	 * @var array of PolishNotationOperation
 	 */
 	private $operators;
-
-	private static $instance;
 }
 
 class PolishNotationOperation

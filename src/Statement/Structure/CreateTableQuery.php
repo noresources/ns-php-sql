@@ -50,6 +50,12 @@ class CreateTableQuery extends Statement implements StructureAwareInterface
 		return $this->structure;
 	}
 
+	/**
+	 * Set the table structure
+	 *
+	 * @param TableStructure $table
+	 * @return \NoreSources\SQL\Statement\Structure\CreateTableQuery
+	 */
 	public function table(TableStructure $table)
 	{
 		$this->structure = $table;

@@ -11,6 +11,7 @@ namespace NoreSources\SQL\DBMS\SQLite;
 
 use NoreSources\Container;
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\DBMS\TypeInterface;
 use NoreSources\SQL\Expression\Evaluator;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Expression\TokenStreamContextInterface;
@@ -19,10 +20,21 @@ use NoreSources\SQL\Statement\Structure\CreateTableQuery;
 use NoreSources\SQL\Structure\PrimaryKeyTableConstraint;
 use NoreSources\SQL\Structure\TableStructure;
 
+/**
+ * CREATE TABLE query for SQLite dialect
+ *
+ * SQLite has a special syntax and restrictions for primary column with auto-increment.
+ *
+ * @see https://sqlite.org/lang_createtable.html
+ */
 class SQLiteCreateTableQuery extends CreateTableQuery
 {
 
-	public function __construct(TableStructure $table)
+	/**
+	 *
+	 * @param TableStructure $table
+	 */
+	public function __construct(TableStructure $table = null)
 	{
 		parent::__construct($table);
 	}

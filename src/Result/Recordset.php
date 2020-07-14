@@ -13,18 +13,16 @@ use NoreSources\ArrayRepresentation;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DataUnserializerInterface;
 use NoreSources\SQL\GenericDataUnserializer;
-use NoreSources\SQL\Statement\StatementOutputDataInterface;
 use NoreSources\SQL\Statement\OutputDataTrait;
 use NoreSources\SQL\Statement\ResultColumnMap;
+use NoreSources\SQL\Statement\StatementOutputDataInterface;
 use NoreSources\SQL\Structure\ColumnDescriptionInterface;
-
-
 
 /**
  * Recordset query result
  */
-abstract class Recordset implements \Iterator, StatementOutputDataInterface, StatementResultInterface, ArrayRepresentation,
-	\JsonSerializable, DataUnserializerInterface
+abstract class Recordset implements \Iterator, StatementOutputDataInterface,
+	StatementResultInterface, ArrayRepresentation, \JsonSerializable, DataUnserializerInterface
 {
 
 	use OutputDataTrait;
@@ -266,7 +264,8 @@ abstract class Recordset implements \Iterator, StatementOutputDataInterface, Sta
 	 * @param integer $index
 	 *        	The expected row to fetch. This value is always set to
 	 *        	"current row index + 1". It is mandatory for some DBMS implementations
-	 * @return array|false Indexed array of column values or @c false if no mre column can be retreived
+	 * @return array|false Indexed array of column values or @c false if no mre column can be
+	 *         retreived
 	 */
 	abstract protected function fetch($index);
 
@@ -300,7 +299,15 @@ abstract class Recordset implements \Iterator, StatementOutputDataInterface, Sta
 
 			foreach ($this->internalRecord as $index => $value)
 			{
+				if (!$this->resultColumns->hasColumn($index))
+				{
+					if ($this->flags & self::FETCH_INDEXED)
+						$this->record[$index] = $value;
+					continue;
+				}
+
 				$column = $this->resultColumns->getColumn($index);
+
 				if ($this->flags & self::FETCH_UNSERIALIZE)
 				{
 					$u = $this;

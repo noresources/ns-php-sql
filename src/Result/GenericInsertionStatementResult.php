@@ -12,9 +12,14 @@ namespace NoreSources\SQL\Result;
 class GenericInsertionStatementResult implements InsertionStatementResultInterface
 {
 
-	public function __construct($insretId)
+	/**
+	 *
+	 * @param integer|null $insertId
+	 *        	The last inserted row id if available
+	 */
+	public function __construct($insertId = null)
 	{
-		$this->insertId;
+		$this->insertId = $insertId;
 	}
 
 	public function getInsertId()
