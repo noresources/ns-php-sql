@@ -15,6 +15,16 @@ class MySQLConstants extends Constants
 {
 
 	/**
+	 * Default database
+	 *
+	 * On connection, use the given database.
+	 *
+	 * @var string
+	 * @see https://mariadb.com/kb/en/use/
+	 */
+	const CONNECTION_DEFAULT_NAMESPACE = 'mysqldefaultdatabase';
+
+	/**
 	 * Connection protocol type.
 	 *
 	 * Accepted values are

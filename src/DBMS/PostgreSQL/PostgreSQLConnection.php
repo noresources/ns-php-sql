@@ -26,9 +26,9 @@ use NoreSources\SQL\Statement\ParameterDataAwareInterface;
 use NoreSources\SQL\Statement\Statement;
 use NoreSources\SQL\Statement\StatementFactoryInterface;
 use NoreSources\SQL\Structure\StructureAwareTrait;
+use NoreSources\SQL\Structure\StructureElementInterface;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
-use NoreSources\SQL\Structure\StructureElementInterface;
 
 class PostgreSQLConnection implements ConnectionInterface
 {
@@ -68,7 +68,6 @@ class PostgreSQLConnection implements ConnectionInterface
 		foreach ([
 			K::CONNECTION_SOURCE => 'host',
 			K::CONNECTION_PORT => 'port',
-			K::CONNECTION_DATABASE => 'dbname',
 			K::CONNECTION_USER => 'user',
 			K::CONNECTION_PASSWORD => 'password'
 		] as $key => $name)

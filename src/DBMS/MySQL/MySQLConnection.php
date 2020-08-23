@@ -25,9 +25,9 @@ use NoreSources\SQL\Statement\ParameterData;
 use NoreSources\SQL\Statement\Statement;
 use NoreSources\SQL\Statement\StatementFactoryInterface;
 use NoreSources\SQL\Structure\StructureAwareTrait;
+use NoreSources\SQL\Structure\StructureElementInterface;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
-use NoreSources\SQL\Structure\StructureElementInterface;
 
 /**
  * MySQL or MariaDB connection
@@ -68,7 +68,7 @@ class MySQLConnection implements ConnectionInterface
 				ini_get('mysqli.default_user'));
 			$password = Container::keyValue($parameters, K::CONNECTION_PASSWORD,
 				ini_get('mysqli.default_pw'));
-			$database = Container::keyValue($parameters, K::CONNECTION_DATABASE, '');
+			$database = Container::keyValue($parameters, K::CONNECTION_DEFAULT_NAMESPACE, '');
 
 			if ($persistent && (substr($host, 0, 2) != 'p:'))
 				$host = 'p:' . $host;

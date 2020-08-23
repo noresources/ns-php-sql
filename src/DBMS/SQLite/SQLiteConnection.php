@@ -28,8 +28,8 @@ use NoreSources\SQL\Statement\StatementFactoryInterface;
 use NoreSources\SQL\Structure\DatasourceStructure;
 use NoreSources\SQL\Structure\NamespaceStructure;
 use NoreSources\SQL\Structure\StructureAwareTrait;
-use Psr\Log\LoggerInterface;
 use NoreSources\SQL\Structure\StructureElementInterface;
+use Psr\Log\LoggerInterface;
 
 /**
  * SQLite connection
@@ -80,7 +80,6 @@ class SQLiteConnection implements ConnectionInterface
 	 *        	file name. If the key is not a string, the base file name is used as tableet
 	 *        	name</li>
 	 *        	</ul>
-	 *        	<li>CONNECTION_DATABASE (string): Overrides the namespace name if
 	 *        	CONNECTION_SOURCE value is a
 	 *        	string</li>
 	 *        	<li>CONNECTION_CREATE (bool): Create database file if it does not exists</li>
@@ -125,9 +124,6 @@ class SQLiteConnection implements ConnectionInterface
 			list ($name, $namespace) = Container::first($structure->getChildElements());
 			$defaultNamespaceName = $name;
 		}
-
-		$defaultNamespaceName = Container::keyValue($parameters, K::CONNECTION_DATABASE,
-			$defaultNamespaceName);
 
 		$sources = Container::keyValue($parameters, K::CONNECTION_SOURCE,
 			[
