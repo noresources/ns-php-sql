@@ -51,7 +51,7 @@
             "source": {
                 "type": "git",
                 "url": "ssh://okami/volume1/repository/git/ns-php-core.git",
-                "reference": "b433a44e9d06536badfa8ccd47e8ec6520884892"
+                "reference": "74f33faf823d5f38c9956f17eae3e4d6d3c14a44"
             },
             "require": {
                 "ext-json": "*",
@@ -66,9 +66,6 @@
             "suggest": {
                 "ext-yaml": "Needed to load DataTree content from YAML encoded file"
             },
-            "bin": [
-                "tools/new-type-file"
-            ],
             "type": "library",
             "extra": {
                 "branch-alias": {
@@ -106,7 +103,7 @@
             "support": {
                 "issues": "https://github.com/noresources/ns-php-core/issues"
             },
-            "time": "2020-08-22T15:21:30+00:00"
+            "time": "2020-08-22T16:26:05+00:00"
         },
         {
             "name": "noresources/ns-php-expression",
@@ -215,7 +212,7 @@
             "source": {
                 "type": "git",
                 "url": "ssh://okami/volume1/repository/git/ns-php-mediatype.git",
-                "reference": "5d4d559b2bc716b476bd21d221b2a857e716fb87"
+                "reference": "0426e466bbaae99e9047ffc3d9ee0b94499dfa88"
             },
             "require": {
                 "noresources/ns-php-http-core": "~1.0",
@@ -259,7 +256,7 @@
             "support": {
                 "issues": "https://github.com/noresources/ns-php-mediatype/issues"
             },
-            "time": "2020-08-19T18:35:39+00:00"
+            "time": "2020-08-22T16:53:27+00:00"
         },
         {
             "name": "psr/container",

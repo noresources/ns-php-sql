@@ -18,15 +18,14 @@ use NoreSources\SQL\Expression\Literal;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Statement\Statement;
 use NoreSources\SQL\Statement\StatementData;
+use NoreSources\SQL\Statement\StatementDataInterface;
 use NoreSources\SQL\Statement\StatementTokenStreamContext;
 use NoreSources\SQL\Structure\DatasourceStructure;
 use NoreSources\SQL\Structure\IndexStructure;
 use NoreSources\SQL\Structure\NamespaceStructure;
 use NoreSources\SQL\Structure\StructureElementInterface;
-use NoreSources\SQL\Structure\TableStructure;
-use NoreSources\SQL\Expression\StructureElementIdentifier;
-use NoreSources\SQL\Structure\StructureFileImporterInterface;
 use NoreSources\SQL\Structure\StructureSerializerFactory;
+use NoreSources\SQL\Structure\TableStructure;
 
 /**
  * Helper method for creation of Connection, statement and prepared statement
@@ -36,30 +35,22 @@ class ConnectionHelper
 
 	/**
 	 *
-	 * @param array|\ArrayObject $settings
-	 *        	ConnectionInterface settings
-	 * @throws ConnectionException
-	 * @return \NoreSources\SQL\DBMS\ConnectionInterface
+	 * @param array $settings
+	 *        	Connection settings or connection type.$this
+	 *        	CONNECTION_STRUCTURE can be a structure definition file.
+	 * @param ConnectionFactoryInterface $factory
+	 *        	Connection factory to use. If NULL, use DefaultConnectionFactory
+	 * @throws \InvalidArgumentException
+	 * @throws ConnectionException::
+	 * @return \NoreSources\SQL\DBMS\ConnectionInterface|NULL
 	 */
-	public static function createConnection($settings = array())
+	public static function createConnection($settings = array(),
+		ConnectionFactoryInterface $factory = null)
 	{
 		if (!Container::isArray($settings))
 			$settings = [
 				K::CONNECTION_TYPE => $settings
 			];
-
-		$type = Container::keyValue($settings, K::CONNECTION_TYPE, 'Reference');
-		$connection = null;
-		$className = null;
-
-		$classNames = [
-			$type,
-			__NAMESPACE__ . '\\' . $type . '\\Connection',
-			__NAMESPACE__ . '\\' . $type . '\\' . $type . 'Connection'
-		];
-
-		if (self::$connectionClassMap->offsetExists($type))
-			array_unshift($classNames, self::$connectionClassMap->offsetGet($type));
 
 		if (Container::keyExists($settings, K::CONNECTION_STRUCTURE))
 		{
@@ -78,24 +69,22 @@ class ConnectionHelper
 			$settings[K::CONNECTION_STRUCTURE] = $structure;
 		}
 
-		foreach ($classNames as $className)
-		{
-			if (\class_exists($className) &&
-				\is_subclass_of($className, ConnectionInterface::class, true))
-			{
-				$cls = new \ReflectionClass($className);
-				$connection = $cls->newInstance($settings);
-				break;
-			}
-		}
+		if (!($factory instanceof ConnectionFactoryInterface))
+			$factory = new DefaultConnectionFactory();
 
-		if (!($connection instanceof ConnectionInterface))
-			throw new ConnectionException(null,
-				'Unable to create a ConnectionInterface using classes ' . implode(', ', $classNames));
-
-		return $connection;
+		return $factory->createConnection($settings);
 	}
 
+	/**
+	 * Create DBMS structure
+	 *
+	 * @param ConnectionInterface $connection
+	 * @param StructureElementInterface $structure
+	 *        	Structure lements to create
+	 * @throws \Exception
+	 * @throws \InvalidArgumentException
+	 * @return unknown|\NoreSources\SQL\DBMS\Recordset|number|boolean|\NoreSources\SQL\DBMS\Recordset|number|boolean|unknown|\NoreSources\SQL\DBMS\Recordset|number|boolean
+	 */
 	public static function createStructure(ConnectionInterface $connection,
 		StructureElementInterface $structure = null)
 	{
@@ -227,11 +216,6 @@ class ConnectionHelper
 		return $prepared;
 	}
 
-	public static function registerConnectionClass($type, $className)
-	{
-		self::$connectionClassMap->offsetSet($type, $className);
-	}
-
 	/**
 	 *
 	 * @param ConnectionInterface $connection
@@ -273,18 +257,5 @@ class ConnectionHelper
 
 		return $value;
 	}
-
-	public static function initialize()
-	{
-		if (!(self::$connectionClassMap instanceof \ArrayObject))
-			self::$connectionClassMap = new \ArrayObject();
-	}
-
-	/**
-	 *
-	 * @var \ArrayObject
-	 */
-	private static $connectionClassMap;
 }
 
-ConnectionHelper::initialize();

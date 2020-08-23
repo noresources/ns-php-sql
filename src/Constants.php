@@ -149,14 +149,6 @@ class Constants
 	const CONNECTION_PASSWORD = 'password';
 
 	/**
-	 * DBMS database.
-	 * For DBMS with multiple database management such as PostgreSQL
-	 *
-	 * @var string
-	 */
-	const CONNECTION_DATABASE = 'database';
-
-	/**
 	 * Use persistent connection if available.
 	 *
 	 * Value is expected to be a boolean.
