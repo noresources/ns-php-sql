@@ -50,8 +50,14 @@
             "version": "dev-master",
             "source": {
                 "type": "git",
-                "url": "ssh://okami/volume1/repository/git/ns-php-core.git",
-                "reference": "74f33faf823d5f38c9956f17eae3e4d6d3c14a44"
+                "url": "https://github.com/noresources/ns-php-core.git",
+                "reference": "e16bd50d3e9de6341958fc232bf96a8d772ea11e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/noresources/ns-php-core/zipball/e16bd50d3e9de6341958fc232bf96a8d772ea11e",
+                "reference": "e16bd50d3e9de6341958fc232bf96a8d772ea11e",
+                "shasum": ""
             },
             "require": {
                 "ext-json": "*",
@@ -60,7 +66,6 @@
                 "psr/log": "^1.1"
             },
             "require-dev": {
-                "nette/php-generator": "^3.4",
                 "phpunit/phpunit": "~7.0"
             },
             "suggest": {
@@ -81,11 +86,7 @@
                     "NoreSources\\Test\\": "tests/src/"
                 }
             },
-            "scripts": {
-                "tests": [
-                    "@php  ./vendor/bin/phpunit --color=never --bootstrap vendor/autoload.php tests"
-                ]
-            },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -98,12 +99,9 @@
             ],
             "description": "Utility class library for PHP",
             "keywords": [
-                "Utility"
+                "utility"
             ],
-            "support": {
-                "issues": "https://github.com/noresources/ns-php-core/issues"
-            },
-            "time": "2020-08-22T16:26:05+00:00"
+            "time": "2020-07-26T18:29:47+00:00"
         },
         {
             "name": "noresources/ns-php-expression",
@@ -162,8 +160,14 @@
             "version": "dev-master",
             "source": {
                 "type": "git",
-                "url": "ssh://okami/volume1/repository/git/ns-php-http-core.git",
-                "reference": "ada5ca328e7de8c304b4c9dcc9bd4d0899af932a"
+                "url": "https://github.com/noresources/ns-php-http-core.git",
+                "reference": "b2cb4620808f43662bc4a72e92d95454fe7eb703"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/noresources/ns-php-http-core/zipball/b2cb4620808f43662bc4a72e92d95454fe7eb703",
+                "reference": "b2cb4620808f43662bc4a72e92d95454fe7eb703",
+                "shasum": ""
             },
             "require": {
                 "noresources/ns-php-core": "~2.2",
@@ -183,11 +187,7 @@
                     "NoreSources\\Http\\": "src/"
                 }
             },
-            "scripts": {
-                "tests": [
-                    "@php  ./vendor/bin/phpunit --color=never --bootstrap vendor/autoload.php tests"
-                ]
-            },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -204,15 +204,21 @@
                 "RFC 7231",
                 "http"
             ],
-            "time": "2020-08-22T15:22:27+00:00"
+            "time": "2020-08-18T18:27:54+00:00"
         },
         {
             "name": "noresources/ns-php-mediatype",
             "version": "dev-master",
             "source": {
                 "type": "git",
-                "url": "ssh://okami/volume1/repository/git/ns-php-mediatype.git",
-                "reference": "0426e466bbaae99e9047ffc3d9ee0b94499dfa88"
+                "url": "https://github.com/noresources/ns-php-mediatype.git",
+                "reference": "5d4d559b2bc716b476bd21d221b2a857e716fb87"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/noresources/ns-php-mediatype/zipball/5d4d559b2bc716b476bd21d221b2a857e716fb87",
+                "reference": "5d4d559b2bc716b476bd21d221b2a857e716fb87",
+                "shasum": ""
             },
             "require": {
                 "noresources/ns-php-http-core": "~1.0",
@@ -233,11 +239,7 @@
                     "NoreSources\\MediaType\\": "src/"
                 }
             },
-            "scripts": {
-                "tests": [
-                    "@php  ./vendor/bin/phpunit --color=never --bootstrap vendor/autoload.php tests"
-                ]
-            },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -250,13 +252,10 @@
             ],
             "description": "Media Type",
             "keywords": [
-                "MIME",
-                "Utility"
+                "mime",
+                "utility"
             ],
-            "support": {
-                "issues": "https://github.com/noresources/ns-php-mediatype/issues"
-            },
-            "time": "2020-08-22T16:53:27+00:00"
+            "time": "2020-08-19T18:35:39+00:00"
         },
         {
             "name": "psr/container",
@@ -518,8 +517,14 @@
             "version": "dev-master",
             "source": {
                 "type": "git",
-                "url": "ssh://okami/volume1/repository/git/ns-xml.git",
+                "url": "https://github.com/noresources/ns-xml.git",
                 "reference": "1351758f2c9c4b9a9dc71e56ea0092da0bff14f3"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/noresources/ns-xml/zipball/1351758f2c9c4b9a9dc71e56ea0092da0bff14f3",
+                "reference": "1351758f2c9c4b9a9dc71e56ea0092da0bff14f3",
+                "shasum": ""
             },
             "require": {
                 "php": ">= 5.3"
@@ -550,11 +555,7 @@
                     "NoreSources\\NSXML\\Composer\\": "tools/php/composer//"
                 }
             },
-            "scripts": {
-                "post-update-cmd": [
-                    "@php tools/php/update-bundled-files.php"
-                ]
-            },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -567,9 +568,6 @@
             ],
             "description": "A collection of NSXML-based tools to generate source code and programs",
             "homepage": "https://ns-xml.nore.fr",
-            "support": {
-                "issues": "https://github.com/noresources/ns-xml/issues"
-            },
             "time": "2020-08-20T18:44:16+00:00"
         },
         {
