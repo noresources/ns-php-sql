@@ -13,9 +13,10 @@ use NoreSources\Expression\Set;
 use NoreSources\SQL\Constants as K;
 
 /**
- * IN SQL operator
+ * IN(), NOT IN() SQL operator
  */
-class MemberOf extends Set implements TokenizableExpressionInterface, ExpressionReturnTypeInterface
+class MemberOf extends Set implements TokenizableExpressionInterface,
+	ExpressionReturnTypeInterface
 {
 
 	/**
@@ -33,16 +34,15 @@ class MemberOf extends Set implements TokenizableExpressionInterface, Expression
 	 * @param boolean $memberOf
 	 *        	Indicate if @c $leftOperand should be a momber of the @c $expressionList or not
 	 */
-	public function __construct(TokenizableExpressionInterface $leftOperand, $expressionList = array(),
-		$memberOf = true)
+	public function __construct(
+		TokenizableExpressionInterface $leftOperand,
+		$expressionList = array(), $memberOf = true)
 	{
 		parent::__construct();
 		$this->leftOperand = $leftOperand;
 		$this->memberOf = $memberOf;
 		foreach ($expressionList as $x)
-		{
 			$this->append(Evaluator::evaluate($x));
-		}
 	}
 
 	/**
@@ -50,7 +50,8 @@ class MemberOf extends Set implements TokenizableExpressionInterface, Expression
 	 * {@inheritdoc}
 	 * @see \NoreSources\SQL\TokenizableExpressionInterface::tokenize()
 	 */
-	public function tokenize(TokenStream $stream, TokenStreamContextInterface $context)
+	public function tokenize(TokenStream $stream,
+		TokenStreamContextInterface $context)
 	{
 		$stream->expression($this->leftOperand, $context);
 		if (!$this->memberOf)

@@ -44,8 +44,10 @@ class Evaluator
 		$this->operators = [
 			1 => [
 				'not' => new UnaryPolishNotationOperation('NOT',
-					PolishNotationOperation::KEYWORD | PolishNotationOperation::POST_SPACE),
-				'!' => new UnaryPolishNotationOperation('NOT', PolishNotationOperation::KEYWORD),
+					PolishNotationOperation::KEYWORD |
+					PolishNotationOperation::POST_SPACE),
+				'!' => new UnaryPolishNotationOperation('NOT',
+					PolishNotationOperation::KEYWORD),
 				'-' => new UnaryPolishNotationOperation('-'),
 				'~' => new UnaryPolishNotationOperation('~')
 			],
@@ -69,27 +71,36 @@ class Evaluator
 				'/' => new BinaryPolishNotationOperation('/'),
 				'%' => new BinaryPolishNotationOperation('%'),
 				'and' => new BinaryPolishNotationOperation('AND',
-					PolishNotationOperation::KEYWORD | PolishNotationOperation::SPACE),
+					PolishNotationOperation::KEYWORD |
+					PolishNotationOperation::SPACE),
 				'is' => new BinaryPolishNotationOperation('IS',
-					PolishNotationOperation::KEYWORD | PolishNotationOperation::SPACE),
+					PolishNotationOperation::KEYWORD |
+					PolishNotationOperation::SPACE),
 				'!is' => new BinaryPolishNotationOperation('IS NOT',
-					PolishNotationOperation::KEYWORD | PolishNotationOperation::SPACE),
+					PolishNotationOperation::KEYWORD |
+					PolishNotationOperation::SPACE),
 				'is not' => new BinaryPolishNotationOperation('IS NOT',
-					PolishNotationOperation::KEYWORD | PolishNotationOperation::SPACE),
+					PolishNotationOperation::KEYWORD |
+					PolishNotationOperation::SPACE),
 				'or' => new BinaryPolishNotationOperation('OR',
-					PolishNotationOperation::KEYWORD | PolishNotationOperation::SPACE),
+					PolishNotationOperation::KEYWORD |
+					PolishNotationOperation::SPACE),
 				'like' => new BinaryPolishNotationOperation('LIKE',
-					PolishNotationOperation::KEYWORD | PolishNotationOperation::SPACE)
+					PolishNotationOperation::KEYWORD |
+					PolishNotationOperation::SPACE)
 			],
 			'*' => [
 				'in' => new BinaryPolishNotationOperation('IN',
-					PolishNotationOperation::PRE_SPACE | PolishNotationOperation::POST_WHITESPACE,
+					PolishNotationOperation::PRE_SPACE |
+					PolishNotationOperation::POST_WHITESPACE,
 					MemberOf::class),
 				'!in' => new BinaryPolishNotationOperation('IN',
-					PolishNotationOperation::PRE_SPACE | PolishNotationOperation::POST_WHITESPACE,
+					PolishNotationOperation::PRE_SPACE |
+					PolishNotationOperation::POST_WHITESPACE,
 					MemberOf::class),
 				'not in' => new BinaryPolishNotationOperation('IN',
-					PolishNotationOperation::PRE_SPACE | PolishNotationOperation::POST_WHITESPACE,
+					PolishNotationOperation::PRE_SPACE |
+					PolishNotationOperation::POST_WHITESPACE,
 					MemberOf::class)
 			]
 		];
@@ -127,7 +138,8 @@ class Evaluator
 			], $args);
 		}
 
-		throw new \BadMethodCallException($name . ' is not a valid method name');
+		throw new \BadMethodCallException(
+			$name . ' is not a valid method name');
 	}
 
 	/**
@@ -145,13 +157,15 @@ class Evaluator
 	{
 		if ($name == 'evaluate')
 		{
-			return call_user_func_array([
-				self::getInstance(),
-				'evaluateEvaluable'
-			], $args);
+			return call_user_func_array(
+				[
+					self::getInstance(),
+					'evaluateEvaluable'
+				], $args);
 		}
 
-		throw new \BadMethodCallException($name . ' is not a valid method name');
+		throw new \BadMethodCallException(
+			$name . ' is not a valid method name');
 	}
 
 	// bm3
@@ -164,30 +178,18 @@ class Evaluator
 		if (\is_object($evaluable))
 		{
 			if ($evaluable instanceof TokenizableExpressionInterface)
-			{
 				return $evaluable;
-			}
-			elseif ($evaluable instanceof \DateTimeImmutable)
-			{
+			elseif ($evaluable instanceof \DateTimeInterface)
 				return new Literal($evaluable, K::DATATYPE_TIMESTAMP);
-			}
 		}
 		elseif (\is_null($evaluable))
-		{
 			return new Literal($evaluable, K::DATATYPE_NULL);
-		}
 		elseif (\is_bool($evaluable))
-		{
 			return new Literal($evaluable, K::DATATYPE_BOOLEAN);
-		}
 		elseif (is_int($evaluable))
-		{
 			return new Literal($evaluable, K::DATATYPE_INTEGER);
-		}
 		elseif (is_float($evaluable))
-		{
 			return new Literal($evaluable, K::DATATYPE_FLOAT);
-		}
 		elseif (\is_numeric($evaluable))
 		{
 			$i = \intval($evaluable);
@@ -205,7 +207,6 @@ class Evaluator
 		{
 			if (Container::isAssociative($evaluable))
 			{
-
 				// Polish notation or "column => value"
 				if (\count($evaluable) == 1)
 				{
@@ -213,7 +214,8 @@ class Evaluator
 					list ($a, $b) = Container::first($evaluable);
 					if (!\is_array($b))
 					{
-						return new BinaryOperation(BinaryOperation::EQUAL, $this->evaluate($a),
+						return new BinaryOperation(
+							BinaryOperation::EQUAL, $this->evaluate($a),
 							$this->evaluate($b));
 					}
 
@@ -229,7 +231,8 @@ class Evaluator
 				{
 					$x = $this->evaluateEvaluable($v);
 					if ($e instanceof TokenizableExpressionInterface)
-						$e = new BinaryOperation(BinaryOperation::LOGICAL_AND, $e, $x);
+						$e = new BinaryOperation(
+							BinaryOperation::LOGICAL_AND, $e, $x);
 					else
 						$e = $x;
 				}
@@ -238,7 +241,8 @@ class Evaluator
 			}
 		}
 
-		throw new EvaluatorException(TypeDescription::getName($evaluable) . ' cannot be evaluated');
+		throw new EvaluatorException(
+			TypeDescription::getName($evaluable) . ' cannot be evaluated');
 	}
 
 	/**
@@ -249,8 +253,8 @@ class Evaluator
 	 * @param boolean $negativeCallable
 	 * @return \Ferno\Loco\LazyAltParser
 	 */
-	public static function negatableKeywordParser($keyword, $positiveCallable = true,
-		$negativeCallable = false)
+	public static function negatableKeywordParser($keyword,
+		$positiveCallable = true, $negativeCallable = false)
 	{
 		$nc = $negativeCallable;
 		if (!\is_callable($negativeCallable))
@@ -311,20 +315,23 @@ class Evaluator
 		/*
 		 *  Automatically fix missing  [] around polish operation operands
 		 */
-		if (\count($operands) == 1 && Container::isAssociative($operands))
+		if (\count($operands) == 1 && Container::isAssociative(
+			$operands))
 			$operands = [
 				$operands
 			];
 
-		$operands = \array_map(function ($operand) {
-			return $this->evaluateEvaluable($operand);
-		}, $operands);
+		$operands = \array_map(
+			function ($operand) {
+				return $this->evaluateEvaluable($operand);
+			}, $operands);
 
 		// Group
 		if ($key == '()')
 		{
 			if (\count($operands) != 1)
-				throw new EvaluatorException('Group operator expect exactly one operand');
+				throw new EvaluatorException(
+					'Group operator expect exactly one operand');
 
 			$operand = Container::firstValue($operands);
 			return new Group($operand);
@@ -333,14 +340,17 @@ class Evaluator
 		elseif (\strpos($key, '()') === ($length - 2))
 		{
 			if (\strpos($key, '@') === 0)
-				return new MetaFunctionCall(substr($key, 1, $length - 3), $operands);
+				return new MetaFunctionCall(
+					substr($key, 1, $length - 3), $operands);
 
-			return new FunctionCall(substr($key, 0, $length - 2), $operands);
+			return new FunctionCall(substr($key, 0, $length - 2),
+				$operands);
 		}
 
 		$c = \count($operands);
 		$o = false;
-		if (\array_key_exists($c, $this->operators))
+
+		if (Container::keyExists($this->operators, $c))
 			$o = Container::keyValue($this->operators[$c], $key, false);
 
 		if (!($o instanceof PolishNotationOperation))
@@ -348,24 +358,25 @@ class Evaluator
 
 		if (!($o instanceof PolishNotationOperation))
 			throw new EvaluatorException(
-				'Unable to evalate Polish notation "' . $key . '" => [' . $c . ' argument(s)... ]');
+				'Unable to evalate Polish notation "' . $key . '" => [' .
+				$c . ' argument(s)... ]');
 
 		if ($o->className === MemberOf::class)
 		{
-			$left = array_shift($operands);
+			$left = \array_shift($operands);
 			$include = true;
-			if (strpos($key, '!') === 0)
-				$include = false;
-			elseif (strpos($key, 'not ') === 0)
+			if ((\strpos($key, '!') === 0) ||
+				(\strpos($key, 'not ') === 0))
 				$include = false;
 			return new MemberOf($left, $operands, $include);
 		}
 		else
 		{
 			$cls = new \ReflectionClass($o->className);
-			return $cls->newInstanceArgs(array_merge([
-				$o->operator
-			], $operands));
+			return $cls->newInstanceArgs(
+				\array_merge([
+					$o->operator
+				], $operands));
 		}
 	}
 
@@ -404,34 +415,40 @@ class Evaluator
 
 		$any = new Loco\Utf8Parser();
 		$whitespace = new Loco\RegexParser(
-			chr(1) . '^(' . $rx[self::PATTERN_WHITESPACE] . ')' . chr(1), function () {
+			chr(1) . '^(' . $rx[self::PATTERN_WHITESPACE] . ')' . chr(1),
+			function () {
 				return '';
 			});
 
-		$space = new Loco\RegexParser(chr(1) . '^(' . $rx[self::PATTERN_SPACE] . ')' . chr(1),
+		$space = new Loco\RegexParser(
+			chr(1) . '^(' . $rx[self::PATTERN_SPACE] . ')' . chr(1),
 			function () {
 				return '';
 			});
 
 		$parameterName = new Loco\RegexParser(
-			chr(1) . '^:(' . $rx[self::PATTERN_PARAMETER_NAME] . ')' . chr(1),
+			chr(1) . '^:(' . $rx[self::PATTERN_PARAMETER_NAME] . ')' .
+			chr(1),
 			function ($full, $name) {
 				return new Parameter($name);
 			});
 		$functionName = new Loco\RegexParser(
-			chr(1) . '^(' . $rx[self::PATTERN_FUNCTION_NAME] . ')' . chr(1));
+			chr(1) . '^(' . $rx[self::PATTERN_FUNCTION_NAME] . ')' .
+			chr(1));
 		$identifier = new Loco\RegexParser(
 			chr(1) . '^(' . $rx[self::PATTERN_IDENTIFIER] . ')' . chr(1),
 			function ($all, $name) {
 				return $name;
 			});
 
-		$subpath = new Loco\ConcParser([
-			new Loco\StringParser('.'),
-			'identifier'
-		], function ($dot, $identifier) {
-			return $dot . $identifier;
-		});
+		$subpath = new Loco\ConcParser(
+			[
+				new Loco\StringParser('.'),
+				'identifier'
+			],
+			function ($dot, $identifier) {
+				return $dot . $identifier;
+			});
 
 		$path = new Loco\LazyAltParser(
 			[
@@ -459,19 +476,22 @@ class Evaluator
 				return $expression;
 			});
 
-		$commaExpressionList = new Loco\GreedyMultiParser('comma-expression', 1, null);
+		$commaExpressionList = new Loco\GreedyMultiParser(
+			'comma-expression', 1, null);
 
 		$expressionList = new Loco\LazyAltParser(
 			[
-				new Loco\ConcParser([
-					'expression',
-					'comma-expression-list'
-				], function ($first, $others) {
-					$a = [
-						$first
-					];
-					return array_merge($a, $others);
-				}),
+				new Loco\ConcParser(
+					[
+						'expression',
+						'comma-expression-list'
+					],
+					function ($first, $others) {
+						$a = [
+							$first
+						];
+						return array_merge($a, $others);
+					}),
 				'expression',
 				new Loco\EmptyParser()
 			],
@@ -487,10 +507,11 @@ class Evaluator
 
 		$procedure = new Loco\ConcParser(
 			[
-				new LazyAltParser([
-					new StringParser('@'),
-					new EmptyParser()
-				]),
+				new LazyAltParser(
+					[
+						new StringParser('@'),
+						new EmptyParser()
+					]),
 				'function-name',
 				'whitespace',
 				new Loco\StringParser('('),
@@ -525,7 +546,8 @@ class Evaluator
 				self::keywordParser('then'),
 				'space',
 				'expression'
-			], function () {
+			],
+			function () {
 				return new Alternative(func_get_arg(2), func_get_arg(6));
 			});
 
@@ -537,14 +559,15 @@ class Evaluator
 				return func_get_arg(1);
 			}), 0, null);
 
-		$else = new Loco\ConcParser([
-			'space',
-			self::keywordParser('else'),
-			'space',
-			'expression'
-		], function () {
-			return func_get_arg(3);
-		});
+		$else = new Loco\ConcParser(
+			[
+				'space',
+				self::keywordParser('else'),
+				'space',
+				'expression'
+			], function () {
+				return func_get_arg(3);
+			});
 
 		$case = new Loco\ConcParser(
 			[
@@ -577,9 +600,10 @@ class Evaluator
 					new Loco\Utf8Parser([
 						"'"
 					]),
-					new Loco\StringParser("''", function () {
-						return "'";
-					})
+					new Loco\StringParser("''",
+						function () {
+							return "'";
+						})
 				]), function () {
 				return implode('', func_get_args());
 			});
@@ -589,13 +613,15 @@ class Evaluator
 				new Loco\StringParser("'"),
 				$stringContent,
 				new Loco\StringParser("'")
-			], function () {
+			],
+			function () {
 				return new Literal(func_get_arg(1), K::DATATYPE_STRING);
 			});
 
 		// Date & Time
 
-		$year = new Loco\RegexParser(chr(1) . '^(\+|-)?[0-9]{1,4}' . chr(1));
+		$year = new Loco\RegexParser(
+			chr(1) . '^(\+|-)?[0-9]{1,4}' . chr(1));
 		$month = new Loco\LazyAltParser(
 			[
 				new Loco\RegexParser(chr(1) . '^1[0-2]' . chr(1)),
@@ -620,7 +646,8 @@ class Evaluator
 					[
 						$minutes,
 						new Loco\StringParser('.'),
-						new Loco\RegexParser(chr(1) . '^[0-1][0-9][0-9]' . chr(1))
+						new Loco\RegexParser(
+							chr(1) . '^[0-1][0-9][0-9]' . chr(1))
 					], function ($m, $_d, $s) {
 						return [
 							$m,
@@ -642,7 +669,8 @@ class Evaluator
 				$month,
 				new Loco\StringParser('-'),
 				$day
-			], function ($y, $_1, $m, $_2, $d) {
+			],
+			function ($y, $_1, $m, $_2, $d) {
 				return [
 					$y,
 					$m,
@@ -651,10 +679,11 @@ class Evaluator
 			});
 
 		$dateSeparator = new Loco\StringParser('-');
-		$optionalDateSeparator = new Loco\LazyAltParser([
-			$dateSeparator,
-			new Loco\EmptyParser()
-		]);
+		$optionalDateSeparator = new Loco\LazyAltParser(
+			[
+				$dateSeparator,
+				new Loco\EmptyParser()
+			]);
 		$date = new Loco\LazyAltParser(
 			[
 				new Loco\ConcParser(
@@ -718,7 +747,8 @@ class Evaluator
 								new Loco\StringParser('.'),
 								new Loco\StringParser(',')
 							]),
-						new Loco\RegexParser(chr(1) . '^[0-9]+' . chr(1))
+						new Loco\RegexParser(
+							chr(1) . '^[0-9]+' . chr(1))
 					],
 					function ($s, $f) {
 						$length = strlen($f);
@@ -750,11 +780,12 @@ class Evaluator
 						];
 					}),
 				// hh:mm
-				new Loco\ConcParser([
-					$hour,
-					$optionalTimeSeparator,
-					$minutes
-				],
+				new Loco\ConcParser(
+					[
+						$hour,
+						$optionalTimeSeparator,
+						$minutes
+					],
 					function ($h, $a, $m) {
 						return [
 							'hour' => $h,
@@ -780,11 +811,12 @@ class Evaluator
 		$timezone = new Loco\LazyAltParser(
 			[
 				// Z (UTC)
-				new Loco\StringParser('Z', function () {
-					return [
-						'timezone' => '+0000'
-					];
-				}),
+				new Loco\StringParser('Z',
+					function () {
+						return [
+							'timezone' => '+0000'
+						];
+					}),
 				// Hour & minutes
 				new Loco\ConcParser(
 					[
@@ -792,44 +824,52 @@ class Evaluator
 						$hour,
 						$optionalTimeSeparator,
 						$minutes
-					], function ($s, $h, $_1, $m) {
+					],
+					function ($s, $h, $_1, $m) {
 						return [
 							'timezone' => $s . $h . $m
 						];
 					}),
 				// hour
-				new Loco\ConcParser([
-					new Loco\RegexParser(chr(1) . '^\+|-' . chr(1)),
-					$hour
-				], function ($s, $h) {
-					return [
-						'timezone' => $s . $h . '00'
-					];
-				})
+				new Loco\ConcParser(
+					[
+						new Loco\RegexParser(chr(1) . '^\+|-' . chr(1)),
+						$hour
+					],
+					function ($s, $h) {
+						return [
+							'timezone' => $s . $h . '00'
+						];
+					})
 			]);
 
-		$dateTimeSeparator = new Loco\LazyAltParser([
-			new Loco\StringParser('T'),
-			$space
-		]);
+		$dateTimeSeparator = new Loco\LazyAltParser(
+			[
+				new Loco\StringParser('T'),
+				$space
+			]);
 
 		$dateTime = new Loco\LazyAltParser(
 			[
-				new Loco\ConcParser([
-					$date,
-					$dateTimeSeparator,
-					$time,
-					$timezone
-				], function ($d, $s, $t, $z) {
-					return array_merge($d, $t, $z);
-				}),
-				new Loco\ConcParser([
-					$date,
-					$dateTimeSeparator,
-					$time
-				], function ($d, $s, $t) {
-					return array_merge($d, $t);
-				}),
+				new Loco\ConcParser(
+					[
+						$date,
+						$dateTimeSeparator,
+						$time,
+						$timezone
+					],
+					function ($d, $s, $t, $z) {
+						return array_merge($d, $t, $z);
+					}),
+				new Loco\ConcParser(
+					[
+						$date,
+						$dateTimeSeparator,
+						$time
+					],
+					function ($d, $s, $t) {
+						return array_merge($d, $t);
+					}),
 				$date,
 				new Loco\ConcParser([
 					$time,
@@ -853,13 +893,14 @@ class Evaluator
 
 				if (Container::keyExists($dt, 'hour'))
 				{
-					$time = $dt['hour'] . ':' . $dt['minute'] . ':' . $dt['second'] . '.' .
-					$dt['microsecond'];
+					$time = $dt['hour'] . ':' . $dt['minute'] . ':' .
+					$dt['second'] . '.' . $dt['microsecond'];
 				}
 
 				if (Container::keyExists($dt, 'year'))
 				{
-					$date = $dt['year'] . '-' . $dt['month'] . '-' . $dt['day'];
+					$date = $dt['year'] . '-' . $dt['month'] . '-' .
+					$dt['day'];
 				}
 
 				if (Container::keyExists($dt, 'timezone'))
@@ -868,12 +909,14 @@ class Evaluator
 				}
 
 				$dateTimeString = $date . 'T' . $time . $timezone;
-				$dateTime = \DateTime::createFromFormat(self::DATETIME_FORMAT, $dateTimeString);
+				$dateTime = \DateTime::createFromFormat(
+					self::DATETIME_FORMAT, $dateTimeString);
 
 				return new Literal($dateTime, K::DATATYPE_TIMESTAMP);
 			});
 
-		$number = new Loco\RegexParser(chr(1) . '^(' . $rx[self::PATTERN_NUMBER] . ')' . chr(1),
+		$number = new Loco\RegexParser(
+			chr(1) . '^(' . $rx[self::PATTERN_NUMBER] . ')' . chr(1),
 			function ($full, $v) {
 				$i = \intval($v);
 				$f = \floatval($v);
@@ -891,12 +934,14 @@ class Evaluator
 
 		$unaryOperatorLiteral = new Loco\LazyAltParser($unaryOperators);
 
-		$unaryOperation = new Loco\ConcParser([
-			'unary-operator-literal',
-			'expression'
-		], function ($o, $operand) {
-			return new UnaryOperation(strtolower($o), $operand);
-		});
+		$unaryOperation = new Loco\ConcParser(
+			[
+				'unary-operator-literal',
+				'expression'
+			],
+			function ($o, $operand) {
+				return new UnaryOperation(strtolower($o), $operand);
+			});
 
 		$binaryOperators = [];
 		foreach ($this->operators[2] as $key => $po)
@@ -904,7 +949,8 @@ class Evaluator
 			$binaryOperators[] = $po->createParser($key);
 		}
 
-		$binaryOperatorLiteral = new Loco\LazyAltParser($binaryOperators);
+		$binaryOperatorLiteral = new Loco\LazyAltParser(
+			$binaryOperators);
 
 		/**
 		 *
@@ -919,7 +965,8 @@ class Evaluator
 				'expression',
 				'binary-operator-literal',
 				'expression'
-			], function ($left, $o, $right) {
+			],
+			function ($left, $o, $right) {
 				return new BinaryOperation($o, $left, $right);
 			});
 
@@ -951,7 +998,8 @@ class Evaluator
 				'space',
 				'expression'
 			],
-			function ($left, $s1, $between, $s2, $min, $s3, $nd, $s4, $max) {
+			function ($left, $s1, $between, $s2, $min, $s3, $nd, $s4,
+				$max) {
 				$x = new Between($left, $min, $max, $between);
 				return $x;
 			});
@@ -1102,12 +1150,14 @@ class PolishNotationOperation
 		}
 
 		if (!($context &&
-			($context == Evaluator::class || is_subclass_of($context, self::class, true))))
+			($context == Evaluator::class ||
+			is_subclass_of($context, self::class, true))))
 		{
 			$context = ($context ? $context : 'global');
 			throw new EvaluatorException(
-				self::class . ' is a private class of ' . Evaluator::class . ' (not allowed in ' .
-				$context . ' context)');
+				self::class . ' is a private class of ' .
+				Evaluator::class . ' (not allowed in ' . $context .
+				' context)');
 		}
 
 		$this->operator = $key;
@@ -1161,10 +1211,11 @@ class PolishNotationOperation
 final class BinaryPolishNotationOperation extends PolishNotationOperation
 {
 
-	public function __construct($key, $flags = PolishNotationOperation::WHITESPACE,
-		$className = null)
+	public function __construct($key,
+		$flags = PolishNotationOperation::WHITESPACE, $className = null)
 	{
-		parent::__construct($key, ($flags | PolishNotationOperation::WHITESPACE),
+		parent::__construct($key,
+			($flags | PolishNotationOperation::WHITESPACE),
 			($className ? $className : BinaryOperation::class));
 	}
 }
@@ -1172,10 +1223,12 @@ final class BinaryPolishNotationOperation extends PolishNotationOperation
 final class UnaryPolishNotationOperation extends PolishNotationOperation
 {
 
-	public function __construct($key, $flags = PolishNotationOperation::POST_WHITESPACE,
+	public function __construct($key,
+		$flags = PolishNotationOperation::POST_WHITESPACE,
 		$className = null)
 	{
-		parent::__construct($key, ($flags | PolishNotationOperation::POST_WHITESPACE),
+		parent::__construct($key,
+			($flags | PolishNotationOperation::POST_WHITESPACE),
 			($className ? $className : UnaryOperation::class));
 	}
 }

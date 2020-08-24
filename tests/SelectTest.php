@@ -11,13 +11,15 @@ use NoreSources\SQL\Expression\MemberOf;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Statement\StatementTokenStreamContext;
 use NoreSources\SQL\Statement\Query\SelectQuery;
+use NoreSources\SQL\Structure\NamespaceStructure;
 use NoreSources\Test\DatasourceManager;
 use NoreSources\Test\DerivedFileManager;
 
 final class SelectTest extends \PHPUnit\Framework\TestCase
 {
 
-	public function __construct($name = null, array $data = [], $dataName = '')
+	public function __construct($name = null, array $data = [],
+		$dataName = '')
 	{
 		parent::__construct($name, $data, $dataName);
 		$this->derivedFileManager = new DerivedFileManager(__DIR__);
@@ -28,7 +30,8 @@ final class SelectTest extends \PHPUnit\Framework\TestCase
 	{
 		$structure = $this->datasources->get('Company');
 		$tableStructure = $structure['ns_unittests']['Employees'];
-		$this->assertInstanceOf(Structure\TableStructure::class, $tableStructure);
+		$this->assertInstanceOf(Structure\TableStructure::class,
+			$tableStructure);
 		$builder = new ReferenceStatementBuilder();
 		$context = new StatementTokenStreamContext($builder);
 		$context->setPivot($tableStructure);
@@ -40,12 +43,13 @@ final class SelectTest extends \PHPUnit\Framework\TestCase
 		]);
 		$q->columns('name');
 
-		$q->where(new MemberOf(ExpressionHelper::column('id'), [
-			2,
-			4,
-			6,
-			8
-		]), "name like 'Jean%'");
+		$q->where(
+			new MemberOf(ExpressionHelper::column('id'), [
+				2,
+				4,
+				6,
+				8
+			]), "name like 'Jean%'");
 
 		$stream = new TokenStream();
 		$q->tokenize($stream, $context);
@@ -58,11 +62,13 @@ final class SelectTest extends \PHPUnit\Framework\TestCase
 		$this->assertCount(2, $result->getResultColumns(),
 			'Number of result column (after Builder::finalize())');
 
-		$this->assertEquals(K::QUERY_SELECT, $result->getStatementType(), 'Statement type');
+		$this->assertEquals(K::QUERY_SELECT, $result->getStatementType(),
+			'Statement type');
 
 		$sql = \SqlFormatter::format(strval($result), false);
 
-		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, null, 'sql');
+		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__,
+			null, 'sql');
 	}
 
 	public function testStructurelessSelect()
@@ -72,8 +78,8 @@ final class SelectTest extends \PHPUnit\Framework\TestCase
 
 		$select = new SelectQuery();
 		$column = new Literal(true);
-		$this->assertEquals(K::DATATYPE_BOOLEAN, $column->getExpressionDataType(),
-			'Column value type');
+		$this->assertEquals(K::DATATYPE_BOOLEAN,
+			$column->getExpressionDataType(), 'Column value type');
 
 		$select->columns($column);
 
@@ -81,16 +87,19 @@ final class SelectTest extends \PHPUnit\Framework\TestCase
 		$select->tokenize($stream, $context);
 		$result = $builder->finalizeStatement($stream, $context);
 
-		$this->assertEquals(K::QUERY_SELECT, $result->getStatementType(), 'Statement type');
+		$this->assertEquals(K::QUERY_SELECT, $result->getStatementType(),
+			'Statement type');
 
-		$this->derivedFileManager->assertDerivedFile(\strval($result), __METHOD__, 'true', 'sql');
+		$this->derivedFileManager->assertDerivedFile(\strval($result),
+			__METHOD__, 'true', 'sql');
 	}
 
 	public function testSelectCompanyTasks()
 	{
 		$structure = $this->datasources->get('Company');
 		$tableStructure = $structure['ns_unittests']['Tasks'];
-		$this->assertInstanceOf(Structure\TableStructure::class, $tableStructure);
+		$this->assertInstanceOf(Structure\TableStructure::class,
+			$tableStructure);
 		$builder = new ReferenceStatementBuilder(
 			K::BUILDER_SELECT_EXTENDED_RESULTCOLUMN_ALIAS_RESOLUTION);
 		$context = new StatementTokenStreamContext($builder);
@@ -133,19 +142,23 @@ final class SelectTest extends \PHPUnit\Framework\TestCase
 		$q->tokenize($stream, $context);
 		$result = $builder->finalizeStatement($stream, $context);
 
-		$this->assertEquals(K::QUERY_SELECT, $result->getStatementType(), 'Statement type');
-		$this->assertCount(4, $result->getResultColumns(), 'Number of result columns');
+		$this->assertEquals(K::QUERY_SELECT, $result->getStatementType(),
+			'Statement type');
+		$this->assertCount(4, $result->getResultColumns(),
+			'Number of result columns');
 
 		$sql = \SqlFormatter::format(strval($result), false);
 
-		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, null, 'sql');
+		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__,
+			null, 'sql');
 	}
 
 	public function testSubQueriesAndAliases()
 	{
 		$structure = $this->datasources->get('Company');
 		$namespaceStructure = $structure['ns_unittests'];
-		$this->assertInstanceOf(Structure\NamespaceStructure::class, $namespaceStructure);
+		$this->assertInstanceOf(Structure\NamespaceStructure::class,
+			$namespaceStructure);
 
 		$builder = new ReferenceStatementBuilder();
 		$context = new StatementTokenStreamContext($builder);
@@ -182,7 +195,41 @@ final class SelectTest extends \PHPUnit\Framework\TestCase
 		$q->tokenize($stream, $context);
 		$result = $builder->finalizeStatement($stream, $context);
 		$sql = \SqlFormatter::format(strval($result), false);
-		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, null, 'sql');
+		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__,
+			null, 'sql');
+	}
+
+	public function testPolishNotation()
+	{
+		$connection = ConnectionHelper::createConnection(
+			ReferenceConnection::class);
+		$factory = $connection->getStatementFactory();
+
+		/**
+		 *
+		 * @var SelectQuery $select
+		 */
+		$select = $factory->newStatement(K::QUERY_SELECT);
+
+		$this->assertInstanceOf(SelectQuery::class, $select);
+
+		$structure = $this->datasources->get('Company')['ns_unittests'];
+		$this->assertInstanceOf(NamespaceStructure::class, $structure);
+
+		$select->from('Employees')->where(
+			[
+				'!in' => [
+					'gender',
+					"'M'",
+					"'F'"
+				]
+			]);
+
+		$data = ConnectionHelper::buildStatement($connection, $select,
+			$structure);
+		$sql = \SqlFormatter::format(strval($data), false);
+		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__,
+			'not in', 'sql');
 	}
 
 	public function testUnion()
@@ -212,9 +259,11 @@ final class SelectTest extends \PHPUnit\Framework\TestCase
 		$a->union($b);
 
 		$reference = new ReferenceConnection(array());
-		$data = ConnectionHelper::buildStatement($reference, $a, $tableStructure);
+		$data = ConnectionHelper::buildStatement($reference, $a,
+			$tableStructure);
 		$sql = \SqlFormatter::format(strval($data), false);
-		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, null, 'sql');
+		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__,
+			null, 'sql');
 	}
 
 	/**
@@ -234,27 +283,33 @@ final class SelectTest extends \PHPUnit\Framework\TestCase
 		 *
 		 * @var \NoreSources\SQL\Statement\Query\SelectQuery $innerSelect
 		 */
-		$innerSelect = $connection->getStatementFactory()->newStatement(K::QUERY_SELECT);
+		$innerSelect = $connection->getStatementFactory()->newStatement(
+			K::QUERY_SELECT);
 		$innerSelect->from($employeesStructure);
 		$innerSelect->columns('id', 'name')->where([
 			'gender' => ':g'
 		]);
-		$innerData = ConnectionHelper::buildStatement($connection, $innerSelect, $employeesStructure);
-		$this->assertCount(2, $innerData->getResultColumns(), 'Inner query result columns');
-		$this->assertCount(1, $innerData->getParameters(), 'Inner parameter count');
+		$innerData = ConnectionHelper::buildStatement($connection,
+			$innerSelect, $employeesStructure);
+		$this->assertCount(2, $innerData->getResultColumns(),
+			'Inner query result columns');
+		$this->assertCount(1, $innerData->getParameters(),
+			'Inner parameter count');
 
 		/**
 		 *
 		 * @var SelectQuery $innerJoinSelect
 		 */
-		$innerJoinSelect = $connection->getStatementFactory()->newStatement(K::QUERY_SELECT);
+		$innerJoinSelect = $connection->getStatementFactory()->newStatement(
+			K::QUERY_SELECT);
 		$innerJoinSelect->from('Hierarchy');
 
 		/**
 		 *
 		 * @var \NoreSources\SQL\Statement\Query\SelectQuery $outerSelect
 		 */
-		$outerSelect = $connection->getStatementFactory()->newStatement(K::QUERY_SELECT);
+		$outerSelect = $connection->getStatementFactory()->newStatement(
+			K::QUERY_SELECT);
 		$outerSelect->from($innerSelect, 'e')
 			->columns('id', 'e.name', 'H.manageeId')
 			->join(K::JOIN_INNER, [
@@ -264,12 +319,15 @@ final class SelectTest extends \PHPUnit\Framework\TestCase
 			'id' => 'H.managerId'
 		]);
 
-		$data = ConnectionHelper::buildStatement($connection, $outerSelect, $structure);
-		$this->assertCount(1, $data->getParameters(), 'Outer parameter count');
+		$data = ConnectionHelper::buildStatement($connection,
+			$outerSelect, $structure);
+		$this->assertCount(1, $data->getParameters(),
+			'Outer parameter count');
 
 		$sql = \SqlFormatter::format(strval($data), false);
 		//
-		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, null, 'sql');
+		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__,
+			null, 'sql');
 	}
 
 	/**
