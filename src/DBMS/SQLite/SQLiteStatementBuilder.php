@@ -22,8 +22,10 @@ use NoreSources\SQL\Structure\ColumnStructure;
 use NoreSources\SQL\Structure\StructureElementInterface;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
+use ArrayObject;
 
-class SQLiteStatementBuilder extends StatementBuilder implements LoggerAwareInterface
+class SQLiteStatementBuilder extends StatementBuilder implements
+	LoggerAwareInterface
 {
 	use LoggerAwareTrait;
 
@@ -34,10 +36,16 @@ class SQLiteStatementBuilder extends StatementBuilder implements LoggerAwareInte
 		$this->sqliteSettings = new \ArrayObject();
 
 		$this->setBuilderFlags(K::BUILDER_DOMAIN_GENERIC,
-			K::BUILDER_IF_EXISTS | K::BUILDER_IF_NOT_EXISTS | K::BUILDER_SCOPED_STRUCTURE_DECLARATION);
+			K::BUILDER_IF_EXISTS | K::BUILDER_IF_NOT_EXISTS |
+			K::BUILDER_SCOPED_STRUCTURE_DECLARATION);
 		$this->setBuilderFlags(K::BUILDER_DOMAIN_SELECT,
 			K::BUILDER_SELECT_EXTENDED_RESULTCOLUMN_ALIAS_RESOLUTION);
-		$this->setBuilderFlags(K::BUILDER_DOMAIN_INSERT, K::BUILDER_INSERT_DEFAULT_VALUES);
+
+		$this->setBuilderFlags(K::BUILDER_DOMAIN_CREATE_TABLE,
+			K::BUILDER_CREATE_TEMPORARY);
+
+		$this->setBuilderFlags(K::BUILDER_DOMAIN_INSERT,
+			K::BUILDER_INSERT_DEFAULT_VALUES);
 	}
 
 	public function getSQLiteSetting($key, $dflt = null)
@@ -54,10 +62,12 @@ class SQLiteStatementBuilder extends StatementBuilder implements LoggerAwareInte
 			]
 		];
 
-		$this->sqliteSettings->exchangeArray(\array_merge($dflts, $array));
+		$this->sqliteSettings->exchangeArray(
+			\array_merge($dflts, $array));
 	}
 
-	public static function buildSQLiteFilePath(StructureElementInterface $structure)
+	public static function buildSQLiteFilePath(
+		StructureElementInterface $structure)
 	{
 		$path = $structure->getName() . '.sqlite';
 		while ($structure->getParentElement())
@@ -93,15 +103,18 @@ class SQLiteStatementBuilder extends StatementBuilder implements LoggerAwareInte
 
 	public function translateFunction(MetaFunctionCall $metaFunction)
 	{
-		if ($metaFunction->getFunctionName() == K::METAFUNCTION_TIMESTAMP_FORMAT)
+		if ($metaFunction->getFunctionName() ==
+			K::METAFUNCTION_TIMESTAMP_FORMAT)
 		{
-			return $this->translateTimestampFormatFunction($metaFunction);
+			return $this->translateTimestampFormatFunction(
+				$metaFunction);
 		}
 
 		return parent::translateFunction($metaFunction);
 	}
 
-	public static function getSQLiteColumnTypeName(ColumnStructure $column)
+	public static function getSQLiteColumnTypeName(
+		ColumnStructure $column)
 	{
 		$dataType = K::DATATYPE_UNDEFINED;
 		if ($column->hasColumnProperty(K::COLUMN_DATA_TYPE))
@@ -243,7 +256,8 @@ class SQLiteStatementBuilder extends StatementBuilder implements LoggerAwareInte
 		return self::$timestampFormatTranslations;
 	}
 
-	private function translateTimestampFormatFunction(MetaFunctionCall $metaFunction)
+	private function translateTimestampFormatFunction(
+		MetaFunctionCall $metaFunction)
 	{
 		$format = $metaFunction->getArgument(0);
 		if ($format instanceof Literal)
@@ -273,18 +287,21 @@ class SQLiteStatementBuilder extends StatementBuilder implements LoggerAwareInte
 					continue;
 				}
 
-				$t = Container::keyValue(self::getTimestampFormatTranslations(), $c, $c);
+				$t = Container::keyValue(
+					self::getTimestampFormatTranslations(), $c, $c);
 
 				if ($t === false)
 				{
 					$this->logger->warning(
-						'Timestamp format "' . $c . '" is nut supported by SQLite strftime');
+						'Timestamp format "' . $c .
+						'" is nut supported by SQLite strftime');
 					continue;
 				}
 
 				if (\is_array($t))
 				{
-					$this->logger->notice('Timestamp format "' . $c . '": ' . $t[1]);
+					$this->logger->notice(
+						'Timestamp format "' . $c . '": ' . $t[1]);
 					$t = $t[0];
 				}
 

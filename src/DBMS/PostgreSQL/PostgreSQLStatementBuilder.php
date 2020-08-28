@@ -24,7 +24,8 @@ use NoreSources\SQL\Structure\ColumnStructure;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 
-class PostgreSQLStatementBuilder extends StatementBuilder implements LoggerAwareInterface
+class PostgreSQLStatementBuilder extends StatementBuilder implements
+	LoggerAwareInterface
 {
 
 	use LoggerAwareTrait;
@@ -35,7 +36,8 @@ class PostgreSQLStatementBuilder extends StatementBuilder implements LoggerAware
 		$this->connection = $connection;
 
 		$this->setBuilderFlags(K::BUILDER_DOMAIN_INSERT,
-			K::BUILDER_INSERT_DEFAULT_VALUES | K::BUILDER_INSERT_DEFAULT_KEYWORD);
+			K::BUILDER_INSERT_DEFAULT_VALUES |
+			K::BUILDER_INSERT_DEFAULT_KEYWORD);
 	}
 
 	public function serializeString($value)
@@ -77,7 +79,8 @@ class PostgreSQLStatementBuilder extends StatementBuilder implements LoggerAware
 		if ($result !== false)
 			return $result;
 
-		return ReferenceStatementBuilder::escapeIdentifierFallback($identifier, '"', '"');
+		return ReferenceStatementBuilder::escapeIdentifierFallback(
+			$identifier, '"', '"');
 	}
 
 	public function getParameter($name, ParameterData $parameters = null)
@@ -102,7 +105,8 @@ class PostgreSQLStatementBuilder extends StatementBuilder implements LoggerAware
 
 	public function translateFunction(MetaFunctionCall $metaFunction)
 	{
-		if ($metaFunction->getFunctionName() == K::METAFUNCTION_TIMESTAMP_FORMAT)
+		if ($metaFunction->getFunctionName() ==
+			K::METAFUNCTION_TIMESTAMP_FORMAT)
 		{
 			return $this->translateTimestampFunction($metaFunction);
 		}
@@ -158,40 +162,54 @@ class PostgreSQLStatementBuilder extends StatementBuilder implements LoggerAware
 	 */
 	public function updateBuilderFlags(SemanticVersion $serverVersion)
 	{
-		$createTableFlags = $this->getBuilderFlags(K::BUILDER_DOMAIN_CREATE_TABLE);
-		$dropTableFlags = $this->getBuilderFlags(K::BUILDER_DOMAIN_DROP_TABLE);
-		$createNamespaceFlags = $this->getBuilderFlags(K::BUILDER_DOMAIN_CREATE_NAMESPACE);
+		$createTableFlags = $this->getBuilderFlags(
+			K::BUILDER_DOMAIN_CREATE_TABLE);
+		$dropTableFlags = $this->getBuilderFlags(
+			K::BUILDER_DOMAIN_DROP_TABLE);
+		$createNamespaceFlags = $this->getBuilderFlags(
+			K::BUILDER_DOMAIN_CREATE_NAMESPACE);
 
-		$dropTableFlags &= ~(K::BUILDER_IF_EXISTS | K::BUILDER_DROP_CASCADE);
+		$dropTableFlags &= ~(K::BUILDER_IF_EXISTS |
+			K::BUILDER_DROP_CASCADE);
 		$createTableFlags &= ~(K::BUILDER_IF_NOT_EXISTS);
 		$createNamespaceFlags &= ~(K::BUILDER_IF_NOT_EXISTS);
 
-		if (SemanticVersion::compareVersions($serverVersion, '7.3.0') >= 0)
+		$createTableFlags |= (K::BUILDER_CREATE_TEMPORARY);
+
+		if (SemanticVersion::compareVersions($serverVersion, '7.3.0') >=
+			0)
 		{
 			$dropTableFlags |= K::BUILDER_DROP_CASCADE;
 		}
 
-		if (SemanticVersion::compareVersions($serverVersion, '8.2.0') >= 0)
+		if (SemanticVersion::compareVersions($serverVersion, '8.2.0') >=
+			0)
 		{
 			$dropTableFlags |= K::BUILDER_IF_EXISTS;
 		}
 
-		if (SemanticVersion::compareVersions($serverVersion, '9.1.0') >= 0)
+		if (SemanticVersion::compareVersions($serverVersion, '9.1.0') >=
+			0)
 		{
 			$createTableFlags |= K::BUILDER_IF_NOT_EXISTS;
 		}
 
-		if (SemanticVersion::compareVersions($serverVersion, '9.3.0') >= 0)
+		if (SemanticVersion::compareVersions($serverVersion, '9.3.0') >=
+			0)
 		{
 			$createNamespaceFlags |= K::BUILDER_IF_NOT_EXISTS;
 		}
 
-		$this->setBuilderFlags(K::BUILDER_DOMAIN_CREATE_TABLE, $createTableFlags);
-		$this->setBuilderFlags(K::BUILDER_DOMAIN_CREATE_NAMESPACE, $createNamespaceFlags);
-		$this->setBuilderFlags(K::BUILDER_DOMAIN_DROP_TABLE, $dropTableFlags);
+		$this->setBuilderFlags(K::BUILDER_DOMAIN_CREATE_TABLE,
+			$createTableFlags);
+		$this->setBuilderFlags(K::BUILDER_DOMAIN_CREATE_NAMESPACE,
+			$createNamespaceFlags);
+		$this->setBuilderFlags(K::BUILDER_DOMAIN_DROP_TABLE,
+			$dropTableFlags);
 	}
 
-	private function translateTimestampFunction(MetaFunctionCall $metaFunction)
+	private function translateTimestampFunction(
+		MetaFunctionCall $metaFunction)
 	{
 		$format = $metaFunction->getArgument(0);
 		if ($format instanceof Literal)
@@ -230,9 +248,11 @@ class PostgreSQLStatementBuilder extends StatementBuilder implements LoggerAware
 				}
 
 				$t = $c;
-				if (Container::keyExists(self::getTimestampFormatTranslations(), $c))
+				if (Container::keyExists(
+					self::getTimestampFormatTranslations(), $c))
 				{
-					$t = Container::keyValue(self::getTimestampFormatTranslations(), $c, $c);
+					$t = Container::keyValue(
+						self::getTimestampFormatTranslations(), $c, $c);
 
 					if ($quoted)
 						$translation .= '"';
@@ -242,13 +262,15 @@ class PostgreSQLStatementBuilder extends StatementBuilder implements LoggerAware
 					if ($t === false)
 					{
 						$this->logger->warning(
-							'Timestamp format "' . $c . '" nut supported by PostgreSQL to_char');
+							'Timestamp format "' . $c .
+							'" nut supported by PostgreSQL to_char');
 						continue;
 					}
 
 					if (\is_array($t))
 					{
-						$this->logger->notice('Timestamp format "' . $c . '": ' . $t[1]);
+						$this->logger->notice(
+							'Timestamp format "' . $c . '": ' . $t[1]);
 						$t = $t[0];
 					}
 				}

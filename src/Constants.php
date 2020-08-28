@@ -585,6 +585,20 @@ class Constants
 	const BUILDER_CREATE_COLUMN_INLINE_ENUM = 0x02000000;
 
 	/**
+	 * CREATE "OR REPLACE" support
+	 *
+	 * @var number
+	 */
+	const BUILDER_CREATE_REPLACE = 0x04000000;
+
+	/**
+	 * CREATE "TEMPORARY" support
+	 *
+	 * @var number
+	 */
+	const BUILDER_CREATE_TEMPORARY = 0x08000000;
+
+	/**
 	 * DROP query supports CASCADE modifiers
 	 *
 	 * @var integer

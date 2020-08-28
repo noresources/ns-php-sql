@@ -103,11 +103,13 @@ class SQLiteConnection implements ConnectionInterface
 
 		$this->connection = null;
 
-		$structure = Container::keyValue($parameters, K::CONNECTION_STRUCTURE);
+		$structure = Container::keyValue($parameters,
+			K::CONNECTION_STRUCTURE);
 		if ($structure instanceof StructureElementInterface)
 			$this->setStructure($structure);
 
-		$pragmas = Container::keyValue($parameters, K::CONNECTION_SQLITE_PRAGMAS,
+		$pragmas = Container::keyValue($parameters,
+			K::CONNECTION_SQLITE_PRAGMAS,
 			[
 				'foreign_keys' => 1,
 				'busy_timeout' => 5000
@@ -119,9 +121,11 @@ class SQLiteConnection implements ConnectionInterface
 		{
 			$defaultNamespaceName = $structure->getName();
 		}
-		elseif ($structure instanceof DatasourceStructure && $structure->count() == 1)
+		elseif ($structure instanceof DatasourceStructure &&
+			$structure->count() == 1)
 		{
-			list ($name, $namespace) = Container::first($structure->getChildElements());
+			list ($name, $namespace) = Container::first(
+				$structure->getChildElements());
 			$defaultNamespaceName = $name;
 		}
 
@@ -131,7 +135,8 @@ class SQLiteConnection implements ConnectionInterface
 			]);
 
 		$flags = 0;
-		if (Container::keyValue($parameters, K::CONNECTION_READONLY, false))
+		if (Container::keyValue($parameters, K::CONNECTION_READONLY,
+			false))
 		{
 			$flags |= \SQLITE3_OPEN_READONLY;
 		}
@@ -165,13 +170,15 @@ class SQLiteConnection implements ConnectionInterface
 
 			if (\in_array($name, $names))
 			{
-				throw new SQLiteConnectionException($this, 'Duplicated namespace name ' . $name);
+				throw new SQLiteConnectionException($this,
+					'Duplicated namespace name ' . $name);
 			}
 
 			$names[] = $name;
 
 			$attach = false;
-			$sql = 'ATTACH DATABASE ' . $this->builder->serializeString($source) . ' AS ' .
+			$sql = 'ATTACH DATABASE ' .
+				$this->builder->serializeString($source) . ' AS ' .
 				$this->builder->escapeIdentifier($name);
 
 			if ($this->connection instanceof \SQLite3)
@@ -180,10 +187,12 @@ class SQLiteConnection implements ConnectionInterface
 			}
 			else
 			{
-				$key = Container::keyValue($parameters, K::CONNECTION_ENCRYPTION_KEY, null);
+				$key = Container::keyValue($parameters,
+					K::CONNECTION_ENCRYPTION_KEY, null);
 				if ($name == self::NAMESPACE_NAME_DEFAULT)
 				{
-					$this->connection = new \SQLite3($source, $flags, $key);
+					$this->connection = new \SQLite3($source, $flags,
+						$key);
 				}
 				else
 				{
@@ -196,7 +205,8 @@ class SQLiteConnection implements ConnectionInterface
 			{
 				$result = @$this->connection->exec($sql);
 				if ($result === false)
-					throw new SQLiteConnectionException($this, 'Failed to attach database');
+					throw new SQLiteConnectionException($this,
+						'Failed to attach database');
 			}
 
 			$settings = [];
@@ -213,9 +223,11 @@ class SQLiteConnection implements ConnectionInterface
 
 		foreach ($pragmas as $pragma => $value)
 		{
-			$result = $this->connection->exec('PRAGMA ' . $pragma . '=' . $value);
+			$result = $this->connection->exec(
+				'PRAGMA ' . $pragma . '=' . $value);
 			if ($result === false)
-				throw new SQLiteConnectionException($this, 'Failed to set ' . $pragma . ' pragma');
+				throw new SQLiteConnectionException($this,
+					'Failed to set ' . $pragma . ' pragma');
 		}
 	}
 
@@ -281,7 +293,8 @@ class SQLiteConnection implements ConnectionInterface
 
 		$stmt = $this->connection->prepare($statement);
 		if (!($stmt instanceof \SQLite3Stmt))
-			throw new SQLiteConnectionException($this, 'Unable to create SQLite statement');
+			throw new SQLiteConnectionException($this,
+				'Unable to create SQLite statement');
 
 		return new SQLitePreparedStatement($stmt, $statement);
 	}
@@ -294,7 +307,8 @@ class SQLiteConnection implements ConnectionInterface
 		if (!($statement instanceof SQLitePreparedStatement ||
 			TypeDescription::hasStringRepresentation($statement)))
 			throw new SQLiteConnectionException($this,
-				'Invalid statement type ' . TypeDescription::getName($statement) .
+				'Invalid statement type ' .
+				TypeDescription::getName($statement) .
 				'. Expect PreparedStatement or stringifiable');
 		;
 
@@ -319,9 +333,11 @@ class SQLiteConnection implements ConnectionInterface
 				if ($statement instanceof ParameterDataAwareInterface)
 					$dbmsName = $statement->getParameters()->get($key)[ParameterData::DBMSNAME];
 				else
-					$dbmsName = $this->getStatementBuilder()->getParameter($key, null);
+					$dbmsName = $this->getStatementBuilder()->getParameter(
+						$key, null);
 
-				$value = ConnectionHelper::serializeParameterValue($this, $entry);
+				$value = ConnectionHelper::serializeParameterValue(
+					$this, $entry);
 				$type = ($entry instanceof ParameterValue) ? $entry->type : K::DATATYPE_UNDEFINED;
 
 				if ($type == K::DATATYPE_UNDEFINED)
@@ -338,14 +354,16 @@ class SQLiteConnection implements ConnectionInterface
 				if ($type & K::DATATYPE_TIMESTAMP)
 				{
 					if ($value instanceof \DateTimeInterface)
-						$value = $value->format($this->builder->getTimestampFormat($type));
+						$value = $value->format(
+							$this->builder->getTimestampFormat($type));
 				}
 
 				$type = self::sqliteDataTypeFromDataType($type);
 				$bindResult = $stmt->bindValue($dbmsName, $value, $type);
 				if (!$bindResult)
 					throw new SQLiteConnectionException($this,
-						'Failed to bind "' . $key . '" (' . $dbmsName . ')');
+						'Failed to bind "' . $key . '" (' . $dbmsName .
+						')');
 			}
 
 			$result = @$stmt->execute();
@@ -360,20 +378,23 @@ class SQLiteConnection implements ConnectionInterface
 
 		if ($result === false)
 			throw new SQLiteConnectionException($this,
-				'Failed to execute statement of type ' . K::statementTypeName($statementType));
+				'Failed to execute statement of type ' .
+				K::statementTypeName($statementType));
 
 		if ($statementType & K::QUERY_FAMILY_ROWMODIFICATION)
 		{
 			if (($result instanceof \SQLite3Result) || $result)
 			{
-				return new GenericRowModificationStatementResult($this->connection->changes());
+				return new GenericRowModificationStatementResult(
+					$this->connection->changes());
 			}
 		}
 		elseif ($statementType == K::QUERY_INSERT)
 		{
 			if (($result instanceof \SQLite3Result) || $result)
 			{
-				return new GenericInsertionStatementResult($this->connection->lastInsertRowID());
+				return new GenericInsertionStatementResult(
+					$this->connection->lastInsertRowID());
 			}
 		}
 		elseif ($statementType == K::QUERY_SELECT)
@@ -381,13 +402,15 @@ class SQLiteConnection implements ConnectionInterface
 			if ($result instanceof \SQLite3Result)
 				return new SQLiteRecordset($result, $statement);
 			else
-				throw new SQLiteConnectionException($this, 'Invalid execution result');
+				throw new SQLiteConnectionException($this,
+					'Invalid execution result');
 		}
 		else
 			return (($result instanceof \SQLite3Result) || $result);
 
 		throw new SQLiteConnectionException($this,
-			'Failed to execute statement of type ' . K::statementTypeName($statementType));
+			'Failed to execute statement of type ' .
+			K::statementTypeName($statementType));
 	}
 
 	/**
@@ -448,7 +471,8 @@ class SQLiteConnection implements ConnectionInterface
 		if (is_string($name) && strlen($name))
 			return $name;
 
-		if ($source == self::SOURCE_MEMORY || $source == self::SOURCE_TEMPORARY)
+		if ($source == self::SOURCE_MEMORY ||
+			$source == self::SOURCE_TEMPORARY)
 		{
 			return self::NAMESPACE_NAME_DEFAULT;
 		}

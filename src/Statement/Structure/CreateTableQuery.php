@@ -31,8 +31,13 @@ use NoreSources\SQL\Structure\UniqueTableConstraint;
 /**
  * CREATE TABLE statement
  */
-class CreateTableQuery extends Statement implements StructureAwareInterface
+class CreateTableQuery extends Statement implements
+	StructureAwareInterface
 {
+
+	const REPLACE = K::BUILDER_CREATE_REPLACE;
+
+	const TEMPORARY = K::BUILDER_CREATE_TEMPORARY;
 
 	/**
 	 *
@@ -43,6 +48,8 @@ class CreateTableQuery extends Statement implements StructureAwareInterface
 	{
 		if ($structure instanceof TableStructure)
 			$this->table($structure);
+
+		$this->createFlags = 0;
 	}
 
 	public function getStructure()
@@ -62,9 +69,23 @@ class CreateTableQuery extends Statement implements StructureAwareInterface
 		return $this;
 	}
 
-	public function tokenize(TokenStream $stream, TokenStreamContextInterface $context)
+	/**
+	 * Set modifiers
+	 *
+	 * @param integer $flags
+	 * @return \NoreSources\SQL\Statement\Structure\CreateTableQuery
+	 */
+	public function flags($flags)
 	{
-		$builderFlags = $context->getStatementBuilder()->getBuilderFlags(K::BUILDER_DOMAIN_GENERIC);
+		$this->createFlags = $flags;
+		return $this;
+	}
+
+	public function tokenize(TokenStream $stream,
+		TokenStreamContextInterface $context)
+	{
+		$builderFlags = $context->getStatementBuilder()->getBuilderFlags(
+			K::BUILDER_DOMAIN_GENERIC);
 		$builderFlags |= $context->getStatementBuilder()->getBuilderFlags(
 			K::BUILDER_DOMAIN_CREATE_TABLE);
 
@@ -72,8 +93,10 @@ class CreateTableQuery extends Statement implements StructureAwareInterface
 		if (!($structure instanceof TableStructure))
 			$structure = $context->getPivot();
 
-		if (!($structure instanceof TableStructure && ($structure->count() > 0)))
-			throw new StatementException($this, 'Missing or invalid table structure');
+		if (!($structure instanceof TableStructure &&
+			($structure->count() > 0)))
+			throw new StatementException($this,
+				'Missing or invalid table structure');
 
 		$primaryKeyColumns = [];
 		foreach ($structure->getConstraints() as $contraint)
@@ -85,16 +108,25 @@ class CreateTableQuery extends Statement implements StructureAwareInterface
 		$context->pushResolverContext($structure);
 		$context->setStatementType(K::QUERY_CREATE_TABLE);
 
-		$stream->keyword('create')
-			->space()
-			->keyword('table');
+		$stream->keyword('create');
+		if (($this->createFlags & self::REPLACE) &&
+			($builderFlags & K::BUILDER_CREATE_REPLACE))
+			$stream->space()
+				->keyword('or')
+				->space()
+				->keyword('replace');
+		if (($this->createFlags & self::TEMPORARY) &&
+			($builderFlags & K::BUILDER_CREATE_TEMPORARY))
+			$stream->space()->keyword('temporary');
+		$stream->space()->keyword('table');
 
 		if ($builderFlags & K::BUILDER_IF_NOT_EXISTS)
 			$stream->space()->keyword('if not exists');
 
 		$stream->space()
-			->identifier($context->getStatementBuilder()
-			->getCanonicalName($this->structure))
+			->identifier(
+			$context->getStatementBuilder()
+				->getCanonicalName($this->structure))
 			->space()
 			->text('(');
 
@@ -115,10 +147,12 @@ class CreateTableQuery extends Statement implements StructureAwareInterface
 			if ($c++ > 0)
 				$stream->text(',')->space();
 
-			$type = $context->getStatementBuilder()->getColumnType($column);
+			$type = $context->getStatementBuilder()->getColumnType(
+				$column);
 			if (!($type instanceof TypeInterface))
 				throw new StatementException($this,
-					'Unable to find a DBMS type for column "' . $column->getName() . '"');
+					'Unable to find a DBMS type for column "' .
+					$column->getName() . '"');
 			/**
 			 *
 			 * @var TypeInterface $type
@@ -134,21 +168,27 @@ class CreateTableQuery extends Statement implements StructureAwareInterface
 
 			$typeFlags = TypeHelper::getProperty($type, K::TYPE_FLAGS);
 
-			$lengthSupport = (($typeFlags & K::TYPE_FLAG_LENGTH) == K::TYPE_FLAG_LENGTH);
+			$lengthSupport = (($typeFlags & K::TYPE_FLAG_LENGTH) ==
+				K::TYPE_FLAG_LENGTH);
 
-			$fractionScaleSupport = (($typeFlags & K::TYPE_FLAG_FRACTION_SCALE) ==
+			$fractionScaleSupport = (($typeFlags &
+				K::TYPE_FLAG_FRACTION_SCALE) ==
 				K::TYPE_FLAG_FRACTION_SCALE);
 
 			$hasLength = $column->hasColumnProperty(K::COLUMN_LENGTH);
-			$hasFractionScale = $column->hasColumnProperty(K::COLUMN_FRACTION_SCALE);
+			$hasFractionScale = $column->hasColumnProperty(
+				K::COLUMN_FRACTION_SCALE);
 
-			$hasEnumeration = $column->hasColumnProperty(K::COLUMN_ENUMERATION);
-			$enumerationSupport = ($builderFlags & K::BUILDER_CREATE_COLUMN_INLINE_ENUM);
+			$hasEnumeration = $column->hasColumnProperty(
+				K::COLUMN_ENUMERATION);
+			$enumerationSupport = ($builderFlags &
+				K::BUILDER_CREATE_COLUMN_INLINE_ENUM);
 
 			if ($hasEnumeration && $enumerationSupport)
 			{
 				$stream->text('(');
-				$values = $column->getColumnProperty(K::COLUMN_ENUMERATION);
+				$values = $column->getColumnProperty(
+					K::COLUMN_ENUMERATION);
 				$i = 0;
 				foreach ($values as $value)
 				{
@@ -160,19 +200,23 @@ class CreateTableQuery extends Statement implements StructureAwareInterface
 			}
 			elseif ($hasLength && $lengthSupport)
 			{
-				$stream->text('(')->literal($column->getColumnProperty(K::COLUMN_LENGTH));
+				$stream->text('(')->literal(
+					$column->getColumnProperty(K::COLUMN_LENGTH));
 
-				if ($column->hasColumnProperty(K::COLUMN_FRACTION_SCALE) && $fractionScaleSupport)
+				if ($column->hasColumnProperty(K::COLUMN_FRACTION_SCALE) &&
+					$fractionScaleSupport)
 				{
 					$stream->text(', ')->literal(
-						$column->getColumnProperty(K::COLUMN_FRACTION_SCALE));
+						$column->getColumnProperty(
+							K::COLUMN_FRACTION_SCALE));
 				}
 
 				$stream->text(')');
 			}
 			elseif ($hasFractionScale && $fractionScaleSupport)
 			{
-				$scale = $column->getColumnProperty(K::COLUMN_FRACTION_SCALE);
+				$scale = $column->getColumnProperty(
+					K::COLUMN_FRACTION_SCALE);
 				$length = TypeHelper::getMaxLength($type);
 				if (\is_infinite($maxLength))
 				{
@@ -189,20 +233,25 @@ class CreateTableQuery extends Statement implements StructureAwareInterface
 					->text(')');
 			}
 			elseif ($typeFlags & K::TYPE_FLAG_MANDATORY_LENGTH ||
-				($isPrimary && ($builderFlags & K::BUILDER_CREATE_COLUMN_KEY_MANDATORY_LENGTH)))
+				($isPrimary &&
+				($builderFlags &
+				K::BUILDER_CREATE_COLUMN_KEY_MANDATORY_LENGTH)))
 			{
 				$maxLength = TypeHelper::getMaxLength($type);
 				if (\is_infinite($maxLength))
 					throw new StatementException($this,
-						$column->getName() . ' column require length specification but type ' .
-						$type->getTypeName() . ' max length is unspecified');
+						$column->getName() .
+						' column require length specification but type ' .
+						$type->getTypeName() .
+						' max length is unspecified');
 
 				$stream->text('(')
 					->literal($maxLength)
 					->text(')');
 			}
 
-			if (($typeFlags & K::TYPE_FLAG_SIGNNESS) && ($columnFlags & K::COLUMN_FLAG_UNSIGNED))
+			if (($typeFlags & K::TYPE_FLAG_SIGNNESS) &&
+				($columnFlags & K::COLUMN_FLAG_UNSIGNED))
 				$stream->space()->keyword('unsigned');
 
 			if (!($columnFlags & K::COLUMN_FLAG_NULLABLE))
@@ -215,7 +264,8 @@ class CreateTableQuery extends Statement implements StructureAwareInterface
 
 			if ($column->hasColumnProperty(K::COLUMN_DEFAULT_VALUE))
 			{
-				$v = Evaluator::evaluate($column->getColumnProperty(K::COLUMN_DEFAULT_VALUE));
+				$v = Evaluator::evaluate(
+					$column->getColumnProperty(K::COLUMN_DEFAULT_VALUE));
 				$stream->space()
 					->keyword('DEFAULT')
 					->space()
@@ -224,7 +274,8 @@ class CreateTableQuery extends Statement implements StructureAwareInterface
 
 			if ($columnFlags & K::COLUMN_FLAG_AUTO_INCREMENT)
 			{
-				$ai = $context->getStatementBuilder()->getKeyword(K::KEYWORD_AUTOINCREMENT);
+				$ai = $context->getStatementBuilder()->getKeyword(
+					K::KEYWORD_AUTOINCREMENT);
 				if (\strlen($ai))
 					$stream->space()->keyword($ai);
 			}
@@ -236,7 +287,8 @@ class CreateTableQuery extends Statement implements StructureAwareInterface
 			if ($c++ > 0)
 				$stream->text(',')->space();
 
-			$this->tokenizeTableConstraint($constraint, $stream, $context);
+			$this->tokenizeTableConstraint($constraint, $stream,
+				$context);
 		} // constraints
 
 		$stream->text(')');
@@ -244,7 +296,8 @@ class CreateTableQuery extends Statement implements StructureAwareInterface
 		return $stream;
 	}
 
-	protected function tokenizeTableConstraint(TableConstraint $constraint, TokenStream $stream,
+	protected function tokenizeTableConstraint(
+		TableConstraint $constraint, TokenStream $stream,
 		TokenStreamContextInterface $context)
 	{
 		$structure = $this->structure;
@@ -292,8 +345,9 @@ class CreateTableQuery extends Statement implements StructureAwareInterface
 				if ($i++ > 0)
 					$stream->text(',')->space();
 
-				$stream->identifier($context->getStatementBuilder()
-					->escapeIdentifier($column));
+				$stream->identifier(
+					$context->getStatementBuilder()
+						->escapeIdentifier($column));
 			}
 			$stream->text(')');
 
@@ -310,7 +364,8 @@ class CreateTableQuery extends Statement implements StructureAwareInterface
 
 				$stream->identifier(
 					$context->getStatementBuilder()
-						->getCanonicalName($constraint->getForeignTable()));
+						->getCanonicalName(
+						$constraint->getForeignTable()));
 
 			$stream->space()->text('(');
 
@@ -319,8 +374,9 @@ class CreateTableQuery extends Statement implements StructureAwareInterface
 			{
 				if ($i++ > 0)
 					$stream->text(',')->space();
-				$stream->identifier($context->getStatementBuilder()
-					->escapeIdentifier($reference));
+				$stream->identifier(
+					$context->getStatementBuilder()
+						->escapeIdentifier($reference));
 			}
 			$stream->text(')');
 
@@ -351,4 +407,10 @@ class CreateTableQuery extends Statement implements StructureAwareInterface
 	 * @var TableStructure
 	 */
 	private $structure;
+
+	/**
+	 *
+	 * @var integer
+	 */
+	private $createFlags;
 }

@@ -1,4 +1,5 @@
-CREATE TABLE [ns_unittests].[Employees] (
+CREATE 
+OR REPLACE TABLE [ns_unittests].[Employees] (
   [id] INTEGER NOT NULL, 
   [name] TEXT, 
   [gender] TEXT, 

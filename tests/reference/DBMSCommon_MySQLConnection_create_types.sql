@@ -1,4 +1,5 @@
-CREATE TABLE `ns_unittests`.`types` (
+CREATE 
+OR REPLACE TABLE `ns_unittests`.`types` (
   `base` longtext, 
   `binary` varbinary(255) DEFAULT 'abc', 
   `boolean` boolean DEFAULT TRUE, 

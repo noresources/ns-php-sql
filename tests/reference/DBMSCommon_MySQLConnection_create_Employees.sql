@@ -1,4 +1,5 @@
-CREATE TABLE `ns_unittests`.`Employees` (
+CREATE 
+OR REPLACE TABLE `ns_unittests`.`Employees` (
   `id` bigint(20) NOT NULL, 
   `name` longtext, 
   `gender` ENUM('M', 'F'), 

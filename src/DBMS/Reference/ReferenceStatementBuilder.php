@@ -20,6 +20,11 @@ use NoreSources\SQL\Structure\ColumnStructure;
 class ReferenceStatementBuilder extends StatementBuilder
 {
 
+	/**
+	 *
+	 * @param array $domainFlags
+	 *        	Builder flags for each builder domain
+	 */
 	public function __construct($domainFlags = [])
 	{
 		parent::__construct();
@@ -31,8 +36,6 @@ class ReferenceStatementBuilder extends StatementBuilder
 
 		foreach ($domainFlags as $domain => $flags)
 			$this->setBuilderFlags($domain, $flags);
-
-		$this->parameters = new \ArrayObject();
 	}
 
 	public static function serializeStringFallback($value)
@@ -45,11 +48,14 @@ class ReferenceStatementBuilder extends StatementBuilder
 		return self::serializeStringFallback($value);
 	}
 
-	public static function escapeIdentifierFallback($identifier, $before, $after)
+	public static function escapeIdentifierFallback($identifier, $before,
+		$after)
 	{
-		$identifier = \str_replace($before, $before . $before, $identifier);
+		$identifier = \str_replace($before, $before . $before,
+			$identifier);
 		if ($before != $after)
-			$identifier = \str_replace($after, $after . $after, $identifier);
+			$identifier = \str_replace($after, $after . $after,
+				$identifier);
 		return $before . $identifier . $after;
 	}
 

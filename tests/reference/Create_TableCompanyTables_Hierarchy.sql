@@ -1,4 +1,5 @@
-CREATE TABLE [ns_unittests].[Hierarchy] (
+CREATE 
+OR REPLACE TABLE [ns_unittests].[Hierarchy] (
   [managerId] INTEGER NOT NULL, 
   [manageeId] INTEGER NOT NULL, 
   PRIMARY KEY ([managerId], [manageeId]), 

@@ -28,7 +28,8 @@ use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use ArrayObject;
 
-class MySQLStatementBuilder extends StatementBuilder implements LoggerAwareInterface
+class MySQLStatementBuilder extends StatementBuilder implements
+	LoggerAwareInterface
 {
 
 	use LoggerAwareTrait;
@@ -43,19 +44,24 @@ class MySQLStatementBuilder extends StatementBuilder implements LoggerAwareInter
 		 * @todo builder flags
 		 */
 
-		$createTableFlags = $this->getBuilderFlags(K::BUILDER_DOMAIN_CREATE_TABLE);
-		$createTableFlags |= K::BUILDER_CREATE_COLUMN_KEY_MANDATORY_LENGTH |
-			K::BUILDER_CREATE_COLUMN_INLINE_ENUM;
-		$this->setBuilderFlags(K::BUILDER_DOMAIN_CREATE_TABLE, $createTableFlags);
+		$createTableFlags = $this->getBuilderFlags(
+			K::BUILDER_DOMAIN_CREATE_TABLE);
+		$createTableFlags |= (K::BUILDER_CREATE_COLUMN_KEY_MANDATORY_LENGTH |
+			K::BUILDER_CREATE_COLUMN_INLINE_ENUM |
+			K::BUILDER_CREATE_TEMPORARY | K::BUILDER_CREATE_REPLACE);
+		$this->setBuilderFlags(K::BUILDER_DOMAIN_CREATE_TABLE,
+			$createTableFlags);
 
 		$dropTableFlags = K::BUILDER_DROP_CASCADE;
-		$this->setBuilderFlags(K::BUILDER_DOMAIN_DROP_TABLE, $dropTableFlags);
+		$this->setBuilderFlags(K::BUILDER_DOMAIN_DROP_TABLE,
+			$dropTableFlags);
 	}
 
 	public function serializeString($value)
 	{
 		if ($this->connection->isConnected())
-			return "'" . $this->getLink()->real_escape_string($value) . "'";
+			return "'" . $this->getLink()->real_escape_string($value) .
+				"'";
 
 		return "'" . self::escapeString($value) . "'";
 	}
@@ -66,7 +72,8 @@ class MySQLStatementBuilder extends StatementBuilder implements LoggerAwareInter
 			return $value;
 
 		if ($value instanceof \DateTimeInterface)
-			$value = $value->format($this->getTimestampFormat(K::DATATYPE_TIMESTAMP));
+			$value = $value->format(
+				$this->getTimestampFormat(K::DATATYPE_TIMESTAMP));
 		else
 			$value = TypeConversion::toString($value);
 
@@ -85,9 +92,11 @@ class MySQLStatementBuilder extends StatementBuilder implements LoggerAwareInter
 
 	public function translateFunction(MetaFunctionCall $metaFunction)
 	{
-		if ($metaFunction->getFunctionName() == K::METAFUNCTION_TIMESTAMP_FORMAT)
+		if ($metaFunction->getFunctionName() ==
+			K::METAFUNCTION_TIMESTAMP_FORMAT)
 		{
-			return $this->translateTimestampFormatFunction($metaFunction);
+			return $this->translateTimestampFormatFunction(
+				$metaFunction);
 		}
 
 		return parent::translateFunction($metaFunction);
@@ -117,7 +126,8 @@ class MySQLStatementBuilder extends StatementBuilder implements LoggerAwareInter
 			}
 
 			if ($pk instanceof PrimaryKeyTableConstraint &&
-				Container::keyExists($pk->getColumns(), $column->getName()))
+				Container::keyExists($pk->getColumns(),
+					$column->getName()))
 			{
 				$isPrimaryKey = true;
 				// Types must have a key length
@@ -128,7 +138,8 @@ class MySQLStatementBuilder extends StatementBuilder implements LoggerAwareInter
 						 * @var TypeInterface $type
 						 */
 
-						if ((TypeHelper::getProperty($type, K::TYPE_FLAGS) & K::TYPE_FLAG_LENGTH) ==
+						if ((TypeHelper::getProperty($type,
+							K::TYPE_FLAGS) & K::TYPE_FLAG_LENGTH) ==
 						K::TYPE_FLAG_LENGTH)
 						{
 							$maxLength = TypeHelper::getMaxLength($type);
@@ -158,15 +169,17 @@ class MySQLStatementBuilder extends StatementBuilder implements LoggerAwareInter
 				 * @var integer $glyphLength
 				 */
 				$glyphLength = 4;
-				$keyMaxLength = intval(floor(K::KEY_MAX_LENGTH / $glyphLength));
+				$keyMaxLength = intval(
+					floor(K::KEY_MAX_LENGTH / $glyphLength));
 				$typeMaxLength = TypeHelper::getMaxLength($type);
 
 				if ($typeMaxLength > $keyMaxLength)
 				{
 					$type = new ArrayObjectType(
-						\array_merge($type->getArrayCopy(), [
-							K::TYPE_MAX_LENGTH => $keyMaxLength
-						]));
+						\array_merge($type->getArrayCopy(),
+							[
+								K::TYPE_MAX_LENGTH => $keyMaxLength
+							]));
 				}
 			}
 
@@ -336,7 +349,8 @@ class MySQLStatementBuilder extends StatementBuilder implements LoggerAwareInter
 		return K::DATATYPE_STRING;
 	}
 
-	private function translateTimestampFormatFunction(MetaFunctionCall $metaFunction)
+	private function translateTimestampFormatFunction(
+		MetaFunctionCall $metaFunction)
 	{
 		$format = $metaFunction->getArgument(0);
 		if ($format instanceof Literal)
@@ -366,18 +380,21 @@ class MySQLStatementBuilder extends StatementBuilder implements LoggerAwareInter
 					continue;
 				}
 
-				$t = Container::keyValue(self::getTimestampFormatTranslations(), $c, $c);
+				$t = Container::keyValue(
+					self::getTimestampFormatTranslations(), $c, $c);
 
 				if ($t === false)
 				{
 					$this->logger->warning(
-						'Timestamp format "' . $c . '" not supported by MySQL date_format()');
+						'Timestamp format "' . $c .
+						'" not supported by MySQL date_format()');
 					continue;
 				}
 
 				if (\is_array($t))
 				{
-					$this->logger->notice('Timestamp format "' . $c . '": ' . $t[1]);
+					$this->logger->notice(
+						'Timestamp format "' . $c . '": ' . $t[1]);
 					$t = $t[0];
 				}
 
@@ -388,10 +405,11 @@ class MySQLStatementBuilder extends StatementBuilder implements LoggerAwareInter
 		}
 
 		$timestamp = $metaFunction->getArgument(1);
-		$strftime = new FunctionCall('date_format', [
-			$timestamp,
-			$format
-		]);
+		$strftime = new FunctionCall('date_format',
+			[
+				$timestamp,
+				$format
+			]);
 
 		return $strftime;
 	}
