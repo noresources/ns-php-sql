@@ -22,6 +22,7 @@ use NoreSources\SQL\Structure\ColumnStructure;
 use NoreSources\SQL\Structure\StructureElementInterface;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
+use Psr\Log\LoggerInterface;
 use ArrayObject;
 
 class SQLiteStatementBuilder extends StatementBuilder implements
@@ -292,16 +293,18 @@ class SQLiteStatementBuilder extends StatementBuilder implements
 
 				if ($t === false)
 				{
-					$this->logger->warning(
-						'Timestamp format "' . $c .
-						'" is nut supported by SQLite strftime');
+					if ($this->logger instanceof LoggerInterface)
+						$this->logger->warning(
+							'Timestamp format "' . $c .
+							'" is nut supported by SQLite strftime');
 					continue;
 				}
 
 				if (\is_array($t))
 				{
-					$this->logger->notice(
-						'Timestamp format "' . $c . '": ' . $t[1]);
+					if ($this->logger instanceof LoggerInterface)
+						$this->logger->notice(
+							'Timestamp format "' . $c . '": ' . $t[1]);
 					$t = $t[0];
 				}
 

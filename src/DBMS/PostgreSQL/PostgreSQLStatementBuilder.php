@@ -23,6 +23,7 @@ use NoreSources\SQL\Statement\StatementBuilder;
 use NoreSources\SQL\Structure\ColumnStructure;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
+use Psr\Log\LoggerInterface;
 
 class PostgreSQLStatementBuilder extends StatementBuilder implements
 	LoggerAwareInterface
@@ -261,16 +262,18 @@ class PostgreSQLStatementBuilder extends StatementBuilder implements
 
 					if ($t === false)
 					{
-						$this->logger->warning(
-							'Timestamp format "' . $c .
-							'" nut supported by PostgreSQL to_char');
+						if ($this->logger instanceof LoggerInterface)
+							$this->logger->warning(
+								'Timestamp format "' . $c .
+								'" nut supported by PostgreSQL to_char');
 						continue;
 					}
 
 					if (\is_array($t))
 					{
-						$this->logger->notice(
-							'Timestamp format "' . $c . '": ' . $t[1]);
+						if ($this->logger instanceof LoggerInterface)
+							$this->logger->notice(
+								'Timestamp format "' . $c . '": ' . $t[1]);
 						$t = $t[0];
 					}
 				}

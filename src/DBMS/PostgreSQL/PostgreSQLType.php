@@ -13,6 +13,7 @@ use NoreSources\Container;
 use NoreSources\SQL\DBMS\ArrayObjectType;
 use NoreSources\SQL\DBMS\BasicType;
 use NoreSources\SQL\DBMS\TypeHelper;
+use NoreSources\SQL\DBMS\TypeInterface;
 use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLConstants as K;
 use NoreSources\SQL\Structure\ColumnDescriptionInterface;
 
@@ -39,7 +40,8 @@ class PostgreSQLType
 			self::initialize();
 
 		if (!\is_integer($oidOrName))
-			$oidOrName = Container::keyValue(self::$typeNameOidMap, $oidOrName, false);
+			$oidOrName = Container::keyValue(self::$typeNameOidMap,
+				$oidOrName, false);
 
 		return Container::keyValue(self::$typePropertiesMap, $oidOrName);
 	}
@@ -66,7 +68,8 @@ class PostgreSQLType
 			self::initialize();
 
 		if (Container::keyExists(self::$typeNameOidMap, $name))
-			throw new \InvalidArgumentException('Unknown type name ' . $name);
+			throw new \InvalidArgumentException(
+				'Unknown type name ' . $name);
 
 		return self::oidToDataType(self::$typeNameOidMap[$name]);
 	}
@@ -77,7 +80,8 @@ class PostgreSQLType
 	 *        	Generic data type
 	 * @return TypeInterface
 	 */
-	public static function columnPropertyToType(ColumnDescriptionInterface $column)
+	public static function columnPropertyToType(
+		ColumnDescriptionInterface $column)
 	{
 		$columnFlags = $column->getColumnProperty(K::COLUMN_FLAGS);
 
@@ -85,9 +89,7 @@ class PostgreSQLType
 			self::initialize();
 
 		if ($columnFlags & K::COLUMN_FLAG_AUTO_INCREMENT)
-		{
 			return new BasicType('serial');
-		}
 
 		$dataType = K::DATATYPE_UNDEFINED;
 		if ($column->hasColumnProperty(K::COLUMN_DATA_TYPE))
@@ -100,7 +102,8 @@ class PostgreSQLType
 			});
 
 		if (\count($matchingTypes) == 0)
-			throw new \RuntimeException('No PostgreSQL type found for column type ' . $dataType);
+			throw new \RuntimeException(
+				'No PostgreSQL type found for column type ' . $dataType);
 
 		$count = \count($matchingTypes);
 
@@ -112,7 +115,8 @@ class PostgreSQLType
 
 		if ($column->hasColumnProperty(K::COLUMN_LENGTH))
 		{
-			$glyphCount = intval($column->getColumnProperty(K::COLUMN_LENGTH));
+			$glyphCount = intval(
+				$column->getColumnProperty(K::COLUMN_LENGTH));
 			if ($dataType == K::DATATYPE_INTEGER)
 			{
 				// Prefer fixed precision types
@@ -143,8 +147,10 @@ class PostgreSQLType
 
 			$filtered = \array_filter($matchingTypes,
 				function ($type) {
-					$flags = TypeHelper::getProperty($type, K::TYPE_FLAGS);
-					return (($flags & K::TYPE_FLAG_LENGTH) == K::TYPE_FLAG_LENGTH);
+					$flags = TypeHelper::getProperty($type,
+						K::TYPE_FLAGS);
+					return (($flags & K::TYPE_FLAG_LENGTH) ==
+					K::TYPE_FLAG_LENGTH);
 				});
 
 			$c = \count($filtered);
@@ -163,8 +169,10 @@ class PostgreSQLType
 
 			$filtered = \array_filter($matchingTypes,
 				function ($type) {
-					$typeFlags = TypeHelper::getProperty($type, K::TYPE_FLAGS);
-					return ((($typeFlags & K::TYPE_FLAG_LENGTH) == 0) && !$type->has(K::TYPE_SIZE));
+					$typeFlags = TypeHelper::getProperty($type,
+						K::TYPE_FLAGS);
+					return ((($typeFlags & K::TYPE_FLAG_LENGTH) == 0) &&
+					!$type->has(K::TYPE_SIZE));
 				});
 
 			$c = \count($filtered);
@@ -183,7 +191,9 @@ class PostgreSQLType
 					if ($column->hasColumnProperty(K::COLUMN_MEDIA_TYPE))
 					{
 						if ($type->has(K::TYPE_MEDIA_TYPE))
-							return (\strval($column->getProperty(K::COLUMN_MEDIA_TYPE)) ==
+							return (\strval(
+								$column->getProperty(
+									K::COLUMN_MEDIA_TYPE)) ==
 							\strval($type->get(K::TYPE_MEDIA_TYPE)));
 						return false;
 					}
@@ -418,7 +428,8 @@ class PostgreSQLType
 				1266 => new ArrayObjectType(
 					[
 						'typename' => 'time with time zone',
-						'datatype' => K::DATATYPE_TIME | K::DATATYPE_TIMEZONE,
+						'datatype' => K::DATATYPE_TIME |
+						K::DATATYPE_TIMEZONE,
 						'typesize' => 96
 					]),
 				142 => new ArrayObjectType(

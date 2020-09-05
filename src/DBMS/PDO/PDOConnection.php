@@ -24,9 +24,8 @@ use NoreSources\SQL\Statement\ParameterData;
 use NoreSources\SQL\Statement\ParameterDataProviderInterface;
 use NoreSources\SQL\Statement\Statement;
 use NoreSources\SQL\Statement\StatementFactoryInterface;
-use NoreSources\SQL\Structure\StructureProviderTrait;
-use Psr\Log\LoggerAwareTrait;
 use NoreSources\SQL\Structure\StructureElementInterface;
+use NoreSources\SQL\Structure\StructureProviderTrait;
 
 /**
  * PDO connection
@@ -34,7 +33,6 @@ use NoreSources\SQL\Structure\StructureElementInterface;
 class PDOConnection implements ConnectionInterface
 {
 	use StructureProviderTrait;
-	use LoggerAwareTrait;
 	use TransactionStackTrait;
 
 	const DRIVER_MYSQL = 'mysql';
@@ -84,14 +82,19 @@ class PDOConnection implements ConnectionInterface
 		if ($this->connection instanceof \PDO)
 			$this->connection->close();
 
-		$structure = Container::keyValue($parameters, K::CONNECTION_STRUCTURE);
+		$structure = Container::keyValue($parameters,
+			K::CONNECTION_STRUCTURE);
 		if ($structure instanceof StructureElementInterface)
 			$this->setStructure($structure);
 
-		$dsn = Container::keyValue($parameters, K::CONNECTION_SOURCE, null);
-		$user = Container::keyValue($parameters, K::CONNECTION_USER, null);
-		$password = Container::keyValue($parameters, K::CONNECTION_PASSWORD, null);
-		$options = Container::keyValue($parameters, K::CONNECTION_OPTIONS, null);
+		$dsn = Container::keyValue($parameters, K::CONNECTION_SOURCE,
+			null);
+		$user = Container::keyValue($parameters, K::CONNECTION_USER,
+			null);
+		$password = Container::keyValue($parameters,
+			K::CONNECTION_PASSWORD, null);
+		$options = Container::keyValue($parameters,
+			K::CONNECTION_OPTIONS, null);
 
 		if (Container::isArray($dsn))
 		{
@@ -105,12 +108,14 @@ class PDOConnection implements ConnectionInterface
 
 		try
 		{
-			$this->connection = new \PDO($dsn, $user, $password, $options);
+			$this->connection = new \PDO($dsn, $user, $password,
+				$options);
 			$this->builder->configure($this->connection);
 		}
 		catch (\PDOException $e)
 		{
-			throw new ConnectionException($this, $e->getMessage(), $e->getCode());
+			throw new ConnectionException($this, $e->getMessage(),
+				$e->getCode());
 		}
 
 		if (Container::keyExists($parameters, K::CONNECTION_STRUCTURE))
@@ -133,7 +138,8 @@ class PDOConnection implements ConnectionInterface
 		$status = true;
 		try
 		{
-			$status = $this->connection->getAttribute(\PDO::ATTR_CONNECTION_STATUS);
+			$status = $this->connection->getAttribute(
+				\PDO::ATTR_CONNECTION_STATUS);
 		}
 		catch (\Exception $e)
 		{}
@@ -189,7 +195,8 @@ class PDOConnection implements ConnectionInterface
 		{
 			$error = $this->connection->errorInfo();
 			$message = self::getErrorMessage($error);
-			throw new ConnectionException($this, 'Failed to prepare statement. ' . $message);
+			throw new ConnectionException($this,
+				'Failed to prepare statement. ' . $message);
 		}
 
 		return new PDOPreparedStatement($pdo, $statement);
@@ -205,7 +212,8 @@ class PDOConnection implements ConnectionInterface
 		{
 			throw new \InvalidArgumentException(
 				'Invalid type ' . TypeDescription::getName($statement) .
-				' for statement argument. string or ' . PDOPreparedStatement::class . ' expected');
+				' for statement argument. string or ' .
+				PDOPreparedStatement::class . ' expected');
 		}
 
 		$pdo = null;
@@ -237,7 +245,8 @@ class PDOConnection implements ConnectionInterface
 				else
 					$dbmsName = ':' . $key;
 
-				$value = ConnectionHelper::serializeParameterValue($this, $entry);
+				$value = ConnectionHelper::serializeParameterValue(
+					$this, $entry);
 				$pdo->bindValue($dbmsName, $value);
 			}
 
@@ -269,9 +278,11 @@ class PDOConnection implements ConnectionInterface
 		if ($type == K::QUERY_SELECT)
 			$result = (new PDORecordset($prepared));
 		elseif ($type == K::QUERY_INSERT)
-			$result = new GenericInsertionStatementResult($this->connection->lastInsertId());
+			$result = new GenericInsertionStatementResult(
+				$this->connection->lastInsertId());
 		elseif ($type & K::QUERY_FAMILY_ROWMODIFICATION)
-			$result = new GenericRowModificationStatementResult($pdo->rowCount());
+			$result = new GenericRowModificationStatementResult(
+				$pdo->rowCount());
 
 		return $result;
 	}

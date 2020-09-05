@@ -26,6 +26,7 @@ use NoreSources\SQL\Structure\PrimaryKeyTableConstraint;
 use NoreSources\SQL\Structure\TableStructure;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
+use Psr\Log\LoggerInterface;
 use ArrayObject;
 
 class MySQLStatementBuilder extends StatementBuilder implements
@@ -385,16 +386,18 @@ class MySQLStatementBuilder extends StatementBuilder implements
 
 				if ($t === false)
 				{
-					$this->logger->warning(
-						'Timestamp format "' . $c .
-						'" not supported by MySQL date_format()');
+					if ($this->logger instanceof LoggerInterface)
+						$this->logger->warning(
+							'Timestamp format "' . $c .
+							'" not supported by MySQL date_format()');
 					continue;
 				}
 
 				if (\is_array($t))
 				{
-					$this->logger->notice(
-						'Timestamp format "' . $c . '": ' . $t[1]);
+					if ($this->logger instanceof LoggerInterface)
+						$this->logger->notice(
+							'Timestamp format "' . $c . '": ' . $t[1]);
 					$t = $t[0];
 				}
 

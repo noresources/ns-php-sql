@@ -11,7 +11,6 @@ namespace NoreSources\SQL\DBMS\SQLite;
 
 use NoreSources\Container;
 use NoreSources\TypeDescription;
-use NoreSources\Logger\ErrorReporterLogger;
 use NoreSources\SQL\ParameterValue;
 use NoreSources\SQL\DBMS\ConnectionHelper;
 use NoreSources\SQL\DBMS\ConnectionInterface;
@@ -27,9 +26,8 @@ use NoreSources\SQL\Statement\Statement;
 use NoreSources\SQL\Statement\StatementFactoryInterface;
 use NoreSources\SQL\Structure\DatasourceStructure;
 use NoreSources\SQL\Structure\NamespaceStructure;
-use NoreSources\SQL\Structure\StructureProviderTrait;
 use NoreSources\SQL\Structure\StructureElementInterface;
-use Psr\Log\LoggerInterface;
+use NoreSources\SQL\Structure\StructureProviderTrait;
 
 /**
  * SQLite connection
@@ -91,7 +89,6 @@ class SQLiteConnection implements ConnectionInterface
 	{
 		$this->builder = new SQLiteStatementBuilder();
 		$this->connection = null;
-		$this->setLogger(ErrorReporterLogger::getInstance());
 
 		$this->setTransactionBlockFactory(
 			function ($depth, $name) {
@@ -238,12 +235,6 @@ class SQLiteConnection implements ConnectionInterface
 			throw new SQLiteConnectionException($this, 'Not connected');
 		$this->connection->close();
 		$this->connection = null;
-	}
-
-	public function setLogger(LoggerInterface $logger)
-	{
-		$this->logger = $logger;
-		$this->builder->setLogger($logger);
 	}
 
 	public function __get($member)

@@ -24,10 +24,8 @@ use NoreSources\SQL\Statement\ClassMapStatementFactory;
 use NoreSources\SQL\Statement\ParameterData;
 use NoreSources\SQL\Statement\Statement;
 use NoreSources\SQL\Statement\StatementFactoryInterface;
-use NoreSources\SQL\Structure\StructureProviderTrait;
 use NoreSources\SQL\Structure\StructureElementInterface;
-use Psr\Log\LoggerAwareTrait;
-use Psr\Log\LoggerInterface;
+use NoreSources\SQL\Structure\StructureProviderTrait;
 
 /**
  * MySQL or MariaDB connection
@@ -35,7 +33,6 @@ use Psr\Log\LoggerInterface;
 class MySQLConnection implements ConnectionInterface
 {
 	use StructureProviderTrait;
-	use LoggerAwareTrait;
 	use TransactionStackTrait;
 
 	const STATE_CONNECTED = 0x01;
@@ -50,35 +47,39 @@ class MySQLConnection implements ConnectionInterface
 		$this->link = new \mysqli();
 		$this->builder = new MySQLStatementBuilder($this);
 
-		$persistent = Container::keyValue($parameters, K::CONNECTION_PERSISTENT, false);
-		$protocol = Container::keyValue($parameters, K::CONNECTION_PROTOCOL,
-			K::CONNECTION_PROTOCOL_TCP);
+		$persistent = Container::keyValue($parameters,
+			K::CONNECTION_PERSISTENT, false);
+		$protocol = Container::keyValue($parameters,
+			K::CONNECTION_PROTOCOL, K::CONNECTION_PROTOCOL_TCP);
 
-		$structure = Container::keyValue($parameters, K::CONNECTION_STRUCTURE);
+		$structure = Container::keyValue($parameters,
+			K::CONNECTION_STRUCTURE);
 		if ($structure instanceof StructureElementInterface)
 			$this->setStructure($structure);
 
 		if ($protocol == K::CONNECTION_PROTOCOL_TCP)
 		{
-			$host = Container::keyValue($parameters, K::CONNECTION_SOURCE,
-				ini_get('mysqli.default_host'));
+			$host = Container::keyValue($parameters,
+				K::CONNECTION_SOURCE, ini_get('mysqli.default_host'));
 			$port = Container::keyValue($parameters, K::CONNECTION_PORT,
 				ini_get('mysqli.default_port'));
 			$user = Container::keyValue($parameters, K::CONNECTION_USER,
 				ini_get('mysqli.default_user'));
-			$password = Container::keyValue($parameters, K::CONNECTION_PASSWORD,
-				ini_get('mysqli.default_pw'));
-			$database = Container::keyValue($parameters, K::CONNECTION_DEFAULT_NAMESPACE, '');
+			$password = Container::keyValue($parameters,
+				K::CONNECTION_PASSWORD, ini_get('mysqli.default_pw'));
+			$database = Container::keyValue($parameters,
+				K::CONNECTION_DEFAULT_NAMESPACE, '');
 
 			if ($persistent && (substr($host, 0, 2) != 'p:'))
 				$host = 'p:' . $host;
 
-			$this->link->connect($host, $user, $password, $database, $port);
+			$this->link->connect($host, $user, $password, $database,
+				$port);
 		}
 		else // Socket or pipe
 		{
-			$path = Container::keyValue($parameters, K::CONNECTION_SOURCE,
-				ini_get("mysqli.default_socket"));
+			$path = Container::keyValue($parameters,
+				K::CONNECTION_SOURCE, ini_get("mysqli.default_socket"));
 			if ($persistent && (substr($path, 0, 2) != 'p:'))
 				$path = 'p:' . $path;
 
@@ -101,19 +102,14 @@ class MySQLConnection implements ConnectionInterface
 			$this->link->close();
 	}
 
-	public function setLogger(LoggerInterface $logger)
-	{
-		$this->logger = $logger;
-		$this->getStatementBuilder()->setLogger($logger);
-	}
-
 	/**
 	 *
 	 * @return boolean
 	 */
 	public function isConnected()
 	{
-		return (($this->mysqlFlags & self::STATE_CONNECTED) == self::STATE_CONNECTED);
+		return (($this->mysqlFlags & self::STATE_CONNECTED) ==
+			self::STATE_CONNECTED);
 	}
 
 	public function getStatementBuilder()
@@ -160,7 +156,8 @@ class MySQLConnection implements ConnectionInterface
 		if (!($statement instanceof MySQLPreparedStatement ||
 			TypeDescription::hasStringRepresentation($statement)))
 			throw new ConnectionException($this,
-				'Invalid statement type ' . TypeDescription::getName($statement) .
+				'Invalid statement type ' .
+				TypeDescription::getName($statement) .
 				'. Expect PreparedStatement or stringifiable');
 		;
 
@@ -183,8 +180,10 @@ class MySQLConnection implements ConnectionInterface
 			{
 				$key = $data[ParameterData::KEY];
 				$entry = Container::keyValue($parameters, $key, null);
-				$bindArguments[0] .= self::getParameterValueTypeKey($entry);
-				$values[$index] = ConnectionHelper::serializeParameterValue($this, $entry);
+				$bindArguments[0] .= self::getParameterValueTypeKey(
+					$entry);
+				$values[$index] = ConnectionHelper::serializeParameterValue(
+					$this, $entry);
 
 				$bindArguments[] = &$values[$index];
 			}
@@ -195,7 +194,8 @@ class MySQLConnection implements ConnectionInterface
 			], $bindArguments);
 
 			if ($result === false)
-				throw new ConnectionException($this, 'Failed to bind parameters');
+				throw new ConnectionException($this,
+					'Failed to bind parameters');
 		}
 
 		$result = false;
@@ -220,7 +220,8 @@ class MySQLConnection implements ConnectionInterface
 		}
 		elseif ($statementType & K::QUERY_FAMILY_ROWMODIFICATION)
 		{
-			return new GenericRowModificationStatementResult($stmt->affected_rows);
+			return new GenericRowModificationStatementResult(
+				$stmt->affected_rows);
 		}
 		elseif ($statementType == K::QUERY_INSERT)
 		{

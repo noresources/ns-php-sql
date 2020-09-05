@@ -9,14 +9,14 @@
  */
 namespace NoreSources\SQL\DBMS;
 
+use NoreSources\SQL\Result\Recordset;
 use NoreSources\SQL\Statement\StatementBuilderProviderInterface;
 use NoreSources\SQL\Structure\StructureProviderInterface;
-use Psr\Log\LoggerAwareInterface;
 
 /**
  * DMBS connection
  */
-interface ConnectionInterface extends StatementBuilderProviderInterface, LoggerAwareInterface,
+interface ConnectionInterface extends StatementBuilderProviderInterface,
 	StructureProviderInterface
 {
 
@@ -34,12 +34,6 @@ interface ConnectionInterface extends StatementBuilderProviderInterface, LoggerA
 	 * @return TransactionBlockInterface
 	 */
 	function newTransactionBlock($name = null);
-
-	/**
-	 *
-	 * @return \NoreSources\SQL\Statement\StatementBuilderInterface
-	 */
-	function getStatementBuilder();
 
 	/**
 	 *
@@ -62,12 +56,5 @@ interface ConnectionInterface extends StatementBuilderProviderInterface, LoggerA
 	 * @return Recordset|integer|boolean
 	 */
 	function executeStatement($statement, $parameters = array());
-
-	/**
-	 * Get the structure of the connected database
-	 *
-	 * @return StructureElement
-	 */
-	function getStructure();
 }
 

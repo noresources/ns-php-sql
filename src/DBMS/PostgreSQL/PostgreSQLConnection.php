@@ -24,17 +24,15 @@ use NoreSources\SQL\Statement\ClassMapStatementFactory;
 use NoreSources\SQL\Statement\ParameterData;
 use NoreSources\SQL\Statement\ParameterDataProviderInterface;
 use NoreSources\SQL\Statement\Statement;
+use NoreSources\SQL\Statement\StatementBuilderInterface;
 use NoreSources\SQL\Statement\StatementFactoryInterface;
-use NoreSources\SQL\Structure\StructureProviderTrait;
 use NoreSources\SQL\Structure\StructureElementInterface;
-use Psr\Log\LoggerAwareTrait;
-use Psr\Log\LoggerInterface;
+use NoreSources\SQL\Structure\StructureProviderTrait;
 
 class PostgreSQLConnection implements ConnectionInterface
 {
 
 	use StructureProviderTrait;
-	use LoggerAwareTrait;
 	use TransactionStackTrait;
 
 	/**
@@ -50,13 +48,15 @@ class PostgreSQLConnection implements ConnectionInterface
 				return new PostgreSQLTransactionBlock($this, $name);
 			});
 		$this->resource = null;
-		$this->builder = new PostgreSQLStatementBuilder($this);
+
 		$this->versions = [
-			self::VERSION_EXPECTED => new SemanticVersion(self::DEFAULT_VERSION),
+			self::VERSION_EXPECTED => new SemanticVersion(
+				self::DEFAULT_VERSION),
 			self::VERSION_CONNECTION => null
 		];
 
-		$structure = Container::keyValue($parameters, K::CONNECTION_STRUCTURE);
+		$structure = Container::keyValue($parameters,
+			K::CONNECTION_STRUCTURE);
 		if ($structure instanceof StructureElementInterface)
 			$this->setStructure($structure);
 
@@ -76,13 +76,15 @@ class PostgreSQLConnection implements ConnectionInterface
 				$dsn[$name] = Container::keyValue($container, $key);
 		}
 
-		$dsn = Container::implode($dsn, ' ', function ($k, $v) {
-			return $k . " = '" . $v . "'";
-		});
+		$dsn = Container::implode($dsn, ' ',
+			function ($k, $v) {
+				return $k . " = '" . $v . "'";
+			});
 
 		if (Container::keyExists($parameters, K::CONNECTION_PGSQL))
 		{
-			$value = Container::keyValue($parameters, K::CONNECTION_PGSQL, $key);
+			$value = Container::keyValue($parameters,
+				K::CONNECTION_PGSQL, $key);
 			if (\is_string($value))
 				$dsn .= ' ' . $value;
 			elseif (Container::isTraversable($value))
@@ -95,7 +97,8 @@ class PostgreSQLConnection implements ConnectionInterface
 			}
 		}
 
-		$connectionFunction = Container::keyValue($parameters, K::CONNECTION_PERSISTENT, false) ? '\pg_pconnect' : '\pg_connect';
+		$connectionFunction = Container::keyValue($parameters,
+			K::CONNECTION_PERSISTENT, false) ? '\pg_pconnect' : '\pg_connect';
 
 		$this->resource = @call_user_func($connectionFunction, $dsn);
 
@@ -105,10 +108,9 @@ class PostgreSQLConnection implements ConnectionInterface
 		$info = \pg_version($this->resource);
 		if (\preg_match('/^[0-9]+(\.[0-9]+)*/', $info['server'], $m))
 		{
-			$this->versions[self::VERSION_CONNECTION] = new SemanticVersion($m[0]);
+			$this->versions[self::VERSION_CONNECTION] = new SemanticVersion(
+				$m[0]);
 		}
-
-		$this->builder->updateBuilderFlags($this->getPostgreSQLVersion());
 	}
 
 	public function __destruct()
@@ -118,24 +120,28 @@ class PostgreSQLConnection implements ConnectionInterface
 			\pg_close($this->resource);
 
 		$this->versions[self::VERSION_CONNECTION] = null;
-		$this->builder->updateBuilderFlags($this->getPostgreSQLVersion());
+		if ($this->builder instanceof StatementBuilderInterface)
+			$this->builder->updateBuilderFlags(
+				$this->getPostgreSQLVersion());
 		$this->resource = null;
-	}
-
-	public function setLogger(LoggerInterface $logger)
-	{
-		$this->logger = $logger;
-		$this->getStatementBuilder()->setLogger($logger);
 	}
 
 	public function isConnected()
 	{
 		return (\is_resource($this->resource) &&
-			(\pg_connection_status($this->resource) == PGSQL_CONNECTION_OK));
+			(\pg_connection_status($this->resource) ==
+			PGSQL_CONNECTION_OK));
 	}
 
 	public function getStatementBuilder()
 	{
+		if (!($this->builder instanceof StatementBuilderInterface))
+		{
+			$this->builder = new PostgreSQLStatementBuilder($this);
+			$this->builder->updateBuilderFlags(
+				$this->getPostgreSQLVersion());
+		}
+
 		return $this->builder;
 	}
 
@@ -158,11 +164,13 @@ class PostgreSQLConnection implements ConnectionInterface
 	{
 		$this->checkConnection();
 		$identifier = PostgreSQLPreparedStatement::newUniqueId();
-		$result = \pg_prepare($this->resource, $identifier, \strval($statement));
+		$result = \pg_prepare($this->resource, $identifier,
+			\strval($statement));
 		$status = \pg_result_status($result);
 		if (pg_result_status($result) != PGSQL_COMMAND_OK)
 			throw new ConnectionException($this,
-				'Failed to prepare statement. ' . \pg_result_error($result));
+				'Failed to prepare statement. ' .
+				\pg_result_error($result));
 
 		return new PostgreSQLPreparedStatement($identifier, $statement);
 	}
@@ -174,8 +182,9 @@ class PostgreSQLConnection implements ConnectionInterface
 		if (!($statement instanceof PostgreSQLPreparedStatement ||
 			TypeDescription::hasStringRepresentation($statement)))
 			throw new ConnectionException($this,
-				'Invalide statement type. string or ' . PostgreSQLStatementBuilder::class .
-				' expected. Got ' . TypeDescription::getName($statement));
+				'Invalide statement type. string or ' .
+				PostgreSQLStatementBuilder::class . ' expected. Got ' .
+				TypeDescription::getName($statement));
 
 		$statementType = Statement::statementTypeFromData($statement);
 		$pgResult = null;
@@ -183,18 +192,22 @@ class PostgreSQLConnection implements ConnectionInterface
 		{
 			if ($statement instanceof PostgreSQLPreparedStatement)
 			{
-				$result = \pg_execute($this->resource, $statement->getPreparedStatementId(),
-					self::getPostgreSQLParameterArray($statement, $parameters));
+				$result = \pg_execute($this->resource,
+					$statement->getPreparedStatementId(),
+					self::getPostgreSQLParameterArray($statement,
+						$parameters));
 			}
 			else
 				$result = \pg_query_params($this->resource, $statement,
-					self::getPostgreSQLParameterArray($statement, $parameters));
+					self::getPostgreSQLParameterArray($statement,
+						$parameters));
 		}
 		else
 			$result = @\pg_query($this->resource, \strval($statement));
 
 		if ($result === false)
-			throw new ConnectionException($this, \pg_last_error($this->resource));
+			throw new ConnectionException($this,
+				\pg_last_error($this->resource));
 
 		if (!\is_resource($result))
 			throw new \RuntimeException('Not implemented');
@@ -204,16 +217,19 @@ class PostgreSQLConnection implements ConnectionInterface
 		{
 			case PGSQL_TUPLES_OK:
 				$recordset = new PostgreSQLRecordset($result, $statement);
-				$recordset->setDataUnserializer(PostgreSQLDataUnserializer::getInstance());
+				$recordset->setDataUnserializer(
+					PostgreSQLDataUnserializer::getInstance());
 				return $recordset;
 			break;
 
 			case PGSQL_COMMAND_OK:
 				if ($statementType & K::QUERY_FAMILY_ROWMODIFICATION)
-					return new GenericRowModificationStatementResult(\pg_affected_rows($result));
+					return new GenericRowModificationStatementResult(
+						\pg_affected_rows($result));
 				elseif ($statementType == K::QUERY_INSERT)
 				{
-					return new GenericInsertionStatementResult($this->getLastInsertId());
+					return new GenericInsertionStatementResult(
+						$this->getLastInsertId());
 				}
 
 				return true;
@@ -233,7 +249,8 @@ class PostgreSQLConnection implements ConnectionInterface
 		}
 
 		// Unknown result type
-		throw new ConnectionException($this, \pg_result_status($result, PGSQL_STATUS_STRING));
+		throw new ConnectionException($this,
+			\pg_result_status($result, PGSQL_STATUS_STRING));
 	}
 
 	public function getPostgreSQLVersion()
@@ -252,7 +269,8 @@ class PostgreSQLConnection implements ConnectionInterface
 		return $this->resource;
 	}
 
-	private static function getPostgreSQLParameterArray($statement, $parameters = array())
+	private static function getPostgreSQLParameterArray($statement,
+		$parameters = array())
 	{
 		$a = [];
 		$indexed = Container::isIndexed($parameters);
@@ -260,7 +278,8 @@ class PostgreSQLConnection implements ConnectionInterface
 		{
 			foreach ($parameters as $entry)
 			{
-				$a[] = ConnectionHelper::serializeParameterValue($this, $entry);
+				$a[] = ConnectionHelper::serializeParameterValue($this,
+					$entry);
 			}
 
 			return $a;
@@ -296,7 +315,8 @@ class PostgreSQLConnection implements ConnectionInterface
 		$this->checkConnection();
 		$result = \pg_query($this->resource, $sql);
 		if ($result === false)
-			throw new ConnectionException($this, \pg_last_error($this->resource));
+			throw new ConnectionException($this,
+				\pg_last_error($this->resource));
 		return $result;
 	}
 
@@ -316,19 +336,23 @@ class PostgreSQLConnection implements ConnectionInterface
 	private function getLastInsertId()
 	{
 		$id = null;
-		if (SemanticVersion::compareVersions($this->getPostgreSQLVersion(), '7.2.0') < 0)
+		if (SemanticVersion::compareVersions(
+			$this->getPostgreSQLVersion(), '7.2.0') < 0)
 		{
 			$id = \pg_last_oid();
 		}
-		elseif (SemanticVersion::compareVersions($this->getPostgreSQLVersion(), '8.1.0') > 0)
+		elseif (SemanticVersion::compareVersions(
+			$this->getPostgreSQLVersion(), '8.1.0') > 0)
 		{
 			$savePointKey = '_NS_PHP_SQL_LASTVAL_SAVEPOINT_';
-			$transaction = @(pg_transaction_status($this->resource) !== PGSQL_TRANSACTION_IDLE);
+			$transaction = @(pg_transaction_status($this->resource) !==
+				PGSQL_TRANSACTION_IDLE);
 
 			if ($transaction)
 				@pg_query('SAVEPOINT ' . $savePointKey);
 			$result = @\pg_query('SELECT LASTVAL()');
-			if (\is_resource($result) && pg_result_status($result, PGSQL_TUPLES_OK))
+			if (\is_resource($result) &&
+				pg_result_status($result, PGSQL_TUPLES_OK))
 			{
 				$id = \intval(\pg_fetch_result($result, 0, 0));
 			}

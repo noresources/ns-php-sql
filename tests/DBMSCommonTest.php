@@ -33,6 +33,7 @@ use NoreSources\Test\DerivedFileManager;
 use NoreSources\Test\Generator;
 use NoreSources\Test\TestConnection;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LoggerTrait;
 
@@ -391,10 +392,20 @@ final class DBMSCommonTest extends TestCase
 				]);
 
 			DBMSTestSilentLogger::getInstance()->clear();
-			$connection->setLogger(DBMSTestSilentLogger::getInstance());
+			$silentLogger = DBMSTestSilentLogger::getInstance();
+			$errorReporterLogger = ErrorReporterLogger::getInstance();
+			if ($connection instanceof LoggerAwareInterface)
+				$connection->setLogger($silentLogger);
+			elseif ($connection->getStatementBuilder() instanceof LoggerAwareInterface)
+				$connection->getStatementBuilder()->setLogger(
+					$silentLogger);
 			$select = ConnectionHelper::prepareStatement($connection,
 				$select);
-			$connection->setLogger(ErrorReporterLogger::getInstance());
+			if ($connection instanceof LoggerAwareInterface)
+				$connection->setLogger($errorReporterLogger);
+			elseif ($connection->getStatementBuilder() instanceof LoggerAwareInterface)
+				$connection->getStatementBuilder()->setLogger(
+					$errorReporterLogger);
 
 			$this->assertInstanceOf(PreparedStatement::class, $select,
 				$dbmsName . ' ' . $method . ' SELECT');

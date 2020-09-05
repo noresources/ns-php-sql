@@ -14,18 +14,18 @@ use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\TransactionStackTrait;
 use NoreSources\SQL\Statement\ClassMapStatementFactoryTrait;
+use NoreSources\SQL\Statement\StatementBuilder;
 use NoreSources\SQL\Statement\StatementFactoryInterface;
-use NoreSources\SQL\Structure\StructureProviderTrait;
-use Psr\Log\LoggerAwareTrait;
 use NoreSources\SQL\Structure\StructureElementInterface;
+use NoreSources\SQL\Structure\StructureProviderTrait;
 
 /**
  * SQLite connection
  */
-class ReferenceConnection implements ConnectionInterface, StatementFactoryInterface
+class ReferenceConnection implements ConnectionInterface,
+	StatementFactoryInterface
 {
 	use StructureProviderTrait;
-	use LoggerAwareTrait;
 	use TransactionStackTrait;
 
 	use ClassMapStatementFactoryTrait;
@@ -40,7 +40,8 @@ class ReferenceConnection implements ConnectionInterface, StatementFactoryInterf
 				return new ReferenceTransactionBlock($this, $name);
 			});
 
-		$structure = Container::keyValue($parameters, K::CONNECTION_STRUCTURE);
+		$structure = Container::keyValue($parameters,
+			K::CONNECTION_STRUCTURE);
 		if ($structure instanceof StructureElementInterface)
 			$this->setStructure($structure);
 	}
