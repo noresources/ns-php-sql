@@ -9,7 +9,7 @@
  */
 namespace NoreSources\SQL\DBMS;
 
-trait ConnectionAwareTrait
+trait ConnectionProviderTrait
 {
 
 	/**

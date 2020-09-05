@@ -21,10 +21,10 @@ use NoreSources\SQL\Result\GenericInsertionStatementResult;
 use NoreSources\SQL\Result\GenericRowModificationStatementResult;
 use NoreSources\SQL\Statement\ClassMapStatementFactory;
 use NoreSources\SQL\Statement\ParameterData;
-use NoreSources\SQL\Statement\ParameterDataAwareInterface;
+use NoreSources\SQL\Statement\ParameterDataProviderInterface;
 use NoreSources\SQL\Statement\Statement;
 use NoreSources\SQL\Statement\StatementFactoryInterface;
-use NoreSources\SQL\Structure\StructureAwareTrait;
+use NoreSources\SQL\Structure\StructureProviderTrait;
 use Psr\Log\LoggerAwareTrait;
 use NoreSources\SQL\Structure\StructureElementInterface;
 
@@ -33,7 +33,7 @@ use NoreSources\SQL\Structure\StructureElementInterface;
  */
 class PDOConnection implements ConnectionInterface
 {
-	use StructureAwareTrait;
+	use StructureProviderTrait;
 	use LoggerAwareTrait;
 	use TransactionStackTrait;
 
@@ -232,7 +232,7 @@ class PDOConnection implements ConnectionInterface
 			foreach ($parameters as $key => $entry)
 			{
 				$dbmsName = '';
-				if ($statement instanceof ParameterDataAwareInterface)
+				if ($statement instanceof ParameterDataProviderInterface)
 					$dbmsName = $statement->getParameters()->get($key)[ParameterData::DBMSNAME];
 				else
 					$dbmsName = ':' . $key;

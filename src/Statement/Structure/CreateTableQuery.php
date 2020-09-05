@@ -23,7 +23,7 @@ use NoreSources\SQL\Statement\StatementException;
 use NoreSources\SQL\Structure\ColumnTableConstraint;
 use NoreSources\SQL\Structure\ForeignKeyTableConstraint;
 use NoreSources\SQL\Structure\PrimaryKeyTableConstraint;
-use NoreSources\SQL\Structure\StructureAwareInterface;
+use NoreSources\SQL\Structure\StructureProviderInterface;
 use NoreSources\SQL\Structure\TableConstraint;
 use NoreSources\SQL\Structure\TableStructure;
 use NoreSources\SQL\Structure\UniqueTableConstraint;
@@ -32,7 +32,7 @@ use NoreSources\SQL\Structure\UniqueTableConstraint;
  * CREATE TABLE statement
  */
 class CreateTableQuery extends Statement implements
-	StructureAwareInterface
+	StructureProviderInterface
 {
 
 	const REPLACE = K::BUILDER_CREATE_REPLACE;

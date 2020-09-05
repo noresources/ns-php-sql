@@ -13,7 +13,7 @@ namespace NoreSources\SQL\Statement;
 /**
  * Statement information about parameters etc.
  */
-interface StatementInputDataInterface extends ParameterDataAwareInterface
+interface StatementInputDataInterface extends ParameterDataProviderInterface
 {
 
 	/**

@@ -9,10 +9,10 @@
  */
 namespace NoreSources\SQL\DBMS;
 
-class ConnectionException extends \ErrorException implements ConnectionAwareInterface
+class ConnectionException extends \ErrorException implements ConnectionProviderInterface
 {
 
-	use ConnectionAwareTrait;
+	use ConnectionProviderTrait;
 
 	/**
 	 *

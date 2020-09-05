@@ -14,8 +14,8 @@ use NoreSources\SQL\Expression\TokenStreamContextInterface;
 use NoreSources\SQL\Structure\ColumnDescriptionMapInterface;
 use NoreSources\SQL\Structure\StructureElementInterface;
 use NoreSources\SQL\Structure\StructureResolver;
-use NoreSources\SQL\Structure\StructureResolverAwareInterface;
-use NoreSources\SQL\Structure\StructureResolverAwareTrait;
+use NoreSources\SQL\Structure\StructureResolverProviderInterface;
+use NoreSources\SQL\Structure\StructureResolverProviderTrait;
 
 class StatementElementDMap implements StatementOutputDataInterface
 {
@@ -46,11 +46,11 @@ class StatementElementDMap implements StatementOutputDataInterface
  * Statement building context data
  */
 class StatementTokenStreamContext implements StatementInputDataInterface,
-	StructureResolverAwareInterface, TokenStreamContextInterface
+	StructureResolverProviderInterface, TokenStreamContextInterface
 {
 	use InputDataTrait;
 	use OutputDataTrait;
-	use StructureResolverAwareTrait;
+	use StructureResolverProviderTrait;
 
 	/**
 	 *
@@ -74,7 +74,7 @@ class StatementTokenStreamContext implements StatementInputDataInterface,
 	/**
 	 *
 	 * {@inheritdoc}
-	 * @see \NoreSources\SQL\Statement\StatementBuilderAwareInterface::getStatementBuilder()
+	 * @see \NoreSources\SQL\Statement\StatementBuilderProviderInterface::getStatementBuilder()
 	 */
 	public function getStatementBuilder()
 	{

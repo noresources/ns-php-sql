@@ -22,10 +22,10 @@ use NoreSources\SQL\Result\GenericInsertionStatementResult;
 use NoreSources\SQL\Result\GenericRowModificationStatementResult;
 use NoreSources\SQL\Statement\ClassMapStatementFactory;
 use NoreSources\SQL\Statement\ParameterData;
-use NoreSources\SQL\Statement\ParameterDataAwareInterface;
+use NoreSources\SQL\Statement\ParameterDataProviderInterface;
 use NoreSources\SQL\Statement\Statement;
 use NoreSources\SQL\Statement\StatementFactoryInterface;
-use NoreSources\SQL\Structure\StructureAwareTrait;
+use NoreSources\SQL\Structure\StructureProviderTrait;
 use NoreSources\SQL\Structure\StructureElementInterface;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
@@ -33,7 +33,7 @@ use Psr\Log\LoggerInterface;
 class PostgreSQLConnection implements ConnectionInterface
 {
 
-	use StructureAwareTrait;
+	use StructureProviderTrait;
 	use LoggerAwareTrait;
 	use TransactionStackTrait;
 
@@ -266,7 +266,7 @@ class PostgreSQLConnection implements ConnectionInterface
 			return $a;
 		}
 
-		if ($statement instanceof ParameterDataAwareInterface)
+		if ($statement instanceof ParameterDataProviderInterface)
 		{
 			$map = $statement->getParameters();
 			foreach ($map->getKeyIterator() as $key => $data)
@@ -286,7 +286,7 @@ class PostgreSQLConnection implements ConnectionInterface
 		else
 			throw \InvalidArgumentException(
 				'Invalid parameter list. Indexed array is mandatory if the statement does not implement ' .
-				ParameterDataAwareInterface::class);
+				ParameterDataProviderInterface::class);
 
 		return $a;
 	}

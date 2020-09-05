@@ -24,7 +24,7 @@ use NoreSources\SQL\Statement\ClassMapStatementFactory;
 use NoreSources\SQL\Statement\ParameterData;
 use NoreSources\SQL\Statement\Statement;
 use NoreSources\SQL\Statement\StatementFactoryInterface;
-use NoreSources\SQL\Structure\StructureAwareTrait;
+use NoreSources\SQL\Structure\StructureProviderTrait;
 use NoreSources\SQL\Structure\StructureElementInterface;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
@@ -34,7 +34,7 @@ use Psr\Log\LoggerInterface;
  */
 class MySQLConnection implements ConnectionInterface
 {
-	use StructureAwareTrait;
+	use StructureProviderTrait;
 	use LoggerAwareTrait;
 	use TransactionStackTrait;
 

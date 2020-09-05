@@ -10,10 +10,10 @@
  */
 namespace NoreSources\SQL\Structure;
 
-class StructureException extends \Exception implements StructureAwareInterface
+class StructureException extends \Exception implements StructureProviderInterface
 {
 
-	use StructureAwareTrait;
+	use StructureProviderTrait;
 
 	public function __construct($message, StructureElementInterface $element = null)
 	{

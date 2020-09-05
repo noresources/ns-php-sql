@@ -10,18 +10,18 @@
 namespace NoreSources\SQL\DBMS\Reference;
 
 use NoreSources\ChainElementTrait;
-use NoreSources\SQL\DBMS\ConnectionAwareInterface;
-use NoreSources\SQL\DBMS\ConnectionAwareTrait;
+use NoreSources\SQL\DBMS\ConnectionProviderInterface;
+use NoreSources\SQL\DBMS\ConnectionProviderTrait;
 use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\TransactionBlockException;
 use NoreSources\SQL\DBMS\TransactionBlockInterface;
 use NoreSources\SQL\DBMS\TransactionBlockTrait;
 
-class ReferenceTransactionBlock implements TransactionBlockInterface, ConnectionAwareInterface
+class ReferenceTransactionBlock implements TransactionBlockInterface, ConnectionProviderInterface
 {
 	use TransactionBlockTrait;
 	use ChainElementTrait;
-	use ConnectionAwareTrait;
+	use ConnectionProviderTrait;
 
 	public function __construct(ConnectionInterface $connection, $name)
 	{

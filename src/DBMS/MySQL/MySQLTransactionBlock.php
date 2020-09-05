@@ -10,17 +10,17 @@
 namespace NoreSources\SQL\DBMS\MySQL;
 
 use NoreSources\ChainElementTrait;
-use NoreSources\SQL\DBMS\ConnectionAwareInterface;
-use NoreSources\SQL\DBMS\ConnectionAwareTrait;
+use NoreSources\SQL\DBMS\ConnectionProviderInterface;
+use NoreSources\SQL\DBMS\ConnectionProviderTrait;
 use NoreSources\SQL\DBMS\TransactionBlockException;
 use NoreSources\SQL\DBMS\TransactionBlockInterface;
 use NoreSources\SQL\DBMS\TransactionBlockTrait;
 
-class MySQLTransactionBlock implements TransactionBlockInterface, ConnectionAwareInterface
+class MySQLTransactionBlock implements TransactionBlockInterface, ConnectionProviderInterface
 {
 	use TransactionBlockTrait;
 	use ChainElementTrait;
-	use ConnectionAwareTrait;
+	use ConnectionProviderTrait;
 
 	public function __construct(MySQLConnection $connection, $name)
 	{

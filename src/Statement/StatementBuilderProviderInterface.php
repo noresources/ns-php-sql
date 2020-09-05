@@ -7,19 +7,17 @@
  *
  * @package SQL
  */
-
-// 
 namespace NoreSources\SQL\Statement;
 
 /**
- * Describe statements parameters
+ * For classes which holds a StatementBuilder
  */
-interface ParameterDataAwareInterface
+interface StatementBuilderProviderInterface
 {
 
 	/**
 	 *
-	 * @return ParameterData The statement parameters
+	 * @return StatementBuilderInterface
 	 */
-	function getParameters();
+	function getStatementBuilder();
 }

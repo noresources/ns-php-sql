@@ -9,7 +9,7 @@
  */
 namespace NoreSources\SQL\DBMS;
 
-interface ConnectionAwareInterface
+interface ConnectionProviderInterface
 {
 
 	/**

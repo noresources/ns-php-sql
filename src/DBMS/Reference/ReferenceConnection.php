@@ -15,7 +15,7 @@ use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\TransactionStackTrait;
 use NoreSources\SQL\Statement\ClassMapStatementFactoryTrait;
 use NoreSources\SQL\Statement\StatementFactoryInterface;
-use NoreSources\SQL\Structure\StructureAwareTrait;
+use NoreSources\SQL\Structure\StructureProviderTrait;
 use Psr\Log\LoggerAwareTrait;
 use NoreSources\SQL\Structure\StructureElementInterface;
 
@@ -24,7 +24,7 @@ use NoreSources\SQL\Structure\StructureElementInterface;
  */
 class ReferenceConnection implements ConnectionInterface, StatementFactoryInterface
 {
-	use StructureAwareTrait;
+	use StructureProviderTrait;
 	use LoggerAwareTrait;
 	use TransactionStackTrait;
 

@@ -10,14 +10,14 @@
 namespace NoreSources\SQL\Structure;
 
 /**
- * For classes which holds a StructureResolver
+ * For object holding a reference to a StructureElement
  */
-interface StructureResolverAwareInterface
+interface StructureProviderInterface
 {
 
 	/**
 	 *
-	 * @return StructureResolver
+	 * @return \NoreSources\SQL\Structure\StructureElement
 	 */
-	function getStructureResolver();
+	function getStructure();
 }

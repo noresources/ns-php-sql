@@ -10,10 +10,10 @@
 namespace NoreSources\SQL\Structure;
 
 /**
- * Implements StructureResolverAwareInterface and wraps
+ * Implements StructureResolverProviderInterface and wraps
  * wrapping StructureResolverInterface methods to the internal StructureResolverInterface instance.
  */
-trait StructureResolverAwareTrait
+trait StructureResolverProviderTrait
 {
 
 	/**

@@ -9,15 +9,15 @@
  */
 namespace NoreSources\SQL\DBMS;
 
-use NoreSources\SQL\Statement\StatementBuilderAwareInterface;
-use NoreSources\SQL\Structure\StructureAwareInterface;
+use NoreSources\SQL\Statement\StatementBuilderProviderInterface;
+use NoreSources\SQL\Structure\StructureProviderInterface;
 use Psr\Log\LoggerAwareInterface;
 
 /**
  * DMBS connection
  */
-interface ConnectionInterface extends StatementBuilderAwareInterface, LoggerAwareInterface,
-	StructureAwareInterface
+interface ConnectionInterface extends StatementBuilderProviderInterface, LoggerAwareInterface,
+	StructureProviderInterface
 {
 
 	/**

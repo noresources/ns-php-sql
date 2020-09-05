@@ -22,12 +22,12 @@ use NoreSources\SQL\Result\GenericInsertionStatementResult;
 use NoreSources\SQL\Result\GenericRowModificationStatementResult;
 use NoreSources\SQL\Statement\ClassMapStatementFactory;
 use NoreSources\SQL\Statement\ParameterData;
-use NoreSources\SQL\Statement\ParameterDataAwareInterface;
+use NoreSources\SQL\Statement\ParameterDataProviderInterface;
 use NoreSources\SQL\Statement\Statement;
 use NoreSources\SQL\Statement\StatementFactoryInterface;
 use NoreSources\SQL\Structure\DatasourceStructure;
 use NoreSources\SQL\Structure\NamespaceStructure;
-use NoreSources\SQL\Structure\StructureAwareTrait;
+use NoreSources\SQL\Structure\StructureProviderTrait;
 use NoreSources\SQL\Structure\StructureElementInterface;
 use Psr\Log\LoggerInterface;
 
@@ -36,7 +36,7 @@ use Psr\Log\LoggerInterface;
  */
 class SQLiteConnection implements ConnectionInterface
 {
-	use StructureAwareTrait;
+	use StructureProviderTrait;
 	use TransactionStackTrait;
 
 	/**
@@ -327,7 +327,7 @@ class SQLiteConnection implements ConnectionInterface
 			foreach ($parameters as $key => $entry)
 			{
 				$dbmsName = $key;
-				if ($statement instanceof ParameterDataAwareInterface)
+				if ($statement instanceof ParameterDataProviderInterface)
 					$dbmsName = $statement->getParameters()->get($key)[ParameterData::DBMSNAME];
 				else
 					$dbmsName = $this->getStatementBuilder()->getParameter(

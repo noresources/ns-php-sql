@@ -12,9 +12,9 @@ namespace NoreSources\SQL\Structure;
 use NoreSources\TypeDescription;
 
 /**
- * Implements StructureAwareInterface
+ * Implements StructureProviderInterface
  */
-trait StructureAwareTrait
+trait StructureProviderTrait
 {
 
 	public function getStructure()
