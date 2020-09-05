@@ -9,16 +9,15 @@
  */
 namespace NoreSources\SQL\DBMS\MySQL;
 
-
-use NoreSources\TypeConversion;
-use NoreSources\TypeDescription;
-use NoreSources\SQL\DBMS\PreparedStatement;
+use NoreSources\SQL\DBMS\PreparedStatementInterface;
+use NoreSources\SQL\Statement\StatementDataTrait;
 
 /**
  * MySQL3 implementation of NoreSources\SQL\MySQLPreparedStatement
  */
-class MySQLPreparedStatement extends PreparedStatement
+class MySQLPreparedStatement implements PreparedStatementInterface
 {
+	use StatementDataTrait;
 
 	/**
 	 *
@@ -28,24 +27,13 @@ class MySQLPreparedStatement extends PreparedStatement
 	 */
 	public function __construct(\mysqli_stmt $statement, $data = null)
 	{
-		parent::__construct($data);
+		$this->initializeStatementData($data);
 		$this->mysqlStatement = $statement;
-		$this->sql = null;
-
-		if (TypeDescription::hasStringRepresentation($data))
-		{
-			$this->sql = TypeConversion::toString($data);
-		}
 	}
 
 	public function __destruct()
 	{
 		$this->mysqlStatement->close();
-	}
-
-	public function getStatement()
-	{
-		return $this->sql;
 	}
 
 	public function getParameterCount()

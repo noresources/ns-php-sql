@@ -10,7 +10,7 @@ use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\ConnectionException;
 use NoreSources\SQL\DBMS\ConnectionHelper;
 use NoreSources\SQL\DBMS\ConnectionInterface;
-use NoreSources\SQL\DBMS\PreparedStatement;
+use NoreSources\SQL\DBMS\PreparedStatementInterface;
 use NoreSources\SQL\DBMS\TransactionBlockException;
 use NoreSources\SQL\DBMS\TransactionBlockInterface;
 use NoreSources\SQL\Expression\CastFunction;
@@ -185,7 +185,7 @@ final class DBMSCommonTest extends TestCase
 			 *
 			 * @var \NoreSources\SQL\Statement\Manipulation\InsertQuery $q
 			 */
-			$q = $connection->getStatementFactory()->newStatement(
+			$q = $connection->getStatementBuilder()->newStatement(
 				K::QUERY_INSERT);
 			$q->table($tableStructure);
 			foreach ($columns as $columnName => $specs)
@@ -407,8 +407,8 @@ final class DBMSCommonTest extends TestCase
 				$connection->getStatementBuilder()->setLogger(
 					$errorReporterLogger);
 
-			$this->assertInstanceOf(PreparedStatement::class, $select,
-				$dbmsName . ' ' . $method . ' SELECT');
+			$this->assertInstanceOf(PreparedStatementInterface::class,
+				$select, $dbmsName . ' ' . $method . ' SELECT');
 
 			$this->assertCount(1, $select->getParameters(),
 				'Number of parameters of SELECT');
@@ -477,7 +477,7 @@ final class DBMSCommonTest extends TestCase
 		 *
 		 * @var \NoreSources\SQL\Statement\Manipulation\InsertQuery $i
 		 */
-		$i = $connection->getStatementFactory()->newStatement(
+		$i = $connection->getStatementBuilder()->newStatement(
 			K::QUERY_INSERT);
 		$i->table($tableStructure);
 		$i('int', ':even');
@@ -681,7 +681,7 @@ final class DBMSCommonTest extends TestCase
 		 *
 		 * @var UpdateQuery $update
 		 */
-		$update = $connection->getStatementFactory()->newStatement(
+		$update = $connection->getStatementBuilder()->newStatement(
 			K::QUERY_UPDATE);
 		$update->table($tableStructure);
 		$update('text', ':text');
@@ -852,7 +852,7 @@ final class DBMSCommonTest extends TestCase
 		$preparedInsert = ConnectionHelper::prepareStatement(
 			$connection, $insertQuery, $tableStructure);
 
-		$this->assertInstanceOf(PreparedStatement::class,
+		$this->assertInstanceOf(PreparedStatementInterface::class,
 			$preparedInsert, $dbmsName);
 
 		$this->assertEquals(3,
@@ -886,7 +886,7 @@ final class DBMSCommonTest extends TestCase
 		$basicSelectQuery = new SelectQuery($tableStructure);
 		$preparedBasicSelect = ConnectionHelper::prepareStatement(
 			$connection, $basicSelectQuery, $tableStructure);
-		$this->assertInstanceOf(PreparedStatement::class,
+		$this->assertInstanceOf(PreparedStatementInterface::class,
 			$preparedBasicSelect, $dbmsName);
 
 		$this->assertCount(4, $preparedBasicSelect->getResultColumns(),
@@ -898,7 +898,7 @@ final class DBMSCommonTest extends TestCase
 
 		$preparedSelectColumn = ConnectionHelper::prepareStatement(
 			$connection, $selectColumnQuery, $tableStructure);
-		$this->assertInstanceOf(PreparedStatement::class,
+		$this->assertInstanceOf(PreparedStatementInterface::class,
 			$preparedSelectColumn, $dbmsName);
 		$this->assertCount(3, $preparedSelectColumn->getResultColumns(),
 			$dbmsName . ' Prepared statement result columns count');
@@ -1038,7 +1038,7 @@ final class DBMSCommonTest extends TestCase
 
 			try // PostgreSQL < 8.2 does not support DROP IF EXISTS and may fail
 			{
-				$drop = $connection->getStatementFactory()->newStatement(
+				$drop = $connection->getStatementBuilder()->newStatement(
 					K::QUERY_DROP_TABLE);
 				if ($drop instanceof DropTableQuery)
 					$drop->flags(DropTableQuery::CASCADE)->table(
@@ -1054,7 +1054,7 @@ final class DBMSCommonTest extends TestCase
 			}
 		}
 
-		$factory = $connection->getStatementFactory();
+		$factory = $connection->getStatementBuilder();
 
 		/**
 		 *

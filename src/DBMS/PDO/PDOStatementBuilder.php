@@ -9,15 +9,17 @@
  */
 namespace NoreSources\SQL\DBMS\PDO;
 
-
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\BasicType;
+use NoreSources\SQL\Statement\AbstractStatementBuilder;
+use NoreSources\SQL\Statement\ClassMapStatementFactoryTrait;
 use NoreSources\SQL\Statement\ParameterData;
-use NoreSources\SQL\Statement\StatementBuilder;
 use NoreSources\SQL\Structure\ColumnStructure;
 
-class PDOStatementBuilder extends StatementBuilder
+class PDOStatementBuilder extends AbstractStatementBuilder
 {
+
+	use ClassMapStatementFactoryTrait;
 
 	const DRIVER_MYSQL = PDOConnection::DRIVER_MYSQL;
 
@@ -28,6 +30,7 @@ class PDOStatementBuilder extends StatementBuilder
 	public function __construct(PDOConnection $connection)
 	{
 		parent::__construct();
+		$this->initializeStatementFactory();
 		$this->connection = $connection;
 	}
 
@@ -59,7 +62,8 @@ class PDOStatementBuilder extends StatementBuilder
 
 	public function configure(\PDO $connection)
 	{
-		$this->driverName = $connection->getAttribute(\PDO::ATTR_DRIVER_NAME);
+		$this->driverName = $connection->getAttribute(
+			\PDO::ATTR_DRIVER_NAME);
 	}
 
 	public function getParameter($name, ParameterData $parameters = null)

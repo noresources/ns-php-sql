@@ -9,16 +9,22 @@
  */
 namespace NoreSources\SQL\DBMS\PDO;
 
-
 use NoreSources\Container;
 use NoreSources\TypeDescription;
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\DBMS;
+use NoreSources\SQL\DBMS\PreparedStatementInterface;
+use NoreSources\SQL\Statement\InputDataTrait;
+use NoreSources\SQL\Statement\OutputDataTrait;
 use NoreSources\SQL\Statement\ResultColumn;
 use NoreSources\SQL\Statement\Statement;
+use NoreSources\SQL\Statement\StatementData;
+use NoreSources\SQL\Statement\StatementInputDataInterface;
 
-class PDOPreparedStatement extends DBMS\PreparedStatement
+class PDOPreparedStatement implements PreparedStatementInterface
 {
+
+	use InputDataTrait;
+	use OutputDataTrait;
 
 	/**
 	 *
@@ -27,12 +33,18 @@ class PDOPreparedStatement extends DBMS\PreparedStatement
 	 */
 	public function __construct(\PDOStatement $statement, $data)
 	{
-		parent::__construct($data);
+		if ($data instanceof StatementInputDataInterface)
+			$this->initializeInputData($data);
+		else
+			$this->initializeInputData(null);
+		$this->initializeOutputData($data);
+
 		$this->statement = $statement;
 		$this->statementOwner = null;
 
 		if ($this->getStatementType() == 0)
-			$this->statementType = SQL\Statement::statementTypeFromData($data);
+			$this->statementType = SQL\Statement::statementTypeFromData(
+				$data);
 
 		if ($this->getStatementType() == K::QUERY_SELECT)
 		{
@@ -45,10 +57,12 @@ class PDOPreparedStatement extends DBMS\PreparedStatement
 
 			if ($statement->columnCount() > 0)
 			{
-				if ($this->getResultColumns()->count() > $statement->columnCount())
+				if ($this->getResultColumns()->count() >
+					$statement->columnCount())
 					throw new \Exception(
-						'Incorrect number of result column. Should be ' . $statement->columnCount() .
-						', got ' . $this->getResultColumns()->count());
+						'Incorrect number of result column. Should be ' .
+						$statement->columnCount() . ', got ' .
+						$this->getResultColumns()->count());
 			}
 
 			$map = $this->getResultColumns();
@@ -63,14 +77,16 @@ class PDOPreparedStatement extends DBMS\PreparedStatement
 						$column = $map->getColumn($i);
 					else
 					{
-						$column = new ResultColumn(K::DATATYPE_UNDEFINED);
+						$column = new ResultColumn(
+							K::DATATYPE_UNDEFINED);
 						$column->name = $meta['name'];
 					}
 
 					if ($column->dataType == K::DATATYPE_UNDEFINED)
 					{
 						$column->dataType = PDOConnection::getDataTypeFromPDOType(
-							Container::keyValue($meta, 'pdo_type', \PDO::PARAM_STR));
+							Container::keyValue($meta, 'pdo_type',
+								\PDO::PARAM_STR));
 						$map->setColumn($i, $column);
 					}
 
@@ -88,7 +104,7 @@ class PDOPreparedStatement extends DBMS\PreparedStatement
 		$this->statement->closeCursor();
 	}
 
-	public function getStatement()
+	public function __toString()
 	{
 		return $this->statement->queryString;
 	}
@@ -115,7 +131,8 @@ class PDOPreparedStatement extends DBMS\PreparedStatement
 			if ($this->statementOwner !== $by)
 			{
 				throw new \LogicException(
-					TypeDescription::getName($by) . ' is not the owner of the PDOStatement');
+					TypeDescription::getName($by) .
+					' is not the owner of the PDOStatement');
 			}
 		}
 

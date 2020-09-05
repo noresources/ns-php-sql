@@ -19,11 +19,9 @@ use NoreSources\SQL\DBMS\SQLite\SQLiteConstants as K;
 use NoreSources\SQL\Expression\Literal;
 use NoreSources\SQL\Result\GenericInsertionStatementResult;
 use NoreSources\SQL\Result\GenericRowModificationStatementResult;
-use NoreSources\SQL\Statement\ClassMapStatementFactory;
 use NoreSources\SQL\Statement\ParameterData;
 use NoreSources\SQL\Statement\ParameterDataProviderInterface;
 use NoreSources\SQL\Statement\Statement;
-use NoreSources\SQL\Statement\StatementFactoryInterface;
 use NoreSources\SQL\Structure\DatasourceStructure;
 use NoreSources\SQL\Structure\NamespaceStructure;
 use NoreSources\SQL\Structure\StructureElementInterface;
@@ -253,20 +251,6 @@ class SQLiteConnection implements ConnectionInterface
 	public function getStatementBuilder()
 	{
 		return $this->builder;
-	}
-
-	public function getStatementFactory()
-	{
-		if (!($this->statementFactory instanceof StatementFactoryInterface))
-		{
-			$this->statementFactory = new ClassMapStatementFactory(
-				[
-					K::QUERY_CREATE_TABLE => SQLiteCreateTableQuery::class,
-					K::QUERY_CREATE_NAMESPACE => SQLiteCreateNamespaceQuery::class
-				]);
-		}
-
-		return $this->statementFactory;
 	}
 
 	/**

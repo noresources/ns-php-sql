@@ -203,7 +203,7 @@ final class SelectTest extends \PHPUnit\Framework\TestCase
 	{
 		$connection = ConnectionHelper::createConnection(
 			ReferenceConnection::class);
-		$factory = $connection->getStatementFactory();
+		$factory = $connection->getStatementBuilder();
 
 		/**
 		 *
@@ -283,7 +283,7 @@ final class SelectTest extends \PHPUnit\Framework\TestCase
 		 *
 		 * @var \NoreSources\SQL\Statement\Query\SelectQuery $innerSelect
 		 */
-		$innerSelect = $connection->getStatementFactory()->newStatement(
+		$innerSelect = $connection->getStatementBuilder()->newStatement(
 			K::QUERY_SELECT);
 		$innerSelect->from($employeesStructure);
 		$innerSelect->columns('id', 'name')->where([
@@ -300,7 +300,7 @@ final class SelectTest extends \PHPUnit\Framework\TestCase
 		 *
 		 * @var SelectQuery $innerJoinSelect
 		 */
-		$innerJoinSelect = $connection->getStatementFactory()->newStatement(
+		$innerJoinSelect = $connection->getStatementBuilder()->newStatement(
 			K::QUERY_SELECT);
 		$innerJoinSelect->from('Hierarchy');
 
@@ -308,7 +308,7 @@ final class SelectTest extends \PHPUnit\Framework\TestCase
 		 *
 		 * @var \NoreSources\SQL\Statement\Query\SelectQuery $outerSelect
 		 */
-		$outerSelect = $connection->getStatementFactory()->newStatement(
+		$outerSelect = $connection->getStatementBuilder()->newStatement(
 			K::QUERY_SELECT);
 		$outerSelect->from($innerSelect, 'e')
 			->columns('id', 'e.name', 'H.manageeId')

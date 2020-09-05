@@ -20,12 +20,10 @@ use NoreSources\SQL\DBMS\TransactionStackTrait;
 use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLConstants as K;
 use NoreSources\SQL\Result\GenericInsertionStatementResult;
 use NoreSources\SQL\Result\GenericRowModificationStatementResult;
-use NoreSources\SQL\Statement\ClassMapStatementFactory;
 use NoreSources\SQL\Statement\ParameterData;
 use NoreSources\SQL\Statement\ParameterDataProviderInterface;
 use NoreSources\SQL\Statement\Statement;
 use NoreSources\SQL\Statement\StatementBuilderInterface;
-use NoreSources\SQL\Statement\StatementFactoryInterface;
 use NoreSources\SQL\Structure\StructureElementInterface;
 use NoreSources\SQL\Structure\StructureProviderTrait;
 
@@ -143,16 +141,6 @@ class PostgreSQLConnection implements ConnectionInterface
 		}
 
 		return $this->builder;
-	}
-
-	public function getStatementFactory()
-	{
-		if (!($this->statementFactory instanceof StatementFactoryInterface))
-		{
-			$this->statementFactory = new ClassMapStatementFactory();
-		}
-
-		return $this->statementFactory;
 	}
 
 	/**
@@ -378,12 +366,6 @@ class PostgreSQLConnection implements ConnectionInterface
 	 * @var PostgreSQLStatementBuilder
 	 */
 	private $builder;
-
-	/**
-	 *
-	 * @var \NoreSources\SQL\Statement\StatementFactoryInterface
-	 */
-	private $statementFactory;
 
 	const VERSION_EXPECTED = 0;
 

@@ -1,14 +1,14 @@
 <?php
 namespace NoreSources\SQL\Expression;
 
-use NoreSources\SQL\ColumnExpression;
 use NoreSources\SQL\Constants as K;
 use NoreSources\Test\DatasourceManager;
 
 final class ExpressionEvaluatorTest extends \PHPUnit\Framework\TestCase
 {
 
-	public function __construct($name = null, array $data = [], $dataName = '')
+	public function __construct($name = null, array $data = [],
+		$dataName = '')
 	{
 		parent::__construct($name, $data, $dataName);
 		$this->datasources = new DatasourceManager();
@@ -99,7 +99,8 @@ final class ExpressionEvaluatorTest extends \PHPUnit\Framework\TestCase
 			$this->assertInstanceOf(Literal::class, $e, $label);
 			if ($e instanceof Literal)
 			{
-				$this->assertEquals($e->getExpressionDataType(), $test[1], $label);
+				$this->assertEquals($e->getExpressionDataType(),
+					$test[1], $label);
 			}
 		}
 	}
@@ -200,15 +201,18 @@ final class ExpressionEvaluatorTest extends \PHPUnit\Framework\TestCase
 			$e = Evaluator::evaluate($test[0]);
 			$this->assertInstanceOf(FunctionCall::class, $e, $label);
 			if ($e instanceof FunctionCall)
-				$this->assertCount($test[1], $e->getArguments(), $label . ' number of arguments');
+				$this->assertCount($test[1], $e->getArguments(),
+					$label . ' number of arguments');
 
 			if (\strpos($test[0], '@') === 0)
-				$this->assertInstanceOf(MetaFunctionCall::class, $e, $label);
+				$this->assertInstanceOf(MetaFunctionCall::class, $e,
+					$label);
 
 			for ($i = 2; $i < $test[1]; $i++)
 			{
 				$index = $i - 2;
-				$this->assertInstanceOf($test[$i], $e->getArgument($index),
+				$this->assertInstanceOf($test[$i],
+					$e->getArgument($index),
 					$label . ' type of argument ' . $index);
 			}
 		}
@@ -250,10 +254,12 @@ final class ExpressionEvaluatorTest extends \PHPUnit\Framework\TestCase
 		foreach ($timestamps as $label => $timestamp)
 		{
 			$x = Evaluator::evaluate($timestamp['expression']);
-			$this->assertInstanceOf(Literal::class, $x, $label . ' class');
+			$this->assertInstanceOf(Literal::class, $x,
+				$label . ' class');
 			if ($x instanceof Literal)
 			{
-				$this->assertEquals(K::DATATYPE_TIMESTAMP, $x->getExpressionDataType());
+				$this->assertEquals(K::DATATYPE_TIMESTAMP,
+					$x->getExpressionDataType());
 			}
 		}
 	}
@@ -315,24 +321,28 @@ final class ExpressionEvaluatorTest extends \PHPUnit\Framework\TestCase
 		foreach ($expressions as $label => $test)
 		{
 			$x = Evaluator::evaluate($test['expression']);
-			$this->assertInstanceOf($test['main'], $x, "'" . $label . '\' main class');
+			$this->assertInstanceOf($test['main'], $x,
+				"'" . $label . '\' main class');
 			if ($x instanceof BinaryOperation)
 			{
 				if (\array_key_exists('left', $test))
-					$this->assertInstanceOf($test['left'], $x->getLeftOperand(), $label . ' left');
+					$this->assertInstanceOf($test['left'],
+						$x->getLeftOperand(), $label . ' left');
 				if (\array_key_exists('right', $test))
-					$this->assertInstanceOf($test['right'], $x->getRightOperand(), $label . ' right');
+					$this->assertInstanceOf($test['right'],
+						$x->getRightOperand(), $label . ' right');
 			}
 			elseif ($x instanceof FunctionCall)
 			{
 				if (\array_key_exists('args', $test))
 				{
-					$this->assertCount(count($test['args']), $x->getArguments(),
+					$this->assertCount(count($test['args']),
+						$x->getArguments(),
 						$label . ' number of arguments');
 					for ($i = 0; $i < count($test['args']); $i++)
 					{
-						$this->assertInstanceOf($test['args'][$i], $x->getArgument($i),
-							$label . ' arg ' . $i);
+						$this->assertInstanceOf($test['args'][$i],
+							$x->getArgument($i), $label . ' arg ' . $i);
 					}
 				}
 			}

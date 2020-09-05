@@ -11,7 +11,8 @@ use NoreSources\Test\DerivedFileManager;
 final class DeleteTest extends \PHPUnit\Framework\TestCase
 {
 
-	public function __construct($name = null, array $data = [], $dataName = '')
+	public function __construct($name = null, array $data = [],
+		$dataName = '')
 	{
 		parent::__construct($name, $data, $dataName);
 		$this->derivedFileManager = new DerivedFileManager(__DIR__);
@@ -22,7 +23,8 @@ final class DeleteTest extends \PHPUnit\Framework\TestCase
 	{
 		$structure = $this->datasources->get('Company');
 		$tableStructure = $structure['ns_unittests']['Employees'];
-		$this->assertInstanceOf(Structure\TableStructure::class, $tableStructure);
+		$this->assertInstanceOf(Structure\TableStructure::class,
+			$tableStructure);
 		$builder = new ReferenceStatementBuilder();
 		$context = new StatementTokenStreamContext($builder);
 		$context->setPivot($tableStructure);
@@ -38,7 +40,8 @@ final class DeleteTest extends \PHPUnit\Framework\TestCase
 		$result = $builder->finalizeStatement($stream, $context);
 		$sql = \SqlFormatter::format(strval($result), false);
 
-		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, null, 'sql');
+		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__,
+			null, 'sql');
 	}
 
 	/**

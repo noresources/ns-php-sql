@@ -24,13 +24,40 @@ use NoreSources\SQL\Structure\DatasourceStructure;
 use NoreSources\SQL\Structure\StructureElementInterface;
 
 /**
- * Implements most of StatementBuilderInterface methods
- * and provide more fine grained method to reduce code re-writing
+ * Generic, partial implementation of StatementBuilderInterface.
+ *
+ * This should be used as base class for all DBMS-specific statement builders.
  */
-trait StatementBuilderTrait
+abstract class AbstractStatementBuilder implements
+	StatementBuilderInterface
 {
 
-	public function serializeColumnData(ColumnDescriptionInterface $column, $value)
+	/**
+	 *
+	 * @param number $flags
+	 *        	AbstractStatementBuilder flags
+	 */
+	public function __construct()
+	{
+		$this->builderFlags = [
+			K::BUILDER_DOMAIN_GENERIC => 0,
+			K::BUILDER_DOMAIN_SELECT => 0,
+			K::BUILDER_DOMAIN_INSERT => 0,
+			K::BUILDER_DOMAIN_UPDATE => 0,
+			K::BUILDER_DOMAIN_DELETE => 0,
+			K::BUILDER_DOMAIN_DROP_TABLE => 0,
+			K::BUILDER_DOMAIN_DROP_INDEX => 0,
+			K::BUILDER_DOMAIN_DROP_VIEW => 0,
+			K::BUILDER_DOMAIN_DROP_NAMESPACE => 0,
+			K::BUILDER_DOMAIN_CREATE_TABLE => 0,
+			K::BUILDER_DOMAIN_CREATE_INDEX => 0,
+			K::BUILDER_DOMAIN_CREATE_VIEW => 0,
+			K::BUILDER_DOMAIN_CREATE_NAMESPACE => 0
+		];
+	}
+
+	public function serializeColumnData(
+		ColumnDescriptionInterface $column, $value)
 	{
 		$type = K::DATATYPE_UNDEFINED;
 		if ($column->hasColumnProperty(K::COLUMN_DATA_TYPE))
@@ -38,7 +65,8 @@ trait StatementBuilderTrait
 
 		if ($column->hasColumnProperty(K::COLUMN_MEDIA_TYPE))
 		{
-			$mediaType = $column->getColumnProperty(K::COLUMN_MEDIA_TYPE);
+			$mediaType = $column->getColumnProperty(
+				K::COLUMN_MEDIA_TYPE);
 			if ($mediaType instanceof MediaType)
 			{
 				if ($mediaType->getStructuredSyntax() == 'json')
@@ -71,7 +99,8 @@ trait StatementBuilderTrait
 			return $this->serializeTimestamp($value, $type);
 
 		if ($value instanceof \DateTimeInterface)
-			$value = $value->format($this->getTimestampFormat(K::DATATYPE_TIMESTAMP));
+			$value = $value->format(
+				$this->getTimestampFormat(K::DATATYPE_TIMESTAMP));
 
 		return $this->serializeString(TypeConversion::toString($value));
 	}
@@ -83,7 +112,8 @@ trait StatementBuilderTrait
 
 	public function translateFunction(MetaFunctionCall $metaFunction)
 	{
-		return new FunctionCall($metaFunction->getFunctionName(), $metaFunction->getArguments());
+		return new FunctionCall($metaFunction->getFunctionName(),
+			$metaFunction->getArguments());
 	}
 
 	public function getKeyword($keyword)
@@ -104,7 +134,8 @@ trait StatementBuilderTrait
 				return 'DEFAULT';
 		}
 
-		throw new \InvalidArgumentException('Keyword ' . $keyword . ' is not available');
+		throw new \InvalidArgumentException(
+			'Keyword ' . $keyword . ' is not available');
 	}
 
 	public function getJoinOperator($joinTypeFlags)
@@ -155,7 +186,7 @@ trait StatementBuilderTrait
 				return 'Y-m-d\TH:i:s';
 		}
 
-		return \DateTime::ISO8601;
+		return \DateTimeInterface::ISO8601;
 	}
 
 	public function getCanonicalName($structure)
@@ -201,7 +232,8 @@ trait StatementBuilderTrait
 		return 'NO ACTION';
 	}
 
-	public function finalizeStatement(TokenStream $stream, TokenStreamContextInterface $context)
+	public function finalizeStatement(TokenStream $stream,
+		TokenStreamContextInterface $context)
 	{
 		$data = new StatementData($context);
 		$sql = '';
@@ -214,8 +246,10 @@ trait StatementBuilderTrait
 			if ($type == K::TOKEN_PARAMETER)
 			{
 				$name = \strval($value);
-				$dbmsName = $this->getParameter($name, $data->getParameters());
-				$position = $data->getParameters()->appendParameter($name, $dbmsName);
+				$dbmsName = $this->getParameter($name,
+					$data->getParameters());
+				$position = $data->getParameters()->appendParameter(
+					$name, $dbmsName);
 				$value = $dbmsName;
 			}
 
@@ -248,7 +282,8 @@ trait StatementBuilderTrait
 		return $this->serializeString($value);
 	}
 
-	public function serializeTimestamp($value, $type = K::DATATYPE_TIMESTAMP)
+	public function serializeTimestamp($value,
+		$type = K::DATATYPE_TIMESTAMP)
 	{
 		if (\is_int($value) || \is_float($value) || \is_string($value))
 			$value = new DateTime($value);
@@ -286,25 +321,6 @@ trait StatementBuilderTrait
 	protected function setBuilderFlags($domain, $flags)
 	{
 		$this->builderFlags[$domain] = $flags;
-	}
-
-	protected function initializeStatementBuilderTrait()
-	{
-		$this->builderFlags = [
-			K::BUILDER_DOMAIN_GENERIC => 0,
-			K::BUILDER_DOMAIN_SELECT => 0,
-			K::BUILDER_DOMAIN_INSERT => 0,
-			K::BUILDER_DOMAIN_UPDATE => 0,
-			K::BUILDER_DOMAIN_DELETE => 0,
-			K::BUILDER_DOMAIN_DROP_TABLE => 0,
-			K::BUILDER_DOMAIN_DROP_INDEX => 0,
-			K::BUILDER_DOMAIN_DROP_VIEW => 0,
-			K::BUILDER_DOMAIN_DROP_NAMESPACE => 0,
-			K::BUILDER_DOMAIN_CREATE_TABLE => 0,
-			K::BUILDER_DOMAIN_CREATE_INDEX => 0,
-			K::BUILDER_DOMAIN_CREATE_VIEW => 0,
-			K::BUILDER_DOMAIN_CREATE_NAMESPACE => 0
-		];
 	}
 
 	/**

@@ -19,11 +19,9 @@ use NoreSources\SQL\DBMS\PDO\PDOConstants as K;
 use NoreSources\SQL\DBMS\Reference\ReferenceTransactionBlock;
 use NoreSources\SQL\Result\GenericInsertionStatementResult;
 use NoreSources\SQL\Result\GenericRowModificationStatementResult;
-use NoreSources\SQL\Statement\ClassMapStatementFactory;
 use NoreSources\SQL\Statement\ParameterData;
 use NoreSources\SQL\Statement\ParameterDataProviderInterface;
 use NoreSources\SQL\Statement\Statement;
-use NoreSources\SQL\Statement\StatementFactoryInterface;
 use NoreSources\SQL\Structure\StructureElementInterface;
 use NoreSources\SQL\Structure\StructureProviderTrait;
 
@@ -162,16 +160,6 @@ class PDOConnection implements ConnectionInterface
 		return $this->builder;
 	}
 
-	public function getStatementFactory()
-	{
-		if (!($this->statementFactory instanceof StatementFactoryInterface))
-		{
-			$this->statementFactory = new ClassMapStatementFactory();
-		}
-
-		return $this->statementFactory;
-	}
-
 	/**
 	 *
 	 * @param SQL\BuildContext|string $statement
@@ -213,7 +201,7 @@ class PDOConnection implements ConnectionInterface
 			throw new \InvalidArgumentException(
 				'Invalid type ' . TypeDescription::getName($statement) .
 				' for statement argument. string or ' .
-				PDOPreparedStatement::class . ' expected');
+				PDOPreparedStatementInterface::class . ' expected');
 		}
 
 		$pdo = null;

@@ -11,8 +11,9 @@
 //
 namespace NoreSources\SQL\Statement;
 
+use NoreSources\TypeConversion;
+use NoreSources\TypeDescription;
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\DBMS\PreparedStatement;
 use NoreSources\SQL\Expression\TokenizableExpressionInterface;
 use NoreSources\SQL\Statement\Manipulation\DeleteQuery;
 use NoreSources\SQL\Statement\Manipulation\InsertQuery;
@@ -57,10 +58,8 @@ abstract class Statement implements TokenizableExpressionInterface
 			if ($type != 0)
 				return $type;
 
-			if ($data instanceof PreparedStatement)
-				$data = $data->getStatement();
-			elseif ($data instanceof StatementTokenStreamContext)
-				$data = strval($data);
+			if (TypeDescription::hasStringRepresentation($data))
+				$data = TypeConversion::toString($data);
 		}
 
 		if (\is_string($data))

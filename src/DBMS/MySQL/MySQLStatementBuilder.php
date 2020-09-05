@@ -19,8 +19,9 @@ use NoreSources\SQL\DBMS\MySQL\MySQLConstants as K;
 use NoreSources\SQL\Expression\FunctionCall;
 use NoreSources\SQL\Expression\Literal;
 use NoreSources\SQL\Expression\MetaFunctionCall;
+use NoreSources\SQL\Statement\AbstractStatementBuilder;
+use NoreSources\SQL\Statement\ClassMapStatementFactoryTrait;
 use NoreSources\SQL\Statement\ParameterData;
-use NoreSources\SQL\Statement\StatementBuilder;
 use NoreSources\SQL\Structure\ColumnStructure;
 use NoreSources\SQL\Structure\PrimaryKeyTableConstraint;
 use NoreSources\SQL\Structure\TableStructure;
@@ -29,15 +30,17 @@ use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
 use ArrayObject;
 
-class MySQLStatementBuilder extends StatementBuilder implements
+class MySQLStatementBuilder extends AbstractStatementBuilder implements
 	LoggerAwareInterface
 {
 
 	use LoggerAwareTrait;
+	use ClassMapStatementFactoryTrait;
 
 	public function __construct(MySQLConnection $connection = null)
 	{
 		parent::__construct();
+		$this->initializeStatementFactory();
 		$this->connection = $connection;
 
 		/**

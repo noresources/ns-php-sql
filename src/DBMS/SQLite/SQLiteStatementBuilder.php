@@ -16,8 +16,9 @@ use NoreSources\SQL\DBMS\SQLite\SQLiteConstants as K;
 use NoreSources\SQL\Expression\FunctionCall;
 use NoreSources\SQL\Expression\Literal;
 use NoreSources\SQL\Expression\MetaFunctionCall;
+use NoreSources\SQL\Statement\AbstractStatementBuilder;
+use NoreSources\SQL\Statement\ClassMapStatementFactoryTrait;
 use NoreSources\SQL\Statement\ParameterData;
-use NoreSources\SQL\Statement\StatementBuilder;
 use NoreSources\SQL\Structure\ColumnStructure;
 use NoreSources\SQL\Structure\StructureElementInterface;
 use Psr\Log\LoggerAwareInterface;
@@ -25,14 +26,21 @@ use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
 use ArrayObject;
 
-class SQLiteStatementBuilder extends StatementBuilder implements
+class SQLiteStatementBuilder extends AbstractStatementBuilder implements
 	LoggerAwareInterface
 {
 	use LoggerAwareTrait;
+	use ClassMapStatementFactoryTrait;
 
 	public function __construct()
 	{
 		parent::__construct();
+
+		$this->initializeStatementFactory(
+			[
+				K::QUERY_CREATE_TABLE => SQLiteCreateTableQuery::class,
+				K::QUERY_CREATE_NAMESPACE => SQLiteCreateNamespaceQuery::class
+			]);
 
 		$this->sqliteSettings = new \ArrayObject();
 
@@ -328,10 +336,4 @@ class SQLiteStatementBuilder extends StatementBuilder implements
 	 * @var \ArrayObject
 	 */
 	private static $timestampFormatTranslations;
-
-	/**
-	 *
-	 * @var \ArrayObject
-	 */
-	private $sqliteSettings;
 }

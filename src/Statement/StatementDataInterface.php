@@ -13,7 +13,12 @@ use NoreSources\StringRepresentation;
 
 /**
  * Aggregate interface
+ * - Parameter informations
+ * - Statement type
+ * - Result column informations
+ * - String representation must output the SQL statement string.
  */
-interface StatementDataInterface extends StatementInputDataInterface, StatementOutputDataInterface, StringRepresentation
+interface StatementDataInterface extends StatementInputDataInterface,
+	StatementOutputDataInterface, StringRepresentation
 {
 }

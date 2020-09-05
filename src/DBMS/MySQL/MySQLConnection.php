@@ -20,10 +20,8 @@ use NoreSources\SQL\DBMS\MySQL\MySQLConstants as K;
 use NoreSources\SQL\Expression\Literal;
 use NoreSources\SQL\Result\GenericInsertionStatementResult;
 use NoreSources\SQL\Result\GenericRowModificationStatementResult;
-use NoreSources\SQL\Statement\ClassMapStatementFactory;
 use NoreSources\SQL\Statement\ParameterData;
 use NoreSources\SQL\Statement\Statement;
-use NoreSources\SQL\Statement\StatementFactoryInterface;
 use NoreSources\SQL\Structure\StructureElementInterface;
 use NoreSources\SQL\Structure\StructureProviderTrait;
 
@@ -115,16 +113,6 @@ class MySQLConnection implements ConnectionInterface
 	public function getStatementBuilder()
 	{
 		return $this->builder;
-	}
-
-	public function getStatementFactory()
-	{
-		if (!($this->statementFactory instanceof StatementFactoryInterface))
-		{
-			$this->statementFactory = new ClassMapStatementFactory();
-		}
-
-		return $this->statementFactory;
 	}
 
 	/**

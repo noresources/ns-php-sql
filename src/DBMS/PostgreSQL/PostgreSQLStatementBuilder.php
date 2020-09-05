@@ -18,22 +18,25 @@ use NoreSources\SQL\DBMS\Reference\ReferenceStatementBuilder;
 use NoreSources\SQL\Expression\FunctionCall;
 use NoreSources\SQL\Expression\Literal;
 use NoreSources\SQL\Expression\MetaFunctionCall;
+use NoreSources\SQL\Statement\AbstractStatementBuilder;
+use NoreSources\SQL\Statement\ClassMapStatementFactoryTrait;
 use NoreSources\SQL\Statement\ParameterData;
-use NoreSources\SQL\Statement\StatementBuilder;
 use NoreSources\SQL\Structure\ColumnStructure;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
 
-class PostgreSQLStatementBuilder extends StatementBuilder implements
+class PostgreSQLStatementBuilder extends AbstractStatementBuilder implements
 	LoggerAwareInterface
 {
 
 	use LoggerAwareTrait;
+	use ClassMapStatementFactoryTrait;
 
 	public function __construct(PostgreSQLConnection $connection = null)
 	{
 		parent::__construct();
+		$this->initializeStatementFactory();
 		$this->connection = $connection;
 
 		$this->setBuilderFlags(K::BUILDER_DOMAIN_INSERT,

@@ -14,25 +14,10 @@ namespace NoreSources\SQL\Statement;
  */
 class StatementData implements StatementDataInterface
 {
-	use InputDataTrait;
-	use OutputDataTrait;
+	use StatementDataTrait;
 
 	public function __construct($data)
 	{
-		$this->initializeInputData($data);
-		$this->initializeOutputData($data);
-		$this->sql = '';
+		$this->initializeStatementData($data);
 	}
-
-	public function __toString()
-	{
-		return $this->sql;
-	}
-
-	public function setSQL($sql)
-	{
-		$this->sql = $sql;
-	}
-
-	private $sql;
 }

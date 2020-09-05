@@ -17,7 +17,6 @@ use NoreSources\SQL\ParameterValue;
 use NoreSources\SQL\Expression\Literal;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Statement\Statement;
-use NoreSources\SQL\Statement\StatementData;
 use NoreSources\SQL\Statement\StatementDataInterface;
 use NoreSources\SQL\Statement\StatementTokenStreamContext;
 use NoreSources\SQL\Structure\DatasourceStructure;
@@ -60,7 +59,8 @@ class ConnectionHelper
 				if (!\file_exists($structure))
 					throw new \InvalidArgumentException(
 						K::CONNECTION_STRUCTURE . ' setting must be a ' .
-						StructureElementInterface::class . ' or a valid file path');
+						StructureElementInterface::class .
+						' or a valid file path');
 
 				$factory = new StructureSerializerFactory();
 				$structure = $factory->structureFromFile($structure);
@@ -85,7 +85,8 @@ class ConnectionHelper
 	 * @throws \InvalidArgumentException
 	 * @return unknown|\NoreSources\SQL\DBMS\Recordset|number|boolean|\NoreSources\SQL\DBMS\Recordset|number|boolean|unknown|\NoreSources\SQL\DBMS\Recordset|number|boolean
 	 */
-	public static function createStructure(ConnectionInterface $connection,
+	public static function createStructure(
+		ConnectionInterface $connection,
 		StructureElementInterface $structure = null)
 	{
 		if (!($structure instanceof StructureElementInterface))
@@ -110,11 +111,12 @@ class ConnectionHelper
 			 *
 			 * @var \NoreSources\SQL\Statement\Structure\CreateNamespaceQuery $q
 			 */
-			$q = $connection->getStatementFactory()->newStatement(K::QUERY_CREATE_NAMESPACE,
-				$structure);
+			$q = $connection->getStatementBuiler()->newStatement(
+				K::QUERY_CREATE_NAMESPACE, $structure);
 
 			$q->identifier($structure);
-			$statement = self::buildStatement($connection, $q, $structure);
+			$statement = self::buildStatement($connection, $q,
+				$structure);
 
 			$result = $connection->executeStatement($statement);
 			if (!$result)
@@ -131,8 +133,10 @@ class ConnectionHelper
 		}
 		elseif ($structure instanceof TableStructure)
 		{
-			$q = $connection->getStatementFactory()->newStatement(K::QUERY_CREATE_TABLE, $structure);
-			$statement = self::buildStatement($connection, $q, $structure);
+			$q = $connection->getStatementBuiler()->newStatement(
+				K::QUERY_CREATE_TABLE, $structure);
+			$statement = self::buildStatement($connection, $q,
+				$structure);
 			return $connection->executeStatement($statement);
 		}
 		elseif ($structure instanceof IndexStructure)
@@ -141,14 +145,17 @@ class ConnectionHelper
 			 *
 			 * @var \NoreSources\SQL\Statement\Structure\CreateIndexQuery $q
 			 */
-			$q = $connection->getStatementFactory()->newStatement(K::QUERY_CREATE_INDEX);
+			$q = $connection->getStatementBuiler()->newStatement(
+				K::QUERY_CREATE_INDEX);
 			$q->setFromIndexStructure($structure);
-			$statement = self::buildStatement($connection, $statement, $structure);
+			$statement = self::buildStatement($connection, $statement,
+				$structure);
 			return $connection->executeStatement($statement);
 		}
 
 		throw new \InvalidArgumentException(
-			'Unsupported structure type ' . TypeDescription::getName($structure));
+			'Unsupported structure type ' .
+			TypeDescription::getName($structure));
 	}
 
 	/**
@@ -165,7 +172,8 @@ class ConnectionHelper
 	 * @note This method does not provide any informations about statement parameters or result column types.
 	 * Tf these information are needed, use ConnectionHelper::prepareStatement()
 	 */
-	public static function buildStatement($connection, Statement $statement,
+	public static function buildStatement($connection,
+		Statement $statement,
 		StructureElementInterface $reference = null)
 	{
 		$reference = ($reference instanceof StructureElementInterface) ? $reference : $connection->getStructure();
@@ -185,12 +193,13 @@ class ConnectionHelper
 	 * @param StructureElementInterface $reference
 	 * @return PreparedStatement
 	 */
-	public static function prepareStatement(ConnectionInterface $connection, $statement,
+	public static function prepareStatement(
+		ConnectionInterface $connection, $statement,
 		StructureElementInterface $reference = null)
 	{
 		$reference = ($reference instanceof StructureElementInterface) ? $reference : $connection->getStructure();
 		$statementData = null;
-		if ($statement instanceof StatementData)
+		if ($statement instanceof StatementDataInterface)
 		{
 			$statementData = $statement;
 		}
@@ -202,7 +211,8 @@ class ConnectionHelper
 				$context->setPivot($reference);
 			$stream = new TokenStream();
 			$statement->tokenize($stream, $context);
-			$statementData = $builder->finalizeStatement($stream, $context);
+			$statementData = $builder->finalizeStatement($stream,
+				$context);
 		}
 		elseif (TypeDescription::hasStringRepresentation($statement))
 		{
@@ -210,8 +220,10 @@ class ConnectionHelper
 		}
 		else
 			throw ConnectionException($connection,
-				'Unable to prepare statement. ' . Statement::class . ', ' . StatementData::class .
-				' or stringifiable type expected. Got ' . TypeDescription::getName($statement));
+				'Unable to prepare statement. ' . Statement::class . ', ' .
+				StatementDataInterface::class .
+				' or stringifiable type expected. Got ' .
+				TypeDescription::getName($statement));
 		$prepared = $connection->prepareStatement($statementData);
 		return $prepared;
 	}
@@ -225,8 +237,8 @@ class ConnectionHelper
 	 *        	Parameter target type (if $value is not a ParameterValue)
 	 * @return number|boolean|NULL|\NoreSources\SQL\ParameterValue|\DateTimeInterface
 	 */
-	public static function serializeParameterValue(ConnectionInterface $connection, $value,
-		$dataType = null)
+	public static function serializeParameterValue(
+		ConnectionInterface $connection, $value, $dataType = null)
 	{
 		$type = (\is_integer($dataType) && $dataType) ? $dataType : K::DATATYPE_UNDEFINED;
 		if ($value instanceof ParameterValue)

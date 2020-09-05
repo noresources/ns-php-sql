@@ -13,7 +13,8 @@ use PHPUnit\Framework\TestCase;
 class DatasourceManager extends \PHPUnit\Framework\TestCase
 {
 
-	public function __construct($name = null, array $data = [], $dataName = '')
+	public function __construct($name = null, array $data = [],
+		$dataName = '')
 	{
 		parent::__construct($name, $data, $dataName);
 		$this->datasources = new \ArrayObject();
@@ -25,11 +26,13 @@ class DatasourceManager extends \PHPUnit\Framework\TestCase
 		if ($this->datasources->offsetExists($name))
 			return $this->datasources[$name];
 
-		$filename = realpath($this->basePath . '/data/structures/' . $name . '.xml');
+		$filename = realpath(
+			$this->basePath . '/data/structures/' . $name . '.xml');
 
 		$this->assertFileExists($filename, $name . ' datasource loading');
 
-		$structure = StructureSerializerFactory::structureFromFile($filename);
+		$structure = StructureSerializerFactory::structureFromFile(
+			$filename);
 
 		$this->assertInstanceOf(DatasourceStructure::class, $structure,
 			$name . ' datasource loading');
@@ -39,14 +42,16 @@ class DatasourceManager extends \PHPUnit\Framework\TestCase
 		return $structure;
 	}
 
-	public static function createTable(TestCase $test, ConnectionInterface $connection,
-		TableStructure $tableStructure, $stored = false)
+	public static function createTable(TestCase $test,
+		ConnectionInterface $connection, TableStructure $tableStructure,
+		$stored = false)
 	{
 		if ($stored)
 		{
 			if (!\is_array(self::$createdTables))
 				self::$createdTables = [];
-			$path = TypeDescription::getName($connection) . $tableStructure->getPath();
+			$path = TypeDescription::getName($connection) .
+				$tableStructure->getPath();
 			if (\array_key_exists($path, self::$createdTables))
 				return true;
 		}
@@ -55,7 +60,8 @@ class DatasourceManager extends \PHPUnit\Framework\TestCase
 		 *
 		 * @var CreateTableQuery
 		 */
-		$q = $connection->getStatementFactory()->newStatement(K::QUERY_CREATE);
+		$q = $connection->getStatementBuilder()->newStatement(
+			K::QUERY_CREATE);
 		$q->table($structure);
 		$sql = ConnectionHelper::buildStatement($connection, $q);
 		return $connection->executeStatement($sql);

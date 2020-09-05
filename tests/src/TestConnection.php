@@ -10,7 +10,7 @@ use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\Result\InsertionStatementResultInterface;
 use NoreSources\SQL\Result\Recordset;
 use NoreSources\SQL\Result\RowModificationStatementResultInterface;
-use NoreSources\SQL\Statement\StatementData;
+use NoreSources\SQL\Statement\StatementDataInterface;
 
 class TestConnection extends \PHPUnit\Framework\TestCase
 {
@@ -60,12 +60,13 @@ class TestConnection extends \PHPUnit\Framework\TestCase
 		$parameters = new DataTree();
 		$parameters->load($this->files[$name]);
 
-		$this->connections[$name] = ConnectionHelper::createConnection($parameters);
+		$this->connections[$name] = ConnectionHelper::createConnection(
+			$parameters);
 		return $this->connections[$name];
 	}
 
-	public function getRowValue(ConnectionInterface $connection, StatementData $query, $column,
-		$parameters = array())
+	public function getRowValue(ConnectionInterface $connection,
+		StatementDataInterface $query, $column, $parameters = array())
 	{
 		$result = $connection->executeStatement($query, $parameters);
 		$this->assertInstanceOf(Recordset::class, $result);
@@ -75,7 +76,8 @@ class TestConnection extends \PHPUnit\Framework\TestCase
 		return null;
 	}
 
-	public function queryTest(ConnectionInterface $connection, $expectedValues, $options = array())
+	public function queryTest(ConnectionInterface $connection,
+		$expectedValues, $options = array())
 	{
 		$dbmsName = TypeDescription::getLocalName($connection);
 		$insertParameters = array();
@@ -96,28 +98,36 @@ class TestConnection extends \PHPUnit\Framework\TestCase
 		$cleanup = Container::keyValue($options, 'cleanup', null);
 		$label = Container::keyValue($options, 'label', $dbmsName);
 
-		if ($insert instanceof StatementData)
+		if ($insert instanceof StatementDataInterface)
 		{
-			$result = $connection->executeStatement($insert, $insertParameters);
+			$result = $connection->executeStatement($insert,
+				$insertParameters);
 			if ($insert->getStatementType() & K::QUERY_INSERT)
-				$this->assertInstanceOf(InsertionStatementResultInterface::class, $result,
+				$this->assertInstanceOf(
+					InsertionStatementResultInterface::class, $result,
 					$label . ' - (insert result)');
-			elseif ($insert->getStatementType() & K::QUERY_FAMILY_ROWMODIFICATION)
-				$this->assertInstanceOf(RowModificationStatementResultInterface::class, $result,
-					$dbmsName . ' (row modification result)');
+			elseif ($insert->getStatementType() &
+				K::QUERY_FAMILY_ROWMODIFICATION)
+				$this->assertInstanceOf(
+					RowModificationStatementResultInterface::class,
+					$result, $dbmsName . ' (row modification result)');
 		}
 
 		if ($select)
 		{
-			$recordset = $connection->executeStatement($select, $selectParameters);
-			$this->assertInstanceOf(Recordset::class, $recordset, $label . ' - (select result)');
+			$recordset = $connection->executeStatement($select,
+				$selectParameters);
+			$this->assertInstanceOf(Recordset::class, $recordset,
+				$label . ' - (select result)');
 
 			/**
 			 *
 			 * @var Recordset $recordset
 			 */
 
-			$recordset->setFlags(Recordset::FETCH_ASSOCIATIVE | Recordset::FETCH_UNSERIALIZE);
+			$recordset->setFlags(
+				Recordset::FETCH_ASSOCIATIVE |
+				Recordset::FETCH_UNSERIALIZE);
 
 			if ($recordset instanceof \Countable)
 				$this->assertCount(1, $recordset);
@@ -128,7 +138,8 @@ class TestConnection extends \PHPUnit\Framework\TestCase
 
 			foreach ($expectedValues as $key => $value)
 			{
-				$this->assertEquals($value, $record[$key], $label . ' - record ' . $key . ' value');
+				$this->assertEquals($value, $record[$key],
+					$label . ' - record ' . $key . ' value');
 			}
 		}
 

@@ -14,7 +14,8 @@ use NoreSources\Test\DerivedFileManager;
 final class InsertTest extends \PHPUnit\Framework\TestCase
 {
 
-	public function __construct($name = null, array $data = [], $dataName = '')
+	public function __construct($name = null, array $data = [],
+		$dataName = '')
 	{
 		parent::__construct($name, $data, $dataName);
 		$this->datasources = new DatasourceManager();
@@ -44,9 +45,11 @@ final class InsertTest extends \PHPUnit\Framework\TestCase
 			$stream = new TokenStream();
 			$q->tokenize($stream, $context);
 			$result = $builder->finalizeStatement($stream, $context);
-			$this->assertInstanceOf(Statement\StatementOutputDataInterface::class, $result,
+			$this->assertInstanceOf(
+				Statement\StatementOutputDataInterface::class, $result,
 				'Result is (at least) a Statement\StatementOutputDataInterface');
-			$this->derivedFileManager->assertDerivedFile(strval($result), __METHOD__, $key, 'sql');
+			$this->derivedFileManager->assertDerivedFile(
+				strval($result), __METHOD__, $key, 'sql');
 		}
 	}
 
@@ -54,7 +57,8 @@ final class InsertTest extends \PHPUnit\Framework\TestCase
 	{
 		$structure = $this->datasources->get('Company');
 		$tableStructure = $structure['ns_unittests']['Tasks'];
-		$this->assertInstanceOf(Structure\TableStructure::class, $tableStructure);
+		$this->assertInstanceOf(Structure\TableStructure::class,
+			$tableStructure);
 		$builder = new ReferenceStatementBuilder();
 		$context = new StatementTokenStreamContext($builder);
 
@@ -67,7 +71,8 @@ final class InsertTest extends \PHPUnit\Framework\TestCase
 				],
 				'creationDateTime' => [
 					ExpressionHelper::literal(
-						\DateTime::createFromFormat(\DateTime::ISO8601, '2012-01-16T16:35:26+0100')),
+						\DateTime::createFromFormat(\DateTime::ISO8601,
+							'2012-01-16T16:35:26+0100')),
 					null
 				]
 			],
@@ -115,7 +120,8 @@ final class InsertTest extends \PHPUnit\Framework\TestCase
 			$stream = new TokenStream();
 			$q->tokenize($stream, $context);
 			$result = $builder->finalizeStatement($stream, $context);
-			$this->derivedFileManager->assertDerivedFile(strval($result), __METHOD__, $key, 'sql');
+			$this->derivedFileManager->assertDerivedFile(
+				strval($result), __METHOD__, $key, 'sql');
 		}
 	}
 

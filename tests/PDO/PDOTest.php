@@ -23,10 +23,12 @@ $sqliteConnectionParameters = [
 final class PDOTest extends \PHPUnit\Framework\TestCase
 {
 
-	public function __construct($name = null, array $data = [], $dataName = '')
+	public function __construct($name = null, array $data = [],
+		$dataName = '')
 	{
 		parent::__construct($name, $data, $dataName);
-		$this->derivedFileManager = new DerivedFileManager(__DIR__ . '/..');
+		$this->derivedFileManager = new DerivedFileManager(
+			__DIR__ . '/..');
 		$this->datasources = new DatasourceManager();
 	}
 
@@ -53,7 +55,8 @@ final class PDOTest extends \PHPUnit\Framework\TestCase
 	public function testBase()
 	{
 		$drivers = \PDO::getAvailableDrivers();
-		$localMethodName = preg_replace(',.*::test(.*),', '\1', __METHOD__);
+		$localMethodName = preg_replace(',.*::test(.*),', '\1',
+			__METHOD__);
 
 		foreach ($drivers as $driver)
 		{
@@ -71,7 +74,8 @@ final class PDOTest extends \PHPUnit\Framework\TestCase
 		global $sqliteConnectionParameters;
 		$connection = new PDOConnection($sqliteConnectionParameters);
 
-		$recordset = $connection->executeStatement('select * from employees');
+		$recordset = $connection->executeStatement(
+			'select * from employees');
 		$this->assertInstanceOf(DBMS\PDO\PDORecordset::class, $recordset);
 
 		$expectedRowCount = 4;
@@ -82,7 +86,8 @@ final class PDOTest extends \PHPUnit\Framework\TestCase
 			$a++;
 		}
 
-		$this->assertEquals($expectedRowCount, $a, 'First pass, row count');
+		$this->assertEquals($expectedRowCount, $a,
+			'First pass, row count');
 
 		$b = 0;
 		foreach ($recordset as $row)
@@ -90,7 +95,8 @@ final class PDOTest extends \PHPUnit\Framework\TestCase
 			$b++;
 		}
 
-		$this->assertEquals($expectedRowCount, $b, 'Second pass, row count');
+		$this->assertEquals($expectedRowCount, $b,
+			'Second pass, row count');
 	}
 
 	public function testSQLiteCreateInsertUpdateDelete()
@@ -105,7 +111,8 @@ final class PDOTest extends \PHPUnit\Framework\TestCase
 		$structure = $this->datasources->get('Company');
 
 		$tableStructure = $structure['ns_unittests']['Employees'];
-		$this->assertInstanceOf(Structure\TableStructure::class, $tableStructure);
+		$this->assertInstanceOf(Structure\TableStructure::class,
+			$tableStructure);
 
 		// Detach table from namespace to avoid invalid namespace name
 		$detachedTable = clone $tableStructure;
@@ -117,25 +124,30 @@ final class PDOTest extends \PHPUnit\Framework\TestCase
 		$sql = ConnectionHelper::buildStatement($connection, $create);
 		$sql = \strval($sql);
 
-		$this->derivedFileManager->assertDerivedFile(\SqlFormatter::format($sql, false), __METHOD__,
-			'create', 'sql');
+		$this->derivedFileManager->assertDerivedFile(
+			\SqlFormatter::format($sql, false), __METHOD__, 'create',
+			'sql');
 		$connection->executeStatement($sql);
 
 		/**
 		 *
 		 * @var \NoreSources\SQL\Statement\Manipulation\InsertQuery $insert
 		 */
-		$insert = $connection->getStatementFactory()->newStatement(K::QUERY_INSERT);
+		$insert = $connection->getStatementBuilder()->newStatement(
+			K::QUERY_INSERT);
 		$insert->table($detachedTable);
 		$insert('name', ':name');
 		$insert('gender', ':gender');
 		$insert('salary', ':salary');
 
-		$prepared = ConnectionHelper::prepareStatement($connection, $insert, $detachedTable);
-		$this->assertInstanceOf(DBMS\PDO\PDOPreparedStatement::class, $prepared);
+		$prepared = ConnectionHelper::prepareStatement($connection,
+			$insert, $detachedTable);
+		$this->assertInstanceOf(DBMS\PDO\PDOPreparedStatement::class,
+			$prepared);
 		$sql = strval($prepared);
-		$this->derivedFileManager->assertDerivedFile(\SqlFormatter::format($sql, false), __METHOD__,
-			'insert', 'sql');
+		$this->derivedFileManager->assertDerivedFile(
+			\SqlFormatter::format($sql, false), __METHOD__, 'insert',
+			'sql');
 
 		$employees = [
 			[
@@ -174,11 +186,14 @@ final class PDOTest extends \PHPUnit\Framework\TestCase
 		]);
 		$select->orderBy('id');
 
-		$preparedSelect = ConnectionHelper::prepareStatement($connection, $select, $detachedTable);
-		$this->assertInstanceOf(DBMS\PDO\PDOPreparedStatement::class, $preparedSelect);
+		$preparedSelect = ConnectionHelper::prepareStatement(
+			$connection, $select, $detachedTable);
+		$this->assertInstanceOf(DBMS\PDO\PDOPreparedStatement::class,
+			$preparedSelect);
 		$sql = strval($preparedSelect);
-		$this->derivedFileManager->assertDerivedFile(\SqlFormatter::format($sql, false), __METHOD__,
-			'select', 'sql');
+		$this->derivedFileManager->assertDerivedFile(
+			\SqlFormatter::format($sql, false), __METHOD__, 'select',
+			'sql');
 
 		$result = $connection->executeStatement($preparedSelect);
 		$this->assertInstanceOf(DBMS\PDO\PDORecordset::class, $result);
@@ -193,7 +208,8 @@ final class PDOTest extends \PHPUnit\Framework\TestCase
 		{
 			foreach ($expected[$index] as $name => $value)
 			{
-				$this->assertEquals($value, $row[$name], '# ' . $index . ' value of ' . $name);
+				$this->assertEquals($value, $row[$name],
+					'# ' . $index . ' value of ' . $name);
 			}
 		}
 
@@ -201,14 +217,18 @@ final class PDOTest extends \PHPUnit\Framework\TestCase
 		$update('salary', 'salary + 10000');
 		$update->where('salary < 5000');
 
-		$prepared = ConnectionHelper::prepareStatement($connection, $update, $detachedTable);
-		$this->assertInstanceOf(DBMS\PDO\PDOPreparedStatement::class, $prepared);
+		$prepared = ConnectionHelper::prepareStatement($connection,
+			$update, $detachedTable);
+		$this->assertInstanceOf(DBMS\PDO\PDOPreparedStatement::class,
+			$prepared);
 		$sql = strval($prepared);
-		$this->derivedFileManager->assertDerivedFile(\SqlFormatter::format($sql, false), __METHOD__,
-			'update', 'sql');
+		$this->derivedFileManager->assertDerivedFile(
+			\SqlFormatter::format($sql, false), __METHOD__, 'update',
+			'sql');
 
 		$result = $connection->executeStatement($prepared);
-		$this->assertInstanceOf(RowModificationStatementResultInterface::class, $result);
+		$this->assertInstanceOf(
+			RowModificationStatementResultInterface::class, $result);
 
 		$result = $connection->executeStatement($preparedSelect);
 		$this->assertInstanceOf(DBMS\PDO\PDORecordset::class, $result);
@@ -220,7 +240,8 @@ final class PDOTest extends \PHPUnit\Framework\TestCase
 			{
 				if ($name == 'salary' && ($value < 5000))
 					$value += 10000;
-				$this->assertEquals($value, $row[$name], '# ' . $index . ' value of ' . $name);
+				$this->assertEquals($value, $row[$name],
+					'# ' . $index . ' value of ' . $name);
 			}
 		}
 	}

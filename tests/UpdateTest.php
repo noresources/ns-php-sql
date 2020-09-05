@@ -13,7 +13,8 @@ use NoreSources\Test\DerivedFileManager;
 final class UpdateTest extends \PHPUnit\Framework\TestCase
 {
 
-	public function __construct($name = null, array $data = [], $dataName = '')
+	public function __construct($name = null, array $data = [],
+		$dataName = '')
 	{
 		parent::__construct($name, $data, $dataName);
 		$this->derivedFileManager = new DerivedFileManager(__DIR__);
@@ -24,8 +25,8 @@ final class UpdateTest extends \PHPUnit\Framework\TestCase
 	{
 		$structure = $this->datasources->get('types');
 		$tableStructure = $structure['ns_unittests']['types'];
-		$this->assertInstanceOf(Structure\TableStructure::class, $tableStructure,
-			'TableStructure instance');
+		$this->assertInstanceOf(Structure\TableStructure::class,
+			$tableStructure, 'TableStructure instance');
 
 		$connection = ConnectionHelper::createConnection('Reference');
 
@@ -99,7 +100,8 @@ final class UpdateTest extends \PHPUnit\Framework\TestCase
 			$q->tokenize($stream, $context);
 			$result = $builder->finalizeStatement($stream, $context);
 			$sql = \SqlFormatter::format(strval($result), false);
-			$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, $set, 'sql');
+			$this->derivedFileManager->assertDerivedFile($sql,
+				__METHOD__, $set, 'sql');
 		}
 	}
 
@@ -107,8 +109,8 @@ final class UpdateTest extends \PHPUnit\Framework\TestCase
 	{
 		$structure = $this->datasources->get('Company');
 		$tableStructure = $structure['ns_unittests']['Employees'];
-		$this->assertInstanceOf(Structure\TableStructure::class, $tableStructure,
-			'TableStructure instance');
+		$this->assertInstanceOf(Structure\TableStructure::class,
+			$tableStructure, 'TableStructure instance');
 		$builder = new ReferenceStatementBuilder();
 		$context = new StatementTokenStreamContext($builder);
 		$context->setPivot($tableStructure);
@@ -139,15 +141,16 @@ final class UpdateTest extends \PHPUnit\Framework\TestCase
 		$result = $builder->finalizeStatement($stream, $context);
 		$sql = \SqlFormatter::format(\strval($result), false);
 
-		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, null, 'sql');
+		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__,
+			null, 'sql');
 	}
 
 	public function testUpdateCompanyEmployees2()
 	{
 		$structure = $this->datasources->get('Company');
 		$tableStructure = $structure['ns_unittests']['Employees'];
-		$this->assertInstanceOf(Structure\TableStructure::class, $tableStructure,
-			'TableStructure instance');
+		$this->assertInstanceOf(Structure\TableStructure::class,
+			$tableStructure, 'TableStructure instance');
 		$builder = new ReferenceStatementBuilder();
 		$context = new StatementTokenStreamContext($builder);
 		$context->setPivot($tableStructure);
@@ -169,7 +172,8 @@ final class UpdateTest extends \PHPUnit\Framework\TestCase
 		$result = $builder->finalizeStatement($stream, $context);
 		$sql = \SqlFormatter::format(\strval($result), false);
 
-		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, null, 'sql');
+		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__,
+			null, 'sql');
 	}
 
 	/**

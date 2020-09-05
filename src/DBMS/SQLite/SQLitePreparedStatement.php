@@ -9,18 +9,23 @@
  */
 namespace NoreSources\SQL\DBMS\SQLite;
 
-
 use NoreSources\TypeConversion;
 use NoreSources\TypeDescription;
-use NoreSources\SQL\DBMS\PreparedStatement;
+use NoreSources\SQL\DBMS\PreparedStatementInterface;
+use NoreSources\SQL\Statement\InputDataTrait;
+use NoreSources\SQL\Statement\OutputDataTrait;
 use NoreSources\SQL\Statement\ParameterDataProviderInterface;
+use NoreSources\SQL\Statement\StatementInputDataInterface;
 use NoreSources\SQL\Statement\StatementTokenStreamContext;
 
 /**
  * SQLite3 implementation of NoreSources\SQL\SQLitePreparedStatement
  */
-class SQLitePreparedStatement extends PreparedStatement
+class SQLitePreparedStatement implements PreparedStatementInterface
 {
+
+	use InputDataTrait;
+	use OutputDataTrait;
 
 	/**
 	 *
@@ -31,21 +36,13 @@ class SQLitePreparedStatement extends PreparedStatement
 	 */
 	public function __construct(\SQLite3Stmt $statement, $data = null)
 	{
-		parent::__construct($data);
+		if ($data instanceof StatementInputDataInterface)
+			$this->initializeInputData($data);
+		else
+			$this->initializeInputData(null);
+		$this->initializeOutputData($data);
 
-		$this->sql = null;
 		$this->sqliteStatement = $statement;
-
-		if (version_compare(PHP_VERSION, '7.4.0') < 0) // stmp->getSQL
-		{
-			if ($data instanceof StatementTokenStreamContext ||
-				TypeDescription::hasStringRepresentation($data))
-				$this->sql = TypeConversion::toString($data);
-			else
-				throw new \Exception(
-					'Unable to get SQL string from SQLite statement nor ' .
-					StatementTokenStreamContext::class);
-		}
 
 		if ($data instanceof ParameterDataProviderInterface)
 		{
@@ -53,26 +50,25 @@ class SQLitePreparedStatement extends PreparedStatement
 			if ($npc != $statement->paramCount())
 			{
 				throw new \BadMethodCallException(
-					'SQLite statement and ' . ParameterDataProviderInterface::class .
-					' parameter mismatch. Got ' . $npc . ' for ' . ParameterDataProviderInterface::class .
-					' and ' . $statement->paramCount() . ' for SQLiteStmt');
+					'SQLite statement and ' .
+					ParameterDataProviderInterface::class .
+					' parameter mismatch. Got ' . $npc . ' for ' .
+					ParameterDataProviderInterface::class . ' and ' .
+					$statement->paramCount() . ' for SQLiteStmt');
 			}
 		}
+
+		if (!\method_exists($this->sqliteStatement, 'getSQL'))
+			if (TypeDescription::hasStringRepresentation($data))
+				$this->sql = TypeConversion::toString($data);
 	}
 
-	public function getStatement()
+	public function __toString()
 	{
-		if (\is_string($this->sql))
-		{
-			return $this->sql;
-		}
-
 		if (\method_exists($this->sqliteStatement, 'getSQL'))
-		{
 			return $this->sqliteStatement->getSQL(false);
-		}
 
-		return '';
+		return $this->sql;
 	}
 
 	public function getParameterCount()
@@ -89,11 +85,20 @@ class SQLitePreparedStatement extends PreparedStatement
 		return $this->sqliteStatement;
 	}
 
+	public function setSQL($sql)
+	{
+		$this->sql = $sql;
+	}
+
 	/**
 	 *
 	 * @var \SQLite3Stmt
 	 */
 	private $sqliteStatement;
 
+	/**
+	 *
+	 * @var string
+	 */
 	private $sql;
 }

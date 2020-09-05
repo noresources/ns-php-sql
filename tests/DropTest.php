@@ -15,7 +15,8 @@ use NoreSources\Test\DerivedFileManager;
 final class DropTest extends \PHPUnit\Framework\TestCase
 {
 
-	public function __construct($name = null, array $data = [], $dataName = '')
+	public function __construct($name = null, array $data = [],
+		$dataName = '')
 	{
 		parent::__construct($name, $data, $dataName);
 		$this->datasources = new DatasourceManager();
@@ -33,20 +34,21 @@ final class DropTest extends \PHPUnit\Framework\TestCase
 		$structureless->tokenize($stream, $context);
 		$result = $builder->finalizeStatement($stream, $context);
 		$sql = \SqlFormatter::format(strval($result), false);
-		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, 'structureless', 'sql',
-			'Structureless SQL');
+		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__,
+			'structureless', 'sql', 'Structureless SQL');
 
 		$structure = $this->datasources->get('Company');
 		$indexStructure = $structure['ns_unittests']['index_employees_name'];
 		$structured = new DropIndexQuery();
 		$structured->identifier('structureless');
-		$context = new StatementTokenStreamContext($builder, $indexStructure);
+		$context = new StatementTokenStreamContext($builder,
+			$indexStructure);
 		$stream = new TokenStream();
 		$structured->tokenize($stream, $context);
 		$result = $builder->finalizeStatement($stream, $context);
 		$sql = \SqlFormatter::format(strval($result), false);
-		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, 'structured', 'sql',
-			'Drop index SQL');
+		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__,
+			'structured', 'sql', 'Drop index SQL');
 	}
 
 	public function testDropView()
@@ -63,17 +65,20 @@ final class DropTest extends \PHPUnit\Framework\TestCase
 		$view->tokenize($stream, $context);
 		$result = $builder->finalizeStatement($stream, $context);
 		$sql = \SqlFormatter::format(strval($result), false);
-		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, 'structureless', 'sql');
+		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__,
+			'structureless', 'sql');
 
 		$structure = $this->datasources->get('Company')['ns_unittests'];
 		$this->assertInstanceOf(NamespaceStructure::class, $structure);
 		$context = new StatementTokenStreamContext($builder, $structure);
-		$this->assertInstanceOf(NamespaceStructure::class, $context->getPivot());
+		$this->assertInstanceOf(NamespaceStructure::class,
+			$context->getPivot());
 		$stream = new TokenStream();
 		$view->tokenize($stream, $context);
 		$result = $builder->finalizeStatement($stream, $context);
 		$sql = \SqlFormatter::format(strval($result), false);
-		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, 'structure', 'sql');
+		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__,
+			'structure', 'sql');
 	}
 
 	public function testDropTableCompanyTables()
@@ -88,8 +93,8 @@ final class DropTest extends \PHPUnit\Framework\TestCase
 		] as $tableName)
 		{
 			$tableStructure = $structure['ns_unittests'][$tableName];
-			$this->assertInstanceOf(Structure\TableStructure::class, $tableStructure,
-				'Finding ' . $tableName);
+			$this->assertInstanceOf(Structure\TableStructure::class,
+				$tableStructure, 'Finding ' . $tableName);
 			$context = new StatementTokenStreamContext($builder);
 			$context->setPivot($tableStructure);
 			$q = new DropTableQuery($tableStructure);
@@ -97,8 +102,8 @@ final class DropTest extends \PHPUnit\Framework\TestCase
 			$q->tokenize($stream, $context);
 			$result = $builder->finalizeStatement($stream, $context);
 			$sql = \SqlFormatter::format(strval($result), false);
-			$this->derivedFileManager->assertDerivedFile($sql, __METHOD__, $tableName, 'sql',
-				$tableName . ' SQL');
+			$this->derivedFileManager->assertDerivedFile($sql,
+				__METHOD__, $tableName, 'sql', $tableName . ' SQL');
 		}
 	}
 

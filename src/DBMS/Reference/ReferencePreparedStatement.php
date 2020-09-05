@@ -9,14 +9,16 @@
  */
 namespace NoreSources\SQL\DBMS\Reference;
 
-
-use NoreSources\SQL\DBMS\PreparedStatement;
+use NoreSources\SQL\DBMS\PreparedStatementInterface;
+use NoreSources\SQL\Statement\StatementDataTrait;
 
 /**
  * SQLite3 implementation of NoreSources\SQL\ReferencePreparedStatement
  */
-class ReferencePreparedStatement extends PreparedStatement
+class ReferencePreparedStatement implements PreparedStatementInterface
 {
+
+	use StatementDataTrait;
 
 	/**
 	 *
@@ -24,18 +26,6 @@ class ReferencePreparedStatement extends PreparedStatement
 	 */
 	public function __construct($data)
 	{
-		parent::__construct($data);
-		$this->sql = strval($data);
+		$this->initializeStatementData($data);
 	}
-
-	public function getStatement()
-	{
-		return $this->sql;
-	}
-
-	/**
-	 *
-	 * @var string
-	 */
-	private $sql;
 }

@@ -15,15 +15,13 @@ use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\TransactionStackTrait;
 use NoreSources\SQL\Statement\ClassMapStatementFactoryTrait;
 use NoreSources\SQL\Statement\StatementBuilder;
-use NoreSources\SQL\Statement\StatementFactoryInterface;
 use NoreSources\SQL\Structure\StructureElementInterface;
 use NoreSources\SQL\Structure\StructureProviderTrait;
 
 /**
  * SQLite connection
  */
-class ReferenceConnection implements ConnectionInterface,
-	StatementFactoryInterface
+class ReferenceConnection implements ConnectionInterface
 {
 	use StructureProviderTrait;
 	use TransactionStackTrait;
@@ -33,7 +31,6 @@ class ReferenceConnection implements ConnectionInterface,
 	public function __construct($parameters)
 	{
 		$this->builder = new ReferenceStatementBuilder();
-		$this->initializeStatementFactory();
 		$this->setTransactionBlockFactory(
 			function ($depth, $name) {
 
@@ -59,11 +56,6 @@ class ReferenceConnection implements ConnectionInterface,
 	public function getStatementBuilder()
 	{
 		return $this->builder;
-	}
-
-	public function getStatementFactory()
-	{
-		return $this;
 	}
 
 	public function executeStatement($statement, $parameters = array())

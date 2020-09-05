@@ -11,14 +11,16 @@ namespace NoreSources\SQL\DBMS\Reference;
 
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\ArrayObjectType;
+use NoreSources\SQL\Statement\AbstractStatementBuilder;
+use NoreSources\SQL\Statement\ClassMapStatementFactoryTrait;
 use NoreSources\SQL\Statement\ParameterData;
-use NoreSources\SQL\Statement\StatementBuilder;
 use NoreSources\SQL\Structure\ColumnStructure;
 
 /**
  */
-class ReferenceStatementBuilder extends StatementBuilder
+class ReferenceStatementBuilder extends AbstractStatementBuilder
 {
+	use ClassMapStatementFactoryTrait;
 
 	/**
 	 *
@@ -28,6 +30,7 @@ class ReferenceStatementBuilder extends StatementBuilder
 	public function __construct($domainFlags = [])
 	{
 		parent::__construct();
+		$this->initializeStatementFactory();
 
 		if (!\is_array($domainFlags))
 			$domainFlags = [
