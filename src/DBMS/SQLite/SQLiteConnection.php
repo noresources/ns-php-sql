@@ -259,9 +259,6 @@ class SQLiteConnection implements ConnectionInterface
 		return ($this->connection instanceof \SQLite3);
 	}
 
-	public function disconnect()
-	{}
-
 	public function getStatementBuilder()
 	{
 		return $this->builder;

@@ -506,7 +506,8 @@ class Constants
 	const BUILDER_IF_NOT_EXISTS = 0x02;
 
 	/**
-	 * Indicates the structure element can be declared inside a namesapce scope.
+	 * Indicates the structure element
+	 * can be declared inside a namesapce scope.
 	 *
 	 * This flag could be set for indexes, views etc.
 	 *
