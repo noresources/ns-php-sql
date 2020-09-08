@@ -11,7 +11,6 @@
 //
 namespace NoreSources\SQL\Statement\Structure;
 
-use NoreSources\Container;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\TypeHelper;
 use NoreSources\SQL\DBMS\TypeInterface;
@@ -20,6 +19,7 @@ use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Expression\TokenStreamContextInterface;
 use NoreSources\SQL\Statement\Statement;
 use NoreSources\SQL\Statement\StatementException;
+use NoreSources\SQL\Structure\ColumnStructure;
 use NoreSources\SQL\Structure\ColumnTableConstraint;
 use NoreSources\SQL\Structure\ForeignKeyTableConstraint;
 use NoreSources\SQL\Structure\PrimaryKeyTableConstraint;
@@ -133,152 +133,12 @@ class CreateTableQuery extends Statement implements
 		// Columns
 
 		$c = 0;
-		foreach ($this->structure as $name => $column)
+		foreach ($this->structure as $column)
 		{
-			$isPrimary = Container::keyExists($primaryKeyColumns, $name);
-
-			/**
-			 *
-			 * @var \NoreSources\SQL\Structure\ColumnStructure $column
-			 */
-
-			$columnFlags = $column->getColumnProperty(K::COLUMN_FLAGS);
-
 			if ($c++ > 0)
 				$stream->text(',')->space();
 
-			$type = $context->getStatementBuilder()->getColumnType(
-				$column);
-			if (!($type instanceof TypeInterface))
-				throw new StatementException($this,
-					'Unable to find a DBMS type for column "' .
-					$column->getName() . '"');
-			/**
-			 *
-			 * @var TypeInterface $type
-			 */
-
-			$typeName = $type->getTypeName();
-
-			$stream->identifier(
-				$context->getStatementBuilder()
-					->escapeIdentifier($column->getName()))
-				->space()
-				->identifier($typeName);
-
-			$typeFlags = TypeHelper::getProperty($type, K::TYPE_FLAGS);
-
-			$lengthSupport = (($typeFlags & K::TYPE_FLAG_LENGTH) ==
-				K::TYPE_FLAG_LENGTH);
-
-			$fractionScaleSupport = (($typeFlags &
-				K::TYPE_FLAG_FRACTION_SCALE) ==
-				K::TYPE_FLAG_FRACTION_SCALE);
-
-			$hasLength = $column->hasColumnProperty(K::COLUMN_LENGTH);
-			$hasFractionScale = $column->hasColumnProperty(
-				K::COLUMN_FRACTION_SCALE);
-
-			$hasEnumeration = $column->hasColumnProperty(
-				K::COLUMN_ENUMERATION);
-			$enumerationSupport = ($builderFlags &
-				K::BUILDER_CREATE_COLUMN_INLINE_ENUM);
-
-			if ($hasEnumeration && $enumerationSupport)
-			{
-				$stream->text('(');
-				$values = $column->getColumnProperty(
-					K::COLUMN_ENUMERATION);
-				$i = 0;
-				foreach ($values as $value)
-				{
-					if ($i++ > 0)
-						$stream->text(', ');
-					$stream->expression($value, $context);
-				}
-				$stream->text(')');
-			}
-			elseif ($hasLength && $lengthSupport)
-			{
-				$stream->text('(')->literal(
-					$column->getColumnProperty(K::COLUMN_LENGTH));
-
-				if ($column->hasColumnProperty(K::COLUMN_FRACTION_SCALE) &&
-					$fractionScaleSupport)
-				{
-					$stream->text(', ')->literal(
-						$column->getColumnProperty(
-							K::COLUMN_FRACTION_SCALE));
-				}
-
-				$stream->text(')');
-			}
-			elseif ($hasFractionScale && $fractionScaleSupport)
-			{
-				$scale = $column->getColumnProperty(
-					K::COLUMN_FRACTION_SCALE);
-				$length = TypeHelper::getMaxLength($type);
-				if (\is_infinite($maxLength))
-				{
-					/**
-					 *
-					 * @todo trigger warning
-					 */
-					$length = $scal * 2;
-				}
-				$stream->text('(')
-					->literal($length)
-					->text(',')
-					->literal($scale)
-					->text(')');
-			}
-			elseif ($typeFlags & K::TYPE_FLAG_MANDATORY_LENGTH ||
-				($isPrimary &&
-				($builderFlags &
-				K::BUILDER_CREATE_COLUMN_KEY_MANDATORY_LENGTH)))
-			{
-				$maxLength = TypeHelper::getMaxLength($type);
-				if (\is_infinite($maxLength))
-					throw new StatementException($this,
-						$column->getName() .
-						' column require length specification but type ' .
-						$type->getTypeName() .
-						' max length is unspecified');
-
-				$stream->text('(')
-					->literal($maxLength)
-					->text(')');
-			}
-
-			if (($typeFlags & K::TYPE_FLAG_SIGNNESS) &&
-				($columnFlags & K::COLUMN_FLAG_UNSIGNED))
-				$stream->space()->keyword('unsigned');
-
-			if (!($columnFlags & K::COLUMN_FLAG_NULLABLE))
-			{
-				$stream->space()
-					->keyword('NOT')
-					->space()
-					->keyword('NULL');
-			}
-
-			if ($column->hasColumnProperty(K::COLUMN_DEFAULT_VALUE))
-			{
-				$v = Evaluator::evaluate(
-					$column->getColumnProperty(K::COLUMN_DEFAULT_VALUE));
-				$stream->space()
-					->keyword('DEFAULT')
-					->space()
-					->expression($v, $context);
-			}
-
-			if ($columnFlags & K::COLUMN_FLAG_AUTO_INCREMENT)
-			{
-				$ai = $context->getStatementBuilder()->getKeyword(
-					K::KEYWORD_AUTOINCREMENT);
-				if (\strlen($ai))
-					$stream->space()->keyword($ai);
-			}
+			$this->tokenizeColumnDescription($column, $stream, $context);
 		}
 
 		// Constraints
@@ -294,6 +154,147 @@ class CreateTableQuery extends Statement implements
 		$stream->text(')');
 		$context->popResolverContext();
 		return $stream;
+	}
+
+	protected function tokenizeColumnDescription(
+		ColumnStructure $column, TokenStream $stream,
+		TokenStreamContextInterface $context)
+	{
+		$isPrimary = $column->isPrimaryKey();
+		$builderFlags = $context->getStatementBuilder()->getBuilderFlags(
+			K::BUILDER_DOMAIN_GENERIC);
+		$builderFlags |= $context->getStatementBuilder()->getBuilderFlags(
+			K::BUILDER_DOMAIN_CREATE_TABLE);
+
+		$columnFlags = $column->getColumnProperty(K::COLUMN_FLAGS);
+
+		$type = $context->getStatementBuilder()->getColumnType($column);
+		if (!($type instanceof TypeInterface))
+			throw new StatementException($this,
+				'Unable to find a DBMS type for column "' .
+				$column->getName() . '"');
+		/**
+		 *
+		 * @var TypeInterface $type
+		 */
+
+		$typeName = $type->getTypeName();
+
+		$stream->identifier(
+			$context->getStatementBuilder()
+				->escapeIdentifier($column->getName()))
+			->space()
+			->identifier($typeName);
+
+		$typeFlags = TypeHelper::getProperty($type, K::TYPE_FLAGS);
+
+		$lengthSupport = (($typeFlags & K::TYPE_FLAG_LENGTH) ==
+			K::TYPE_FLAG_LENGTH);
+
+		$fractionScaleSupport = (($typeFlags &
+			K::TYPE_FLAG_FRACTION_SCALE) == K::TYPE_FLAG_FRACTION_SCALE);
+
+		$hasLength = $column->hasColumnProperty(K::COLUMN_LENGTH);
+		$hasFractionScale = $column->hasColumnProperty(
+			K::COLUMN_FRACTION_SCALE);
+
+		$hasEnumeration = $column->hasColumnProperty(
+			K::COLUMN_ENUMERATION);
+		$enumerationSupport = ($builderFlags &
+			K::BUILDER_CREATE_COLUMN_INLINE_ENUM);
+
+		if ($hasEnumeration && $enumerationSupport)
+		{
+			$stream->text('(');
+			$values = $column->getColumnProperty(K::COLUMN_ENUMERATION);
+			$i = 0;
+			foreach ($values as $value)
+			{
+				if ($i++ > 0)
+					$stream->text(', ');
+				$stream->expression($value, $context);
+			}
+			$stream->text(')');
+		}
+		elseif ($hasLength && $lengthSupport)
+		{
+			$stream->text('(')->literal(
+				$column->getColumnProperty(K::COLUMN_LENGTH));
+
+			if ($column->hasColumnProperty(K::COLUMN_FRACTION_SCALE) &&
+				$fractionScaleSupport)
+			{
+				$stream->text(', ')->literal(
+					$column->getColumnProperty(K::COLUMN_FRACTION_SCALE));
+			}
+
+			$stream->text(')');
+		}
+		elseif ($hasFractionScale && $fractionScaleSupport)
+		{
+			$scale = $column->getColumnProperty(
+				K::COLUMN_FRACTION_SCALE);
+			$length = TypeHelper::getMaxLength($type);
+			if (\is_infinite($length))
+			{
+				/**
+				 *
+				 * @todo trigger warning
+				 */
+				$length = $scale * 2;
+			}
+			$stream->text('(')
+				->literal($length)
+				->text(',')
+				->literal($scale)
+				->text(')');
+		}
+		elseif ($typeFlags & K::TYPE_FLAG_MANDATORY_LENGTH ||
+			($isPrimary &&
+			($builderFlags &
+			K::BUILDER_CREATE_COLUMN_KEY_MANDATORY_LENGTH)))
+		{
+			$maxLength = TypeHelper::getMaxLength($type);
+			if (\is_infinite($maxLength))
+				throw new StatementException($this,
+					$column->getName() .
+					' column require length specification but type ' .
+					$type->getTypeName() . ' max length is unspecified');
+
+			$stream->text('(')
+				->literal($maxLength)
+				->text(')');
+		}
+
+		if (($typeFlags & K::TYPE_FLAG_SIGNNESS) &&
+			($columnFlags & K::COLUMN_FLAG_UNSIGNED))
+			$stream->space()->keyword('unsigned');
+
+		if (!($columnFlags & K::COLUMN_FLAG_NULLABLE))
+		{
+			$stream->space()
+				->keyword('NOT')
+				->space()
+				->keyword('NULL');
+		}
+
+		if ($column->hasColumnProperty(K::COLUMN_DEFAULT_VALUE))
+		{
+			$v = Evaluator::evaluate(
+				$column->getColumnProperty(K::COLUMN_DEFAULT_VALUE));
+			$stream->space()
+				->keyword('DEFAULT')
+				->space()
+				->expression($v, $context);
+		}
+
+		if ($columnFlags & K::COLUMN_FLAG_AUTO_INCREMENT)
+		{
+			$ai = $context->getStatementBuilder()->getKeyword(
+				K::KEYWORD_AUTOINCREMENT);
+			if (\strlen($ai))
+				$stream->space()->keyword($ai);
+		}
 	}
 
 	protected function tokenizeTableConstraint(
