@@ -14,6 +14,7 @@ use NoreSources\TypeDescription;
 use NoreSources\SQL\ParameterValue;
 use NoreSources\SQL\DBMS\ConnectionHelper;
 use NoreSources\SQL\DBMS\ConnectionInterface;
+use NoreSources\SQL\DBMS\TransactionInterface;
 use NoreSources\SQL\DBMS\TransactionStackTrait;
 use NoreSources\SQL\DBMS\SQLite\SQLiteConstants as K;
 use NoreSources\SQL\Expression\Literal;
@@ -30,7 +31,8 @@ use NoreSources\SQL\Structure\StructureProviderTrait;
 /**
  * SQLite connection
  */
-class SQLiteConnection implements ConnectionInterface
+class SQLiteConnection implements ConnectionInterface,
+	TransactionInterface
 {
 	use StructureProviderTrait;
 	use TransactionStackTrait;

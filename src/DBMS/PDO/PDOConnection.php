@@ -10,10 +10,12 @@
 namespace NoreSources\SQL\DBMS\PDO;
 
 use NoreSources\Container;
+use NoreSources\TypeConversion;
 use NoreSources\TypeDescription;
 use NoreSources\SQL\DBMS\ConnectionException;
 use NoreSources\SQL\DBMS\ConnectionHelper;
 use NoreSources\SQL\DBMS\ConnectionInterface;
+use NoreSources\SQL\DBMS\TransactionInterface;
 use NoreSources\SQL\DBMS\TransactionStackTrait;
 use NoreSources\SQL\DBMS\PDO\PDOConstants as K;
 use NoreSources\SQL\DBMS\Reference\ReferenceTransactionBlock;
@@ -28,7 +30,7 @@ use NoreSources\SQL\Structure\StructureProviderTrait;
 /**
  * PDO connection
  */
-class PDOConnection implements ConnectionInterface
+class PDOConnection implements ConnectionInterface, TransactionInterface
 {
 	use StructureProviderTrait;
 	use TransactionStackTrait;
@@ -47,13 +49,17 @@ class PDOConnection implements ConnectionInterface
 	 */
 	public static function buildDSN($array)
 	{
-		return Container::implode($array, ':',
-			function ($k, $v) {
-				if (\is_integer($k))
-					return $v;
-				else
-					return $k . '=' . $v;
-			});
+		$a = Container::createArray($array);
+		$prefix = \array_shift($a);
+
+		return $prefix . ':' .
+			Container::implode($a, ':',
+				function ($k, $v) {
+					if (\is_integer($k))
+						return $v;
+					else
+						return $k . '=' . $v;
+				});
 	}
 
 	/**
@@ -112,8 +118,8 @@ class PDOConnection implements ConnectionInterface
 		}
 		catch (\PDOException $e)
 		{
-			throw new ConnectionException($this, $e->getMessage(),
-				$e->getCode());
+			throw new ConnectionException($this,
+				$e->getMessage() . ' ' . $dsn, $e->getCode());
 		}
 
 		if (Container::keyExists($parameters, K::CONNECTION_STRUCTURE))
@@ -138,16 +144,21 @@ class PDOConnection implements ConnectionInterface
 		{
 			$status = $this->connection->getAttribute(
 				\PDO::ATTR_CONNECTION_STATUS);
+			if (\is_string($status))
+			{
+				if ((\stristr($status, 'error') !== false) ||
+					(\stristr($status, 'error') !== false))
+					$status = false;
+				else
+					$status = true;
+			}
+
+			$status = TypeConversion::toBoolean($status);
 		}
 		catch (\Exception $e)
 		{}
 
 		return $status;
-	}
-
-	public function newTransactionBlock($name = null)
-	{
-		return null;
 	}
 
 	/**
@@ -190,41 +201,40 @@ class PDOConnection implements ConnectionInterface
 		return new PDOPreparedStatement($pdo, $statement);
 	}
 
+	/**
+	 *
+	 * {@inheritdoc}
+	 * @see \NoreSources\SQL\DBMS\ConnectionInterface::executeStatement()
+	 */
 	public function executeStatement($statement, $parameters = array())
 	{
 		if (!($this->connection instanceof \PDO))
 			throw new ConnectionException($this, 'Not connected');
 
-		if (!(($statement instanceof PDOPreparedStatetement) ||
-			TypeDescription::hasStringRepresentation($statement)))
+		/**
+		 *
+		 * @var \PDOStatement $pdo
+		 */
+		$pdo = null;
+
+		if ($statement instanceof PDOPreparedStatement)
 		{
+			$pdo = $this->connection->prepare(
+				$statement->getPDOStatement()->queryString);
+		}
+		elseif (TypeDescription::hasStringRepresentation($statement))
+		{
+			$pdo = $this->connection->prepare(
+				TypeConversion::toString($statement));
+		}
+		else
 			throw new \InvalidArgumentException(
 				'Invalid type ' . TypeDescription::getName($statement) .
 				' for statement argument. string or ' .
 				PDOPreparedStatementInterface::class . ' expected');
-		}
-
-		$pdo = null;
-		$prepared = null;
 
 		if (Container::count($parameters))
 		{
-			if ($statement instanceof PDOPreparedStatement)
-			{
-				if ($statement->isPDOStatementAcquired())
-					throw new ConnectionException($this,
-						'Prepared statement is acquired by another object');
-
-				$prepared = $statement;
-			}
-			else
-			{
-				$prepared = $this->prepareStatement($statement);
-			}
-
-			$pdo = $prepared->getPDOStatement();
-			$pdo->closeCursor();
-
 			foreach ($parameters as $key => $entry)
 			{
 				$dbmsName = '';
@@ -237,34 +247,21 @@ class PDOConnection implements ConnectionInterface
 					$this, $entry);
 				$pdo->bindValue($dbmsName, $value);
 			}
-
-			$result = $pdo->execute();
-			if ($result === false)
-			{
-				$error = $pdo->errorInfo();
-				$message = self::getErrorMessage($error);
-				throw new ConnectionException($this, 'Failed to execute');
-			}
 		}
-		else // Basic case
+
+		$result = $pdo->execute();
+		if ($result === false)
 		{
-			$pdo = $this->connection->query($statement);
-			if ($pdo === false)
-				throw new ConnectionException($this, 'Failed to execute');
-
-			$prepared = new PDOPreparedStatement($pdo, $statement);
+			$error = $pdo->errorInfo();
+			$message = self::getErrorMessage($error);
+			throw new ConnectionException($this, 'Failed to execute');
 		}
-
-		/**
-		 *
-		 * @var PDOPreparedStatement $prepared
-		 */
 
 		$result = true;
-		$type = Statement::statementTypeFromData($prepared);
+		$type = Statement::statementTypeFromData($statement);
 
 		if ($type == K::QUERY_SELECT)
-			$result = (new PDORecordset($prepared));
+			$result = (new PDORecordset($pdo, $statement));
 		elseif ($type == K::QUERY_INSERT)
 			$result = new GenericInsertionStatementResult(
 				$this->connection->lastInsertId());

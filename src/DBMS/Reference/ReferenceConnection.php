@@ -12,16 +12,17 @@ namespace NoreSources\SQL\DBMS\Reference;
 use NoreSources\Container;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\ConnectionInterface;
+use NoreSources\SQL\DBMS\TransactionInterface;
 use NoreSources\SQL\DBMS\TransactionStackTrait;
 use NoreSources\SQL\Statement\ClassMapStatementFactoryTrait;
-use NoreSources\SQL\Statement\StatementBuilder;
 use NoreSources\SQL\Structure\StructureElementInterface;
 use NoreSources\SQL\Structure\StructureProviderTrait;
 
 /**
  * SQLite connection
  */
-class ReferenceConnection implements ConnectionInterface
+class ReferenceConnection implements ConnectionInterface,
+	TransactionInterface
 {
 	use StructureProviderTrait;
 	use TransactionStackTrait;

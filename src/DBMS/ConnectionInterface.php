@@ -28,15 +28,6 @@ interface ConnectionInterface extends StatementBuilderProviderInterface,
 
 	/**
 	 *
-	 * @param string $name
-	 *        	Transaction block savepoint name
-	 *
-	 * @return TransactionBlockInterface
-	 */
-	function newTransactionBlock($name = null);
-
-	/**
-	 *
 	 * @param \NoreSources\SQL\Statement\\StatementData|string $statement
 	 * @return PreparedStatement
 	 */

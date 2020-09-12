@@ -21,8 +21,9 @@ use NoreSources\SQL\Structure\ColumnDescriptionInterface;
 /**
  * Recordset query result
  */
-abstract class Recordset implements \Iterator, StatementOutputDataInterface,
-	StatementResultInterface, ArrayRepresentation, \JsonSerializable, DataUnserializerInterface
+abstract class Recordset implements \Iterator,
+	StatementOutputDataInterface, StatementResultInterface,
+	ArrayRepresentation, \JsonSerializable, DataUnserializerInterface
 {
 
 	use OutputDataTrait;
@@ -105,10 +106,12 @@ abstract class Recordset implements \Iterator, StatementOutputDataInterface,
 	{
 		$previousFlags = $this->flags;
 
-		$this->flags = ($this->flags & ~self::PUBLIC_FLAGS) | ($flags & self::PUBLIC_FLAGS);
+		$this->flags = ($this->flags & ~self::PUBLIC_FLAGS) |
+			($flags & self::PUBLIC_FLAGS);
 
-		$this->rowIndex = -1;
-		$this->flags |= $flags;
+		if (($this->flags & self::FETCH_BOTH) == 0)
+			throw new RecordsetException($this,
+				'One of FETCH_ASSOCIATIVE or FETCH_INDEXED flags must be set');
 
 		if ($previousFlags != $this->flags)
 			$this->updateRecord();
@@ -205,12 +208,11 @@ abstract class Recordset implements \Iterator, StatementOutputDataInterface,
 	public function rewind()
 	{
 		$r = $this->reset();
+
 		$this->setIteratorPosition(-1, self::POSITION_BEGIN);
 
 		if ($r === true)
-		{
 			$this->next();
-		}
 		elseif (\is_array($r))
 		{
 			$this->internalRecord = $r;
@@ -224,12 +226,14 @@ abstract class Recordset implements \Iterator, StatementOutputDataInterface,
 		}
 	}
 
-	public function setDataUnserializer(DataUnserializerInterface $unserializer)
+	public function setDataUnserializer(
+		DataUnserializerInterface $unserializer)
 	{
 		$this->unserializer = $unserializer;
 	}
 
-	public function unserializeColumnData(ColumnDescriptionInterface $column, $data)
+	public function unserializeColumnData(
+		ColumnDescriptionInterface $column, $data)
 	{
 		$unserializer = $this->unserializer;
 		if (!($unserializer instanceof DataUnserializerInterface))
@@ -311,8 +315,10 @@ abstract class Recordset implements \Iterator, StatementOutputDataInterface,
 				if ($this->flags & self::FETCH_UNSERIALIZE)
 				{
 					$u = $this;
-					if ($column->hasColumnProperty(K::COLUMN_UNSERIALIZER))
-						$u = $column->getColumnProperty(K::COLUMN_UNSERIALIZER);
+					if ($column->hasColumnProperty(
+						K::COLUMN_UNSERIALIZER))
+						$u = $column->getColumnProperty(
+							K::COLUMN_UNSERIALIZER);
 
 					$value = $u->unserializeColumnData($column, $value);
 				}

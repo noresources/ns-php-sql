@@ -13,6 +13,8 @@ use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\PreparedStatementInterface;
 use NoreSources\SQL\DBMS\TransactionBlockException;
 use NoreSources\SQL\DBMS\TransactionBlockInterface;
+use NoreSources\SQL\DBMS\TransactionInterface;
+use NoreSources\SQL\DBMS\PDO\PDOConnection;
 use NoreSources\SQL\Expression\CastFunction;
 use NoreSources\SQL\Expression\Literal;
 use NoreSources\SQL\Expression\Parameter;
@@ -90,17 +92,21 @@ final class DBMSCommonTest extends TestCase
 
 		foreach ($settings as $dbmsName)
 		{
-			$this->dbmsTestTypes($dbmsName);
+			$connection = $this->connections->get($dbmsName);
+			$this->assertInstanceOf(ConnectionInterface::class,
+				$connection, $dbmsName);
+
+			if ($connection instanceof PDOConnection)
+				continue;
+
+			$this->assertTrue($connection->isConnected(), $dbmsName);
+			$this->dbmsTestTypes($connection, $dbmsName);
 		}
 	}
 
-	public function dbmsTestTypes($dbmsName)
+	public function dbmsTestTypes(ConnectionInterface $connection,
+		$dbmsName)
 	{
-		$connection = $this->connections->get($dbmsName);
-		$this->assertInstanceOf(ConnectionInterface::class, $connection,
-			$dbmsName);
-		$this->assertTrue($connection->isConnected(), $dbmsName);
-
 		$structure = $this->structures->get('types');
 		$this->assertInstanceOf(StructureElementInterface::class,
 			$structure);
@@ -166,14 +172,14 @@ final class DBMSCommonTest extends TestCase
 					'insert' => 4.56,
 					'expected' => 4.56
 				]
-			/**
+				/*
 			 * Unfortunately some DBMS does not really support time zone spec
 			 * (ex MySQL)
 			 */
-			// 'timestamp_tz' => [
-			// 'insert' => new \DateTime('2010-11-12T13:14:15+0400'),
-			// 'expected' => new \DateTime('2010-11-12T13:14:15+0400')
-			// ]
+				// 'timestamp_tz' => [
+				// 'insert' => new \DateTime('2010-11-12T13:14:15+0400'),
+				// 'expected' => new \DateTime('2010-11-12T13:14:15+0400')
+				// ]
 			]
 		];
 
@@ -314,6 +320,9 @@ final class DBMSCommonTest extends TestCase
 			$connection = $this->connections->get($dbmsName);
 			$this->assertInstanceOf(ConnectionInterface::class,
 				$connection, $dbmsName);
+			if ($connection instanceof PDOConnection)
+				continue;
+
 			$this->assertTrue($connection->isConnected(), $dbmsName);
 			$structure = $this->structures->get('types');
 			$this->assertInstanceOf(StructureElementInterface::class,
@@ -416,9 +425,10 @@ final class DBMSCommonTest extends TestCase
 			if (DBMSTestSilentLogger::getInstance()->count())
 				continue;
 
-			$this->derivedFileManager->assertDerivedFile(
-				\strval($select) . PHP_EOL, $method,
-				$dbmsName . '_' . $format, 'sql');
+			if (!($connection instanceof PDOConnection))
+				$this->derivedFileManager->assertDerivedFile(
+					\strval($select) . PHP_EOL, $method,
+					$dbmsName . '_' . $format, 'sql');
 
 			foreach ($timestamps as $test => $dateTime)
 			{
@@ -454,6 +464,8 @@ final class DBMSCommonTest extends TestCase
 			$connection = $this->connections->get($dbmsName);
 			$this->assertInstanceOf(ConnectionInterface::class,
 				$connection, $dbmsName);
+			if ($connection instanceof PDOConnection)
+				continue;
 			$this->assertTrue($connection->isConnected(), $dbmsName);
 
 			$structure = $this->structures->get('types');
@@ -493,8 +505,9 @@ final class DBMSCommonTest extends TestCase
 		$insert = ConnectionHelper::prepareStatement($connection, $i,
 			$tableStructure);
 		$sql = \SqlFormatter::format(\strval($insert), false);
-		$this->derivedFileManager->assertDerivedFile($sql, $method,
-			$dbmsName . '_insert', 'sql');
+		if (!($connection instanceof PDOConnection))
+			$this->derivedFileManager->assertDerivedFile($sql, $method,
+				$dbmsName . '_insert', 'sql');
 
 		$tests = [
 			[
@@ -642,16 +655,15 @@ final class DBMSCommonTest extends TestCase
 				$connection, $dbmsName);
 			$this->assertTrue($connection->isConnected(), $dbmsName);
 
-			if (true)
-			{
-				$b = $connection->newTransactionBlock(
-					'A lonely transaction');
-				$this->assertInstanceOf(
-					TransactionBlockInterface::class, $b);
-				$b->commit();
-				$this->assertEquals(K::TRANSACTION_STATE_COMMITTED,
-					$b->getBlockState(), 'Lonely transaction state');
-			}
+			if (!($connection instanceof TransactionInterface))
+				continue;
+
+			$b = $connection->newTransactionBlock(
+				'A lonely transaction');
+			$this->assertInstanceOf(TransactionBlockInterface::class, $b);
+			$b->commit();
+			$this->assertEquals(K::TRANSACTION_STATE_COMMITTED,
+				$b->getBlockState(), 'Lonely transaction state');
 
 			$structure = $this->structures->get('keyvalue');
 			$this->assertInstanceOf(StructureElementInterface::class,
@@ -659,6 +671,9 @@ final class DBMSCommonTest extends TestCase
 			$tableStructure = $structure['ns_unittests']['keyvalue'];
 			$this->assertInstanceOf(TableStructure::class,
 				$tableStructure);
+
+			if ($connection instanceof PDOConnection)
+				continue;
 
 			$this->recreateTable($connection, $tableStructure);
 			$this->connectionTransactionTest($connection,
@@ -815,7 +830,7 @@ final class DBMSCommonTest extends TestCase
 		}
 	}
 
-	public function testParametersEmployees()
+	public function testEmployeesTable()
 	{
 		$structure = $this->structures->get('Company');
 		$tableStructure = $structure['ns_unittests']['Employees'];
@@ -831,11 +846,11 @@ final class DBMSCommonTest extends TestCase
 				$connection, $dbmsName);
 			$this->assertTrue($connection->isConnected(), $dbmsName);
 
-			$this->employeesTest($tableStructure, $connection);
+			$this->dbmsEmployeesTable($tableStructure, $connection);
 		}
 	}
 
-	private function employeesTest(TableStructure $tableStructure,
+	private function dbmsEmployeesTable(TableStructure $tableStructure,
 		ConnectionInterface $connection)
 	{
 		$dbmsName = TypeDescription::getLocalName($connection);
@@ -861,8 +876,9 @@ final class DBMSCommonTest extends TestCase
 
 		$sql = strval($preparedInsert);
 		$sql = \SqlFormatter::format(strval($sql), false);
-		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__,
-			$dbmsName . '_insert', 'sql');
+		if (!($connection instanceof PDOConnection))
+			$this->derivedFileManager->assertDerivedFile($sql,
+				__METHOD__, $dbmsName . '_insert', 'sql');
 
 		$p = [
 			'nameValue' => 'Bob',
@@ -883,18 +899,37 @@ final class DBMSCommonTest extends TestCase
 			$dbmsName . ' ' . $preparedInsert);
 
 		// Test result column count when no column are specified (select * from ...)
-		$basicSelectQuery = new SelectQuery($tableStructure);
+
+		/**
+		 *
+		 * @var SelectQuery $basicSelectQuery
+		 */
+		$basicSelectQuery = $connection->getStatementBuilder()->newStatement(
+			K::QUERY_SELECT);
+
+		$basicSelectQuery->from($tableStructure);
+
 		$preparedBasicSelect = ConnectionHelper::prepareStatement(
 			$connection, $basicSelectQuery, $tableStructure);
 		$this->assertInstanceOf(PreparedStatementInterface::class,
 			$preparedBasicSelect, $dbmsName);
 
-		$this->assertCount(4, $preparedBasicSelect->getResultColumns(),
+		$expectedColumnCount = 4;
+
+		$this->assertCount($expectedColumnCount,
+			$preparedBasicSelect->getResultColumns(),
 			$dbmsName .
 			' Prepared statement result columns count (auto-detected)');
 
-		$selectColumnQuery = new SelectQuery($tableStructure);
-		$selectColumnQuery->columns('name', 'gender', 'salary');
+		/**
+		 *
+		 * @var SelectQuery $selectColumnQuery
+		 */
+		$selectColumnQuery = $connection->getStatementBuilder()->newStatement(
+			K::QUERY_SELECT);
+		$selectColumnQuery->from($tableStructure);
+		$selectColumnQuery->columns('name', 'gender', 'salary')->orderBy(
+			'id');
 
 		$preparedSelectColumn = ConnectionHelper::prepareStatement(
 			$connection, $selectColumnQuery, $tableStructure);
@@ -902,6 +937,41 @@ final class DBMSCommonTest extends TestCase
 			$preparedSelectColumn, $dbmsName);
 		$this->assertCount(3, $preparedSelectColumn->getResultColumns(),
 			$dbmsName . ' Prepared statement result columns count');
+
+		$lastTwo = [
+			[
+				'id' => 3,
+				'name' => 'Alice',
+				'gender' => 'F',
+				'salary' => 2002.50
+			],
+			[
+				'id' => 4,
+				'name' => 'George Orwell',
+				'gender' => 'M',
+				'salary' => 1984
+			]
+		];
+
+		foreach ($lastTwo as $row)
+		{
+			/**
+			 *
+			 * @var InsertQuery $q
+			 */
+			$q = $connection->getStatementBuilder()->newStatement(
+				K::QUERY_INSERT);
+			$q->into($tableStructure);
+			foreach ($row as $name => $value)
+				$q->setColumnValue($name, new Literal($value));
+
+			$r = $connection->executeStatement(
+				ConnectionHelper::prepareStatement($connection, $q,
+					$tableStructure));
+
+			$this->assertInstanceOf(
+				InsertionStatementResultInterface::class, $r);
+		}
 
 		$result = $connection->executeStatement($preparedSelectColumn);
 		$this->assertInstanceOf(Recordset::class, $result, $dbmsName,
@@ -922,6 +992,22 @@ final class DBMSCommonTest extends TestCase
 				'salary' => 2000.
 			]
 		];
+
+		$expected = \array_merge($expected,
+			\array_map(
+				function ($row) {
+					return Container::filter($row,
+						function ($k, $v) {
+							return $k != 'id';
+						});
+				}, $lastTwo));
+
+		$this->assertCount(4, $expected, 'Expected result count');
+		$expectedRowCount = \count($expected);
+
+		if ($result instanceof \Countable)
+			$this->assertEquals($expectedRowCount, $result->count(),
+				$dbmsName . ' result row count');
 
 		list ($_, $expectedResultColumnKeys) = Container::first(
 			$expected);
@@ -949,16 +1035,115 @@ final class DBMSCommonTest extends TestCase
 			$index++;
 		}
 
-		$index = 0;
-		foreach ($result as $row)
+		// Test recordset rewind
+		for ($pass = 1; $pass <= 2; $pass++)
 		{
-			foreach ($expected[$index] as $name => $value)
+			$index = 0;
+			foreach ($result as $row)
 			{
-				$this->assertEquals($value, $row[$name],
-					$dbmsName . ' Row ' . $index . ' column ' . $name);
+				foreach ($expected[$index] as $name => $value)
+				{
+					$this->assertEquals($value, $row[$name],
+						$dbmsName . ' Pass ' . $pass . ' Row ' . $index .
+						' column ' . $name);
+				}
+
+				$index++;
+			}
+		}
+
+		/*
+		 * Use iterator interface manually
+		 */
+		{
+			$rowCount = 0;
+			$result->rewind();
+			$result->setFlags(
+				K::RECORDSET_FETCH_ASSOCIATIVE |
+				K::RECORDSET_FETCH_UBSERIALIZE);
+
+			while ($result->valid())
+			{
+				$row = $result->current();
+				$this->assertEquals($expected[$rowCount], $row,
+					$dbmsName . ' ' . \strval($preparedSelectColumn) .
+					' using Iterator interface; row ' . $rowCount .
+					' content');
+				$result->next();
+				$rowCount++;
 			}
 
-			$index++;
+			$this->assertEquals($expectedRowCount, $rowCount,
+				$dbmsName . ' using Iterator interface; row count');
+		}
+
+		{
+			/*
+			 * Ensure recorrdset based on the same premared statement
+			 * are not linked together
+			 *
+			 */
+
+			$results = [];
+			$results[] = $connection->executeStatement(
+				$preparedSelectColumn);
+			$results[] = $connection->executeStatement(
+				$preparedSelectColumn);
+
+			for ($i = 0; $i < 2; $i++)
+			{
+				$results[$i]->setFlags(
+					K::RECORDSET_FETCH_ASSOCIATIVE |
+					K::RECORDSET_FETCH_UBSERIALIZE);
+				$results[$i]->rewind();
+				if ($results[$i] instanceof \Countable)
+					$this->assertCount($expectedRowCount, $results[$i]);
+			}
+
+			$this->assertTrue($results[0]->valid(),
+				$dbmsName . ' manual rewind');
+			$this->assertEquals($expected[0], $results[0]->current(),
+				$dbmsName . ' manual rewind');
+			$results[0]->next();
+			$this->assertTrue($results[0]->valid(),
+				$dbmsName . ' manual next() 1');
+			$this->assertEquals($expected[1], $results[0]->current(),
+				$dbmsName . ' manual next() 1');
+			$results[0]->next();
+
+			$expectedRowIndexes = [
+				2,
+				0
+			];
+			$rowCount = [
+				0,
+				0
+			];
+
+			while (($results[0]->valid() || $results[1]->valid()))
+			{
+				for ($i = 0; $i < 2; $i++)
+				{
+					if (!$results[$i]->valid())
+						continue;
+
+					$expectedRow = $expected[$expectedRowIndexes[$i]];
+					$row = $results[$i]->current();
+
+					$this->assertEquals($expectedRow, $row,
+						$dbmsName . ' recordset ' . $i . ' row ' .
+						$expectedRowIndexes[$i]);
+
+					$results[$i]->next();
+					$expectedRowIndexes[$i]++;
+					$rowCount[$i]++;
+				}
+			}
+
+			$this->assertEquals($expectedRowCount - 2, $rowCount[0],
+				$dbmsName . ' recordset 0 fetched row count');
+			$this->assertEquals($expectedRowCount, $rowCount[1],
+				$dbmsName . ' recordset 1 fetched row count');
 		}
 
 		$selectByNameParamQuery = new SelectQuery('Employees');
@@ -1007,7 +1192,8 @@ final class DBMSCommonTest extends TestCase
 				foreach ($result as $row)
 				{
 					$this->assertArrayHasKey($index, $test['rows'],
-						'Rows of ' . $testName . '(pass ' . $pass . ')');
+						$dbmsName . ' Rows of ' . $testName . ' (pass ' .
+						$pass . ')');
 					$index++;
 				}
 
@@ -1067,8 +1253,11 @@ final class DBMSCommonTest extends TestCase
 		$data = ConnectionHelper::buildStatement($connection,
 			$createTable, $tableStructure);
 		$sql = \SqlFormatter::format(strval($data), false);
-		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__,
-			$dbmsName . '_create_' . $tableStructure->getName(), 'sql');
+		if (!($connection instanceof PDOConnection))
+			$this->derivedFileManager->assertDerivedFile($sql,
+				__METHOD__,
+				$dbmsName . '_create_' . $tableStructure->getName(),
+				'sql');
 
 		try
 		{

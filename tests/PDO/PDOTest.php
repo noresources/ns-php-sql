@@ -2,9 +2,12 @@
 namespace NoreSources\SQL;
 
 // Uses
+use NoreSources\TypeDescription;
 use NoreSources\SQL\DBMS\ConnectionHelper;
 use NoreSources\SQL\DBMS\PDO\PDOConnection;
 use NoreSources\SQL\DBMS\PDO\PDOConstants as K;
+use NoreSources\SQL\DBMS\PDO\PDOPreparedStatement;
+use NoreSources\SQL\DBMS\PDO\PDORecordset;
 use NoreSources\SQL\Result\RowModificationStatementResultInterface;
 use NoreSources\SQL\Statement\Manipulation\UpdateQuery;
 use NoreSources\SQL\Statement\Query\SelectQuery;
@@ -96,7 +99,8 @@ final class PDOTest extends \PHPUnit\Framework\TestCase
 		}
 
 		$this->assertEquals($expectedRowCount, $b,
-			'Second pass, row count');
+			TypeDescription::getLocalName($recordset) .
+			' Second pass, row count');
 	}
 
 	public function testSQLiteCreateInsertUpdateDelete()
@@ -142,8 +146,7 @@ final class PDOTest extends \PHPUnit\Framework\TestCase
 
 		$prepared = ConnectionHelper::prepareStatement($connection,
 			$insert, $detachedTable);
-		$this->assertInstanceOf(DBMS\PDO\PDOPreparedStatement::class,
-			$prepared);
+		$this->assertInstanceOf(PDOPreparedStatement::class, $prepared);
 		$sql = strval($prepared);
 		$this->derivedFileManager->assertDerivedFile(
 			\SqlFormatter::format($sql, false), __METHOD__, 'insert',
@@ -188,7 +191,7 @@ final class PDOTest extends \PHPUnit\Framework\TestCase
 
 		$preparedSelect = ConnectionHelper::prepareStatement(
 			$connection, $select, $detachedTable);
-		$this->assertInstanceOf(DBMS\PDO\PDOPreparedStatement::class,
+		$this->assertInstanceOf(PDOPreparedStatement::class,
 			$preparedSelect);
 		$sql = strval($preparedSelect);
 		$this->derivedFileManager->assertDerivedFile(
@@ -196,7 +199,7 @@ final class PDOTest extends \PHPUnit\Framework\TestCase
 			'sql');
 
 		$result = $connection->executeStatement($preparedSelect);
-		$this->assertInstanceOf(DBMS\PDO\PDORecordset::class, $result);
+		$this->assertInstanceOf(PDORecordset::class, $result);
 
 		$expected = [
 			$employees[1],
@@ -219,8 +222,7 @@ final class PDOTest extends \PHPUnit\Framework\TestCase
 
 		$prepared = ConnectionHelper::prepareStatement($connection,
 			$update, $detachedTable);
-		$this->assertInstanceOf(DBMS\PDO\PDOPreparedStatement::class,
-			$prepared);
+		$this->assertInstanceOf(PDOPreparedStatement::class, $prepared);
 		$sql = strval($prepared);
 		$this->derivedFileManager->assertDerivedFile(
 			\SqlFormatter::format($sql, false), __METHOD__, 'update',
@@ -231,7 +233,7 @@ final class PDOTest extends \PHPUnit\Framework\TestCase
 			RowModificationStatementResultInterface::class, $result);
 
 		$result = $connection->executeStatement($preparedSelect);
-		$this->assertInstanceOf(DBMS\PDO\PDORecordset::class, $result);
+		$this->assertInstanceOf(PDORecordset::class, $result);
 
 		$c = 0;
 		foreach ($result as $index => $row)

@@ -15,6 +15,7 @@ use NoreSources\SQL\ParameterValue;
 use NoreSources\SQL\DBMS\ConnectionException;
 use NoreSources\SQL\DBMS\ConnectionHelper;
 use NoreSources\SQL\DBMS\ConnectionInterface;
+use NoreSources\SQL\DBMS\TransactionInterface;
 use NoreSources\SQL\DBMS\TransactionStackTrait;
 use NoreSources\SQL\DBMS\MySQL\MySQLConstants as K;
 use NoreSources\SQL\Expression\Literal;
@@ -28,7 +29,8 @@ use NoreSources\SQL\Structure\StructureProviderTrait;
 /**
  * MySQL or MariaDB connection
  */
-class MySQLConnection implements ConnectionInterface
+class MySQLConnection implements ConnectionInterface,
+	TransactionInterface
 {
 	use StructureProviderTrait;
 	use TransactionStackTrait;

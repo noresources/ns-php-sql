@@ -16,6 +16,7 @@ use NoreSources\SQL\ParameterValue;
 use NoreSources\SQL\DBMS\ConnectionException;
 use NoreSources\SQL\DBMS\ConnectionHelper;
 use NoreSources\SQL\DBMS\ConnectionInterface;
+use NoreSources\SQL\DBMS\TransactionInterface;
 use NoreSources\SQL\DBMS\TransactionStackTrait;
 use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLConstants as K;
 use NoreSources\SQL\Result\GenericInsertionStatementResult;
@@ -27,7 +28,8 @@ use NoreSources\SQL\Statement\StatementBuilderInterface;
 use NoreSources\SQL\Structure\StructureElementInterface;
 use NoreSources\SQL\Structure\StructureProviderTrait;
 
-class PostgreSQLConnection implements ConnectionInterface
+class PostgreSQLConnection implements ConnectionInterface,
+	TransactionInterface
 {
 
 	use StructureProviderTrait;

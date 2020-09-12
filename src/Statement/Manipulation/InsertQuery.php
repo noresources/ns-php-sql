@@ -22,6 +22,8 @@ use NoreSources\SQL\Statement\Statement;
 use NoreSources\SQL\Statement\StatementException;
 use NoreSources\SQL\Statement\Traits\ColumnValueTrait;
 use NoreSources\SQL\Statement\Traits\StatementTableTrait;
+use NoreSources\SQL\Structure\ColumnStructure;
+use NoreSources\SQL\Structure\TableStructure;
 
 /**
  * INSERT query
@@ -31,6 +33,18 @@ class InsertQuery extends Statement implements \ArrayAccess
 
 	use ColumnValueTrait;
 	use StatementTableTrait;
+
+	/**
+	 * Alias of table() method
+	 *
+	 * @param TableStructure|string $table
+	 *        	Table structure path.
+	 * @return \NoreSources\SQL\Statement\Manipulation\InsertQuery
+	 */
+	public function into($table)
+	{
+		return $this->table($table);
+	}
 
 	/**
 	 *
@@ -45,10 +59,13 @@ class InsertQuery extends Statement implements \ArrayAccess
 		$this->columnValues = new \ArrayObject();
 	}
 
-	public function tokenize(TokenStream $stream, TokenStreamContextInterface $context)
+	public function tokenize(TokenStream $stream,
+		TokenStreamContextInterface $context)
 	{
-		$builderFlags = $context->getStatementBuilder()->getBuilderFlags(K::BUILDER_DOMAIN_GENERIC);
-		$builderFlags |= $context->getStatementBuilder()->getBuilderFlags(K::BUILDER_DOMAIN_INSERT);
+		$builderFlags = $context->getStatementBuilder()->getBuilderFlags(
+			K::BUILDER_DOMAIN_GENERIC);
+		$builderFlags |= $context->getStatementBuilder()->getBuilderFlags(
+			K::BUILDER_DOMAIN_INSERT);
 
 		$tableStructure = $context->findTable($this->getTable()->path);
 		$context->setStatementType(K::QUERY_INSERT);
@@ -64,8 +81,9 @@ class InsertQuery extends Statement implements \ArrayAccess
 			->space()
 			->keyword('into')
 			->space()
-			->identifier($context->getStatementBuilder()
-			->getCanonicalName($tableStructure));
+			->identifier(
+			$context->getStatementBuilder()
+				->getCanonicalName($tableStructure));
 		if ($this->getTable()->alias)
 		{
 			$stream->space()
@@ -78,7 +96,8 @@ class InsertQuery extends Statement implements \ArrayAccess
 		$values = [];
 		$c = $this->columnValues->count();
 
-		if (($c == 0) && ($builderFlags & K::BUILDER_INSERT_DEFAULT_VALUES))
+		if (($c == 0) &&
+			($builderFlags & K::BUILDER_INSERT_DEFAULT_VALUES))
 		{
 			$stream->space()->keyword('DEFAULT VALUES');
 			$context->popResolverContext();
@@ -88,9 +107,11 @@ class InsertQuery extends Statement implements \ArrayAccess
 		foreach ($this->columnValues as $columnName => $value)
 		{
 			if (!$tableStructure->offsetExists($columnName))
-				throw new StatementException($this, 'Invalid column "' . $columnName . '"');
+				throw new StatementException($this,
+					'Invalid column "' . $columnName . '"');
 
-			$columns[] = $context->getStatementBuilder()->escapeIdentifier($columnName);
+			$columns[] = $context->getStatementBuilder()->escapeIdentifier(
+				$columnName);
 			$column = $tableStructure->offsetGet($columnName);
 			/**
 			 *
@@ -100,7 +121,8 @@ class InsertQuery extends Statement implements \ArrayAccess
 			{
 				$type = K::DATATYPE_UNDEFINED;
 				if ($column->hasColumnProperty(K::COLUMN_DATA_TYPE))
-					$type = $column->getColumnProperty(K::COLUMN_DATA_TYPE);
+					$type = $column->getColumnProperty(
+						K::COLUMN_DATA_TYPE);
 
 				$value = new Literal($value, $type);
 			}
@@ -120,7 +142,8 @@ class InsertQuery extends Statement implements \ArrayAccess
 				if ($column->hasColumnProperty(K::COLUMN_DEFAULT_VALUE))
 				{
 					$c++;
-					$columns[] = $context->getStatementBuilder()->escapeIdentifier($name);
+					$columns[] = $context->getStatementBuilder()->escapeIdentifier(
+						$name);
 					if ($builderFlags & K::BUILDER_INSERT_DEFAULT_KEYWORD)
 					{
 						$values[] = new Keyword(K::KEYWORD_DEFAULT);
@@ -128,7 +151,8 @@ class InsertQuery extends Statement implements \ArrayAccess
 					else
 					{
 						$x = Evaluator::evaluate(
-							$column->getColumnProperty(K::COLUMN_DEFAULT_VALUE));
+							$column->getColumnProperty(
+								K::COLUMN_DEFAULT_VALUE));
 						$values[] = $x;
 					}
 				}

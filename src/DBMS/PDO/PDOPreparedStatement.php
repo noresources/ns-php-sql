@@ -10,7 +10,6 @@
 namespace NoreSources\SQL\DBMS\PDO;
 
 use NoreSources\Container;
-use NoreSources\TypeDescription;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\PreparedStatementInterface;
 use NoreSources\SQL\Statement\InputDataTrait;
@@ -39,8 +38,7 @@ class PDOPreparedStatement implements PreparedStatementInterface
 			$this->initializeInputData(null);
 		$this->initializeOutputData($data);
 
-		$this->statement = $statement;
-		$this->statementOwner = null;
+		$this->pdoStatement = $statement;
 
 		if ($this->getStatementType() == 0)
 			$this->statementType = SQL\Statement::statementTypeFromData(
@@ -101,59 +99,22 @@ class PDOPreparedStatement implements PreparedStatementInterface
 
 	public function __destruct()
 	{
-		$this->statement->closeCursor();
+		$this->pdoStatement->closeCursor();
 	}
 
 	public function __toString()
 	{
-		return $this->statement->queryString;
-	}
-
-	public function acquirePDOStatement($by)
-	{
-		if ($this->statementOwner !== null)
-		{
-			if ($this->statementOwner !== $by)
-			{
-				throw new \LogicException(
-					'Statement is already acquired by ' .
-					TypeDescription::getName($this->statementOwner));
-			}
-		}
-
-		$this->statementOwner = $by;
-	}
-
-	public function releasePDOStatement($by)
-	{
-		if ($this->statementOwner === null)
-		{
-			if ($this->statementOwner !== $by)
-			{
-				throw new \LogicException(
-					TypeDescription::getName($by) .
-					' is not the owner of the PDOStatement');
-			}
-		}
-
-		$this->statementOwner = null;
-	}
-
-	public function isPDOStatementAcquired()
-	{
-		return ($this->statementOwner !== null);
+		return $this->pdoStatement->queryString;
 	}
 
 	public function getPDOStatement()
 	{
-		return $this->statement;
+		return $this->pdoStatement;
 	}
 
 	/**
 	 *
 	 * @var \PDOStatement
 	 */
-	private $statement;
-
-	private $statementOwner;
+	private $pdoStatement;
 }
