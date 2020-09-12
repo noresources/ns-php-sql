@@ -56,13 +56,18 @@ final class PostgreSQLTest extends \PHPUnit\Framework\TestCase
 	{
 		$structure = $this->datasources->get('Company');
 
+		/**
+		 *
+		 * @var PostgreSQLConnection $connection
+		 */
 		$connection = self::createConnection();
 
 		$builder = $connection->getStatementBuilder();
 		$this->assertInstanceOf(PostgreSQLStatementBuilder::class,
 			$builder);
 
-		$version = $connection->getPostgreSQLVersion();
+		$version = $connection->getPlatform()->getPlatformVersion(
+			K::PLATFORM_VERSION_COMPATIBILITY);
 		$versionString = $version->slice(SemanticVersion::MAJOR,
 			SemanticVersion::MINOR);
 

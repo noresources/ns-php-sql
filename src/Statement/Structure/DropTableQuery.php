@@ -12,10 +12,12 @@
 namespace NoreSources\SQL\Statement\Structure;
 
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\Expression\StructureElementIdentifier;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Expression\TokenStreamContextInterface;
 use NoreSources\SQL\Statement\Statement;
 use NoreSources\SQL\Statement\Traits\StatementTableTrait;
+use NoreSources\SQL\Structure\TableStructure;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -65,11 +67,25 @@ class DropTableQuery extends Statement
 		return $this;
 	}
 
-	public function tokenize(TokenStream $stream, TokenStreamContextInterface $context)
+	public function tokenize(TokenStream $stream,
+		TokenStreamContextInterface $context)
 	{
 		$builder = $context->getStatementBuilder();
-		$builderFlags = $builder->getBuilderFlags(K::BUILDER_DOMAIN_GENERIC);
-		$builderFlags |= $builder->getBuilderFlags(K::BUILDER_DOMAIN_DROP_TABLE);
+		$platform = $builder->getPlatform();
+
+		$cascade = ($this->dropFlags & self::CASCADE) &&
+			$platform->queryFeature(
+				[
+					K::PLATFORM_FEATURE_DROP,
+					K::PLATFORM_FEATURE_CASCADE
+				], false);
+
+		$existsCondition = $platform->queryFeature(
+			[
+				K::PLATFORM_FEATURE_DROP,
+				K::PLATFORM_FEATURE_TABLE,
+				K::PLATFORM_FEATURE_EXISTS_CONDITION
+			], false);
 
 		$context->setStatementType(K::QUERY_DROP_TABLE);
 
@@ -77,7 +93,7 @@ class DropTableQuery extends Statement
 			->space()
 			->keyword('table');
 
-		if ($builderFlags & K::BUILDER_IF_EXISTS)
+		if ($existsCondition)
 		{
 			$stream->space()
 				->keyword('if')
@@ -85,12 +101,14 @@ class DropTableQuery extends Statement
 				->keyword('exists');
 		}
 
-		$stream->space()->identifier($builder->getCanonicalName($this->getTable()
-			->getPathParts()));
+		$stream->space()->identifier(
+			$builder->getCanonicalName(
+				$this->getTable()
+					->getPathParts()));
 
 		if ($this->dropFlags & self::CASCADE)
 		{
-			if ($builderFlags & K::BUILDER_DROP_CASCADE)
+			if ($cascade)
 				$stream->space()->keyword('cascade');
 			elseif ($builder instanceof LoggerInterface)
 				$builder->notice('CASCADE option is not supported');

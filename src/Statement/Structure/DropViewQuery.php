@@ -56,23 +56,36 @@ class DropViewQuery extends Statement
 		if ($identifier instanceof StructureElementIdentifier)
 			$this->viewIdentifier = $identifier;
 		else
-			$this->viewIdentifier = new StructureElementIdentifier(\strval($identifier));
+			$this->viewIdentifier = new StructureElementIdentifier(
+				\strval($identifier));
 
 		return $this;
 	}
 
-	public function tokenize(TokenStream $stream, TokenStreamContextInterface $context)
+	public function tokenize(TokenStream $stream,
+		TokenStreamContextInterface $context)
 	{
 		$builder = $context->getStatementBuilder();
-		$builderFlags = $builder->getBuilderFlags(K::BUILDER_DOMAIN_GENERIC);
-		$builderFlags |= $builder->getBuilderFlags(K::BUILDER_DOMAIN_DROP_VIEW);
+		$platform = $builder->getPlatform();
+
+		$hasExistsCondition = $platform->queryFeature(
+			[
+				K::PLATFORM_FEATURE_DROP,
+				K::PLATFORM_FEATURE_VIEW,
+				K::PLATFORM_FEATURE_EXISTS_CONDITION
+			], false);
+		$scopedStructure = $platform->queryFeature(
+			[
+				K::PLATFORM_FEATURE_VIEW,
+				K::PLATFORM_FEATURE_SCOPED
+			], false);
 
 		$context->setStatementType(K::QUERY_DROP_VIEW);
 
 		$stream->keyword('drop')
 			->space()
 			->keyword('view');
-		if ($builderFlags & K::BUILDER_IF_EXISTS)
+		if ($hasExistsCondition)
 		{
 			$stream->space()
 				->keyword('if')
@@ -82,7 +95,7 @@ class DropViewQuery extends Statement
 
 		$stream->space();
 
-		if ($builderFlags & K::BUILDER_SCOPED_STRUCTURE_DECLARATION)
+		if ($scopedStructure)
 		{
 			$parts = $this->viewIdentifier->getPathParts();
 			if (\count($parts) > 1)
@@ -94,14 +107,19 @@ class DropViewQuery extends Statement
 					$structure = $structure->getParentElement();
 
 				if ($structure instanceof NamespaceStructure)
-					$stream->identifier($builder->getCanonicalName($structure))
+					$stream->identifier(
+						$builder->getCanonicalName($structure))
 						->text('.');
 
-				$stream->identifier($builder->escapeIdentifier($this->viewIdentifier->path));
+				$stream->identifier(
+					$builder->escapeIdentifier(
+						$this->viewIdentifier->path));
 			}
 		}
 		else
-			$stream->identifier($builder->escapeIdentifier($this->viewIdentifier->getLocalName()));
+			$stream->identifier(
+				$builder->escapeIdentifier(
+					$this->viewIdentifier->getLocalName()));
 
 		return $stream;
 	}

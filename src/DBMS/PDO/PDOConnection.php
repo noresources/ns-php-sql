@@ -10,15 +10,20 @@
 namespace NoreSources\SQL\DBMS\PDO;
 
 use NoreSources\Container;
+use NoreSources\SemanticVersion;
 use NoreSources\TypeConversion;
 use NoreSources\TypeDescription;
 use NoreSources\SQL\DBMS\ConnectionException;
 use NoreSources\SQL\DBMS\ConnectionHelper;
 use NoreSources\SQL\DBMS\ConnectionInterface;
+use NoreSources\SQL\DBMS\PlatformProviderTrait;
 use NoreSources\SQL\DBMS\TransactionInterface;
 use NoreSources\SQL\DBMS\TransactionStackTrait;
+use NoreSources\SQL\DBMS\MySQL\MySQLPlatform;
 use NoreSources\SQL\DBMS\PDO\PDOConstants as K;
+use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLPlatform;
 use NoreSources\SQL\DBMS\Reference\ReferenceTransactionBlock;
+use NoreSources\SQL\DBMS\SQLite\SQLitePlatform;
 use NoreSources\SQL\Result\GenericInsertionStatementResult;
 use NoreSources\SQL\Result\GenericRowModificationStatementResult;
 use NoreSources\SQL\Statement\ParameterData;
@@ -34,6 +39,7 @@ class PDOConnection implements ConnectionInterface, TransactionInterface
 {
 	use StructureProviderTrait;
 	use TransactionStackTrait;
+	use PlatformProviderTrait;
 
 	const DRIVER_MYSQL = 'mysql';
 
@@ -76,7 +82,6 @@ class PDOConnection implements ConnectionInterface, TransactionInterface
 	 */
 	public function __construct($parameters)
 	{
-		$this->builder = new PDOStatementBuilder($this);
 		$this->connection = null;
 		$this->setTransactionBlockFactory(
 			function ($depth, $name) {
@@ -114,7 +119,6 @@ class PDOConnection implements ConnectionInterface, TransactionInterface
 		{
 			$this->connection = new \PDO($dsn, $user, $password,
 				$options);
-			$this->builder->configure($this->connection);
 		}
 		catch (\PDOException $e)
 		{
@@ -161,13 +165,68 @@ class PDOConnection implements ConnectionInterface, TransactionInterface
 		return $status;
 	}
 
+	public function getPlatform()
+	{
+		if (!isset($this->platform))
+		{
+			$driverClassname = PDOPlatform::class;
+			try
+			{
+				$driver = $this->getPDOAttribute(\PDO::ATTR_DRIVER_NAME);
+
+				$driverClassname = Container::keyValue(
+					[
+						'pgsql' => PostgreSQLPlatform::class,
+						'sqlite' => SQLitePlatform::class,
+						'mysql' => MySQLPlatform::class
+					], $driver, $driverClassname);
+			}
+			catch (\Exception $e)
+			{}
+
+			$cls = new \ReflectionClass($driverClassname);
+			$version = '0.0.0';
+			if ($cls->hasConstant('DEFAULT_VERSION'))
+				$version = $cls->getConstant('DEFAULT_VERSION');
+
+			try
+			{
+				$serverVersion = $this->getPDOAttribute(
+					\PDO::ATTR_SERVER_VERSION);
+				$clientVersion = $this->getPDOAttribute(
+					\PDO::ATTR_CLIENT_VERSION);
+				$pattern = '/^[0-9]+(\.[0-9]+)*/';
+				if (\preg_match($pattern, $serverVersion, $m))
+					$serverVersion = $m[0];
+				if (\preg_match($pattern, $clientVersion, $m))
+					$clientVersion = $m[0];
+
+				$delta = SemanticVersion::compareVersions(
+					$serverVersion, $clientVersion);
+
+				$version = ($delta < 0) ? $serverVersion : $clientVersion;
+			}
+			catch (\Exception $e)
+			{}
+
+			$this->platform = $cls->newInstance($version);
+		}
+
+		return $this->platform;
+	}
+
 	/**
 	 *
-	 * {@inheritdoc}
-	 * @see \NoreSources\SQL\DBMS\ConnectionInterface::getStatementBuilder()
+	 * @return PDOStatementBuilder
 	 */
 	public function getStatementBuilder()
 	{
+		if (!isset($this->builder))
+		{
+			$this->builder = new PDOStatementBuilder($this);
+			$this->builder->configure($this->connection);
+		}
+
 		return $this->builder;
 	}
 

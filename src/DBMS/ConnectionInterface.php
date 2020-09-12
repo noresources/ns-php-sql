@@ -17,7 +17,7 @@ use NoreSources\SQL\Structure\StructureProviderInterface;
  * DMBS connection
  */
 interface ConnectionInterface extends StatementBuilderProviderInterface,
-	StructureProviderInterface
+	StructureProviderInterface, PlatformProviderInterface
 {
 
 	/**

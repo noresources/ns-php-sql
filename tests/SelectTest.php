@@ -4,6 +4,7 @@ namespace NoreSources\SQL;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\ConnectionHelper;
 use NoreSources\SQL\DBMS\Reference\ReferenceConnection;
+use NoreSources\SQL\DBMS\Reference\ReferencePlatform;
 use NoreSources\SQL\DBMS\Reference\ReferenceStatementBuilder;
 use NoreSources\SQL\Expression\ExpressionHelper;
 use NoreSources\SQL\Expression\Literal;
@@ -101,7 +102,16 @@ final class SelectTest extends \PHPUnit\Framework\TestCase
 		$this->assertInstanceOf(Structure\TableStructure::class,
 			$tableStructure);
 		$builder = new ReferenceStatementBuilder(
-			K::BUILDER_SELECT_EXTENDED_RESULTCOLUMN_ALIAS_RESOLUTION);
+			new ReferencePlatform(
+				[
+					'with extended alias support' => [
+						[
+							K::PLATFORM_FEATURE_SELECT,
+							K::PLATFORM_FEATURE_EXTENDED_RESULTCOLUMN_RESOLUTION
+						],
+						true
+					]
+				]));
 		$context = new StatementTokenStreamContext($builder);
 		$context->setPivot($tableStructure);
 		$q = new SelectQuery($tableStructure, 't');

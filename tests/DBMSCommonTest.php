@@ -4,12 +4,14 @@ namespace NoreSources\SQL;
 use NoreSources\Container;
 use NoreSources\DateTime;
 use NoreSources\SingletonTrait;
+use NoreSources\TypeConversion;
 use NoreSources\TypeDescription;
 use NoreSources\Logger\ErrorReporterLogger;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\ConnectionException;
 use NoreSources\SQL\DBMS\ConnectionHelper;
 use NoreSources\SQL\DBMS\ConnectionInterface;
+use NoreSources\SQL\DBMS\PlatformInterface;
 use NoreSources\SQL\DBMS\PreparedStatementInterface;
 use NoreSources\SQL\DBMS\TransactionBlockException;
 use NoreSources\SQL\DBMS\TransactionBlockInterface;
@@ -21,6 +23,7 @@ use NoreSources\SQL\Expression\Parameter;
 use NoreSources\SQL\Expression\TimestampFormatFunction;
 use NoreSources\SQL\Result\InsertionStatementResultInterface;
 use NoreSources\SQL\Result\Recordset;
+use NoreSources\SQL\Statement\StatementBuilderInterface;
 use NoreSources\SQL\Statement\Manipulation\DeleteQuery;
 use NoreSources\SQL\Statement\Manipulation\InsertQuery;
 use NoreSources\SQL\Statement\Manipulation\UpdateQuery;
@@ -86,6 +89,78 @@ final class DBMSCommonTest extends TestCase
 		$this->connections = new TestConnection();
 	}
 
+	public function logInit()
+	{
+		echo (PHP_EOL);
+	}
+
+	public function logKeyValue($key, $value, $level = 0)
+	{
+		$length = 32;
+		$format = \str_repeat('  ', $level) . '%-' . $length . '.' .
+			$length . 's: %s' . PHP_EOL;
+
+		\printf($format, $key, TypeConversion::toString($value));
+	}
+
+	public function testConnections()
+	{
+		$settings = $this->connections->getAvailableConnectionNames();
+
+		if (Container::count($settings) == 0)
+		{
+			$this->assertTrue(true);
+			return;
+		}
+
+		$this->logInit();
+
+		foreach ($settings as $dbmsName)
+		{
+			$connection = $this->connections->get($dbmsName);
+			$this->assertInstanceOf(ConnectionInterface::class,
+				$connection, $dbmsName);
+
+			$this->assertTrue($connection->isConnected(), $dbmsName);
+
+			$platform = $connection->getPlatform();
+
+			$this->assertInstanceOf(PlatformInterface::class, $platform,
+				$dbmsName);
+
+			$builder = $connection->getStatementBuilder();
+
+			$this->assertInstanceOf(StatementBuilderInterface::class,
+				$builder, $dbmsName);
+
+			$this->assertInstanceOf(PlatformInterface::class,
+				$builder->getPlatform(),
+				$dbmsName . ' Builder provides Platform');
+
+			$this->logKeyValue($dbmsName,
+				TypeDescription::getLocalName($platform));
+
+			$this->logKeyValue('Version',
+				$platform->getPlatformVersion(), 1);
+			$this->logKeyValue('Compability',
+				$platform->getPlatformVersion(
+					PlatformInterface::VERSION_COMPATIBILITY), 1);
+
+			if ($connection instanceof PDOConnection)
+			{
+				foreach ([
+					'driver' => \PDO::ATTR_DRIVER_NAME,
+					'server' => \PDO::ATTR_SERVER_VERSION,
+					'client' => \PDO::ATTR_CLIENT_VERSION
+				] as $name => $attribute)
+				{
+					$this->logKeyValue($name,
+						$connection->getPDOAttribute($attribute), 1);
+				}
+			}
+		}
+	}
+
 	public function testTypes()
 	{
 		$settings = $this->connections->getAvailableConnectionNames();
@@ -93,8 +168,6 @@ final class DBMSCommonTest extends TestCase
 		foreach ($settings as $dbmsName)
 		{
 			$connection = $this->connections->get($dbmsName);
-			$this->assertInstanceOf(ConnectionInterface::class,
-				$connection, $dbmsName);
 
 			if ($connection instanceof PDOConnection)
 				continue;
@@ -318,8 +391,6 @@ final class DBMSCommonTest extends TestCase
 		foreach ($settings as $dbmsName)
 		{
 			$connection = $this->connections->get($dbmsName);
-			$this->assertInstanceOf(ConnectionInterface::class,
-				$connection, $dbmsName);
 			if ($connection instanceof PDOConnection)
 				continue;
 
@@ -462,8 +533,6 @@ final class DBMSCommonTest extends TestCase
 		foreach ($settings as $dbmsName)
 		{
 			$connection = $this->connections->get($dbmsName);
-			$this->assertInstanceOf(ConnectionInterface::class,
-				$connection, $dbmsName);
 			if ($connection instanceof PDOConnection)
 				continue;
 			$this->assertTrue($connection->isConnected(), $dbmsName);
@@ -651,9 +720,6 @@ final class DBMSCommonTest extends TestCase
 		foreach ($settings as $dbmsName)
 		{
 			$connection = $this->connections->get($dbmsName);
-			$this->assertInstanceOf(ConnectionInterface::class,
-				$connection, $dbmsName);
-			$this->assertTrue($connection->isConnected(), $dbmsName);
 
 			if (!($connection instanceof TransactionInterface))
 				continue;
@@ -842,9 +908,6 @@ final class DBMSCommonTest extends TestCase
 		foreach ($settings as $dbmsName)
 		{
 			$connection = $this->connections->get($dbmsName);
-			$this->assertInstanceOf(ConnectionInterface::class,
-				$connection, $dbmsName);
-			$this->assertTrue($connection->isConnected(), $dbmsName);
 
 			$this->dbmsEmployeesTable($tableStructure, $connection);
 		}
@@ -1210,34 +1273,29 @@ final class DBMSCommonTest extends TestCase
 		$dbmsName = TypeDescription::getLocalName($connection);
 
 		$builder = $connection->getStatementBuilder();
-		$builderFlags = $builder->getBuilderFlags(
-			K::BUILDER_DOMAIN_GENERIC);
+		$platform = $builder->getPlatform();
 
-		$createBuilderFlags = ($builderFlags |
-			$builder->getBuilderFlags(K::BUILDER_DOMAIN_CREATE_TABLE));
+		$existsCondition = $platform->queryFeature(
+			[
+				K::PLATFORM_FEATURE_DROP,
+				K::PLATFORM_FEATURE_EXISTS_CONDITION
+			], false);
 
-		$dropBuilderFlags = $builderFlags |
-			$builder->getBuilderFlags(K::BUILDER_DOMAIN_DROP_TABLE);
-
-		if (1) // (($createBuilderFlags & K::BUILDER_CREATE_REPLACE) == 0)
+		try // PostgreSQL < 8.2 does not support DROP IF EXISTS and may fail
 		{
-
-			try // PostgreSQL < 8.2 does not support DROP IF EXISTS and may fail
-			{
-				$drop = $connection->getStatementBuilder()->newStatement(
-					K::QUERY_DROP_TABLE);
-				if ($drop instanceof DropTableQuery)
-					$drop->flags(DropTableQuery::CASCADE)->table(
-						$tableStructure);
-				$data = ConnectionHelper::buildStatement($connection,
-					$drop, $tableStructure);
-				$connection->executeStatement($data);
-			}
-			catch (ConnectionException $e)
-			{
-				if ($dropBuilderFlags & K::BUILDER_IF_EXISTS)
-					throw $e;
-			}
+			$drop = $connection->getStatementBuilder()->newStatement(
+				K::QUERY_DROP_TABLE);
+			if ($drop instanceof DropTableQuery)
+				$drop->flags(DropTableQuery::CASCADE)->table(
+					$tableStructure);
+			$data = ConnectionHelper::buildStatement($connection, $drop,
+				$tableStructure);
+			$connection->executeStatement($data);
+		}
+		catch (ConnectionException $e)
+		{
+			if ($existsCondition)
+				throw $e;
 		}
 
 		$factory = $connection->getStatementBuilder();
@@ -1248,7 +1306,7 @@ final class DBMSCommonTest extends TestCase
 		 */
 		$createTable = $factory->newStatement(K::QUERY_CREATE_TABLE,
 			$tableStructure);
-		$createTable->flags(K::BUILDER_CREATE_REPLACE);
+		$createTable->flags(CreateTableQuery::REPLACE);
 		$result = false;
 		$data = ConnectionHelper::buildStatement($connection,
 			$createTable, $tableStructure);

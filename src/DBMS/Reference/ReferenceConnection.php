@@ -12,6 +12,7 @@ namespace NoreSources\SQL\DBMS\Reference;
 use NoreSources\Container;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\ConnectionInterface;
+use NoreSources\SQL\DBMS\PlatformProviderTrait;
 use NoreSources\SQL\DBMS\TransactionInterface;
 use NoreSources\SQL\DBMS\TransactionStackTrait;
 use NoreSources\SQL\Statement\ClassMapStatementFactoryTrait;
@@ -26,12 +27,12 @@ class ReferenceConnection implements ConnectionInterface,
 {
 	use StructureProviderTrait;
 	use TransactionStackTrait;
+	use PlatformProviderTrait;
 
 	use ClassMapStatementFactoryTrait;
 
 	public function __construct($parameters)
 	{
-		$this->builder = new ReferenceStatementBuilder();
 		$this->setTransactionBlockFactory(
 			function ($depth, $name) {
 
@@ -54,8 +55,18 @@ class ReferenceConnection implements ConnectionInterface,
 		return true;
 	}
 
+	public function getPlatform()
+	{
+		if (!isset($this->platform))
+			$this->platform = new ReferencePlatform();
+		return $this->platform;
+	}
+
 	public function getStatementBuilder()
 	{
+		if (!isset($this->builder))
+			$this->builder = new ReferenceStatementBuilder(
+				$this->getPlatform());
 		return $this->builder;
 	}
 

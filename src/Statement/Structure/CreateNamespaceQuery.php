@@ -49,7 +49,8 @@ class CreateNamespaceQuery extends Statement
 		if ($identifier instanceof StructureElementIdentifier)
 			$this->namespaceIdentifier = $identifier;
 		else
-			$this->namespaceIdentifier = new StructureElementIdentifier(\strval($identifier));
+			$this->namespaceIdentifier = new StructureElementIdentifier(
+				\strval($identifier));
 
 		return $this;
 	}
@@ -59,20 +60,29 @@ class CreateNamespaceQuery extends Statement
 		return $this->namespaceIdentifier;
 	}
 
-	function tokenize(TokenStream $stream, TokenStreamContextInterface $context)
+	function tokenize(TokenStream $stream,
+		TokenStreamContextInterface $context)
 	{
 		$builder = $context->getStatementBuilder();
 
-		$builderFlags = $builder->getBuilderFlags(K::BUILDER_DOMAIN_GENERIC);
-		$builderFlags |= $builder->getBuilderFlags(K::BUILDER_DOMAIN_CREATE_NAMESPACE);
+		$existsCondition = $platform->queryFeature(
+			[
+				K::PLATFORM_FEATURE_CREATE,
+				K::PLATFORM_FEATURE_NAMESPACE,
+				K::PLATFORM_FEATURE_EXISTS_CONDITION
+			], false);
 
 		$context->setStatementType(K::QUERY_CREATE_NAMESPACE);
 
-		return $stream->keyword('create')
+		$stream->keyword('create')
 			->space()
-			->keyword($builder->getKeyword(K::KEYWORD_NAMESPACE))
-			->space()
-			->identifier($builder->getCanonicalName($this->namespaceIdentifier));
+			->keyword($builder->getKeyword(K::KEYWORD_NAMESPACE));
+		if ($existsCondition)
+			$stream->space()->keyword('if not exists');
+		$stream->space()->identifier(
+			$builder->getCanonicalName($this->namespaceIdentifier));
+
+		return $stream;
 	}
 
 	/**

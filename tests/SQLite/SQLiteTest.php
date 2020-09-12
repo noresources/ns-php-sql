@@ -8,6 +8,7 @@ use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\ConnectionHelper;
 use NoreSources\SQL\DBMS\SQLite\SQLiteConnection;
 use NoreSources\SQL\DBMS\SQLite\SQLiteConstants;
+use NoreSources\SQL\DBMS\SQLite\SQLitePlatform;
 use NoreSources\SQL\DBMS\SQLite\SQLitePreparedStatement;
 use NoreSources\SQL\DBMS\SQLite\SQLiteRecordset;
 use NoreSources\SQL\DBMS\SQLite\SQLiteStatementBuilder;
@@ -258,7 +259,8 @@ final class SQLiteTest extends \PHPUnit\Framework\TestCase
 
 	public function testTimestampFormat()
 	{
-		$builder = new SQLiteStatementBuilder();
+		$builder = new SQLiteStatementBuilder(
+			new SQLitePlatform('3.0.0'));
 
 		$dateTimeFormat = DateTime::getFormatTokenDescriptions();
 		$translations = $builder->getTimestampFormatTranslations();

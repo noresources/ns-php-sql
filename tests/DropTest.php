@@ -2,6 +2,7 @@
 namespace NoreSources\SQL;
 
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\DBMS\Reference\ReferencePlatform;
 use NoreSources\SQL\DBMS\Reference\ReferenceStatementBuilder;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Statement\StatementTokenStreamContext;
@@ -54,9 +55,16 @@ final class DropTest extends \PHPUnit\Framework\TestCase
 	public function testDropView()
 	{
 		$builder = new ReferenceStatementBuilder(
-			[
-				K::BUILDER_DOMAIN_GENERIC => K::BUILDER_SCOPED_STRUCTURE_DECLARATION
-			]);
+			new ReferencePlatform(
+				[
+					'scoped' => [
+						[
+							K::PLATFORM_FEATURE_VIEW,
+							K::PLATFORM_FEATURE_SCOPED
+						],
+						true
+					]
+				]));
 
 		$view = new DropViewQuery();
 		$view->identifier('Males');

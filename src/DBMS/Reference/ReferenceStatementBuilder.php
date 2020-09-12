@@ -11,6 +11,8 @@ namespace NoreSources\SQL\DBMS\Reference;
 
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\ArrayObjectType;
+use NoreSources\SQL\DBMS\PlatformInterface;
+use NoreSources\SQL\DBMS\PlatformProviderTrait;
 use NoreSources\SQL\Statement\AbstractStatementBuilder;
 use NoreSources\SQL\Statement\ClassMapStatementFactoryTrait;
 use NoreSources\SQL\Statement\ParameterData;
@@ -21,24 +23,19 @@ use NoreSources\SQL\Structure\ColumnStructure;
 class ReferenceStatementBuilder extends AbstractStatementBuilder
 {
 	use ClassMapStatementFactoryTrait;
+	use PlatformProviderTrait;
 
 	/**
-	 *
-	 * @param array $domainFlags
-	 *        	Builder flags for each builder domain
+	 * Builder flags for each builder domain
 	 */
-	public function __construct($domainFlags = [])
+	public function __construct(PlatformInterface $platform = null)
 	{
 		parent::__construct();
+		$this->platform = $platform;
+		if (!($this->platform instanceof PlatformInterface))
+			$this->platform = new ReferencePlatform();
+
 		$this->initializeStatementFactory();
-
-		if (!\is_array($domainFlags))
-			$domainFlags = [
-				K::BUILDER_DOMAIN_GENERIC => $domainFlags
-			];
-
-		foreach ($domainFlags as $domain => $flags)
-			$this->setBuilderFlags($domain, $flags);
 	}
 
 	public static function serializeStringFallback($value)

@@ -35,9 +35,9 @@ class CreateTableQuery extends Statement implements
 	StructureProviderInterface
 {
 
-	const REPLACE = K::BUILDER_CREATE_REPLACE;
+	const REPLACE = 0x01;
 
-	const TEMPORARY = K::BUILDER_CREATE_TEMPORARY;
+	const TEMPORARY = 0x02;
 
 	/**
 	 *
@@ -84,10 +84,29 @@ class CreateTableQuery extends Statement implements
 	public function tokenize(TokenStream $stream,
 		TokenStreamContextInterface $context)
 	{
-		$builderFlags = $context->getStatementBuilder()->getBuilderFlags(
-			K::BUILDER_DOMAIN_GENERIC);
-		$builderFlags |= $context->getStatementBuilder()->getBuilderFlags(
-			K::BUILDER_DOMAIN_CREATE_TABLE);
+		$builder = $context->getStatementBuilder();
+		$platform = $builder->getPlatform();
+
+		$existsCondition = $platform->queryFeature(
+			[
+				K::PLATFORM_FEATURE_CREATE,
+				K::PLATFORM_FEATURE_TABLE,
+				K::PLATFORM_FEATURE_EXISTS_CONDITION
+			], false);
+
+		$replaceSupport = $platform->queryFeature(
+			[
+				K::PLATFORM_FEATURE_CREATE,
+				K::PLATFORM_FEATURE_TABLE,
+				K::PLATFORM_FEATURE_REPLACE
+			], false);
+
+		$temporarySupport = $platform->queryFeature(
+			[
+				K::PLATFORM_FEATURE_CREATE,
+				K::PLATFORM_FEATURE_TABLE,
+				K::PLATFORM_FEATURE_TEMPORARY
+			], false);
 
 		$structure = $this->structure;
 		if (!($structure instanceof TableStructure))
@@ -109,18 +128,16 @@ class CreateTableQuery extends Statement implements
 		$context->setStatementType(K::QUERY_CREATE_TABLE);
 
 		$stream->keyword('create');
-		if (($this->createFlags & self::REPLACE) &&
-			($builderFlags & K::BUILDER_CREATE_REPLACE))
+		if (($this->createFlags & self::REPLACE) && $replaceSupport)
 			$stream->space()
 				->keyword('or')
 				->space()
 				->keyword('replace');
-		if (($this->createFlags & self::TEMPORARY) &&
-			($builderFlags & K::BUILDER_CREATE_TEMPORARY))
+		if (($this->createFlags & self::TEMPORARY) && $temporarySupport)
 			$stream->space()->keyword('temporary');
 		$stream->space()->keyword('table');
 
-		if ($builderFlags & K::BUILDER_IF_NOT_EXISTS)
+		if ($existsCondition)
 			$stream->space()->keyword('if not exists');
 
 		$stream->space()
@@ -160,11 +177,17 @@ class CreateTableQuery extends Statement implements
 		ColumnStructure $column, TokenStream $stream,
 		TokenStreamContextInterface $context)
 	{
+		$builder = $context->getStatementBuilder();
+		$platform = $builder->getPlatform();
+
+		$columnDeclaration = $platform->queryFeature(
+			[
+				K::PLATFORM_FEATURE_CREATE,
+				K::PLATFORM_FEATURE_TABLE,
+				K::PLATFORM_FEATURE_COLUMN_DECLARATION_FLAGS
+			], 0);
+
 		$isPrimary = $column->isPrimaryKey();
-		$builderFlags = $context->getStatementBuilder()->getBuilderFlags(
-			K::BUILDER_DOMAIN_GENERIC);
-		$builderFlags |= $context->getStatementBuilder()->getBuilderFlags(
-			K::BUILDER_DOMAIN_CREATE_TABLE);
 
 		$columnFlags = $column->getColumnProperty(K::COLUMN_FLAGS);
 
@@ -200,10 +223,9 @@ class CreateTableQuery extends Statement implements
 
 		$hasEnumeration = $column->hasColumnProperty(
 			K::COLUMN_ENUMERATION);
-		$enumerationSupport = ($builderFlags &
-			K::BUILDER_CREATE_COLUMN_INLINE_ENUM);
 
-		if ($hasEnumeration && $enumerationSupport)
+		if ($hasEnumeration &&
+			($columnDeclaration & K::PLATFORM_FEATURE_COLUMN_ENUM))
 		{
 			$stream->text('(');
 			$values = $column->getColumnProperty(K::COLUMN_ENUMERATION);
@@ -249,10 +271,10 @@ class CreateTableQuery extends Statement implements
 				->literal($scale)
 				->text(')');
 		}
-		elseif ($typeFlags & K::TYPE_FLAG_MANDATORY_LENGTH ||
+		elseif (($typeFlags & K::TYPE_FLAG_MANDATORY_LENGTH) ||
 			($isPrimary &&
-			($builderFlags &
-			K::BUILDER_CREATE_COLUMN_KEY_MANDATORY_LENGTH)))
+			($columnDeclaration &
+			K::PLATFORM_FEATURE_COLUMN_KEY_MANDATORY_LENGTH)))
 		{
 			$maxLength = TypeHelper::getMaxLength($type);
 			if (\is_infinite($maxLength))

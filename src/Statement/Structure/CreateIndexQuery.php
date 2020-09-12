@@ -75,7 +75,8 @@ class CreateIndexQuery extends Statement
 		if ($identifier instanceof StructureElementIdentifier)
 			$this->indexIdentifier = $identifier;
 		else
-			$this->indexIdentifier = new StructureElementIdentifier(\strval($identifier));
+			$this->indexIdentifier = new StructureElementIdentifier(
+				\strval($identifier));
 
 		return $this;
 	}
@@ -94,11 +95,13 @@ class CreateIndexQuery extends Statement
 		elseif ($table instanceof TableStructure)
 			$this->indexTable = new TableReference($table->getPath());
 		elseif (TypeDescription::hasStringRepresentation($table))
-			$this->indexTable = new TableReference(TypeConversion::toString($table));
+			$this->indexTable = new TableReference(
+				TypeConversion::toString($table));
 		else
 			throw new StatementException($this,
-				'Invalid table argument. ' . TableReference::class . ', ' . TableStructure::class .
-				' or string expected. Got ' . TypeDescription::getName($table));
+				'Invalid table argument. ' . TableReference::class . ', ' .
+				TableStructure::class . ' or string expected. Got ' .
+				TypeDescription::getName($table));
 
 		return $this;
 	}
@@ -118,7 +121,8 @@ class CreateIndexQuery extends Statement
 			if ($column instanceof TokenizableExpressionInterface)
 				$this->indexColumns[] = $column;
 			elseif (TypeDescription::hasStringRepresentation($column))
-				$this->indexColumns[] = TypeConversion::toString($column);
+				$this->indexColumns[] = TypeConversion::toString(
+					$column);
 		}
 
 		return $this;
@@ -145,14 +149,27 @@ class CreateIndexQuery extends Statement
 	 */
 	public function where()
 	{
-		return $this->addConstraints($this->whereConstraints, func_get_args());
+		return $this->addConstraints($this->whereConstraints,
+			func_get_args());
 	}
 
-	public function tokenize(TokenStream $stream, TokenStreamContextInterface $context)
+	public function tokenize(TokenStream $stream,
+		TokenStreamContextInterface $context)
 	{
 		$builder = $context->getStatementBuilder();
-		$builderFlags = $builder->getBuilderFlags(K::BUILDER_DOMAIN_GENERIC);
-		$builderFlags |= $builder->getBuilderFlags(K::BUILDER_DOMAIN_CREATE_INDEX);
+		$platform = $builder->getPlatform();
+		$scoped = $platform->queryFeature(
+			[
+				K::PLATFORM_FEATURE_INDEX,
+				K::PLATFORM_FEATURE_SCOPED
+			], false);
+
+		$existsCondition = $platform->queryFeature(
+			[
+				K::PLATFORM_FEATURE_CREATE,
+				K::PLATFORM_FEATURE_INDEX,
+				K::PLATFORM_FEATURE_EXISTS_CONDITION
+			], false);
 
 		$context->setStatementType(K::QUERY_CREATE_INDEX);
 
@@ -169,7 +186,7 @@ class CreateIndexQuery extends Statement
 			$stream->space()->keyword('unique');
 		$stream->space()->keyword('index');
 
-		if ($builderFlags & K::BUILDER_IF_NOT_EXISTS)
+		if ($existsCondition)
 			$stream->keyword('if')
 				->space()
 				->keyword('not')
@@ -180,11 +197,12 @@ class CreateIndexQuery extends Statement
 		{
 			$stream->space();
 
-			if ($builderFlags & K::BUILDER_SCOPED_STRUCTURE_DECLARATION)
+			if ($scoped)
 			{
 				$parts = $this->indexIdentifier->getPathParts();
 				if (\count($parts) > 1)
-					$stream->identifier($builder->getCanonicalName($parts));
+					$stream->identifier(
+						$builder->getCanonicalName($parts));
 				else // Last chance to find the element namespace
 				{
 					$structure = $context->getPivot();
@@ -192,15 +210,19 @@ class CreateIndexQuery extends Statement
 						$structure = $structure->getParentElement();
 
 					if ($structure instanceof NamespaceStructure)
-						$stream->identifier($builder->getCanonicalName($structure))
+						$stream->identifier(
+							$builder->getCanonicalName($structure))
 							->text('.');
 
-					$stream->identifier($builder->escapeIdentifier($this->indexIdentifier->path));
+					$stream->identifier(
+						$builder->escapeIdentifier(
+							$this->indexIdentifier->path));
 				}
 			}
 			else
 				$stream->identifier(
-					$builder->escapeIdentifier($this->indexIdentifier->getLocalName()));
+					$builder->escapeIdentifier(
+						$this->indexIdentifier->getLocalName()));
 		}
 
 		$stream->space()
@@ -219,7 +241,8 @@ class CreateIndexQuery extends Statement
 			if ($column instanceof TokenizableExpressionInterface)
 				$stream->space()->expression($column, $context);
 			else
-				$stream->space()->identifier($builder->escapeIdentifier($column));
+				$stream->space()->identifier(
+					$builder->escapeIdentifier($column));
 		}
 
 		$stream->text(')');

@@ -11,6 +11,7 @@ namespace NoreSources\SQL\DBMS\PDO;
 
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\BasicType;
+use NoreSources\SQL\DBMS\PlatformProviderTrait;
 use NoreSources\SQL\Statement\AbstractStatementBuilder;
 use NoreSources\SQL\Statement\ClassMapStatementFactoryTrait;
 use NoreSources\SQL\Statement\ParameterData;
@@ -20,6 +21,7 @@ class PDOStatementBuilder extends AbstractStatementBuilder
 {
 
 	use ClassMapStatementFactoryTrait;
+	use PlatformProviderTrait;
 
 	const DRIVER_MYSQL = PDOConnection::DRIVER_MYSQL;
 
@@ -32,6 +34,11 @@ class PDOStatementBuilder extends AbstractStatementBuilder
 		parent::__construct();
 		$this->initializeStatementFactory();
 		$this->connection = $connection;
+	}
+
+	public function getPlatform()
+	{
+		return $this->connection->getPlatform();
 	}
 
 	public function serializeString($value)

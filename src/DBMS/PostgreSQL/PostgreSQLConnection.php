@@ -16,6 +16,7 @@ use NoreSources\SQL\ParameterValue;
 use NoreSources\SQL\DBMS\ConnectionException;
 use NoreSources\SQL\DBMS\ConnectionHelper;
 use NoreSources\SQL\DBMS\ConnectionInterface;
+use NoreSources\SQL\DBMS\PlatformProviderTrait;
 use NoreSources\SQL\DBMS\TransactionInterface;
 use NoreSources\SQL\DBMS\TransactionStackTrait;
 use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLConstants as K;
@@ -24,7 +25,6 @@ use NoreSources\SQL\Result\GenericRowModificationStatementResult;
 use NoreSources\SQL\Statement\ParameterData;
 use NoreSources\SQL\Statement\ParameterDataProviderInterface;
 use NoreSources\SQL\Statement\Statement;
-use NoreSources\SQL\Statement\StatementBuilderInterface;
 use NoreSources\SQL\Structure\StructureElementInterface;
 use NoreSources\SQL\Structure\StructureProviderTrait;
 
@@ -34,12 +34,7 @@ class PostgreSQLConnection implements ConnectionInterface,
 
 	use StructureProviderTrait;
 	use TransactionStackTrait;
-
-	/**
-	 *
-	 * @var string
-	 */
-	const DEFAULT_VERSION = '9.0.0';
+	use PlatformProviderTrait;
 
 	public function __construct($parameters)
 	{
@@ -49,20 +44,10 @@ class PostgreSQLConnection implements ConnectionInterface,
 			});
 		$this->resource = null;
 
-		$this->versions = [
-			self::VERSION_EXPECTED => new SemanticVersion(
-				self::DEFAULT_VERSION),
-			self::VERSION_CONNECTION => null
-		];
-
 		$structure = Container::keyValue($parameters,
 			K::CONNECTION_STRUCTURE);
 		if ($structure instanceof StructureElementInterface)
 			$this->setStructure($structure);
-
-		if (Container::keyExists($parameters, K::CONNECTION_VERSION))
-			$this->versions[self::VERSION_EXPECTED] = new SemanticVersion(
-				Container::keyValue($parameters, K::CONNECTION_VERSION));
 
 		$dsn = [];
 		foreach ([
@@ -104,13 +89,6 @@ class PostgreSQLConnection implements ConnectionInterface,
 
 		if (!\is_resource($this->resource))
 			throw new ConnectionException($this, 'Failed to connect');
-
-		$info = \pg_version($this->resource);
-		if (\preg_match('/^[0-9]+(\.[0-9]+)*/', $info['server'], $m))
-		{
-			$this->versions[self::VERSION_CONNECTION] = new SemanticVersion(
-				$m[0]);
-		}
 	}
 
 	public function __destruct()
@@ -119,10 +97,8 @@ class PostgreSQLConnection implements ConnectionInterface,
 		if (\is_resource($this->resource))
 			\pg_close($this->resource);
 
-		$this->versions[self::VERSION_CONNECTION] = null;
-		if ($this->builder instanceof StatementBuilderInterface)
-			$this->builder->updateBuilderFlags(
-				$this->getPostgreSQLVersion());
+		unset($this->platform);
+		unset($this->builder);
 		$this->resource = null;
 	}
 
@@ -133,13 +109,29 @@ class PostgreSQLConnection implements ConnectionInterface,
 			PGSQL_CONNECTION_OK));
 	}
 
+	public function getPlatform()
+	{
+		if (!isset($this->platform))
+		{
+			$serverVersion = PostgreSQLPlatform::DEFAULT_VERSION;
+			if ($this->isConnected())
+			{
+				$info = \pg_version($this->resource);
+				if (\preg_match('/^[0-9]+(\.[0-9]+)*/', $info['server'],
+					$m))
+					$serverVersion = $m[0];
+				$this->platform = new PostgreSQLPlatform($serverVersion);
+			}
+		}
+
+		return $this->platform;
+	}
+
 	public function getStatementBuilder()
 	{
-		if (!($this->builder instanceof StatementBuilderInterface))
+		if (!isset($this->builder))
 		{
 			$this->builder = new PostgreSQLStatementBuilder($this);
-			$this->builder->updateBuilderFlags(
-				$this->getPostgreSQLVersion());
 		}
 
 		return $this->builder;
@@ -243,11 +235,14 @@ class PostgreSQLConnection implements ConnectionInterface,
 			\pg_result_status($result, PGSQL_STATUS_STRING));
 	}
 
+	/**
+	 *
+	 * @deprecated
+	 * @return \NoreSources\SemanticVersion
+	 */
 	public function getPostgreSQLVersion()
 	{
-		if ($this->versions[self::VERSION_CONNECTION] instanceof SemanticVersion)
-			return $this->versions[self::VERSION_CONNECTION];
-		return $this->versions[self::VERSION_EXPECTED];
+		return $this->getPlatform()->getPlatformVersion();
 	}
 
 	/**
@@ -368,14 +363,4 @@ class PostgreSQLConnection implements ConnectionInterface,
 	 * @var PostgreSQLStatementBuilder
 	 */
 	private $builder;
-
-	const VERSION_EXPECTED = 0;
-
-	const VERSION_CONNECTION = 1;
-
-	/**
-	 *
-	 * @var SemanticVersion[]
-	 */
-	private $versions;
 }

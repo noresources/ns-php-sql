@@ -10,7 +10,6 @@
 namespace NoreSources\SQL\DBMS\PostgreSQL;
 
 use NoreSources\Container;
-use NoreSources\SemanticVersion;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\BasicType;
 use NoreSources\SQL\DBMS\TypeHelper;
@@ -38,10 +37,11 @@ class PostgreSQLStatementBuilder extends AbstractStatementBuilder implements
 		parent::__construct();
 		$this->initializeStatementFactory();
 		$this->connection = $connection;
+	}
 
-		$this->setBuilderFlags(K::BUILDER_DOMAIN_INSERT,
-			K::BUILDER_INSERT_DEFAULT_VALUES |
-			K::BUILDER_INSERT_DEFAULT_KEYWORD);
+	public function getPlatform()
+	{
+		return $this->connection->getPlatform();
 	}
 
 	public function serializeString($value)
@@ -156,60 +156,6 @@ class PostgreSQLStatementBuilder extends AbstractStatementBuilder implements
 		}
 
 		return null;
-	}
-
-	/**
-	 * Update builder flags according PostgreSQL server version
-	 *
-	 * @param SemanticVersion $serverVersion
-	 *        	PostgreSQL server version
-	 */
-	public function updateBuilderFlags(SemanticVersion $serverVersion)
-	{
-		$createTableFlags = $this->getBuilderFlags(
-			K::BUILDER_DOMAIN_CREATE_TABLE);
-		$dropTableFlags = $this->getBuilderFlags(
-			K::BUILDER_DOMAIN_DROP_TABLE);
-		$createNamespaceFlags = $this->getBuilderFlags(
-			K::BUILDER_DOMAIN_CREATE_NAMESPACE);
-
-		$dropTableFlags &= ~(K::BUILDER_IF_EXISTS |
-			K::BUILDER_DROP_CASCADE);
-		$createTableFlags &= ~(K::BUILDER_IF_NOT_EXISTS);
-		$createNamespaceFlags &= ~(K::BUILDER_IF_NOT_EXISTS);
-
-		$createTableFlags |= (K::BUILDER_CREATE_TEMPORARY);
-
-		if (SemanticVersion::compareVersions($serverVersion, '7.3.0') >=
-			0)
-		{
-			$dropTableFlags |= K::BUILDER_DROP_CASCADE;
-		}
-
-		if (SemanticVersion::compareVersions($serverVersion, '8.2.0') >=
-			0)
-		{
-			$dropTableFlags |= K::BUILDER_IF_EXISTS;
-		}
-
-		if (SemanticVersion::compareVersions($serverVersion, '9.1.0') >=
-			0)
-		{
-			$createTableFlags |= K::BUILDER_IF_NOT_EXISTS;
-		}
-
-		if (SemanticVersion::compareVersions($serverVersion, '9.3.0') >=
-			0)
-		{
-			$createNamespaceFlags |= K::BUILDER_IF_NOT_EXISTS;
-		}
-
-		$this->setBuilderFlags(K::BUILDER_DOMAIN_CREATE_TABLE,
-			$createTableFlags);
-		$this->setBuilderFlags(K::BUILDER_DOMAIN_CREATE_NAMESPACE,
-			$createNamespaceFlags);
-		$this->setBuilderFlags(K::BUILDER_DOMAIN_DROP_TABLE,
-			$dropTableFlags);
 	}
 
 	private function translateTimestampFunction(

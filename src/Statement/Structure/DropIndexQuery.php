@@ -56,23 +56,36 @@ class DropIndexQuery extends Statement
 		if ($identifier instanceof StructureElementIdentifier)
 			$this->indexIdentifier = $identifier;
 		else
-			$this->indexIdentifier = new StructureElementIdentifier(\strval($identifier));
+			$this->indexIdentifier = new StructureElementIdentifier(
+				\strval($identifier));
 
 		return $this;
 	}
 
-	public function tokenize(TokenStream $stream, TokenStreamContextInterface $context)
+	public function tokenize(TokenStream $stream,
+		TokenStreamContextInterface $context)
 	{
 		$builder = $context->getStatementBuilder();
-		$builderFlags = $builder->getBuilderFlags(K::BUILDER_DOMAIN_GENERIC);
-		$builderFlags |= $builder->getBuilderFlags(K::BUILDER_DOMAIN_DROP_INDEX);
+		$platform = $builder->getPlatform();
+
+		$scoped = $platform->queryFeature(
+			[
+				K::PLATFORM_FEATURE_INDEX,
+				K::PLATFORM_FEATURE_SCOPED
+			], false);
+		$existsCondition = $platform->queryFeature(
+			[
+				K::PLATFORM_FEATURE_DROP,
+				K::PLATFORM_FEATURE_INDEX,
+				K::PLATFORM_FEATURE_EXISTS_CONDITION
+			], false);
 
 		$context->setStatementType(K::QUERY_DROP_INDEX);
 
 		$stream->keyword('drop')
 			->space()
 			->keyword('index');
-		if ($builderFlags & K::BUILDER_IF_EXISTS)
+		if ($existsCondition)
 		{
 			$stream->space()
 				->keyword('if')
@@ -82,7 +95,7 @@ class DropIndexQuery extends Statement
 
 		$stream->space();
 
-		if ($builderFlags & K::BUILDER_SCOPED_STRUCTURE_DECLARATION)
+		if ($scoped)
 		{
 			$parts = $this->indexIdentifier->getPathParts();
 			if (\count($parts) > 1)
@@ -94,14 +107,19 @@ class DropIndexQuery extends Statement
 					$structure = $structure->getParentElement();
 
 				if ($structure instanceof NamespaceStructure)
-					$stream->identifier($builder->getCanonicalName($structure))
+					$stream->identifier(
+						$builder->getCanonicalName($structure))
 						->text('.');
 
-				$stream->identifier($builder->escapeIdentifier($this->indexIdentifier->path));
+				$stream->identifier(
+					$builder->escapeIdentifier(
+						$this->indexIdentifier->path));
 			}
 		}
 		else
-			$stream->identifier($builder->escapeIdentifier($this->indexIdentifier->getLocalName()));
+			$stream->identifier(
+				$builder->escapeIdentifier(
+					$this->indexIdentifier->getLocalName()));
 
 		return $stream;
 	}

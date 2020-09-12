@@ -38,23 +38,7 @@ abstract class AbstractStatementBuilder implements
 	 *        	AbstractStatementBuilder flags
 	 */
 	public function __construct()
-	{
-		$this->builderFlags = [
-			K::BUILDER_DOMAIN_GENERIC => 0,
-			K::BUILDER_DOMAIN_SELECT => 0,
-			K::BUILDER_DOMAIN_INSERT => 0,
-			K::BUILDER_DOMAIN_UPDATE => 0,
-			K::BUILDER_DOMAIN_DELETE => 0,
-			K::BUILDER_DOMAIN_DROP_TABLE => 0,
-			K::BUILDER_DOMAIN_DROP_INDEX => 0,
-			K::BUILDER_DOMAIN_DROP_VIEW => 0,
-			K::BUILDER_DOMAIN_DROP_NAMESPACE => 0,
-			K::BUILDER_DOMAIN_CREATE_TABLE => 0,
-			K::BUILDER_DOMAIN_CREATE_INDEX => 0,
-			K::BUILDER_DOMAIN_CREATE_VIEW => 0,
-			K::BUILDER_DOMAIN_CREATE_NAMESPACE => 0
-		];
-	}
+	{}
 
 	public function serializeColumnData(
 		ColumnDescriptionInterface $column, $value)
@@ -103,11 +87,6 @@ abstract class AbstractStatementBuilder implements
 				$this->getTimestampFormat(K::DATATYPE_TIMESTAMP));
 
 		return $this->serializeString(TypeConversion::toString($value));
-	}
-
-	public function getBuilderFlags($domain = K::BUILDER_DOMAIN_GENERIC)
-	{
-		return $this->builderFlags[$domain];
 	}
 
 	public function translateFunction(MetaFunctionCall $metaFunction)
@@ -317,15 +296,4 @@ abstract class AbstractStatementBuilder implements
 
 		return \str_replace("'" . $text . "'");
 	}
-
-	protected function setBuilderFlags($domain, $flags)
-	{
-		$this->builderFlags[$domain] = $flags;
-	}
-
-	/**
-	 *
-	 * @var array
-	 */
-	private $builderFlags;
 }

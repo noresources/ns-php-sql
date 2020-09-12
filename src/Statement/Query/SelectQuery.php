@@ -18,6 +18,7 @@ use NoreSources\SQL\Expression\DataRowContainerReference;
 use NoreSources\SQL\Expression\Evaluator;
 use NoreSources\SQL\Expression\ExpressionReturnTypeInterface;
 use NoreSources\SQL\Expression\Table;
+use NoreSources\SQL\Expression\TableReference;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Expression\TokenStreamContextInterface;
 use NoreSources\SQL\Expression\TokenizableExpressionInterface;
@@ -26,6 +27,8 @@ use NoreSources\SQL\Statement\StatementException;
 use NoreSources\SQL\Statement\Traits\ConstraintExpressionListTrait;
 use NoreSources\SQL\Structure\StructureElementContainerInterface;
 use NoreSources\SQL\Structure\StructureElementInterface;
+use NoreSources\SQL\Structure\TableStructure;
+use NoreSources\SQL\Structure\ViewStructure;
 
 /**
  * SELECT query result column
@@ -52,7 +55,8 @@ class ResultColumnReference
 	 *        	TokenizableExpressionInterface
 	 * @param string $alias
 	 */
-	public function __construct(TokenizableExpressionInterface $expression, $alias)
+	public function __construct(
+		TokenizableExpressionInterface $expression, $alias)
 	{
 		$this->expression = $expression;
 		$this->alias = $alias;
@@ -123,7 +127,8 @@ class SelectQuery extends Statement
 				{
 					// column expression => alias
 					if (Container::isAssociative($arg))
-						list ($expression, $alias) = Container::first($arg);
+						list ($expression, $alias) = Container::first(
+							$arg);
 					else // [ column expression, alias ]
 					{
 						$expression = Container::keyValue($arg, 0, null);
@@ -136,7 +141,8 @@ class SelectQuery extends Statement
 				if (!($expression instanceof TokenizableExpressionInterface))
 					$expression = Evaluator::evaluate($expression);
 
-				$this->resultColumns->append(new ResultColumnReference($expression, $alias));
+				$this->resultColumns->append(
+					new ResultColumnReference($expression, $alias));
 			}
 		}
 
@@ -187,7 +193,8 @@ class SelectQuery extends Statement
 			}
 		}
 
-		$j = new JoinClause($operatorOrJoin, new DataRowContainerReference($target, $alias));
+		$j = new JoinClause($operatorOrJoin,
+			new DataRowContainerReference($target, $alias));
 		$args = func_get_args();
 		array_shift($args);
 		array_shift($args);
@@ -211,7 +218,8 @@ class SelectQuery extends Statement
 	{
 		if (!($this->whereConstraints instanceof \ArrayObject))
 			$this->whereConstraints = new \ArrayObject();
-		return $this->addConstraints($this->whereConstraints, func_get_args());
+		return $this->addConstraints($this->whereConstraints,
+			func_get_args());
 	}
 
 	/**
@@ -225,7 +233,8 @@ class SelectQuery extends Statement
 	{
 		if (!($this->havingConstraints instanceof \ArrayObject))
 			$this->havingConstraints = new \ArrayObject();
-		return $this->addConstraints($this->havingConstraints, func_get_args());
+		return $this->addConstraints($this->havingConstraints,
+			func_get_args());
 	}
 
 	/**
@@ -268,7 +277,8 @@ class SelectQuery extends Statement
 	 * @param mixed $collation
 	 * @return SelectQuery
 	 */
-	public function orderBy($reference, $direction = K::ORDERING_ASC, $collation = null)
+	public function orderBy($reference, $direction = K::ORDERING_ASC,
+		$collation = null)
 	{
 		if (!($reference instanceof TokenizableExpressionInterface))
 			$reference = Evaluator::evaluate($reference);
@@ -334,10 +344,16 @@ class SelectQuery extends Statement
 		return $this->selectQueryFlags;
 	}
 
-	public function tokenize(TokenStream $stream, TokenStreamContextInterface $context)
+	public function tokenize(TokenStream $stream,
+		TokenStreamContextInterface $context)
 	{
-		$builderFlags = $context->getStatementBuilder()->getBuilderFlags(K::BUILDER_DOMAIN_GENERIC);
-		$builderFlags |= $context->getStatementBuilder()->getBuilderFlags(K::BUILDER_DOMAIN_SELECT);
+		$platform = $context->getStatementBuilder()->getPlatform();
+
+		$hasExtendedAlias = $platform->queryFeature(
+			[
+				K::PLATFORM_FEATURE_SCOPED,
+				K::PLATFORM_FEATURE_EXTENDED_RESULTCOLUMN_RESOLUTION
+			], false);
 
 		$context->setStatementType(K::QUERY_SELECT);
 
@@ -350,7 +366,8 @@ class SelectQuery extends Statement
 		{
 			if ($this->fromTarget->expression instanceof Table)
 			{
-				$targetStructure = $context->findTable($this->fromTarget->expression->path);
+				$targetStructure = $context->findTable(
+					$this->fromTarget->expression->path);
 				$context->pushResolverContext($targetStructure);
 			}
 		}
@@ -376,8 +393,10 @@ class SelectQuery extends Statement
 					{
 						$structure = $join->subject;
 						if ($join->subject->expression instanceof Table)
-							$structure = $context->findTable($join->subject->expression->path);
-						$context->setAlias($join->subject->alias, $structure);
+							$structure = $context->findTable(
+								$join->subject->expression->path);
+						$context->setAlias($join->subject->alias,
+							$structure);
 					}
 				}
 			}
@@ -392,7 +411,7 @@ class SelectQuery extends Statement
 				}
 		}
 
-		if ($builderFlags & K::BUILDER_SELECT_EXTENDED_RESULTCOLUMN_ALIAS_RESOLUTION)
+		if ($hasExtendedAlias)
 		{
 			$this->resolveResultColumns($context);
 		}
@@ -417,7 +436,7 @@ class SelectQuery extends Statement
 		}
 
 		// Resolve columns (inf not yet)
-		if (!($builderFlags & K::BUILDER_SELECT_EXTENDED_RESULTCOLUMN_ALIAS_RESOLUTION))
+		if (!$hasExtendedAlias)
 		{
 			$this->resolveResultColumns($context);
 		}
@@ -445,15 +464,18 @@ class SelectQuery extends Statement
 
 				if ($column->expression instanceof Column)
 				{
-					$structure = $context->findColumn($column->expression->path);
-					$context->setResultColumn($columnIndex, $structure, $column->alias);
+					$structure = $context->findColumn(
+						$column->expression->path);
+					$context->setResultColumn($columnIndex, $structure,
+						$column->alias);
 				}
 				else
 				{
 					$type = K::DATATYPE_UNDEFINED;
 					if ($column->expression instanceof ExpressionReturnTypeInterface)
 						$type = $column->expression->getExpressionDataType();
-					$context->setResultColumn($columnIndex, $type, $column->alias);
+					$context->setResultColumn($columnIndex, $type,
+						$column->alias);
 				}
 
 				if ($column->alias)
@@ -491,7 +513,8 @@ class SelectQuery extends Statement
 		$stream->stream($where);
 
 		// GROUP BY
-		if ($this->groupByClauses && Container::count($this->groupByClauses))
+		if ($this->groupByClauses &&
+			Container::count($this->groupByClauses))
 		{
 
 			$stream->space()
@@ -517,7 +540,8 @@ class SelectQuery extends Statement
 				 *
 				 * @var UnionClause $union
 				 */
-				if ($union->query->hasLimitClause() || $union->query->hasOrderingClause())
+				if ($union->query->hasLimitClause() ||
+					$union->query->hasOrderingClause())
 					throw new StatementException($this,
 						'UNIONed query canont have LIMIT or ORDER BY clause');
 
@@ -544,7 +568,8 @@ class SelectQuery extends Statement
 
 					$stream->expression($clause['expression'], $context)
 						->space()
-						->keyword($clause['direction'] == K::ORDERING_ASC ? 'ASC' : 'DESC');
+						->keyword(
+						$clause['direction'] == K::ORDERING_ASC ? 'ASC' : 'DESC');
 				}
 		}
 
@@ -573,7 +598,8 @@ class SelectQuery extends Statement
 		return $stream;
 	}
 
-	protected function resolveResultColumns(TokenStreamContextInterface $context)
+	protected function resolveResultColumns(
+		TokenStreamContextInterface $context)
 	{
 		if (!($this->resultColumns instanceof \ArrayObject))
 			return;

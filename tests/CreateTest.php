@@ -2,6 +2,7 @@
 namespace NoreSources\SQL;
 
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\DBMS\Reference\ReferencePlatform;
 use NoreSources\SQL\DBMS\Reference\ReferenceStatementBuilder;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Statement\StatementTokenStreamContext;
@@ -98,10 +99,17 @@ final class CreateTest extends \PHPUnit\Framework\TestCase
 	{
 		$structure = $this->datasources->get('Company');
 		$builder = new ReferenceStatementBuilder(
-			[
-				K::BUILDER_DOMAIN_CREATE_TABLE => (K::BUILDER_CREATE_TEMPORARY |
-				K::BUILDER_CREATE_REPLACE)
-			]);
+			new ReferencePlatform(
+				[
+					'or replace' => [
+						[
+							K::PLATFORM_FEATURE_CREATE,
+							K::PLATFORM_FEATURE_TABLE,
+							K::PLATFORM_FEATURE_REPLACE
+						],
+						true
+					]
+				]));
 
 		foreach ([
 			'Employees',

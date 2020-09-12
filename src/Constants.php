@@ -227,7 +227,7 @@ class Constants
 	const COLUMN_FLAGS_DEFAULT = self::COLUMN_FLAG_NULLABLE;
 
 	/**
-	 * Maximum number of digits or characters
+	 * Maximum number of digits, characters or bytes
 	 *
 	 *
 	 * Value type: integer
@@ -483,129 +483,6 @@ class Constants
 	 */
 	const FOREIGN_KEY_ACTION_RESTRICT = 'restrict';
 
-	const BUILDER_DOMAIN_GENERIC = 0;
-
-	/**
-	 * Builder supports the "DROM ...
-	 * IF EXISTS" syntax.
-	 *
-	 * This flag could be defined in drop* domains.
-	 *
-	 * @var integer
-	 */
-	const BUILDER_IF_EXISTS = 0x01;
-
-	/**
-	 * Builder supports the "CREATE ...
-	 * IF NOT EXISTS" syntax.
-	 *
-	 * This flag could be set in create* domains
-	 *
-	 * @var integer
-	 */
-	const BUILDER_IF_NOT_EXISTS = 0x02;
-
-	/**
-	 * Indicates the structure element
-	 * can be declared inside a namesapce scope.
-	 *
-	 * This flag could be set for indexes, views etc.
-	 *
-	 * @var integer
-	 */
-	const BUILDER_SCOPED_STRUCTURE_DECLARATION = 0x04;
-
-	const BUILDER_DOMAIN_SELECT = 'select';
-
-	/**
-	 * Allow result column alias resolution in WHERE, HAVING and GROUP BY
-	 *
-	 * @var integer
-	 */
-	const BUILDER_SELECT_EXTENDED_RESULTCOLUMN_ALIAS_RESOLUTION = 0x01000000;
-
-	const BUILDER_DOMAIN_INSERT = 'insert';
-
-	/**
-	 * INSERT INTO {table} DEFAULT VALUES syntax support
-	 *
-	 * @var integer
-	 */
-	const BUILDER_INSERT_DEFAULT_VALUES = 0x01000000;
-
-	/**
-	 * INSERT INTO {table} ({column}) VALUES (DEFAULT) syntax support
-	 *
-	 * @var integer
-	 */
-	const BUILDER_INSERT_DEFAULT_KEYWORD = 0x02000000;
-
-	const BUILDER_DOMAIN_UPDATE = 'update';
-
-	const BUILDER_DOMAIN_DELETE = 'delete';
-
-	/**
-	 * CREATE SCHEMA / DATABASE statements
-	 *
-	 * @var string
-	 */
-	const BUILDER_DOMAIN_CREATE_NAMESPACE = 'createnamespace';
-
-	const BUILDER_DOMAIN_DROP_NAMESPACE = 'dropnamespace';
-
-	const BUILDER_DOMAIN_CREATE_TABLE = 'createtable';
-
-	const BUILDER_DOMAIN_DROP_TABLE = 'droptable';
-
-	const BUILDER_DOMAIN_CREATE_VIEW = 'createview';
-
-	const BUILDER_DOMAIN_DROP_VIEW = 'dropview';
-
-	const BUILDER_DOMAIN_CREATE_INDEX = 'createindex';
-
-	const BUILDER_DOMAIN_DROP_INDEX = 'dropindex';
-
-	/**
-	 * Primary key column require a length specification.
-	 *
-	 * Usable in the following domains
-	 * <ul>
-	 * <li>BUILDER_DOMAIN_CREATE_TABLE</li>
-	 * <li>BUILDER_DOMAIN_CREATE_INDEX</li>
-	 * </ul>
-	 *
-	 * @var number
-	 */
-	const BUILDER_CREATE_COLUMN_KEY_MANDATORY_LENGTH = 0x01000000;
-
-	/**
-	 * Column description supports ENUM () syntax
-	 *
-	 * @var integer
-	 */
-	const BUILDER_CREATE_COLUMN_INLINE_ENUM = 0x02000000;
-
-	/**
-	 * CREATE "OR REPLACE" support
-	 *
-	 * @var number
-	 */
-	const BUILDER_CREATE_REPLACE = 0x04000000;
-
-	/**
-	 * CREATE "TEMPORARY" support
-	 *
-	 * @var number
-	 */
-	const BUILDER_CREATE_TEMPORARY = 0x08000000;
-
-	/**
-	 * DROP query supports CASCADE modifiers
-	 *
-	 * @var integer
-	 */
-	const BUILDER_DROP_CASCADE = 0x01000000;
-
 	// Tokens
 	const TOKEN_SPACE = 0;
 
@@ -742,6 +619,252 @@ class Constants
 	 * @var string
 	 */
 	const METAFUNCTION_TIMESTAMP_FORMAT = 'timestampformat';
+
+	/**
+	 * DBMS current version
+	 *
+	 * @var string
+	 */
+	const PLATFORM_VERSION_CURRENT = 'current';
+
+	/**
+	 * The minimum DBMS version compatible with
+	 * the current platform.
+	 *
+	 * @var string
+	 */
+	const PLATFORM_VERSION_COMPATIBILITY = 'compatibility';
+
+	/**
+	 * Platform feature doman.
+	 *
+	 * Namespace structure
+	 *
+	 * @var string
+	 */
+	const PLATFORM_FEATURE_NAMESPACE = 'namespace';
+
+	/**
+	 * Platform feature doman.
+	 *
+	 * Table structures.
+	 *
+	 * @var string
+	 */
+	const PLATFORM_FEATURE_TABLE = 'table';
+
+	/**
+	 * Platform feature doman.
+	 *
+	 * View declarations.
+	 *
+	 * @var string
+	 */
+	const PLATFORM_FEATURE_VIEW = 'view';
+
+	/**
+	 * Platform feature doman.
+	 *
+	 * Indexes
+	 *
+	 * @var string
+	 */
+	const PLATFORM_FEATURE_INDEX = 'index';
+
+	/**
+	 * Platform feature doman.
+	 *
+	 * Triggers
+	 *
+	 * @var string
+	 */
+	const PLATFORM_FEATURE_TRIGGER = 'trigger';
+
+	/**
+	 * Platform feature doman.
+	 *
+	 * Functions.
+	 *
+	 * @var string
+	 */
+	const PLATFORM_FEATURE_FUNCTION = 'function';
+
+	/**
+	 * Platform feature domain
+	 *
+	 * @var string
+	 */
+	const PLATFORM_FEATURE_CREATE = 'create';
+
+	/**
+	 * Platform feature support.
+	 *
+	 * OR REPLACE support in CREATE statements.
+	 *
+	 * @var string
+	 */
+	const PLATFORM_FEATURE_REPLACE = 'replace';
+
+	/**
+	 * Platform feature support.
+	 *
+	 * TEMPORARY structure creation support
+	 *
+	 * @var string
+	 */
+	const PLATFORM_FEATURE_TEMPORARY = 'temporary';
+
+	/**
+	 * Platform feature
+	 *
+	 * Support for creating VIEW, INDEX etc. in a given namespace.
+	 *
+	 * @var string
+	 */
+	const PLATFORM_FEATURE_SCOPED = 'scoped';
+
+	/**
+	 * Platform feature support.
+	 *
+	 * Column declaration option flags
+	 *
+	 * @var string
+	 */
+	const PLATFORM_FEATURE_COLUMN_DECLARATION_FLAGS = 'columndeclaration';
+
+	/**
+	 * Column declaration flags
+	 *
+	 * Column which are part of a key must have a length specification.
+	 *
+	 * @var number
+	 */
+	const PLATFORM_FEATURE_COLUMN_KEY_MANDATORY_LENGTH = 0x01;
+
+	/**
+	 * Column declaration flags
+	 *
+	 * ENUM () support in column declaration.
+	 *
+	 * @var string
+	 */
+	const PLATFORM_FEATURE_COLUMN_ENUM = 0x02;
+
+	/**
+	 * Platform feature domain
+	 *
+	 * DROP statements
+	 *
+	 * @var string
+	 */
+	const PLATFORM_FEATURE_DROP = 'drop';
+
+	/**
+	 * Platform feature domain
+	 *
+	 * CASCADE in DROP statements
+	 *
+	 * @var string
+	 */
+	const PLATFORM_FEATURE_CASCADE = 'cascade';
+
+	/**
+	 * Platform feature support
+	 *
+	 * IF (NOT) EXISTS in CREATE and DROP statements
+	 *
+	 * @var string
+	 */
+	const PLATFORM_FEATURE_EXISTS_CONDITION = 'exists';
+
+	/**
+	 * Platform feature domain.
+	 *
+	 * SELECT statements.
+	 *
+	 * @var string
+	 */
+	const PLATFORM_FEATURE_SELECT = 'select';
+
+	/**
+	 * Platform feature support.
+	 *
+	 * Allow result column alias resolution in WHERE, HAVING and GROUP BY
+	 *
+	 * @var string
+	 */
+	const PLATFORM_FEATURE_EXTENDED_RESULTCOLUMN_RESOLUTION = 'extendedresultcolumnresolution';
+
+	/**
+	 * Platform feature domain
+	 *
+	 * INSERT statements.
+	 *
+	 * @var string
+	 */
+	const PLATFORM_FEATURE_INSERT = 'insert';
+
+	/**
+	 * Platform feature support
+	 *
+	 * Support for DEFAULT VALUES in lieu of VALUES in INSERT statements.
+	 *
+	 * @var string
+	 */
+	const PLATFORM_FEATURE_DEFAULTVALUES = 'defaultvalues';
+
+	/**
+	 * Platform feature support.
+	 *
+	 * DEFAULT keyword in VALUES() instructions of INSERT statements.
+	 *
+	 * @var string
+	 */
+	const PLATFORM_FEATURE_DEFAULT = 'default';
+
+	/**
+	 * Platform feature support.
+	 *
+	 * List of supported JOIN types.
+	 *
+	 * Value is expected to be a combination of JOIN_* flags.
+	 *
+	 * @var string
+	 */
+	const PLATFORM_FEATURE_JOINS = 'joins';
+
+	/**
+	 * Platform feature domain.
+	 *
+	 * Events / Triggers
+	 *
+	 * @var string
+	 */
+	const PLATFORM_FEATURE_EVENTS = 'events';
+
+	/**
+	 * Platform feature support
+	 *
+	 * ON UPDATE event.
+	 *
+	 * @var string
+	 */
+	const PLATFORM_FEATURE_EVENT_UPDATE = 'onupdate';
+
+	/**
+	 * Platform feature support
+	 *
+	 * ON DELETE event.
+	 *
+	 * @var string
+	 */
+	const PLATFORM_FEATURE_EVENT_DELETE = 'ondelete';
+
+	/**
+	 *
+	 * @var string
+	 */
+	const PLATFORM_FEATURE_EVENT_ACTIONS = 'eventactions';
 
 	/**
 	 *

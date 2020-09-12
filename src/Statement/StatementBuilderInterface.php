@@ -10,6 +10,7 @@
 namespace NoreSources\SQL\Statement;
 
 use NoreSources\SQL\DataSerializerInterface;
+use NoreSources\SQL\DBMS\PlatformProviderInterface;
 use NoreSources\SQL\DBMS\TypeInterface;
 use NoreSources\SQL\Expression\MetaFunctionCall;
 use NoreSources\SQL\Expression\TokenStream;
@@ -21,14 +22,8 @@ use NoreSources\SQL\Structure\StructureElementInterface;
  * Build a SQL statement string to be used in a SQL engine
  */
 interface StatementBuilderInterface extends DataSerializerInterface,
-	StatementFactoryInterface
+	StatementFactoryInterface, PlatformProviderInterface
 {
-
-	/**
-	 *
-	 * @return number
-	 */
-	function getBuilderFlags($domain = K::BUILDER_DOMAIN_GENERIC);
 
 	/**
 	 * Escape SQL identifier to be inserted in a SQL statement.

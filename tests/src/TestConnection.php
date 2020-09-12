@@ -54,11 +54,15 @@ class TestConnection extends \PHPUnit\Framework\TestCase
 		if ($this->connections->offsetExists($name))
 			return $this->connections[$name];
 
-		if (!$this->files->offsetExists($name))
-			return null;
-
-		$parameters = new DataTree();
-		$parameters->load($this->files[$name]);
+		if ($this->files->offsetExists($name))
+		{
+			$parameters = new DataTree();
+			$parameters->load($this->files[$name]);
+		}
+		else
+			$parameters = [
+				K::CONNECTION_TYPE => $name
+			];
 
 		$this->connections[$name] = ConnectionHelper::createConnection(
 			$parameters);

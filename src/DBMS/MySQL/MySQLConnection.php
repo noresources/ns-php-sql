@@ -15,6 +15,7 @@ use NoreSources\SQL\ParameterValue;
 use NoreSources\SQL\DBMS\ConnectionException;
 use NoreSources\SQL\DBMS\ConnectionHelper;
 use NoreSources\SQL\DBMS\ConnectionInterface;
+use NoreSources\SQL\DBMS\PlatformProviderTrait;
 use NoreSources\SQL\DBMS\TransactionInterface;
 use NoreSources\SQL\DBMS\TransactionStackTrait;
 use NoreSources\SQL\DBMS\MySQL\MySQLConstants as K;
@@ -34,6 +35,7 @@ class MySQLConnection implements ConnectionInterface,
 {
 	use StructureProviderTrait;
 	use TransactionStackTrait;
+	use PlatformProviderTrait;
 
 	const STATE_CONNECTED = 0x01;
 
@@ -45,7 +47,6 @@ class MySQLConnection implements ConnectionInterface,
 			});
 		$this->mysqlFlags = 0;
 		$this->link = new \mysqli();
-		$this->builder = new MySQLStatementBuilder($this);
 
 		$persistent = Container::keyValue($parameters,
 			K::CONNECTION_PERSISTENT, false);
@@ -112,8 +113,25 @@ class MySQLConnection implements ConnectionInterface,
 			self::STATE_CONNECTED);
 	}
 
+	public function getPlatform()
+	{
+		if (!isset($this->platform))
+		{
+			$version = MySQLPlatform::DEFAULT_VERSION;
+			if ($this->isConnected())
+				$version = $this->getServerLink()->server_version;
+			$this->platform = new MySQLPlatform($version);
+		}
+
+		return $this->platform;
+	}
+
 	public function getStatementBuilder()
 	{
+		if (!isset($this->builder))
+		{
+			$this->builder = new MySQLStatementBuilder($this);
+		}
 		return $this->builder;
 	}
 

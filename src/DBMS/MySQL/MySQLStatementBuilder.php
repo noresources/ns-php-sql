@@ -37,28 +37,20 @@ class MySQLStatementBuilder extends AbstractStatementBuilder implements
 	use LoggerAwareTrait;
 	use ClassMapStatementFactoryTrait;
 
-	public function __construct(MySQLConnection $connection = null)
+	public function __construct(MySQLConnection $connection)
 	{
 		parent::__construct();
 		$this->initializeStatementFactory();
 		$this->connection = $connection;
+	}
 
-		/**
-		 *
-		 * @todo builder flags
-		 */
-
-		$createTableFlags = $this->getBuilderFlags(
-			K::BUILDER_DOMAIN_CREATE_TABLE);
-		$createTableFlags |= (K::BUILDER_CREATE_COLUMN_KEY_MANDATORY_LENGTH |
-			K::BUILDER_CREATE_COLUMN_INLINE_ENUM |
-			K::BUILDER_CREATE_TEMPORARY | K::BUILDER_CREATE_REPLACE);
-		$this->setBuilderFlags(K::BUILDER_DOMAIN_CREATE_TABLE,
-			$createTableFlags);
-
-		$dropTableFlags = K::BUILDER_DROP_CASCADE;
-		$this->setBuilderFlags(K::BUILDER_DOMAIN_DROP_TABLE,
-			$dropTableFlags);
+	/**
+	 *
+	 * @return MySQLPlatform
+	 */
+	public function getPlatform()
+	{
+		return $this->connection->getPlatform();
 	}
 
 	public function serializeString($value)

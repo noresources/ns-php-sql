@@ -14,6 +14,7 @@ use NoreSources\TypeDescription;
 use NoreSources\SQL\ParameterValue;
 use NoreSources\SQL\DBMS\ConnectionHelper;
 use NoreSources\SQL\DBMS\ConnectionInterface;
+use NoreSources\SQL\DBMS\PlatformProviderTrait;
 use NoreSources\SQL\DBMS\TransactionInterface;
 use NoreSources\SQL\DBMS\TransactionStackTrait;
 use NoreSources\SQL\DBMS\SQLite\SQLiteConstants as K;
@@ -36,6 +37,7 @@ class SQLiteConnection implements ConnectionInterface,
 {
 	use StructureProviderTrait;
 	use TransactionStackTrait;
+	use PlatformProviderTrait;
 
 	/**
 	 * Special in-memory database name
@@ -87,7 +89,6 @@ class SQLiteConnection implements ConnectionInterface,
 	 */
 	public function __construct($parameters)
 	{
-		$this->builder = new SQLiteStatementBuilder();
 		$this->connection = null;
 
 		$this->setTransactionBlockFactory(
@@ -174,9 +175,8 @@ class SQLiteConnection implements ConnectionInterface,
 			$names[] = $name;
 
 			$attach = false;
-			$sql = 'ATTACH DATABASE ' .
-				$this->builder->serializeString($source) . ' AS ' .
-				$this->builder->escapeIdentifier($name);
+			$sql = "ATTACH DATABASE '" . \SQLite3::escapeString($source) .
+				"'" . ' AS ' . '"' . \addslashes($name) . '"';
 
 			if ($this->connection instanceof \SQLite3)
 			{
@@ -250,8 +250,28 @@ class SQLiteConnection implements ConnectionInterface,
 		return ($this->connection instanceof \SQLite3);
 	}
 
+	/**
+	 *
+	 * @return SQLitePlatform
+	 */
+	public function getPlatform()
+	{
+		if (!isset($this->platform))
+		{
+			$version = \Sqlite3::version();
+			$this->platform = new SQLitePlatform(
+				$version['versionString']);
+		}
+
+		return $this->platform;
+	}
+
 	public function getStatementBuilder()
 	{
+		if (!isset($this->builder))
+			$this->builder = new SQLiteStatementBuilder(
+				$this->getPlatform());
+
 		return $this->builder;
 	}
 
@@ -329,7 +349,8 @@ class SQLiteConnection implements ConnectionInterface,
 				{
 					if ($value instanceof \DateTimeInterface)
 						$value = $value->format(
-							$this->builder->getTimestampFormat($type));
+							$this->getStatementBuilder()
+								->getTimestampFormat($type));
 				}
 
 				$type = self::sqliteDataTypeFromDataType($type);

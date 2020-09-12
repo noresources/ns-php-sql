@@ -17,6 +17,7 @@ use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Expression\TokenStreamContextInterface;
 use NoreSources\SQL\Statement\Statement;
 use NoreSources\SQL\Statement\Query\SelectQuery;
+use NoreSources\SQL\Structure\IndexStructure;
 use NoreSources\SQL\Structure\NamespaceStructure;
 use NoreSources\SQL\Structure\ViewStructure;
 
@@ -68,7 +69,8 @@ class CreateViewQuery extends Statement
 		if ($identifier instanceof StructureElementIdentifier)
 			$this->viewIdentifier = $identifier;
 		else
-			$this->viewIdentifier = new StructureElementIdentifier(\strval($identifier));
+			$this->viewIdentifier = new StructureElementIdentifier(
+				\strval($identifier));
 
 		return $this;
 	}
@@ -95,11 +97,22 @@ class CreateViewQuery extends Statement
 		return $this;
 	}
 
-	public function tokenize(TokenStream $stream, TokenStreamContextInterface $context)
+	public function tokenize(TokenStream $stream,
+		TokenStreamContextInterface $context)
 	{
-		$builderFlags = $context->getStatementBuilder()->getBuilderFlags(K::BUILDER_DOMAIN_GENERIC);
-		$builderFlags |= $context->getStatementBuilder()->getBuilderFlags(
-			K::BUILDER_DOMAIN_CREATE_VIEW);
+		$builder = $context->getStatementBuilder();
+		$platform = $builder->getPlatform();
+		$scoped = $platform->queryFeature(
+			[
+				K::PLATFORM_FEATURE_VIEW,
+				K::PLATFORM_FEATURE_SCOPED
+			], false);
+		$existsCondition = $platform->queryFeature(
+			[
+				K::PLATFORM_FEATURE_CREATE,
+				K::PLATFORM_FEATURE_VIEW,
+				K::PLATFORM_FEATURE_EXISTS_CONDITION
+			], false);
 
 		$context->setStatementType(K::QUERY_CREATE_VIEW);
 
@@ -109,7 +122,7 @@ class CreateViewQuery extends Statement
 			$stream->space()->keyword('temporary');
 
 		$stream->space()->keyword('view');
-		if ($builderFlags & K::BUILDER_IF_NOT_EXISTS)
+		if ($existsCondition)
 		{
 			$stream->space()
 				->keyword('if')
@@ -121,7 +134,7 @@ class CreateViewQuery extends Statement
 
 		$stream->space();
 
-		if ($builderFlags & K::BUILDER_SCOPED_STRUCTURE_DECLARATION)
+		if ($scoped)
 		{
 			$parts = $this->viewIdentifier->getPathParts();
 			if (\count($parts) > 1)
@@ -135,10 +148,13 @@ class CreateViewQuery extends Statement
 					$structure = $structure->getParentElement();
 
 				if ($structure instanceof NamespaceStructure)
-					$stream->identifier($builder->getCanonicalName($structure))
+					$stream->identifier(
+						$builder->getCanonicalName($structure))
 						->text('.');
 
-				$stream->identifier($builder->escapeIdentifier($this->viewIdentifier->path));
+				$stream->identifier(
+					$builder->escapeIdentifier(
+						$this->viewIdentifier->path));
 			}
 		}
 		else

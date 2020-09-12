@@ -39,18 +39,19 @@ class SQLiteCreateTableQuery extends CreateTableQuery
 		parent::__construct($table);
 	}
 
-	public function tokenize(TokenStream $stream, TokenStreamContextInterface $context)
+	public function tokenize(TokenStream $stream,
+		TokenStreamContextInterface $context)
 	{
 		$builder = $context->getStatementBuilder();
-		$builderFlags = $builder->getBuilderFlags(K::BUILDER_DOMAIN_GENERIC);
-		$builderFlags |= $builder->getBuilderFlags(K::BUILDER_DOMAIN_CREATE_TABLE);
 
 		$structure = $this->getStructure();
 		if (!($structure instanceof TableStructure))
 			$structure = $context->getPivot();
 
-		if (!($structure instanceof TableStructure && ($structure->count() > 0)))
-			throw new StatementException($this, 'Missing or invalid table structure');
+		if (!($structure instanceof TableStructure &&
+			($structure->count() > 0)))
+			throw new StatementException($this,
+				'Missing or invalid table structure');
 
 		$primaryKeyColumns = [];
 		$autoIncrementPrimaryKey = false;
@@ -71,7 +72,8 @@ class SQLiteCreateTableQuery extends CreateTableQuery
 			->keyword('if not exists');
 
 		$stream->space()
-			->identifier($builder->getCanonicalName($this->getStructure()))
+			->identifier(
+			$builder->getCanonicalName($this->getStructure()))
 			->space()
 			->text('(');
 
@@ -98,7 +100,8 @@ class SQLiteCreateTableQuery extends CreateTableQuery
 
 			$typeName = $type->getTypeName();
 
-			$stream->identifier($builder->escapeIdentifier($column->getName()))
+			$stream->identifier(
+				$builder->escapeIdentifier($column->getName()))
 				->space()
 				->identifier($typeName);
 
@@ -106,7 +109,8 @@ class SQLiteCreateTableQuery extends CreateTableQuery
 			{
 				if (!$isPrimary)
 					throw new StatementException($this,
-						'Auto increment column "' . $column->getName() . '" must be the primary key');
+						'Auto increment column "' . $column->getName() .
+						'" must be the primary key');
 				if (Container::count($primaryKeyColumns) != 1)
 					throw new StatementException($this,
 						'Table "' . $structure->getName() .
@@ -116,7 +120,8 @@ class SQLiteCreateTableQuery extends CreateTableQuery
 				$stream->space()
 					->keyword('primary key')
 					->space()
-					->keyword($builder->getKeyword(K::KEYWORD_AUTOINCREMENT));
+					->keyword(
+					$builder->getKeyword(K::KEYWORD_AUTOINCREMENT));
 			}
 
 			if (!($columnFlags & K::COLUMN_FLAG_NULLABLE))
@@ -129,7 +134,8 @@ class SQLiteCreateTableQuery extends CreateTableQuery
 
 			if ($column->hasColumnProperty(K::COLUMN_DEFAULT_VALUE))
 			{
-				$v = Evaluator::evaluate($column->getColumnProperty(K::COLUMN_DEFAULT_VALUE));
+				$v = Evaluator::evaluate(
+					$column->getColumnProperty(K::COLUMN_DEFAULT_VALUE));
 				$stream->space()
 					->keyword('DEFAULT')
 					->space()
@@ -140,13 +146,15 @@ class SQLiteCreateTableQuery extends CreateTableQuery
 		// Constraints
 		foreach ($structure->getConstraints() as $constraint)
 		{
-			if ($constraint instanceof PrimaryKeyTableConstraint && $autoIncrementPrimaryKey)
+			if ($constraint instanceof PrimaryKeyTableConstraint &&
+				$autoIncrementPrimaryKey)
 				continue;
 
 			if ($c++ > 0)
 				$stream->text(',')->space();
 
-			$this->tokenizeTableConstraint($constraint, $stream, $context);
+			$this->tokenizeTableConstraint($constraint, $stream,
+				$context);
 		} // constraints
 
 		$stream->text(')');

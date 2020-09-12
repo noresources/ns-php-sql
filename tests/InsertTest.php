@@ -2,6 +2,7 @@
 namespace NoreSources\SQL;
 
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\DBMS\Reference\ReferencePlatform;
 use NoreSources\SQL\DBMS\Reference\ReferenceStatementBuilder;
 use NoreSources\SQL\Expression\ExpressionHelper;
 use NoreSources\SQL\Expression\TokenStream;
@@ -31,14 +32,31 @@ final class InsertTest extends \PHPUnit\Framework\TestCase
 		$q = new InsertQuery($t);
 
 		$builderFlags = array(
-			'no_default' => 0,
-			'default_values' => K::BUILDER_INSERT_DEFAULT_VALUES,
-			'default_keyword' => K::BUILDER_INSERT_DEFAULT_KEYWORD
+			'no_default' => [],
+			'default_values' => [
+				[
+					[
+						K::PLATFORM_FEATURE_INSERT,
+						K::PLATFORM_FEATURE_DEFAULTVALUES
+					],
+					true
+				]
+			],
+			'default_keyword' => [
+				[
+					[
+						K::PLATFORM_FEATURE_INSERT,
+						K::PLATFORM_FEATURE_DEFAULT
+					],
+					true
+				]
+			]
 		);
 
-		foreach ($builderFlags as $key => $flags)
+		foreach ($builderFlags as $key => $platformFeatures)
 		{
-			$builder = new ReferenceStatementBuilder($flags);
+			$platformFeatures = new ReferencePlatform($platformFeatures);
+			$builder = new ReferenceStatementBuilder($platformFeatures);
 			$context = new StatementTokenStreamContext($builder);
 			$context->setPivot($t);
 

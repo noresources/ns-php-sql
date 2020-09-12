@@ -62,10 +62,7 @@ class InsertQuery extends Statement implements \ArrayAccess
 	public function tokenize(TokenStream $stream,
 		TokenStreamContextInterface $context)
 	{
-		$builderFlags = $context->getStatementBuilder()->getBuilderFlags(
-			K::BUILDER_DOMAIN_GENERIC);
-		$builderFlags |= $context->getStatementBuilder()->getBuilderFlags(
-			K::BUILDER_DOMAIN_INSERT);
+		$platform = $context->getStatementBuilder()->getPlatform();
 
 		$tableStructure = $context->findTable($this->getTable()->path);
 		$context->setStatementType(K::QUERY_INSERT);
@@ -96,8 +93,19 @@ class InsertQuery extends Statement implements \ArrayAccess
 		$values = [];
 		$c = $this->columnValues->count();
 
-		if (($c == 0) &&
-			($builderFlags & K::BUILDER_INSERT_DEFAULT_VALUES))
+		$hasDefaultValues = $platform->queryFeature(
+			[
+				K::PLATFORM_FEATURE_INSERT,
+				K::PLATFORM_FEATURE_DEFAULTVALUES
+			], false);
+
+		$hasDefaultKeyword = $platform->queryFeature(
+			[
+				K::PLATFORM_FEATURE_INSERT,
+				K::PLATFORM_FEATURE_DEFAULT
+			], false);
+
+		if (($c == 0) && $hasDefaultValues)
 		{
 			$stream->space()->keyword('DEFAULT VALUES');
 			$context->popResolverContext();
@@ -144,10 +152,8 @@ class InsertQuery extends Statement implements \ArrayAccess
 					$c++;
 					$columns[] = $context->getStatementBuilder()->escapeIdentifier(
 						$name);
-					if ($builderFlags & K::BUILDER_INSERT_DEFAULT_KEYWORD)
-					{
+					if ($hasDefaultKeyword)
 						$values[] = new Keyword(K::KEYWORD_DEFAULT);
-					}
 					else
 					{
 						$x = Evaluator::evaluate(
