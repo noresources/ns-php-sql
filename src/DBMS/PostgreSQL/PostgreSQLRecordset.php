@@ -14,9 +14,9 @@ use NoreSources\SQL\Result\Recordset;
 use NoreSources\SQL\Result\SeekableRecordsetTrait;
 use NoreSources\SQL\Statement\ResultColumn;
 use NoreSources\SQL\Statement\ResultColumnMap;
-use NoreSources\SQL\Statement\StatementOutputDataInterface;
 
-class PostgreSQLRecordset extends Recordset implements \SeekableIterator, \Countable
+class PostgreSQLRecordset extends Recordset implements
+	\SeekableIterator, \Countable
 {
 
 	use SeekableRecordsetTrait;
@@ -30,29 +30,26 @@ class PostgreSQLRecordset extends Recordset implements \SeekableIterator, \Count
 	{
 		parent::__construct($data);
 		$this->resource = $resource;
-		if (!($data instanceof StatementOutputDataInterface))
+		$map = $this->getResultColumns();
+		for ($i = 0; $i < \pg_num_fields($this->resource); $i++)
 		{
-			$map = $this->getResultColumns();
-			for ($i = 0; $i < \pg_num_fields($this->resource); $i++)
+			$column = null;
+			if ($i < $map->count())
+				$column = $map->getColumn($i);
+			else
 			{
-				$column = null;
-				if ($i < $map->count())
-					$column = $map->getColumn($i);
-				else
-				{
-					$column = new ResultColumn(K::DATATYPE_UNDEFINED);
-					$column->name = \pg_field_name($this->resource, $i);
-				}
-
-				if ($column->dataType == K::DATATYPE_UNDEFINED)
-				{
-					$oid = \pg_field_type_oid($this->resource, $i);
-					$column->dataType = PostgreSQLType::oidToDataType($oid);
-				}
-
-				if ($i >= $map->count())
-					$map->setColumn($i, $column);
+				$column = new ResultColumn(K::DATATYPE_UNDEFINED);
+				$column->name = \pg_field_name($this->resource, $i);
 			}
+
+			if ($column->dataType == K::DATATYPE_UNDEFINED)
+			{
+				$oid = \pg_field_type_oid($this->resource, $i);
+				$column->dataType = PostgreSQLType::oidToDataType($oid);
+			}
+
+			if ($i >= $map->count())
+				$map->setColumn($i, $column);
 		}
 	}
 
