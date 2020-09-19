@@ -9,6 +9,7 @@
  */
 namespace NoreSources\SQL;
 
+use NoreSources\Bitset;
 use NoreSources\Container;
 
 /**
@@ -22,35 +23,35 @@ class Constants
 	 *
 	 * @var integer
 	 */
-	const DATATYPE_UNDEFINED = 0x0;
+	const DATATYPE_UNDEFINED = Bitset::BIT_NONE;
 
 	/**
 	 * NULL value type
 	 *
 	 * @var integer
 	 */
-	const DATATYPE_NULL = 0x01;
+	const DATATYPE_NULL = Bitset::BIT_01;
 
 	/**
 	 * String value type
 	 *
 	 * @var integer
 	 */
-	const DATATYPE_STRING = 0x02;
+	const DATATYPE_STRING = Bitset::BIT_02;
 
 	/**
 	 * Integer value type
 	 *
 	 * @var integer
 	 */
-	const DATATYPE_INTEGER = 0x04;
+	const DATATYPE_INTEGER = Bitset::BIT_03;
 
 	/**
 	 * Float value type
 	 *
 	 * @var integer
 	 */
-	const DATATYPE_FLOAT = 0x08;
+	const DATATYPE_FLOAT = Bitset::BIT_04;
 
 	/**
 	 * Integer or float number.
@@ -59,56 +60,59 @@ class Constants
 	 * @c DATATYPE_INTEGER and @c DATATYPE_FLOAT
 	 * @var integer
 	 */
-	const DATATYPE_NUMBER = 0x0c;
+	const DATATYPE_NUMBER = self::DATATYPE_INTEGER + self::DATATYPE_FLOAT;
 
 	/**
 	 * Date part of a timestamp type
 	 *
 	 * @var integer
 	 */
-	const DATATYPE_DATE = 0x10;
+	const DATATYPE_DATE = Bitset::BIT_05;
 
 	/**
 	 * Time part or a timestamp type
 	 *
 	 * @var integer
 	 */
-	const DATATYPE_TIME = 0x20;
+	const DATATYPE_TIME = Bitset::BIT_06;
 
 	/**
 	 * Date & time part of a timestamp
 	 *
 	 * @var integer
+	 *
 	 */
-	const DATATYPE_DATETIME = 0x30;
+	const DATATYPE_DATETIME = self::DATATYPE_DATE + self::DATATYPE_TIME;
 
 	/**
+	 *
 	 * Time with timezone
 	 *
 	 * @var integer
 	 */
-	const DATATYPE_TIMEZONE = 0x60;
+	const DATATYPE_TIMEZONE = Bitset::BIT_07;
 
 	/**
 	 * A string representing a Time stamp
 	 *
 	 * @var integer
 	 */
-	const DATATYPE_TIMESTAMP = 0x70;
+	const DATATYPE_TIMESTAMP = self::DATATYPE_DATETIME +
+		self::DATATYPE_TIMEZONE;
 
 	/**
 	 * Boolean value type
 	 *
 	 * @var integer
 	 */
-	const DATATYPE_BOOLEAN = 0x80;
+	const DATATYPE_BOOLEAN = Bitset::BIT_08;
 
 	/**
 	 * Binary value type
 	 *
 	 * @var integer
 	 */
-	const DATATYPE_BINARY = 0x100;
+	const DATATYPE_BINARY = Bitset::BIT_09;
 
 	// DBMS connection settings
 
@@ -204,7 +208,7 @@ class Constants
 	 *
 	 * @var integer
 	 */
-	const COLUMN_FLAG_NULLABLE = 0x01;
+	const COLUMN_FLAG_NULLABLE = Bitset::BIT_01;
 
 	/**
 	 * Column is auto incremented.
@@ -215,15 +219,20 @@ class Constants
 	 *
 	 * @var integer
 	 */
-	const COLUMN_FLAG_AUTO_INCREMENT = 0x02;
+	const COLUMN_FLAG_AUTO_INCREMENT = Bitset::BIT_02;
 
 	/**
 	 * Numeric value is always positive
 	 *
 	 * @var integer
 	 */
-	const COLUMN_FLAG_UNSIGNED = 0x04;
+	const COLUMN_FLAG_UNSIGNED = Bitset::BIT_03;
 
+	/**
+	 * Default column flags
+	 *
+	 * @var integer
+	 */
 	const COLUMN_FLAGS_DEFAULT = self::COLUMN_FLAG_NULLABLE;
 
 	/**
@@ -310,21 +319,25 @@ class Constants
 	 *
 	 * @var integer
 	 */
-	const TYPE_FLAG_DEFAULT_VALUE = 0x01;
+	const TYPE_FLAG_DEFAULT_VALUE = Bitset::BIT_01;
 
 	/**
 	 * Type accepts NULL values
 	 *
 	 * @var integer
 	 */
-	const TYPE_FLAG_NULLABLE = 0x02;
+	const TYPE_FLAG_NULLABLE = Bitset::BIT_02;
 
 	/**
-	 * Indicates if the DBMS type supports glyph count / length specification
+	 * Indicates if the DBMS type supports length specification
+	 * <ul>
+	 * <li>glyph count for string types</li>
+	 * <li>Precision for numeric type</li>
+	 * </ul>
 	 *
 	 * @var number
 	 */
-	const TYPE_FLAG_LENGTH = 0x04;
+	const TYPE_FLAG_LENGTH = Bitset::BIT_03;
 
 	/**
 	 * Indicates if the DBMS type supports fraction scale specification
@@ -332,7 +345,8 @@ class Constants
 	 *
 	 * @var integer
 	 */
-	const TYPE_FLAG_FRACTION_SCALE = 0x0c;
+	const TYPE_FLAG_FRACTION_SCALE = self::TYPE_FLAG_LENGTH +
+		Bitset::BIT_04;
 
 	/**
 	 * Length specification in table column declaration
@@ -340,14 +354,14 @@ class Constants
 	 *
 	 * @var number
 	 */
-	const TYPE_FLAG_MANDATORY_LENGTH = 0x10;
+	const TYPE_FLAG_MANDATORY_LENGTH = Bitset::BIT_05;
 
 	/**
 	 * Type accepts signness specification (SIGNED / UNSIGNED)
 	 *
 	 * @var integer
 	 */
-	const TYPE_FLAG_SIGNNESS = 0x20;
+	const TYPE_FLAG_SIGNNESS = Bitset::BIT_06;
 
 	/**
 	 * Maximum glyph count / length.
@@ -394,17 +408,17 @@ class Constants
 	const TYPE_PADDING_GLYPH = self::COLUMN_PADDING_GLYPH;
 
 	// JOIN operator
-	const JOIN_NATURAL = 0x01;
+	const JOIN_NATURAL = Bitset::BIT_01;
 
-	const JOIN_LEFT = 0x10;
+	const JOIN_LEFT = Bitset::BIT_02;
 
-	const JOIN_RIGHT = 0x20;
+	const JOIN_RIGHT = Bitset::BIT_03;
 
-	const JOIN_INNER = 0x40;
+	const JOIN_INNER = Bitset::BIT_04;
 
-	const JOIN_CROSS = 0x80;
+	const JOIN_CROSS = Bitset::BIT_05;
 
-	const JOIN_OUTER = 0x02;
+	const JOIN_OUTER = Bitset::BIT_06;
 
 	/**
 	 * CURRENT_TIMESTAMP, CURRENT_TIMESTAMP() or NOW()
@@ -497,37 +511,43 @@ class Constants
 	const TOKEN_PARAMETER = 5;
 
 	// Query types
-	const QUERY_SELECT = 0x01;
+	const QUERY_SELECT = Bitset::BIT_01;
 
-	const QUERY_INSERT = 0x02;
+	const QUERY_INSERT = Bitset::BIT_02;
 
-	const QUERY_UPDATE = 0x04;
+	const QUERY_UPDATE = Bitset::BIT_03;
 
-	const QUERY_DELETE = 0x08;
+	const QUERY_DELETE = Bitset::BIT_04;
 
-	const QUERY_FAMILY_ROWMODIFICATION = 0x0C;
+	const QUERY_FAMILY_ROWMODIFICATION = self::QUERY_UPDATE +
+		self::QUERY_DELETE;
 
-	const QUERY_CREATE_TABLE = 0x0100;
+	const QUERY_CREATE_TABLE = Bitset::BIT_05;
 
-	const QUERY_CREATE_INDEX = 0x0200;
+	const QUERY_CREATE_INDEX = Bitset::BIT_06;
 
-	const QUERY_CREATE_NAMESPACE = 0x0400;
+	const QUERY_CREATE_NAMESPACE = Bitset::BIT_07;
 
-	const QUERY_CREATE_VIEW = 0x0800;
+	const QUERY_CREATE_VIEW = Bitset::BIT_08;
 
-	const QUERY_FAMILY_CREATE = 0xFF00;
+	const QUERY_FAMILY_CREATE = self::QUERY_CREATE_INDEX +
+		self::QUERY_CREATE_NAMESPACE + self::QUERY_CREATE_TABLE +
+		self::QUERY_CREATE_VIEW;
 
-	const QUERY_DROP_TABLE = 0x010000;
+	const QUERY_DROP_TABLE = Bitset::BIT_09;
 
-	const QUERY_DROP_INDEX = 0x020000;
+	const QUERY_DROP_INDEX = Bitset::BIT_10;
 
-	const QUERY_DROP_NAMESPACE = 0x040000;
+	const QUERY_DROP_NAMESPACE = Bitset::BIT_11;
 
-	const QUERY_DROP_VIEW = 0x080000;
+	const QUERY_DROP_VIEW = Bitset::BIT_12;
 
-	const QUERY_FAMILY_DROP = 0xFF0000;
+	const QUERY_FAMILY_DROP = self::QUERY_DROP_INDEX +
+		self::QUERY_DROP_NAMESPACE + self::QUERY_DROP_TABLE +
+		self::QUERY_DROP_VIEW;
 
-	const QUERY_FAMILY_STRUCTURE = 0xFFFF00;
+	const QUERY_FAMILY_STRUCTURE = self::QUERY_FAMILY_CREATE +
+		self::QUERY_FAMILY_DROP;
 
 	// SELECT query flags
 	/**
@@ -537,7 +557,7 @@ class Constants
 	 *
 	 * @var integer
 	 */
-	const SELECT_QUERY_DISTINCT = 0x01;
+	const SELECT_QUERY_DISTINCT = Bitset::BIT_01;
 
 	// Recordset flags
 
@@ -546,21 +566,22 @@ class Constants
 	 *
 	 * @var integer
 	 */
-	const RECORDSET_FETCH_ASSOCIATIVE = 0x01;
+	const RECORDSET_FETCH_ASSOCIATIVE = Bitset::BIT_01;
 
 	/**
 	 * Fetch record row to a indexed array
 	 *
 	 * @var integer
 	 */
-	const RECORDSET_FETCH_INDEXED = 0x02;
+	const RECORDSET_FETCH_INDEXED = Bitset::BIT_02;
 
 	/**
 	 * Fetch record row to an array with both indexed and associative key
 	 *
 	 * @var integer
 	 */
-	const RECORDSET_FETCH_BOTH = 0x03;
+	const RECORDSET_FETCH_BOTH = self::RECORDSET_FETCH_ASSOCIATIVE +
+		self::RECORDSET_FETCH_INDEXED;
 
 	/**
 	 * Convert row values to the most accurate PHP object
@@ -568,14 +589,15 @@ class Constants
 	 *
 	 * @var integer
 	 */
-	const RECORDSET_FETCH_UBSERIALIZE = 0x04;
+	const RECORDSET_FETCH_UBSERIALIZE = Bitset::BIT_03;
 
 	/**
 	 * RECORDSET_FETCH_UBSERIALIZE + RECORDSET_FETCH_BOTH
 	 *
 	 * @var number
 	 */
-	const RECORDSET_PUBLIC_FLAGS = 0x07;
+	const RECORDSET_PUBLIC_FLAGS = self::RECORDSET_FETCH_BOTH +
+		self::RECORDSET_FETCH_UBSERIALIZE;
 
 	/**
 	 * Transaction block state.
@@ -739,7 +761,7 @@ class Constants
 	 *
 	 * @var number
 	 */
-	const PLATFORM_FEATURE_COLUMN_KEY_MANDATORY_LENGTH = 0x01;
+	const PLATFORM_FEATURE_COLUMN_KEY_MANDATORY_LENGTH = Bitset::BIT_01;
 
 	/**
 	 * Column declaration flags
@@ -748,7 +770,7 @@ class Constants
 	 *
 	 * @var string
 	 */
-	const PLATFORM_FEATURE_COLUMN_ENUM = 0x02;
+	const PLATFORM_FEATURE_COLUMN_ENUM = Bitset::BIT_02;
 
 	/**
 	 * Platform feature domain
