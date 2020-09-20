@@ -33,29 +33,35 @@ class ColumnStructure implements StructureElementInterface,
 
 	const DEFAULT_VALUE = K::COLUMN_DEFAULT_VALUE;
 
-	/**
-	 *
-	 * @return boolean true if Column is part of primary key constraint
-	 */
-	public function isPrimaryKey()
+	const CONSTRAINT_PRIMARY_KEY = K::COLUMN_CONSTRAINT_PRIMARY_KEY;
+
+	const CONSTRAINT_UNIQUE = K::COLUMN_CONSTRAINT_UNIQUE;
+
+	public function getConstraintFlags()
 	{
 		/**
 		 *
 		 * @var TableStructure
 		 */
 		$table = $this->getParentElement();
+		$flags = 0;
 		if (!($table instanceof TableStructure))
-			return false;
+			return $flags;
 
 		foreach ($table->getConstraints() as $constraint)
 		{
 			if ($constraint instanceof PrimaryKeyTableConstraint &&
 				($constraint->getColumns()->offsetExists(
 					$this->getName())))
-				return true;
+				$flags |= self::CONSTRAINT_PRIMARY_KEY;
+
+			elseif ($constraint instanceof UniqueTableConstraint &&
+				($constraint->getColumns()->offsetExists(
+					$this->getName())))
+				$flags |= self::CONSTRAINT_UNIQUE;
 		}
 
-		return false;
+		return $flags;
 	}
 
 	/**

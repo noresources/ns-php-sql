@@ -283,6 +283,20 @@ class Constants
 	const COLUMN_MEDIA_TYPE = 'mediatype';
 
 	/**
+	 * Table column primary key constraint.
+	 *
+	 * Returned by ColumnStructure::getConstraintFlags ()
+	 */
+	const COLUMN_CONSTRAINT_PRIMARY_KEY = Bitset::BIT_01;
+
+	/**
+	 * Table column uniqueness constraint.
+	 *
+	 * Returned by ColumnStructure::getConstraintFlags ()
+	 */
+	const COLUMN_CONSTRAINT_UNIQUE = Bitset::BIT_02;
+
+	/**
 	 * DBMS type data type affinity
 	 *
 	 * Property value is expected to be an integer.

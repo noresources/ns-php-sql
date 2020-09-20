@@ -187,7 +187,9 @@ class CreateTableQuery extends Statement implements
 				K::PLATFORM_FEATURE_COLUMN_DECLARATION_FLAGS
 			], 0);
 
-		$isPrimary = $column->isPrimaryKey();
+		$isPrimary = (($column->getConstraintFlags() &
+			K::COLUMN_CONSTRAINT_PRIMARY_KEY) ==
+			K::COLUMN_CONSTRAINT_PRIMARY_KEY);
 
 		$columnFlags = $column->getColumnProperty(K::COLUMN_FLAGS);
 
