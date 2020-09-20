@@ -263,22 +263,14 @@ final class SQLiteTest extends \PHPUnit\Framework\TestCase
 			new SQLitePlatform('3.0.0'));
 
 		$dateTimeFormat = DateTime::getFormatTokenDescriptions();
-		$translations = $builder->getTimestampFormatTranslations();
-
-		foreach ($translations as $key => $t)
-		{
-			$this->assertArrayHasKey($key, $dateTimeFormat,
-				'Format token "' . $key . '" exists');
-		}
 
 		foreach ($dateTimeFormat as $token => $info)
 		{
-			$this->assertArrayHasKey($token, $translations,
+			$translation = $builder->getPlatform()->getTimestampFormatTokenTranslation(
+				$token);
+			$this->assertTrue($translation !== null,
 				$token . ' translation rule exists');
 		}
-
-		$this->assertCount(Container::count($dateTimeFormat),
-			$translations, 'Same number of format tokens');
 
 		$timestamp = '2010-11-12 13:14:15+02:00';
 
@@ -301,7 +293,7 @@ final class SQLiteTest extends \PHPUnit\Framework\TestCase
 		{
 			$test = (object) $test;
 			$tf = new TimestampFormatFunction($test->format, $timestamp);
-			$f = $builder->translateFunction($tf);
+			$f = $builder->getPlatform()->translateFunction($tf);
 			$this->assertInstanceOf(FunctionCall::class, $f,
 				$label . ' translated function');
 

@@ -76,7 +76,9 @@ class CreateNamespaceQuery extends Statement
 
 		$stream->keyword('create')
 			->space()
-			->keyword($builder->getKeyword(K::KEYWORD_NAMESPACE));
+			->keyword(
+			$builder->getPlatform()
+				->getKeyword(K::KEYWORD_NAMESPACE));
 		if ($existsCondition)
 			$stream->space()->keyword('if not exists');
 		$stream->space()->identifier(

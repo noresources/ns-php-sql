@@ -5,8 +5,10 @@ use NoreSources\SemanticVersion;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Expression\FunctionCall;
 use NoreSources\SQL\Expression\MetaFunctionCall;
+use Psr\Log\LoggerAwareInterface;
 
-interface PlatformInterface extends FeatureQueryInterface
+interface PlatformInterface extends FeatureQueryInterface,
+	LoggerAwareInterface
 {
 
 	/**
@@ -17,12 +19,72 @@ interface PlatformInterface extends FeatureQueryInterface
 	function getPlatformVersion($kind = self::VERSION_CURRENT);
 
 	/**
+	 * Get syntax keyword.
 	 *
-	 * @param MetaFunctionCall $meta
+	 * @param integer $keyword
+	 * @throws \InvalidArgumentException
+	 * @return string
+	 */
+	function getKeyword($keyword);
+
+	/**
+	 *
+	 * @param integer $joinTypeFlags
+	 *        	JOIN type flags
+	 * @return string
+	 */
+	function getJoinOperator($joinTypeFlags);
+
+	/**
+	 * GET the SQL keyword associated to the given foreign key action
+	 *
+	 * @param string $action
+	 * @return string
+	 */
+	function getForeignKeyAction($action);
+
+	/**
+	 * Get the \DateTime timestamp format accepted by the ConnectionInterface
+	 *
+	 * @param integer $type
+	 *        	Timestamp parts. Combination of
+	 *        	<ul>
+	 *        	<li>Constants\DATATYPE_DATE</li>
+	 *        	<li>Constants\DATATYPE_TIME</li>
+	 *        	<li>Constants\DATATYPE_TIMEZONE</li>
+	 *        	</ul>
+	 *
+	 * @return string \DateTime format string
+	 */
+	function getTimestampTypeStringFormat($type = 0);
+
+	/**
+	 *
+	 * @param string $formatToken
+	 *        	One of the PHP date format string token. @see
+	 *        	https://www.php.net/manual/en/datetime.format.php
+	 * @throws \InvalidArgumentException if $formatToken is not a valid PHP date token
+	 * @param false|string|array|NULL $formatToken
+	 *        	If $formatToken is a valid PHP date format token:
+	 *        	<ol>
+	 *        	<li>The DBMS string translation for the given token if the DBMS provides the exact
+	 *        	translation.</li>
+	 *        	<li>A two element array containing an acceptable fallback translation and the
+	 *        	fallback
+	 *        	detail if the DBMS cannot provide an exact translation</li>
+	 *        	<li>false if no translation is available</li>
+	 *        	<li>NULL if $formatToken is not a valid PHP date format token</li>
+	 *        	</ol>
+	 */
+	function getTimestampFormatTokenTranslation($formatToken);
+
+	/**
+	 *
+	 * @param MetaFunctionCall $metaFunction
 	 *
 	 * @return FunctionCall
 	 */
-	function translateFunction(MetaFunctionCall $meta);
+	function translateFunction(MetaFunctionCall $metaFunction);
 
 	const VERSION_CURRENT = K::PLATFORM_VERSION_CURRENT;
 

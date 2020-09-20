@@ -264,7 +264,9 @@ class ConnectionHelper
 		{
 			return $value->format(
 				$connection->getStatementBuilder()
-					->getTimestampFormat($type & K::DATATYPE_TIMESTAMP));
+					->getPlatform()
+					->getTimestampTypeStringFormat(
+					$type & K::DATATYPE_TIMESTAMP));
 		}
 
 		return $value;

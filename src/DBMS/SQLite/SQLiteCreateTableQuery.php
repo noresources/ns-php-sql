@@ -121,7 +121,8 @@ class SQLiteCreateTableQuery extends CreateTableQuery
 					->keyword('primary key')
 					->space()
 					->keyword(
-					$builder->getKeyword(K::KEYWORD_AUTOINCREMENT));
+					$builder->getPlatform()
+						->getKeyword(K::KEYWORD_AUTOINCREMENT));
 			}
 
 			if (!($columnFlags & K::COLUMN_FLAG_NULLABLE))

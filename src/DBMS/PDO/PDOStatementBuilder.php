@@ -107,11 +107,6 @@ class PDOStatementBuilder extends AbstractStatementBuilder
 		return new BasicType($typeName);
 	}
 
-	public function getKeyword($keyword)
-	{
-		return parent::getKeyword($keyword);
-	}
-
 	private $driverName;
 
 	/**

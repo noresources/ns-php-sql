@@ -66,11 +66,11 @@ abstract class AbstractStatementBuilder implements
 		switch ($type)
 		{
 			case K::DATATYPE_NULL:
-				return $this->getKeyword(K::KEYWORD_NULL);
+				return $this->getPlatform()->getKeyword(K::KEYWORD_NULL);
 			case K::DATATYPE_BINARY:
 				return $this->serializeBinary($value);
 			case K::DATATYPE_BOOLEAN:
-				return $this->getKeyword(
+				return $this->getPlatform()->getKeyword(
 					TypeConversion::toBoolean($value) ? K::KEYWORD_TRUE : K::KEYWORD_FALSE);
 			case K::DATATYPE_INTEGER:
 				return TypeConversion::toInteger($value);
@@ -84,7 +84,9 @@ abstract class AbstractStatementBuilder implements
 
 		if ($value instanceof \DateTimeInterface)
 			$value = $value->format(
-				$this->getTimestampFormat(K::DATATYPE_TIMESTAMP));
+				$this->getPlatform()
+					->getTimestampTypeStringFormat(
+					K::DATATYPE_TIMESTAMP));
 
 		return $this->serializeString(TypeConversion::toString($value));
 	}
@@ -93,79 +95,6 @@ abstract class AbstractStatementBuilder implements
 	{
 		return new FunctionCall($metaFunction->getFunctionName(),
 			$metaFunction->getArguments());
-	}
-
-	public function getKeyword($keyword)
-	{
-		switch ($keyword)
-		{
-			case K::KEYWORD_AUTOINCREMENT:
-				return 'AUTO INCREMENT';
-			case K::KEYWORD_CURRENT_TIMESTAMP:
-				return 'CURRENT_TIMESTAMP';
-			case K::KEYWORD_NULL:
-				return 'NULL';
-			case K::KEYWORD_TRUE:
-				return 'TRUE';
-			case K::KEYWORD_FALSE:
-				return 'FALSE';
-			case K::KEYWORD_DEFAULT:
-				return 'DEFAULT';
-		}
-
-		throw new \InvalidArgumentException(
-			'Keyword ' . $keyword . ' is not available');
-	}
-
-	public function getJoinOperator($joinTypeFlags)
-	{
-		$s = '';
-		if (($joinTypeFlags & K::JOIN_NATURAL) == K::JOIN_NATURAL)
-			$s .= 'NATURAL ';
-
-		if (($joinTypeFlags & K::JOIN_LEFT) == K::JOIN_LEFT)
-		{
-			$s . 'LEFT ';
-			if (($joinTypeFlags & K::JOIN_OUTER) == K::JOIN_OUTER)
-			{
-				$s .= 'OUTER ';
-			}
-		}
-		elseif (($joinTypeFlags & K::JOIN_RIGHT) == K::JOIN_RIGHT)
-		{
-			$s . 'RIGHT ';
-			if (($joinTypeFlags & K::JOIN_OUTER) == K::JOIN_OUTER)
-			{
-				$s .= 'OUTER ';
-			}
-		}
-		elseif (($joinTypeFlags & K::JOIN_CROSS) == K::JOIN_CROSS)
-		{
-			$s .= 'CROSS ';
-		}
-		elseif (($joinTypeFlags & K::JOIN_INNER) == K::JOIN_INNER)
-		{
-			$s .= 'INNER ';
-		}
-
-		return ($s . 'JOIN');
-	}
-
-	public function getTimestampFormat($type = 0)
-	{
-		switch ($type)
-		{
-			case K::DATATYPE_DATE:
-				return 'Y-m-d';
-			case K::DATATYPE_TIME:
-				return 'H:i:s';
-			case K::DATATYPE_TIMEZONE:
-				return 'H:i:sO';
-			case K::DATATYPE_DATETIME:
-				return 'Y-m-d\TH:i:s';
-		}
-
-		return \DateTimeInterface::ISO8601;
 	}
 
 	public function getCanonicalName($structure)
@@ -193,22 +122,6 @@ abstract class AbstractStatementBuilder implements
 			function ($v) {
 				return $this->escapeIdentifier($v);
 			});
-	}
-
-	public function getForeignKeyAction($action)
-	{
-		switch ($action)
-		{
-			case K::FOREIGN_KEY_ACTION_CASCADE:
-				return 'CASCADE';
-			case K::FOREIGN_KEY_ACTION_RESTRICT:
-				return 'RESTRICT';
-			case K::FOREIGN_KEY_ACTION_SET_DEFAULT:
-				return 'SET DEFAULT';
-			case K::FOREIGN_KEY_ACTION_SET_NULL:
-				'SET NULL';
-		}
-		return 'NO ACTION';
 	}
 
 	public function finalizeStatement(TokenStream $stream,
@@ -270,7 +183,9 @@ abstract class AbstractStatementBuilder implements
 			$value = DateTime::createFromArray($value);
 
 		if ($value instanceof \DateTimeInterface)
-			$value = $value->format($this->getTimestampFormat($type));
+			$value = $value->format(
+				$this->getPlatform()
+					->getTimestampTypeStringFormat($type));
 		else
 			$value = TypeConversion::toString($value);
 

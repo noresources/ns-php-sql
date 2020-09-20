@@ -6,7 +6,6 @@ use NoreSources\DateTime;
 use NoreSources\SingletonTrait;
 use NoreSources\TypeConversion;
 use NoreSources\TypeDescription;
-use NoreSources\Logger\ErrorReporterLogger;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\ConnectionException;
 use NoreSources\SQL\DBMS\ConnectionHelper;
@@ -38,7 +37,6 @@ use NoreSources\Test\DerivedFileManager;
 use NoreSources\Test\Generator;
 use NoreSources\Test\TestConnection;
 use PHPUnit\Framework\TestCase;
-use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LoggerTrait;
 
@@ -455,12 +453,16 @@ final class DBMSCommonTest extends TestCase
 			{
 				$label = Container::keyValue($desc,
 					DateTime::FORMAT_DESCRIPTION_LABEL, $format);
-				if (Container::keyExists($desc, DateTime::FORMAT_DESCRIPTION_DETAILS))
-					$label .= ' (' . $desc[DateTime::FORMAT_DESCRIPTION_DETAILS] .
-						')';
-				if (Container::keyExists($desc, DateTime::FORMAT_DESCRIPTION_RANGE))
+				if (Container::keyExists($desc,
+					DateTime::FORMAT_DESCRIPTION_DETAILS))
+					$label .= ' (' .
+						$desc[DateTime::FORMAT_DESCRIPTION_DETAILS] . ')';
+				if (Container::keyExists($desc,
+					DateTime::FORMAT_DESCRIPTION_RANGE))
 					$label .= ' [' .
-						implode('-', $desc[DateTime::FORMAT_DESCRIPTION_RANGE]) . ']';
+						implode('-',
+							$desc[DateTime::FORMAT_DESCRIPTION_RANGE]) .
+						']';
 			}
 			$select = new SelectQuery();
 			$select->columns(
@@ -471,21 +473,13 @@ final class DBMSCommonTest extends TestCase
 					'format'
 				]);
 
-			DBMSTestSilentLogger::getInstance()->clear();
-			$silentLogger = DBMSTestSilentLogger::getInstance();
-			$errorReporterLogger = ErrorReporterLogger::getInstance();
-			if ($connection instanceof LoggerAwareInterface)
-				$connection->setLogger($silentLogger);
-			elseif ($connection->getStatementBuilder() instanceof LoggerAwareInterface)
-				$connection->getStatementBuilder()->setLogger(
-					$silentLogger);
+			$translation = $connection->getPlatform()->getTimestampFormatTokenTranslation(
+				$format);
+			if (!\is_string($translation))
+				continue;
+
 			$select = ConnectionHelper::prepareStatement($connection,
 				$select);
-			if ($connection instanceof LoggerAwareInterface)
-				$connection->setLogger($errorReporterLogger);
-			elseif ($connection->getStatementBuilder() instanceof LoggerAwareInterface)
-				$connection->getStatementBuilder()->setLogger(
-					$errorReporterLogger);
 
 			$this->assertInstanceOf(PreparedStatementInterface::class,
 				$select, $dbmsName . ' ' . $method . ' SELECT');

@@ -312,8 +312,9 @@ class CreateTableQuery extends Statement implements
 
 		if ($columnFlags & K::COLUMN_FLAG_AUTO_INCREMENT)
 		{
-			$ai = $context->getStatementBuilder()->getKeyword(
-				K::KEYWORD_AUTOINCREMENT);
+			$ai = $context->getStatementBuilder()
+				->getPlatform()
+				->getKeyword(K::KEYWORD_AUTOINCREMENT);
 			if (\strlen($ai))
 				$stream->space()->keyword($ai);
 		}
@@ -410,6 +411,7 @@ class CreateTableQuery extends Statement implements
 					->space()
 					->keyword(
 					$context->getStatementBuilder()
+						->getPlatform()
 						->getForeignKeyAction($constraint->onUpdate));
 			}
 
@@ -420,6 +422,7 @@ class CreateTableQuery extends Statement implements
 					->space()
 					->keyword(
 					$context->getStatementBuilder()
+						->getPlatform()
 						->getForeignKeyAction($constraint->onDelete));
 			}
 		}

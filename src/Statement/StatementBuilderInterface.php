@@ -12,7 +12,6 @@ namespace NoreSources\SQL\Statement;
 use NoreSources\SQL\DataSerializerInterface;
 use NoreSources\SQL\DBMS\PlatformProviderInterface;
 use NoreSources\SQL\DBMS\TypeInterface;
-use NoreSources\SQL\Expression\MetaFunctionCall;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Expression\TokenStreamContextInterface;
 use NoreSources\SQL\Structure\ColumnStructure;
@@ -54,59 +53,11 @@ interface StatementBuilderInterface extends DataSerializerInterface,
 	function getColumnType(ColumnStructure $column);
 
 	/**
-	 * Translate a meta function to a DBMS compliant function
-	 *
-	 * @param MetaFunctionCall $metaFunction
-	 * @return \NoreSources\SQL\Expression\FunctionCall
-	 */
-	function translateFunction(MetaFunctionCall $metaFunction);
-
-	/**
-	 * Get syntax keyword.
-	 *
-	 * @param integer $keyword
-	 * @throws \InvalidArgumentException
-	 * @return string
-	 */
-	function getKeyword($keyword);
-
-	/**
-	 *
-	 * @param integer $joinTypeFlags
-	 *        	JOIN type flags
-	 * @return string
-	 */
-	function getJoinOperator($joinTypeFlags);
-
-	/**
-	 * Get the \DateTime timestamp format accepted by the ConnectionInterface
-	 *
-	 * @param integer $type
-	 *        	Timestamp parts. Combination of
-	 *        	<ul>
-	 *        	<li>Constants\DATATYPE_DATE</li>
-	 *        	<li>Constants\DATATYPE_TIME</li>
-	 *        	<li>Constants\DATATYPE_TIMEZONE</li>
-	 *        	</ul>
-	 *
-	 * @return string \DateTime format string
-	 */
-	function getTimestampFormat($type = 0);
-
-	/**
 	 *
 	 * @param StructureElementInterface|\Traversable|string $structure
 	 * @return string
 	 */
 	function getCanonicalName($structure);
-
-	/**
-	 * GET the SQL keyword associated to the given foreign key action
-	 *
-	 * @param string $action
-	 * @return string
-	 */
-	function getForeignKeyAction($action);
 
 	/**
 	 *

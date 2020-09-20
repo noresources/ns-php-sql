@@ -2,9 +2,12 @@
 namespace NoreSources\SQL\DBMS\Reference;
 
 use NoreSources\SQL\DBMS\AbstractPlatform;
+use Psr\Log\LoggerAwareTrait;
 
 class ReferencePlatform extends AbstractPlatform
 {
+
+	use LoggerAwareTrait;
 
 	const DEFAULT_VERSION = '1.0.0';
 

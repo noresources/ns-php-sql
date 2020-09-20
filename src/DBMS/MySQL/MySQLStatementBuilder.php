@@ -16,9 +16,6 @@ use NoreSources\SQL\DBMS\BasicType;
 use NoreSources\SQL\DBMS\TypeHelper;
 use NoreSources\SQL\DBMS\TypeInterface;
 use NoreSources\SQL\DBMS\MySQL\MySQLConstants as K;
-use NoreSources\SQL\Expression\FunctionCall;
-use NoreSources\SQL\Expression\Literal;
-use NoreSources\SQL\Expression\MetaFunctionCall;
 use NoreSources\SQL\Statement\AbstractStatementBuilder;
 use NoreSources\SQL\Statement\ClassMapStatementFactoryTrait;
 use NoreSources\SQL\Statement\ParameterData;
@@ -27,8 +24,6 @@ use NoreSources\SQL\Structure\PrimaryKeyTableConstraint;
 use NoreSources\SQL\Structure\TableStructure;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
-use Psr\Log\LoggerInterface;
-use ArrayObject;
 
 class MySQLStatementBuilder extends AbstractStatementBuilder implements
 	LoggerAwareInterface
@@ -69,7 +64,9 @@ class MySQLStatementBuilder extends AbstractStatementBuilder implements
 
 		if ($value instanceof \DateTimeInterface)
 			$value = $value->format(
-				$this->getTimestampFormat(K::DATATYPE_TIMESTAMP));
+				$this->getPlatform()
+					->getTimestampTypeStringFormat(
+					K::DATATYPE_TIMESTAMP));
 		else
 			$value = TypeConversion::toString($value);
 
@@ -84,18 +81,6 @@ class MySQLStatementBuilder extends AbstractStatementBuilder implements
 	public function getParameter($name, ParameterData $parameters = null)
 	{
 		return '?';
-	}
-
-	public function translateFunction(MetaFunctionCall $metaFunction)
-	{
-		if ($metaFunction->getFunctionName() ==
-			K::METAFUNCTION_TIMESTAMP_FORMAT)
-		{
-			return $this->translateTimestampFormatFunction(
-				$metaFunction);
-		}
-
-		return parent::translateFunction($metaFunction);
 	}
 
 	public function getColumnType(ColumnStructure $column)
@@ -185,119 +170,6 @@ class MySQLStatementBuilder extends AbstractStatementBuilder implements
 		return new BasicType('TEXT');
 	}
 
-	public function getKeyword($keyword)
-	{
-		switch ($keyword)
-		{
-			case K::KEYWORD_NAMESPACE:
-				return 'DATABASE';
-			case K::KEYWORD_AUTOINCREMENT:
-				return 'AUTO_INCREMENT';
-		}
-		return parent::getKeyword($keyword);
-	}
-
-	/**
-	 */
-	public function getTimestampFormat($type = 0)
-	{
-		if ($type == K::DATATYPE_TIMESTAMP)
-			return 'Y-m-d H:i:s';
-		elseif ($type == (K::DATATYPE_TIME | K::DATATYPE_TIMEZONE))
-			return 'H:i:s';
-
-		return parent::getTimestampFormat($type);
-	}
-
-	/**
-	 *
-	 * @return ArrayObject
-	 */
-	public static function getTimestampFormatTranslations()
-	{
-		if (!Container::isArray(self::$timestampFormatTranslations))
-		{
-			self::$timestampFormatTranslations = new \ArrayObject(
-				[
-					// YEAR
-					'Y' => '%Y',
-					'y' => '%y',
-					'o' => false,
-					'L' => false,
-
-					// Month
-
-					// Abbreviated month name, based on the locale (an alias of %b)
-					'M' => '%b',
-					// Full month name, based on the locale
-					'F' => '%M',
-					// Two digit representation of the month
-					'm' => '%m',
-					// Month number without leading zero
-					'n' => '%c',
-					// ISO week number of the year
-					'W' => '%v',
-					// A full textual representation of the day
-					'l' => '%W',
-					// Number of day in the current month
-					't' => false,
-					// An abbreviated textual representation of the day
-					'D' => '%a',
-					// Two-digit day of the month (with leading zeros)
-					'd' => '%d',
-					'j' => '%e',
-					'z' => [
-						'%j',
-						'Day of year range will be [1-366] instead of [0-365]'
-					],
-					// Day of the year, 3 digits with leading zeros
-					'N' => [
-						'%w',
-						'Week day "sunday" will be 0 instead of 7'
-					],
-					// English ordinal suffix for the day of the month, 2 character
-					'S' => false,
-					// Numeric representation of the day of the week
-					'w' => '%w',
-
-					// Hours
-					'H' => '%H',
-					// Hour in 24-hour format, with a space preceding single digits
-					'G' => '%k',
-					// Two digit representation of the hour in 12-hour format
-					'h' => '%h',
-					// Hour in 12-hour format, with a space preceding single digits
-					'g' => '%l',
-					// Swatch internet time
-					'B' => false,
-					// UPPER-CASE 'AM' or 'PM' based on the given time
-					'A' => '%p',
-					// lower case am/pm
-					'a' => false,
-
-					// Minutes
-					'i' => '%i',
-
-					's' => '%S',
-					// Milliseconds
-					'v' => false,
-					// Microseconds
-					'u' => '%f',
-					'Z' => false,
-					'O' => false,
-					'P' => false,
-					'e' => false,
-					'T' => false,
-					'I' => false,
-					'r' => false,
-					'c' => false,
-					'U' => false
-				]);
-		}
-
-		return self::$timestampFormatTranslations;
-	}
-
 	public static function dataTypeFromMysqlType($mysqlTypeId)
 	{
 		switch ($mysqlTypeId)
@@ -345,83 +217,10 @@ class MySQLStatementBuilder extends AbstractStatementBuilder implements
 		return K::DATATYPE_STRING;
 	}
 
-	private function translateTimestampFormatFunction(
-		MetaFunctionCall $metaFunction)
-	{
-		$format = $metaFunction->getArgument(0);
-		if ($format instanceof Literal)
-		{
-			$s = \str_split(\strval($format->getValue()));
-			$escapeChar = '\\';
-			$translation = '';
-			$escape = 0;
-			foreach ($s as $c)
-			{
-				if ($c == $escapeChar)
-				{
-					$escape++;
-					if ($escape == 2)
-					{
-						$translation .= $escapeChar;
-						$escape = 0;
-					}
-
-					continue;
-				}
-
-				if ($escape)
-				{
-					$escape = 0;
-					$translation .= $c;
-					continue;
-				}
-
-				$t = Container::keyValue(
-					self::getTimestampFormatTranslations(), $c, $c);
-
-				if ($t === false)
-				{
-					if ($this->logger instanceof LoggerInterface)
-						$this->logger->warning(
-							'Timestamp format "' . $c .
-							'" not supported by MySQL date_format()');
-					continue;
-				}
-
-				if (\is_array($t))
-				{
-					if ($this->logger instanceof LoggerInterface)
-						$this->logger->notice(
-							'Timestamp format "' . $c . '": ' . $t[1]);
-					$t = $t[0];
-				}
-
-				$translation .= $t;
-			}
-
-			$format->setValue($translation);
-		}
-
-		$timestamp = $metaFunction->getArgument(1);
-		$strftime = new FunctionCall('date_format',
-			[
-				$timestamp,
-				$format
-			]);
-
-		return $strftime;
-	}
-
 	protected function getLink()
 	{
 		return $this->connection->getServerLink();
 	}
-
-	/**
-	 *
-	 * @var \ArrayObject
-	 */
-	private static $timestampFormatTranslations;
 
 	/**
 	 *

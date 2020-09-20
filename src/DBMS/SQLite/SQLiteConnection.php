@@ -350,7 +350,8 @@ class SQLiteConnection implements ConnectionInterface,
 					if ($value instanceof \DateTimeInterface)
 						$value = $value->format(
 							$this->getStatementBuilder()
-								->getTimestampFormat($type));
+								->getPlatform()
+								->getTimestampTypeStringFormat($type));
 				}
 
 				$type = self::sqliteDataTypeFromDataType($type);

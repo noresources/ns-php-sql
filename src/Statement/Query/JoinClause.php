@@ -37,7 +37,8 @@ class JoinClause implements TokenizableExpressionInterface
 	 */
 	public $subject;
 
-	public function __construct($operator, DataRowContainerReference $subject /*, on ...*/)
+	public function __construct($operator,
+		DataRowContainerReference $subject /*, on ...*/)
 	{
 		$this->operator = $operator;
 		$this->subject = $subject;
@@ -53,10 +54,13 @@ class JoinClause implements TokenizableExpressionInterface
 		], $args);
 	}
 
-	public function tokenize(TokenStream $stream, TokenStreamContextInterface $context)
+	public function tokenize(TokenStream $stream,
+		TokenStreamContextInterface $context)
 	{
-		$stream->keyword($context->getStatementBuilder()
-			->getJoinOperator($this->operator));
+		$stream->keyword(
+			$context->getStatementBuilder()
+				->getPlatform()
+				->getJoinOperator($this->operator));
 
 		$stream->space()->expression($this->subject, $context);
 
