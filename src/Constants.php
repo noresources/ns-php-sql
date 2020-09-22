@@ -236,12 +236,25 @@ class Constants
 	const COLUMN_FLAGS_DEFAULT = self::COLUMN_FLAG_NULLABLE;
 
 	/**
-	 * Maximum number of digits, characters or bytes
+	 * Maximum or fixed number of elements that will represents a column value
+	 *
+	 * <ul>
+	 * <li>Glyphs for string types</li>
+	 * <li>Bytes for binary types</li>
+	 * <li>Digits for number types</li>
+	 * <li>Bits for bitset types</li>
+	 * </ul>
 	 *
 	 *
 	 * Value type: integer
 	 */
 	const COLUMN_LENGTH = 'length';
+
+	/**
+	 * Number column precision.
+	 * Alias of COLUMN_LENGTH
+	 */
+	const COLUMN_PRECISION = self::COLUMN_LENGTH;
 
 	/**
 	 * Maximum number of digit to represents the fractional part of a floating-point number
@@ -262,9 +275,22 @@ class Constants
 	 */
 	const COLUMN_DEFAULT_VALUE = 'default';
 
-	const COLUMN_PADDING_DIRECTION = 'paddingdirection';
-
+	/**
+	 * Glyph used to pad value to the maximum length
+	 *
+	 * @var string
+	 */
 	const COLUMN_PADDING_GLYPH = 'paddingglyph';
+
+	/**
+	 * Padding direction
+	 *
+	 * <ul>
+	 * <li>-1 Left</li>
+	 * <li>1 Right</li>
+	 * </ul>
+	 */
+	const COLUMN_PADDING_DIRECTION = 'paddingdirection';
 
 	/**
 	 * Define a custom deta unserializer for a column

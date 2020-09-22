@@ -36,10 +36,10 @@ interface PlatformInterface extends FeatureQueryInterface,
 	function getJoinOperator($joinTypeFlags);
 
 	/**
-	 * GET the SQL keyword associated to the given foreign key action
+	 * Get the SQL keyword associated to the given foreign key action
 	 *
 	 * @param string $action
-	 * @return string
+	 * @return string|NULL Action keyword or NULL if the action is not supported
 	 */
 	function getForeignKeyAction($action);
 

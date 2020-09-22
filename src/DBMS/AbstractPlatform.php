@@ -8,6 +8,9 @@ use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Expression\FunctionCall;
 use NoreSources\SQL\Expression\MetaFunctionCall;
 
+/**
+ * Reference PlatformInterface implementation
+ */
 abstract class AbstractPlatform implements PlatformInterface
 {
 
