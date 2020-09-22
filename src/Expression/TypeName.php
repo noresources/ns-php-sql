@@ -44,19 +44,28 @@ class TypeName implements TokenizableExpressionInterface
 	 */
 	public function setType($type)
 	{
-		if (!($type instanceof TypeInterface || $type instanceof ColumnDescriptionInterface))
+		if (!($type instanceof TypeInterface ||
+			$type instanceof ColumnDescriptionInterface))
 		{
 			throw new \InvalidArgumentException(
-				TypeInterface::class . ' or ' . ColumnDescriptionInterface::class . ' expected');
+				TypeInterface::class . ' or ' .
+				ColumnDescriptionInterface::class . ' expected');
 			$this->type = $type;
 		}
 
 		$this->type = $type;
 	}
 
-	public function tokenize(TokenStream $stream, TokenStreamContextInterface $context)
+	public function tokenize(TokenStream $stream,
+		TokenStreamContextInterface $context)
 	{
 		$type = $this->type;
+		$constraintFlags = 0;
+		if ($type instanceof ColumnStructure)
+		{
+			$constraintFlags = $type->getConstraintFlags();
+		}
+
 		if ($type instanceof ColumnDescriptionInterface)
 		{
 			if (!($type instanceof ColumnStructure))
@@ -70,7 +79,9 @@ class TypeName implements TokenizableExpressionInterface
 				}
 			}
 
-			$type = $context->getStatementBuilder()->getColumnType($type);
+			$type = $context->getStatementBuilder()
+				->getPlatform()
+				->getColumnType($type, $constraintFlags);
 		}
 
 		if (!($type instanceof TypeInterface))

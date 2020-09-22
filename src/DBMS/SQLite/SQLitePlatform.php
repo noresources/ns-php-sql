@@ -5,10 +5,14 @@ use NoreSources\Container;
 use NoreSources\DateTime;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\AbstractPlatform;
+use NoreSources\SQL\DBMS\ArrayObjectType;
 use NoreSources\SQL\DBMS\TimestampFormatTranslationMap;
+use NoreSources\SQL\DBMS\TypeHelper;
+use NoreSources\SQL\DBMS\TypeRegistry;
 use NoreSources\SQL\Expression\FunctionCall;
 use NoreSources\SQL\Expression\Literal;
 use NoreSources\SQL\Expression\MetaFunctionCall;
+use NoreSources\SQL\Structure\ColumnDescriptionInterface;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
 
@@ -38,6 +42,15 @@ class SQLitePlatform extends AbstractPlatform
 		$this->setPlatformFeature([
 			self::FEATURE_SCOPED
 		], true);
+	}
+
+	public function getColumnType(ColumnDescriptionInterface $column,
+		$constraintFlags = 0)
+	{
+		return Container::firstValue(
+			TypeHelper::getMatchingTypes($column,
+				self::getTypeRegistry()),
+			self::getTypeRegistry()->get('text'));
 	}
 
 	public function getKeyword($keyword)
@@ -139,6 +152,43 @@ class SQLitePlatform extends AbstractPlatform
 		return parent::translateFunction($metaFunction);
 	}
 
+	public static function getTypeRegistry()
+	{
+		if (!isset(self::$typeRegistry))
+		{
+			self::$typeRegistry = new TypeRegistry(
+				[
+					'blob' => new ArrayObjectType(
+						[
+							K::TYPE_NAME => 'BLOB',
+							K::TYPE_DATA_TYPE => K::DATATYPE_BINARY
+						]),
+					'integer' => new ArrayObjectType(
+						[
+							K::TYPE_NAME => 'INTEGER',
+							K::TYPE_DATA_TYPE => K::DATATYPE_INTEGER |
+							K::DATATYPE_BOOLEAN
+						]),
+					'real' => new ArrayObjectType(
+						[
+							K::TYPE_NAME => 'REAL',
+							K::TYPE_DATA_TYPE => K::DATATYPE_FLOAT,
+							K::TYPE_FLAGS => TypeHelper::getDefaultTypeProperty(
+								K::TYPE_FLAGS) |
+							K::TYPE_FLAG_FRACTION_SCALE
+						]),
+					'text' => new ArrayObjectType(
+						[
+							K::TYPE_NAME => 'TEXT',
+							K::TYPE_DATA_TYPE => K::DATATYPE_TIMESTAMP |
+							K::DATATYPE_STRING
+						])
+				]);
+		}
+
+		return self::$typeRegistry;
+	}
+
 	private function translateTimestampFormatFunction(
 		MetaFunctionCall $metaFunction)
 	{
@@ -210,4 +260,10 @@ class SQLitePlatform extends AbstractPlatform
 	 * @var TimestampFormatTranslationMap
 	 */
 	private static $timestampFormatTranslations;
+
+	/**
+	 *
+	 * @var TypeRegistry
+	 */
+	private static $typeRegistry;
 }

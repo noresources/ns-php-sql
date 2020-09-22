@@ -9,15 +9,10 @@
  */
 namespace NoreSources\SQL\DBMS\PostgreSQL;
 
-use NoreSources\Container;
-use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\DBMS\BasicType;
-use NoreSources\SQL\DBMS\TypeHelper;
 use NoreSources\SQL\DBMS\Reference\ReferenceStatementBuilder;
 use NoreSources\SQL\Statement\AbstractStatementBuilder;
 use NoreSources\SQL\Statement\ClassMapStatementFactoryTrait;
 use NoreSources\SQL\Statement\ParameterData;
-use NoreSources\SQL\Structure\ColumnStructure;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 
@@ -101,23 +96,6 @@ class PostgreSQLStatementBuilder extends AbstractStatementBuilder implements
 		}
 
 		return '$' . ($parameters->getParameterCount() + 1);
-	}
-
-	public function getColumnType(ColumnStructure $column)
-	{
-		$columnFlags = $column->getColumnProperty(K::COLUMN_FLAGS);
-
-		// Special case for auto-increment column
-		if ($columnFlags & K::COLUMN_FLAG_AUTO_INCREMENT)
-		{
-			return new BasicType('serial');
-		}
-
-		$types = PostgreSQLType::getPostgreSQLTypes();
-		$matchingTypes = TypeHelper::getMatchingTypes($column, $types);
-
-		list ($k, $type) = Container::first($matchingTypes);
-		return $type;
 	}
 
 	public function getConnectionResource()

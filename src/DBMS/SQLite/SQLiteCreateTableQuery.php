@@ -92,7 +92,8 @@ class SQLiteCreateTableQuery extends CreateTableQuery
 			if ($c++ > 0)
 				$stream->text(',')->space();
 
-			$type = $builder->getColumnType($column);
+			$type = $builder->getPlatform()->getColumnType($column,
+				$column->getConstraintFlags());
 			/**
 			 *
 			 * @var TypeInterface $type

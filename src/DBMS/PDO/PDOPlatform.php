@@ -1,16 +1,8 @@
 <?php
 namespace NoreSources\SQL\DBMS\PDO;
 
-use NoreSources\SQL\DBMS\AbstractPlatform;
-use Psr\Log\LoggerAwareTrait;
+use NoreSources\SQL\DBMS\Reference\ReferencePlatform;
 
-class PDOPlatform extends AbstractPlatform
+class PDOPlatform extends ReferencePlatform
 {
-
-	use LoggerAwareTrait;
-
-	public function __construct()
-	{
-		parent::__construct();
-	}
 }

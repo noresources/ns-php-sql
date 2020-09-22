@@ -9,14 +9,11 @@
  */
 namespace NoreSources\SQL\DBMS\Reference;
 
-use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\DBMS\ArrayObjectType;
 use NoreSources\SQL\DBMS\PlatformInterface;
 use NoreSources\SQL\DBMS\PlatformProviderTrait;
 use NoreSources\SQL\Statement\AbstractStatementBuilder;
 use NoreSources\SQL\Statement\ClassMapStatementFactoryTrait;
 use NoreSources\SQL\Statement\ParameterData;
-use NoreSources\SQL\Structure\ColumnStructure;
 
 /**
  */
@@ -67,69 +64,5 @@ class ReferenceStatementBuilder extends AbstractStatementBuilder
 	public function getParameter($name, ParameterData $parameters = null)
 	{
 		return ('$' . preg_replace('/[^a-zA-Z0-9_]/', '_', $name));
-	}
-
-	public function getColumnType(ColumnStructure $column)
-	{
-		$dataType = K::DATATYPE_UNDEFINED;
-		if ($column->hasColumnProperty(K::COLUMN_DATA_TYPE))
-			$dataType = $column->getColumnProperty(K::COLUMN_DATA_TYPE);
-
-		$typeName = 'TEXT';
-		$columnFlags = $column->getColumnProperty(K::COLUMN_FLAGS);
-
-		switch ($dataType)
-		{
-			case K::DATATYPE_TIMESTAMP:
-				$typeName = 'TIMESTAMP';
-			break;
-			case K::DATATYPE_DATE:
-				$typeName = 'DATE';
-			break;
-			case K::DATATYPE_TIME:
-			case K::DATATYPE_TIMEZONE:
-				$typeName = 'TIME';
-			break;
-			case K::DATATYPE_DATETIME:
-				$typeName = 'DATETIME';
-			break;
-			case K::DATATYPE_BINARY:
-				$typeName = 'BLOB';
-			break;
-			case K::DATATYPE_BOOLEAN:
-				$typeName = 'BOOL';
-			break;
-			case K::DATATYPE_INTEGER:
-				$typeName = 'INTEGER';
-			break;
-			case K::DATATYPE_NUMBER:
-			case K::DATATYPE_FLOAT:
-				$typeName = 'REAL';
-			break;
-		}
-
-		$props = [
-			K::TYPE_NAME => $typeName
-		];
-
-		$typeFlags = 0;
-		if ($column->hasColumnProperty(K::COLUMN_LENGTH))
-			$typeFlags |= K::TYPE_FLAG_LENGTH;
-		if ($column->hasColumnProperty(K::COLUMN_FRACTION_SCALE))
-			$typeFlags |= K::TYPE_FLAG_FRACTION_SCALE;
-		if ($columnFlags & K::COLUMN_FLAG_UNSIGNED)
-			$typeFlags = K::TYPE_FLAG_SIGNNESS;
-
-		foreach ([
-			K::COLUMN_MEDIA_TYPE
-		] as $key)
-		{
-			if ($column->hasColumnProperty($key))
-				$props[$key] = $column->getColumnProperty($key);
-		}
-
-		$props[K::TYPE_FLAGS] = $typeFlags;
-
-		return new ArrayObjectType($props);
 	}
 }

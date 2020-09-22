@@ -11,10 +11,8 @@ namespace NoreSources\SQL\Statement;
 
 use NoreSources\SQL\DataSerializerInterface;
 use NoreSources\SQL\DBMS\PlatformProviderInterface;
-use NoreSources\SQL\DBMS\TypeInterface;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Expression\TokenStreamContextInterface;
-use NoreSources\SQL\Structure\ColumnStructure;
 use NoreSources\SQL\Structure\StructureElementInterface;
 
 /**
@@ -44,13 +42,6 @@ interface StatementBuilderInterface extends DataSerializerInterface,
 	 *        	previou
 	 */
 	function getParameter($name, ParameterData $parameters = null);
-
-	/**
-	 *
-	 * @param ColumnStructure $column
-	 * @return TypeInterface
-	 */
-	function getColumnType(ColumnStructure $column);
 
 	/**
 	 *

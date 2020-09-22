@@ -9,17 +9,11 @@
  */
 namespace NoreSources\SQL\DBMS\MySQL;
 
-use NoreSources\Container;
 use NoreSources\TypeConversion;
-use NoreSources\SQL\DBMS\ArrayObjectType;
-use NoreSources\SQL\DBMS\BasicType;
-use NoreSources\SQL\DBMS\TypeHelper;
-use NoreSources\SQL\DBMS\TypeInterface;
 use NoreSources\SQL\DBMS\MySQL\MySQLConstants as K;
 use NoreSources\SQL\Statement\AbstractStatementBuilder;
 use NoreSources\SQL\Statement\ClassMapStatementFactoryTrait;
 use NoreSources\SQL\Statement\ParameterData;
-use NoreSources\SQL\Structure\ColumnStructure;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 
@@ -79,78 +73,6 @@ class MySQLStatementBuilder extends AbstractStatementBuilder implements
 	public function getParameter($name, ParameterData $parameters = null)
 	{
 		return '?';
-	}
-
-	public function getColumnType(ColumnStructure $column)
-	{
-		if ($column->hasColumnProperty(K::COLUMN_ENUMERATION))
-		{
-			return new BasicType('ENUM');
-		}
-
-		$types = MySQLType::getMySQLTypes();
-		$table = $column->getParentElement();
-		$isPrimaryKey = (($column->getConstraintFlags() &
-			K::COLUMN_CONSTRAINT_PRIMARY_KEY) ==
-			K::COLUMN_CONSTRAINT_PRIMARY_KEY);
-
-		if ($isPrimaryKey)
-		{
-			// Types must have a key length
-			$types = Container::filter($types,
-				function ($_, $type) {
-					/**
-					 *
-					 * @var TypeInterface $type
-					 */
-
-					if ((TypeHelper::getProperty($type, K::TYPE_FLAGS) &
-					K::TYPE_FLAG_LENGTH) == K::TYPE_FLAG_LENGTH)
-					{
-						$maxLength = TypeHelper::getMaxLength($type);
-						return !\is_infinite($maxLength);
-					}
-					return false;
-				});
-		}
-
-		$types = TypeHelper::getMatchingTypes($column, $types);
-
-		if (Container::count($types) > 0)
-		{
-			list ($key, $type) = Container::first($types);
-			/**
-			 *
-			 * @var ArrayObjectType $type
-			 */
-
-			if ($isPrimaryKey)
-			{
-
-				/**
-				 * Use active character set maxlen instead
-				 *
-				 * @var integer $glyphLength
-				 */
-				$glyphLength = 4;
-				$keyMaxLength = intval(
-					floor(K::KEY_MAX_LENGTH / $glyphLength));
-				$typeMaxLength = TypeHelper::getMaxLength($type);
-
-				if ($typeMaxLength > $keyMaxLength)
-				{
-					$type = new ArrayObjectType(
-						\array_merge($type->getArrayCopy(),
-							[
-								K::TYPE_MAX_LENGTH => $keyMaxLength
-							]));
-				}
-			}
-
-			return $type;
-		}
-
-		return new BasicType('TEXT');
 	}
 
 	public static function dataTypeFromMysqlType($mysqlTypeId)

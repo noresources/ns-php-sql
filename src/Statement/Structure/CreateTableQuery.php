@@ -193,7 +193,9 @@ class CreateTableQuery extends Statement implements
 
 		$columnFlags = $column->getColumnProperty(K::COLUMN_FLAGS);
 
-		$type = $context->getStatementBuilder()->getColumnType($column);
+		$type = $context->getStatementBuilder()
+			->getPlatform()
+			->getColumnType($column, $column->getConstraintFlags());
 		if (!($type instanceof TypeInterface))
 			throw new StatementException($this,
 				'Unable to find a DBMS type for column "' .
@@ -273,7 +275,8 @@ class CreateTableQuery extends Statement implements
 				->literal($scale)
 				->text(')');
 		}
-		elseif (($typeFlags & K::TYPE_FLAG_MANDATORY_LENGTH) ||
+		elseif ((($typeFlags & K::TYPE_FLAG_MANDATORY_LENGTH) ==
+			K::TYPE_FLAG_MANDATORY_LENGTH) ||
 			($isPrimary &&
 			($columnDeclaration &
 			K::PLATFORM_FEATURE_COLUMN_KEY_MANDATORY_LENGTH)))

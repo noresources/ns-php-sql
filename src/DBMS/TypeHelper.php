@@ -23,7 +23,8 @@ class TypeHelper
 	 * @param ColumnStructure $column
 	 * @param TypeInterface[] $types
 	 */
-	public static function getMatchingTypes(ColumnStructure $column, $types)
+	public static function getMatchingTypes(ColumnStructure $column,
+		$types)
 	{
 		$scores = [];
 		$columnFlags = $column->getColumnProperty(K::COLUMN_FLAGS);
@@ -37,8 +38,10 @@ class TypeHelper
 			$dataTypeScore = 0;
 			if ($column->hasColumnProperty(K::COLUMN_DATA_TYPE))
 			{
-				$dataType = $column->getColumnProperty(K::COLUMN_DATA_TYPE);
-				$typeDataType = self::getProperty($type, K::TYPE_DATA_TYPE);
+				$dataType = $column->getColumnProperty(
+					K::COLUMN_DATA_TYPE);
+				$typeDataType = self::getProperty($type,
+					K::TYPE_DATA_TYPE);
 
 				if ($typeDataType == $dataType) // Exact match
 					$dataTypeScore = 4;
@@ -46,7 +49,8 @@ class TypeHelper
 					$dataTypeScore = 3;
 				elseif (($typeDataType & $dataType) != 0) // Partial match
 				{
-					if (($typeDataType & $dataType) == ($dataType & ~K::DATATYPE_TIMEZONE))
+					if (($typeDataType & $dataType) ==
+						($dataType & ~K::DATATYPE_TIMEZONE))
 						$dataTypeScore = 2;
 					else
 						$dataTypeScore = 1;
@@ -58,7 +62,8 @@ class TypeHelper
 				}
 			}
 
-			$scores[$typeKey] += ($dataTypeScore * self::SCORE_MULTIPLIER_DATA_TYPE);
+			$scores[$typeKey] += ($dataTypeScore *
+				self::SCORE_MULTIPLIER_DATA_TYPE);
 
 			if ($column->hasColumnProperty(K::COLUMN_DEFAULT_VALUE))
 			{
@@ -80,7 +85,8 @@ class TypeHelper
 
 			if ($column->hasColumnProperty(K::COLUMN_LENGTH))
 			{
-				$length = TypeConversion::toInteger($column->getColumnProperty(K::COLUMN_LENGTH));
+				$length = TypeConversion::toInteger(
+					$column->getColumnProperty(K::COLUMN_LENGTH));
 
 				$typeLength = self::getMaxLength($type);
 				if ($typeLength > 0)
@@ -95,11 +101,13 @@ class TypeHelper
 				if ($column->hasColumnProperty(K::COLUMN_FRACTION_SCALE))
 				{
 					$scale = TypeConversion::toInteger(
-						$column->getColumnProperty(K::COLUMN_FRACTION_SCALE));
+						$column->getColumnProperty(
+							K::COLUMN_FRACTION_SCALE));
 
 					if ($scale > 0)
 					{
-						if (($typeFlags & K::TYPE_FLAG_FRACTION_SCALE) == 0)
+						if (($typeFlags & K::TYPE_FLAG_FRACTION_SCALE) ==
+							0)
 						{
 							$scores[$typeKey] = -1000;
 							continue;
@@ -111,7 +119,8 @@ class TypeHelper
 			$paddingScore = 0;
 			if ($column->hasColumnProperty(K::COLUMN_PADDING_DIRECTION))
 			{
-				$cd = $column->getColumnProperty(K::COLUMN_PADDING_DIRECTION);
+				$cd = $column->getColumnProperty(
+					K::COLUMN_PADDING_DIRECTION);
 				if ($type->has(K::TYPE_PADDING_DIRECTION))
 				{
 					$paddingScore++;
@@ -120,11 +129,13 @@ class TypeHelper
 					if ($cd == $tc)
 						$paddingScore++;
 
-					if ($column->hasColumnProperty(K::COLUMN_PADDING_GLYPH))
+					if ($column->hasColumnProperty(
+						K::COLUMN_PADDING_GLYPH))
 					{
 						if ($type->has(K::TYPE_PADDING_GLYPH))
 						{
-							if ($column->getColumnProperty(K::COLUMN_PADDING_GLYPH) ==
+							if ($column->getColumnProperty(
+								K::COLUMN_PADDING_GLYPH) ==
 								$type->get(K::TYPE_PADDING_GLYPH))
 								$paddingScore++;
 							else
@@ -141,12 +152,14 @@ class TypeHelper
 					$paddingScore--;
 			}
 
-			$scores[$typeKey] += $paddingScore * self::SCORE_MULTIPLIER_PADDING;
+			$scores[$typeKey] += $paddingScore *
+				self::SCORE_MULTIPLIER_PADDING;
 
 			$mediaTypeScore = 0;
 			if ($column->hasColumnProperty(K::COLUMN_MEDIA_TYPE))
 			{
-				$columnMediaType = $column->getColumnProperty(K::COLUMN_MEDIA_TYPE);
+				$columnMediaType = $column->getColumnProperty(
+					K::COLUMN_MEDIA_TYPE);
 				if (!$type->has(K::TYPE_MEDIA_TYPE))
 				{
 					$scores[$typeKey] = -1000;
@@ -181,38 +194,41 @@ class TypeHelper
 				$scores[$typeKey] = -1000;
 				continue;
 			}
-		} // foreach
 
-		$scores[$typeKey] += $mediaTypeScore * self::SCORE_MULTIPLIER_MEDIA_TYPE;
+			$scores[$typeKey] += $mediaTypeScore *
+				self::SCORE_MULTIPLIER_MEDIA_TYPE;
+		} // foreach
 
 		$filtered = Container::filter($types,
 			function ($typeKey, $type) use ($scores) {
 				return $scores[$typeKey] >= 0;
 			});
 
-		uksort($filtered,
-			function ($ka, $kb) use ($scores, $types, $column) {
-				$a = $scores[$ka];
-				$b = $scores[$kb];
-				$v = ($b - $a);
+		if ($column instanceof ColumnStructure)
 
-				$ta = $types[$ka];
-				$tb = $types[$kb];
+			uksort($filtered,
+				function ($ka, $kb) use ($scores, $types, $column) {
+					$a = $scores[$ka];
+					$b = $scores[$kb];
+					$v = ($b - $a);
 
-				if ($v != 0)
+					$ta = $types[$ka];
+					$tb = $types[$kb];
+
+					if ($v != 0)
+						return $v;
+
+					// Smallest first
+					$v = self::compareTypeLength($ta, $tb);
+
+					if (!$column->hasColumnProperty(K::COLUMN_LENGTH))
+					{
+						// Larger first
+						$v = -$v;
+					}
+
 					return $v;
-
-				// Smallest first
-				$v = self::compareTypeLength($ta, $tb);
-
-				if (!$column->hasColumnProperty(K::COLUMN_LENGTH))
-				{
-					// Larger first
-					$v = -$v;
-				}
-
-				return $v;
-			});
+				});
 
 		return $filtered;
 	}
@@ -227,7 +243,8 @@ class TypeHelper
 	 *         <li>0 if length of $a and $b are equal</li>
 	 *         </ul>
 	 */
-	public static function compareTypeLength(TypeInterface $a, TypeInterface $b)
+	public static function compareTypeLength(TypeInterface $a,
+		TypeInterface $b)
 	{
 		$a = self::getMaxLength($a);
 		$b = self::getMaxLength($b);
@@ -261,7 +278,8 @@ class TypeHelper
 		if (Container::keyExists($dflt, $property))
 			return $dflt[$property];
 
-		throw new TypeException($type, 'Property ' . $property . ' not available');
+		throw new TypeException($type,
+			'Property ' . $property . ' not available');
 	}
 
 	/**
@@ -279,7 +297,8 @@ class TypeHelper
 		{
 			$dataType = $type->get(K::TYPE_DATA_TYPE);
 			if ($dataType & K::DATATYPE_NUMBER)
-				return self::getIntegerTypeMaxLength(Container::keyValue($type, K::TYPE_SIZE, 0));
+				return self::getIntegerTypeMaxLength(
+					Container::keyValue($type, K::TYPE_SIZE, 0));
 			elseif ($dataType == K::DATATYPE_STRING)
 			{
 				if ($type->has(K::TYPE_SIZE))
@@ -318,6 +337,12 @@ class TypeHelper
 		return $max;
 	}
 
+	public static function getDefaultTypeProperty($property)
+	{
+		return Container::keyValue(self::getDefaultTypeProperties(),
+			$property);
+	}
+
 	public static function getDefaultTypeProperties()
 	{
 		if (!(self::$typeDefaultProperties instanceof \ArrayObject))
@@ -325,7 +350,8 @@ class TypeHelper
 			self::$typeDefaultProperties = new \ArrayObject(
 				[
 					K::TYPE_DATA_TYPE => K::DATATYPE_STRING,
-					K::TYPE_FLAGS => K::TYPE_FLAG_NULLABLE | K::TYPE_FLAG_DEFAULT_VALUE
+					K::TYPE_FLAGS => K::TYPE_FLAG_NULLABLE |
+					K::TYPE_FLAG_DEFAULT_VALUE
 				]);
 		}
 

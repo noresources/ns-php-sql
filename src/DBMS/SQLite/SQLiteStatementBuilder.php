@@ -11,7 +11,6 @@ namespace NoreSources\SQL\DBMS\SQLite;
 
 use NoreSources\Container;
 use NoreSources\Text;
-use NoreSources\SQL\DBMS\BasicType;
 use NoreSources\SQL\DBMS\PlatformInterface;
 use NoreSources\SQL\DBMS\PlatformProviderTrait;
 use NoreSources\SQL\DBMS\SQLite\SQLiteConstants as K;
@@ -119,10 +118,5 @@ class SQLiteStatementBuilder extends AbstractStatementBuilder implements
 		}
 
 		return 'TEXT';
-	}
-
-	public function getColumnType(ColumnStructure $column)
-	{
-		return new BasicType($this->getSQLiteColumnTypeName($column));
 	}
 }

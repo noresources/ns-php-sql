@@ -9,13 +9,10 @@
  */
 namespace NoreSources\SQL\DBMS\PDO;
 
-use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\DBMS\BasicType;
 use NoreSources\SQL\DBMS\PlatformProviderTrait;
 use NoreSources\SQL\Statement\AbstractStatementBuilder;
 use NoreSources\SQL\Statement\ClassMapStatementFactoryTrait;
 use NoreSources\SQL\Statement\ParameterData;
-use NoreSources\SQL\Structure\ColumnStructure;
 
 class PDOStatementBuilder extends AbstractStatementBuilder
 {
@@ -76,35 +73,6 @@ class PDOStatementBuilder extends AbstractStatementBuilder
 	public function getParameter($name, ParameterData $parameters = null)
 	{
 		return (':' . $parameters->count());
-	}
-
-	public function getColumnType(ColumnStructure $column)
-	{
-		$dataType = K::DATATYPE_UNDEFINED;
-		if ($column->hasColumnProperty(K::COLUMN_DATA_TYPE))
-			$dataType = $column->getColumnProperty(K::COLUMN_DATA_TYPE);
-
-		$typeName = 'TEXT';
-
-		switch ($dataType)
-		{
-			case K::DATATYPE_BINARY:
-				$typeName = 'BLOB';
-			break;
-			case K::DATATYPE_NUMBER:
-			case K::DATATYPE_FLOAT:
-				$typeName = 'REAL';
-			break;
-			case K::DATATYPE_BOOLEAN:
-			case K::DATATYPE_INTEGER:
-				$typeName = 'INTEGER';
-			break;
-			case K::DATATYPE_NULL:
-				$typeName = 'NULL';
-			break;
-		}
-
-		return new BasicType($typeName);
 	}
 
 	private $driverName;

@@ -394,7 +394,8 @@ class Constants
 	 *
 	 * @var number
 	 */
-	const TYPE_FLAG_MANDATORY_LENGTH = Bitset::BIT_05;
+	const TYPE_FLAG_MANDATORY_LENGTH = self::TYPE_FLAG_LENGTH |
+		Bitset::BIT_05;
 
 	/**
 	 * Type accepts signness specification (SIGNED / UNSIGNED)

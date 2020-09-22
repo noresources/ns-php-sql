@@ -5,6 +5,7 @@ use NoreSources\SemanticVersion;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Expression\FunctionCall;
 use NoreSources\SQL\Expression\MetaFunctionCall;
+use NoreSources\SQL\Structure\ColumnDescriptionInterface;
 use Psr\Log\LoggerAwareInterface;
 
 interface PlatformInterface extends FeatureQueryInterface,
@@ -17,6 +18,9 @@ interface PlatformInterface extends FeatureQueryInterface,
 	 * @return SemanticVersion
 	 */
 	function getPlatformVersion($kind = self::VERSION_CURRENT);
+
+	function getColumnType(ColumnDescriptionInterface $column,
+		$constraintFlags = 0);
 
 	/**
 	 * Get syntax keyword.

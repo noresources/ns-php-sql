@@ -5,11 +5,14 @@ use NoreSources\Container;
 use NoreSources\DateTime;
 use NoreSources\SemanticVersion;
 use NoreSources\SQL\DBMS\AbstractPlatform;
+use NoreSources\SQL\DBMS\BasicType;
 use NoreSources\SQL\DBMS\TimestampFormatTranslationMap;
+use NoreSources\SQL\DBMS\TypeHelper;
 use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLConstants as K;
 use NoreSources\SQL\Expression\FunctionCall;
 use NoreSources\SQL\Expression\Literal;
 use NoreSources\SQL\Expression\MetaFunctionCall;
+use NoreSources\SQL\Structure\ColumnDescriptionInterface;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
 
@@ -102,6 +105,22 @@ class PostgreSQLPlatform extends AbstractPlatform
 			$compatibility);
 		$this->setPlatformVersion(self::VERSION_COMPATIBILITY,
 			$compatibility);
+	}
+
+	public function getColumnType(ColumnDescriptionInterface $column,
+		$constraintFlags = 0)
+	{
+		$columnFlags = $column->getColumnProperty(K::COLUMN_FLAGS);
+		// Special case for auto-increment column
+		if ($columnFlags & K::COLUMN_FLAG_AUTO_INCREMENT)
+		{
+			return new BasicType('serial');
+		}
+
+		$types = PostgreSQLType::getPostgreSQLTypes();
+		$matchingTypes = TypeHelper::getMatchingTypes($column, $types);
+
+		return Container::firstValue($matchingTypes);
 	}
 
 	public function getKeyword($keyword)

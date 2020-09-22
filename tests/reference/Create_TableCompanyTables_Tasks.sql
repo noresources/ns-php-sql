@@ -1,7 +1,7 @@
 CREATE 
 OR REPLACE TABLE [ns_unittests].[Tasks] (
   [id] INTEGER AUTO INCREMENT, 
-  [name] TEXT, 
+  [name] CLOB, 
   [creationDateTime] TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
   [priority] INTEGER, 
   [category] INTEGER, 
