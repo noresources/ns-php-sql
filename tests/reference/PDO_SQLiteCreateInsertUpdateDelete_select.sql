@@ -1,8 +1,8 @@
 SELECT 
   * 
 FROM 
-  [Employees] 
+  "Employees" 
 WHERE 
-  [Employees].[salary] > 5000 
+  "Employees"."salary" > 5000 
 ORDER BY 
-  [Employees].[id] ASC
+  "Employees"."id" ASC

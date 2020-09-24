@@ -3,10 +3,18 @@ namespace NoreSources\SQL\DBMS;
 
 use NoreSources\CascadedValueTree;
 use NoreSources\Container;
+use NoreSources\DateTime;
 use NoreSources\SemanticVersion;
+use NoreSources\TypeConversion;
+use NoreSources\TypeDescription;
+use NoreSources\MediaType\MediaType;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Expression\FunctionCall;
 use NoreSources\SQL\Expression\MetaFunctionCall;
+use NoreSources\SQL\Expression\StructureElementIdentifier;
+use NoreSources\SQL\Structure\ColumnDescriptionInterface;
+use NoreSources\SQL\Structure\DatasourceStructure;
+use NoreSources\SQL\Structure\StructureElementInterface;
 
 /**
  * Reference PlatformInterface implementation
@@ -15,6 +23,159 @@ abstract class AbstractPlatform implements PlatformInterface
 {
 
 	const DEFAULT_VERSION = '0.0.0';
+
+	public function serializeColumnData(
+		ColumnDescriptionInterface $column, $data)
+	{
+		if ($column->hasColumnProperty(K::COLUMN_MEDIA_TYPE))
+		{
+			$mediaType = $column->getColumnProperty(
+				K::COLUMN_MEDIA_TYPE);
+			if ($mediaType instanceof MediaType)
+			{
+				if ($mediaType->getStructuredSyntax() == 'json')
+				{
+					$data = json_encode($data);
+					return $this->quoteStringValue($data);
+				}
+			}
+		}
+
+		$dataType = K::DATATYPE_UNDEFINED;
+		if ($column->hasColumnProperty(K::COLUMN_DATA_TYPE))
+			$dataType = $column->getColumnProperty(K::COLUMN_DATA_TYPE);
+
+		switch ($dataType)
+		{
+			case K::DATATYPE_NULL:
+				return $this->getKeyword(K::KEYWORD_NULL);
+			case K::DATATYPE_BINARY:
+				return $this->quoteBinaryValue($data);
+			case K::DATATYPE_BOOLEAN:
+				return $this->getKeyword(
+					TypeConversion::toBoolean($data) ? K::KEYWORD_TRUE : K::KEYWORD_FALSE);
+			case K::DATATYPE_INTEGER:
+				return TypeConversion::toInteger($data);
+			case K::DATATYPE_FLOAT:
+			case K::DATATYPE_NUMBER:
+				return TypeCOnversion::toFloat($data);
+		}
+
+		if ($dataType & K::DATATYPE_TIMESTAMP)
+			return $this->serializeTimestamp($data, $dataType);
+
+		if ($data instanceof \DateTimeInterface)
+			$data = $data->format(
+				$this->getTimestampTypeStringFormat(
+					K::DATATYPE_TIMESTAMP));
+
+		return $this->quoteStringValue(TypeConversion::toString($data));
+	}
+
+	public function quoteStringValue($value)
+	{
+		if ($this instanceof ConnectionProviderInterface)
+			if ($this->getConnection() instanceof StringSerializerInterface)
+				return $this->getConnection()->quoteStringValue($value);
+			else
+				throw new \RuntimeException(
+					\substr(__METHOD__, \strpos(__METHOD__, '::') + 2) .
+					'() is not implemented by ' .
+					TypeDescription::getLocalName($this) . ' nor ' .
+					TypeDescription::getLocalName(
+						$this->getConnection()));
+		throw new \RuntimeException(
+			\substr(__METHOD__, \strpos(__METHOD__, '::') + 2) .
+			'() is not implemented by ' .
+			TypeDescription::getLocalName($this));
+	}
+
+	public function quoteBinaryValue($value)
+	{
+		if ($this instanceof ConnectionProviderInterface)
+			if ($this->getConnection() instanceof BinaryValueSerializerInterface)
+				return $this->getConnection()->quoteBinaryValue($value);
+		throw new \RuntimeException(
+			\substr(__METHOD__, \strpos(__METHOD__, '::') + 2) .
+			'() is not implemented by ' .
+			TypeDescription::getLocalName($this) . ' nor ' .
+			TypeDescription::getLocalName($this->getConnection()));
+		throw new \RuntimeException(
+			\substr(__METHOD__, \strpos(__METHOD__, '::') + 2) .
+			'() is not implemented by ' .
+			TypeDescription::getLocalName($this));
+	}
+
+	public function quoteIdentifier($identifier)
+	{
+		if ($this instanceof ConnectionProviderInterface)
+			if ($this->getConnection() instanceof IdentifierSerializerInterface)
+				return $this->getConnection()->quoteIdentifier(
+					$identifier);
+			else
+				throw new \RuntimeException(
+					\substr(__METHOD__, \strpos(__METHOD__, '::') + 2) .
+					'() is not implemented by ' .
+					TypeDescription::getLocalName($this) . ' nor ' .
+					TypeDescription::getLocalName(
+						$this->getConnection()));
+		throw new \RuntimeException(
+			\substr(__METHOD__, \strpos(__METHOD__, '::') + 2) .
+			'() is not implemented by ' .
+			TypeDescription::getLocalName($this));
+	}
+
+	public function quoteIdentifierPath($path)
+	{
+		if ($path instanceof StructureElementInterface)
+		{
+			$identifier = $this->quoteIdentifier($path->getName());
+			while (($path = $path->getParentElement()))
+			{
+				if (empty($path->getName()) ||
+					$path instanceof DatasourceStructure)
+					break;
+
+				$identifier = $this->quoteIdentifier($path->getName()) .
+					'.' . $identifier;
+			}
+
+			return $identifier;
+		}
+
+		if (\is_string($path))
+			$path = \explode('.', $path);
+		elseif ($path instanceof StructureElementIdentifier)
+			$path = $path->getPathParts();
+
+		if (!Container::isTraversable($path))
+			throw new \InvalidArgumentException(
+				StructureElementInterface::class . ', ' .
+				StructureElementIdentifier::class .
+				', array or string expected. Got ' .
+				TypeDescription::getName($path));
+
+		return Container::implodeValues($path, '.',
+			function ($name) {
+				return $this->quoteIdentifier($name);
+			});
+	}
+
+	public function serializeTimestamp($value, $dataType)
+	{
+		if (\is_int($value) || \is_float($value) || \is_string($value))
+			$value = new DateTime($value);
+		elseif (DateTime::isDateTimeStateArray($value))
+			$value = DateTime::createFromArray($value);
+
+		if ($value instanceof \DateTimeInterface)
+			$value = $value->format(
+				$this->getTimestampTypeStringFormat($dataType));
+		else
+			$value = TypeConversion::toString($value);
+
+		return $this->quoteStringValue($value);
+	}
 
 	public function getPlatformVersion($kind = self::VERSION_CURRENT)
 	{
@@ -93,9 +254,9 @@ abstract class AbstractPlatform implements PlatformInterface
 		return 'NO ACTION';
 	}
 
-	public function getTimestampTypeStringFormat($type = 0)
+	public function getTimestampTypeStringFormat($dataType = 0)
 	{
-		switch ($type)
+		switch ($dataType)
 		{
 			case K::DATATYPE_DATE:
 				return 'Y-m-d';

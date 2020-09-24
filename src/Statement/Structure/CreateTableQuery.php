@@ -143,7 +143,8 @@ class CreateTableQuery extends Statement implements
 		$stream->space()
 			->identifier(
 			$context->getStatementBuilder()
-				->getCanonicalName($this->structure))
+				->getPlatform()
+				->quoteIdentifierPath($this->structure))
 			->space()
 			->text('(');
 
@@ -209,7 +210,8 @@ class CreateTableQuery extends Statement implements
 
 		$stream->identifier(
 			$context->getStatementBuilder()
-				->escapeIdentifier($column->getName()))
+				->getPlatform()
+				->quoteIdentifier($column->getName()))
 			->space()
 			->identifier($typeName);
 
@@ -339,7 +341,8 @@ class CreateTableQuery extends Statement implements
 				->space()
 				->identifier(
 				$context->getStatementBuilder()
-					->escapeIdentifier($constraint->constraintName));
+					->getPlatform()
+					->quoteIdentifier($constraint->constraintName));
 		}
 
 		if ($constraint instanceof ColumnTableConstraint)
@@ -358,7 +361,8 @@ class CreateTableQuery extends Statement implements
 
 				$stream->identifier(
 					$context->getStatementBuilder()
-						->escapeIdentifier($column->getName()));
+						->getPlatform()
+						->quoteIdentifier($column->getName()));
 			}
 			$stream->text(')');
 		}
@@ -376,7 +380,8 @@ class CreateTableQuery extends Statement implements
 
 				$stream->identifier(
 					$context->getStatementBuilder()
-						->escapeIdentifier($column));
+						->getPlatform()
+						->quoteIdentifier($column));
 			}
 			$stream->text(')');
 
@@ -388,12 +393,14 @@ class CreateTableQuery extends Statement implements
 			if ($ft->getParentElement() == $structure->getParentElement())
 				$stream->identifier(
 					$context->getStatementBuilder()
-						->escapeIdentifier($ft->getName()));
+						->getPlatform()
+						->quoteIdentifier($ft->getName()));
 			else
 
 				$stream->identifier(
 					$context->getStatementBuilder()
-						->getCanonicalName(
+						->getPlatform()
+						->quoteIdentifierPath(
 						$constraint->getForeignTable()));
 
 			$stream->space()->text('(');
@@ -405,7 +412,8 @@ class CreateTableQuery extends Statement implements
 					$stream->text(',')->space();
 				$stream->identifier(
 					$context->getStatementBuilder()
-						->escapeIdentifier($reference));
+						->getPlatform()
+						->quoteIdentifier($reference));
 			}
 			$stream->text(')');
 

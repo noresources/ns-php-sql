@@ -259,8 +259,7 @@ final class SQLiteTest extends \PHPUnit\Framework\TestCase
 
 	public function testTimestampFormat()
 	{
-		$builder = new SQLiteStatementBuilder(
-			new SQLitePlatform('3.0.0'));
+		$builder = new SQLiteStatementBuilder(new SQLitePlatform());
 
 		$dateTimeFormat = DateTime::getFormatTokenDescriptions();
 

@@ -10,12 +10,14 @@
 namespace NoreSources\SQL\DBMS\MySQL;
 
 use NoreSources\Container;
+use NoreSources\TypeConversion;
 use NoreSources\TypeDescription;
 use NoreSources\SQL\ParameterValue;
+use NoreSources\SQL\DBMS\BinaryValueSerializerInterface;
 use NoreSources\SQL\DBMS\ConnectionException;
 use NoreSources\SQL\DBMS\ConnectionHelper;
 use NoreSources\SQL\DBMS\ConnectionInterface;
-use NoreSources\SQL\DBMS\PlatformProviderTrait;
+use NoreSources\SQL\DBMS\StringSerializerInterface;
 use NoreSources\SQL\DBMS\TransactionInterface;
 use NoreSources\SQL\DBMS\TransactionStackTrait;
 use NoreSources\SQL\DBMS\MySQL\MySQLConstants as K;
@@ -27,15 +29,13 @@ use NoreSources\SQL\Statement\Statement;
 use NoreSources\SQL\Structure\StructureElementInterface;
 use NoreSources\SQL\Structure\StructureProviderTrait;
 
-/**
- * MySQL or MariaDB connection
- */
 class MySQLConnection implements ConnectionInterface,
+	StringSerializerInterface, BinaryValueSerializerInterface,
 	TransactionInterface
 {
+
 	use StructureProviderTrait;
 	use TransactionStackTrait;
-	use PlatformProviderTrait;
 
 	const STATE_CONNECTED = 0x01;
 
@@ -113,6 +113,26 @@ class MySQLConnection implements ConnectionInterface,
 			self::STATE_CONNECTED);
 	}
 
+	public function quoteStringValue($value)
+	{
+		return "'" . $this->link->real_escape_string($value) . "'";
+	}
+
+	public function quoteBinaryValue($value)
+	{
+		if (\is_integer($value) || \is_float($value) || \is_null($value))
+			return $value;
+		if ($value instanceof \DateTimeInterface)
+			$value = $value->format(
+				$this->getPlatform()
+					->getTimestampTypeStringFormat(
+					K::DATATYPE_TIMESTAMP));
+		else
+			$value = TypeConversion::toString($value);
+
+		return $this->quoteStringValue($value);
+	}
+
 	public function getPlatform()
 	{
 		if (!isset($this->platform))
@@ -120,7 +140,7 @@ class MySQLConnection implements ConnectionInterface,
 			$version = MySQLPlatform::DEFAULT_VERSION;
 			if ($this->isConnected())
 				$version = $this->getServerLink()->server_version;
-			$this->platform = new MySQLPlatform($version);
+			$this->platform = new MySQLPlatform($this, $version);
 		}
 
 		return $this->platform;
@@ -237,6 +257,53 @@ class MySQLConnection implements ConnectionInterface,
 		}
 
 		return true;
+	}
+
+	public static function dataTypeFromMysqlType($mysqlTypeId)
+	{
+		switch ($mysqlTypeId)
+		{
+			case MYSQLI_TYPE_DECIMAL:
+			case MYSQLI_TYPE_NEWDECIMAL:
+			case MYSQLI_TYPE_FLOAT:
+			case MYSQLI_TYPE_DOUBLE:
+				return K::DATATYPE_FLOAT;
+
+			case MYSQLI_TYPE_BIT:
+				return K::DATATYPE_BOOLE;
+
+			case MYSQLI_TYPE_TINY:
+			case MYSQLI_TYPE_SHORT:
+			case MYSQLI_TYPE_LONG:
+			case MYSQLI_TYPE_LONGLONG:
+			case MYSQLI_TYPE_INT24:
+				return K::DATATYPE_INTEGER;
+
+			case MYSQLI_TYPE_NULL:
+				return K::DATATYPE_NULL;
+
+			case MYSQLI_TYPE_TIMESTAMP:
+				return K::DATATYPE_TIMESTAMP;
+
+			case MYSQLI_TYPE_DATE:
+			case MYSQLI_TYPE_NEWDATE:
+			case MYSQLI_TYPE_YEAR:
+				return K::DATATYPE_DATE;
+
+			case MYSQLI_TYPE_TIME:
+				return K::DATATYPE_TIME;
+
+			case MYSQLI_TYPE_DATETIME:
+				return K::DATATYPE_DATETIME;
+
+			case MYSQLI_TYPE_TINY_BLOB:
+			case MYSQLI_TYPE_MEDIUM_BLOB:
+			case MYSQLI_TYPE_LONG_BLOB:
+			case MYSQLI_TYPE_BLOB:
+				return K::DATATYPE_BINARY;
+		}
+
+		return K::DATATYPE_STRING;
 	}
 
 	/**

@@ -13,15 +13,18 @@ use NoreSources\Container;
 use NoreSources\SemanticVersion;
 use NoreSources\TypeConversion;
 use NoreSources\TypeDescription;
+use NoreSources\SQL\DBMS\BinaryValueSerializerInterface;
 use NoreSources\SQL\DBMS\ConnectionException;
 use NoreSources\SQL\DBMS\ConnectionHelper;
 use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\PlatformProviderTrait;
+use NoreSources\SQL\DBMS\StringSerializerInterface;
 use NoreSources\SQL\DBMS\TransactionInterface;
 use NoreSources\SQL\DBMS\TransactionStackTrait;
 use NoreSources\SQL\DBMS\MySQL\MySQLPlatform;
 use NoreSources\SQL\DBMS\PDO\PDOConstants as K;
 use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLPlatform;
+use NoreSources\SQL\DBMS\Reference\ReferencePlatform;
 use NoreSources\SQL\DBMS\Reference\ReferenceTransactionBlock;
 use NoreSources\SQL\DBMS\SQLite\SQLitePlatform;
 use NoreSources\SQL\Result\GenericInsertionStatementResult;
@@ -35,7 +38,8 @@ use NoreSources\SQL\Structure\StructureProviderTrait;
 /**
  * PDO connection
  */
-class PDOConnection implements ConnectionInterface, TransactionInterface
+class PDOConnection implements ConnectionInterface, TransactionInterface,
+	StringSerializerInterface, BinaryValueSerializerInterface
 {
 	use StructureProviderTrait;
 	use TransactionStackTrait;
@@ -128,7 +132,14 @@ class PDOConnection implements ConnectionInterface, TransactionInterface
 
 		if (Container::keyExists($parameters, K::CONNECTION_STRUCTURE))
 			$this->setStructure($structure)[K::CONNECTION_STRUCTURE];
-		;
+
+		try
+		{
+			$this->driverName = $this->getPDOAttribute(
+				\PDO::ATTR_DRIVER_NAME);
+		}
+		catch (\Exception $e)
+		{}
 	}
 
 	public function __destruct()
@@ -165,30 +176,39 @@ class PDOConnection implements ConnectionInterface, TransactionInterface
 		return $status;
 	}
 
+	public function quoteStringValue($value)
+	{
+		return $this->connection->quote($value, \PDO::PARAM_STR);
+	}
+
+	public function quoteBinaryValue($value)
+	{
+		return $this->connection->quote($value, \PDO::PARAM_LOB);
+	}
+
+	public function quoteIdentifier($identifier)
+	{
+		$c = '"';
+		try
+		{
+			switch ($this->driverName)
+			{
+				case self::DRIVER_MYSQL:
+					$c = '`';
+				break;
+			}
+		}
+		catch (\Exception $e)
+		{}
+
+		return $c . \str_replace($c, $c . $c, $identifier) . $c;
+	}
+
 	public function getPlatform()
 	{
 		if (!isset($this->platform))
 		{
-			$driverClassname = PDOPlatform::class;
-			try
-			{
-				$driver = $this->getPDOAttribute(\PDO::ATTR_DRIVER_NAME);
-
-				$driverClassname = Container::keyValue(
-					[
-						'pgsql' => PostgreSQLPlatform::class,
-						'sqlite' => SQLitePlatform::class,
-						'mysql' => MySQLPlatform::class
-					], $driver, $driverClassname);
-			}
-			catch (\Exception $e)
-			{}
-
-			$cls = new \ReflectionClass($driverClassname);
-			$version = '0.0.0';
-			if ($cls->hasConstant('DEFAULT_VERSION'))
-				$version = $cls->getConstant('DEFAULT_VERSION');
-
+			$version = null;
 			try
 			{
 				$serverVersion = $this->getPDOAttribute(
@@ -209,7 +229,46 @@ class PDOConnection implements ConnectionInterface, TransactionInterface
 			catch (\Exception $e)
 			{}
 
-			$this->platform = $cls->newInstance($version);
+			$platformClassName = [
+				ReferencePlatform::class,
+				[
+					$version
+				]
+			];
+
+			$platformClassName = Container::keyValue(
+				[
+					self::DRIVER_POSTGRESQL => PostgreSQLPlatform::class,
+					self::DRIVER_SQLITE => SQLitePlatform::class,
+					self::DRIVER_MYSQL => MySQLPlatform::class
+				], $this->driverName, $platformClassName);
+
+			$platformClass = new \ReflectionClass($platformClassName);
+
+			if ($version === null)
+				if ($platformClass->hasConstant('DEFAULT_VERSION'))
+					$version = $platformClass->getConstant(
+						'DEFAULT_VERSION');
+				else
+					$version = '0.0.0';
+
+			$platformConstructorArguments = Container::keyValue(
+				[
+					self::DRIVER_POSTGRESQL => [
+						$this,
+						$version
+					],
+					self::DRIVER_MYSQL => [
+						$this,
+						$version
+					]
+				], $this->driverName, [
+					$version
+				]);
+
+			$basePlatform = $platformClass->newInstanceArgs(
+				$platformConstructorArguments);
+			$this->platform = new PDOPlatform($this, $basePlatform);
 		}
 
 		return $this->platform;
@@ -224,7 +283,6 @@ class PDOConnection implements ConnectionInterface, TransactionInterface
 		if (!isset($this->builder))
 		{
 			$this->builder = new PDOStatementBuilder($this);
-			$this->builder->configure($this->connection);
 		}
 
 		return $this->builder;
@@ -392,4 +450,10 @@ class PDOConnection implements ConnectionInterface, TransactionInterface
 	 * @var \PDO
 	 */
 	private $connection;
+
+	/**
+	 *
+	 * @var string
+	 */
+	private $driverName;
 }

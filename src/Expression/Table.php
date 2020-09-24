@@ -15,7 +15,8 @@ use NoreSources\SQL\Structure\TableStructure;
 /**
  * Table name reference
  */
-class Table extends StructureElementIdentifier implements TokenizableExpressionInterface
+class Table extends StructureElementIdentifier implements
+	TokenizableExpressionInterface
 {
 
 	/**
@@ -28,7 +29,8 @@ class Table extends StructureElementIdentifier implements TokenizableExpressionI
 		parent::__construct($path);
 	}
 
-	public function tokenize(TokenStream $stream, TokenStreamContextInterface $context)
+	public function tokenize(TokenStream $stream,
+		TokenStreamContextInterface $context)
 	{
 		$target = $context->findTable($this->path);
 
@@ -42,16 +44,19 @@ class Table extends StructureElementIdentifier implements TokenizableExpressionI
 						Container::implodeValues($parts, '.',
 							[
 								$context->getStatementBuilder(),
-								'escapeIdentifier'
+								'getPlatform()->quoteIdentifier'
 							]));
 			}
 
-			return $stream->identifier($context->getStatementBuilder()
-				->getCanonicalName($target));
+			return $stream->identifier(
+				$context->getStatementBuilder()
+					->getPlatform()
+					->quoteIdentifierPath($target));
 		}
 		else
 			return $stream->identifier(
 				$context->getStatementBuilder()
-					->escapeIdentifier($this->path));
+					->getPlatform()
+					->quoteIdentifier($this->path));
 	}
 }

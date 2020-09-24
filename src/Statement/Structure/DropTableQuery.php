@@ -102,7 +102,8 @@ class DropTableQuery extends Statement
 		}
 
 		$stream->space()->identifier(
-			$builder->getCanonicalName(
+			$builder->getPlatform()
+				->quoteIdentifierPath(
 				$this->getTable()
 					->getPathParts()));
 

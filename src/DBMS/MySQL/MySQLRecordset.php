@@ -20,7 +20,8 @@ use NoreSources\SQL\Statement\ResultColumn;
  * @todo Seekable
  *
  */
-class MySQLRecordset extends Recordset implements \Countable, \SeekableIterator
+class MySQLRecordset extends Recordset implements \Countable,
+	\SeekableIterator
 {
 
 	use SeekableRecordsetTrait;
@@ -63,7 +64,7 @@ class MySQLRecordset extends Recordset implements \Countable, \SeekableIterator
 			if (!$column->hasColumnProperty(K::COLUMN_DATA_TYPE) &&
 				Container::keyExists($field, 'type'))
 				$column->setColumnProperty(K::COLUMN_DATA_TYPE,
-					MySQLStatementBuilder::dataTypeFromMysqlType($field->type));
+					MySQLConnection::dataTypeFromMysqlType($field->type));
 
 			if ($created)
 				$map->setColumn($i, $column);

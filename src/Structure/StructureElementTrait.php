@@ -23,12 +23,12 @@ trait StructureElementTrait
 
 	public function getPath(StatementBuilderInterface $builder = null)
 	{
-		$s = ($builder instanceof StatementBuilderInterface) ? $builder->escapeIdentifier(
+		$s = ($builder instanceof StatementBuilderInterface) ? $builder->getPlatform()->quoteIdentifier(
 			$this->getName()) : $this->getName();
 		$p = $this->getParentElement();
 		while ($p && !($p instanceof DatasourceStructure))
 		{
-			$s = (($builder instanceof StatementBuilderInterface) ? $builder->escapeIdentifier(
+			$s = (($builder instanceof StatementBuilderInterface) ? $builder->getPlatform()->quoteIdentifier(
 				$p->getName()) : $p->getName()) . '.' . $s;
 			$p = $p->getParentElement();
 		}
@@ -67,7 +67,8 @@ trait StructureElementTrait
 			$p->offsetUnset($this->getName());
 	}
 
-	public function setParentElement(StructureElementContainerInterface $parent = null)
+	public function setParentElement(
+		StructureElementContainerInterface $parent = null)
 	{
 		$this->parentElement = $parent;
 	}
@@ -77,7 +78,8 @@ trait StructureElementTrait
 	{
 		if (!(is_string($name) && strlen($name)))
 			throw new StructureException(
-				'Invalid element name (' . TypeDescription::getName($name) . ')');
+				'Invalid element name (' .
+				TypeDescription::getName($name) . ')');
 		$this->elementName = $name;
 		$this->parentElement = $parent;
 	}

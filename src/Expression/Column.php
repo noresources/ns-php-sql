@@ -15,7 +15,8 @@ use NoreSources\SQL\Structure\ColumnStructure;
 /**
  * Table column reference
  */
-class Column extends StructureElementIdentifier implements TokenizableExpressionInterface
+class Column extends StructureElementIdentifier implements
+	TokenizableExpressionInterface
 {
 
 	public function __construct($path)
@@ -23,7 +24,8 @@ class Column extends StructureElementIdentifier implements TokenizableExpression
 		parent::__construct($path);
 	}
 
-	public function tokenize(TokenStream $stream, TokenStreamContextInterface $context)
+	public function tokenize(TokenStream $stream,
+		TokenStreamContextInterface $context)
 	{
 		$target = $context->findColumn($this->path);
 		if ($target instanceof ColumnStructure)
@@ -35,17 +37,21 @@ class Column extends StructureElementIdentifier implements TokenizableExpression
 					return $stream->identifier(
 						Container::implodeValues($parts, '.',
 							[
-								$context->getStatementBuilder(),
-								'escapeIdentifier'
+								$context->getStatementBuilder()
+									->getPlatform(),
+								'quoteIdentifier'
 							]));
 			}
 
-			return $stream->identifier($context->getStatementBuilder()
-				->getCanonicalName($target));
+			return $stream->identifier(
+				$context->getStatementBuilder()
+					->getPlatform()
+					->quoteIdentifierPath($target));
 		}
 		else
 			return $stream->identifier(
 				$context->getStatementBuilder()
-					->escapeIdentifier($this->path));
+					->getPlatform()
+					->quoteIdentifier($this->path));
 	}
 }

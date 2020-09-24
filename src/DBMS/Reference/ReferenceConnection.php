@@ -31,7 +31,7 @@ class ReferenceConnection implements ConnectionInterface,
 
 	use ClassMapStatementFactoryTrait;
 
-	public function __construct($parameters)
+	public function __construct($parameters = array())
 	{
 		$this->setTransactionBlockFactory(
 			function ($depth, $name) {

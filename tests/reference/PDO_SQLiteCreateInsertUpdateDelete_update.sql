@@ -1,6 +1,6 @@
 UPDATE 
-  [Employees] 
+  "Employees" 
 SET 
-  [salary] = [Employees].[salary] + 10000 
+  "salary" = "Employees"."salary" + 10000 
 WHERE 
-  [Employees].[salary] < 5000
+  "Employees"."salary" < 5000

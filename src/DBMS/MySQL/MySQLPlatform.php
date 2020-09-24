@@ -6,25 +6,35 @@ use NoreSources\DateTime;
 use NoreSources\SQL\DBMS\AbstractPlatform;
 use NoreSources\SQL\DBMS\ArrayObjectType;
 use NoreSources\SQL\DBMS\BasicType;
+use NoreSources\SQL\DBMS\ConnectionInterface;
+use NoreSources\SQL\DBMS\ConnectionProviderInterface;
+use NoreSources\SQL\DBMS\ConnectionProviderTrait;
+use NoreSources\SQL\DBMS\PlatformProviderTrait;
 use NoreSources\SQL\DBMS\TypeHelper;
 use NoreSources\SQL\DBMS\TypeInterface;
 use NoreSources\SQL\DBMS\MySQL\MySQLConstants as K;
 use NoreSources\SQL\Expression\FunctionCall;
 use NoreSources\SQL\Expression\Literal;
 use NoreSources\SQL\Expression\MetaFunctionCall;
+use NoreSources\SQL\Statement\ParameterData;
 use NoreSources\SQL\Structure\ColumnDescriptionInterface;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
 
-class MySQLPlatform extends AbstractPlatform
+class MySQLPlatform extends AbstractPlatform implements
+	ConnectionProviderInterface
 {
 	use LoggerAwareTrait;
+	use ConnectionProviderTrait;
+	use PlatformProviderTrait;
 
 	const DEFAULT_VERSION = '4.0.0';
 
-	public function __construct($version)
+	public function __construct(ConnectionInterface $connection,
+		$version)
 	{
 		parent::__construct($version);
+		$this->setConnection($connection);
 		$this->setPlatformFeature(
 			[
 				self::FEATURE_INSERT,
@@ -52,6 +62,11 @@ class MySQLPlatform extends AbstractPlatform
 			],
 			(self::FEATURE_COLUMN_ENUM |
 			self::FEATURE_COLUMN_KEY_MANDATORY_LENGTH));
+	}
+
+	public function quoteIdentifier($identifier)
+	{
+		return '`' . \str_replace('`', '``', $identifier) . '`';
 	}
 
 	public function getColumnType(ColumnDescriptionInterface $column,
@@ -125,6 +140,11 @@ class MySQLPlatform extends AbstractPlatform
 		}
 
 		return new BasicType('TEXT');
+	}
+
+	public function getParameter($name, ParameterData $parameters = null)
+	{
+		return '?';
 	}
 
 	public function getKeyword($keyword)

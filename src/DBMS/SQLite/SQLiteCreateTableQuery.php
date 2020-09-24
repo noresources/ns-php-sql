@@ -73,7 +73,8 @@ class SQLiteCreateTableQuery extends CreateTableQuery
 
 		$stream->space()
 			->identifier(
-			$builder->getCanonicalName($this->getStructure()))
+			$builder->getPlatform()
+				->quoteIdentifierPath($this->getStructure()))
 			->space()
 			->text('(');
 
@@ -102,7 +103,8 @@ class SQLiteCreateTableQuery extends CreateTableQuery
 			$typeName = $type->getTypeName();
 
 			$stream->identifier(
-				$builder->escapeIdentifier($column->getName()))
+				$builder->getPlatform()
+					->quoteIdentifier($column->getName()))
 				->space()
 				->identifier($typeName);
 

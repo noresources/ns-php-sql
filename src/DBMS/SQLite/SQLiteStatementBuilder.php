@@ -10,13 +10,11 @@
 namespace NoreSources\SQL\DBMS\SQLite;
 
 use NoreSources\Container;
-use NoreSources\Text;
 use NoreSources\SQL\DBMS\PlatformInterface;
 use NoreSources\SQL\DBMS\PlatformProviderTrait;
 use NoreSources\SQL\DBMS\SQLite\SQLiteConstants as K;
 use NoreSources\SQL\Statement\AbstractStatementBuilder;
 use NoreSources\SQL\Statement\ClassMapStatementFactoryTrait;
-use NoreSources\SQL\Statement\ParameterData;
 use NoreSources\SQL\Structure\ColumnStructure;
 use NoreSources\SQL\Structure\StructureElementInterface;
 use Psr\Log\LoggerAwareInterface;
@@ -74,26 +72,6 @@ class SQLiteStatementBuilder extends AbstractStatementBuilder implements
 		}
 
 		return $path;
-	}
-
-	public function serializeString($value)
-	{
-		return "'" . \SQLite3::escapeString($value) . "'";
-	}
-
-	public function serializeBinary($value)
-	{
-		return "X'" . Text::toHexadecimalString($value) . "'";
-	}
-
-	public function escapeIdentifier($identifier)
-	{
-		return '"' . $identifier . '"';
-	}
-
-	public function getParameter($name, ParameterData $parameters = null)
-	{
-		return (':' . preg_replace('/[^a-zA-Z0-9_]/', '_', $name));
 	}
 
 	public static function getSQLiteColumnTypeName(

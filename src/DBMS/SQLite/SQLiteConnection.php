@@ -327,8 +327,9 @@ class SQLiteConnection implements ConnectionInterface,
 				if ($statement instanceof ParameterDataProviderInterface)
 					$dbmsName = $statement->getParameters()->get($key)[ParameterData::DBMSNAME];
 				else
-					$dbmsName = $this->getStatementBuilder()->getParameter(
-						$key, null);
+					$dbmsName = $this->getStatementBuilder()
+						->getPlatform()
+						->getParameter($key, null);
 
 				$value = ConnectionHelper::serializeParameterValue(
 					$this, $entry);

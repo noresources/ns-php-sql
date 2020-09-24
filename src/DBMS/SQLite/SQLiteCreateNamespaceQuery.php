@@ -16,7 +16,6 @@ use NoreSources\SQL\Expression\Literal;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Expression\TokenStreamContextInterface;
 use NoreSources\SQL\Statement\Structure\CreateNamespaceQuery;
-use NoreSources\SQL\Structure\NamespaceStructure;
 
 /**
  * ATTACH DATABASE
@@ -29,16 +28,19 @@ class SQLiteCreateNamespaceQuery extends CreateNamespaceQuery
 		parent::__construct($identifier);
 	}
 
-	public function tokenize(TokenStream $stream, TokenStreamContextInterface $context)
+	public function tokenize(TokenStream $stream,
+		TokenStreamContextInterface $context)
 	{
 		$builder = $context->getStatementBuilder();
 
 		$path = $this->getNamespaceIdentifier() . '.sqlite';
-		$structure = $context->findNamespace($this->getNamespaceIdentifier()
-			->getLocalName());
+		$structure = $context->findNamespace(
+			$this->getNamespaceIdentifier()
+				->getLocalName());
 		if ($builder instanceof SQLiteStatementBuilder)
 		{
-			$provider = $builder->getSQLiteSetting(K::CONNECTION_DATABASE_FILE_PROVIDER);
+			$provider = $builder->getSQLiteSetting(
+				K::CONNECTION_DATABASE_FILE_PROVIDER);
 			if (\is_callable($provider))
 				$path = $provider($structure);
 		}
@@ -53,7 +55,9 @@ class SQLiteCreateNamespaceQuery extends CreateNamespaceQuery
 			->space()
 			->keyword('as')
 			->identifier(
-			$builder->escapeIdentifier($this->getNamespaceIdentifier()
-				->getLocalName()));
+			$builder->getPlatform()
+				->quoteIdentifier(
+				$this->getNamespaceIdentifier()
+					->getLocalName()));
 	}
 }

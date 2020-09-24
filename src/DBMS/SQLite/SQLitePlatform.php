@@ -3,6 +3,7 @@ namespace NoreSources\SQL\DBMS\SQLite;
 
 use NoreSources\Container;
 use NoreSources\DateTime;
+use NoreSources\Text;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\AbstractPlatform;
 use NoreSources\SQL\DBMS\ArrayObjectType;
@@ -12,6 +13,7 @@ use NoreSources\SQL\DBMS\TypeRegistry;
 use NoreSources\SQL\Expression\FunctionCall;
 use NoreSources\SQL\Expression\Literal;
 use NoreSources\SQL\Expression\MetaFunctionCall;
+use NoreSources\SQL\Statement\ParameterData;
 use NoreSources\SQL\Structure\ColumnDescriptionInterface;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
@@ -20,7 +22,9 @@ class SQLitePlatform extends AbstractPlatform
 {
 	use LoggerAwareTrait;
 
-	public function __construct($version)
+	const DEFAULT_VERSION = '3.0.0';
+
+	public function __construct($version = self::DEFAULT_VERSION)
 	{
 		parent::__construct($version);
 
@@ -51,6 +55,11 @@ class SQLitePlatform extends AbstractPlatform
 			TypeHelper::getMatchingTypes($column,
 				self::getTypeRegistry()),
 			self::getTypeRegistry()->get('text'));
+	}
+
+	public function getParameter($name, ParameterData $parameters = null)
+	{
+		return ':' . $name;
 	}
 
 	public function getKeyword($keyword)
@@ -150,6 +159,21 @@ class SQLitePlatform extends AbstractPlatform
 		}
 
 		return parent::translateFunction($metaFunction);
+	}
+
+	public function quoteStringValue($value)
+	{
+		return "'" . \SQLite3::escapeString($value) . "'";
+	}
+
+	public function quoteBinaryValue($value)
+	{
+		return "X'" . Text::toHexadecimalString($value) . "'";
+	}
+
+	public function quoteIdentifier($identifier)
+	{
+		return '"' . $identifier . '"';
 	}
 
 	public static function getTypeRegistry()

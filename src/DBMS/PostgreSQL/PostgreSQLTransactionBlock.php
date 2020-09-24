@@ -16,7 +16,8 @@ use NoreSources\SQL\DBMS\TransactionBlockException;
 use NoreSources\SQL\DBMS\TransactionBlockInterface;
 use NoreSources\SQL\DBMS\TransactionBlockTrait;
 
-class PostgreSQLTransactionBlock implements TransactionBlockInterface, ConnectionProviderInterface
+class PostgreSQLTransactionBlock implements TransactionBlockInterface,
+	ConnectionProviderInterface
 {
 	use TransactionBlockTrait;
 	use ChainElementTrait;
@@ -26,7 +27,9 @@ class PostgreSQLTransactionBlock implements TransactionBlockInterface, Connectio
 	{
 		$this->setConnection($connection);
 		$this->initializeTransactionBlock($name);
-		$this->blockIdentifier = $connection->getStatementBuilder()->escapeIdentifier($name);
+		$this->blockIdentifier = $connection->getStatementBuilder()
+			->getPlatform()
+			->quoteIdentifier($name);
 	}
 
 	protected function beginTask()

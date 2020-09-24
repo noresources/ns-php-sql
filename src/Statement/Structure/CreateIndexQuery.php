@@ -202,7 +202,8 @@ class CreateIndexQuery extends Statement
 				$parts = $this->indexIdentifier->getPathParts();
 				if (\count($parts) > 1)
 					$stream->identifier(
-						$builder->getCanonicalName($parts));
+						$builder->getPlatform()
+							->quoteIdentifierPath($parts));
 				else // Last chance to find the element namespace
 				{
 					$structure = $context->getPivot();
@@ -211,24 +212,29 @@ class CreateIndexQuery extends Statement
 
 					if ($structure instanceof NamespaceStructure)
 						$stream->identifier(
-							$builder->getCanonicalName($structure))
+							$builder->getPlatform()
+								->quoteIdentifierPath($structure))
 							->text('.');
 
 					$stream->identifier(
-						$builder->escapeIdentifier(
+						$builder->getPlatform()
+							->quoteIdentifier(
 							$this->indexIdentifier->path));
 				}
 			}
 			else
 				$stream->identifier(
-					$builder->escapeIdentifier(
+					$builder->getPlatform()
+						->quoteIdentifier(
 						$this->indexIdentifier->getLocalName()));
 		}
 
 		$stream->space()
 			->keyword('on')
 			->space()
-			->identifier($builder->getCanonicalName($tableStructure))
+			->identifier(
+			$builder->getPlatform()
+				->quoteIdentifierPath($tableStructure))
 			->space()
 			->text('(');
 
@@ -242,7 +248,8 @@ class CreateIndexQuery extends Statement
 				$stream->space()->expression($column, $context);
 			else
 				$stream->space()->identifier(
-					$builder->escapeIdentifier($column));
+					$builder->getPlatform()
+						->quoteIdentifier($column));
 		}
 
 		$stream->text(')');

@@ -99,7 +99,9 @@ class DropViewQuery extends Statement
 		{
 			$parts = $this->viewIdentifier->getPathParts();
 			if (\count($parts) > 1)
-				$stream->identifier($builder->getCanonicalName($parts));
+				$stream->identifier(
+					$builder->getPlatform()
+						->quoteIdentifierPath($parts));
 			else // Last chance to find the element namespace
 			{
 				$structure = $context->getPivot();
@@ -108,17 +110,19 @@ class DropViewQuery extends Statement
 
 				if ($structure instanceof NamespaceStructure)
 					$stream->identifier(
-						$builder->getCanonicalName($structure))
+						$builder->getPlatform()
+							->quoteIdentifierPath($structure))
 						->text('.');
 
 				$stream->identifier(
-					$builder->escapeIdentifier(
-						$this->viewIdentifier->path));
+					$builder->getPlatform()
+						->quoteIdentifier($this->viewIdentifier->path));
 			}
 		}
 		else
 			$stream->identifier(
-				$builder->escapeIdentifier(
+				$builder->getPlatform()
+					->quoteIdentifier(
 					$this->viewIdentifier->getLocalName()));
 
 		return $stream;

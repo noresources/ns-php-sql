@@ -80,7 +80,8 @@ class InsertQuery extends Statement implements \ArrayAccess
 			->space()
 			->identifier(
 			$context->getStatementBuilder()
-				->getCanonicalName($tableStructure));
+				->getPlatform()
+				->quoteIdentifierPath($tableStructure));
 		if ($this->getTable()->alias)
 		{
 			$stream->space()
@@ -118,8 +119,9 @@ class InsertQuery extends Statement implements \ArrayAccess
 				throw new StatementException($this,
 					'Invalid column "' . $columnName . '"');
 
-			$columns[] = $context->getStatementBuilder()->escapeIdentifier(
-				$columnName);
+			$columns[] = $context->getStatementBuilder()
+				->getPlatform()
+				->quoteIdentifier($columnName);
 			$column = $tableStructure->offsetGet($columnName);
 			/**
 			 *
@@ -127,12 +129,12 @@ class InsertQuery extends Statement implements \ArrayAccess
 			 */
 			if (!($value instanceof TokenizableExpressionInterface))
 			{
-				$type = K::DATATYPE_UNDEFINED;
+				$dataType = K::DATATYPE_UNDEFINED;
 				if ($column->hasColumnProperty(K::COLUMN_DATA_TYPE))
-					$type = $column->getColumnProperty(
+					$dataType = $column->getColumnProperty(
 						K::COLUMN_DATA_TYPE);
 
-				$value = new Literal($value, $type);
+				$value = new Literal($value, $dataType);
 			}
 
 			$values[] = $value;
@@ -150,8 +152,9 @@ class InsertQuery extends Statement implements \ArrayAccess
 				if ($column->hasColumnProperty(K::COLUMN_DEFAULT_VALUE))
 				{
 					$c++;
-					$columns[] = $context->getStatementBuilder()->escapeIdentifier(
-						$name);
+					$columns[] = $context->getStatementBuilder()
+						->getPlatform()
+						->quoteIdentifier($name);
 					if ($hasDefaultKeyword)
 						$values[] = new Keyword(K::KEYWORD_DEFAULT);
 					else

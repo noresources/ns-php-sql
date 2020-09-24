@@ -932,6 +932,7 @@ final class DBMSCommonTest extends TestCase
 				->count(), 'Number of parameters in prepared statement');
 
 		$sql = strval($preparedInsert);
+
 		$sql = \SqlFormatter::format(strval($sql), false);
 		if (!($connection instanceof PDOConnection))
 			$this->derivedFileManager->assertDerivedFile($sql,
@@ -943,7 +944,17 @@ final class DBMSCommonTest extends TestCase
 			'identifier' => 1
 		];
 
-		$result = $connection->executeStatement($preparedInsert, $p);
+		try
+		{
+			$result = $connection->executeStatement($preparedInsert, $p);
+		}
+		catch (\Exception $e)
+		{
+			$this->assertTrue(false,
+				$dbmsName . ' ' . $preparedInsert . ' ' .
+				\var_export($p, true) . ': ' . $e->getMessage());
+		}
+
 		$this->assertInstanceOf(
 			InsertionStatementResultInterface::class, $result,
 			$dbmsName . ' ' . $preparedInsert);

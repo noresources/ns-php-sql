@@ -485,7 +485,8 @@ class SelectQuery extends Statement
 						->space()
 						->identifier(
 						$context->getStatementBuilder()
-							->escapeIdentifier($column->alias));
+							->getPlatform()
+							->quoteIdentifier($column->alias));
 				}
 			}
 		}

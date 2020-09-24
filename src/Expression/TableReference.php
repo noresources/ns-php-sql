@@ -8,10 +8,8 @@
  * @package SQL
  */
 
-// 
+//
 namespace NoreSources\SQL\Expression;
-
-
 
 /**
  * SQL Table reference in a SQL query
@@ -32,14 +30,18 @@ class TableReference extends Table
 		$this->alias = $alias;
 	}
 
-	public function tokenize(TokenStream $stream, TokenStreamContextInterface $context)
+	public function tokenize(TokenStream $stream,
+		TokenStreamContextInterface $context)
 	{
 		parent::tokenize($stream, $context);
 		if (strlen($this->alias))
 			$stream->space()
 				->keyword('as')
 				->space()
-				->identifier($context->getStatementBuilder()->escapeIdentifier($this->alias));
+				->identifier(
+				$context->getStatementBuilder()
+					->getPlatform()
+					->quoteIdentifier($this->alias));
 
 		return $stream;
 	}

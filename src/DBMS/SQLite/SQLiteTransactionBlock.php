@@ -21,7 +21,8 @@ use NoreSources\SQL\DBMS\TransactionBlockTrait;
  * @see https://sqlite.org/lang_transaction.html
  *
  */
-class SQLiteTransactionBlock implements TransactionBlockInterface, ConnectionProviderInterface
+class SQLiteTransactionBlock implements TransactionBlockInterface,
+	ConnectionProviderInterface
 {
 
 	use TransactionBlockTrait;
@@ -41,7 +42,8 @@ class SQLiteTransactionBlock implements TransactionBlockInterface, ConnectionPro
 		$this->executeCommand(
 			'SAVEPOINT ' .
 			$this->connection->getStatementBuilder()
-				->escapeIdentifier($this->getBlockName()));
+				->getPlatform()
+				->quoteIdentifier($this->getBlockName()));
 	}
 
 	protected function commitTask()
@@ -49,7 +51,8 @@ class SQLiteTransactionBlock implements TransactionBlockInterface, ConnectionPro
 		$this->executeCommand(
 			'RELEASE ' .
 			$this->connection->getStatementBuilder()
-				->escapeIdentifier($this->getBlockName()));
+				->getPlatform()
+				->quoteIdentifier($this->getBlockName()));
 		if ($this->getPreviousElement() === null)
 			$this->executeCommand('COMMIT');
 	}
@@ -59,7 +62,8 @@ class SQLiteTransactionBlock implements TransactionBlockInterface, ConnectionPro
 		$this->executeCommand(
 			'ROLLBACK TO ' .
 			$this->connection->getStatementBuilder()
-				->escapeIdentifier($this->getBlockName()));
+				->getPlatform()
+				->quoteIdentifier($this->getBlockName()));
 		if ($this->getPreviousElement() === null)
 			$this->executeCommand('ROLLBACK');
 	}

@@ -3,13 +3,18 @@ namespace NoreSources\SQL\DBMS;
 
 use NoreSources\SemanticVersion;
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\DataSerializerInterface;
 use NoreSources\SQL\Expression\FunctionCall;
 use NoreSources\SQL\Expression\MetaFunctionCall;
+use NoreSources\SQL\Statement\ParameterData;
 use NoreSources\SQL\Structure\ColumnDescriptionInterface;
+use NoreSources\SQL\Structure\StructureElementInterface;
 use Psr\Log\LoggerAwareInterface;
 
 interface PlatformInterface extends FeatureQueryInterface,
-	LoggerAwareInterface
+	LoggerAwareInterface, DataSerializerInterface,
+	StringSerializerInterface, BinaryValueSerializerInterface,
+	IdentifierSerializerInterface
 {
 
 	/**
@@ -19,8 +24,30 @@ interface PlatformInterface extends FeatureQueryInterface,
 	 */
 	function getPlatformVersion($kind = self::VERSION_CURRENT);
 
+	/**
+	 *
+	 * @param ColumnDescriptionInterface $column
+	 *        	Column description
+	 * @param number $constraintFlags
+	 *        	Column constraint flags
+	 * @return TypeInterface
+	 */
 	function getColumnType(ColumnDescriptionInterface $column,
 		$constraintFlags = 0);
+
+	/**
+	 *
+	 * Get a DBMS-compliant parameter name
+	 *
+	 * @param string $name
+	 *        	Parameter name
+	 * @param ParameterData $parameters
+	 *        	The already assigned parameters
+	 *
+	 *        	NULL may be passed when the builder does not require the
+	 *        	previou
+	 */
+	function getParameter($name, ParameterData $parameters = null);
 
 	/**
 	 * Get syntax keyword.
@@ -50,7 +77,7 @@ interface PlatformInterface extends FeatureQueryInterface,
 	/**
 	 * Get the \DateTime timestamp format accepted by the ConnectionInterface
 	 *
-	 * @param integer $type
+	 * @param integer $dataType
 	 *        	Timestamp parts. Combination of
 	 *        	<ul>
 	 *        	<li>Constants\DATATYPE_DATE</li>
@@ -60,7 +87,7 @@ interface PlatformInterface extends FeatureQueryInterface,
 	 *
 	 * @return string \DateTime format string
 	 */
-	function getTimestampTypeStringFormat($type = 0);
+	function getTimestampTypeStringFormat($dataType = 0);
 
 	/**
 	 *
@@ -89,6 +116,13 @@ interface PlatformInterface extends FeatureQueryInterface,
 	 * @return FunctionCall
 	 */
 	function translateFunction(MetaFunctionCall $metaFunction);
+
+	/**
+	 *
+	 * @param StructureElementInterface|array|string $path
+	 * @return string
+	 */
+	function quoteIdentifierPath($path);
 
 	const VERSION_CURRENT = K::PLATFORM_VERSION_CURRENT;
 

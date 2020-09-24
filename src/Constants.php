@@ -292,6 +292,10 @@ class Constants
 	 */
 	const COLUMN_PADDING_DIRECTION = 'paddingdirection';
 
+	const COLUMN_PADDING_DIRECTION_LEFT = -1;
+
+	const COLUMN_PADDING_DIRECTION_RIGHT = 1;
+
 	/**
 	 * Define a custom deta unserializer for a column
 	 *
@@ -337,6 +341,13 @@ class Constants
 	 * @var string
 	 */
 	const TYPE_NAME = 'typename';
+
+	/**
+	 * DBMS type description
+	 *
+	 * @var string
+	 */
+	const TYPE_DESCRIPTION = 'typedescription';
 
 	/**
 	 * DBMS type data size in bits.
@@ -436,9 +447,9 @@ class Constants
 	 */
 	const TYPE_PADDING_DIRECTION = self::COLUMN_PADDING_DIRECTION;
 
-	const TYPE_PADDING_DIRECTION_LEFT = -1;
+	const TYPE_PADDING_DIRECTION_LEFT = self::COLUMN_PADDING_DIRECTION_LEFT;
 
-	const TYPE_PADDING_DIRECTION_RIGHT = 1;
+	const TYPE_PADDING_DIRECTION_RIGHT = self::COLUMN_PADDING_DIRECTION_RIGHT;
 
 	/**
 	 * Value padding glyph.

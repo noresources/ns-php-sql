@@ -21,6 +21,9 @@ use NoreSources\SQL\Statement\StatementException;
 use NoreSources\SQL\Statement\Traits\ColumnValueTrait;
 use NoreSources\SQL\Statement\Traits\StatementTableTrait;
 use NoreSources\SQL\Statement\Traits\WhereConstraintTrait;
+use NoreSources\SQL\Structure\ColumnStructure;
+use NoreSources\SQL\Structure\NamespaceStructure;
+use NoreSources\SQL\Structure\TableStructure;
 
 /**
  * UPDATE query
@@ -45,7 +48,8 @@ class UpdateQuery extends Statement implements \ArrayAccess
 			$this->table($table, $alias);
 	}
 
-	public function tokenize(TokenStream $stream, TokenStreamContextInterface $context)
+	public function tokenize(TokenStream $stream,
+		TokenStreamContextInterface $context)
 	{
 		if ($this->columnValues->count() == 0)
 			throw new StatementException($this, 'No column value');
@@ -60,8 +64,10 @@ class UpdateQuery extends Statement implements \ArrayAccess
 
 		$stream->keyword('update')
 			->space()
-			->identifier($context->getStatementBuilder()
-			->getCanonicalName($tableStructure));
+			->identifier(
+			$context->getStatementBuilder()
+				->getPlatform()
+				->quoteIdentifierPath($tableStructure));
 
 		if ($this->columnValues->count())
 			$stream->space()
@@ -72,7 +78,8 @@ class UpdateQuery extends Statement implements \ArrayAccess
 		foreach ($this->columnValues as $columnName => $value)
 		{
 			if (!$tableStructure->offsetExists($columnName))
-				throw new StatementException($this, 'Invalid column "' . $columnName . '"');
+				throw new StatementException($this,
+					'Invalid column "' . $columnName . '"');
 
 			if ($index > 0)
 				$stream->text(',')->space();
@@ -87,13 +94,16 @@ class UpdateQuery extends Statement implements \ArrayAccess
 			{
 				$type = K::DATATYPE_UNDEFINED;
 				if ($column->hasColumnProperty(K::COLUMN_DATA_TYPE))
-					$type = $column->getColumnProperty(K::COLUMN_DATA_TYPE);
+					$type = $column->getColumnProperty(
+						K::COLUMN_DATA_TYPE);
 
 				$value = new Literal($value, $type);
 			}
 
-			$stream->identifier($context->getStatementBuilder()
-				->escapeIdentifier($columnName))
+			$stream->identifier(
+				$context->getStatementBuilder()
+					->getPlatform()
+					->quoteIdentifier($columnName))
 				->text('=')
 				->expression($value, $context);
 

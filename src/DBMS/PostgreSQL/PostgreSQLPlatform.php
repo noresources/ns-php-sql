@@ -6,19 +6,25 @@ use NoreSources\DateTime;
 use NoreSources\SemanticVersion;
 use NoreSources\SQL\DBMS\AbstractPlatform;
 use NoreSources\SQL\DBMS\BasicType;
+use NoreSources\SQL\DBMS\ConnectionInterface;
+use NoreSources\SQL\DBMS\ConnectionProviderInterface;
+use NoreSources\SQL\DBMS\ConnectionProviderTrait;
 use NoreSources\SQL\DBMS\TimestampFormatTranslationMap;
 use NoreSources\SQL\DBMS\TypeHelper;
 use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLConstants as K;
 use NoreSources\SQL\Expression\FunctionCall;
 use NoreSources\SQL\Expression\Literal;
 use NoreSources\SQL\Expression\MetaFunctionCall;
+use NoreSources\SQL\Statement\ParameterData;
 use NoreSources\SQL\Structure\ColumnDescriptionInterface;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
 
-class PostgreSQLPlatform extends AbstractPlatform
+class PostgreSQLPlatform extends AbstractPlatform implements
+	ConnectionProviderInterface
 {
 	use LoggerAwareTrait;
+	use ConnectionProviderTrait;
 
 	/**
 	 *
@@ -26,9 +32,11 @@ class PostgreSQLPlatform extends AbstractPlatform
 	 */
 	const DEFAULT_VERSION = '7.3.0';
 
-	public function __construct($version = self::DEFAULT_VERSION)
+	public function __construct(ConnectionInterface $connection,
+		$version = self::DEFAULT_VERSION)
 	{
 		parent::__construct($version);
+		$this->setConnection($connection);
 
 		$this->setPlatformFeature(
 			[
@@ -107,6 +115,27 @@ class PostgreSQLPlatform extends AbstractPlatform
 			$compatibility);
 	}
 
+	public function quoteBinaryValue($value)
+	{
+		if (\is_int($value))
+		{
+			$value = \base_convert($value, 10, 16);
+			if (\strlen($value) % 2 == 1)
+			{
+				$value = '0' . $value;
+			}
+
+			$value = \hex2bin($value);
+		}
+
+		return "'" . \pg_escape_bytea($value) . "'";
+	}
+
+	public function quoteIdentifier($identifier)
+	{
+		return $this->connection->quoteIdentifier($identifier);
+	}
+
 	public function getColumnType(ColumnDescriptionInterface $column,
 		$constraintFlags = 0)
 	{
@@ -121,6 +150,26 @@ class PostgreSQLPlatform extends AbstractPlatform
 		$matchingTypes = TypeHelper::getMatchingTypes($column, $types);
 
 		return Container::firstValue($matchingTypes);
+	}
+
+	public function getParameter($name, ParameterData $parameters = null)
+	{
+		$key = strval($name);
+
+		if (false)
+		{
+			/**
+			 * Cannot re-use the same parameter number because it may
+			 * produce "inconsistent types deduced for parameter"
+			 */
+
+			if ($parameters->has($key))
+				return $parameters->get($key)[ParameterData::DBMSNAME];
+
+			return '$' . ($parameters->getDistinctParameterCount() + 1);
+		}
+
+		return '$' . ($parameters->getParameterCount() + 1);
 	}
 
 	public function getKeyword($keyword)

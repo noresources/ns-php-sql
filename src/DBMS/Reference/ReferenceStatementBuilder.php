@@ -13,7 +13,6 @@ use NoreSources\SQL\DBMS\PlatformInterface;
 use NoreSources\SQL\DBMS\PlatformProviderTrait;
 use NoreSources\SQL\Statement\AbstractStatementBuilder;
 use NoreSources\SQL\Statement\ClassMapStatementFactoryTrait;
-use NoreSources\SQL\Statement\ParameterData;
 
 /**
  */
@@ -30,7 +29,8 @@ class ReferenceStatementBuilder extends AbstractStatementBuilder
 		parent::__construct();
 		$this->platform = $platform;
 		if (!($this->platform instanceof PlatformInterface))
-			$this->platform = new ReferencePlatform();
+			$this->platform = new ReferencePlatform(
+				new ReferenceConnection());
 
 		$this->initializeStatementFactory();
 	}
@@ -38,31 +38,5 @@ class ReferenceStatementBuilder extends AbstractStatementBuilder
 	public static function serializeStringFallback($value)
 	{
 		return "'" . str_replace("'", "''", $value) . "'";
-	}
-
-	public function serializeString($value)
-	{
-		return self::serializeStringFallback($value);
-	}
-
-	public static function escapeIdentifierFallback($identifier, $before,
-		$after)
-	{
-		$identifier = \str_replace($before, $before . $before,
-			$identifier);
-		if ($before != $after)
-			$identifier = \str_replace($after, $after . $after,
-				$identifier);
-		return $before . $identifier . $after;
-	}
-
-	public function escapeIdentifier($identifier)
-	{
-		return self::escapeIdentifierFallback($identifier, '[', ']');
-	}
-
-	public function getParameter($name, ParameterData $parameters = null)
-	{
-		return ('$' . preg_replace('/[^a-zA-Z0-9_]/', '_', $name));
 	}
 }

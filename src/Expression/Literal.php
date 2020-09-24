@@ -18,8 +18,8 @@ use NoreSources\SQL\Structure\ColumnDescriptionInterface;
 /**
  * Literal value
  */
-class Literal implements TokenizableExpressionInterface, ExpressionReturnTypeInterface,
-	StringRepresentation
+class Literal implements TokenizableExpressionInterface,
+	ExpressionReturnTypeInterface, StringRepresentation
 {
 
 	/**
@@ -84,7 +84,8 @@ class Literal implements TokenizableExpressionInterface, ExpressionReturnTypeInt
 	public function setValue($value, $type = null)
 	{
 		if ($value instanceof TokenizableExpressionInterface)
-			throw new \LogicException('Literal is already an TokenizableExpressionInterface');
+			throw new \LogicException(
+				'Literal is already an TokenizableExpressionInterface');
 
 		$this->literalValue = $value;
 
@@ -114,7 +115,8 @@ class Literal implements TokenizableExpressionInterface, ExpressionReturnTypeInt
 				]);
 		else
 			throw new \InvalidArgumentException(
-				TypeDescription::getName($type) . 'is not a valid target argument for ' .
+				TypeDescription::getName($type) .
+				'is not a valid target argument for ' .
 				TypeDescription::getName($this));
 	}
 
@@ -122,18 +124,24 @@ class Literal implements TokenizableExpressionInterface, ExpressionReturnTypeInt
 	{
 		if ($this->serializationTarget instanceof ColumnDescriptionInterface)
 		{
-			if ($this->serializationTarget->hasColumnProperty(K::COLUMN_DATA_TYPE))
-				return $this->serializationTarget->getColumnProperty(K::COLUMN_DATA_TYPE);
+			if ($this->serializationTarget->hasColumnProperty(
+				K::COLUMN_DATA_TYPE))
+				return $this->serializationTarget->getColumnProperty(
+					K::COLUMN_DATA_TYPE);
 		}
 
-		return ExpressionHelper::getExpressionDataType($this->getValue());
+		return ExpressionHelper::getExpressionDataType(
+			$this->getValue());
 	}
 
-	public function tokenize(TokenStream $stream, TokenStreamContextInterface $context)
+	public function tokenize(TokenStream $stream,
+		TokenStreamContextInterface $context)
 	{
 		return $stream->literal(
 			$context->getStatementBuilder()
-				->serializeColumnData($this->serializationTarget, $this->getValue()));
+				->getPlatform()
+				->serializeColumnData($this->serializationTarget,
+				$this->getValue()));
 	}
 
 	/**

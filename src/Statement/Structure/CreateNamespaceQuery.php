@@ -82,7 +82,8 @@ class CreateNamespaceQuery extends Statement
 		if ($existsCondition)
 			$stream->space()->keyword('if not exists');
 		$stream->space()->identifier(
-			$builder->getCanonicalName($this->namespaceIdentifier));
+			$builder->getPlatform()
+				->quoteIdentifierPath($this->namespaceIdentifier));
 
 		return $stream;
 	}

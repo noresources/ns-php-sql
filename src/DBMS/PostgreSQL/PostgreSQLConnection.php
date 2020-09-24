@@ -17,6 +17,8 @@ use NoreSources\SQL\DBMS\ConnectionException;
 use NoreSources\SQL\DBMS\ConnectionHelper;
 use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\PlatformProviderTrait;
+use NoreSources\SQL\DBMS\StringSerializerInterface;
+use NoreSources\SQL\DBMS\IdentifierSerializerInterface;
 use NoreSources\SQL\DBMS\TransactionInterface;
 use NoreSources\SQL\DBMS\TransactionStackTrait;
 use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLConstants as K;
@@ -29,7 +31,8 @@ use NoreSources\SQL\Structure\StructureElementInterface;
 use NoreSources\SQL\Structure\StructureProviderTrait;
 
 class PostgreSQLConnection implements ConnectionInterface,
-	TransactionInterface
+	TransactionInterface, StringSerializerInterface,
+	IdentifierSerializerInterface
 {
 
 	use StructureProviderTrait;
@@ -109,6 +112,16 @@ class PostgreSQLConnection implements ConnectionInterface,
 			PGSQL_CONNECTION_OK));
 	}
 
+	public function quoteStringValue($value)
+	{
+		return @\pg_escape_literal($this->resource, $value);
+	}
+
+	public function quoteIdentifier($identifier)
+	{
+		return @\pg_escape_identifier($this->resource, $identifier);
+	}
+
 	public function getPlatform()
 	{
 		if (!isset($this->platform))
@@ -120,7 +133,8 @@ class PostgreSQLConnection implements ConnectionInterface,
 				if (\preg_match('/^[0-9]+(\.[0-9]+)*/', $info['server'],
 					$m))
 					$serverVersion = $m[0];
-				$this->platform = new PostgreSQLPlatform($serverVersion);
+				$this->platform = new PostgreSQLPlatform($this,
+					$serverVersion);
 			}
 		}
 
@@ -192,7 +206,7 @@ class PostgreSQLConnection implements ConnectionInterface,
 				\pg_last_error($this->resource));
 
 		if (!\is_resource($result))
-			throw new \RuntimeException('Not implemented');
+			throw new \RuntimeException(__METHOD__ . ' Not implemented');
 
 		$status = \pg_result_status($result);
 		switch ($status)
