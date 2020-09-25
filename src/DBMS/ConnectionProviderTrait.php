@@ -25,7 +25,7 @@ trait ConnectionProviderTrait
 	 *
 	 * @param ConnectionInterface $connection
 	 */
-	protected function setConnection(ConnectionInterface $connection)
+	public function setConnection(ConnectionInterface $connection)
 	{
 		$this->connection = $connection;
 	}
