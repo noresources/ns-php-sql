@@ -90,6 +90,10 @@ class Evaluator
 					PolishNotationOperation::SPACE)
 			],
 			'*' => [
+				'between' => new BinaryPolishNotationOperation('IN',
+					PolishNotationOperation::PRE_SPACE |
+					PolishNotationOperation::POST_WHITESPACE,
+					Between::class),
 				'in' => new BinaryPolishNotationOperation('IN',
 					PolishNotationOperation::PRE_SPACE |
 					PolishNotationOperation::POST_WHITESPACE,
@@ -315,8 +319,8 @@ class Evaluator
 		/*
 		 *  Automatically fix missing  [] around polish operation operands
 		 */
-		if (\count($operands) == 1 && Container::isAssociative(
-			$operands))
+		if (\count($operands) == 1 &&
+			Container::isAssociative($operands))
 			$operands = [
 				$operands
 			];
@@ -369,6 +373,11 @@ class Evaluator
 				(\strpos($key, 'not ') === 0))
 				$include = false;
 			return new MemberOf($left, $operands, $include);
+		}
+		elseif ($o->className == Between::class)
+		{
+			$cls = new \ReflectionClass($o->className);
+			return $cls->newInstanceArgs($operands);
 		}
 		else
 		{
