@@ -66,7 +66,7 @@ class DropViewQuery extends Statement
 		TokenStreamContextInterface $context)
 	{
 		$builder = $context->getStatementBuilder();
-		$platform = $builder->getPlatform();
+		$platform = $context->getPlatform();
 
 		$hasExistsCondition = $platform->queryFeature(
 			[

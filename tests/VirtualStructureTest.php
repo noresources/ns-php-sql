@@ -137,9 +137,6 @@ final class VirtualStructureTest extends \PHPUnit\Framework\TestCase
 		$platform = $connection->getPlatform();
 		$builder = $connection->getStatementBuilder();
 
-		$context = new StatementTokenStreamContext($builder);
-		$context->setStructureResolver($vsr);
-
 		/**
 		 *
 		 * @var \NoreSources\SQL\Statement\Query\SelectQuery $select
@@ -166,15 +163,24 @@ final class VirtualStructureTest extends \PHPUnit\Framework\TestCase
 		])
 			->orderBy('at');
 
-		$stream = new TokenStream();
-		$select->tokenize($stream, $context);
-		$data = $builder->finalizeStatement($stream, $context);
-		$sql = \SqlFormatter::format(\strval($data), false);
+		foreach ([
+			'inline ctor' => new StatementTokenStreamContext($builder,
+				$vsr),
+			'array ctor' => new StatementTokenStreamContext(
+				[
+					'builder' => $builder,
+					'resolver' => $vsr
+				])
+		] as $context)
+		{
+			$stream = new TokenStream();
+			$select->tokenize($stream, $context);
+			$data = $builder->finalizeStatement($stream, $context);
+			$sql = \SqlFormatter::format(\strval($data), false);
 
-		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__,
-			'select', 'sql');
-
-		$this->assertTrue(true);
+			$this->derivedFileManager->assertDerivedFile($sql,
+				__METHOD__, 'select', 'sql');
+		}
 	}
 
 	/**

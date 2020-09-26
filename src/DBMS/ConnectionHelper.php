@@ -178,9 +178,7 @@ class ConnectionHelper
 	{
 		$reference = ($reference instanceof StructureElementInterface) ? $reference : $connection->getStructure();
 		$builder = $connection->getStatementBuilder();
-		$context = new StatementTokenStreamContext($builder);
-		if ($reference instanceof StructureElementInterface)
-			$context->setPivot($reference);
+		$context = new StatementTokenStreamContext($builder, $reference);
 		$stream = new TokenStream();
 		$statement->tokenize($stream, $context);
 		return $builder->finalizeStatement($stream, $context);

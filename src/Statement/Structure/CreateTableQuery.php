@@ -85,7 +85,7 @@ class CreateTableQuery extends Statement implements
 		TokenStreamContextInterface $context)
 	{
 		$builder = $context->getStatementBuilder();
-		$platform = $builder->getPlatform();
+		$platform = $context->getPlatform();
 
 		$existsCondition = $platform->queryFeature(
 			[
@@ -142,9 +142,7 @@ class CreateTableQuery extends Statement implements
 
 		$stream->space()
 			->identifier(
-			$context->getStatementBuilder()
-				->getPlatform()
-				->quoteIdentifierPath($this->structure))
+			$platform->quoteIdentifierPath($this->structure))
 			->space()
 			->text('(');
 

@@ -66,7 +66,7 @@ class DropIndexQuery extends Statement
 		TokenStreamContextInterface $context)
 	{
 		$builder = $context->getStatementBuilder();
-		$platform = $builder->getPlatform();
+		$platform = $context->getPlatform();
 
 		$scoped = $platform->queryFeature(
 			[

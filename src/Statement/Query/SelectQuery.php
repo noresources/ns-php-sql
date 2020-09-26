@@ -347,7 +347,7 @@ class SelectQuery extends Statement
 	public function tokenize(TokenStream $stream,
 		TokenStreamContextInterface $context)
 	{
-		$platform = $context->getStatementBuilder()->getPlatform();
+		$platform = $context->getPlatform();
 
 		$hasExtendedAlias = $platform->queryFeature(
 			[
@@ -484,9 +484,7 @@ class SelectQuery extends Statement
 						->keyword('as')
 						->space()
 						->identifier(
-						$context->getStatementBuilder()
-							->getPlatform()
-							->quoteIdentifier($column->alias));
+						$platform->quoteIdentifier($column->alias));
 				}
 			}
 		}

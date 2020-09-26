@@ -157,7 +157,7 @@ class CreateIndexQuery extends Statement
 		TokenStreamContextInterface $context)
 	{
 		$builder = $context->getStatementBuilder();
-		$platform = $builder->getPlatform();
+		$platform = $context->getPlatform();
 		$scoped = $platform->queryFeature(
 			[
 				K::PLATFORM_FEATURE_INDEX,

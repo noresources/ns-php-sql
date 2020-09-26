@@ -71,7 +71,7 @@ class DropTableQuery extends Statement
 		TokenStreamContextInterface $context)
 	{
 		$builder = $context->getStatementBuilder();
-		$platform = $builder->getPlatform();
+		$platform = $context->getPlatform();
 
 		$cascade = ($this->dropFlags & self::CASCADE) &&
 			$platform->queryFeature(

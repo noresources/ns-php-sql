@@ -13,7 +13,6 @@ namespace NoreSources\SQL\Expression;
 
 use NoreSources\TypeConversion;
 use NoreSources\TypeDescription;
-use NoreSources\SQL\Statement\StatementTokenStreamContext;
 use NoreSources\SQL\Statement\Query\SelectQuery;
 use NoreSources\SQL\Structure\TableStructure;
 use NoreSources\SQL\Structure\ViewStructure;
@@ -65,10 +64,7 @@ class DataRowContainerReference implements
 		if ($this->expression instanceof SelectQuery)
 		{
 			$stream->text('(');
-			$ctx = new StatementTokenStreamContext(
-				$context->getStatementBuilder());
-			if ($context->getPivot())
-				$ctx->setPivot($context->getPivot());
+			$ctx = clone $context;
 		}
 
 		$stream->expression($this->expression, $ctx);
@@ -81,8 +77,7 @@ class DataRowContainerReference implements
 				->keyword('as')
 				->space()
 				->identifier(
-				$ctx->getStatementBuilder()
-					->getPlatform()
+				$ctx->getPlatform()
 					->quoteIdentifier($this->alias));
 
 		if ($this->expression instanceof SelectQuery)

@@ -65,8 +65,7 @@ class UpdateQuery extends Statement implements \ArrayAccess
 		$stream->keyword('update')
 			->space()
 			->identifier(
-			$context->getStatementBuilder()
-				->getPlatform()
+			$context->getPlatform()
 				->quoteIdentifierPath($tableStructure));
 
 		if ($this->columnValues->count())
@@ -101,8 +100,7 @@ class UpdateQuery extends Statement implements \ArrayAccess
 			}
 
 			$stream->identifier(
-				$context->getStatementBuilder()
-					->getPlatform()
+				$context->getPlatform()
 					->quoteIdentifier($columnName))
 				->text('=')
 				->expression($value, $context);

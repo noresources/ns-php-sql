@@ -79,9 +79,8 @@ class TypeName implements TokenizableExpressionInterface
 				}
 			}
 
-			$type = $context->getStatementBuilder()
-				->getPlatform()
-				->getColumnType($type, $constraintFlags);
+			$type = $context->getPlatform()->getColumnType($type,
+				$constraintFlags);
 		}
 
 		if (!($type instanceof TypeInterface))

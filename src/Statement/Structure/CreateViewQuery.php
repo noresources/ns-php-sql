@@ -101,7 +101,7 @@ class CreateViewQuery extends Statement
 		TokenStreamContextInterface $context)
 	{
 		$builder = $context->getStatementBuilder();
-		$platform = $builder->getPlatform();
+		$platform = $context->getPlatform();
 		$scoped = $platform->queryFeature(
 			[
 				K::PLATFORM_FEATURE_VIEW,
@@ -162,9 +162,7 @@ class CreateViewQuery extends Statement
 		}
 		else
 			$stream->identifier(
-				$context->getStatementBuilder()
-					->getPlatform()
-					->quoteIdentifier($this->viewIdentifier));
+				$platform->quoteIdentifier($this->viewIdentifier));
 
 		return $stream->space()
 			->keyword('as')

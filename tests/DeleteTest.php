@@ -26,8 +26,8 @@ final class DeleteTest extends \PHPUnit\Framework\TestCase
 		$this->assertInstanceOf(Structure\TableStructure::class,
 			$tableStructure);
 		$builder = new ReferenceStatementBuilder();
-		$context = new StatementTokenStreamContext($builder);
-		$context->setPivot($tableStructure);
+		$context = new StatementTokenStreamContext($builder,
+			$tableStructure);
 		$q = new DeleteQuery($tableStructure);
 
 		$q->where([

@@ -138,8 +138,7 @@ class Literal implements TokenizableExpressionInterface,
 		TokenStreamContextInterface $context)
 	{
 		return $stream->literal(
-			$context->getStatementBuilder()
-				->getPlatform()
+			$context->getPlatform()
 				->serializeColumnData($this->serializationTarget,
 				$this->getValue()));
 	}

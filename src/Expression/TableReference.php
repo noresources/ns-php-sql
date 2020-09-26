@@ -39,8 +39,7 @@ class TableReference extends Table
 				->keyword('as')
 				->space()
 				->identifier(
-				$context->getStatementBuilder()
-					->getPlatform()
+				$context->getPlatform()
 					->quoteIdentifier($this->alias));
 
 		return $stream;

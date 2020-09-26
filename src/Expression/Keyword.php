@@ -36,8 +36,7 @@ class Keyword implements TokenizableExpressionInterface
 		TokenStreamContextInterface $context)
 	{
 		return $stream->keyword(
-			$context->getStatementBuilder()
-				->getPlatform()
+			$context->getPlatform()
 				->getKeyword($this->keyword));
 	}
 }

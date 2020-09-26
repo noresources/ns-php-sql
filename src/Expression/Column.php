@@ -37,21 +37,18 @@ class Column extends StructureElementIdentifier implements
 					return $stream->identifier(
 						Container::implodeValues($parts, '.',
 							[
-								$context->getStatementBuilder()
-									->getPlatform(),
+								$context->getPlatform(),
 								'quoteIdentifier'
 							]));
 			}
 
 			return $stream->identifier(
-				$context->getStatementBuilder()
-					->getPlatform()
+				$context->getPlatform()
 					->quoteIdentifierPath($target));
 		}
 		else
 			return $stream->identifier(
-				$context->getStatementBuilder()
-					->getPlatform()
+				$context->getPlatform()
 					->quoteIdentifier($this->path));
 	}
 }

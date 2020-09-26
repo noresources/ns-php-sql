@@ -62,7 +62,7 @@ class InsertQuery extends Statement implements \ArrayAccess
 	public function tokenize(TokenStream $stream,
 		TokenStreamContextInterface $context)
 	{
-		$platform = $context->getStatementBuilder()->getPlatform();
+		$platform = $context->getPlatform();
 
 		$tableStructure = $context->findTable($this->getTable()->path);
 		$context->setStatementType(K::QUERY_INSERT);
@@ -79,8 +79,7 @@ class InsertQuery extends Statement implements \ArrayAccess
 			->keyword('into')
 			->space()
 			->identifier(
-			$context->getStatementBuilder()
-				->getPlatform()
+			$context->getPlatform()
 				->quoteIdentifierPath($tableStructure));
 		if ($this->getTable()->alias)
 		{
@@ -119,9 +118,8 @@ class InsertQuery extends Statement implements \ArrayAccess
 				throw new StatementException($this,
 					'Invalid column "' . $columnName . '"');
 
-			$columns[] = $context->getStatementBuilder()
-				->getPlatform()
-				->quoteIdentifier($columnName);
+			$columns[] = $context->getPlatform()->quoteIdentifier(
+				$columnName);
 			$column = $tableStructure->offsetGet($columnName);
 			/**
 			 *
@@ -152,9 +150,8 @@ class InsertQuery extends Statement implements \ArrayAccess
 				if ($column->hasColumnProperty(K::COLUMN_DEFAULT_VALUE))
 				{
 					$c++;
-					$columns[] = $context->getStatementBuilder()
-						->getPlatform()
-						->quoteIdentifier($name);
+					$columns[] = $context->getPlatform()->quoteIdentifier(
+						$name);
 					if ($hasDefaultKeyword)
 						$values[] = new Keyword(K::KEYWORD_DEFAULT);
 					else

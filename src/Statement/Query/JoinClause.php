@@ -58,8 +58,7 @@ class JoinClause implements TokenizableExpressionInterface
 		TokenStreamContextInterface $context)
 	{
 		$stream->keyword(
-			$context->getStatementBuilder()
-				->getPlatform()
+			$context->getPlatform()
 				->getJoinOperator($this->operator));
 
 		$stream->space()->expression($this->subject, $context);
