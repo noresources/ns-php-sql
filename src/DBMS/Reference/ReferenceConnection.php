@@ -16,6 +16,7 @@ use NoreSources\SQL\DBMS\PlatformProviderTrait;
 use NoreSources\SQL\DBMS\TransactionInterface;
 use NoreSources\SQL\DBMS\TransactionStackTrait;
 use NoreSources\SQL\Statement\ClassMapStatementFactoryTrait;
+use NoreSources\SQL\Statement\StatementBuilderInterface;
 use NoreSources\SQL\Structure\StructureElementInterface;
 use NoreSources\SQL\Structure\StructureProviderTrait;
 
@@ -62,6 +63,10 @@ class ReferenceConnection implements ConnectionInterface,
 		return $this->platform;
 	}
 
+	/**
+	 *
+	 * @return StatementBuilderInterface
+	 */
 	public function getStatementBuilder()
 	{
 		if (!isset($this->builder))

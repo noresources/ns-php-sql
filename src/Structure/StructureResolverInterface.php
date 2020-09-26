@@ -24,7 +24,7 @@ interface StructureResolverInterface
 
 	/**
 	 *
-	 * @return \NoreSources\SQL\Structure\StructureElementInterface|NULL
+	 * @return StructureElementInterface
 	 */
 	function getPivot();
 
@@ -32,7 +32,7 @@ interface StructureResolverInterface
 	 *
 	 * @param string $path
 	 * @throws StructureResolverException
-	 * @return \NoreSources\SQL\ColumnStructure
+	 * @return ColumnStructure
 	 */
 	function findColumn($path);
 
@@ -41,7 +41,7 @@ interface StructureResolverInterface
 	 *
 	 * @param string $path
 	 * @throws StructureResolverException
-	 * @return \NoreSources\SQL\TableStructure
+	 * @return TableStructure
 	 */
 	function findTable($path);
 
@@ -49,7 +49,7 @@ interface StructureResolverInterface
 	 *
 	 * @param string $path
 	 * @throws StructureResolverException
-	 * @return \NoreSources\SQL\NamespaceStructure
+	 * @return NamespaceStructure
 	 */
 	function findNamespace($path);
 
@@ -72,7 +72,8 @@ interface StructureResolverInterface
 	 * @param string $name
 	 * @param ColumnDescriptionMapInterface $columns
 	 */
-	function setTemporaryTable($name, ColumnDescriptionMapInterface $columns);
+	function setTemporaryTable($name,
+		ColumnDescriptionMapInterface $columns);
 
 	/**
 	 * Push a resolver context.
