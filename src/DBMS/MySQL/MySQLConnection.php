@@ -13,7 +13,7 @@ use NoreSources\Container;
 use NoreSources\TypeConversion;
 use NoreSources\TypeDescription;
 use NoreSources\SQL\ParameterValue;
-use NoreSources\SQL\DBMS\BinaryValueSerializerInterface;
+use NoreSources\SQL\DBMS\BinaryDataSerializerInterface;
 use NoreSources\SQL\DBMS\ConnectionException;
 use NoreSources\SQL\DBMS\ConnectionHelper;
 use NoreSources\SQL\DBMS\ConnectionInterface;
@@ -30,7 +30,7 @@ use NoreSources\SQL\Structure\StructureElementInterface;
 use NoreSources\SQL\Structure\StructureProviderTrait;
 
 class MySQLConnection implements ConnectionInterface,
-	StringSerializerInterface, BinaryValueSerializerInterface,
+	StringSerializerInterface, BinaryDataSerializerInterface,
 	TransactionInterface
 {
 
@@ -118,7 +118,7 @@ class MySQLConnection implements ConnectionInterface,
 		return "'" . $this->link->real_escape_string($value) . "'";
 	}
 
-	public function quoteBinaryValue($value)
+	public function quoteBinaryData($value)
 	{
 		if (\is_integer($value) || \is_float($value) || \is_null($value))
 			return $value;

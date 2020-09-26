@@ -13,7 +13,7 @@ use NoreSources\Container;
 use NoreSources\SemanticVersion;
 use NoreSources\TypeConversion;
 use NoreSources\TypeDescription;
-use NoreSources\SQL\DBMS\BinaryValueSerializerInterface;
+use NoreSources\SQL\DBMS\BinaryDataSerializerInterface;
 use NoreSources\SQL\DBMS\ConnectionException;
 use NoreSources\SQL\DBMS\ConnectionHelper;
 use NoreSources\SQL\DBMS\ConnectionInterface;
@@ -39,7 +39,7 @@ use NoreSources\SQL\Structure\StructureProviderTrait;
  * PDO connection
  */
 class PDOConnection implements ConnectionInterface, TransactionInterface,
-	StringSerializerInterface, BinaryValueSerializerInterface
+	StringSerializerInterface, BinaryDataSerializerInterface
 {
 	use StructureProviderTrait;
 	use TransactionStackTrait;
@@ -181,7 +181,7 @@ class PDOConnection implements ConnectionInterface, TransactionInterface,
 		return $this->connection->quote($value, \PDO::PARAM_STR);
 	}
 
-	public function quoteBinaryValue($value)
+	public function quoteBinaryData($value)
 	{
 		return $this->connection->quote($value, \PDO::PARAM_LOB);
 	}

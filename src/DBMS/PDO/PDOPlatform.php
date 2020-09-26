@@ -31,9 +31,9 @@ class PDOPlatform implements PlatformInterface,
 		$this->connection->quoteStringValue($value);
 	}
 
-	public function quoteBinaryValue($value)
+	public function quoteBinaryData($value)
 	{
-		$this->connection->quoteBinaryValue($value);
+		$this->connection->quoteBinaryData($value);
 	}
 
 	public function quoteIdentifier($identifier)

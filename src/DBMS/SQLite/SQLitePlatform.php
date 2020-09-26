@@ -166,7 +166,7 @@ class SQLitePlatform extends AbstractPlatform
 		return "'" . \SQLite3::escapeString($value) . "'";
 	}
 
-	public function quoteBinaryValue($value)
+	public function quoteBinaryData($value)
 	{
 		return "X'" . Text::toHexadecimalString($value) . "'";
 	}

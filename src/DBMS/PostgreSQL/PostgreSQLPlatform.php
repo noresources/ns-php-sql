@@ -115,7 +115,7 @@ class PostgreSQLPlatform extends AbstractPlatform implements
 			$compatibility);
 	}
 
-	public function quoteBinaryValue($value)
+	public function quoteBinaryData($value)
 	{
 		if (\is_int($value))
 		{

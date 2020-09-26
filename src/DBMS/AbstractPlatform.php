@@ -50,7 +50,7 @@ abstract class AbstractPlatform implements PlatformInterface
 			case K::DATATYPE_NULL:
 				return $this->getKeyword(K::KEYWORD_NULL);
 			case K::DATATYPE_BINARY:
-				return $this->quoteBinaryValue($data);
+				return $this->quoteBinaryData($data);
 			case K::DATATYPE_BOOLEAN:
 				return $this->getKeyword(
 					TypeConversion::toBoolean($data) ? K::KEYWORD_TRUE : K::KEYWORD_FALSE);
@@ -90,11 +90,11 @@ abstract class AbstractPlatform implements PlatformInterface
 			TypeDescription::getLocalName($this));
 	}
 
-	public function quoteBinaryValue($value)
+	public function quoteBinaryData($value)
 	{
 		if ($this instanceof ConnectionProviderInterface)
-			if ($this->getConnection() instanceof BinaryValueSerializerInterface)
-				return $this->getConnection()->quoteBinaryValue($value);
+			if ($this->getConnection() instanceof BinaryDataSerializerInterface)
+				return $this->getConnection()->quoteBinaryData($value);
 		throw new \RuntimeException(
 			\substr(__METHOD__, \strpos(__METHOD__, '::') + 2) .
 			'() is not implemented by ' .

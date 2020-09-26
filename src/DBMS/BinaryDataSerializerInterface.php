@@ -4,7 +4,7 @@ namespace NoreSources\SQL\DBMS;
 /**
  * Provide an iterface for binary value escaping and quoting.
  */
-interface BinaryValueSerializerInterface
+interface BinaryDataSerializerInterface
 {
 
 	/**
@@ -16,5 +16,5 @@ interface BinaryValueSerializerInterface
 	 *         SQL statement
 	 *         for a given DBMS.
 	 */
-	function quoteBinaryValue($value);
+	function quoteBinaryData($value);
 }

@@ -26,7 +26,7 @@ class ReferencePlatform extends AbstractPlatform
 		return "'" . \str_replace("'", "''", $value) . "'";
 	}
 
-	public function quoteBinaryValue($value)
+	public function quoteBinaryData($value)
 	{
 		return $this->quoteStringValue($value);
 	}

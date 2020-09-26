@@ -13,7 +13,7 @@ use Psr\Log\LoggerAwareInterface;
 
 interface PlatformInterface extends FeatureQueryInterface,
 	LoggerAwareInterface, DataSerializerInterface,
-	StringSerializerInterface, BinaryValueSerializerInterface,
+	StringSerializerInterface, BinaryDataSerializerInterface,
 	IdentifierSerializerInterface
 {
 
