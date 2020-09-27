@@ -63,8 +63,6 @@ class CreateNamespaceQuery extends Statement
 	function tokenize(TokenStream $stream,
 		TokenStreamContextInterface $context)
 	{
-		$builder = $context->getStatementBuilder();
-
 		$existsCondition = $platform->queryFeature(
 			[
 				K::PLATFORM_FEATURE_CREATE,
@@ -77,12 +75,12 @@ class CreateNamespaceQuery extends Statement
 		$stream->keyword('create')
 			->space()
 			->keyword(
-			$builder->getPlatform()
+			$context->getPlatform()
 				->getKeyword(K::KEYWORD_NAMESPACE));
 		if ($existsCondition)
 			$stream->space()->keyword('if not exists');
 		$stream->space()->identifier(
-			$builder->getPlatform()
+			$context->getPlatform()
 				->quoteIdentifierPath($this->namespaceIdentifier));
 
 		return $stream;

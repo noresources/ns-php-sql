@@ -84,7 +84,6 @@ class CreateTableQuery extends Statement implements
 	public function tokenize(TokenStream $stream,
 		TokenStreamContextInterface $context)
 	{
-		$builder = $context->getStatementBuilder();
 		$platform = $context->getPlatform();
 
 		$existsCondition = $platform->queryFeature(
@@ -176,8 +175,7 @@ class CreateTableQuery extends Statement implements
 		ColumnStructure $column, TokenStream $stream,
 		TokenStreamContextInterface $context)
 	{
-		$builder = $context->getStatementBuilder();
-		$platform = $builder->getPlatform();
+		$platform = $context->getPlatform();
 
 		$columnDeclaration = $platform->queryFeature(
 			[
@@ -192,9 +190,8 @@ class CreateTableQuery extends Statement implements
 
 		$columnFlags = $column->getColumnProperty(K::COLUMN_FLAGS);
 
-		$type = $context->getStatementBuilder()
-			->getPlatform()
-			->getColumnType($column, $column->getConstraintFlags());
+		$type = $context->getPlatform()->getColumnType($column,
+			$column->getConstraintFlags());
 		if (!($type instanceof TypeInterface))
 			throw new StatementException($this,
 				'Unable to find a DBMS type for column "' .
@@ -207,8 +204,7 @@ class CreateTableQuery extends Statement implements
 		$typeName = $type->getTypeName();
 
 		$stream->identifier(
-			$context->getStatementBuilder()
-				->getPlatform()
+			$context->getPlatform()
 				->quoteIdentifier($column->getName()))
 			->space()
 			->identifier($typeName);
@@ -317,9 +313,8 @@ class CreateTableQuery extends Statement implements
 
 		if ($columnFlags & K::COLUMN_FLAG_AUTO_INCREMENT)
 		{
-			$ai = $context->getStatementBuilder()
-				->getPlatform()
-				->getKeyword(K::KEYWORD_AUTOINCREMENT);
+			$ai = $context->getPlatform()->getKeyword(
+				K::KEYWORD_AUTOINCREMENT);
 			if (\strlen($ai))
 				$stream->space()->keyword($ai);
 		}
@@ -338,8 +333,7 @@ class CreateTableQuery extends Statement implements
 			$stream->keyword('constraint')
 				->space()
 				->identifier(
-				$context->getStatementBuilder()
-					->getPlatform()
+				$context->getPlatform()
 					->quoteIdentifier($constraint->constraintName));
 		}
 
@@ -358,8 +352,7 @@ class CreateTableQuery extends Statement implements
 					$stream->text(',')->space();
 
 				$stream->identifier(
-					$context->getStatementBuilder()
-						->getPlatform()
+					$context->getPlatform()
 						->quoteIdentifier($column->getName()));
 			}
 			$stream->text(')');
@@ -377,8 +370,7 @@ class CreateTableQuery extends Statement implements
 					$stream->text(',')->space();
 
 				$stream->identifier(
-					$context->getStatementBuilder()
-						->getPlatform()
+					$context->getPlatform()
 						->quoteIdentifier($column));
 			}
 			$stream->text(')');
@@ -390,14 +382,12 @@ class CreateTableQuery extends Statement implements
 			$ft = $constraint->getForeignTable();
 			if ($ft->getParentElement() == $structure->getParentElement())
 				$stream->identifier(
-					$context->getStatementBuilder()
-						->getPlatform()
+					$context->getPlatform()
 						->quoteIdentifier($ft->getName()));
 			else
 
 				$stream->identifier(
-					$context->getStatementBuilder()
-						->getPlatform()
+					$context->getPlatform()
 						->quoteIdentifierPath(
 						$constraint->getForeignTable()));
 
@@ -409,8 +399,7 @@ class CreateTableQuery extends Statement implements
 				if ($i++ > 0)
 					$stream->text(',')->space();
 				$stream->identifier(
-					$context->getStatementBuilder()
-						->getPlatform()
+					$context->getPlatform()
 						->quoteIdentifier($reference));
 			}
 			$stream->text(')');
@@ -421,8 +410,7 @@ class CreateTableQuery extends Statement implements
 					->keyword('on update')
 					->space()
 					->keyword(
-					$context->getStatementBuilder()
-						->getPlatform()
+					$context->getPlatform()
 						->getForeignKeyAction($constraint->onUpdate));
 			}
 
@@ -432,8 +420,7 @@ class CreateTableQuery extends Statement implements
 					->keyword('on delete')
 					->space()
 					->keyword(
-					$context->getStatementBuilder()
-						->getPlatform()
+					$context->getPlatform()
 						->getForeignKeyAction($constraint->onDelete));
 			}
 		}

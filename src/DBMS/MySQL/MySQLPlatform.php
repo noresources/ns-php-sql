@@ -34,6 +34,7 @@ class MySQLPlatform extends AbstractPlatform implements
 		$version)
 	{
 		parent::__construct($version);
+		$this->initializeStatementFactory();
 		$this->setConnection($connection);
 		$this->setPlatformFeature(
 			[

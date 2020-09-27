@@ -3,9 +3,7 @@ namespace NoreSources\SQL;
 
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\Reference\ReferencePlatform;
-use NoreSources\SQL\DBMS\Reference\ReferenceStatementBuilder;
-use NoreSources\SQL\Expression\TokenStream;
-use NoreSources\SQL\Statement\StatementTokenStreamContext;
+use NoreSources\SQL\Statement\StatementBuilder;
 use NoreSources\SQL\Statement\Structure\DropIndexQuery;
 use NoreSources\SQL\Statement\Structure\DropTableQuery;
 use NoreSources\SQL\Statement\Structure\DropViewQuery;
@@ -26,14 +24,11 @@ final class DropTest extends \PHPUnit\Framework\TestCase
 
 	public function testDropIndex()
 	{
-		$builder = new ReferenceStatementBuilder();
+		$platform = new ReferencePlatform();
 
 		$structureless = new DropIndexQuery();
 		$structureless->identifier('structureless');
-		$context = new StatementTokenStreamContext($builder);
-		$stream = new TokenStream();
-		$structureless->tokenize($stream, $context);
-		$result = $builder->finalizeStatement($stream, $context);
+		$result = StatementBuilder::getInstance()($structureless, $platform);
 		$sql = \SqlFormatter::format(strval($result), false);
 		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__,
 			'structureless', 'sql', 'Structureless SQL');
@@ -42,11 +37,8 @@ final class DropTest extends \PHPUnit\Framework\TestCase
 		$indexStructure = $structure['ns_unittests']['index_employees_name'];
 		$structured = new DropIndexQuery();
 		$structured->identifier('structureless');
-		$context = new StatementTokenStreamContext($builder,
-			$indexStructure);
-		$stream = new TokenStream();
-		$structured->tokenize($stream, $context);
-		$result = $builder->finalizeStatement($stream, $context);
+
+		$result =  StatementBuilder::getInstance()($structured, $platform);
 		$sql = \SqlFormatter::format(strval($result), false);
 		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__,
 			'structured', 'sql', 'Drop index SQL');
@@ -54,36 +46,27 @@ final class DropTest extends \PHPUnit\Framework\TestCase
 
 	public function testDropView()
 	{
-		$builder = new ReferenceStatementBuilder(
-			new ReferencePlatform(
-				[
-					'scoped' => [
-						[
-							K::PLATFORM_FEATURE_VIEW,
-							K::PLATFORM_FEATURE_SCOPED
-						],
-						true
-					]
-				]));
+		$platform = new ReferencePlatform(
+			[
+				'scoped' => [
+					[
+						K::PLATFORM_FEATURE_VIEW,
+						K::PLATFORM_FEATURE_SCOPED
+					],
+					true
+				]
+			]);
 
 		$view = new DropViewQuery();
 		$view->identifier('Males');
-		$context = new StatementTokenStreamContext($builder);
-		$stream = new TokenStream();
-		$view->tokenize($stream, $context);
-		$result = $builder->finalizeStatement($stream, $context);
+		$result =  StatementBuilder::getInstance()($view, $platform);
 		$sql = \SqlFormatter::format(strval($result), false);
 		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__,
 			'structureless', 'sql');
 
 		$structure = $this->datasources->get('Company')['ns_unittests'];
 		$this->assertInstanceOf(NamespaceStructure::class, $structure);
-		$context = new StatementTokenStreamContext($builder, $structure);
-		$this->assertInstanceOf(NamespaceStructure::class,
-			$context->getPivot());
-		$stream = new TokenStream();
-		$view->tokenize($stream, $context);
-		$result = $builder->finalizeStatement($stream, $context);
+		$result =  StatementBuilder::getInstance()($view, $platform, $structure);
 		$sql = \SqlFormatter::format(strval($result), false);
 		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__,
 			'structure', 'sql');
@@ -92,8 +75,9 @@ final class DropTest extends \PHPUnit\Framework\TestCase
 	public function testDropTableCompanyTables()
 	{
 		$structure = $this->datasources->get('Company');
-		$builder = new ReferenceStatementBuilder();
+		$platform = new ReferencePlatform();
 
+		StatementBuilder::getInstance(); // IDO workaround
 		foreach ([
 			'Employees',
 			'Hierarchy',
@@ -103,12 +87,8 @@ final class DropTest extends \PHPUnit\Framework\TestCase
 			$tableStructure = $structure['ns_unittests'][$tableName];
 			$this->assertInstanceOf(Structure\TableStructure::class,
 				$tableStructure, 'Finding ' . $tableName);
-			$context = new StatementTokenStreamContext($builder);
-			$context->setPivot($tableStructure);
 			$q = new DropTableQuery($tableStructure);
-			$stream = new TokenStream();
-			$q->tokenize($stream, $context);
-			$result = $builder->finalizeStatement($stream, $context);
+			$result =  StatementBuilder::getInstance()($q, $platform, $tableName);
 			$sql = \SqlFormatter::format(strval($result), false);
 			$this->derivedFileManager->assertDerivedFile($sql,
 				__METHOD__, $tableName, 'sql', $tableName . ' SQL');

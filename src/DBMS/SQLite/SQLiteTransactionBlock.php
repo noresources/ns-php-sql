@@ -41,8 +41,7 @@ class SQLiteTransactionBlock implements TransactionBlockInterface,
 			$this->executeCommand('BEGIN');
 		$this->executeCommand(
 			'SAVEPOINT ' .
-			$this->connection->getStatementBuilder()
-				->getPlatform()
+			$this->connection->getPlatform()
 				->quoteIdentifier($this->getBlockName()));
 	}
 
@@ -50,8 +49,7 @@ class SQLiteTransactionBlock implements TransactionBlockInterface,
 	{
 		$this->executeCommand(
 			'RELEASE ' .
-			$this->connection->getStatementBuilder()
-				->getPlatform()
+			$this->connection->getPlatform()
 				->quoteIdentifier($this->getBlockName()));
 		if ($this->getPreviousElement() === null)
 			$this->executeCommand('COMMIT');
@@ -61,8 +59,7 @@ class SQLiteTransactionBlock implements TransactionBlockInterface,
 	{
 		$this->executeCommand(
 			'ROLLBACK TO ' .
-			$this->connection->getStatementBuilder()
-				->getPlatform()
+			$this->connection->getPlatform()
 				->quoteIdentifier($this->getBlockName()));
 		if ($this->getPreviousElement() === null)
 			$this->executeCommand('ROLLBACK');

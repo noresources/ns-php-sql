@@ -2,8 +2,8 @@
 namespace NoreSources\SQL;
 
 use NoreSources\SQL\DBMS\ConnectionHelper;
-use NoreSources\SQL\DBMS\Reference\ReferenceStatementBuilder;
-use NoreSources\SQL\Expression\TokenStream;
+use NoreSources\SQL\DBMS\Reference\ReferencePlatform;
+use NoreSources\SQL\Statement\StatementBuilder;
 use NoreSources\SQL\Statement\StatementTokenStreamContext;
 use NoreSources\SQL\Statement\Manipulation\UpdateQuery;
 use NoreSources\SQL\Statement\Query\SelectQuery;
@@ -30,9 +30,7 @@ final class UpdateTest extends \PHPUnit\Framework\TestCase
 
 		$connection = ConnectionHelper::createConnection('Reference');
 
-		$builder = $connection->getStatementBuilder();
-		$context = new StatementTokenStreamContext($builder);
-		$context->setPivot($tableStructure);
+		$platform = $connection->getPlatform();
 
 		$sets = [
 			'literals' => [
@@ -96,9 +94,8 @@ final class UpdateTest extends \PHPUnit\Framework\TestCase
 				$q->setColumnValue($column, $value[0], $value[1]);
 			}
 
-			$stream = new TokenStream();
-			$q->tokenize($stream, $context);
-			$result = $builder->finalizeStatement($stream, $context);
+			$result =  StatementBuilder::getInstance()($q, $platform,  $tableStructure);
+
 			$sql = \SqlFormatter::format(strval($result), false);
 			$this->derivedFileManager->assertDerivedFile($sql,
 				__METHOD__, $set, 'sql');
@@ -111,9 +108,7 @@ final class UpdateTest extends \PHPUnit\Framework\TestCase
 		$tableStructure = $structure['ns_unittests']['Employees'];
 		$this->assertInstanceOf(Structure\TableStructure::class,
 			$tableStructure, 'TableStructure instance');
-		$builder = new ReferenceStatementBuilder();
-		$context = new StatementTokenStreamContext($builder);
-		$context->setPivot($tableStructure);
+		$platform = new ReferencePlatform();
 
 		$q = new UpdateQuery($tableStructure);
 
@@ -136,9 +131,8 @@ final class UpdateTest extends \PHPUnit\Framework\TestCase
 			]
 		]);
 
-		$stream = new TokenStream();
-		$q->tokenize($stream, $context);
-		$result = $builder->finalizeStatement($stream, $context);
+		$result =  StatementBuilder::getInstance() ($q, $platform, $tableStructure);
+
 		$sql = \SqlFormatter::format(\strval($result), false);
 
 		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__,
@@ -151,8 +145,9 @@ final class UpdateTest extends \PHPUnit\Framework\TestCase
 		$tableStructure = $structure['ns_unittests']['Employees'];
 		$this->assertInstanceOf(Structure\TableStructure::class,
 			$tableStructure, 'TableStructure instance');
-		$builder = new ReferenceStatementBuilder();
-		$context = new StatementTokenStreamContext($builder);
+
+		$platform = new ReferencePlatform();
+		$context = new StatementTokenStreamContext($platform);
 		$context->setPivot($tableStructure);
 
 		$q = new UpdateQuery($tableStructure);
@@ -167,9 +162,9 @@ final class UpdateTest extends \PHPUnit\Framework\TestCase
 			]
 		]);
 
-		$stream = new TokenStream();
-		$q->tokenize($stream, $context);
-		$result = $builder->finalizeStatement($stream, $context);
+		StatementBuilder::getInstance(); // IDO workaround
+		$result =  StatementBuilder::getInstance()($q, $platform, $tableStructure);
+
 		$sql = \SqlFormatter::format(\strval($result), false);
 
 		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__,

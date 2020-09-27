@@ -17,6 +17,7 @@ class ReferencePlatform extends AbstractPlatform
 	public function __construct($features = array())
 	{
 		parent::__construct(self::DEFAULT_VERSION);
+		$this->initializeStatementFactory();
 		foreach ($features as $feature)
 			$this->setPlatformFeature($feature[0], $feature[1]);
 	}

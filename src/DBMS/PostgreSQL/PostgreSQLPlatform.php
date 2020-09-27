@@ -36,6 +36,7 @@ class PostgreSQLPlatform extends AbstractPlatform implements
 		$version = self::DEFAULT_VERSION)
 	{
 		parent::__construct($version);
+		$this->initializeStatementFactory();
 		$this->setConnection($connection);
 
 		$this->setPlatformFeature(

@@ -100,7 +100,6 @@ class CreateViewQuery extends Statement
 	public function tokenize(TokenStream $stream,
 		TokenStreamContextInterface $context)
 	{
-		$builder = $context->getStatementBuilder();
 		$platform = $context->getPlatform();
 		$scoped = $platform->queryFeature(
 			[
@@ -140,7 +139,7 @@ class CreateViewQuery extends Statement
 			if (\count($parts) > 1)
 			{
 				$stream->identifier(
-					$builder->getPlatform()
+					$context->getPlatform()
 						->quoteIdentifierPath($parts));
 			}
 			else // Last chance to find the element namespace
@@ -151,12 +150,12 @@ class CreateViewQuery extends Statement
 
 				if ($structure instanceof NamespaceStructure)
 					$stream->identifier(
-						$builder->getPlatform()
+						$context->getPlatform()
 							->quoteIdentifierPath($structure))
 						->text('.');
 
 				$stream->identifier(
-					$builder->getPlatform()
+					$context->getPlatform()
 						->quoteIdentifier($this->viewIdentifier->path));
 			}
 		}

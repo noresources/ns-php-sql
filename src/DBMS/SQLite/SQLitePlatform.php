@@ -28,6 +28,12 @@ class SQLitePlatform extends AbstractPlatform
 	{
 		parent::__construct($version);
 
+		$this->initializeStatementFactory(
+			[
+				K::QUERY_CREATE_TABLE => SQLiteCreateTableQuery::class,
+				K::QUERY_CREATE_NAMESPACE => SQLiteCreateNamespaceQuery::class
+			]);
+
 		$this->setPlatformFeature(
 			[
 				self::FEATURE_INSERT,

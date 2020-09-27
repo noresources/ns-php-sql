@@ -16,9 +16,6 @@ use NoreSources\SQL\DBMS\PlatformProviderTrait;
 use NoreSources\SQL\DBMS\TransactionInterface;
 use NoreSources\SQL\DBMS\TransactionStackTrait;
 use NoreSources\SQL\Statement\ClassMapStatementFactoryTrait;
-use NoreSources\SQL\Statement\StatementBuilderInterface;
-use NoreSources\SQL\Structure\StructureElementInterface;
-use NoreSources\SQL\Structure\StructureProviderTrait;
 
 /**
  * SQLite connection
@@ -26,7 +23,6 @@ use NoreSources\SQL\Structure\StructureProviderTrait;
 class ReferenceConnection implements ConnectionInterface,
 	TransactionInterface
 {
-	use StructureProviderTrait;
 	use TransactionStackTrait;
 	use PlatformProviderTrait;
 
@@ -42,8 +38,6 @@ class ReferenceConnection implements ConnectionInterface,
 
 		$structure = Container::keyValue($parameters,
 			K::CONNECTION_STRUCTURE);
-		if ($structure instanceof StructureElementInterface)
-			$this->setStructure($structure);
 	}
 
 	public function __destruct()
@@ -63,18 +57,6 @@ class ReferenceConnection implements ConnectionInterface,
 		return $this->platform;
 	}
 
-	/**
-	 *
-	 * @return StatementBuilderInterface
-	 */
-	public function getStatementBuilder()
-	{
-		if (!isset($this->builder))
-			$this->builder = new ReferenceStatementBuilder(
-				$this->getPlatform());
-		return $this->builder;
-	}
-
 	public function executeStatement($statement, $parameters = array())
 	{
 		return true;
@@ -89,10 +71,4 @@ class ReferenceConnection implements ConnectionInterface,
 	{
 		return new ReferencePreparedStatement($statement);
 	}
-
-	/**
-	 *
-	 * @var StatementBuilder
-	 */
-	private $builder;
 }

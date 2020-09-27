@@ -17,9 +17,11 @@ interface DataSerializerInterface
 	/**
 	 * Serialize a value to be stored in a DBMS storage system
 	 *
-	 * @param ColumnDescriptionInterface $column
+	 * @param ColumnDescriptionInterface $description
+	 *        	Column description
 	 * @param mixed $data
 	 *        	Data to serialize
 	 */
-	function serializeColumnData(ColumnDescriptionInterface $column, $data);
+	function serializeColumnData(
+		ColumnDescriptionInterface $description, $data);
 }

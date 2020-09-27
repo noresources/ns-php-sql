@@ -41,8 +41,7 @@ class MySQLTransactionBlock implements TransactionBlockInterface,
 
 		$this->executeCommand(
 			'SAVEPOINT ' .
-			$this->connection->getStatementBuilder()
-				->getPlatform()
+			$this->connection->getPlatform()
 				->quoteIdentifier($this->getBlockName()),
 			'Failed to set transaction save point "' .
 			$this->getBlockName() . '"');
@@ -52,8 +51,7 @@ class MySQLTransactionBlock implements TransactionBlockInterface,
 	{
 		$this->executeCommand(
 			'RELEASE SAVEPOINT ' .
-			$this->connection->getStatementBuilder()
-				->getPlatform()
+			$this->connection->getPlatform()
 				->quoteIdentifier($this->getBlockName()),
 			'Failed to release save point "' . $this->getBlockName() .
 			'"');
@@ -70,8 +68,7 @@ class MySQLTransactionBlock implements TransactionBlockInterface,
 	{
 		$this->executeCommand(
 			'ROLLBACK TO ' .
-			$this->connection->getStatementBuilder()
-				->getPlatform()
+			$this->connection->getPlatform()
 				->quoteIdentifier($this->getBlockName()),
 			'Failed to rollback save point "' . $this->getBlockName() .
 			'"');

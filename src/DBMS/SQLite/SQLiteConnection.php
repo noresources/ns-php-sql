@@ -24,10 +24,6 @@ use NoreSources\SQL\Result\GenericRowModificationStatementResult;
 use NoreSources\SQL\Statement\ParameterData;
 use NoreSources\SQL\Statement\ParameterDataProviderInterface;
 use NoreSources\SQL\Statement\Statement;
-use NoreSources\SQL\Structure\DatasourceStructure;
-use NoreSources\SQL\Structure\NamespaceStructure;
-use NoreSources\SQL\Structure\StructureElementInterface;
-use NoreSources\SQL\Structure\StructureProviderTrait;
 
 /**
  * SQLite connection
@@ -35,7 +31,6 @@ use NoreSources\SQL\Structure\StructureProviderTrait;
 class SQLiteConnection implements ConnectionInterface,
 	TransactionInterface
 {
-	use StructureProviderTrait;
 	use TransactionStackTrait;
 	use PlatformProviderTrait;
 
@@ -103,8 +98,6 @@ class SQLiteConnection implements ConnectionInterface,
 
 		$structure = Container::keyValue($parameters,
 			K::CONNECTION_STRUCTURE);
-		if ($structure instanceof StructureElementInterface)
-			$this->setStructure($structure);
 
 		$pragmas = Container::keyValue($parameters,
 			K::CONNECTION_SQLITE_PRAGMAS,
@@ -114,18 +107,6 @@ class SQLiteConnection implements ConnectionInterface,
 			]);
 
 		$defaultNamespaceName = self::NAMESPACE_NAME_DEFAULT;
-		$structure = $this->getStructure();
-		if ($structure instanceof NamespaceStructure)
-		{
-			$defaultNamespaceName = $structure->getName();
-		}
-		elseif ($structure instanceof DatasourceStructure &&
-			$structure->count() == 1)
-		{
-			list ($name, $namespace) = Container::first(
-				$structure->getChildElements());
-			$defaultNamespaceName = $name;
-		}
 
 		$sources = Container::keyValue($parameters, K::CONNECTION_SOURCE,
 			[
@@ -205,17 +186,6 @@ class SQLiteConnection implements ConnectionInterface,
 					throw new SQLiteConnectionException($this,
 						'Failed to attach database');
 			}
-
-			$settings = [];
-			foreach ([
-				K::CONNECTION_DATABASE_FILE_PROVIDER
-			] as $setting)
-			{
-				if (Container::keyExists($parameters, $setting))
-					$settings[$setting] = $parameters[$setting];
-			}
-
-			$this->getStatementBuilder()->setSQLiteSettings($settings);
 		}
 
 		foreach ($pragmas as $pragma => $value)
@@ -264,15 +234,6 @@ class SQLiteConnection implements ConnectionInterface,
 		}
 
 		return $this->platform;
-	}
-
-	public function getStatementBuilder()
-	{
-		if (!isset($this->builder))
-			$this->builder = new SQLiteStatementBuilder(
-				$this->getPlatform());
-
-		return $this->builder;
 	}
 
 	/**
@@ -327,9 +288,8 @@ class SQLiteConnection implements ConnectionInterface,
 				if ($statement instanceof ParameterDataProviderInterface)
 					$dbmsName = $statement->getParameters()->get($key)[ParameterData::DBMSNAME];
 				else
-					$dbmsName = $this->getStatementBuilder()
-						->getPlatform()
-						->getParameter($key, null);
+					$dbmsName = $this->getPlatform()->getParameter($key,
+						null);
 
 				$value = ConnectionHelper::serializeParameterValue(
 					$this, $entry);
@@ -350,8 +310,7 @@ class SQLiteConnection implements ConnectionInterface,
 				{
 					if ($value instanceof \DateTimeInterface)
 						$value = $value->format(
-							$this->getStatementBuilder()
-								->getPlatform()
+							$this->getPlatform()
 								->getTimestampTypeStringFormat($type));
 				}
 
@@ -476,12 +435,6 @@ class SQLiteConnection implements ConnectionInterface,
 
 		return pathinfo($source, 'filename');
 	}
-
-	/**
-	 *
-	 * @var SQLiteStatementBuilder
-	 */
-	private $builder;
 
 	/**
 	 *

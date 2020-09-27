@@ -27,9 +27,8 @@ class PostgreSQLTransactionBlock implements TransactionBlockInterface,
 	{
 		$this->setConnection($connection);
 		$this->initializeTransactionBlock($name);
-		$this->blockIdentifier = $connection->getStatementBuilder()
-			->getPlatform()
-			->quoteIdentifier($name);
+		$this->blockIdentifier = $connection->getPlatform()->quoteIdentifier(
+			$name);
 	}
 
 	protected function beginTask()

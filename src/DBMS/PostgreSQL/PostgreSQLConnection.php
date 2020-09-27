@@ -16,9 +16,9 @@ use NoreSources\SQL\ParameterValue;
 use NoreSources\SQL\DBMS\ConnectionException;
 use NoreSources\SQL\DBMS\ConnectionHelper;
 use NoreSources\SQL\DBMS\ConnectionInterface;
+use NoreSources\SQL\DBMS\IdentifierSerializerInterface;
 use NoreSources\SQL\DBMS\PlatformProviderTrait;
 use NoreSources\SQL\DBMS\StringSerializerInterface;
-use NoreSources\SQL\DBMS\IdentifierSerializerInterface;
 use NoreSources\SQL\DBMS\TransactionInterface;
 use NoreSources\SQL\DBMS\TransactionStackTrait;
 use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLConstants as K;
@@ -27,15 +27,12 @@ use NoreSources\SQL\Result\GenericRowModificationStatementResult;
 use NoreSources\SQL\Statement\ParameterData;
 use NoreSources\SQL\Statement\ParameterDataProviderInterface;
 use NoreSources\SQL\Statement\Statement;
-use NoreSources\SQL\Structure\StructureElementInterface;
-use NoreSources\SQL\Structure\StructureProviderTrait;
 
 class PostgreSQLConnection implements ConnectionInterface,
 	TransactionInterface, StringSerializerInterface,
 	IdentifierSerializerInterface
 {
 
-	use StructureProviderTrait;
 	use TransactionStackTrait;
 	use PlatformProviderTrait;
 
@@ -49,8 +46,6 @@ class PostgreSQLConnection implements ConnectionInterface,
 
 		$structure = Container::keyValue($parameters,
 			K::CONNECTION_STRUCTURE);
-		if ($structure instanceof StructureElementInterface)
-			$this->setStructure($structure);
 
 		$dsn = [];
 		foreach ([
@@ -141,16 +136,6 @@ class PostgreSQLConnection implements ConnectionInterface,
 		return $this->platform;
 	}
 
-	public function getStatementBuilder()
-	{
-		if (!isset($this->builder))
-		{
-			$this->builder = new PostgreSQLStatementBuilder($this);
-		}
-
-		return $this->builder;
-	}
-
 	/**
 	 *
 	 * {@inheritdoc}
@@ -179,7 +164,7 @@ class PostgreSQLConnection implements ConnectionInterface,
 			TypeDescription::hasStringRepresentation($statement)))
 			throw new ConnectionException($this,
 				'Invalide statement type. string or ' .
-				PostgreSQLStatementBuilder::class . ' expected. Got ' .
+				PostgreSQLPreparedStatement::class . ' expected. Got ' .
 				TypeDescription::getName($statement));
 
 		$statementType = Statement::statementTypeFromData($statement);
@@ -371,10 +356,4 @@ class PostgreSQLConnection implements ConnectionInterface,
 	 * @var resource
 	 */
 	private $resource;
-
-	/**
-	 *
-	 * @var PostgreSQLStatementBuilder
-	 */
-	private $builder;
 }

@@ -65,7 +65,6 @@ class DropIndexQuery extends Statement
 	public function tokenize(TokenStream $stream,
 		TokenStreamContextInterface $context)
 	{
-		$builder = $context->getStatementBuilder();
 		$platform = $context->getPlatform();
 
 		$scoped = $platform->queryFeature(
@@ -100,7 +99,7 @@ class DropIndexQuery extends Statement
 			$parts = $this->indexIdentifier->getPathParts();
 			if (\count($parts) > 1)
 				$stream->identifier(
-					$builder->getPlatform()
+					$context->getPlatform()
 						->quoteIdentifierPath($parts));
 			else // Last chance to find the element namespace
 			{
@@ -110,18 +109,18 @@ class DropIndexQuery extends Statement
 
 				if ($structure instanceof NamespaceStructure)
 					$stream->identifier(
-						$builder->getPlatform()
+						$context->getPlatform()
 							->quoteIdentifierPath($structure))
 						->text('.');
 
 				$stream->identifier(
-					$builder->getPlatform()
+					$context->getPlatform()
 						->quoteIdentifier($this->indexIdentifier->path));
 			}
 		}
 		else
 			$stream->identifier(
-				$builder->getPlatform()
+				$context->getPlatform()
 					->quoteIdentifier(
 					$this->indexIdentifier->getLocalName()));
 

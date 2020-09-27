@@ -9,7 +9,6 @@ use NoreSources\SQL\DBMS\TypeInterface;
 use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLConnection;
 use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLConstants as K;
 use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLPreparedStatement;
-use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLStatementBuilder;
 use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLType;
 use NoreSources\SQL\Statement\Statement;
 use NoreSources\SQL\Statement\Structure\CreateIndexQuery;
@@ -62,10 +61,6 @@ final class PostgreSQLTest extends \PHPUnit\Framework\TestCase
 		 */
 		$connection = self::createConnection();
 
-		$builder = $connection->getStatementBuilder();
-		$this->assertInstanceOf(PostgreSQLStatementBuilder::class,
-			$builder);
-
 		$version = $connection->getPlatform()->getPlatformVersion(
 			K::PLATFORM_VERSION_COMPATIBILITY);
 		$versionString = $version->slice(SemanticVersion::MAJOR,
@@ -76,14 +71,14 @@ final class PostgreSQLTest extends \PHPUnit\Framework\TestCase
 			$s = null;
 			if ($elementStructure instanceof TableStructure)
 			{
-				$s = $connection->getStatementBuilder()->newStatement(
+				$s = $connection->getPlatform()->newStatement(
 					K::QUERY_CREATE_TABLE);
 				if ($s instanceof CreateTableQuery)
 					$s->table($elementStructure);
 			}
 			elseif ($elementStructure instanceof IndexStructure)
 			{
-				$s = $connection->getStatementBuilder()->newStatement(
+				$s = $connection->getPlatform()->newStatement(
 					K::QUERY_CREATE_INDEX);
 				if ($s instanceof CreateIndexQuery)
 					$s->setFromIndexStructure($elementStructure);
@@ -142,7 +137,7 @@ final class PostgreSQLTest extends \PHPUnit\Framework\TestCase
 		 *
 		 * @var \NoreSources\SQL\Statement\Manipulation\InsertQuery $query
 		 */
-		$query = $connection->getStatementBuilder()->newStatement(
+		$query = $connection->getPlatform()->newStatement(
 			K::QUERY_INSERT);
 		$query->table($tableStructure);
 		$query('gender', ':gender');

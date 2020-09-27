@@ -11,7 +11,7 @@
 namespace NoreSources\SQL\Structure;
 
 use NoreSources\TypeDescription;
-use NoreSources\SQL\Statement\StatementBuilderInterface;
+use NoreSources\SQL\DBMS\PlatformInterface;
 
 trait StructureElementTrait
 {
@@ -21,14 +21,14 @@ trait StructureElementTrait
 		return $this->elementName;
 	}
 
-	public function getPath(StatementBuilderInterface $builder = null)
+	public function getPath(PlatformInterface $platform = null)
 	{
-		$s = ($builder instanceof StatementBuilderInterface) ? $builder->getPlatform()->quoteIdentifier(
+		$s = ($platform instanceof PlatformInterface) ? $platform->quoteIdentifier(
 			$this->getName()) : $this->getName();
 		$p = $this->getParentElement();
 		while ($p && !($p instanceof DatasourceStructure))
 		{
-			$s = (($builder instanceof StatementBuilderInterface) ? $builder->getPlatform()->quoteIdentifier(
+			$s = (($platform instanceof PlatformInterface) ? $platform->quoteIdentifier(
 				$p->getName()) : $p->getName()) . '.' . $s;
 			$p = $p->getParentElement();
 		}

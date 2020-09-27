@@ -11,11 +11,11 @@ use NoreSources\SQL\DBMS\SQLite\SQLiteConstants;
 use NoreSources\SQL\DBMS\SQLite\SQLitePlatform;
 use NoreSources\SQL\DBMS\SQLite\SQLitePreparedStatement;
 use NoreSources\SQL\DBMS\SQLite\SQLiteRecordset;
-use NoreSources\SQL\DBMS\SQLite\SQLiteStatementBuilder;
 use NoreSources\SQL\Expression\FunctionCall;
 use NoreSources\SQL\Expression\TimestampFormatFunction;
 use NoreSources\SQL\Result\InsertionStatementResultInterface;
 use NoreSources\SQL\Result\Recordset;
+use NoreSources\SQL\Statement\StatementBuilder;
 use NoreSources\SQL\Statement\StatementData;
 use NoreSources\SQL\Statement\Manipulation\InsertQuery;
 use NoreSources\SQL\Statement\Query\SelectQuery;
@@ -259,13 +259,14 @@ final class SQLiteTest extends \PHPUnit\Framework\TestCase
 
 	public function testTimestampFormat()
 	{
-		$builder = new SQLiteStatementBuilder(new SQLitePlatform());
+		$platform = new SQLitePlatform();
 
+		StatementBuilder::getInstance(); // IDO workaround
 		$dateTimeFormat = DateTime::getFormatTokenDescriptions();
 
 		foreach ($dateTimeFormat as $token => $info)
 		{
-			$translation = $builder->getPlatform()->getTimestampFormatTokenTranslation(
+			$translation = $platform->getTimestampFormatTokenTranslation(
 				$token);
 			$this->assertTrue($translation !== null,
 				$token . ' translation rule exists');
@@ -292,7 +293,7 @@ final class SQLiteTest extends \PHPUnit\Framework\TestCase
 		{
 			$test = (object) $test;
 			$tf = new TimestampFormatFunction($test->format, $timestamp);
-			$f = $builder->getPlatform()->translateFunction($tf);
+			$f = $platform->translateFunction($tf);
 			$this->assertInstanceOf(FunctionCall::class, $f,
 				$label . ' translated function');
 
@@ -323,7 +324,7 @@ final class SQLiteTest extends \PHPUnit\Framework\TestCase
 		if ($this->createdTables->offsetExists($path))
 			return true;
 
-		$factory = $this->connection->getStatementBuilder();
+		$factory = $this->connection->getPlatform();
 		$q = $factory->newStatement(K::QUERY_CREATE_TABLE,
 			$tableStructure);
 		$prepared = ConnectionHelper::prepareStatement(

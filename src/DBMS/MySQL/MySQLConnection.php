@@ -26,15 +26,12 @@ use NoreSources\SQL\Result\GenericInsertionStatementResult;
 use NoreSources\SQL\Result\GenericRowModificationStatementResult;
 use NoreSources\SQL\Statement\ParameterData;
 use NoreSources\SQL\Statement\Statement;
-use NoreSources\SQL\Structure\StructureElementInterface;
-use NoreSources\SQL\Structure\StructureProviderTrait;
 
 class MySQLConnection implements ConnectionInterface,
 	StringSerializerInterface, BinaryDataSerializerInterface,
 	TransactionInterface
 {
 
-	use StructureProviderTrait;
 	use TransactionStackTrait;
 
 	const STATE_CONNECTED = 0x01;
@@ -55,8 +52,6 @@ class MySQLConnection implements ConnectionInterface,
 
 		$structure = Container::keyValue($parameters,
 			K::CONNECTION_STRUCTURE);
-		if ($structure instanceof StructureElementInterface)
-			$this->setStructure($structure);
 
 		if ($protocol == K::CONNECTION_PROTOCOL_TCP)
 		{
@@ -144,15 +139,6 @@ class MySQLConnection implements ConnectionInterface,
 		}
 
 		return $this->platform;
-	}
-
-	public function getStatementBuilder()
-	{
-		if (!isset($this->builder))
-		{
-			$this->builder = new MySQLStatementBuilder($this);
-		}
-		return $this->builder;
 	}
 
 	/**
@@ -332,12 +318,6 @@ class MySQLConnection implements ConnectionInterface,
 
 		return 's';
 	}
-
-	/**
-	 *
-	 * @var MySQLStatementBuilder
-	 */
-	private $builder;
 
 	/**
 	 *

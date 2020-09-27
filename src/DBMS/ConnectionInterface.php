@@ -10,14 +10,11 @@
 namespace NoreSources\SQL\DBMS;
 
 use NoreSources\SQL\Result\Recordset;
-use NoreSources\SQL\Statement\StatementBuilderProviderInterface;
-use NoreSources\SQL\Structure\StructureProviderInterface;
 
 /**
  * DMBS connection
  */
-interface ConnectionInterface extends StatementBuilderProviderInterface,
-	StructureProviderInterface, PlatformProviderInterface
+interface ConnectionInterface extends PlatformProviderInterface
 {
 
 	/**

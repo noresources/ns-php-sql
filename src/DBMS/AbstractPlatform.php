@@ -12,6 +12,7 @@ use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Expression\FunctionCall;
 use NoreSources\SQL\Expression\MetaFunctionCall;
 use NoreSources\SQL\Expression\StructureElementIdentifier;
+use NoreSources\SQL\Statement\ClassMapStatementFactoryTrait;
 use NoreSources\SQL\Structure\ColumnDescriptionInterface;
 use NoreSources\SQL\Structure\DatasourceStructure;
 use NoreSources\SQL\Structure\StructureElementInterface;
@@ -22,14 +23,21 @@ use NoreSources\SQL\Structure\StructureElementInterface;
 abstract class AbstractPlatform implements PlatformInterface
 {
 
+	use ClassMapStatementFactoryTrait;
+
 	const DEFAULT_VERSION = '0.0.0';
 
+	/**
+	 *
+	 * {@inheritdoc}
+	 * @see \NoreSources\SQL\DataSerializerInterface::serializeColumnData()
+	 */
 	public function serializeColumnData(
-		ColumnDescriptionInterface $column, $data)
+		ColumnDescriptionInterface $description, $data)
 	{
-		if ($column->hasColumnProperty(K::COLUMN_MEDIA_TYPE))
+		if ($description->hasColumnProperty(K::COLUMN_MEDIA_TYPE))
 		{
-			$mediaType = $column->getColumnProperty(
+			$mediaType = $description->getColumnProperty(
 				K::COLUMN_MEDIA_TYPE);
 			if ($mediaType instanceof MediaType)
 			{
@@ -42,8 +50,9 @@ abstract class AbstractPlatform implements PlatformInterface
 		}
 
 		$dataType = K::DATATYPE_UNDEFINED;
-		if ($column->hasColumnProperty(K::COLUMN_DATA_TYPE))
-			$dataType = $column->getColumnProperty(K::COLUMN_DATA_TYPE);
+		if ($description->hasColumnProperty(K::COLUMN_DATA_TYPE))
+			$dataType = $description->getColumnProperty(
+				K::COLUMN_DATA_TYPE);
 
 		switch ($dataType)
 		{

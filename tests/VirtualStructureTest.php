@@ -4,6 +4,7 @@ namespace NoreSources\SQL;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\Reference\ReferenceConnection;
 use NoreSources\SQL\Expression\TokenStream;
+use NoreSources\SQL\Statement\StatementBuilder;
 use NoreSources\SQL\Statement\StatementTokenStreamContext;
 use NoreSources\SQL\Structure\DatasourceStructure;
 use NoreSources\SQL\Structure\NamespaceStructure;
@@ -135,13 +136,14 @@ final class VirtualStructureTest extends \PHPUnit\Framework\TestCase
 		// $vsr->setDefaultNamespace('main');
 		$connection = new ReferenceConnection();
 		$platform = $connection->getPlatform();
-		$builder = $connection->getStatementBuilder();
+
+		StatementBuilder::getInstance(); // IDO workaround
 
 		/**
 		 *
 		 * @var \NoreSources\SQL\Statement\Query\SelectQuery $select
 		 */
-		$select = $builder->newStatement(K::QUERY_SELECT);
+		$select = $platform->newStatement(K::QUERY_SELECT);
 
 		$epoch = new \DateTime('@0');
 		$shift = clone $epoch;
@@ -164,18 +166,18 @@ final class VirtualStructureTest extends \PHPUnit\Framework\TestCase
 			->orderBy('at');
 
 		foreach ([
-			'inline ctor' => new StatementTokenStreamContext($builder,
+			'inline ctor' => new StatementTokenStreamContext($platform,
 				$vsr),
 			'array ctor' => new StatementTokenStreamContext(
 				[
-					'builder' => $builder,
+					'platform' => $platform,
 					'resolver' => $vsr
 				])
 		] as $context)
 		{
 			$stream = new TokenStream();
 			$select->tokenize($stream, $context);
-			$data = $builder->finalizeStatement($stream, $context);
+			$data = StatementBuilder::getInstance()($select, $context);
 			$sql = \SqlFormatter::format(\strval($data), false);
 
 			$this->derivedFileManager->assertDerivedFile($sql,

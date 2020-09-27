@@ -31,19 +31,12 @@ class SQLiteCreateNamespaceQuery extends CreateNamespaceQuery
 	public function tokenize(TokenStream $stream,
 		TokenStreamContextInterface $context)
 	{
-		$builder = $context->getStatementBuilder();
+		$platform = $context->getPlatform();
 
 		$path = $this->getNamespaceIdentifier() . '.sqlite';
 		$structure = $context->findNamespace(
 			$this->getNamespaceIdentifier()
 				->getLocalName());
-		if ($builder instanceof SQLiteStatementBuilder)
-		{
-			$provider = $builder->getSQLiteSetting(
-				K::CONNECTION_DATABASE_FILE_PROVIDER);
-			if (\is_callable($provider))
-				$path = $provider($structure);
-		}
 
 		$path = new Literal($path, K::DATATYPE_STRING);
 
@@ -55,8 +48,7 @@ class SQLiteCreateNamespaceQuery extends CreateNamespaceQuery
 			->space()
 			->keyword('as')
 			->identifier(
-			$builder->getPlatform()
-				->quoteIdentifier(
+			$platform->quoteIdentifier(
 				$this->getNamespaceIdentifier()
 					->getLocalName()));
 	}

@@ -81,12 +81,8 @@ class DataRowContainerReference implements
 					->quoteIdentifier($this->alias));
 
 		if ($this->expression instanceof SelectQuery)
-		{
-			$data = $ctx->getStatementBuilder()->finalizeStatement(
-				$stream, $ctx);
 			$context->setTemporaryTable($this->alias,
-				$data->getResultColumns());
-		}
+				$ctx->getResultColumns());
 
 		return $stream;
 	}

@@ -65,7 +65,6 @@ class DropViewQuery extends Statement
 	public function tokenize(TokenStream $stream,
 		TokenStreamContextInterface $context)
 	{
-		$builder = $context->getStatementBuilder();
 		$platform = $context->getPlatform();
 
 		$hasExistsCondition = $platform->queryFeature(
@@ -100,7 +99,7 @@ class DropViewQuery extends Statement
 			$parts = $this->viewIdentifier->getPathParts();
 			if (\count($parts) > 1)
 				$stream->identifier(
-					$builder->getPlatform()
+					$context->getPlatform()
 						->quoteIdentifierPath($parts));
 			else // Last chance to find the element namespace
 			{
@@ -110,18 +109,18 @@ class DropViewQuery extends Statement
 
 				if ($structure instanceof NamespaceStructure)
 					$stream->identifier(
-						$builder->getPlatform()
+						$context->getPlatform()
 							->quoteIdentifierPath($structure))
 						->text('.');
 
 				$stream->identifier(
-					$builder->getPlatform()
+					$context->getPlatform()
 						->quoteIdentifier($this->viewIdentifier->path));
 			}
 		}
 		else
 			$stream->identifier(
-				$builder->getPlatform()
+				$context->getPlatform()
 					->quoteIdentifier(
 					$this->viewIdentifier->getLocalName()));
 

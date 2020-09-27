@@ -70,7 +70,6 @@ class DropTableQuery extends Statement
 	public function tokenize(TokenStream $stream,
 		TokenStreamContextInterface $context)
 	{
-		$builder = $context->getStatementBuilder();
 		$platform = $context->getPlatform();
 
 		$cascade = ($this->dropFlags & self::CASCADE) &&
@@ -102,7 +101,7 @@ class DropTableQuery extends Statement
 		}
 
 		$stream->space()->identifier(
-			$builder->getPlatform()
+			$context->getPlatform()
 				->quoteIdentifierPath(
 				$this->getTable()
 					->getPathParts()));
@@ -111,8 +110,8 @@ class DropTableQuery extends Statement
 		{
 			if ($cascade)
 				$stream->space()->keyword('cascade');
-			elseif ($builder instanceof LoggerInterface)
-				$builder->notice('CASCADE option is not supported');
+			elseif ($context instanceof LoggerInterface)
+				$context->notice('CASCADE option is not supported');
 		}
 
 		return $stream;

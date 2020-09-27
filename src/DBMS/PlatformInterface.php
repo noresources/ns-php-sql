@@ -7,6 +7,7 @@ use NoreSources\SQL\DataSerializerInterface;
 use NoreSources\SQL\Expression\FunctionCall;
 use NoreSources\SQL\Expression\MetaFunctionCall;
 use NoreSources\SQL\Statement\ParameterData;
+use NoreSources\SQL\Statement\StatementFactoryInterface;
 use NoreSources\SQL\Structure\ColumnDescriptionInterface;
 use NoreSources\SQL\Structure\StructureElementInterface;
 use Psr\Log\LoggerAwareInterface;
@@ -14,7 +15,7 @@ use Psr\Log\LoggerAwareInterface;
 interface PlatformInterface extends FeatureQueryInterface,
 	LoggerAwareInterface, DataSerializerInterface,
 	StringSerializerInterface, BinaryDataSerializerInterface,
-	IdentifierSerializerInterface
+	IdentifierSerializerInterface, StatementFactoryInterface
 {
 
 	/**

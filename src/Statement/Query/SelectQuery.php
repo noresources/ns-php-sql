@@ -31,39 +31,6 @@ use NoreSources\SQL\Structure\TableStructure;
 use NoreSources\SQL\Structure\ViewStructure;
 
 /**
- * SELECT query result column
- */
-class ResultColumnReference
-{
-
-	/**
-	 * Result column
-	 *
-	 * @var TokenizableExpressionInterface
-	 */
-	public $expression;
-
-	/**
-	 *
-	 * @var string Result column alias
-	 */
-	public $alias;
-
-	/**
-	 *
-	 * @param
-	 *        	TokenizableExpressionInterface
-	 * @param string $alias
-	 */
-	public function __construct(
-		TokenizableExpressionInterface $expression, $alias)
-	{
-		$this->expression = $expression;
-		$this->alias = $alias;
-	}
-}
-
-/**
  * SELECT query statement
  */
 class SelectQuery extends Statement
@@ -669,4 +636,37 @@ class SelectQuery extends Statement
 	 * @var \ArrayObject
 	 */
 	private $unions;
+}
+
+/**
+ * SELECT query result column
+ */
+class ResultColumnReference
+{
+
+	/**
+	 * Result column
+	 *
+	 * @var TokenizableExpressionInterface
+	 */
+	public $expression;
+
+	/**
+	 *
+	 * @var string Result column alias
+	 */
+	public $alias;
+
+	/**
+	 *
+	 * @param
+	 *        	TokenizableExpressionInterface
+	 * @param string $alias
+	 */
+	public function __construct(
+		TokenizableExpressionInterface $expression, $alias)
+	{
+		$this->expression = $expression;
+		$this->alias = $alias;
+	}
 }

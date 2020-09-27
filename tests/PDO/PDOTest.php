@@ -137,7 +137,7 @@ final class PDOTest extends \PHPUnit\Framework\TestCase
 		 *
 		 * @var \NoreSources\SQL\Statement\Manipulation\InsertQuery $insert
 		 */
-		$insert = $connection->getStatementBuilder()->newStatement(
+		$insert = $connection->getPlatform()->newStatement(
 			K::QUERY_INSERT);
 		$insert->table($detachedTable);
 		$insert('name', ':name');

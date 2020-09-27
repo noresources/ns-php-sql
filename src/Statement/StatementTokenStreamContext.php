@@ -33,11 +33,6 @@ class StatementTokenStreamContext implements
 	/**
 	 * Constructor and __get magic method key.
 	 */
-	const BUILDER = 'builder';
-
-	/**
-	 * Constructor and __get magic method key.
-	 */
 	const PLATFORM = 'platform';
 
 	/**
@@ -53,7 +48,7 @@ class StatementTokenStreamContext implements
 	/**
 	 *
 	 * @param array|... ...$arguments
-	 *        	A StatatementBuilderInterface, a PlatformInterface, a StructureResolverInterface
+	 *        	A PlatformInterface, a StructureResolverInterface
 	 *        	and
 	 *        	an optional StructureElementInterface in any order or placed in a key-value pair
 	 *        	array
@@ -69,7 +64,6 @@ class StatementTokenStreamContext implements
 			$arguments = $arguments[0];
 
 		$keys = [
-			self::BUILDER => 'setStatementBuilder',
 			self::PLATFORM => 'setPlatform',
 			self::RESOLVER => 'setStructureResolver'
 		];
@@ -85,20 +79,15 @@ class StatementTokenStreamContext implements
 						$m
 					], $value);
 			}
-			elseif ($value instanceof StatementBuilderInterface)
-				$this->builder = $value;
 			elseif ($value instanceof PlatformInterface)
 				$this->platform = $value;
 			elseif ($value instanceof StructureResolverInterface)
 				$this->setStructureResolver($value);
 		}
 
-		if (!isset($this->builder))
-			throw new \BadMethodCallException(
-				self::BUILDER . ' must be provided');
-
 		if (!isset($this->platform))
-			$this->platform = $this->builder->getPlatform();
+			throw new \BadMethodCallException(
+				self::PLATFORM . ' must be provided');
 
 		if (!isset($this->structureResolver))
 			$this->setStructureResolver(new VirtualStructureResolver());
@@ -131,8 +120,6 @@ class StatementTokenStreamContext implements
 	{
 		switch ($member)
 		{
-			case self::BUILDER:
-				return $this->getStatementBuilder();
 			case self::PLATFORM:
 				return $this->getPlatform();
 			case self::RESOLVER:
@@ -160,16 +147,6 @@ class StatementTokenStreamContext implements
 		return $this->structureResolver->setPivot($pivot);
 	}
 
-	/**
-	 *
-	 * {@inheritdoc}
-	 * @see \NoreSources\SQL\Statement\StatementBuilderProviderInterface::getStatementBuilder()
-	 */
-	public function getStatementBuilder()
-	{
-		return $this->builder;
-	}
-
 	public function getPlatform()
 	{
 		return $this->platform;
@@ -190,10 +167,7 @@ class StatementTokenStreamContext implements
 	public function setStatementType($type)
 	{
 		if ($this->statementElements->count() > 1)
-		{
-			$this->statementElements->setStatementType($type);
 			return;
-		}
 
 		$this->statementType = $type;
 	}
@@ -260,12 +234,6 @@ class StatementTokenStreamContext implements
 		$this->structureResolver->popResolverContext();
 	}
 
-	protected function setStatementBuilder(
-		StatementBuilderInterface $builder)
-	{
-		$this->builder = $builder;
-	}
-
 	protected function setPlatform(PlatformInterface $platform)
 	{
 		$this->platform = $platform;
@@ -286,12 +254,6 @@ class StatementTokenStreamContext implements
 	 * @var \Noresources\Stack Stack of \ArrayObject
 	 */
 	private $statementElements;
-
-	/**
-	 *
-	 * @var StatementBuilderInterface
-	 */
-	private $builder;
 
 	/**
 	 *

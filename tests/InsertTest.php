@@ -3,10 +3,9 @@ namespace NoreSources\SQL;
 
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\Reference\ReferencePlatform;
-use NoreSources\SQL\DBMS\Reference\ReferenceStatementBuilder;
 use NoreSources\SQL\Expression\ExpressionHelper;
-use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Expression\TokenizableExpressionInterface;
+use NoreSources\SQL\Statement\StatementBuilder;
 use NoreSources\SQL\Statement\StatementTokenStreamContext;
 use NoreSources\SQL\Statement\Manipulation\InsertQuery;
 use NoreSources\Test\DatasourceManager;
@@ -56,13 +55,11 @@ final class InsertTest extends \PHPUnit\Framework\TestCase
 		foreach ($builderFlags as $key => $platformFeatures)
 		{
 			$platformFeatures = new ReferencePlatform($platformFeatures);
-			$builder = new ReferenceStatementBuilder($platformFeatures);
-			$context = new StatementTokenStreamContext($builder);
+			$context = new StatementTokenStreamContext(
+				$platformFeatures);
 			$context->setPivot($t);
+			$result =  StatementBuilder::getInstance()($q, $context);
 
-			$stream = new TokenStream();
-			$q->tokenize($stream, $context);
-			$result = $builder->finalizeStatement($stream, $context);
 			$this->assertInstanceOf(
 				Statement\StatementOutputDataInterface::class, $result,
 				'Result is (at least) a Statement\StatementOutputDataInterface');
@@ -77,8 +74,9 @@ final class InsertTest extends \PHPUnit\Framework\TestCase
 		$tableStructure = $structure['ns_unittests']['Tasks'];
 		$this->assertInstanceOf(Structure\TableStructure::class,
 			$tableStructure);
-		$builder = new ReferenceStatementBuilder();
-		$context = new StatementTokenStreamContext($builder);
+		$platform = new ReferencePlatform();
+		StatementBuilder::getInstance(); // IDO workaround
+		$context = new StatementTokenStreamContext($platform);
 
 		$tests = array(
 			'empty' => array(),
@@ -135,9 +133,8 @@ final class InsertTest extends \PHPUnit\Framework\TestCase
 					$q->setColumnValue($column, $value[0], $value[1]);
 			}
 
-			$stream = new TokenStream();
-			$q->tokenize($stream, $context);
-			$result = $builder->finalizeStatement($stream, $context);
+			$result =  StatementBuilder::getInstance() ($q, $context);
+
 			$this->derivedFileManager->assertDerivedFile(
 				strval($result), __METHOD__, $key, 'sql');
 		}

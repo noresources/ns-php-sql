@@ -3,9 +3,7 @@ namespace NoreSources\SQL;
 
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\Reference\ReferencePlatform;
-use NoreSources\SQL\DBMS\Reference\ReferenceStatementBuilder;
-use NoreSources\SQL\Expression\TokenStream;
-use NoreSources\SQL\Statement\StatementTokenStreamContext;
+use NoreSources\SQL\Statement\StatementBuilder;
 use NoreSources\SQL\Statement\Query\SelectQuery;
 use NoreSources\SQL\Statement\Structure\CreateIndexQuery;
 use NoreSources\SQL\Statement\Structure\CreateTableQuery;
@@ -28,7 +26,7 @@ final class CreateTest extends \PHPUnit\Framework\TestCase
 	{
 		$structure = $this->datasources->get('Company');
 		$tableStructure = $structure['ns_unittests']['Hierarchy'];
-		$builder = new ReferenceStatementBuilder();
+		$platform = new ReferencePlatform();
 
 		$index = new CreateIndexQuery();
 		$index->table('Hierarchy')
@@ -36,11 +34,7 @@ final class CreateTest extends \PHPUnit\Framework\TestCase
 			->columns('manageeId')
 			->where('managerId > 10');
 
-		$context = new StatementTokenStreamContext($builder);
-		$context->setPivot($tableStructure);
-		$stream = new TokenStream();
-		$index->tokenize($stream, $context);
-		$data = $builder->finalizeStatement($stream, $context);
+		$data = StatementBuilder::getInstance()($index, $platform, $tableStructure);
 
 		$sql = \SqlFormatter::format(strval($data), false);
 		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__,
@@ -51,7 +45,7 @@ final class CreateTest extends \PHPUnit\Framework\TestCase
 	{
 		$structure = $this->datasources->get('Company');
 		$tableStructure = $structure['ns_unittests']['Employees'];
-		$builder = new ReferenceStatementBuilder();
+		$platform = new ReferencePlatform();
 
 		$select = new SelectQuery($tableStructure);
 		$select->columns('id', 'name')->where([
@@ -63,11 +57,7 @@ final class CreateTest extends \PHPUnit\Framework\TestCase
 			->flags(CreateViewQuery::TEMPORARY)
 			->select($select);
 
-		$context = new StatementTokenStreamContext($builder);
-		$context->setPivot($tableStructure);
-		$stream = new TokenStream();
-		$view->tokenize($stream, $context);
-		$data = $builder->finalizeStatement($stream, $context);
+		$data =  StatementBuilder::getInstance()($view, $platform, $tableStructure);
 
 		$sql = \SqlFormatter::format(strval($data), false);
 		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__,
@@ -77,18 +67,15 @@ final class CreateTest extends \PHPUnit\Framework\TestCase
 	public function testCreateIndexFromStructure()
 	{
 		$structure = $this->datasources->get('Company');
-		$builder = new ReferenceStatementBuilder();
+		$platform = new ReferencePlatform();
 		$indexStructure = $structure['ns_unittests']['index_employees_name'];
 		$this->assertInstanceOf(Structure\IndexStructure::class,
 			$indexStructure);
-		$context = new StatementTokenStreamContext($builder);
-		$context->setPivot($indexStructure->getParentElement());
 
 		$q = new CreateIndexQuery();
 		$q->setFromIndexStructure($indexStructure);
-		$stream = new TokenStream();
-		$q->tokenize($stream, $context);
-		$result = $builder->finalizeStatement($stream, $context);
+		$result = StatementBuilder::getInstance()->build($q, $platform,
+			$indexStructure->getParentElement());
 
 		$sql = \SqlFormatter::format(strval($result), false);
 		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__,
@@ -98,18 +85,17 @@ final class CreateTest extends \PHPUnit\Framework\TestCase
 	public function testCreateTableCompanyTables()
 	{
 		$structure = $this->datasources->get('Company');
-		$builder = new ReferenceStatementBuilder(
-			new ReferencePlatform(
-				[
-					'or replace' => [
-						[
-							K::PLATFORM_FEATURE_CREATE,
-							K::PLATFORM_FEATURE_TABLE,
-							K::PLATFORM_FEATURE_REPLACE
-						],
-						true
-					]
-				]));
+		$platform = new ReferencePlatform(
+			[
+				'or replace' => [
+					[
+						K::PLATFORM_FEATURE_CREATE,
+						K::PLATFORM_FEATURE_TABLE,
+						K::PLATFORM_FEATURE_REPLACE
+					],
+					true
+				]
+			]);
 
 		foreach ([
 			'Employees',
@@ -120,13 +106,9 @@ final class CreateTest extends \PHPUnit\Framework\TestCase
 			$tableStructure = $structure['ns_unittests'][$tableName];
 			$this->assertInstanceOf(Structure\TableStructure::class,
 				$tableStructure, 'Finding ' . $tableName);
-			$context = new StatementTokenStreamContext($builder);
-			$context->setPivot($tableStructure);
 			$q = new CreateTableQuery($tableStructure);
 			$q->flags(CreateTableQuery::REPLACE);
-			$stream = new TokenStream();
-			$q->tokenize($stream, $context);
-			$result = $builder->finalizeStatement($stream, $context);
+			$result =  StatementBuilder::getInstance()($q, $platform, $tableStructure);
 
 			$sql = \SqlFormatter::format(strval($result), false);
 			$this->derivedFileManager->assertDerivedFile($sql,

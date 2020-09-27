@@ -22,7 +22,7 @@ use NoreSources\SQL\Expression\Parameter;
 use NoreSources\SQL\Expression\TimestampFormatFunction;
 use NoreSources\SQL\Result\InsertionStatementResultInterface;
 use NoreSources\SQL\Result\Recordset;
-use NoreSources\SQL\Statement\StatementBuilderInterface;
+use NoreSources\SQL\Statement\ParameterData;
 use NoreSources\SQL\Statement\Manipulation\DeleteQuery;
 use NoreSources\SQL\Statement\Manipulation\InsertQuery;
 use NoreSources\SQL\Statement\Manipulation\UpdateQuery;
@@ -126,14 +126,10 @@ final class DBMSCommonTest extends TestCase
 			$this->assertInstanceOf(PlatformInterface::class, $platform,
 				$dbmsName);
 
-			$builder = $connection->getStatementBuilder();
+			$platform = $connection->getPlatform();
 
-			$this->assertInstanceOf(StatementBuilderInterface::class,
-				$builder, $dbmsName);
-
-			$this->assertInstanceOf(PlatformInterface::class,
-				$builder->getPlatform(),
-				$dbmsName . ' Builder provides Platform');
+			$this->assertInstanceOf(PlatformInterface::class, $platform,
+				$dbmsName . ' Connection provides Platform');
 
 			$this->logKeyValue($dbmsName,
 				TypeDescription::getLocalName($platform));
@@ -262,7 +258,7 @@ final class DBMSCommonTest extends TestCase
 			 *
 			 * @var \NoreSources\SQL\Statement\Manipulation\InsertQuery $q
 			 */
-			$q = $connection->getStatementBuilder()->newStatement(
+			$q = $connection->getPlatform()->newStatement(
 				K::QUERY_INSERT);
 			$q->table($tableStructure);
 			foreach ($columns as $columnName => $specs)
@@ -520,6 +516,88 @@ final class DBMSCommonTest extends TestCase
 		}
 	}
 
+	public function testParameters()
+	{
+		$settings = $this->connections->getAvailableConnectionNames();
+
+		foreach ($settings as $dbmsName)
+		{
+			$connection = $this->connections->get($dbmsName);
+			if ($connection instanceof PDOConnection)
+				continue;
+			$this->assertTrue($connection->isConnected(), $dbmsName);
+			$this->dbmsParameters($connection, $dbmsName);
+		}
+	}
+
+	private function dbmsParameters(ConnectionInterface $connection,
+		$dbmsName)
+	{
+		$method = __CLASS__ . '::' . debug_backtrace()[1]['function'];
+		$platform = $connection->getPlatform();
+
+		/**
+		 *
+		 * @var SelectQuery $subSelect
+		 */
+		$subSelect = $platform->newStatement(K::QUERY_SELECT);
+
+		$subSelect->columns([
+			'id' => 'classId'
+		])
+			->from('Classes', 'c')
+			->where([
+			'criteria' => ':param'
+		]);
+
+		$subData = ConnectionHelper::buildStatement($connection,
+			$subSelect);
+		$subSQL = \strval($subData);
+
+		$this->derivedFileManager->assertDerivedFile($subSQL, $method,
+			$dbmsName . '_subquery', 'sql');
+
+		/**
+		 *
+		 * @var SelectQuery $mainSelect
+		 */
+		$mainSelect = $platform->newStatement(K::QUERY_SELECT);
+
+		$mainSelect->columns([
+			'classId' => 'c'
+		])
+			->from('Namespace', 'n')
+			->where([
+			'name' => ':nsname'
+		])
+			->where([
+			'in' => [
+				'classId',
+				$subSelect
+			]
+		]);
+
+		$mainData = ConnectionHelper::buildStatement($connection,
+			$mainSelect);
+		$mainSQL = \SqlFormatter::format(\strval($mainData), false);
+
+		$mainParameters = $mainData->getParameters();
+		$this->assertCount(2, $mainParameters,
+			$dbmsName . ' parameter count');
+
+		$firstParameter = $mainParameters->get(0);
+		$this->assertEquals('nsname',
+			$firstParameter[ParameterData::KEY],
+			$dbmsName . ' first parameter key');
+		$secondparameter = $mainParameters->get(1);
+		$this->assertEquals('param',
+			$secondparameter[ParameterData::KEY],
+			$dbmsName . ' second parameter key');
+
+		$this->derivedFileManager->assertDerivedFile($mainSQL, $method,
+			$dbmsName . '_mainquery', 'sql');
+	}
+
 	public function testParametersTypes()
 	{
 		$settings = $this->connections->getAvailableConnectionNames();
@@ -552,8 +630,7 @@ final class DBMSCommonTest extends TestCase
 		 *
 		 * @var \NoreSources\SQL\Statement\Manipulation\InsertQuery $i
 		 */
-		$i = $connection->getStatementBuilder()->newStatement(
-			K::QUERY_INSERT);
+		$i = $connection->getPlatform()->newStatement(K::QUERY_INSERT);
 		$i->table($tableStructure);
 		$i('int', ':even');
 		$i('large_int', ':odd');
@@ -756,7 +833,7 @@ final class DBMSCommonTest extends TestCase
 		 *
 		 * @var UpdateQuery $update
 		 */
-		$update = $connection->getStatementBuilder()->newStatement(
+		$update = $connection->getPlatform()->newStatement(
 			K::QUERY_UPDATE);
 		$update->table($tableStructure);
 		$update('text', ':text');
@@ -972,7 +1049,7 @@ final class DBMSCommonTest extends TestCase
 		 *
 		 * @var SelectQuery $basicSelectQuery
 		 */
-		$basicSelectQuery = $connection->getStatementBuilder()->newStatement(
+		$basicSelectQuery = $connection->getPlatform()->newStatement(
 			K::QUERY_SELECT);
 
 		$basicSelectQuery->from($tableStructure);
@@ -993,7 +1070,7 @@ final class DBMSCommonTest extends TestCase
 		 *
 		 * @var SelectQuery $selectColumnQuery
 		 */
-		$selectColumnQuery = $connection->getStatementBuilder()->newStatement(
+		$selectColumnQuery = $connection->getPlatform()->newStatement(
 			K::QUERY_SELECT);
 		$selectColumnQuery->from($tableStructure);
 		$selectColumnQuery->columns('name', 'gender', 'salary')->orderBy(
@@ -1027,7 +1104,7 @@ final class DBMSCommonTest extends TestCase
 			 *
 			 * @var InsertQuery $q
 			 */
-			$q = $connection->getStatementBuilder()->newStatement(
+			$q = $connection->getPlatform()->newStatement(
 				K::QUERY_INSERT);
 			$q->into($tableStructure);
 			foreach ($row as $name => $value)
@@ -1277,8 +1354,7 @@ final class DBMSCommonTest extends TestCase
 	{
 		$dbmsName = TypeDescription::getLocalName($connection);
 
-		$builder = $connection->getStatementBuilder();
-		$platform = $builder->getPlatform();
+		$platform = $connection->getPlatform();
 
 		$existsCondition = $platform->queryFeature(
 			[
@@ -1288,7 +1364,7 @@ final class DBMSCommonTest extends TestCase
 
 		try // PostgreSQL < 8.2 does not support DROP IF EXISTS and may fail
 		{
-			$drop = $connection->getStatementBuilder()->newStatement(
+			$drop = $connection->getPlatform()->newStatement(
 				K::QUERY_DROP_TABLE);
 			if ($drop instanceof DropTableQuery)
 				$drop->flags(DropTableQuery::CASCADE)->table(
@@ -1303,7 +1379,7 @@ final class DBMSCommonTest extends TestCase
 				throw $e;
 		}
 
-		$factory = $connection->getStatementBuilder();
+		$factory = $connection->getPlatform();
 
 		/**
 		 *
@@ -1311,6 +1387,13 @@ final class DBMSCommonTest extends TestCase
 		 */
 		$createTable = $factory->newStatement(K::QUERY_CREATE_TABLE,
 			$tableStructure);
+
+		$this->assertInstanceOf(CreateTableQuery::class, $createTable,
+			$dbmsName . ' CreateTableQuery');
+		$this->assertInstanceOf(TableStructure::class,
+			$createTable->getStructure(),
+			$dbmsName . ' CrateTableQuery table reference');
+
 		$createTable->flags(CreateTableQuery::REPLACE);
 		$result = false;
 		$data = ConnectionHelper::buildStatement($connection,

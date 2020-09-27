@@ -156,7 +156,6 @@ class CreateIndexQuery extends Statement
 	public function tokenize(TokenStream $stream,
 		TokenStreamContextInterface $context)
 	{
-		$builder = $context->getStatementBuilder();
 		$platform = $context->getPlatform();
 		$scoped = $platform->queryFeature(
 			[
@@ -202,7 +201,7 @@ class CreateIndexQuery extends Statement
 				$parts = $this->indexIdentifier->getPathParts();
 				if (\count($parts) > 1)
 					$stream->identifier(
-						$builder->getPlatform()
+						$context->getPlatform()
 							->quoteIdentifierPath($parts));
 				else // Last chance to find the element namespace
 				{
@@ -212,19 +211,19 @@ class CreateIndexQuery extends Statement
 
 					if ($structure instanceof NamespaceStructure)
 						$stream->identifier(
-							$builder->getPlatform()
+							$context->getPlatform()
 								->quoteIdentifierPath($structure))
 							->text('.');
 
 					$stream->identifier(
-						$builder->getPlatform()
+						$context->getPlatform()
 							->quoteIdentifier(
 							$this->indexIdentifier->path));
 				}
 			}
 			else
 				$stream->identifier(
-					$builder->getPlatform()
+					$context->getPlatform()
 						->quoteIdentifier(
 						$this->indexIdentifier->getLocalName()));
 		}
@@ -233,7 +232,7 @@ class CreateIndexQuery extends Statement
 			->keyword('on')
 			->space()
 			->identifier(
-			$builder->getPlatform()
+			$context->getPlatform()
 				->quoteIdentifierPath($tableStructure))
 			->space()
 			->text('(');
@@ -248,7 +247,7 @@ class CreateIndexQuery extends Statement
 				$stream->space()->expression($column, $context);
 			else
 				$stream->space()->identifier(
-					$builder->getPlatform()
+					$context->getPlatform()
 						->quoteIdentifier($column));
 		}
 

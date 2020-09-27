@@ -1,9 +1,8 @@
 <?php
 namespace NoreSources\SQL;
 
-use NoreSources\SQL\DBMS\Reference\ReferenceStatementBuilder;
-use NoreSources\SQL\Expression\TokenStream;
-use NoreSources\SQL\Statement\StatementTokenStreamContext;
+use NoreSources\SQL\DBMS\Reference\ReferencePlatform;
+use NoreSources\SQL\Statement\StatementBuilder;
 use NoreSources\SQL\Statement\Manipulation\DeleteQuery;
 use NoreSources\Test\DatasourceManager;
 use NoreSources\Test\DerivedFileManager;
@@ -25,9 +24,7 @@ final class DeleteTest extends \PHPUnit\Framework\TestCase
 		$tableStructure = $structure['ns_unittests']['Employees'];
 		$this->assertInstanceOf(Structure\TableStructure::class,
 			$tableStructure);
-		$builder = new ReferenceStatementBuilder();
-		$context = new StatementTokenStreamContext($builder,
-			$tableStructure);
+		$platform = new ReferencePlatform();
 		$q = new DeleteQuery($tableStructure);
 
 		$q->where([
@@ -35,9 +32,9 @@ final class DeleteTest extends \PHPUnit\Framework\TestCase
 			'id' => 1
 		], "name='to be deleted'");
 
-		$stream = new TokenStream();
-		$q->tokenize($stream, $context);
-		$result = $builder->finalizeStatement($stream, $context);
+		StatementBuilder::getInstance(); // IDO workaround
+		$result =  StatementBuilder::getInstance()($q, $platform, $tableStructure);
+
 		$sql = \SqlFormatter::format(strval($result), false);
 
 		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__,

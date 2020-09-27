@@ -42,8 +42,6 @@ class SQLiteCreateTableQuery extends CreateTableQuery
 	public function tokenize(TokenStream $stream,
 		TokenStreamContextInterface $context)
 	{
-		$builder = $context->getStatementBuilder();
-
 		$structure = $this->getStructure();
 		if (!($structure instanceof TableStructure))
 			$structure = $context->getPivot();
@@ -73,7 +71,7 @@ class SQLiteCreateTableQuery extends CreateTableQuery
 
 		$stream->space()
 			->identifier(
-			$builder->getPlatform()
+			$context->getPlatform()
 				->quoteIdentifierPath($this->getStructure()))
 			->space()
 			->text('(');
@@ -93,7 +91,7 @@ class SQLiteCreateTableQuery extends CreateTableQuery
 			if ($c++ > 0)
 				$stream->text(',')->space();
 
-			$type = $builder->getPlatform()->getColumnType($column,
+			$type = $context->getPlatform()->getColumnType($column,
 				$column->getConstraintFlags());
 			/**
 			 *
@@ -103,7 +101,7 @@ class SQLiteCreateTableQuery extends CreateTableQuery
 			$typeName = $type->getTypeName();
 
 			$stream->identifier(
-				$builder->getPlatform()
+				$context->getPlatform()
 					->quoteIdentifier($column->getName()))
 				->space()
 				->identifier($typeName);
@@ -124,7 +122,7 @@ class SQLiteCreateTableQuery extends CreateTableQuery
 					->keyword('primary key')
 					->space()
 					->keyword(
-					$builder->getPlatform()
+					$context->getPlatform()
 						->getKeyword(K::KEYWORD_AUTOINCREMENT));
 			}
 

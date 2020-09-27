@@ -15,14 +15,15 @@ use NoreSources\TypeDescription;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\ParameterValue;
 use NoreSources\SQL\Expression\Literal;
-use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Statement\Statement;
+use NoreSources\SQL\Statement\StatementBuilder;
 use NoreSources\SQL\Statement\StatementDataInterface;
 use NoreSources\SQL\Statement\StatementTokenStreamContext;
 use NoreSources\SQL\Structure\DatasourceStructure;
 use NoreSources\SQL\Structure\IndexStructure;
 use NoreSources\SQL\Structure\NamespaceStructure;
 use NoreSources\SQL\Structure\StructureElementInterface;
+use NoreSources\SQL\Structure\StructureProviderInterface;
 use NoreSources\SQL\Structure\StructureSerializerFactory;
 use NoreSources\SQL\Structure\TableStructure;
 
@@ -89,7 +90,8 @@ class ConnectionHelper
 		ConnectionInterface $connection,
 		StructureElementInterface $structure = null)
 	{
-		if (!($structure instanceof StructureElementInterface))
+		if (!($structure instanceof StructureElementInterface) &&
+			($connection instanceof StructureProviderInterface))
 			$structure = $connection->getStructure();
 
 		if (!($structure instanceof StructureElementInterface))
@@ -111,7 +113,7 @@ class ConnectionHelper
 			 *
 			 * @var \NoreSources\SQL\Statement\Structure\CreateNamespaceQuery $q
 			 */
-			$q = $connection->getStatementBuiler()->newStatement(
+			$q = $connection->getPlatform()->newStatement(
 				K::QUERY_CREATE_NAMESPACE, $structure);
 
 			$q->identifier($structure);
@@ -133,7 +135,7 @@ class ConnectionHelper
 		}
 		elseif ($structure instanceof TableStructure)
 		{
-			$q = $connection->getStatementBuiler()->newStatement(
+			$q = $connection->getPlatform()->newStatement(
 				K::QUERY_CREATE_TABLE, $structure);
 			$statement = self::buildStatement($connection, $q,
 				$structure);
@@ -145,7 +147,7 @@ class ConnectionHelper
 			 *
 			 * @var \NoreSources\SQL\Statement\Structure\CreateIndexQuery $q
 			 */
-			$q = $connection->getStatementBuiler()->newStatement(
+			$q = $connection->getPlatform()->newStatement(
 				K::QUERY_CREATE_INDEX);
 			$q->setFromIndexStructure($structure);
 			$statement = self::buildStatement($connection, $statement,
@@ -176,12 +178,13 @@ class ConnectionHelper
 		Statement $statement,
 		StructureElementInterface $reference = null)
 	{
-		$reference = ($reference instanceof StructureElementInterface) ? $reference : $connection->getStructure();
-		$builder = $connection->getStatementBuilder();
-		$context = new StatementTokenStreamContext($builder, $reference);
-		$stream = new TokenStream();
-		$statement->tokenize($stream, $context);
-		return $builder->finalizeStatement($stream, $context);
+		if (!($reference instanceof StructureElementInterface))
+			if ($connection instanceof StructureProviderInterface)
+				$reference = $connection->getStructure();
+		$platform = $connection->getPlatform();
+		$context = new StatementTokenStreamContext($platform, $reference);
+		$builder = StatementBuilder::getInstance(); // IDO workaround;
+		return $builder->build($statement, $context);
 	}
 
 	/**
@@ -195,7 +198,9 @@ class ConnectionHelper
 		ConnectionInterface $connection, $statement,
 		StructureElementInterface $reference = null)
 	{
-		$reference = ($reference instanceof StructureElementInterface) ? $reference : $connection->getStructure();
+		if (!($reference instanceof StructureElementInterface))
+			if ($connection instanceof StructureProviderInterface)
+				$reference = $connection->getStructure();
 		$statementData = null;
 		if ($statement instanceof StatementDataInterface)
 		{
@@ -203,14 +208,12 @@ class ConnectionHelper
 		}
 		elseif ($statement instanceof Statement)
 		{
-			$builder = $connection->getStatementBuilder();
-			$context = new StatementTokenStreamContext($builder);
+			$builder = new StatementBuilder();
+			$platform = $connection->getPlatform();
+			$context = new StatementTokenStreamContext($platform);
 			if ($reference instanceof StructureElementInterface)
 				$context->setPivot($reference);
-			$stream = new TokenStream();
-			$statement->tokenize($stream, $context);
-			$statementData = $builder->finalizeStatement($stream,
-				$context);
+			$statementData =  StatementBuilder::getInstance()($statement, $context);
 		}
 		elseif (TypeDescription::hasStringRepresentation($statement))
 		{
@@ -261,8 +264,7 @@ class ConnectionHelper
 		elseif ($value instanceof \DateTimeInterface)
 		{
 			return $value->format(
-				$connection->getStatementBuilder()
-					->getPlatform()
+				$connection->getPlatform()
 					->getTimestampTypeStringFormat(
 					$type & K::DATATYPE_TIMESTAMP));
 		}

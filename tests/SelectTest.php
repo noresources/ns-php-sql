@@ -5,11 +5,10 @@ use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\ConnectionHelper;
 use NoreSources\SQL\DBMS\Reference\ReferenceConnection;
 use NoreSources\SQL\DBMS\Reference\ReferencePlatform;
-use NoreSources\SQL\DBMS\Reference\ReferenceStatementBuilder;
 use NoreSources\SQL\Expression\ExpressionHelper;
 use NoreSources\SQL\Expression\Literal;
 use NoreSources\SQL\Expression\MemberOf;
-use NoreSources\SQL\Expression\TokenStream;
+use NoreSources\SQL\Statement\StatementBuilder;
 use NoreSources\SQL\Statement\StatementTokenStreamContext;
 use NoreSources\SQL\Statement\Query\SelectQuery;
 use NoreSources\SQL\Structure\NamespaceStructure;
@@ -33,9 +32,7 @@ final class SelectTest extends \PHPUnit\Framework\TestCase
 		$tableStructure = $structure['ns_unittests']['Employees'];
 		$this->assertInstanceOf(Structure\TableStructure::class,
 			$tableStructure);
-		$builder = new ReferenceStatementBuilder();
-		$context = new StatementTokenStreamContext($builder);
-		$context->setPivot($tableStructure);
+		$platform = new ReferencePlatform();
 		$q = new SelectQuery($tableStructure, 't');
 
 		$q->columns([
@@ -52,16 +49,10 @@ final class SelectTest extends \PHPUnit\Framework\TestCase
 				8
 			]), "name like 'Jean%'");
 
-		$stream = new TokenStream();
-		$q->tokenize($stream, $context);
-
-		$this->assertCount(2, $context->getResultColumns(),
-			'Number of result column (after Builder::tokenize())');
-
-		$result = $builder->finalizeStatement($stream, $context);
+		$result =  StatementBuilder::getInstance() ($q, $platform, $tableStructure);
 
 		$this->assertCount(2, $result->getResultColumns(),
-			'Number of result column (after Builder::finalize())');
+			'Number of result column');
 
 		$this->assertEquals(K::QUERY_SELECT, $result->getStatementType(),
 			'Statement type');
@@ -74,8 +65,7 @@ final class SelectTest extends \PHPUnit\Framework\TestCase
 
 	public function testStructurelessSelect()
 	{
-		$builder = new ReferenceStatementBuilder();
-		$context = new StatementTokenStreamContext($builder);
+		$platform = new ReferencePlatform();
 
 		$select = new SelectQuery();
 		$column = new Literal(true);
@@ -84,9 +74,7 @@ final class SelectTest extends \PHPUnit\Framework\TestCase
 
 		$select->columns($column);
 
-		$stream = new TokenStream();
-		$select->tokenize($stream, $context);
-		$result = $builder->finalizeStatement($stream, $context);
+		$result =  StatementBuilder::getInstance() ($select, $platform);
 
 		$this->assertEquals(K::QUERY_SELECT, $result->getStatementType(),
 			'Statement type');
@@ -101,18 +89,18 @@ final class SelectTest extends \PHPUnit\Framework\TestCase
 		$tableStructure = $structure['ns_unittests']['Tasks'];
 		$this->assertInstanceOf(Structure\TableStructure::class,
 			$tableStructure);
-		$builder = new ReferenceStatementBuilder(
-			new ReferencePlatform(
-				[
-					'with extended alias support' => [
-						[
-							K::PLATFORM_FEATURE_SELECT,
-							K::PLATFORM_FEATURE_EXTENDED_RESULTCOLUMN_RESOLUTION
-						],
-						true
-					]
-				]));
-		$context = new StatementTokenStreamContext($builder);
+		$platform = new ReferencePlatform(
+			[
+				'with extended alias support' => [
+					[
+						K::PLATFORM_FEATURE_SELECT,
+						K::PLATFORM_FEATURE_EXTENDED_RESULTCOLUMN_RESOLUTION
+					],
+					true
+				]
+			]);
+		StatementBuilder::getInstance(); // IDO workaround
+		$context = new StatementTokenStreamContext($platform);
 		$context->setPivot($tableStructure);
 		$q = new SelectQuery($tableStructure, 't');
 
@@ -148,9 +136,7 @@ final class SelectTest extends \PHPUnit\Framework\TestCase
 		// Limit
 		limit(5, 3);
 
-		$stream = new TokenStream();
-		$q->tokenize($stream, $context);
-		$result = $builder->finalizeStatement($stream, $context);
+		$result =  StatementBuilder::getInstance() ($q, $platform, $tableStructure);
 
 		$this->assertEquals(K::QUERY_SELECT, $result->getStatementType(),
 			'Statement type');
@@ -170,9 +156,7 @@ final class SelectTest extends \PHPUnit\Framework\TestCase
 		$this->assertInstanceOf(Structure\NamespaceStructure::class,
 			$namespaceStructure);
 
-		$builder = new ReferenceStatementBuilder();
-		$context = new StatementTokenStreamContext($builder);
-		$context->setPivot($namespaceStructure);
+		$platform = new ReferencePlatform();
 
 		$q = new SelectQuery('Employees', 'E');
 		$q->columns([
@@ -201,9 +185,8 @@ final class SelectTest extends \PHPUnit\Framework\TestCase
 			]
 		]);
 
-		$stream = new TokenStream();
-		$q->tokenize($stream, $context);
-		$result = $builder->finalizeStatement($stream, $context);
+		$result =  StatementBuilder::getInstance() ($q, $platform, $namespaceStructure);
+
 		$sql = \SqlFormatter::format(strval($result), false);
 		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__,
 			null, 'sql');
@@ -213,7 +196,7 @@ final class SelectTest extends \PHPUnit\Framework\TestCase
 	{
 		$connection = ConnectionHelper::createConnection(
 			ReferenceConnection::class);
-		$factory = $connection->getStatementBuilder();
+		$factory = $connection->getPlatform();
 
 		/**
 		 *
@@ -281,7 +264,6 @@ final class SelectTest extends \PHPUnit\Framework\TestCase
 	 */
 	public function testInlineDataRowContainers()
 	{
-		$this->assertTrue(true, 'Temp');
 		$connection = ConnectionHelper::createConnection();
 		$this->assertInstanceOf(ReferenceConnection::class, $connection,
 			'Reference connection instance');
@@ -293,7 +275,7 @@ final class SelectTest extends \PHPUnit\Framework\TestCase
 		 *
 		 * @var \NoreSources\SQL\Statement\Query\SelectQuery $innerSelect
 		 */
-		$innerSelect = $connection->getStatementBuilder()->newStatement(
+		$innerSelect = $connection->getPlatform()->newStatement(
 			K::QUERY_SELECT);
 		$innerSelect->from($employeesStructure);
 		$innerSelect->columns('id', 'name')->where([
@@ -310,7 +292,7 @@ final class SelectTest extends \PHPUnit\Framework\TestCase
 		 *
 		 * @var SelectQuery $innerJoinSelect
 		 */
-		$innerJoinSelect = $connection->getStatementBuilder()->newStatement(
+		$innerJoinSelect = $connection->getPlatform()->newStatement(
 			K::QUERY_SELECT);
 		$innerJoinSelect->from('Hierarchy');
 
@@ -318,7 +300,7 @@ final class SelectTest extends \PHPUnit\Framework\TestCase
 		 *
 		 * @var \NoreSources\SQL\Statement\Query\SelectQuery $outerSelect
 		 */
-		$outerSelect = $connection->getStatementBuilder()->newStatement(
+		$outerSelect = $connection->getPlatform()->newStatement(
 			K::QUERY_SELECT);
 		$outerSelect->from($innerSelect, 'e')
 			->columns('id', 'e.name', 'H.manageeId')

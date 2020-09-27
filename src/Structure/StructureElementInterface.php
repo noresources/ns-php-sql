@@ -10,7 +10,7 @@
  */
 namespace NoreSources\SQL\Structure;
 
-use NoreSources\SQL\Statement\StatementBuilderInterface;
+use NoreSources\SQL\DBMS\PlatformInterface;
 
 interface StructureElementInterface
 {
@@ -23,10 +23,10 @@ interface StructureElementInterface
 
 	/**
 	 *
-	 * @param \NoreSources\SQL\Statement\StatementTokenStreamContext $builder
+	 * @param PlatformInterface $platform
 	 * @return string
 	 */
-	function getPath(StatementBuilderInterface $builder = null);
+	function getPath(PlatformInterface $platform = null);
 
 	/**
 	 * Get ancestor

@@ -32,8 +32,6 @@ use NoreSources\SQL\Result\GenericRowModificationStatementResult;
 use NoreSources\SQL\Statement\ParameterData;
 use NoreSources\SQL\Statement\ParameterDataProviderInterface;
 use NoreSources\SQL\Statement\Statement;
-use NoreSources\SQL\Structure\StructureElementInterface;
-use NoreSources\SQL\Structure\StructureProviderTrait;
 
 /**
  * PDO connection
@@ -41,7 +39,6 @@ use NoreSources\SQL\Structure\StructureProviderTrait;
 class PDOConnection implements ConnectionInterface, TransactionInterface,
 	StringSerializerInterface, BinaryDataSerializerInterface
 {
-	use StructureProviderTrait;
 	use TransactionStackTrait;
 	use PlatformProviderTrait;
 
@@ -97,8 +94,6 @@ class PDOConnection implements ConnectionInterface, TransactionInterface,
 
 		$structure = Container::keyValue($parameters,
 			K::CONNECTION_STRUCTURE);
-		if ($structure instanceof StructureElementInterface)
-			$this->setStructure($structure);
 
 		$dsn = Container::keyValue($parameters, K::CONNECTION_SOURCE,
 			null);
@@ -129,9 +124,6 @@ class PDOConnection implements ConnectionInterface, TransactionInterface,
 			throw new ConnectionException($this,
 				$e->getMessage() . ' ' . $dsn, $e->getCode());
 		}
-
-		if (Container::keyExists($parameters, K::CONNECTION_STRUCTURE))
-			$this->setStructure($structure)[K::CONNECTION_STRUCTURE];
 
 		try
 		{
@@ -272,20 +264,6 @@ class PDOConnection implements ConnectionInterface, TransactionInterface,
 		}
 
 		return $this->platform;
-	}
-
-	/**
-	 *
-	 * @return PDOStatementBuilder
-	 */
-	public function getStatementBuilder()
-	{
-		if (!isset($this->builder))
-		{
-			$this->builder = new PDOStatementBuilder($this);
-		}
-
-		return $this->builder;
 	}
 
 	/**
@@ -431,12 +409,6 @@ class PDOConnection implements ConnectionInterface, TransactionInterface,
 	{
 		return $this->connection;
 	}
-
-	/**
-	 *
-	 * @var PDOStatementBuilder
-	 */
-	private $builder;
 
 	/**
 	 *

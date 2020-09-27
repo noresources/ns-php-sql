@@ -21,6 +21,15 @@ class PDOPlatform implements PlatformInterface,
 		$this->basePlatform = $basePlatform;
 	}
 
+	public function newStatement($statementType)
+	{
+		return \call_user_func_array(
+			[
+				$this->basePlatform,
+				'newStatement'
+			], func_get_args());
+	}
+
 	public function getConnection()
 	{
 		return $this->basePlatform->getConnection();

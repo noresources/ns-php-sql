@@ -1,0 +1,1 @@
+SELECT `Classes`.`id` AS `classId` FROM `Classes` AS `c` WHERE `Classes`.`criteria` = ?
