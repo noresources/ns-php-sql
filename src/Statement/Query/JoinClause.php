@@ -74,7 +74,7 @@ class JoinClause implements TokenizableExpressionInterface
 		return $stream;
 	}
 
-	public function getExpressionDataType()
+	public function getDataType()
 	{
 		return K::DATATYPE_UNDEFINED;
 	}

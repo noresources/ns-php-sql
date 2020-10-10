@@ -11,20 +11,23 @@ namespace NoreSources\SQL\Expression;
 
 use NoreSources\Expression as xpr;
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\DataTypeProviderInterface;
 
 /**
  * Unary operator expression
  */
-class UnaryOperation extends xpr\UnaryOperation implements TokenizableExpressionInterface,
-	ExpressionReturnTypeInterface
+class UnaryOperation extends xpr\UnaryOperation implements
+	TokenizableExpressionInterface, DataTypeProviderInterface
 {
 
-	public function __construct($operator, TokenizableExpressionInterface $operand)
+	public function __construct($operator,
+		TokenizableExpressionInterface $operand)
 	{
 		parent::__construct($operator, $operand);
 	}
 
-	public function tokenize(TokenStream $stream, TokenStreamContextInterface $context)
+	public function tokenize(TokenStream $stream,
+		TokenStreamContextInterface $context)
 	{
 		$stream->text($this->getOperator());
 		if (\preg_match('/[a-z][0-9]/i', $this->getOperator()))
@@ -33,12 +36,13 @@ class UnaryOperation extends xpr\UnaryOperation implements TokenizableExpression
 		return $stream->expression($this->getOperand(), $context);
 	}
 
-	public function getExpressionDataType()
+	public function getDataType()
 	{
 		switch ($this->getOperator())
 		{
 			case self::MINUS:
-				return ExpressionHelper::getExpressionDataType($this->getOperand());
+				return ExpressionHelper::getDataType(
+					$this->getOperand());
 			case self::BITWISE_NOT:
 				return K::DATATYPE_INTEGER;
 			case self::LOGICAL_NOT:

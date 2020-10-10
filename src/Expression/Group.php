@@ -9,7 +9,10 @@
  */
 namespace NoreSources\SQL\Expression;
 
-class Group implements TokenizableExpressionInterface, ExpressionReturnTypeInterface
+use NoreSources\SQL\DataTypeProviderInterface;
+
+class Group implements TokenizableExpressionInterface,
+	DataTypeProviderInterface
 {
 
 	/**
@@ -18,7 +21,9 @@ class Group implements TokenizableExpressionInterface, ExpressionReturnTypeInter
 	 * @param string $open
 	 * @param string $close
 	 */
-	public function __construct(TokenizableExpressionInterface $expression, $open = '(', $close = ')')
+	public function __construct(
+		TokenizableExpressionInterface $expression, $open = '(',
+		$close = ')')
 	{
 		$this->expression = $expression;
 		$this->openingText = $open;
@@ -52,21 +57,17 @@ class Group implements TokenizableExpressionInterface, ExpressionReturnTypeInter
 		return $this->getClosingText();
 	}
 
-	public function tokenize(TokenStream $stream, TokenStreamContextInterface $context)
+	public function tokenize(TokenStream $stream,
+		TokenStreamContextInterface $context)
 	{
 		return $stream->text($this->openingText)
 			->expression($this->expression, $context)
 			->text($this->closingText);
 	}
 
-	/**
-	 *
-	 * {@inheritdoc}
-	 * @see \NoreSources\SQL\Expression\ExpressionReturnTypeInterface::getExpressionDataType()
-	 */
-	public function getExpressionDataType()
+	public function getDataType()
 	{
-		return ExpressionHelper::getExpressionDataType($this->expression);
+		return ExpressionHelper::getDataType($this->expression);
 	}
 
 	/**

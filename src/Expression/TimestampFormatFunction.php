@@ -11,11 +11,13 @@ namespace NoreSources\SQL\Expression;
 
 use NoreSources\DateTime;
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\DataTypeProviderInterface;
 
 /**
  * Timestamp formatting meta function
  */
-class TimestampFormatFunction extends MetaFunctionCall implements ExpressionReturnTypeInterface
+class TimestampFormatFunction extends MetaFunctionCall implements
+	DataTypeProviderInterface
 {
 
 	/**
@@ -33,15 +35,17 @@ class TimestampFormatFunction extends MetaFunctionCall implements ExpressionRetu
 		if (!($format instanceof TokenizableExpressionInterface))
 			$format = new Literal($format, K::DATATYPE_STRING);
 		if (!($timestamp instanceof TokenizableExpressionInterface))
-			$timestamp = new Literal(new DateTime($timestamp), K::DATATYPE_TIMESTAMP);
+			$timestamp = new Literal(new DateTime($timestamp),
+				K::DATATYPE_TIMESTAMP);
 
-		parent::__construct(K::METAFUNCTION_TIMESTAMP_FORMAT, [
-			$format,
-			$timestamp
-		]);
+		parent::__construct(K::METAFUNCTION_TIMESTAMP_FORMAT,
+			[
+				$format,
+				$timestamp
+			]);
 	}
 
-	public function getExpressionDataType()
+	public function getDataType()
 	{
 		return K::DATATYPE_STRING;
 	}

@@ -13,10 +13,10 @@ namespace NoreSources\SQL\Statement\Query;
 
 use NoreSources\Container;
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\DataTypeProviderInterface;
 use NoreSources\SQL\Expression\Column;
 use NoreSources\SQL\Expression\DataRowContainerReference;
 use NoreSources\SQL\Expression\Evaluator;
-use NoreSources\SQL\Expression\ExpressionReturnTypeInterface;
 use NoreSources\SQL\Expression\Table;
 use NoreSources\SQL\Expression\TableReference;
 use NoreSources\SQL\Expression\TokenStream;
@@ -439,8 +439,8 @@ class SelectQuery extends Statement
 				else
 				{
 					$type = K::DATATYPE_UNDEFINED;
-					if ($column->expression instanceof ExpressionReturnTypeInterface)
-						$type = $column->expression->getExpressionDataType();
+					if ($column->expression instanceof DataTypeProviderInterface)
+						$type = $column->expression->getDataType();
 					$context->setResultColumn($columnIndex, $type,
 						$column->alias);
 				}

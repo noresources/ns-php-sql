@@ -11,12 +11,13 @@ namespace NoreSources\SQL\Expression;
 
 use NoreSources\Expression\Set;
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\DataTypeProviderInterface;
 
 /**
  * IN(), NOT IN() SQL operator
  */
 class MemberOf extends Set implements TokenizableExpressionInterface,
-	ExpressionReturnTypeInterface
+	DataTypeProviderInterface
 {
 
 	/**
@@ -73,7 +74,7 @@ class MemberOf extends Set implements TokenizableExpressionInterface,
 		return $stream->text(')');
 	}
 
-	public function getExpressionDataType()
+	public function getDataType()
 	{
 		return K::DATATYPE_BOOLEAN;
 	}

@@ -11,12 +11,13 @@ namespace NoreSources\SQL\Expression;
 
 use NoreSources\Expression as xpr;
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\DataTypeProviderInterface;
 
 /**
  * Binary operator expression
  */
-class BinaryOperation extends xpr\BinaryOperation implements TokenizableExpressionInterface,
-	ExpressionReturnTypeInterface
+class BinaryOperation extends xpr\BinaryOperation implements
+	TokenizableExpressionInterface, DataTypeProviderInterface
 {
 
 	const EQUAL = '=';
@@ -30,7 +31,9 @@ class BinaryOperation extends xpr\BinaryOperation implements TokenizableExpressi
 	 * @param TokenizableExpressionInterface $left
 	 * @param TokenizableExpressionInterface $right
 	 */
-	public function __construct($operator, TokenizableExpressionInterface $left, TokenizableExpressionInterface $right)
+	public function __construct($operator,
+		TokenizableExpressionInterface $left,
+		TokenizableExpressionInterface $right)
 	{
 		parent::__construct($operator, $left, $right);
 	}
@@ -38,13 +41,14 @@ class BinaryOperation extends xpr\BinaryOperation implements TokenizableExpressi
 	public function isComparison()
 	{
 		return (parent::isComparison() ||
-			\in_array($this->getOperator(), [
-				self::EQUAL,
-				self::DIFFER
-			]));
+			\in_array($this->getOperator(),
+				[
+					self::EQUAL,
+					self::DIFFER
+				]));
 	}
 
-	public function getExpressionDataType()
+	public function getDataType()
 	{
 		if ($this->isComparison())
 			return K::DATATYPE_BOOLEAN;
@@ -52,15 +56,18 @@ class BinaryOperation extends xpr\BinaryOperation implements TokenizableExpressi
 		$type = K::DATATYPE_UNDEFINED;
 		if ($this->isArithmetic())
 		{
-			$type = ExpressionHelper::getExpressionDataType($this->getLeftOperand());
+			$type = ExpressionHelper::getDataType(
+				$this->getLeftOperand());
 			if ($type == K::DATATYPE_UNDEFINED)
-				return ExpressionHelper::getExpressionDataType($this->getRightOperand());
+				return ExpressionHelper::getDataType(
+					$this->getRightOperand());
 		}
 
 		return $type;
 	}
 
-	public function tokenize(TokenStream $stream, TokenStreamContextInterface $context)
+	public function tokenize(TokenStream $stream,
+		TokenStreamContextInterface $context)
 	{
 		return $stream->expression($this->getLeftOperand(), $context)
 			->space()

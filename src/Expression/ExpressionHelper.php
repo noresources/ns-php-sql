@@ -10,6 +10,7 @@
 namespace NoreSources\SQL\Expression;
 
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\DataTypeProviderInterface;
 use NoreSources\SQL\Structure\ColumnStructure;
 
 class ExpressionHelper
@@ -69,11 +70,11 @@ class ExpressionHelper
 	 *        	Any object
 	 * @return integer Data type identifier
 	 */
-	public static function getExpressionDataType($expression)
+	public static function getDataType($expression)
 	{
-		if ($expression instanceof ExpressionReturnTypeInterface)
+		if ($expression instanceof DataTypeProviderInterface)
 		{
-			return $expression->getExpressionDataType();
+			return $expression->getDataType();
 		}
 
 		return Literal::dataTypeFromValue($expression);

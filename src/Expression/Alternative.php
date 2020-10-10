@@ -1,21 +1,25 @@
 <?php
 namespace NoreSources\SQL\Expression;
 
+use NoreSources\SQL\DataTypeProviderInterface;
+
 /**
  * CASE expression
  */
-class Alternative implements TokenizableExpressionInterface, ExpressionReturnTypeInterface
+class Alternative implements TokenizableExpressionInterface,
+	DataTypeProviderInterface
 {
 
-	public function __construct(TokenizableExpressionInterface $when, TokenizableExpressionInterface $then)
+	public function __construct(TokenizableExpressionInterface $when,
+		TokenizableExpressionInterface $then)
 	{
 		$this->when = $when;
 		$this->then = $then;
 	}
 
-	public function getExpressionDataType()
+	public function getDataType()
 	{
-		return ExpressionHelper::getExpressionDataType($this->then);
+		return ExpressionHelper::getDataType($this->then);
 	}
 
 	public function getCondition()
@@ -28,7 +32,8 @@ class Alternative implements TokenizableExpressionInterface, ExpressionReturnTyp
 		return $this->then;
 	}
 
-	public function tokenize(TokenStream $stream, TokenStreamContextInterface $context)
+	public function tokenize(TokenStream $stream,
+		TokenStreamContextInterface $context)
 	{
 		return $stream->keyword('when')
 			->space()

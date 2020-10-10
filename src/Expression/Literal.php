@@ -12,6 +12,7 @@ namespace NoreSources\SQL\Expression;
 use NoreSources\StringRepresentation;
 use NoreSources\TypeDescription;
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\DataTypeProviderInterface;
 use NoreSources\SQL\Structure\ArrayColumnDescription;
 use NoreSources\SQL\Structure\ColumnDescriptionInterface;
 
@@ -19,7 +20,7 @@ use NoreSources\SQL\Structure\ColumnDescriptionInterface;
  * Literal value
  */
 class Literal implements TokenizableExpressionInterface,
-	ExpressionReturnTypeInterface, StringRepresentation
+	DataTypeProviderInterface, StringRepresentation
 {
 
 	/**
@@ -120,7 +121,7 @@ class Literal implements TokenizableExpressionInterface,
 				TypeDescription::getName($this));
 	}
 
-	public function getExpressionDataType()
+	public function getDataType()
 	{
 		if ($this->serializationTarget instanceof ColumnDescriptionInterface)
 		{
@@ -130,8 +131,7 @@ class Literal implements TokenizableExpressionInterface,
 					K::COLUMN_DATA_TYPE);
 		}
 
-		return ExpressionHelper::getExpressionDataType(
-			$this->getValue());
+		return ExpressionHelper::getDataType($this->getValue());
 	}
 
 	public function tokenize(TokenStream $stream,

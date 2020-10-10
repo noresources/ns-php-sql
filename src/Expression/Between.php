@@ -10,13 +10,15 @@
 namespace NoreSources\SQL\Expression;
 
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\DataTypeProviderInterface;
 
 /**
  * Shorthand expression for SQL BETWEEN operator.
  *
  * expression BETWEEN expression AND expression
  */
-class Between implements TokenizableExpressionInterface, ExpressionReturnTypeInterface
+class Between implements TokenizableExpressionInterface,
+	DataTypeProviderInterface
 {
 
 	/**
@@ -32,7 +34,9 @@ class Between implements TokenizableExpressionInterface, ExpressionReturnTypeInt
 	 * @param TokenizableExpressionInterface $min
 	 * @param TokenizableExpressionInterface $max
 	 */
-	public function __construct(TokenizableExpressionInterface $leftOperand, TokenizableExpressionInterface $min,
+	public function __construct(
+		TokenizableExpressionInterface $leftOperand,
+		TokenizableExpressionInterface $min,
 		TokenizableExpressionInterface $max, $inside = true)
 	{
 		$this->inside = true;
@@ -43,7 +47,7 @@ class Between implements TokenizableExpressionInterface, ExpressionReturnTypeInt
 		];
 	}
 
-	public function getExpressionDataType()
+	public function getDataType()
 	{
 		return K::DATATYPE_BOOLEAN;
 	}
@@ -89,7 +93,8 @@ class Between implements TokenizableExpressionInterface, ExpressionReturnTypeInt
 	 * {@inheritdoc}
 	 * @see \NoreSources\SQL\TokenizableExpressionInterface::tokenize()
 	 */
-	public function tokenize(TokenStream $stream, TokenStreamContextInterface $context)
+	public function tokenize(TokenStream $stream,
+		TokenStreamContextInterface $context)
 	{
 		$stream->expression($this->leftOperand, $context);
 		if (!$this->inside)
