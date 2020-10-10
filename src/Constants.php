@@ -120,7 +120,7 @@ class Constants
 	 * DBMS type
 	 *
 	 * @var string DBMS ConnectionInterface class name or
-	 *      one of the types registered using ConnectionHelper::registerConnectionClass()
+	 *      a key that one of ConnectionFactoryInterface implementation may understand.
 	 */
 	const CONNECTION_TYPE = 'type';
 

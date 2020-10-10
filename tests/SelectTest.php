@@ -2,7 +2,6 @@
 namespace NoreSources\SQL;
 
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\DBMS\ConnectionHelper;
 use NoreSources\SQL\DBMS\Reference\ReferenceConnection;
 use NoreSources\SQL\DBMS\Reference\ReferencePlatform;
 use NoreSources\SQL\Expression\ExpressionHelper;
@@ -69,8 +68,8 @@ final class SelectTest extends \PHPUnit\Framework\TestCase
 
 		$select = new SelectQuery();
 		$column = new Literal(true);
-		$this->assertEquals(K::DATATYPE_BOOLEAN,
-			$column->getDataType(), 'Column value type');
+		$this->assertEquals(K::DATATYPE_BOOLEAN, $column->getDataType(),
+			'Column value type');
 
 		$select->columns($column);
 
@@ -194,8 +193,8 @@ final class SelectTest extends \PHPUnit\Framework\TestCase
 
 	public function testPolishNotation()
 	{
-		$connection = ConnectionHelper::createConnection(
-			ReferenceConnection::class);
+		$env = new Environment();
+		$connection = $env->getConnection();
 		$factory = $connection->getPlatform();
 
 		/**
@@ -218,8 +217,7 @@ final class SelectTest extends \PHPUnit\Framework\TestCase
 				]
 			]);
 
-		$data = ConnectionHelper::buildStatement($connection, $select,
-			$structure);
+		$data = $env->prepareStatement($select, $structure);
 		$sql = \SqlFormatter::format(strval($data), false);
 		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__,
 			'not in', 'sql');
@@ -251,9 +249,8 @@ final class SelectTest extends \PHPUnit\Framework\TestCase
 
 		$a->union($b);
 
-		$reference = new ReferenceConnection(array());
-		$data = ConnectionHelper::buildStatement($reference, $a,
-			$tableStructure);
+		$env = new Environment();
+		$data = $env->prepareStatement($a, $tableStructure);
 		$sql = \SqlFormatter::format(strval($data), false);
 		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__,
 			null, 'sql');
@@ -264,7 +261,8 @@ final class SelectTest extends \PHPUnit\Framework\TestCase
 	 */
 	public function testInlineDataRowContainers()
 	{
-		$connection = ConnectionHelper::createConnection();
+		$env = new Environment();
+		$connection = $env->getConnection();
 		$this->assertInstanceOf(ReferenceConnection::class, $connection,
 			'Reference connection instance');
 
@@ -281,8 +279,8 @@ final class SelectTest extends \PHPUnit\Framework\TestCase
 		$innerSelect->columns('id', 'name')->where([
 			'gender' => ':g'
 		]);
-		$innerData = ConnectionHelper::buildStatement($connection,
-			$innerSelect, $employeesStructure);
+		$innerData = $env->prepareStatement($innerSelect,
+			$employeesStructure);
 		$this->assertCount(2, $innerData->getResultColumns(),
 			'Inner query result columns');
 		$this->assertCount(1, $innerData->getParameters(),
@@ -311,8 +309,7 @@ final class SelectTest extends \PHPUnit\Framework\TestCase
 			'id' => 'H.managerId'
 		]);
 
-		$data = ConnectionHelper::buildStatement($connection,
-			$outerSelect, $structure);
+		$data = $env->prepareStatement($outerSelect, $structure);
 		$this->assertCount(1, $data->getParameters(),
 			'Outer parameter count');
 

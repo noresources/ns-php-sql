@@ -24,21 +24,26 @@ final class DropTest extends \PHPUnit\Framework\TestCase
 
 	public function testDropIndex()
 	{
-		$platform = new ReferencePlatform();
+		$structurelessEnvironment = new Environment();
+		$platform = $structurelessEnvironment->getPlatform();
 
 		$structureless = new DropIndexQuery();
 		$structureless->identifier('structureless');
-		$result = StatementBuilder::getInstance()($structureless, $platform);
+
+		$result = $structurelessEnvironment->prepareStatement(
+			$structureless);
 		$sql = \SqlFormatter::format(strval($result), false);
 		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__,
 			'structureless', 'sql', 'Structureless SQL');
 
 		$structure = $this->datasources->get('Company');
+		$structuredEnvironment = new Environment($structure);
 		$indexStructure = $structure['ns_unittests']['index_employees_name'];
-		$structured = new DropIndexQuery();
+		$structured = $structuredEnvironment->newStatement(
+			K::QUERY_DROP_INDEX);
 		$structured->identifier('structureless');
 
-		$result =  StatementBuilder::getInstance()($structured, $platform);
+		$result = $structuredEnvironment->prepareStatement($structured);
 		$sql = \SqlFormatter::format(strval($result), false);
 		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__,
 			'structured', 'sql', 'Drop index SQL');

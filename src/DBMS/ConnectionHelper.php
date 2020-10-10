@@ -27,6 +27,8 @@ use NoreSources\SQL\Structure\TableStructure;
 
 /**
  * Helper method for creation of Connection, statement and prepared statement
+ *
+ * @deprecated use Environment class
  */
 class ConnectionHelper
 {

@@ -9,8 +9,6 @@
  */
 namespace NoreSources\SQL\DBMS\Reference;
 
-use NoreSources\Container;
-use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\PlatformProviderTrait;
 use NoreSources\SQL\DBMS\TransactionInterface;
@@ -35,9 +33,6 @@ class ReferenceConnection implements ConnectionInterface,
 
 				return new ReferenceTransactionBlock($this, $name);
 			});
-
-		$structure = Container::keyValue($parameters,
-			K::CONNECTION_STRUCTURE);
 	}
 
 	public function __destruct()
