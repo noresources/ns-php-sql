@@ -11,8 +11,8 @@
 //
 namespace NoreSources\SQL\Statement\Structure;
 
+use NoreSources\Container;
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\DBMS\TypeHelper;
 use NoreSources\SQL\DBMS\TypeInterface;
 use NoreSources\SQL\Expression\Evaluator;
 use NoreSources\SQL\Expression\TokenStream;
@@ -209,7 +209,8 @@ class CreateTableQuery extends Statement implements
 			->space()
 			->identifier($typeName);
 
-		$typeFlags = TypeHelper::getProperty($type, K::TYPE_FLAGS);
+		$typeFlags = Container::keyValue($type, K::TYPE_FLAGS,
+			K::TYPE_FLAGS_DEFAULT);
 
 		$lengthSupport = (($typeFlags & K::TYPE_FLAG_LENGTH) ==
 			K::TYPE_FLAG_LENGTH);
@@ -256,17 +257,17 @@ class CreateTableQuery extends Statement implements
 		{
 			$scale = $column->getColumnProperty(
 				K::COLUMN_FRACTION_SCALE);
-			$length = TypeHelper::getMaxLength($type);
-			if (\is_infinite($length))
+			$typeMAxLength = $type->getTypeMaxLength();
+			if (\is_infinite($typeMAxLength))
 			{
 				/**
 				 *
 				 * @todo trigger warning
 				 */
-				$length = $scale * 2;
+				$typeMAxLength = $scale * 2;
 			}
 			$stream->text('(')
-				->literal($length)
+				->literal($typeMAxLength)
 				->text(',')
 				->literal($scale)
 				->text(')');
@@ -277,15 +278,15 @@ class CreateTableQuery extends Statement implements
 			($columnDeclaration &
 			K::PLATFORM_FEATURE_COLUMN_KEY_MANDATORY_LENGTH)))
 		{
-			$maxLength = TypeHelper::getMaxLength($type);
-			if (\is_infinite($maxLength))
+			$typeMAxLength = $type->getTypeMaxLength();
+			if (\is_infinite($typeMAxLength))
 				throw new StatementException($this,
 					$column->getName() .
 					' column require length specification but type ' .
 					$type->getTypeName() . ' max length is unspecified');
 
 			$stream->text('(')
-				->literal($maxLength)
+				->literal($typeMAxLength)
 				->text(')');
 		}
 

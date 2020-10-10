@@ -9,11 +9,13 @@
  */
 namespace NoreSources\SQL\DBMS;
 
-use NoreSources\ArrayRepresentation;
 use NoreSources\SQL\Constants as K;
 
-class ArrayObjectType implements TypeInterface, ArrayRepresentation
+class ArrayObjectType implements TypeInterface
 {
+
+	use TypeMaxLengthTrait;
+	use TypeFlagsTrait;
 
 	/**
 	 *
@@ -24,9 +26,10 @@ class ArrayObjectType implements TypeInterface, ArrayRepresentation
 		if ($properties instanceof \ArrayObject)
 			$this->typeProperties = $properties;
 		elseif (\is_string($properties))
-			$this->typeProperties = new \ArrayObject([
-				K::TYPE_NAME => $properties
-			]);
+			$this->typeProperties = new \ArrayObject(
+				[
+					K::TYPE_NAME => $properties
+				]);
 		else
 			$this->typeProperties = new \ArrayObject($properties);
 	}

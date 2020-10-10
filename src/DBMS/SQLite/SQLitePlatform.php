@@ -4,11 +4,11 @@ namespace NoreSources\SQL\DBMS\SQLite;
 use NoreSources\Container;
 use NoreSources\DateTime;
 use NoreSources\Text;
+use NoreSources\MediaType\MediaType;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\AbstractPlatform;
 use NoreSources\SQL\DBMS\ArrayObjectType;
 use NoreSources\SQL\DBMS\TimestampFormatTranslationMap;
-use NoreSources\SQL\DBMS\TypeHelper;
 use NoreSources\SQL\DBMS\TypeRegistry;
 use NoreSources\SQL\Expression\FunctionCall;
 use NoreSources\SQL\Expression\Literal;
@@ -57,10 +57,13 @@ class SQLitePlatform extends AbstractPlatform
 	public function getColumnType(ColumnDescriptionInterface $column,
 		$constraintFlags = 0)
 	{
-		return Container::firstValue(
-			TypeHelper::getMatchingTypes($column,
-				self::getTypeRegistry()),
-			self::getTypeRegistry()->get('text'));
+		$registry = $this->getTypeRegistry();
+		$type = Container::firstValue(
+			$registry->matchDescription($column));
+		if (!$type)
+			return $registry->get('text');
+
+		return $type;
 	}
 
 	public function getParameter($name, ParameterData $parameters = null)
@@ -182,7 +185,7 @@ class SQLitePlatform extends AbstractPlatform
 		return '"' . $identifier . '"';
 	}
 
-	public static function getTypeRegistry()
+	public function getTypeRegistry()
 	{
 		if (!isset(self::$typeRegistry))
 		{
@@ -203,8 +206,7 @@ class SQLitePlatform extends AbstractPlatform
 						[
 							K::TYPE_NAME => 'REAL',
 							K::TYPE_DATA_TYPE => K::DATATYPE_FLOAT,
-							K::TYPE_FLAGS => TypeHelper::getDefaultTypeProperty(
-								K::TYPE_FLAGS) |
+							K::TYPE_FLAGS => K::TYPE_FLAGS_DEFAULT |
 							K::TYPE_FLAG_FRACTION_SCALE
 						]),
 					'text' => new ArrayObjectType(
@@ -212,6 +214,13 @@ class SQLitePlatform extends AbstractPlatform
 							K::TYPE_NAME => 'TEXT',
 							K::TYPE_DATA_TYPE => K::DATATYPE_TIMESTAMP |
 							K::DATATYPE_STRING
+						]),
+					'json' => new ArrayObjectType(
+						[
+							K::TYPE_NAME => 'JSON',
+							K::TYPE_DATA_TYPE => K::DATATYPE_STRING,
+							K::TYPE_MEDIA_TYPE => MediaType::fromString(
+								'application/json')
 						])
 				]);
 		}

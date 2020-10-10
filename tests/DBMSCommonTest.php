@@ -6,6 +6,7 @@ use NoreSources\DateTime;
 use NoreSources\SingletonTrait;
 use NoreSources\TypeConversion;
 use NoreSources\TypeDescription;
+use NoreSources\MediaType\MediaType;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\ConnectionException;
 use NoreSources\SQL\DBMS\ConnectionHelper;
@@ -15,7 +16,11 @@ use NoreSources\SQL\DBMS\PreparedStatementInterface;
 use NoreSources\SQL\DBMS\TransactionBlockException;
 use NoreSources\SQL\DBMS\TransactionBlockInterface;
 use NoreSources\SQL\DBMS\TransactionInterface;
+use NoreSources\SQL\DBMS\TypeInterface;
+use NoreSources\SQL\DBMS\MySQL\MySQLPlatform;
 use NoreSources\SQL\DBMS\PDO\PDOConnection;
+use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLPlatform;
+use NoreSources\SQL\DBMS\SQLite\SQLitePlatform;
 use NoreSources\SQL\Expression\CastFunction;
 use NoreSources\SQL\Expression\Literal;
 use NoreSources\SQL\Expression\Parameter;
@@ -30,6 +35,7 @@ use NoreSources\SQL\Statement\Query\SelectQuery;
 use NoreSources\SQL\Statement\Structure\CreateTableQuery;
 use NoreSources\SQL\Statement\Structure\DropTableQuery;
 use NoreSources\SQL\Structure\ArrayColumnDescription;
+use NoreSources\SQL\Structure\ColumnStructure;
 use NoreSources\SQL\Structure\StructureElementInterface;
 use NoreSources\SQL\Structure\TableStructure;
 use NoreSources\Test\DatasourceManager;
@@ -624,7 +630,8 @@ final class DBMSCommonTest extends TestCase
 	private function dbmsParametersTypes(
 		ConnectionInterface $connection, TableStructure $tableStructure)
 	{
-		$dbmsName = TypeDescription::getLocalName($connection);
+		$dbmsName = \preg_replace('/Connection/', '',
+			TypeDescription::getLocalName($connection));
 		$method = __CLASS__ . '::' . debug_backtrace()[1]['function'];
 		/**
 		 *
@@ -821,7 +828,8 @@ final class DBMSCommonTest extends TestCase
 	private function connectionTransactionTest(
 		ConnectionInterface $connection, TableStructure $tableStructure)
 	{
-		$dbmsName = TypeDescription::getLocalName($connection);
+		$dbmsName = \preg_replace('/Connection/', '',
+			TypeDescription::getLocalName($connection));
 
 		$insert = new InsertQuery($tableStructure);
 		$insert('id', ':id');
@@ -987,7 +995,8 @@ final class DBMSCommonTest extends TestCase
 	private function dbmsEmployeesTable(TableStructure $tableStructure,
 		ConnectionInterface $connection)
 	{
-		$dbmsName = TypeDescription::getLocalName($connection);
+		$dbmsName = \preg_replace('/Connection/', '',
+			TypeDescription::getLocalName($connection));
 		$method = __CLASS__ . '::' . debug_backtrace()[1]['function'];
 		$this->recreateTable($connection, $tableStructure);
 
@@ -1349,10 +1358,138 @@ final class DBMSCommonTest extends TestCase
 		}
 	}
 
+	public function testMediaTypes()
+	{
+		$settings = $this->connections->getAvailableConnectionNames();
+		$this->assertTrue(true, 'Silence tester');
+
+		foreach ($settings as $dbmsName)
+		{
+			$connection = $this->connections->get($dbmsName);
+			$this->dbmsMediaType($connection);
+		}
+	}
+
+	private function dbmsMediaType(ConnectionInterface $connection)
+	{
+		$platform = $connection->getPlatform();
+		$dbmsName = \preg_replace('/Connection/', '',
+			TypeDescription::getLocalName($connection));
+
+		$textColumn = new ColumnStructure('textColumn');
+
+		$bitStringPlatforms = [
+			PostgreSQLPlatform::class
+			// MySQLPlatform::class
+		];
+
+		if (\in_array(TypeDescription::getName($platform),
+			$bitStringPlatforms))
+		{
+			$bitStringColumn = new ColumnStructure('bitstring');
+			$bitStringColumn->setColumnProperty(K::COLUMN_DATA_TYPE,
+				K::DATATYPE_STRING);
+			$bitStringColumn->setColumnProperty(K::COLUMN_MEDIA_TYPE,
+				K::MEDIA_TYPE_BIT_STRING);
+
+			$bitStringType = $platform->getColumnType($bitStringColumn);
+
+			$this->assertInstanceOf(TypeInterface::class, $bitStringType,
+				$dbmsName . ' A bit string type exists');
+
+			$this->assertTrue($bitStringType->has(K::TYPE_MEDIA_TYPE),
+				$dbmsName . ' type "' . $bitStringType->getTypeName() .
+				'" has bitstring media type');
+
+			foreach ([
+				'bitstring' => [
+					'101',
+					'101'
+				],
+				'int' => [
+					5,
+					'101'
+				]
+			] as $label => $test)
+			{
+				$data = $test[0];
+				$bitStringText = $test[1];
+
+				$expected = $platform->serializeColumnData($textColumn,
+					$bitStringText);
+				$actual = $platform->serializeColumnData(
+					$bitStringColumn, $data);
+
+				$this->assertEquals($expected, $actual,
+					$dbmsName . ' ' . $bitStringType->getTypeName() .
+					' serialization');
+			}
+		}
+
+		$jsonPlatforms = [
+			MySQLPlatform::class,
+			PostgreSQLPlatform::class,
+			SQLitePlatform::class
+		];
+
+		if (\in_array(TypeDescription::getName($platform),
+			$jsonPlatforms))
+		{
+
+			$jsonColumn = new ColumnStructure('jsonColumn');
+			$jsonColumn->setColumnProperty(K::COLUMN_DATA_TYPE,
+				K::DATATYPE_STRING);
+			$jsonColumn->setColumnProperty(K::COLUMN_MEDIA_TYPE,
+				MediaType::fromString('application/json'));
+
+			$jsonType = $platform->getColumnType($jsonColumn);
+
+			$this->assertInstanceOf(TypeInterface::class, $jsonType,
+				$dbmsName . ' has a JSON type');
+
+			$this->assertEquals('application/json',
+				\strval($jsonType->get(K::TYPE_MEDIA_TYPE)),
+				$jsonType->getTypeName() . ' media type');
+
+			$tests = [
+				'json string' => [
+					'text',
+					'"text"'
+				],
+				'json true' => [
+					true,
+					'true'
+				],
+				'json array' => [
+					[
+						'foo',
+						'bar'
+					],
+					'["foo","bar"]'
+				]
+			];
+
+			foreach ($tests as $label => $test)
+			{
+				$data = $test[0];
+				$jsonText = $test[1];
+
+				$expected = $platform->serializeColumnData($textColumn,
+					$jsonText);
+				$actual = $platform->serializeColumnData($jsonColumn,
+					$data);
+
+				$this->assertEquals($expected, $actual,
+					$dbmsName . ' ' . $label);
+			}
+		}
+	}
+
 	private function recreateTable(ConnectionInterface $connection,
 		TableStructure $tableStructure)
 	{
-		$dbmsName = TypeDescription::getLocalName($connection);
+		$dbmsName = \preg_replace('/Connection/', '',
+			TypeDescription::getLocalName($connection));
 
 		$platform = $connection->getPlatform();
 

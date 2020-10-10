@@ -3,7 +3,7 @@ namespace NoreSources\SQL\DBMS\Reference;
 
 use NoreSources\Container;
 use NoreSources\SQL\DBMS\AbstractPlatform;
-use NoreSources\SQL\DBMS\TypeHelper;
+use NoreSources\SQL\DBMS\TypeRegistry;
 use NoreSources\SQL\Statement\ParameterData;
 use NoreSources\SQL\Structure\ColumnDescriptionInterface;
 use Psr\Log\LoggerAwareTrait;
@@ -40,9 +40,20 @@ class ReferencePlatform extends AbstractPlatform
 	function getColumnType(ColumnDescriptionInterface $column,
 		$constraintFlags = 0)
 	{
+
+		/**
+		 *
+		 * @var TypeRegistry $registry
+		 */
+		$registry = StandardTypeRegistry::getInstance();
+
 		return Container::firstValue(
-			TypeHelper::getMatchingTypes($column,
-				StandardTypeRegistry::getInstance()));
+			$registry->matchDescription($column));
+	}
+
+	public function getTypeRegistry()
+	{
+		return StandardTypeRegistry::getInstance();
 	}
 
 	public function getParameter($name, ParameterData $parameters = null)

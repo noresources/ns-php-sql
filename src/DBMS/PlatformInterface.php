@@ -38,6 +38,12 @@ interface PlatformInterface extends FeatureQueryInterface,
 
 	/**
 	 *
+	 * @return TypeRegistry
+	 */
+	function getTypeRegistry();
+
+	/**
+	 *
 	 * Get a DBMS-compliant parameter name
 	 *
 	 * @param string $name

@@ -6,7 +6,6 @@
 namespace NoreSources\SQL\DBMS\PostgreSQL;
 
 use NoreSources\Container;
-use NoreSources\SQL\DBMS\TypeHelper;
 use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLConstants as K;
 require (__DIR__ . '/../vendor/autoload.php');
 
@@ -31,7 +30,7 @@ EOF;
 $typePropertiesMap = [
 	// Range tool limited
 	// 'abstime' => [
-	// 		K::TYPE_DATA_TYPE => 'K::DATATYPE_DATETIME'
+	// K::TYPE_DATA_TYPE => 'K::DATATYPE_DATETIME'
 	// ],
 	'boolean' => [
 		K::TYPE_DATA_TYPE => 'K::DATATYPE_BOOLEAN'
@@ -39,17 +38,13 @@ $typePropertiesMap = [
 	'bigint' => [
 		K::TYPE_DATA_TYPE => 'K::DATATYPE_INTEGER'
 	],
-	//  Require a strict glyph count property
-	// 'bit' => [
-	// 		K::TYPE_DATA_TYPE => 'K::DATATYPE_STRING',
-	// ],
-
-	/* @todo A way to make distinction with "text" */
-
-	// 'bit varying' => [
-	// 		K::TYPE_DATA_TYPE => 'K::DATATYPE_STRING',
-	// 		K::TYPE_FLAGS => K::TYPE_FLAG_FRACTION_SCALE
-	// ],
+	'bit varying' => [
+		K::TYPE_DATA_TYPE => 'K::DATATYPE_STRING',
+		K::TYPE_FLAGS => K::TYPE_FLAGS_DEFAULT | K::TYPE_FLAG_LENGTH,
+		K::TYPE_MEDIA_TYPE => '	K::MEDIA_TYPE_BIT_STRING'
+	],
+	// Require a strict glyph count property / auto pad
+	// 'bit'
 	'bytea' => [
 		K::TYPE_DATA_TYPE => 'K::DATATYPE_BINARY'
 	],
@@ -57,18 +52,14 @@ $typePropertiesMap = [
 		K::TYPE_DATA_TYPE => 'K::DATATYPE_STRING',
 		K::TYPE_MAX_LENGTH => 1
 	],
-	// 'character' => [
-	// 	K::TYPE_DATA_TYPE => 'K::DATATYPE_STRING',
-	// K::TYPE_FLAGS => K::TYPE_FLAG_FRACTION_SCALE
-	// K::TYPE_PADDING_DIRECTION => 1
-	// ],
+	// Require strict glyph count / autopad
+	// 'character'
 	'character varying' => [
 		K::TYPE_DATA_TYPE => 'K::DATATYPE_STRING',
-		K::TYPE_FLAGS => TypeHelper::getDefaultTypeProperties()[K::TYPE_FLAGS] |
-		K::TYPE_FLAG_FRACTION_SCALE
+		K::TYPE_FLAGS => K::TYPE_FLAGS_DEFAULT | K::TYPE_FLAG_LENGTH
 	],
-	// 	'cstring' => [
-	// 		K::TYPE_DATA_TYPE => 'K::DATATYPE_STRING'
+	// 'cstring' => [
+	// K::TYPE_DATA_TYPE => 'K::DATATYPE_STRING'
 	//
 	'date' => [
 		K::TYPE_DATA_TYPE => 'K::DATATYPE_DATE'
@@ -90,24 +81,24 @@ $typePropertiesMap = [
 		K::TYPE_MEDIA_TYPE => '\'application/json\''
 	],
 	// 'money' => [
-	// 	K::TYPE_DATA_TYPE => 'K::DATATYPE_NUMBER',
-	// 	K::TYPE_TEXT_PATTERN => 'TBD'
+	// K::TYPE_DATA_TYPE => 'K::DATATYPE_NUMBER',
+	// K::TYPE_TEXT_PATTERN => 'TBD'
 	// ],
 	'numeric' => [
 		K::TYPE_DATA_TYPE => 'K::DATATYPE_NUMBER',
-		K::TYPE_FLAGS => TypeHelper::getDefaultTypeProperties()[K::TYPE_FLAGS] |
+		K::TYPE_FLAGS => K::TYPE_FLAGS_DEFAULT |
 		K::TYPE_FLAG_FRACTION_SCALE
 	],
 
-	//	'oid' => [
-	//		K::TYPE_DATA_TYPE => 'K::DATATYPE_INTEGER'
-	//	],
+	// 'oid' => [
+	// K::TYPE_DATA_TYPE => 'K::DATATYPE_INTEGER'
+	// ],
 	'real' => [
 		K::TYPE_DATA_TYPE => 'K::DATATYPE_FLOAT'
 	],
 	// Too specific
 	// 'reltime' => [
-	// 		K::TYPE_DATA_TYPE => 'K::DATATYPE_DATETIME',
+	// K::TYPE_DATA_TYPE => 'K::DATATYPE_DATETIME',
 	// ],
 	'smallint' => [
 		K::TYPE_DATA_TYPE => 'K::DATATYPE_INTEGER'
@@ -128,7 +119,7 @@ $typePropertiesMap = [
 		K::TYPE_DATA_TYPE => 'K::DATATYPE_TIME | K::DATATYPE_TIMEZONE'
 	],
 	// 'uuid' => [
-	// 	K::TYPE_DATA_TYPE => 'K::DATATYPE_STRING'
+	// K::TYPE_DATA_TYPE => 'K::DATATYPE_STRING'
 	// ],
 	'xml' => [
 		K::TYPE_DATA_TYPE => 'K::DATATYPE_STRING',
@@ -153,7 +144,8 @@ while ($row = pg_fetch_assoc($result))
 	$length = \intval($row['length']);
 	$size = $length * 8;
 
-	echo (sprintf('%-5d %-30.30s %3d %s', $oid, $name, $length, $row['desc']) . PHP_EOL);
+	echo (sprintf('%-5d %-30.30s %3d %s', $oid, $name, $length,
+		$row['desc']) . PHP_EOL);
 
 	if (\array_key_exists($name, $typePropertiesMap))
 	{
@@ -163,17 +155,21 @@ while ($row = pg_fetch_assoc($result))
 	}
 }
 
-$filename = __DIR__ . '/../src/DBMS/PostgreSQL/PostgreSQLType.php';
+$filename = __DIR__ .
+	'/../src/DBMS/PostgreSQL/PostgreSQLTypeRegistry.php';
 $file = file_get_contents($filename);
 
-$typePropertiesMapContent = Container::implode($typePropertiesMap, ',' . PHP_EOL,
+$typePropertiesMapContent = Container::implode($typePropertiesMap,
+	',' . PHP_EOL,
 	function ($name, $properties) use ($typeNameOidMap, $oidDescriptions) {
 		$cleanName = \str_replace('"', '', $name);
 		if (!\array_key_exists($name, $typeNameOidMap))
-			throw new \InvalidArgumentException('"' . $cleanName . '" oid not found');
+			throw new \InvalidArgumentException(
+				'"' . $cleanName . '" oid not found');
 		$oid = $typeNameOidMap[$name];
 		$s = '';
-		$s .= $oid . ' => new ArrayObjectType([ ' . PHP_EOL;
+		$s .= "'" . $cleanName . "'" . ' => new ArrayObjectType([ ' .
+		PHP_EOL;
 		// name
 		$s .= "'" . K::TYPE_NAME . "' => '" . $cleanName . "'," . PHP_EOL;
 		foreach ($properties as $k => $v)
@@ -184,15 +180,20 @@ $typePropertiesMapContent = Container::implode($typePropertiesMap, ',' . PHP_EOL
 		return $s;
 	});
 
-$typeNameOidMapContent = Container::implode($typeNameOidMap, ',' . PHP_EOL,
+$typeNameOidMapContent = Container::implode($typeNameOidMap,
+	',' . PHP_EOL,
 	function ($name, $oid) {
 		return "'" . $name . '\' => ' . $oid;
 	});
 
-$file = preg_replace(',(--<typeNameOidMap>--).*?(--</typeNameOidMap>--),sm',
-	'\1 */' . PHP_EOL . $typeNameOidMapContent . PHP_EOL . '/* \2', $file);
+$file = preg_replace(
+	',(--<typeNameOidMap>--).*?(--</typeNameOidMap>--),sm',
+	'\1 */' . PHP_EOL . $typeNameOidMapContent . PHP_EOL . '/* \2',
+	$file);
 
-$file = preg_replace(',(--<typeProperties>--).*?(--</typeProperties>--),sm',
-	'\1 */' . PHP_EOL . $typePropertiesMapContent . PHP_EOL . '/* \2', $file);
+$file = preg_replace(
+	',(--<typeProperties>--).*?(--</typeProperties>--),sm',
+	'\1 */' . PHP_EOL . $typePropertiesMapContent . PHP_EOL . '/* \2',
+	$file);
 
 file_put_contents($filename, $file);

@@ -9,7 +9,9 @@
  */
 namespace NoreSources\SQL;
 
+use NoreSources\StructuredText;
 use NoreSources\TypeConversion;
+use NoreSources\TypeConversionException;
 use NoreSources\MediaType\MediaType;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Structure\ColumnDescriptionInterface;
@@ -29,7 +31,8 @@ trait DefaultDataUnserializerTrait
 	 *        	Data retrieved from DBMS storage
 	 * @return mixed Unserialized data
 	 */
-	public function unserializeColumnData(ColumnDescriptionInterface $column, $data)
+	public function unserializeColumnData(
+		ColumnDescriptionInterface $column, $data)
 	{
 		$type = K::DATATYPE_UNDEFINED;
 		if ($column->hasColumnProperty(K::COLUMN_DATA_TYPE))
@@ -53,10 +56,12 @@ trait DefaultDataUnserializerTrait
 
 		if ($column->hasColumnProperty(K::COLUMN_MEDIA_TYPE))
 		{
-			$mediaType = $column->getColumnProperty(K::COLUMN_MEDIA_TYPE);
+			$mediaType = $column->getColumnProperty(
+				K::COLUMN_MEDIA_TYPE);
 			if ($mediaType instanceof MediaType)
 			{
-				$data = $this->unserializeStructuredSyntaxColumnData($column, $mediaType, $data);
+				$data = $this->unserializeStructuredSyntaxColumnData(
+					$column, $mediaType, $data);
 			}
 		}
 
@@ -69,7 +74,8 @@ trait DefaultDataUnserializerTrait
 	 * @param mixed $data
 	 * @return boolean
 	 */
-	protected function unserializeBooleanColumnData(ColumnDescriptionInterface $column, $data)
+	protected function unserializeBooleanColumnData(
+		ColumnDescriptionInterface $column, $data)
 	{
 		return TypeConversion::toBoolean($data);
 	}
@@ -81,7 +87,8 @@ trait DefaultDataUnserializerTrait
 	 *        	Data from DBMS storage
 	 * @return mixed
 	 */
-	protected function unserializeBinaryColumnData(ColumnDescriptionInterface $column, $data)
+	protected function unserializeBinaryColumnData(
+		ColumnDescriptionInterface $column, $data)
 	{
 		return $data;
 	}
@@ -94,15 +101,24 @@ trait DefaultDataUnserializerTrait
 	 *        	Text data from DBMS storage
 	 * @return mixed
 	 */
-	protected function unserializeStructuredSyntaxColumnData(ColumnDescriptionInterface $column,
-		MediaType $mediaType, $data)
+	protected function unserializeStructuredSyntaxColumnData(
+		ColumnDescriptionInterface $column, MediaType $mediaType, $data)
 	{
 		$syntax = $mediaType->getStructuredSyntax();
-		if ($syntax == 'json' && \function_exists('\json_encode'))
+		if ($syntax === null)
+			$syntax = \strval($mediaType->getSubType());
+		try
 		{
-			$data = \json_decode($data, true);
+			return StructuredText::parseText($data, $syntax);
 		}
-		elseif ($syntax == 'xml' && \class_exists('\DOMDocument'))
+		catch (TypeConversionException $e)
+		{}
+
+		/**
+		 *
+		 * @todo wait support in StructuredText
+		 */
+		if ($syntax == 'xml' && \class_exists('\DOMDocument'))
 		{
 			$dom = new \DOMDocument('1.0', 'utf-8');
 			$data = $dom->loadXML(data);

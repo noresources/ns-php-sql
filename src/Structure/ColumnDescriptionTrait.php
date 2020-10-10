@@ -77,7 +77,7 @@ trait ColumnDescriptionTrait
 			break;
 			case K::COLUMN_MEDIA_TYPE:
 				if (!($value instanceof MediaType))
-					$value = new MediaType($value);
+					$value = MediaType::fromString($value);
 			break;
 			case K::COLUMN_UNSERIALIZER:
 				if (!($value instanceof DataUnserializerInterface))
@@ -153,7 +153,8 @@ class ColumnPropertyDefault
 			K::COLUMN_LENGTH => 0,
 			K::COLUMN_DATA_TYPE => K::DATATYPE_STRING,
 			K::COLUMN_ENUMERATION => null,
-			K::COLUMN_DEFAULT_VALUE => null
+			K::COLUMN_DEFAULT_VALUE => null,
+			K::COLUMN_MEDIA_TYPE => null
 		];
 	}
 

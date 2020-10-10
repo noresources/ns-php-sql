@@ -11,7 +11,8 @@ namespace NoreSources\SQL\DBMS;
 
 use Psr\Container\NotFoundExceptionInterface;
 
-class TypePropertyNotFoundException extends \Exception implements NotFoundExceptionInterface
+class TypePropertyNotFoundException extends \Exception implements
+	NotFoundExceptionInterface
 {
 
 	/**
@@ -35,5 +36,8 @@ class TypePropertyNotFoundException extends \Exception implements NotFoundExcept
 	{
 		$this->type = $type;
 		$this->propertyKey = $property;
+		parent::\__construct(
+			$property . ' property not found for type ' .
+			$type->getTypeName());
 	}
 }

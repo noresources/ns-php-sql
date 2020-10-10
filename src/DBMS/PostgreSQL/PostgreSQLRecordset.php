@@ -46,7 +46,7 @@ class PostgreSQLRecordset extends Recordset implements
 			{
 				$oid = \pg_field_type_oid($this->resource, $i);
 				$column->setColumnProperty(K::COLUMN_DATA_TYPE,
-					PostgreSQLType::oidToDataType($oid));
+					PostgreSQLTypeRegistry::oidToDataType($oid));
 			}
 
 			if ($i >= $map->count())

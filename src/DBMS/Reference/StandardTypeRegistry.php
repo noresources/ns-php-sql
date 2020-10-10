@@ -4,7 +4,6 @@ namespace NoreSources\SQL\DBMS\Reference;
 use NoreSources\SingletonTrait;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\ArrayObjectType;
-use NoreSources\SQL\DBMS\TypeHelper;
 use NoreSources\SQL\DBMS\TypeRegistry;
 
 class StandardTypeRegistry extends TypeRegistry
@@ -20,8 +19,7 @@ class StandardTypeRegistry extends TypeRegistry
 					[
 						K::TYPE_NAME => 'CHAR',
 						K::TYPE_DATA_TYPE => K::DATATYPE_STRING,
-						K::TYPE_FLAGS => TypeHelper::getDefaultTypeProperty(
-							K::TYPE_FLAGS) |
+						K::TYPE_FLAGS => K::TYPE_FLAGS_DEFAULT |
 						K::TYPE_FLAG_MANDATORY_LENGTH,
 						K::TYPE_PADDING_GLYPH => ' ',
 						K::TYPE_PADDING_DIRECTION => K::TYPE_PADDING_DIRECTION_RIGHT,
@@ -31,8 +29,8 @@ class StandardTypeRegistry extends TypeRegistry
 					[
 						K::TYPE_NAME => 'VARCHAR',
 						K::TYPE_DATA_TYPE => K::DATATYPE_STRING,
-						K::TYPE_FLAGS => TypeHelper::getDefaultTypeProperty(
-							K::TYPE_FLAGS) | K::TYPE_FLAG_LENGTH,
+						K::TYPE_FLAGS => K::TYPE_FLAGS_DEFAULT |
+						K::TYPE_FLAG_LENGTH,
 						K::TYPE_MAX_LENGTH => 255
 					]),
 				'clob' => new ArrayObjectType(
@@ -54,17 +52,15 @@ class StandardTypeRegistry extends TypeRegistry
 					[
 						K::TYPE_NAME => 'VARBINARY',
 						K::TYPE_DATA_TYPE => K::DATATYPE_BINARY,
-						K::TYPE_FLAGS => TypeHelper::getDefaultTypeProperty(
-							K::TYPE_FLAGS) |
+						K::TYPE_FLAGS => K::TYPE_FLAGS_DEFAULT |
 						K::TYPE_FLAG_MANDATORY_LENGTH
 					]),
 				'numeric' => new ArrayObjectType(
 					[
 						K::TYPE_NAME => 'NUMERIC',
 						K::TYPE_DATA_TYPE => K::DATATYPE_NUMBER,
-						K::TYPE_FLAGS => TypeHelper::getDefaultTypeProperty(
-							K::TYPE_FLAGS) | K::TYPE_FLAG_FRACTION_SCALE |
-						K::TYPE_FLAG_LENGTH
+						K::TYPE_FLAGS => K::TYPE_FLAGS_DEFAULT |
+						K::TYPE_FLAG_FRACTION_SCALE | K::TYPE_FLAG_LENGTH
 					]),
 				'integer' => new ArrayObjectType(
 					[

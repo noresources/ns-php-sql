@@ -5,12 +5,10 @@ use NoreSources\Container;
 use NoreSources\DateTime;
 use NoreSources\SQL\DBMS\AbstractPlatform;
 use NoreSources\SQL\DBMS\ArrayObjectType;
-use NoreSources\SQL\DBMS\BasicType;
 use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\ConnectionProviderInterface;
 use NoreSources\SQL\DBMS\ConnectionProviderTrait;
 use NoreSources\SQL\DBMS\PlatformProviderTrait;
-use NoreSources\SQL\DBMS\TypeHelper;
 use NoreSources\SQL\DBMS\TypeInterface;
 use NoreSources\SQL\DBMS\MySQL\MySQLConstants as K;
 use NoreSources\SQL\Expression\FunctionCall;
@@ -75,11 +73,14 @@ class MySQLPlatform extends AbstractPlatform implements
 	{
 		if ($column->hasColumnProperty(K::COLUMN_ENUMERATION))
 		{
-			return new BasicType('ENUM');
+			return MySQLTypeRegistry::getInstance()->get('enum');
 		}
 
-		$types = MySQLType::getMySQLTypes();
-		$table = $column->getParentElement();
+		/**
+		 *
+		 * @var MySQLTypeRegistry $types
+		 */
+		$types = MySQLTypeRegistry::getInstance();
 		$isPrimaryKey = (($constraintFlags &
 			K::COLUMN_CONSTRAINT_PRIMARY_KEY) ==
 			K::COLUMN_CONSTRAINT_PRIMARY_KEY);
@@ -87,32 +88,32 @@ class MySQLPlatform extends AbstractPlatform implements
 		if ($isPrimaryKey)
 		{
 			// Types must have a key length
-			$types = Container::filter($types,
+			$types = $types->filter(
 				function ($_, $type) {
 					/**
 					 *
 					 * @var TypeInterface $type
 					 */
 
-					if ((TypeHelper::getProperty($type, K::TYPE_FLAGS) &
+					if ((Container::keyValue($type, K::TYPE_FLAGS) &
 					K::TYPE_FLAG_LENGTH) == K::TYPE_FLAG_LENGTH)
 					{
-						$maxLength = TypeHelper::getMaxLength($type);
-						return !\is_infinite($maxLength);
+						$typeMaxLength = $type->getTypeMaxLength();
+						return !\is_infinite($typeMaxLength);
 					}
 					return false;
 				});
 		}
 
-		$types = TypeHelper::getMatchingTypes($column, $types);
+		$types = $types->matchDescription($column);
 
 		if (Container::count($types) > 0)
 		{
-			list ($key, $type) = Container::first($types);
 			/**
 			 *
-			 * @var ArrayObjectType $type
+			 * @var TypeInterface $type
 			 */
+			$type = Container::firstValue($types);
 
 			if ($isPrimaryKey)
 			{
@@ -125,7 +126,7 @@ class MySQLPlatform extends AbstractPlatform implements
 				$glyphLength = 4;
 				$keyMaxLength = intval(
 					floor(K::KEY_MAX_LENGTH / $glyphLength));
-				$typeMaxLength = TypeHelper::getMaxLength($type);
+				$typeMaxLength = $type->getTypeMaxLength();
 
 				if ($typeMaxLength > $keyMaxLength)
 				{
@@ -140,7 +141,12 @@ class MySQLPlatform extends AbstractPlatform implements
 			return $type;
 		}
 
-		return new BasicType('TEXT');
+		return MySQLTypeRegistry::getInstance()->get('text');
+	}
+
+	public function getTypeRegistry()
+	{
+		return MySQLTypeRegistry::getInstance();
 	}
 
 	public function getParameter($name, ParameterData $parameters = null)

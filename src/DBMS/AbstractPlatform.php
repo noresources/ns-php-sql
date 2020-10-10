@@ -7,15 +7,15 @@ use NoreSources\DateTime;
 use NoreSources\SemanticVersion;
 use NoreSources\TypeConversion;
 use NoreSources\TypeDescription;
-use NoreSources\MediaType\MediaType;
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\MediaTypeUtility;
 use NoreSources\SQL\Expression\FunctionCall;
 use NoreSources\SQL\Expression\Literal;
 use NoreSources\SQL\Expression\MetaFunctionCall;
-use NoreSources\SQL\Expression\StructureElementIdentifier;
 use NoreSources\SQL\Statement\ClassMapStatementFactoryTrait;
 use NoreSources\SQL\Structure\ColumnDescriptionInterface;
 use NoreSources\SQL\Structure\DatasourceStructure;
+use NoreSources\SQL\Structure\StructureElementIdentifier;
 use NoreSources\SQL\Structure\StructureElementInterface;
 
 /**
@@ -81,14 +81,8 @@ abstract class AbstractPlatform implements PlatformInterface
 		{
 			$mediaType = $description->getColumnProperty(
 				K::COLUMN_MEDIA_TYPE);
-			if ($mediaType instanceof MediaType)
-			{
-				if ($mediaType->getStructuredSyntax() == 'json')
-				{
-					$data = json_encode($data);
-					return $this->quoteStringValue($data);
-				}
-			}
+
+			$data = MediaTypeUtility::toString($data, $mediaType);
 		}
 
 		$dataType = K::DATATYPE_UNDEFINED;

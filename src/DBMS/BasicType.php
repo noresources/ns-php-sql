@@ -31,9 +31,26 @@ class BasicType implements TypeInterface
 		return $this->getTypeName();
 	}
 
+	public function getArrayCopy()
+	{
+		return [
+			K::TYPE_NAME => $this->typeName
+		];
+	}
+
 	public function getTypeName()
 	{
 		return $this->typeName;
+	}
+
+	function getTypeFlags()
+	{
+		return K::TYPE_FLAGS_DEFAULT;
+	}
+
+	public function getTypeMaxLength()
+	{
+		return INF;
 	}
 
 	public function has($id)

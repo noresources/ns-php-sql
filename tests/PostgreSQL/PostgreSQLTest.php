@@ -4,12 +4,12 @@ namespace NoreSources\SQL;
 use NoreSources\SemanticVersion;
 use NoreSources\SQL\DBMS\ConnectionHelper;
 use NoreSources\SQL\DBMS\ConnectionInterface;
-use NoreSources\SQL\DBMS\TypeHelper;
 use NoreSources\SQL\DBMS\TypeInterface;
+use NoreSources\SQL\DBMS\TypeRegistry;
 use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLConnection;
 use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLConstants as K;
 use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLPreparedStatement;
-use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLType;
+use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLTypeRegistry;
 use NoreSources\SQL\Statement\Statement;
 use NoreSources\SQL\Statement\Structure\CreateIndexQuery;
 use NoreSources\SQL\Statement\Structure\CreateTableQuery;
@@ -36,17 +36,22 @@ final class PostgreSQLTest extends \PHPUnit\Framework\TestCase
 
 	public function testTypes()
 	{
-		$smallint = PostgreSQLType::getPostgreSQLType('smallint');
+		/**
+		 *
+		 * @var TypeRegistry $types
+		 */
+		$types = PostgreSQLTypeRegistry::getInstance();
+		$smallint = $types->get('smallint');
 		$this->assertInstanceOf(TypeInterface::class, $smallint);
 		$this->assertEquals('smallint', $smallint->get(K::TYPE_NAME),
 			'smallint type name');
 
-		$bigint = PostgreSQLType::getPostgreSQLType('bigint');
+		$bigint = $types->get('bigint');
 		$this->assertInstanceOf(TypeInterface::class, $bigint);
 		$this->assertEquals('bigint', $bigint->get(K::TYPE_NAME),
 			'bigint type name');
 
-		$diff = TypeHelper::compareTypeLength($smallint, $bigint);
+		$diff = TypeRegistry::compareTypeLength($smallint, $bigint);
 		$this->assertLessThan(0, $diff,
 			'smallint length < biging length');
 	}

@@ -111,6 +111,11 @@ class PDOPlatform implements PlatformInterface,
 			$constraintFlags);
 	}
 
+	public function getTypeRegistry()
+	{
+		return $this->basePlatform->getTypeRegistry();
+	}
+
 	public function getPlatformVersion($kind = self::VERSION_CURRENT)
 	{
 		return $this->basePlatform->getPlatformVersion($kind);

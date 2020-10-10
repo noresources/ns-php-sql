@@ -10,7 +10,7 @@ use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\ConnectionProviderInterface;
 use NoreSources\SQL\DBMS\ConnectionProviderTrait;
 use NoreSources\SQL\DBMS\TimestampFormatTranslationMap;
-use NoreSources\SQL\DBMS\TypeHelper;
+use NoreSources\SQL\DBMS\TypeRegistry;
 use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLConstants as K;
 use NoreSources\SQL\Expression\FunctionCall;
 use NoreSources\SQL\Expression\Literal;
@@ -147,10 +147,18 @@ class PostgreSQLPlatform extends AbstractPlatform implements
 			return new BasicType('serial');
 		}
 
-		$types = PostgreSQLType::getPostgreSQLTypes();
-		$matchingTypes = TypeHelper::getMatchingTypes($column, $types);
-
+		/**
+		 *
+		 * @var TypeRegistry $types
+		 */
+		$types = PostgreSQLTypeRegistry::getInstance();
+		$matchingTypes = $types->matchDescription($column);
 		return Container::firstValue($matchingTypes);
+	}
+
+	public function getTypeRegistry()
+	{
+		return PostgreSQLTypeRegistry::getInstance();
 	}
 
 	public function getParameter($name, ParameterData $parameters = null)

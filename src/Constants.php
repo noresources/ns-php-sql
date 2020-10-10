@@ -416,6 +416,17 @@ class Constants
 	const TYPE_FLAG_SIGNNESS = Bitset::BIT_06;
 
 	/**
+	 * Default type flags
+	 *
+	 * @var integer
+	 */
+	const TYPE_FLAGS_DEFAULT = self::TYPE_FLAG_DEFAULT_VALUE |
+		self::TYPE_FLAG_NULLABLE;
+
+	const TYPE_FLAGS_NUMBER_DEFAULT = self::TYPE_FLAGS_DEFAULT |
+		self::TYPE_FLAG_SIGNNESS;
+
+	/**
 	 * Maximum glyph count / length.
 	 * Property value is expected to be a boolean.
 	 *
@@ -939,6 +950,20 @@ class Constants
 	 * @var string
 	 */
 	const PLATFORM_FEATURE_EVENT_ACTIONS = 'eventactions';
+
+	/**
+	 * Hexadecimal string media type
+	 *
+	 * @var string
+	 */
+	const MEDIA_TYPE_HEX_STRING = 'text/x.hexadecimal';
+
+	/**
+	 * Bit string media type
+	 *
+	 * @var string
+	 */
+	const MEDIA_TYPE_BIT_STRING = 'text/x.binary';
 
 	/**
 	 *
