@@ -409,7 +409,7 @@ class Constants
 		Bitset::BIT_05;
 
 	/**
-	 * Type accepts signness specification (SIGNED / UNSIGNED)
+	 * Type accept signness specification (SIGNED / UNSIGNED)
 	 *
 	 * @var integer
 	 */

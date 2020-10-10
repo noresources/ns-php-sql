@@ -9,7 +9,7 @@
  */
 namespace NoreSources\SQL\Result;
 
-class GenericRowModificationStatementResult implements RowModificationStatementResultInterface, \Countable
+class DefaultRowModificationStatementResult implements RowModificationStatementResultInterface, \Countable
 {
 
 	public function __construct($c)

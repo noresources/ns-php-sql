@@ -9,7 +9,7 @@
  */
 namespace NoreSources\SQL\Result;
 
-class GenericInsertionStatementResult implements InsertionStatementResultInterface
+class DefaultInsertionStatementResult implements InsertionStatementResultInterface
 {
 
 	/**

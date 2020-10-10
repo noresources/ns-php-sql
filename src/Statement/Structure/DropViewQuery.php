@@ -12,11 +12,11 @@
 namespace NoreSources\SQL\Statement\Structure;
 
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\Expression\StructureElementIdentifier;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Expression\TokenStreamContextInterface;
 use NoreSources\SQL\Statement\Statement;
 use NoreSources\SQL\Structure\NamespaceStructure;
+use NoreSources\SQL\Structure\StructureElementIdentifier;
 use NoreSources\SQL\Structure\ViewStructure;
 
 /**

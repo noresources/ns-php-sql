@@ -10,6 +10,7 @@
 namespace NoreSources\SQL\Expression;
 
 use NoreSources\Container;
+use NoreSources\SQL\Structure\StructureElementIdentifier;
 use NoreSources\SQL\Structure\TableStructure;
 
 /**

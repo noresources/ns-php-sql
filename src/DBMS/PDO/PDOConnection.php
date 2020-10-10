@@ -26,8 +26,8 @@ use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLPlatform;
 use NoreSources\SQL\DBMS\Reference\ReferencePlatform;
 use NoreSources\SQL\DBMS\Reference\ReferenceTransactionBlock;
 use NoreSources\SQL\DBMS\SQLite\SQLitePlatform;
-use NoreSources\SQL\Result\GenericInsertionStatementResult;
-use NoreSources\SQL\Result\GenericRowModificationStatementResult;
+use NoreSources\SQL\Result\DefaultInsertionStatementResult;
+use NoreSources\SQL\Result\DefaultRowModificationStatementResult;
 use NoreSources\SQL\Statement\ParameterData;
 use NoreSources\SQL\Statement\ParameterDataProviderInterface;
 use NoreSources\SQL\Statement\Statement;
@@ -357,10 +357,10 @@ class PDOConnection implements ConnectionInterface, TransactionInterface,
 		if ($type == K::QUERY_SELECT)
 			$result = (new PDORecordset($pdo, $statement));
 		elseif ($type == K::QUERY_INSERT)
-			$result = new GenericInsertionStatementResult(
+			$result = new DefaultInsertionStatementResult(
 				$this->connection->lastInsertId());
 		elseif ($type & K::QUERY_FAMILY_ROWMODIFICATION)
-			$result = new GenericRowModificationStatementResult(
+			$result = new DefaultRowModificationStatementResult(
 				$pdo->rowCount());
 
 		return $result;

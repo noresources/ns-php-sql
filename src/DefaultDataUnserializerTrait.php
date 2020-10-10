@@ -19,7 +19,7 @@ use NoreSources\SQL\Structure\ColumnDescriptionInterface;
  *
  * Provide flexible, overridable sub methods to unserialize certain types
  */
-trait GenericDataUnserializerTrait
+trait DefaultDataUnserializerTrait
 {
 
 	/**

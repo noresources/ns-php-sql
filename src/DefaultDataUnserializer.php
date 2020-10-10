@@ -14,9 +14,9 @@ use NoreSources\SingletonTrait;
 /**
  * Reference implementation of DataUnserializerInterface
  */
-class GenericDataUnserializer implements DataUnserializerInterface
+class DefaultDataUnserializer implements DataUnserializerInterface
 {
-	use GenericDataUnserializerTrait;
+	use DefaultDataUnserializerTrait;
 
 	use SingletonTrait;
 }

@@ -11,6 +11,7 @@ namespace NoreSources\SQL\Expression;
 
 use NoreSources\Container;
 use NoreSources\SQL\Structure\ColumnStructure;
+use NoreSources\SQL\Structure\StructureElementIdentifier;
 
 /**
  * Table column reference

@@ -12,12 +12,12 @@ namespace NoreSources\SQL\DBMS\PostgreSQL;
 use NoreSources\SingletonTrait;
 use NoreSources\TypeConversion;
 use NoreSources\SQL\DataUnserializerInterface;
-use NoreSources\SQL\GenericDataUnserializerTrait;
+use NoreSources\SQL\DefaultDataUnserializerTrait;
 use NoreSources\SQL\Structure\ColumnDescriptionInterface;
 
 class PostgreSQLDataUnserializer implements DataUnserializerInterface
 {
-	use GenericDataUnserializerTrait;
+	use DefaultDataUnserializerTrait;
 
 	use SingletonTrait;
 

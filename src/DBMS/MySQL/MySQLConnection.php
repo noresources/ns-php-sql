@@ -21,8 +21,8 @@ use NoreSources\SQL\DBMS\TransactionInterface;
 use NoreSources\SQL\DBMS\TransactionStackTrait;
 use NoreSources\SQL\DBMS\MySQL\MySQLConstants as K;
 use NoreSources\SQL\Expression\Literal;
-use NoreSources\SQL\Result\GenericInsertionStatementResult;
-use NoreSources\SQL\Result\GenericRowModificationStatementResult;
+use NoreSources\SQL\Result\DefaultInsertionStatementResult;
+use NoreSources\SQL\Result\DefaultRowModificationStatementResult;
 use NoreSources\SQL\Statement\ParameterData;
 use NoreSources\SQL\Statement\Statement;
 
@@ -233,12 +233,12 @@ class MySQLConnection implements ConnectionInterface,
 		}
 		elseif ($statementType & K::QUERY_FAMILY_ROWMODIFICATION)
 		{
-			return new GenericRowModificationStatementResult(
+			return new DefaultRowModificationStatementResult(
 				$stmt->affected_rows);
 		}
 		elseif ($statementType == K::QUERY_INSERT)
 		{
-			return new GenericInsertionStatementResult($stmt->insert_id);
+			return new DefaultInsertionStatementResult($stmt->insert_id);
 		}
 
 		return true;

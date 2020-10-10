@@ -12,7 +12,7 @@ namespace NoreSources\SQL\Result;
 use NoreSources\ArrayRepresentation;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DataUnserializerInterface;
-use NoreSources\SQL\GenericDataUnserializer;
+use NoreSources\SQL\DefaultDataUnserializer;
 use NoreSources\SQL\Statement\OutputDataTrait;
 use NoreSources\SQL\Statement\ResultColumnMap;
 use NoreSources\SQL\Statement\StatementOutputDataInterface;
@@ -237,7 +237,7 @@ abstract class Recordset implements \Iterator,
 	{
 		$unserializer = $this->unserializer;
 		if (!($unserializer instanceof DataUnserializerInterface))
-			$unserializer = GenericDataUnserializer::getInstance();
+			$unserializer = DefaultDataUnserializer::getInstance();
 
 		return $unserializer->unserializeColumnData($column, $data);
 	}

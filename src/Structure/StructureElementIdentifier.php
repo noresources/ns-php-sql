@@ -7,7 +7,7 @@
  *
  * @package SQL
  */
-namespace NoreSources\SQL\Expression;
+namespace NoreSources\SQL\Structure;
 
 use NoreSources\StringRepresentation;
 

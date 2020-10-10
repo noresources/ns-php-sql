@@ -21,8 +21,8 @@ use NoreSources\SQL\DBMS\StringSerializerInterface;
 use NoreSources\SQL\DBMS\TransactionInterface;
 use NoreSources\SQL\DBMS\TransactionStackTrait;
 use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLConstants as K;
-use NoreSources\SQL\Result\GenericInsertionStatementResult;
-use NoreSources\SQL\Result\GenericRowModificationStatementResult;
+use NoreSources\SQL\Result\DefaultInsertionStatementResult;
+use NoreSources\SQL\Result\DefaultRowModificationStatementResult;
 use NoreSources\SQL\Statement\ParameterData;
 use NoreSources\SQL\Statement\ParameterDataProviderInterface;
 use NoreSources\SQL\Statement\Statement;
@@ -204,11 +204,11 @@ class PostgreSQLConnection implements ConnectionInterface,
 
 			case PGSQL_COMMAND_OK:
 				if ($statementType & K::QUERY_FAMILY_ROWMODIFICATION)
-					return new GenericRowModificationStatementResult(
+					return new DefaultRowModificationStatementResult(
 						\pg_affected_rows($result));
 				elseif ($statementType == K::QUERY_INSERT)
 				{
-					return new GenericInsertionStatementResult(
+					return new DefaultInsertionStatementResult(
 						$this->getLastInsertId());
 				}
 
