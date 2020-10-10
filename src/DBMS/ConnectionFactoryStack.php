@@ -13,6 +13,7 @@ namespace NoreSources\SQL\DBMS;
 
 use NoreSources\Container;
 use NoreSources\Stack;
+use NoreSources\TypeDescription;
 
 /**
  */
@@ -37,50 +38,50 @@ class ConnectionFactoryStack implements ConnectionFactoryInterface
 
 	public function createConnection($settings = [])
 	{
-		$connection = null;
+		if ($this->factoryStack->isEmpty())
+			throw new \RuntimeException('Empty connection stack');
+
 		$exceptions = [];
 		foreach ($this->factoryStack as $factory)
 		{
 			try
 			{
-				$connection = $factory->createConnection($settings);
+				return $factory->createConnection($settings);
 			}
 			catch (\Exception $e)
 			{
-				$exceptions[] = e;
+				$exceptions[] = $e;
 			}
-
-			if ($connection instanceof ConnectionInterface)
-				break;
 		}
 
-		if ($connection instanceof ConnectionInterface)
-			return $connection;
-
 		$message = 'Failed to create connection using ' .
-			Container::implodeValues($this->factoryStack, [
-				Container::IMPLODE_BETWEEN => ', '
-				Container::IMPLODE_BETWEEN_LAST => ' and '
-			], function ($f) {
-				return TypeDescription::getLocalName($f);
-			});
+			Container::implodeValues($this->factoryStack,
+				[
+					Container::IMPLODE_BETWEEN => ', ',
+					Container::IMPLODE_BETWEEN_LAST => ' and '
+				],
+				function ($f) {
+					return TypeDescription::getLocalName($f);
+				});
 
 		if (\count($exceptions))
 		{
 			$message .= ': ';
-			$message = Container::implodeValues($exceptions, '.' . PHP_EOL,
+			$message = Container::implodeValues($exceptions,
+				'.' . PHP_EOL,
 				function ($e) {
 					return $e->getMessage();
 				});
 		}
 
-		throw new ConnectionException($message);
+		throw new \RuntimeException($message);
 	}
 
 	public function __invoke()
 	{
 		if (func_num_args() != 1)
-			throw new \BadMethodCallException('Missing settings argument');
+			throw new \BadMethodCallException(
+				'Missing settings argument');
 		$arg = func_get_arg(0);
 		if (!\is_array($arg))
 			throw new \BadMethodCallException('Array argument expected');
