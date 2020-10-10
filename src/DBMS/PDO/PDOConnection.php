@@ -15,7 +15,6 @@ use NoreSources\TypeConversion;
 use NoreSources\TypeDescription;
 use NoreSources\SQL\DBMS\BinaryDataSerializerInterface;
 use NoreSources\SQL\DBMS\ConnectionException;
-use NoreSources\SQL\DBMS\ConnectionHelper;
 use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\PlatformProviderTrait;
 use NoreSources\SQL\DBMS\StringSerializerInterface;
@@ -338,9 +337,9 @@ class PDOConnection implements ConnectionInterface, TransactionInterface,
 				else
 					$dbmsName = ':' . $key;
 
-				$value = ConnectionHelper::serializeParameterValue(
-					$this, $entry);
-				$pdo->bindValue($dbmsName, $value);
+				$pdo->bindValue($dbmsName,
+					$this->getPlatform()
+						->literalize($entry));
 			}
 		}
 

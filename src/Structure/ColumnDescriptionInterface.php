@@ -9,10 +9,12 @@
  */
 namespace NoreSources\SQL\Structure;
 
+use NoreSources\SQL\DataTypeProviderInterface;
+
 /**
  * Describe table or result column properties
  */
-interface ColumnDescriptionInterface
+interface ColumnDescriptionInterface extends DataTypeProviderInterface
 {
 
 	/**

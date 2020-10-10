@@ -15,7 +15,6 @@ use NoreSources\TypeDescription;
 use NoreSources\SQL\ParameterValue;
 use NoreSources\SQL\DBMS\BinaryDataSerializerInterface;
 use NoreSources\SQL\DBMS\ConnectionException;
-use NoreSources\SQL\DBMS\ConnectionHelper;
 use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\StringSerializerInterface;
 use NoreSources\SQL\DBMS\TransactionInterface;
@@ -196,8 +195,8 @@ class MySQLConnection implements ConnectionInterface,
 				$entry = Container::keyValue($parameters, $key, null);
 				$bindArguments[0] .= self::getParameterValueTypeKey(
 					$entry);
-				$values[$index] = ConnectionHelper::serializeParameterValue(
-					$this, $entry);
+				$values[$index] = $this->getPlatform()->literalize(
+					$entry);
 
 				$bindArguments[] = &$values[$index];
 			}

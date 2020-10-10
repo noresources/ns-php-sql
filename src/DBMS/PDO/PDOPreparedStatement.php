@@ -80,11 +80,12 @@ class PDOPreparedStatement implements PreparedStatementInterface
 						$column->name = $meta['name'];
 					}
 
-					if ($column->dataType == K::DATATYPE_UNDEFINED)
+					if ($column->getDataType() == K::DATATYPE_UNDEFINED)
 					{
-						$column->dataType = PDOConnection::getDataTypeFromPDOType(
-							Container::keyValue($meta, 'pdo_type',
-								\PDO::PARAM_STR));
+						$column->setColumnProperty(K::COLUMN_DATA_TYPE,
+							PDOConnection::getDataTypeFromPDOType(
+								Container::keyValue($meta, 'pdo_type',
+									\PDO::PARAM_STR)));
 						$map->setColumn($i, $column);
 					}
 

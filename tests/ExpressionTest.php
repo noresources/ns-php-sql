@@ -99,7 +99,7 @@ final class ExpressionEvaluatorTest extends \PHPUnit\Framework\TestCase
 			$this->assertInstanceOf(Literal::class, $e, $label);
 			if ($e instanceof Literal)
 			{
-				$this->assertEquals($e->getExpressionDataType(),
+				$this->assertEquals($e->getDataType(),
 					$test[1], $label);
 			}
 		}
@@ -259,7 +259,7 @@ final class ExpressionEvaluatorTest extends \PHPUnit\Framework\TestCase
 			if ($x instanceof Literal)
 			{
 				$this->assertEquals(K::DATATYPE_TIMESTAMP,
-					$x->getExpressionDataType());
+					$x->getDataType());
 			}
 		}
 	}

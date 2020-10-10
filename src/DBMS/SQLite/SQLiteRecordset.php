@@ -36,9 +36,10 @@ class SQLiteRecordset extends Recordset
 					$column->name = $result->columnName($i);
 				}
 
-				if ($column->dataType == K::DATATYPE_UNDEFINED)
-					$column->dataType = SQLiteConnection::dataTypeFromSQLiteDataType(
-						$result->columnType($i));
+				if ($column->getDataType() == K::DATATYPE_UNDEFINED)
+					$column->setColumnProperty(K::COLUMN_DATA_TYPE,
+						SQLiteConnection::dataTypeFromSQLiteDataType(
+							$result->columnType($i)));
 
 				if ($i >= $map->count())
 					$map->setColumn($i, $column);

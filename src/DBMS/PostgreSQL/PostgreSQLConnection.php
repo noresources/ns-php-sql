@@ -14,7 +14,6 @@ use NoreSources\SemanticVersion;
 use NoreSources\TypeDescription;
 use NoreSources\SQL\ParameterValue;
 use NoreSources\SQL\DBMS\ConnectionException;
-use NoreSources\SQL\DBMS\ConnectionHelper;
 use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\IdentifierSerializerInterface;
 use NoreSources\SQL\DBMS\PlatformProviderTrait;
@@ -262,8 +261,7 @@ class PostgreSQLConnection implements ConnectionInterface,
 		{
 			foreach ($parameters as $entry)
 			{
-				$a[] = ConnectionHelper::serializeParameterValue($this,
-					$entry);
+				$a[] = $this->getPlatform()->literalize($entry);
 			}
 
 			return $a;

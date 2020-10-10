@@ -11,8 +11,7 @@ namespace NoreSources\SQL\DBMS\SQLite;
 
 use NoreSources\Container;
 use NoreSources\TypeDescription;
-use NoreSources\SQL\ParameterValue;
-use NoreSources\SQL\DBMS\ConnectionHelper;
+use NoreSources\SQL\DataTypeProviderInterface;
 use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\PlatformProviderTrait;
 use NoreSources\SQL\DBMS\TransactionInterface;
@@ -291,9 +290,10 @@ class SQLiteConnection implements ConnectionInterface,
 					$dbmsName = $this->getPlatform()->getParameter($key,
 						null);
 
-				$value = ConnectionHelper::serializeParameterValue(
-					$this, $entry);
-				$type = ($entry instanceof ParameterValue) ? $entry->type : K::DATATYPE_UNDEFINED;
+				$value = $this->getPlatform()->literalize($entry);
+				$type = K::DATATYPE_UNDEFINED;
+				if ($entry instanceof DataTypeProviderInterface)
+					$type = $entry->getDataType();
 
 				if ($type == K::DATATYPE_UNDEFINED)
 					$type = Literal::dataTypeFromValue($value);

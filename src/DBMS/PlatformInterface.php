@@ -111,6 +111,16 @@ interface PlatformInterface extends FeatureQueryInterface,
 	function getTimestampFormatTokenTranslation($formatToken);
 
 	/**
+	 * Transform anything to a literal value of the given data type.
+	 *
+	 * @param mixed $value
+	 * @param integer $dataType
+	 *        	Data type. If NULL, the data type will be obtained from the $value parameter
+	 * @return mixed A literal value
+	 */
+	function literalize($value, $dataType = null);
+
+	/**
 	 *
 	 * @param MetaFunctionCall $metaFunction
 	 *

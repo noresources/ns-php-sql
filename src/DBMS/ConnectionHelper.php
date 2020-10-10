@@ -13,8 +13,6 @@ use NoreSources\Container;
 use NoreSources\TypeConversion;
 use NoreSources\TypeDescription;
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\ParameterValue;
-use NoreSources\SQL\Expression\Literal;
 use NoreSources\SQL\Statement\Statement;
 use NoreSources\SQL\Statement\StatementBuilder;
 use NoreSources\SQL\Statement\StatementDataInterface;
@@ -227,49 +225,6 @@ class ConnectionHelper
 				TypeDescription::getName($statement));
 		$prepared = $connection->prepareStatement($statementData);
 		return $prepared;
-	}
-
-	/**
-	 *
-	 * @param ConnectionInterface $connection
-	 * @param ParameterValue|mixed $value
-	 *        	Parameter value to serialize
-	 * @param integer|NULL $dataType
-	 *        	Parameter target type (if $value is not a ParameterValue)
-	 * @return number|boolean|NULL|\NoreSources\SQL\ParameterValue|\DateTimeInterface
-	 */
-	public static function serializeParameterValue(
-		ConnectionInterface $connection, $value, $dataType = null)
-	{
-		$type = (\is_integer($dataType) && $dataType) ? $dataType : K::DATATYPE_UNDEFINED;
-		if ($value instanceof ParameterValue)
-		{
-			$type = $value->type;
-			$value = $value;
-		}
-
-		if ($type == K::DATATYPE_UNDEFINED)
-			$type = Literal::dataTypeFromValue($value);
-
-		if ($type & K::DATATYPE_NUMBER)
-		{
-			if ($type == K::DATATYPE_INTEGER)
-				return TypeConversion::toInteger($value);
-			return TypeConversion::toFloat($value);
-		}
-		elseif ($type == K::DATATYPE_BOOLEAN)
-			return TypeConversion::toBoolean($value);
-		elseif ($type == K::DATATYPE_NULL)
-			return null;
-		elseif ($value instanceof \DateTimeInterface)
-		{
-			return $value->format(
-				$connection->getPlatform()
-					->getTimestampTypeStringFormat(
-					$type & K::DATATYPE_TIMESTAMP));
-		}
-
-		return $value;
 	}
 }
 

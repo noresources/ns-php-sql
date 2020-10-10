@@ -10,6 +10,7 @@ use NoreSources\TypeDescription;
 use NoreSources\MediaType\MediaType;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Expression\FunctionCall;
+use NoreSources\SQL\Expression\Literal;
 use NoreSources\SQL\Expression\MetaFunctionCall;
 use NoreSources\SQL\Expression\StructureElementIdentifier;
 use NoreSources\SQL\Statement\ClassMapStatementFactoryTrait;
@@ -27,11 +28,52 @@ abstract class AbstractPlatform implements PlatformInterface
 
 	const DEFAULT_VERSION = '0.0.0';
 
-	/**
-	 *
-	 * {@inheritdoc}
-	 * @see \NoreSources\SQL\DataSerializerInterface::serializeColumnData()
-	 */
+	public function literalize($value, $dataType = null)
+	{
+		if ($dataType === null)
+		{
+			$dataType = Literal::dataTypeFromValue($value);
+		}
+
+		switch ($dataType)
+		{
+			case K::DATATYPE_NULL:
+				return null;
+			case K::DATATYPE_BOOLEAN:
+				return TypeConversion::toBoolean($value);
+			case K::DATATYPE_STRING:
+				return TypeCOnversion::toString($value);
+			case K::DATATYPE_INTEGER:
+				return TypeConversion::toInteger($value);
+			case K::DATATYPE_FLOAT:
+			case K::DATATYPE_NUMBER:
+				return TypeConversion::toFloat($value);
+			case K::DATATYPE_DATE:
+			case K::DATATYPE_DATETIME:
+			case K::DATATYPE_TIME:
+			case K::DATATYPE_TIMEZONE:
+			case K::DATATYPE_TIMESTAMP:
+
+				if (!($value instanceof \DateTimeInterface))
+				{
+					try
+					{
+						$value = new DateTime($value);
+					}
+					catch (\Exception $e)
+					{}
+				}
+
+				if ($value instanceof \DateTimeInterface)
+				{
+					return $value->format(
+						$this->getTimestampTypeStringFormat($dataType));
+				}
+		}
+
+		return TypeConversion::toString($value);
+	}
+
 	public function serializeColumnData(
 		ColumnDescriptionInterface $description, $data)
 	{
@@ -70,15 +112,8 @@ abstract class AbstractPlatform implements PlatformInterface
 				return TypeCOnversion::toFloat($data);
 		}
 
-		if ($dataType & K::DATATYPE_TIMESTAMP)
-			return $this->serializeTimestamp($data, $dataType);
-
-		if ($data instanceof \DateTimeInterface)
-			$data = $data->format(
-				$this->getTimestampTypeStringFormat(
-					K::DATATYPE_TIMESTAMP));
-
-		return $this->quoteStringValue(TypeConversion::toString($data));
+		return $this->quoteStringValue(
+			$this->literalize($data, $dataType));
 	}
 
 	public function quoteStringValue($value)

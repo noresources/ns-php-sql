@@ -38,6 +38,13 @@ trait ColumnDescriptionTrait
 		}
 	}
 
+	public function getDataType()
+	{
+		if ($this->hasColumnProperty(K::COLUMN_DATA_TYPE))
+			return $this->getColumnProperty(K::COLUMN_DATA_TYPE);
+		return K::DATATYPE_UNDEFINED;
+	}
+
 	public function hasColumnProperty($key)
 	{
 		return Container::keyExists($this->columnProperties, $key);
@@ -58,7 +65,8 @@ trait ColumnDescriptionTrait
 	public function setColumnProperty($key, $value)
 	{
 		if (!ColumnPropertyDefault::isValidKey($key))
-			throw new StructureException('Invalid column property key ' . $key);
+			throw new StructureException(
+				'Invalid column property key ' . $key);
 
 		switch ($key)
 		{
@@ -74,8 +82,9 @@ trait ColumnDescriptionTrait
 			case K::COLUMN_UNSERIALIZER:
 				if (!($value instanceof DataUnserializerInterface))
 					throw new \InvalidArgumentException(
-						'Invalid value type ' . TypeDescription::getName($value) . ' for property ' .
-						$key);
+						'Invalid value type ' .
+						TypeDescription::getName($value) .
+						' for property ' . $key);
 			break;
 		}
 
@@ -132,7 +141,8 @@ class ColumnPropertyDefault
 		if (\array_key_exists($key, self::$defaultValues))
 			return self::$defaultValues[$key];
 
-		throw new StructureException('Invalid column property key ' . $key);
+		throw new StructureException(
+			'Invalid column property key ' . $key);
 	}
 
 	private static function initialize()

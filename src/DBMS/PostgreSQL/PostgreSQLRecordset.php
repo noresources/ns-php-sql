@@ -42,10 +42,11 @@ class PostgreSQLRecordset extends Recordset implements
 				$column->name = \pg_field_name($this->resource, $i);
 			}
 
-			if ($column->dataType == K::DATATYPE_UNDEFINED)
+			if ($column->getDataType() == K::DATATYPE_UNDEFINED)
 			{
 				$oid = \pg_field_type_oid($this->resource, $i);
-				$column->dataType = PostgreSQLType::oidToDataType($oid);
+				$column->setColumnProperty(K::COLUMN_DATA_TYPE,
+					PostgreSQLType::oidToDataType($oid));
 			}
 
 			if ($i >= $map->count())

@@ -70,7 +70,7 @@ final class SelectTest extends \PHPUnit\Framework\TestCase
 		$select = new SelectQuery();
 		$column = new Literal(true);
 		$this->assertEquals(K::DATATYPE_BOOLEAN,
-			$column->getExpressionDataType(), 'Column value type');
+			$column->getDataType(), 'Column value type');
 
 		$select->columns($column);
 

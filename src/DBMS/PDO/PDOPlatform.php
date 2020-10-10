@@ -57,6 +57,11 @@ class PDOPlatform implements PlatformInterface,
 		return $this->basePlatform->quoteIdentifierPath($path);
 	}
 
+	public function literalize($value, $dataType = null)
+	{
+		return $this->basePlatform->literalize($value, $dataType);
+	}
+
 	public function serializeColumnData(
 		ColumnDescriptionInterface $column, $data)
 	{

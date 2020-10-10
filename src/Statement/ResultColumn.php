@@ -8,13 +8,13 @@
  * @package SQL
  */
 
-// 
+//
 namespace NoreSources\SQL\Statement;
-
 
 use NoreSources\TypeConversion;
 use NoreSources\TypeDescription;
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\DataTypeProviderInterface;
 use NoreSources\SQL\Structure\ColumnDescriptionInterface;
 use NoreSources\SQL\Structure\ColumnDescriptionTrait;
 use NoreSources\SQL\Structure\ColumnStructure;
@@ -35,45 +35,6 @@ class ResultColumn implements ColumnDescriptionInterface
 
 	/**
 	 *
-	 * @property-read integer $dataType
-	 * @param string $member
-	 * @throws \InvalidArgumentException
-	 * @return boolean|number|NULL|string|string
-	 */
-	public function __get($member)
-	{
-		if ($member == 'dataType')
-		{
-			if ($this->hasColumnProperty(K::COLUMN_DATA_TYPE))
-				return $this->getColumnProperty(K::COLUMN_DATA_TYPE);
-			return K::DATATYPE_UNDEFINED;
-		}
-
-		throw new \InvalidArgumentException(
-			$member . ' is not a member of ' . TypeDescription::getName($this));
-	}
-
-	/**
-	 *
-	 * @property-write integer $dataType
-	 * @param string $member
-	 * @param mixed $value
-	 * @throws \InvalidArgumentException
-	 */
-	public function __set($member, $value)
-	{
-		if ($member == 'dataType')
-		{
-			$this->setColumnProperty(K::COLUMN_DATA_TYPE, $value);
-			return;
-		}
-
-		throw new \InvalidArgumentException(
-			$member . ' is not a member of ' . TypeDescription::getName($this));
-	}
-
-	/**
-	 *
 	 * @param integer|ColumnStructure $data
 	 */
 	public function __construct($data)
@@ -83,9 +44,17 @@ class ResultColumn implements ColumnDescriptionInterface
 		elseif (TypeDescription::hasStringRepresentation($data))
 			$this->name = TypeConversion::toString($data);
 
-		if ($data instanceof ColumnStructure)
+		if ($data instanceof ColumnDescriptionInterface)
 		{
-			$this->initializeColumnProperties($data->getColumnProperties());
+			$this->initializeColumnProperties(
+				$data->getColumnProperties());
+		}
+		elseif ($data instanceof DataTypeProviderInterface)
+		{
+			$this->initializeColumnProperties(
+				[
+					K::COLUMN_DATA_TYPE => $data->getDataType()
+				]);
 		}
 		else
 			$this->initializeColumnProperties();

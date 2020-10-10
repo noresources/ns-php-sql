@@ -15,9 +15,10 @@ use NoreSources\SQL\Expression\Literal;
 /**
  * Value of statement parameter.
  *
- * This class is intented to be used in a array given to ConnectionInterface::executeStatement() method
+ * This class is intented to be used in a array given to ConnectionInterface::executeStatement()
+ * method
  */
-class ParameterValue
+class ParameterValue implements DataTypeProviderInterface
 {
 
 	/**
@@ -34,12 +35,18 @@ class ParameterValue
 	 */
 	public $type;
 
+	public function getDataType()
+	{
+		return $this->type;
+	}
+
 	/**
 	 *
 	 * @param mixed $value
 	 *        	Parameter value
 	 * @param integer $type
-	 *        	Parameter value type. If set to DATATYPE_UNDEFINED, the type will be determined automatically
+	 *        	Parameter value type. If set to DATATYPE_UNDEFINED, the type will be determined
+	 *        	automatically
 	 */
 	public function __construct($value, $type = K::DATATYPE_UNDEFINED)
 	{
