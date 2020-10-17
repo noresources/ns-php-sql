@@ -57,7 +57,7 @@ class TestConnection extends \PHPUnit\Framework\TestCase
 		if ($this->files->offsetExists($name))
 		{
 			$parameters = new DataTree();
-			$parameters->load($this->files[$name]);
+			$parameters->loadFile($this->files[$name]);
 		}
 		else
 			$parameters = [
@@ -86,6 +86,7 @@ class TestConnection extends \PHPUnit\Framework\TestCase
 		$dbmsName = TypeDescription::getLocalName($connection);
 		$insertParameters = array();
 		$insert = Container::keyValue($options, 'insert', null);
+		$assertValue = Container::keyValue($options, 'assertValue', true);
 		if (\is_array($insert))
 		{
 			$insertParameters = $insert[1];
@@ -140,11 +141,12 @@ class TestConnection extends \PHPUnit\Framework\TestCase
 
 			$this->assertIsArray($record, $dbmsName . ' valid record');
 
-			foreach ($expectedValues as $key => $value)
-			{
-				$this->assertEquals($value, $record[$key],
-					$label . ' - record ' . $key . ' value');
-			}
+			if ($assertValue)
+				foreach ($expectedValues as $key => $value)
+				{
+					$this->assertEquals($value, $record[$key],
+						$label . ' - record ' . $key . ' value');
+				}
 		}
 
 		if ($cleanup)

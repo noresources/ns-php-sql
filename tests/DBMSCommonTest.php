@@ -437,8 +437,6 @@ final class DBMSCommonTest extends TestCase
 			'1806-12-29T23:02:01+0000');
 
 		$formats = DateTime::getFormatTokenDescriptions();
-		$formats['Y-m-d'] = 'Date';
-		$formats['H:i:s'] = 'Time';
 
 		$delete = ConnectionHelper::prepareStatement($connection,
 			new DeleteQuery($tableStructure), $tableStructure);
@@ -466,7 +464,9 @@ final class DBMSCommonTest extends TestCase
 							$desc[DateTime::FORMAT_DESCRIPTION_RANGE]) .
 						']';
 			}
-			$select = new SelectQuery();
+			$select = $connection->getPlatform()->newStatement(
+				K::QUERY_SELECT);
+
 			$select->columns(
 				[
 					new TimestampFormatFunction($format,
@@ -475,8 +475,16 @@ final class DBMSCommonTest extends TestCase
 					'format'
 				]);
 
+			$validate = true;
 			$translation = $connection->getPlatform()->getTimestampFormatTokenTranslation(
 				$format);
+
+			if (\is_array($translation)) // Fallback support
+			{
+				$validate = false;
+				$translation = $translation[0];
+			}
+
 			if (!\is_string($translation))
 				continue;
 
@@ -488,9 +496,6 @@ final class DBMSCommonTest extends TestCase
 
 			$this->assertCount(1, $select->getParameters(),
 				'Number of parameters of SELECT');
-
-			if (DBMSTestSilentLogger::getInstance()->count())
-				continue;
 
 			if (!($connection instanceof PDOConnection))
 				$this->derivedFileManager->assertDerivedFile(
@@ -516,7 +521,8 @@ final class DBMSCommonTest extends TestCase
 							]
 						],
 						'label' => $dateTime->format(\DateTime::ISO8601) .
-						': ' . $dbmsName . ' [' . $format . '] ' . $label
+						': ' . $dbmsName . ' [' . $format . '] ' . $label,
+						'assertValue' => $validate
 					]);
 			}
 		}

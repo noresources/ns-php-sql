@@ -150,7 +150,11 @@ class SQLitePlatform extends AbstractPlatform
 					],
 					DateTime::FORMAT_MINUTE_DIGIT_2 => '%M',
 					DateTime::FORMAT_SECOND_DIGIT_2 => '%S',
-					DateTime::FORMAT_EPOCH_OFFSET => '%s'
+					DateTime::FORMAT_EPOCH_OFFSET => '%s',
+					DateTime::FORMAT_TIMESTAMP_ISO8601 => [
+						'%Y-%m-%dT%H:%M:%S+00:00',
+						'Not the ISO 8601 week numbering year. No timezone'
+					]
 				]);
 		}
 

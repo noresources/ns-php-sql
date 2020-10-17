@@ -218,7 +218,15 @@ class MySQLPlatform extends AbstractPlatform implements
 					DateTime::FORMAT_MINUTE_DIGIT_2 => '%i',
 					DateTime::FORMAT_SECOND_DIGIT_2 => '%S',
 					DateTime::FORMAT_MICROSECOND => false,
-					DateTime::FORMAT_MICROSECOND => '%f'
+					DateTime::FORMAT_MICROSECOND => '%f',
+					DateTime::FORMAT_TIMESTAMP_ISO8601 => [
+						'%Y-%m-%dT%H:%i:%s+00:00',
+						'Not the ISO year number. No timezone'
+					],
+					DateTime::FORMAT_TIMESTAMP_RFC2822 => [
+						'%d %b %Y %H:%i:%s+0000',
+						'No timezone'
+					]
 				]);
 		}
 

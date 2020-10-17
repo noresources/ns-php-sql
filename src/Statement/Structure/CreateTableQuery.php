@@ -27,6 +27,7 @@ use NoreSources\SQL\Structure\StructureProviderInterface;
 use NoreSources\SQL\Structure\TableConstraint;
 use NoreSources\SQL\Structure\TableStructure;
 use NoreSources\SQL\Structure\UniqueTableConstraint;
+use Psr\Log\LoggerInterface;
 
 /**
  * CREATE TABLE statement
@@ -176,6 +177,9 @@ class CreateTableQuery extends Statement implements
 		TokenStreamContextInterface $context)
 	{
 		$platform = $context->getPlatform();
+		$logger = null;
+		if ($platform instanceof LoggerInterface)
+			$logger = $platform;
 
 		$columnDeclaration = $platform->queryFeature(
 			[
@@ -257,17 +261,16 @@ class CreateTableQuery extends Statement implements
 		{
 			$scale = $column->getColumnProperty(
 				K::COLUMN_FRACTION_SCALE);
-			$typeMAxLength = $type->getTypeMaxLength();
-			if (\is_infinite($typeMAxLength))
+			$typeMaxLength = $type->getTypeMaxLength();
+			if (\is_infinite($typeMaxLength))
 			{
-				/**
-				 *
-				 * @todo trigger warning
-				 */
-				$typeMAxLength = $scale * 2;
+				if ($logger instanceof LoggerInterface)
+					$logger->warning(
+						'Specifying scale without precision on a type with undefined max length may produce unexpected values');
+				$typeMaxLength = $scale * 2;
 			}
 			$stream->text('(')
-				->literal($typeMAxLength)
+				->literal($typeMaxLength)
 				->text(',')
 				->literal($scale)
 				->text(')');
@@ -278,15 +281,15 @@ class CreateTableQuery extends Statement implements
 			($columnDeclaration &
 			K::PLATFORM_FEATURE_COLUMN_KEY_MANDATORY_LENGTH)))
 		{
-			$typeMAxLength = $type->getTypeMaxLength();
-			if (\is_infinite($typeMAxLength))
+			$typeMaxLength = $type->getTypeMaxLength();
+			if (\is_infinite($typeMaxLength))
 				throw new StatementException($this,
 					$column->getName() .
 					' column require length specification but type ' .
 					$type->getTypeName() . ' max length is unspecified');
 
 			$stream->text('(')
-				->literal($typeMAxLength)
+				->literal($typeMaxLength)
 				->text(')');
 		}
 

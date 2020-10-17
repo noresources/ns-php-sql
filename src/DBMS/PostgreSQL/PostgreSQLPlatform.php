@@ -243,6 +243,14 @@ class PostgreSQLPlatform extends AbstractPlatform implements
 					DateTime::FORMAT_TIMESTAMP_ISO8601 => [
 						'YYY-MM-DD"T"HH24:MI:SSOF',
 						'Time zone offset will contain colon(s)'
+					],
+					DateTime::FORMAT_TIMESTAMP_ISO8601 => [
+						'IYYY-MM-DD"T"HH24:MI:SSOF',
+						'Minute offset will not be included'
+					],
+					DateTime::FORMAT_TIMESTAMP_RFC2822 => [
+						'DD Mon YYYY HH24:MI:SSOF',
+						'Colon in timezone offset. Minute offset may not be included'
 					]
 				]);
 		}
