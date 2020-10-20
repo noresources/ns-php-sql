@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "b6495e3696012ef170b0bf73a2a02468",
+    "content-hash": "f25481a276ccd850c137c386868bc0a2",
     "packages": [
         {
             "name": "ferno/loco",
-            "version": "dev-master",
+            "version": "dev-main",
             "source": {
                 "type": "git",
                 "url": "https://github.com/qntm/loco.git",
-                "reference": "e8a2383bc274b6868592eb774ffce5338ab76a62"
+                "reference": "d46e588e46830f47cc457fcf045a02ddb285c529"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/qntm/loco/zipball/e8a2383bc274b6868592eb774ffce5338ab76a62",
-                "reference": "e8a2383bc274b6868592eb774ffce5338ab76a62",
+                "url": "https://api.github.com/repos/qntm/loco/zipball/d46e588e46830f47cc457fcf045a02ddb285c529",
+                "reference": "d46e588e46830f47cc457fcf045a02ddb285c529",
                 "shasum": ""
             },
             "require": {
@@ -43,7 +43,7 @@
                 "parser",
                 "parsing"
             ],
-            "time": "2020-08-14T18:47:46+00:00"
+            "time": "2019-11-25T00:00:57+00:00"
         },
         {
             "name": "noresources/ns-php-core",
@@ -51,12 +51,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/noresources/ns-php-core.git",
-                "reference": "e16bd50d3e9de6341958fc232bf96a8d772ea11e"
+                "reference": "b80188b78a849e7155b19d3288a134d5f6f0798f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/noresources/ns-php-core/zipball/e16bd50d3e9de6341958fc232bf96a8d772ea11e",
-                "reference": "e16bd50d3e9de6341958fc232bf96a8d772ea11e",
+                "url": "https://api.github.com/repos/noresources/ns-php-core/zipball/b80188b78a849e7155b19d3288a134d5f6f0798f",
+                "reference": "b80188b78a849e7155b19d3288a134d5f6f0798f",
                 "shasum": ""
             },
             "require": {
@@ -66,6 +66,7 @@
                 "psr/log": "^1.1"
             },
             "require-dev": {
+                "nette/php-generator": "^3.4",
                 "phpunit/phpunit": "~7.0"
             },
             "suggest": {
@@ -101,15 +102,21 @@
             "keywords": [
                 "utility"
             ],
-            "time": "2020-07-26T18:29:47+00:00"
+            "time": "2020-10-19T21:37:47+00:00"
         },
         {
             "name": "noresources/ns-php-expression",
             "version": "dev-master",
             "source": {
                 "type": "git",
-                "url": "ssh://okami/volume1/repository/git/ns-php-expression.git",
-                "reference": "d4809e8940cc01157f28997936895f34b36cdb8f"
+                "url": "https://github.com/noresources/ns-php-expression.git",
+                "reference": "87a428956e056cd49698e1d6f2103f972b22d6e2"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/noresources/ns-php-expression/zipball/87a428956e056cd49698e1d6f2103f972b22d6e2",
+                "reference": "87a428956e056cd49698e1d6f2103f972b22d6e2",
+                "shasum": ""
             },
             "require": {
                 "noresources/ns-php-core": "~2.2",
@@ -129,16 +136,7 @@
                     "NoreSources\\Expression\\": "src/"
                 }
             },
-            "autoload-dev": {
-                "classmap": [
-                    "tests/src/"
-                ]
-            },
-            "scripts": {
-                "tests": [
-                    "@php  ./vendor/bin/phpunit --bootstrap vendor/autoload.php tests"
-                ]
-            },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -150,10 +148,7 @@
                 }
             ],
             "description": "General purpose expression system",
-            "support": {
-                "issues": "https://github.com/noresources/ns-php-expression/issues"
-            },
-            "time": "2020-08-20T17:29:23+00:00"
+            "time": "2020-10-20T21:58:55+00:00"
         },
         {
             "name": "noresources/ns-php-http-core",
@@ -161,12 +156,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/noresources/ns-php-http-core.git",
-                "reference": "b2cb4620808f43662bc4a72e92d95454fe7eb703"
+                "reference": "fa8d3df125c50ccfefab236d19f5f25d3d90ffd4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/noresources/ns-php-http-core/zipball/b2cb4620808f43662bc4a72e92d95454fe7eb703",
-                "reference": "b2cb4620808f43662bc4a72e92d95454fe7eb703",
+                "url": "https://api.github.com/repos/noresources/ns-php-http-core/zipball/fa8d3df125c50ccfefab236d19f5f25d3d90ffd4",
+                "reference": "fa8d3df125c50ccfefab236d19f5f25d3d90ffd4",
                 "shasum": ""
             },
             "require": {
@@ -204,7 +199,7 @@
                 "RFC 7231",
                 "http"
             ],
-            "time": "2020-08-18T18:27:54+00:00"
+            "time": "2020-10-19T21:50:52+00:00"
         },
         {
             "name": "noresources/ns-php-mediatype",
@@ -212,17 +207,17 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/noresources/ns-php-mediatype.git",
-                "reference": "5d4d559b2bc716b476bd21d221b2a857e716fb87"
+                "reference": "b60c3759fc6fa6bc4df8b10e1a7bfae52207c406"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/noresources/ns-php-mediatype/zipball/5d4d559b2bc716b476bd21d221b2a857e716fb87",
-                "reference": "5d4d559b2bc716b476bd21d221b2a857e716fb87",
+                "url": "https://api.github.com/repos/noresources/ns-php-mediatype/zipball/b60c3759fc6fa6bc4df8b10e1a7bfae52207c406",
+                "reference": "b60c3759fc6fa6bc4df8b10e1a7bfae52207c406",
                 "shasum": ""
             },
             "require": {
                 "noresources/ns-php-http-core": "~1.0",
-                "php": ">= 5.5",
+                "php": ">= 5.6",
                 "psr/container": "^1.0"
             },
             "require-dev": {
@@ -231,7 +226,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.1.x-dev"
+                    "dev-master": "1.2.x-dev"
                 }
             },
             "autoload": {
@@ -255,7 +250,7 @@
                 "mime",
                 "utility"
             ],
-            "time": "2020-08-19T18:35:39+00:00"
+            "time": "2020-10-08T22:37:34+00:00"
         },
         {
             "name": "psr/container",
@@ -263,21 +258,21 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-fig/container.git",
-                "reference": "fc1bc363ecf887921e3897c7b1dad3587ae154eb"
+                "reference": "381524e8568e07f31d504a945b88556548c8c42e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-fig/container/zipball/fc1bc363ecf887921e3897c7b1dad3587ae154eb",
-                "reference": "fc1bc363ecf887921e3897c7b1dad3587ae154eb",
+                "url": "https://api.github.com/repos/php-fig/container/zipball/381524e8568e07f31d504a945b88556548c8c42e",
+                "reference": "381524e8568e07f31d504a945b88556548c8c42e",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.3.0"
+                "php": ">=7.2.0"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.0.x-dev"
+                    "dev-master": "1.1.x-dev"
                 }
             },
             "autoload": {
@@ -292,7 +287,7 @@
             "authors": [
                 {
                     "name": "PHP-FIG",
-                    "homepage": "http://www.php-fig.org/"
+                    "homepage": "https://www.php-fig.org/"
                 }
             ],
             "description": "Common Container Interface (PHP FIG PSR-11)",
@@ -304,7 +299,7 @@
                 "container-interop",
                 "psr"
             ],
-            "time": "2019-10-04T14:07:35+00:00"
+            "time": "2020-10-13T07:07:53+00:00"
         },
         {
             "name": "psr/log",
@@ -312,12 +307,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-fig/log.git",
-                "reference": "0f73288fd15629204f9d42b7055f72dacbe811fc"
+                "reference": "dd738d0b4491f32725492cf345f6b501f5922fec"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-fig/log/zipball/0f73288fd15629204f9d42b7055f72dacbe811fc",
-                "reference": "0f73288fd15629204f9d42b7055f72dacbe811fc",
+                "url": "https://api.github.com/repos/php-fig/log/zipball/dd738d0b4491f32725492cf345f6b501f5922fec",
+                "reference": "dd738d0b4491f32725492cf345f6b501f5922fec",
                 "shasum": ""
             },
             "require": {
@@ -341,7 +336,7 @@
             "authors": [
                 {
                     "name": "PHP-FIG",
-                    "homepage": "http://www.php-fig.org/"
+                    "homepage": "https://www.php-fig.org/"
                 }
             ],
             "description": "Common interface for logging libraries",
@@ -351,7 +346,7 @@
                 "psr",
                 "psr-3"
             ],
-            "time": "2020-03-23T09:12:05+00:00"
+            "time": "2020-09-18T06:44:51+00:00"
         }
     ],
     "packages-dev": [
@@ -470,12 +465,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/myclabs/DeepCopy.git",
-                "reference": "969b211f9a51aa1f6c01d1d2aef56d3bd91598e5"
+                "reference": "00aba97fc36feabc8d94667eebd5d43959e60008"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/myclabs/DeepCopy/zipball/969b211f9a51aa1f6c01d1d2aef56d3bd91598e5",
-                "reference": "969b211f9a51aa1f6c01d1d2aef56d3bd91598e5",
+                "url": "https://api.github.com/repos/myclabs/DeepCopy/zipball/00aba97fc36feabc8d94667eebd5d43959e60008",
+                "reference": "00aba97fc36feabc8d94667eebd5d43959e60008",
                 "shasum": ""
             },
             "require": {
@@ -510,7 +505,7 @@
                 "object",
                 "object graph"
             ],
-            "time": "2020-06-29T13:22:24+00:00"
+            "time": "2020-10-01T09:35:15+00:00"
         },
         {
             "name": "noresources/ns-xml",
@@ -727,12 +722,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpDocumentor/ReflectionDocBlock.git",
-                "reference": "13d9a6bb0b5bbb89d085c7d557c4b55499128eb9"
+                "reference": "069a785b2141f5bcf49f3e353548dc1cce6df556"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpDocumentor/ReflectionDocBlock/zipball/13d9a6bb0b5bbb89d085c7d557c4b55499128eb9",
-                "reference": "13d9a6bb0b5bbb89d085c7d557c4b55499128eb9",
+                "url": "https://api.github.com/repos/phpDocumentor/ReflectionDocBlock/zipball/069a785b2141f5bcf49f3e353548dc1cce6df556",
+                "reference": "069a785b2141f5bcf49f3e353548dc1cce6df556",
                 "shasum": ""
             },
             "require": {
@@ -771,34 +766,33 @@
                 }
             ],
             "description": "With this component, a library can provide support for annotations via DocBlocks or otherwise retrieve information that is embedded in a DocBlock.",
-            "time": "2020-08-22T07:19:02+00:00"
+            "time": "2020-09-03T19:13:55+00:00"
         },
         {
             "name": "phpdocumentor/type-resolver",
-            "version": "dev-master",
+            "version": "1.x-dev",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpDocumentor/TypeResolver.git",
-                "reference": "94f3ddc5d77e49daadadd33b798b933e52dde82c"
+                "reference": "6a467b8989322d92aa1c8bf2bebcc6e5c2ba55c0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpDocumentor/TypeResolver/zipball/94f3ddc5d77e49daadadd33b798b933e52dde82c",
-                "reference": "94f3ddc5d77e49daadadd33b798b933e52dde82c",
+                "url": "https://api.github.com/repos/phpDocumentor/TypeResolver/zipball/6a467b8989322d92aa1c8bf2bebcc6e5c2ba55c0",
+                "reference": "6a467b8989322d92aa1c8bf2bebcc6e5c2ba55c0",
                 "shasum": ""
             },
             "require": {
-                "php": "^7.2",
+                "php": "^7.2 || ^8.0",
                 "phpdocumentor/reflection-common": "^2.0"
             },
             "require-dev": {
-                "ext-tokenizer": "^7.2",
-                "mockery/mockery": "~1"
+                "ext-tokenizer": "*"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.x-dev"
+                    "dev-1.x": "1.x-dev"
                 }
             },
             "autoload": {
@@ -817,32 +811,32 @@
                 }
             ],
             "description": "A PSR-5 based resolver of Class names, Types and Structural Element Names",
-            "time": "2020-06-19T19:40:27+00:00"
+            "time": "2020-09-17T18:55:26+00:00"
         },
         {
             "name": "phpspec/prophecy",
-            "version": "dev-master",
+            "version": "1.12.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpspec/prophecy.git",
-                "reference": "c99da517f9e7b6e6c4067611d804808c34d8cec3"
+                "reference": "8ce87516be71aae9b956f81906aaf0338e0d8a2d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpspec/prophecy/zipball/c99da517f9e7b6e6c4067611d804808c34d8cec3",
-                "reference": "c99da517f9e7b6e6c4067611d804808c34d8cec3",
+                "url": "https://api.github.com/repos/phpspec/prophecy/zipball/8ce87516be71aae9b956f81906aaf0338e0d8a2d",
+                "reference": "8ce87516be71aae9b956f81906aaf0338e0d8a2d",
                 "shasum": ""
             },
             "require": {
                 "doctrine/instantiator": "^1.2",
-                "php": "^7.2",
+                "php": "^7.2 || ~8.0, <8.1",
                 "phpdocumentor/reflection-docblock": "^5.2",
                 "sebastian/comparator": "^3.0 || ^4.0",
                 "sebastian/recursion-context": "^3.0 || ^4.0"
             },
             "require-dev": {
                 "phpspec/phpspec": "^6.0",
-                "phpunit/phpunit": "^8.0"
+                "phpunit/phpunit": "^8.0 || ^9.0 <9.3"
             },
             "type": "library",
             "extra": {
@@ -880,7 +874,7 @@
                 "spy",
                 "stub"
             ],
-            "time": "2020-07-21T10:09:02+00:00"
+            "time": "2020-09-29T09:10:42+00:00"
         },
         {
             "name": "phpunit/php-code-coverage",

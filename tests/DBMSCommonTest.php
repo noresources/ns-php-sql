@@ -383,13 +383,13 @@ final class DBMSCommonTest extends TestCase
 			if (Container::isArray($desc))
 			{
 				$label = Container::keyValue($desc,
-					DateTime::FORMAT_LABEL, $format);
-				if (Container::keyExists($desc, DateTime::FORMAT_DETAILS))
-					$label .= ' (' . $desc[DateTime::FORMAT_DETAILS] .
+					DateTime::FORMAT_DESCRIPTION_LABEL, $format);
+				if (Container::keyExists($desc, DateTime::FORMAT_DESCRIPTION_DETAILS))
+					$label .= ' (' . $desc[DateTime::FORMAT_DESCRIPTION_DETAILS] .
 						')';
-				if (Container::keyExists($desc, DateTime::FORMAT_RANGE))
+				if (Container::keyExists($desc, DateTime::FORMAT_DESCRIPTION_RANGE))
 					$label .= ' [' .
-						implode('-', $desc[DateTime::FORMAT_RANGE]) . ']';
+						implode('-', $desc[DateTime::FORMAT_DESCRIPTION_RANGE]) . ']';
 			}
 			$select = new SelectQuery();
 			$select->columns(
