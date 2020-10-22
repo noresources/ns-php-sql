@@ -139,7 +139,7 @@ class Environment implements ConnectionProviderInterface,
 				$this->structure = $argument;
 			elseif ($argument instanceof ConnectionInterface)
 				$this->connection = $argument;
-			elseif (\is_file($argument))
+			elseif (\is_string($argument) && \is_file($argument))
 			{
 				$factory = new StructureSerializerFactory();
 				$this->structure = $factory->structureFromFile(

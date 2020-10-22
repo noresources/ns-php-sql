@@ -16,6 +16,9 @@ use NoreSources\Stack;
 use NoreSources\TypeDescription;
 
 /**
+ * ConnectionFactory composed of a stack of sub Connection factories.
+ *
+ * Factories are called iteratively until a ConnectionInterface is created successfully.
  */
 class ConnectionFactoryStack implements ConnectionFactoryInterface
 {

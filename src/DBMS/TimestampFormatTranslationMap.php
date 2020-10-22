@@ -1,60 +1,64 @@
 <?php
 namespace NoreSources\SQL\DBMS;
 
-use NoreSources\Container;
 use NoreSources\DateTime;
+use NoreSources\TypeDescription;
 
+/**
+ * A special container dedicated to store PHP timestamp format token translation.
+ */
 class TimestampFormatTranslationMap extends \ArrayObject
 {
 
+	/**
+	 *
+	 * @param \Traversable $array
+	 *        	PHP date() format tokenn translation data
+	 */
 	public function __construct($array)
 	{
-		$entries = [
-			DateTime::FORMAT_YEAR_LEAP => false,
-			DateTime::FORMAT_YEAR_ISO8601 => false,
-			DateTime::FORMAT_YEAR_DIGIT_2 => false,
-			DateTime::FORMAT_YEAR_NUMBER => false,
-			DateTime::FORMAT_YEAR_DAY_NUMBER => false,
-			DateTime::FORMAT_MONTH_ALPHA_3 => false,
-			DateTime::FORMAT_MONTH_NAME => false,
-			DateTime::FORMAT_MONTH_DIGIT_2 => false,
-			DateTime::FORMAT_MONTH_NUMBER => false,
-			DateTime::FORMAT_MONTH_DAY_COUNT => false,
-			DateTime::FORMAT_WEEK_DIGIT_2 => false,
-			DateTime::FORMAT_WEEK_DAY_ISO8601 => false,
-			DateTime::FORMAT_WEEK_DAY_NUMBER => false,
-			DateTime::FORMAT_WEEK_DAY_EN_ALPHA_2 => false,
-			DateTime::FORMAT_DAY_ALPHA_3 => false,
-			DateTime::FORMAT_DAY_NAME => false,
-			DateTime::FORMAT_DAY_DIGIT_2 => false,
-			DateTime::FORMAT_DAY_NUMBER => false,
-			DateTime::FORMAT_HOUR_24_DIGIT_2 => false,
-			DateTime::FORMAT_HOUR_24_PADDED => false,
-			DateTime::FORMAT_HOUR_12_DIGIT_2 => false,
-			DateTime::FORMAT_HOUR_12_PADDED => false,
-			DateTime::FORMAT_SWATCH_TIME => false,
-			DateTime::FORMAT_EPOCH_OFFSET => false,
-			DateTime::FORMAT_HOUR_AM_UPPERCASE => false,
-			DateTime::FORMAT_HOUR_AM_LOWERCASE => false,
-			DateTime::FORMAT_MINUTE_DIGIT_2 => false,
-			DateTime::FORMAT_SECOND_DIGIT_2 => false,
-			DateTime::FORMAT_MILLISECOND => false,
-			DateTime::FORMAT_MICROSECOND => false,
-			DateTime::FORMAT_TIMEZONE_OFFSET => false,
-			DateTime::FORMAT_TIMEZONE_GMT_OFFSET_COLON => false,
-			DateTime::FORMAT_TIMEZONE_GMT_OFFSET => false,
-			DateTime::FORMAT_TIMEZONE_NAME => false,
-			DateTime::FORMAT_TIMEZONE_DST => false,
-			DateTime::FORMAT_TIMEZONE_ALPHA_3 => false,
-			DateTime::FORMAT_TIMESTAMP_ISO8601 => false,
-			DateTime::FORMAT_TIMESTAMP_RFC2822 => false
-		];
+		foreach ($array as $key => $data)
+		{
+			$this->offsetSet($key, $data);
+		}
+	}
 
-		parent::__construct(
-			\array_merge($entries,
-				Container::filter($array,
-					function ($k, $v) use ($entries) {
-						return Container::keyExists($entries, $k);
-					})));
+	/**
+	 *
+	 * @param string $key
+	 * @return true if $key is a valid PHP date() token
+	 *
+	 * @see https://www.php.net/manual/en/datetime.format.php
+	 */
+	public static function isToken($key)
+	{
+		return DateTime::getFormatTokenDescriptions()->offsetExists(
+			$key);
+	}
+
+	public function offsetExists($index)
+	{
+		return self::isToken($index);
+	}
+
+	public function offsetGet($index)
+	{
+		if (parent::offsetExists($index))
+			return parent::offsetGet($index);
+		return false;
+	}
+
+	public function offsetSet($key, $data)
+	{
+		if (!self::isToken($key))
+			throw new \InvalidArgumentException(
+				$key . ' is not a valid PHP date format token');
+		if (!($data === false || \is_string($data) ||
+			(\is_array($data) && \count($data) >= 2)))
+			throw new \InvalidArgumentException(
+				'Invalid translation data for token "' . $key .
+				'". false, string or array with 2 elements expected. Got ' .
+				TypeDescription::getName($data));
+		parent::offsetSet($key, $data);
 	}
 }

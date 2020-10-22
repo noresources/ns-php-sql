@@ -68,7 +68,7 @@ class ColumnStructure implements StructureElementInterface,
 	 *
 	 * @param string $name
 	 *        	Column name
-	 * @param unknown $tableStructure
+	 * @param TableStructure $tableStructure
 	 *        	Parent table
 	 */
 	public function __construct($name, /*TableStructure */$tableStructure = null)

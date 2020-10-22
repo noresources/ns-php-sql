@@ -9,6 +9,9 @@
  */
 namespace NoreSources\SQL\DBMS;
 
+/**
+ * Provider interface for classes exposing a ConnectionInterface
+ */
 interface ConnectionProviderInterface
 {
 

@@ -9,6 +9,9 @@
  */
 namespace NoreSources\SQL\DBMS;
 
+/**
+ * Interface for Connection creation
+ */
 interface ConnectionFactoryInterface
 {
 

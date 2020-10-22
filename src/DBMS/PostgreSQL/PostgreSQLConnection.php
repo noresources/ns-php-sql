@@ -55,7 +55,7 @@ class PostgreSQLConnection implements ConnectionInterface,
 		] as $key => $name)
 		{
 			if (Container::keyExists($parameters, $key))
-				$dsn[$name] = Container::keyValue($container, $key);
+				$dsn[$name] = Container::keyValue($parameters, $key);
 		}
 
 		$dsn = Container::implode($dsn, ' ',

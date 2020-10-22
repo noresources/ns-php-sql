@@ -1,6 +1,9 @@
 <?php
 namespace NoreSources\SQL\DBMS;
 
+/**
+ * Interface to query DBMS supported features
+ */
 interface FeatureQueryInterface
 {
 

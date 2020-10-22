@@ -12,6 +12,9 @@ use NoreSources\SQL\Structure\ColumnDescriptionInterface;
 use NoreSources\SQL\Structure\StructureElementInterface;
 use Psr\Log\LoggerAwareInterface;
 
+/**
+ * DBMS feature support informations, SQL dialect translation
+ */
 interface PlatformInterface extends FeatureQueryInterface,
 	LoggerAwareInterface, DataSerializerInterface,
 	StringSerializerInterface, BinaryDataSerializerInterface,

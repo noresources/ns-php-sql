@@ -11,6 +11,9 @@ namespace NoreSources\SQL\DBMS;
 
 use Psr\Container\NotFoundExceptionInterface;
 
+/**
+ * Exception raised while using ContainerInterface::get() on a non-existing type property
+ */
 class TypePropertyNotFoundException extends \Exception implements
 	NotFoundExceptionInterface
 {

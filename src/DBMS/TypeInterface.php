@@ -14,6 +14,9 @@ use NoreSources\StringRepresentation;
 use NoreSources\Expression\Value;
 use Psr\Container\ContainerInterface;
 
+/**
+ * DBMS type description interface
+ */
 interface TypeInterface extends ContainerInterface, StringRepresentation,
 	ArrayRepresentation
 {

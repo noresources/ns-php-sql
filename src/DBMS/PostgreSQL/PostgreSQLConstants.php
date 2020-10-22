@@ -11,6 +11,9 @@ namespace NoreSources\SQL\DBMS\PostgreSQL;
 
 use NoreSources\SQL\Constants;
 
+/**
+ * PostgreSQL specific constants
+ */
 class PostgreSQLConstants extends Constants
 {
 

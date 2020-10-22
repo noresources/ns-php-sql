@@ -9,7 +9,11 @@
  */
 namespace NoreSources\SQL\DBMS;
 
-class ConnectionException extends \ErrorException implements ConnectionProviderInterface
+/**
+ * DBMS connection or command exception
+ */
+class ConnectionException extends \ErrorException implements
+	ConnectionProviderInterface
 {
 
 	use ConnectionProviderTrait;
@@ -23,7 +27,8 @@ class ConnectionException extends \ErrorException implements ConnectionProviderI
 	 * @param integer $code
 	 *        	Error code
 	 */
-	public function __construct(ConnectionInterface $connection = null, $message, $code = null)
+	public function __construct(ConnectionInterface $connection = null,
+		$message, $code = null)
 	{
 		parent::__construct($message, $code);
 		$this->setConnection($connection);

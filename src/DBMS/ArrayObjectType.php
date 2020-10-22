@@ -11,6 +11,9 @@ namespace NoreSources\SQL\DBMS;
 
 use NoreSources\SQL\Constants as K;
 
+/**
+ * Reference implementation of TypeInterface
+ */
 class ArrayObjectType implements TypeInterface
 {
 

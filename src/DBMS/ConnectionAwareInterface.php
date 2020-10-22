@@ -1,6 +1,9 @@
 <?php
 namespace NoreSources\SQL\DBMS;
 
+/**
+ * For classes holding a ConnectionInterface reference
+ */
 interface ConnectionAwareInterface
 {
 

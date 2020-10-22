@@ -1,6 +1,9 @@
 <?php
 namespace NoreSources\SQL\DBMS;
 
+/**
+ * Transaction initialization interface
+ */
 interface TransactionInterface
 {
 
