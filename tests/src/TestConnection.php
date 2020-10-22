@@ -5,7 +5,6 @@ use NoreSources\Container;
 use NoreSources\DataTree;
 use NoreSources\TypeDescription;
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\DBMS\ConnectionHelper;
 use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\Result\InsertionStatementResultInterface;
 use NoreSources\SQL\Result\Recordset;

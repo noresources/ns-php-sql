@@ -1,12 +1,12 @@
 <?php
 namespace NoreSources\SQL;
 
-use NoreSources\SQL\DBMS\ConnectionHelper;
 use NoreSources\SQL\DBMS\Reference\ReferencePlatform;
 use NoreSources\SQL\Statement\StatementBuilder;
 use NoreSources\SQL\Statement\StatementTokenStreamContext;
 use NoreSources\SQL\Statement\Manipulation\UpdateQuery;
 use NoreSources\SQL\Statement\Query\SelectQuery;
+use NoreSources\Test\ConnectionHelper;
 use NoreSources\Test\DatasourceManager;
 use NoreSources\Test\DerivedFileManager;
 

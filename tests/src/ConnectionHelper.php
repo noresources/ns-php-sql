@@ -7,12 +7,15 @@
  *
  * @package SQL
  */
-namespace NoreSources\SQL\DBMS;
+namespace NoreSources\Test;
 
 use NoreSources\Container;
 use NoreSources\TypeConversion;
 use NoreSources\TypeDescription;
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\DBMS\ConnectionFactoryInterface;
+use NoreSources\SQL\DBMS\ConnectionInterface;
+use NoreSources\SQL\DBMS\DefaultConnectionFactory;
 use NoreSources\SQL\Statement\Statement;
 use NoreSources\SQL\Statement\StatementBuilder;
 use NoreSources\SQL\Statement\StatementDataInterface;

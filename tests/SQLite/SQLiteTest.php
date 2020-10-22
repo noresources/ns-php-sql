@@ -5,7 +5,6 @@ use NoreSources\Container;
 use NoreSources\DateTime;
 use NoreSources\TypeDescription;
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\DBMS\ConnectionHelper;
 use NoreSources\SQL\DBMS\SQLite\SQLiteConnection;
 use NoreSources\SQL\DBMS\SQLite\SQLiteConstants;
 use NoreSources\SQL\DBMS\SQLite\SQLitePlatform;
@@ -20,6 +19,7 @@ use NoreSources\SQL\Statement\StatementData;
 use NoreSources\SQL\Statement\Manipulation\InsertQuery;
 use NoreSources\SQL\Statement\Query\SelectQuery;
 use NoreSources\SQL\Structure\TableStructure;
+use NoreSources\Test\ConnectionHelper;
 use NoreSources\Test\DatasourceManager;
 use NoreSources\Test\DerivedFileManager;
 

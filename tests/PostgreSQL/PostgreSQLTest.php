@@ -2,7 +2,6 @@
 namespace NoreSources\SQL;
 
 use NoreSources\SemanticVersion;
-use NoreSources\SQL\DBMS\ConnectionHelper;
 use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\TypeInterface;
 use NoreSources\SQL\DBMS\TypeRegistry;
@@ -17,6 +16,7 @@ use NoreSources\SQL\Statement\Structure\DropIndexQuery;
 use NoreSources\SQL\Statement\Structure\DropTableQuery;
 use NoreSources\SQL\Structure\IndexStructure;
 use NoreSources\SQL\Structure\TableStructure;
+use NoreSources\Test\ConnectionHelper;
 use NoreSources\Test\DatasourceManager;
 use NoreSources\Test\DerivedFileManager;
 
