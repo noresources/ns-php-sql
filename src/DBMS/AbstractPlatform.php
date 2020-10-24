@@ -236,6 +236,8 @@ abstract class AbstractPlatform implements PlatformInterface
 				return 'FALSE';
 			case K::KEYWORD_DEFAULT:
 				return 'DEFAULT';
+			case K::KEYWORD_TEMPORARY:
+				return 'TEMPORARY';
 		}
 
 		throw new \InvalidArgumentException(

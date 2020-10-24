@@ -45,7 +45,16 @@ final class CreateTest extends \PHPUnit\Framework\TestCase
 	{
 		$structure = $this->datasources->get('Company');
 		$tableStructure = $structure['ns_unittests']['Employees'];
-		$platform = new ReferencePlatform();
+		$platform = new ReferencePlatform(
+			[
+				[
+					[
+						K::PLATFORM_FEATURE_CREATE,
+						K::PLATFORM_FEATURE_TEMPORARY
+					],
+					true
+				]
+			]);
 
 		$select = new SelectQuery($tableStructure);
 		$select->columns('id', 'name')->where([

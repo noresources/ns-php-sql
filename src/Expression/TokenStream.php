@@ -69,7 +69,7 @@ class TokenStream implements \IteratorAggregate, \Countable
 	 */
 	public function keyword($value)
 	{
-		return $this->append(strtoupper(trim($value)), K::TOKEN_KEYWORD);
+		return $this->append(\strtoupper(trim($value)), K::TOKEN_KEYWORD);
 	}
 
 	/**
@@ -102,7 +102,9 @@ class TokenStream implements \IteratorAggregate, \Countable
 	 * @param TokenStreamContextInterface $context
 	 * @return \NoreSources\SQL\Expression\TokenStream
 	 */
-	public function expression(TokenizableExpressionInterface $expression, TokenStreamContextInterface $context)
+	public function expression(
+		TokenizableExpressionInterface $expression,
+		TokenStreamContextInterface $context)
 	{
 		$expression->tokenize($this, $context);
 		return $this;
@@ -115,7 +117,8 @@ class TokenStream implements \IteratorAggregate, \Countable
 	 * @param TokenStreamContextInterface $context
 	 * @return \NoreSources\SQL\Expression\TokenStream
 	 */
-	public function constraints($constraints, TokenStreamContextInterface $context)
+	public function constraints($constraints,
+		TokenStreamContextInterface $context)
 	{
 		$c = null;
 		foreach ($constraints as $constraint)
@@ -144,10 +147,11 @@ class TokenStream implements \IteratorAggregate, \Countable
 	 */
 	public function append($token, $type)
 	{
-		$this->tokens->append(array(
-			self::INDEX_TOKEN => $token,
-			self::INDEX_TYPE => $type
-		));
+		$this->tokens->append(
+			array(
+				self::INDEX_TOKEN => $token,
+				self::INDEX_TYPE => $type
+			));
 		return $this;
 	}
 

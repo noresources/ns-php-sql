@@ -46,6 +46,11 @@ class SQLitePlatform extends AbstractPlatform
 			], true);
 		$this->setPlatformFeature(
 			[
+				self::FEATURE_CREATE,
+				self::FEATURE_TEMPORARY
+			], true);
+		$this->setPlatformFeature(
+			[
 				self::FEATURE_SELECT,
 				self::FEATURE_EXTENDED_RESULTCOLUMN_RESOLUTION
 			], true);

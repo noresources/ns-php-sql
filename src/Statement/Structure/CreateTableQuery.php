@@ -31,6 +31,15 @@ use Psr\Log\LoggerInterface;
 
 /**
  * CREATE TABLE statement
+ *
+ * <dl>
+ * <dt>MySQL</dt>
+ * <dd>https://dev.mysql.com/doc/refman/8.0/en/create-table.html</dd>
+ * <dt>SQLite</dt>
+ * <dd>https://sqlite.org/lang_createtable.html</dd>
+ * <dt>PostgreSQL</dt>
+ * <dd>https://www.postgresql.org/docs/7.1/sql-createtable.html</dd>
+ * </dl>
  */
 class CreateTableQuery extends Statement implements
 	StructureProviderInterface
@@ -80,6 +89,11 @@ class CreateTableQuery extends Statement implements
 	{
 		$this->createFlags = $flags;
 		return $this;
+	}
+
+	public function getFlags()
+	{
+		return $this->createFlags;
 	}
 
 	public function tokenize(TokenStream $stream,
@@ -134,7 +148,8 @@ class CreateTableQuery extends Statement implements
 				->space()
 				->keyword('replace');
 		if (($this->createFlags & self::TEMPORARY) && $temporarySupport)
-			$stream->space()->keyword('temporary');
+			$stream->space()->keyword(
+				$platform->getKeyword(K::KEYWORD_TEMPORARY));
 		$stream->space()->keyword('table');
 
 		if ($existsCondition)

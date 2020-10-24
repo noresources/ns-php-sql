@@ -49,6 +49,12 @@ class PostgreSQLPlatform extends AbstractPlatform implements
 				self::FEATURE_INSERT,
 				self::FEATURE_DEFAULTVALUES
 			], true);
+		$this->setPlatformFeature(
+			[
+				self::FEATURE_CREATE,
+				self::FEATURE_TABLE,
+				self::FEATURE_TEMPORARY
+			], true);
 
 		$serverVersion = $this->getPlatformVersion();
 		$compatibility = $serverVersion->slice(SemanticVersion::MAJOR,
@@ -64,6 +70,19 @@ class PostgreSQLPlatform extends AbstractPlatform implements
 				], false);
 
 			$compatibility = '7.3.0';
+		}
+
+		if (SemanticVersion::compareVersions($serverVersion, '8.1.0') >=
+			0)
+		{
+			$this->setPlatformFeature(
+				[
+					self::FEATURE_CREATE,
+					self::FEATURE_VIEW,
+					self::FEATURE_TEMPORARY
+				], true);
+
+			$compatibility = '8.1.0';
 		}
 
 		if (SemanticVersion::compareVersions($serverVersion, '8.2.0') >=

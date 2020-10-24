@@ -117,7 +117,13 @@ class CreateViewQuery extends Statement
 
 		$stream->keyword('create');
 
-		if ($this->viewFlags & self::TEMPORARY)
+		if ($this->viewFlags & self::TEMPORARY &&
+			$platform->queryFeature(
+				[
+					K::PLATFORM_FEATURE_CREATE,
+					K::PLATFORM_FEATURE_VIEW,
+					K::PLATFORM_FEATURE_TEMPORARY
+				], false))
 			$stream->space()->keyword('temporary');
 
 		$stream->space()->keyword('view');

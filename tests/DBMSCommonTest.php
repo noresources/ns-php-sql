@@ -1537,7 +1537,8 @@ final class DBMSCommonTest extends TestCase
 			$createTable->getStructure(),
 			$dbmsName . ' CrateTableQuery table reference');
 
-		$createTable->flags(CreateTableQuery::REPLACE);
+		$createTable->flags(
+			$createTable->getFlags() | CreateTableQuery::REPLACE);
 		$result = false;
 		$data = ConnectionHelper::buildStatement($connection,
 			$createTable, $tableStructure);
@@ -1556,13 +1557,13 @@ final class DBMSCommonTest extends TestCase
 		{
 			$this->assertEquals(true, $result,
 				'Create table ' . $tableStructure->getName() . ' on ' .
-				TypeDescription::getName($connection) . PHP_EOL .
+				TypeDescription::getLocalName($connection) . PHP_EOL .
 				\strval($data) . ': ' . $e->getMessage());
 		}
 
 		$this->assertTrue($result,
 			'Create table ' . $tableStructure->getName() . ' on ' .
-			TypeDescription::getName($connection));
+			TypeDescription::getLocalName($connection));
 
 		return $result;
 	}

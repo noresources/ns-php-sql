@@ -515,6 +515,13 @@ class Constants
 	const KEYWORD_NAMESPACE = 'namespace';
 
 	/**
+	 * TEMPORARY attribute used in temporary structure element creation.
+	 *
+	 * @var string
+	 */
+	const KEYWORD_TEMPORARY = 'temporary';
+
+	/**
 	 * Ascending ORDER BY
 	 *
 	 * @var string
