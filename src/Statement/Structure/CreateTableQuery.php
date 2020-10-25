@@ -12,6 +12,7 @@
 namespace NoreSources\SQL\Statement\Structure;
 
 use NoreSources\Container;
+use NoreSources\TypeDescription;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\TypeInterface;
 use NoreSources\SQL\Expression\Evaluator;
@@ -213,8 +214,9 @@ class CreateTableQuery extends Statement implements
 			$column->getConstraintFlags());
 		if (!($type instanceof TypeInterface))
 			throw new StatementException($this,
-				'Unable to find a DBMS type for column "' .
-				$column->getName() . '"');
+				'Unable to find a ' .
+				TypeDescription::getLocalName($platform) .
+				' type for column "' . $column->getName() . '"');
 		/**
 		 *
 		 * @var TypeInterface $type
