@@ -1,17 +1,24 @@
 ns-php-sql
 ===========
 
-SQL abstraction layer for SQL engine and SQL language
+SQL abstraction layer for SQL engine and SQL language dialects.
 
 # Features
 
-* Abstract data structure description system
- * Loadable from XML schema 
-* Easy and powerful DBMS-independent statement building using literal expression and/or polish notation
-* Accurate translation to DBMS dialect
- * DBMS-specific query syntax (ex. SQLite CREATE TABLE primary key syntax)
- * Value formatting
- * Identifier escaping (ex. backquote for MySQL, double quotes for PostgreSQL) 
- * Keyword name variations (ex. `AUTO INCREMENT`, `AUTOINCREMENT`, `AUTO_INCREMENT`)  
-* SQLite, PostgreSQL and MySQL/MariaDB support as well as PDO (less accurate)
+* Data structure description
+ * Abstract schemal oadable from XML schema
+ * Automatic DMBS type mapping
+* SQL statement building
+  * Easy and powerful DBMS-independent statement building using literal expression and/or polish notation
+  * Accurate translation to DBMS dialect
+  * Automatic value formatting according table column properties
+* DBMS drivers
+  * Prepare statements
+  * Execute statement with/without parameters
+  * Automatic column value deserialization of query results
+* Native support of common DBMS
+  * SQLite
+  * PostgreSQL
+  * MySQL/MariaDB
+  * PDO (less accurate)
 
