@@ -7,14 +7,15 @@
  *
  * @package SQL
  */
-namespace NoreSources\SQL\DBMS;
+namespace NoreSources\SQL\DBMS\Types;
 
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\DBMS\TypePropertyNotFoundException;
 
 /**
  * Name-only DBMS type
  */
-class BasicType implements TypeInterface
+class BasicType extends AbstractType
 {
 
 	/**
@@ -45,7 +46,12 @@ class BasicType implements TypeInterface
 
 	function getTypeFlags()
 	{
-		return K::TYPE_FLAGS_DEFAULT;
+		return 0;
+	}
+
+	public function acceptDefaultValue($withDataType = 0)
+	{
+		return true;
 	}
 
 	public function getTypeMaxLength()

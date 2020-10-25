@@ -7,18 +7,16 @@
  *
  * @package SQL
  */
-namespace NoreSources\SQL\DBMS;
+namespace NoreSources\SQL\DBMS\Types;
 
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\DBMS\TypePropertyNotFoundException;
 
 /**
  * Reference implementation of TypeInterface
  */
-class ArrayObjectType implements TypeInterface
+class ArrayObjectType extends AbstractType
 {
-
-	use TypeMaxLengthTrait;
-	use TypeFlagsTrait;
 
 	/**
 	 *

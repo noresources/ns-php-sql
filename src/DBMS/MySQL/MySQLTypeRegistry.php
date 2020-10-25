@@ -10,9 +10,9 @@
 namespace NoreSources\SQL\DBMS\MySQL;
 
 use NoreSources\SingletonTrait;
-use NoreSources\SQL\DBMS\ArrayObjectType;
 use NoreSources\SQL\DBMS\TypeRegistry;
 use NoreSources\SQL\DBMS\MySQL\MySQLConstants as K;
+use NoreSources\SQL\DBMS\Types\ArrayObjectType;
 
 /**
  *
@@ -32,66 +32,62 @@ class MySQLTypeRegistry extends TypeRegistry
 				'tinyint' => [
 					K::TYPE_SIZE => 8,
 					K::TYPE_DATA_TYPE => K::DATATYPE_INTEGER,
-					K::TYPE_FLAGS => (K::TYPE_FLAGS_DEFAULT |
-					K::TYPE_FLAG_LENGTH | K::TYPE_FLAG_SIGNNESS)
+					K::TYPE_FLAGS => (K::TYPE_FLAG_LENGTH |
+					K::TYPE_FLAG_SIGNNESS)
 				],
 				'smallint' => [
 					K::TYPE_SIZE => 16,
 					K::TYPE_DATA_TYPE => K::DATATYPE_INTEGER,
-					K::TYPE_FLAGS => (K::TYPE_FLAGS_DEFAULT |
-					K::TYPE_FLAG_LENGTH | K::TYPE_FLAG_SIGNNESS)
+					K::TYPE_FLAGS => (K::TYPE_FLAG_LENGTH |
+					K::TYPE_FLAG_SIGNNESS)
 				],
 				'mediumint' => [
 					K::TYPE_SIZE => 24,
 					K::TYPE_DATA_TYPE => K::DATATYPE_INTEGER,
-					K::TYPE_FLAGS => (K::TYPE_FLAGS_DEFAULT |
-					K::TYPE_FLAG_LENGTH | K::TYPE_FLAG_SIGNNESS)
+					K::TYPE_FLAGS => (K::TYPE_FLAG_LENGTH |
+					K::TYPE_FLAG_SIGNNESS)
 				],
 				'int' => [
 					K::TYPE_SIZE => 32,
 					K::TYPE_DATA_TYPE => K::DATATYPE_INTEGER,
-					K::TYPE_FLAGS => (K::TYPE_FLAGS_DEFAULT |
-					K::TYPE_FLAG_LENGTH | K::TYPE_FLAG_SIGNNESS)
+					K::TYPE_FLAGS => (K::TYPE_FLAG_LENGTH |
+					K::TYPE_FLAG_SIGNNESS)
 				],
 				'bigint' => [
 					K::TYPE_SIZE => 64,
 					K::TYPE_DATA_TYPE => K::DATATYPE_INTEGER,
-					K::TYPE_FLAGS => (K::TYPE_FLAGS_DEFAULT |
-					K::TYPE_FLAG_LENGTH | K::TYPE_FLAG_SIGNNESS)
+					K::TYPE_FLAGS => (K::TYPE_FLAG_LENGTH |
+					K::TYPE_FLAG_SIGNNESS)
 				],
 				'decimal' => [
 					K::TYPE_DATA_TYPE => K::DATATYPE_FLOAT,
 					K::TYPE_MAX_LENGTH => 30,
-					K::TYPE_FLAGS => (K::TYPE_FLAGS_DEFAULT |
-					K::TYPE_FLAG_LENGTH | K::TYPE_FLAG_FRACTION_SCALE |
-					K::TYPE_FLAG_SIGNNESS)
+					K::TYPE_FLAGS => (K::TYPE_FLAG_LENGTH |
+					K::TYPE_FLAG_FRACTION_SCALE | K::TYPE_FLAG_SIGNNESS)
 				],
 				'float' => [
 					K::TYPE_SIZE => 32, // not sure about that
 					K::TYPE_DATA_TYPE => K::DATATYPE_FLOAT,
-					K::TYPE_FLAGS => (K::TYPE_FLAGS_DEFAULT |
-					K::TYPE_FLAG_LENGTH | K::TYPE_FLAG_FRACTION_SCALE |
-					K::TYPE_FLAG_SIGNNESS)
+					K::TYPE_FLAGS => (K::TYPE_FLAG_LENGTH |
+					K::TYPE_FLAG_FRACTION_SCALE | K::TYPE_FLAG_SIGNNESS)
 				],
 				'double' => [
 					K::TYPE_SIZE => 64, // not sure about that
 					K::TYPE_DATA_TYPE => K::DATATYPE_FLOAT,
-					K::TYPE_FLAGS => (K::TYPE_FLAGS_DEFAULT |
-					K::TYPE_FLAG_LENGTH | K::TYPE_FLAG_FRACTION_SCALE |
-					K::TYPE_FLAG_SIGNNESS)
+					K::TYPE_FLAGS => (K::TYPE_FLAG_LENGTH |
+					K::TYPE_FLAG_FRACTION_SCALE | K::TYPE_FLAG_SIGNNESS)
 				],
 				// Alias of tinyint (1)
 				'boolean' => [
 					K::TYPE_SIZE => 1,
 					K::TYPE_DATA_TYPE => K::DATATYPE_BOOLEAN,
-					K::TYPE_FLAGS => (K::TYPE_FLAGS_DEFAULT |
-					K::TYPE_FLAG_LENGTH)
+					K::TYPE_FLAGS => (K::TYPE_FLAG_LENGTH)
 				],
 				'char' => [
 					K::TYPE_MAX_LENGTH => 255,
 					K::TYPE_DATA_TYPE => K::DATATYPE_STRING,
-					K::TYPE_FLAGS => (K::TYPE_FLAGS_DEFAULT |
-					K::TYPE_FLAG_LENGTH | K::TYPE_FLAG_MANDATORY_LENGTH),
+					K::TYPE_FLAGS => (K::TYPE_FLAG_LENGTH |
+					K::TYPE_FLAG_MANDATORY_LENGTH),
 					K::TYPE_PADDING_DIRECTION => K::TYPE_PADDING_DIRECTION_RIGHT,
 					K::TYPE_PADDING_GLYPH => ' '
 				],
@@ -99,52 +95,50 @@ class MySQLTypeRegistry extends TypeRegistry
 					K::TYPE_MAX_LENGTH => 65535,
 					K::TYPE_DATA_TYPE => K::DATATYPE_STRING,
 					K::TYPE_FLAGS => (K::TYPE_FLAG_LENGTH |
-					K::TYPE_FLAG_NULLABLE | K::TYPE_FLAG_DEFAULT_VALUE |
 					K::TYPE_FLAG_MANDATORY_LENGTH)
 				],
 				'binary' => [
 					K::TYPE_DATA_TYPE => K::DATATYPE_BINARY,
 					K::TYPE_MAX_LENGTH => 255,
-					K::TYPE_FLAGS => (K::TYPE_FLAGS_DEFAULT |
-					K::TYPE_FLAG_LENGTH | K::TYPE_FLAG_MANDATORY_LENGTH),
+					K::TYPE_FLAGS => (K::TYPE_FLAG_LENGTH |
+					K::TYPE_FLAG_MANDATORY_LENGTH),
 					K::TYPE_PADDING_DIRECTION => K::TYPE_PADDING_DIRECTION_RIGHT,
 					K::TYPE_PADDING_GLYPH => "\0"
 				],
 				'varbinary' => [
 					K::TYPE_DATA_TYPE => K::DATATYPE_BINARY,
 					K::TYPE_MAX_LENGTH => 255,
-					K::TYPE_FLAGS => (K::TYPE_FLAGS_DEFAULT |
-					K::TYPE_FLAG_LENGTH | K::TYPE_FLAG_MANDATORY_LENGTH)
+					K::TYPE_FLAGS => (K::TYPE_FLAG_LENGTH |
+					K::TYPE_FLAG_MANDATORY_LENGTH)
 				],
 				'tinyblob' => [
 					K::TYPE_MAX_LENGTH => 255,
 					K::TYPE_DATA_TYPE => K::DATATYPE_BINARY,
-					K::TYPE_FLAGS => (K::TYPE_FLAG_NULLABLE)
+					K::TYPE_DEFAULT_DATA_TYPE => K::DATATYPE_NULL
 				],
 				'blob' => [
 					K::TYPE_MAX_LENGTH => 4294967295,
 					K::TYPE_DATA_TYPE => K::DATATYPE_BINARY,
-					/**
-					 *
-					 * @see K::TYPE_FLAGS => (K::TYPE_FLAG_LENGTH | K::TYPE_FLAG_NULLABLE)
-					 */
-					// K::TYPE_FLAGS => (K::TYPE_FLAG_LENGTH | K::TYPE_FLAG_NULLABLE)
-					K::TYPE_FLAGS => (K::TYPE_FLAG_NULLABLE)
+					K::TYPE_DEFAULT_DATA_TYPE => K::DATATYPE_NULL
+				/**
+				 *
+				 * @see K::TYPE_FLAGS => (K::TYPE_FLAG_LENGTH )
+				 */
 				],
 				'mediumblob' => [
 					K::TYPE_MAX_LENGTH => 65535,
 					K::TYPE_DATA_TYPE => K::DATATYPE_BINARY,
-					K::TYPE_FLAGS => (K::TYPE_FLAG_NULLABLE)
+					K::TYPE_DEFAULT_DATA_TYPE => K::DATATYPE_NULL
 				],
 				'longblob' => [
 					K::TYPE_MAX_LENGTH => 4294967295,
 					K::TYPE_DATA_TYPE => K::DATATYPE_BINARY,
-					K::TYPE_FLAGS => (K::TYPE_FLAG_NULLABLE)
+					K::TYPE_DEFAULT_DATA_TYPE => K::DATATYPE_NULL
 				],
 				'tinytext' => [
 					K::TYPE_MAX_LENGTH => 255,
 					K::TYPE_DATA_TYPE => K::DATATYPE_STRING,
-					K::TYPE_FLAGS => (K::TYPE_FLAG_NULLABLE)
+					K::TYPE_DEFAULT_DATA_TYPE => K::DATATYPE_NULL
 				],
 				/**
 				 *
@@ -157,34 +151,37 @@ class MySQLTypeRegistry extends TypeRegistry
 				'text' => [
 					K::TYPE_MAX_LENGTH => 65535,
 					K::TYPE_DATA_TYPE => K::DATATYPE_STRING,
-					/**
-					 *
-					 * @see https://stackoverflow.com/questions/1827063/mysql-error-key-specification-without-a-key-length
-					 */
-					// K::TYPE_FLAGS => (K::TYPE_FLAG_LENGTH | K::TYPE_FLAG_NULLABLE)
-					K::TYPE_FLAGS => (K::TYPE_FLAG_NULLABLE)
+					K::TYPE_DEFAULT_DATA_TYPE => K::DATATYPE_NULL
+				/**
+				 *
+				 * @see https://stackoverflow.com/questions/1827063/mysql-error-key-specification-without-a-key-length
+				 */
 				],
 				'mediumtext' => [
 					K::TYPE_MAX_LENGTH => 16777215,
 					K::TYPE_DATA_TYPE => K::DATATYPE_STRING,
-					K::TYPE_FLAGS => (K::TYPE_FLAG_NULLABLE)
+					K::TYPE_DEFAULT_DATA_TYPE => K::DATATYPE_NULL
 				],
 				'longtext' => [
 					K::TYPE_MAX_LENGTH => 4294967295,
 					K::TYPE_DATA_TYPE => K::DATATYPE_STRING,
-					K::TYPE_FLAGS => (K::TYPE_FLAG_NULLABLE)
+					K::TYPE_DEFAULT_DATA_TYPE => K::DATATYPE_NULL
 				],
 				'date' => [
-					K::TYPE_DATA_TYPE => K::DATATYPE_DATE
+					K::TYPE_DATA_TYPE => K::DATATYPE_DATE,
+					K::TYPE_DEFAULT_DATA_TYPE => K::DATATYPE_TIMESTAMP
 				],
 				'datetime' => [
-					K::TYPE_DATA_TYPE => K::DATATYPE_DATETIME
+					K::TYPE_DATA_TYPE => K::DATATYPE_DATETIME,
+					K::TYPE_DEFAULT_DATA_TYPE => K::DATATYPE_TIMESTAMP
 				],
 				'time' => [
-					K::TYPE_DATA_TYPE => K::DATATYPE_TIME
+					K::TYPE_DATA_TYPE => K::DATATYPE_TIME,
+					K::TYPE_DEFAULT_DATA_TYPE => K::DATATYPE_TIMESTAMP
 				],
 				'timestamp' => [
-					K::TYPE_DATA_TYPE => K::DATATYPE_TIMESTAMP
+					K::TYPE_DATA_TYPE => K::DATATYPE_TIMESTAMP,
+					K::TYPE_DEFAULT_DATA_TYPE => K::DATATYPE_TIMESTAMP
 				],
 				'enum' => [
 					K::TYPE_DATA_TYPE => K::DATATYPE_INTEGER,
@@ -226,66 +223,61 @@ class MySQLTypeRegistry extends TypeRegistry
 					K::TYPE_SIZE => 8,
 					K::TYPE_DATA_TYPE => K::DATATYPE_INTEGER,
 					K::TYPE_FLAGS => (K::TYPE_FLAG_LENGTH |
-					K::TYPE_FLAG_NULLABLE | K::TYPE_FLAG_DEFAULT_VALUE |
 					K::TYPE_FLAG_SIGNNESS)
 				],
 				'smallint' => [
 					K::TYPE_SIZE => 16,
 					K::TYPE_DATA_TYPE => K::DATATYPE_INTEGER,
-					K::TYPE_FLAGS => (K::TYPE_FLAGS_DEFAULT |
-					K::TYPE_FLAG_LENGTH | K::TYPE_FLAG_SIGNNESS)
+					K::TYPE_FLAGS => (K::TYPE_FLAG_LENGTH |
+					K::TYPE_FLAG_SIGNNESS)
 				],
 				'mediumint' => [
 					K::TYPE_SIZE => 24,
 					K::TYPE_DATA_TYPE => K::DATATYPE_INTEGER,
-					K::TYPE_FLAGS => (K::TYPE_FLAGS_DEFAULT |
-					K::TYPE_FLAG_LENGTH | K::TYPE_FLAG_SIGNNESS)
+					K::TYPE_FLAGS => (K::TYPE_FLAG_LENGTH |
+					K::TYPE_FLAG_SIGNNESS)
 				],
 				'int' => [
 					K::TYPE_SIZE => 32,
 					K::TYPE_DATA_TYPE => K::DATATYPE_INTEGER,
-					K::TYPE_FLAGS => (K::TYPE_FLAGS_DEFAULT |
-					K::TYPE_FLAG_LENGTH | K::TYPE_FLAG_SIGNNESS)
+					K::TYPE_FLAGS => (K::TYPE_FLAG_LENGTH |
+					K::TYPE_FLAG_SIGNNESS)
 				],
 				'bigint' => [
 					K::TYPE_SIZE => 64,
 					K::TYPE_DATA_TYPE => K::DATATYPE_INTEGER,
-					K::TYPE_FLAGS => (K::TYPE_FLAGS_DEFAULT |
-					K::TYPE_FLAG_LENGTH | K::TYPE_FLAG_SIGNNESS)
+					K::TYPE_FLAGS => (K::TYPE_FLAG_LENGTH |
+					K::TYPE_FLAG_SIGNNESS)
 				],
 				'decimal' => [
 					K::TYPE_DATA_TYPE => K::DATATYPE_FLOAT,
 					K::TYPE_MAX_LENGTH => 30,
-					K::TYPE_FLAGS => (K::TYPE_FLAGS_DEFAULT |
-					K::TYPE_FLAG_LENGTH | K::TYPE_FLAG_FRACTION_SCALE |
-					K::TYPE_FLAG_SIGNNESS)
+					K::TYPE_FLAGS => (K::TYPE_FLAG_LENGTH |
+					K::TYPE_FLAG_FRACTION_SCALE | K::TYPE_FLAG_SIGNNESS)
 				],
 				'float' => [
 					K::TYPE_SIZE => 32, // not sure about that
 					K::TYPE_DATA_TYPE => K::DATATYPE_FLOAT,
-					K::TYPE_FLAGS => (K::TYPE_FLAGS_DEFAULT |
-					K::TYPE_FLAG_LENGTH | K::TYPE_FLAG_FRACTION_SCALE |
-					K::TYPE_FLAG_SIGNNESS)
+					K::TYPE_FLAGS => (K::TYPE_FLAG_LENGTH |
+					K::TYPE_FLAG_FRACTION_SCALE | K::TYPE_FLAG_SIGNNESS)
 				],
 				'double' => [
 					K::TYPE_SIZE => 64, // not sure about that
 					K::TYPE_DATA_TYPE => K::DATATYPE_FLOAT,
-					K::TYPE_FLAGS => (K::TYPE_FLAGS_DEFAULT |
-					K::TYPE_FLAG_LENGTH | K::TYPE_FLAG_FRACTION_SCALE |
-					K::TYPE_FLAG_SIGNNESS)
+					K::TYPE_FLAGS => (K::TYPE_FLAG_LENGTH |
+					K::TYPE_FLAG_FRACTION_SCALE | K::TYPE_FLAG_SIGNNESS)
 				],
 				// Alias of tinyint (1)
 				'boolean' => [
 					K::TYPE_SIZE => 1,
 					K::TYPE_DATA_TYPE => K::DATATYPE_BOOLEAN,
-					K::TYPE_FLAGS => (K::TYPE_FLAGS_DEFAULT |
-					K::TYPE_FLAG_LENGTH)
+					K::TYPE_FLAGS => (K::TYPE_FLAG_LENGTH)
 				],
 				'char' => [
 					K::TYPE_MAX_LENGTH => 255,
 					K::TYPE_DATA_TYPE => K::DATATYPE_STRING,
-					K::TYPE_FLAGS => (K::TYPE_FLAGS_DEFAULT |
-					K::TYPE_FLAG_LENGTH | K::TYPE_FLAG_MANDATORY_LENGTH),
+					K::TYPE_FLAGS => (K::TYPE_FLAG_LENGTH |
+					K::TYPE_FLAG_MANDATORY_LENGTH),
 					K::TYPE_PADDING_DIRECTION => K::TYPE_PADDING_DIRECTION_RIGHT,
 					K::TYPE_PADDING_GLYPH => ' '
 				],
@@ -293,14 +285,12 @@ class MySQLTypeRegistry extends TypeRegistry
 					K::TYPE_MAX_LENGTH => 65535,
 					K::TYPE_DATA_TYPE => K::DATATYPE_STRING,
 					K::TYPE_FLAGS => (K::TYPE_FLAG_LENGTH |
-					K::TYPE_FLAG_NULLABLE | K::TYPE_FLAG_DEFAULT_VALUE |
 					K::TYPE_FLAG_MANDATORY_LENGTH)
 				],
 				'binary' => [
 					K::TYPE_DATA_TYPE => K::DATATYPE_BINARY,
 					K::TYPE_MAX_LENGTH => 255,
 					K::TYPE_FLAGS => (K::TYPE_FLAG_LENGTH |
-					K::TYPE_FLAG_NULLABLE | K::TYPE_FLAG_DEFAULT_VALUE |
 					K::TYPE_FLAG_MANDATORY_LENGTH),
 					K::TYPE_PADDING_DIRECTION => K::TYPE_PADDING_DIRECTION_RIGHT,
 					K::TYPE_PADDING_GLYPH => '0'
@@ -309,7 +299,6 @@ class MySQLTypeRegistry extends TypeRegistry
 					K::TYPE_DATA_TYPE => K::DATATYPE_BINARY,
 					K::TYPE_MAX_LENGTH => 255,
 					K::TYPE_FLAGS => (K::TYPE_FLAG_LENGTH |
-					K::TYPE_FLAG_NULLABLE | K::TYPE_FLAG_DEFAULT_VALUE |
 					K::TYPE_FLAG_MANDATORY_LENGTH)
 				],
 				/**
@@ -319,38 +308,32 @@ class MySQLTypeRegistry extends TypeRegistry
 				'bit' => [
 					K::TYPE_DATA_TYPE => K::DATATYPE_BINARY,
 					K::TYPE_MAX_LENGTH => 64,
-					K::TYPE_FLAGS => (K::TYPE_FLAGS_DEFAULT |
-					K::TYPE_FLAG_LENGTH | K::TYPE_FLAG_MANDATORY_LENGTH)
+					K::TYPE_FLAGS => (K::TYPE_FLAG_LENGTH |
+					K::TYPE_FLAG_MANDATORY_LENGTH)
 				],
 				'tinyblob' => [
 					K::TYPE_MAX_LENGTH => 255,
-					K::TYPE_DATA_TYPE => K::DATATYPE_BINARY,
-					K::TYPE_FLAGS => (K::TYPE_FLAG_NULLABLE)
+					K::TYPE_DATA_TYPE => K::DATATYPE_BINARY
 				],
 				'blob' => [
 					K::TYPE_MAX_LENGTH => 4294967295,
-					K::TYPE_DATA_TYPE => K::DATATYPE_BINARY,
-					/**
-					 *
-					 * @see K::TYPE_FLAGS => (K::TYPE_FLAG_LENGTH | K::TYPE_FLAG_NULLABLE)
-					 */
-					// K::TYPE_FLAGS => (K::TYPE_FLAG_LENGTH | K::TYPE_FLAG_NULLABLE)
-					K::TYPE_FLAGS => (K::TYPE_FLAG_NULLABLE)
+					K::TYPE_DATA_TYPE => K::DATATYPE_BINARY
+				/**
+				 *
+				 * @see K::TYPE_FLAGS => (K::TYPE_FLAG_LENGTH )
+				 */
 				],
 				'mediumblob' => [
 					K::TYPE_MAX_LENGTH => 65535,
-					K::TYPE_DATA_TYPE => K::DATATYPE_BINARY,
-					K::TYPE_FLAGS => (K::TYPE_FLAG_NULLABLE)
+					K::TYPE_DATA_TYPE => K::DATATYPE_BINARY
 				],
 				'longblob' => [
 					K::TYPE_MAX_LENGTH => 4294967295,
-					K::TYPE_DATA_TYPE => K::DATATYPE_BINARY,
-					K::TYPE_FLAGS => (K::TYPE_FLAG_NULLABLE)
+					K::TYPE_DATA_TYPE => K::DATATYPE_BINARY
 				],
 				'tinytext' => [
 					K::TYPE_MAX_LENGTH => 255,
-					K::TYPE_DATA_TYPE => K::DATATYPE_STRING,
-					K::TYPE_FLAGS => (K::TYPE_FLAG_NULLABLE)
+					K::TYPE_DATA_TYPE => K::DATATYPE_STRING
 				],
 				/**
 				 *
@@ -362,29 +345,27 @@ class MySQLTypeRegistry extends TypeRegistry
 				 */
 				'text' => [
 					K::TYPE_MAX_LENGTH => 65535,
-					K::TYPE_DATA_TYPE => K::DATATYPE_STRING,
-					/**
-					 *
-					 * @see https://stackoverflow.com/questions/1827063/mysql-error-key-specification-without-a-key-length
-					 */
-					// K::TYPE_FLAGS => (K::TYPE_FLAG_LENGTH | K::TYPE_FLAG_NULLABLE)
-					K::TYPE_FLAGS => (K::TYPE_FLAG_NULLABLE)
+					K::TYPE_DATA_TYPE => K::DATATYPE_STRING
+				/**
+				 *
+				 * @see https://stackoverflow.com/questions/1827063/mysql-error-key-specification-without-a-key-length
+				 */
 				],
 				'mediumtext' => [
 					K::TYPE_MAX_LENGTH => 16777215,
-					K::TYPE_DATA_TYPE => K::DATATYPE_STRING,
-					K::TYPE_FLAGS => (K::TYPE_FLAG_NULLABLE)
+					K::TYPE_DATA_TYPE => K::DATATYPE_STRING
 				],
 				'longtext' => [
 					K::TYPE_MAX_LENGTH => 4294967295,
-					K::TYPE_DATA_TYPE => K::DATATYPE_STRING,
-					K::TYPE_FLAGS => (K::TYPE_FLAG_NULLABLE)
+					K::TYPE_DATA_TYPE => K::DATATYPE_STRING
 				],
 				'date' => [
-					K::TYPE_DATA_TYPE => K::DATATYPE_DATE
+					K::TYPE_DATA_TYPE => K::DATATYPE_DATE,
+					K::TYPE_DEFAULT_DATA_TYPE => K::DATATYPE_TIMESTAMP
 				],
 				'datetime' => [
-					K::TYPE_DATA_TYPE => K::DATATYPE_DATETIME
+					K::TYPE_DATA_TYPE => K::DATATYPE_DATETIME,
+					K::TYPE_DEFAULT_DATA_TYPE => K::DATATYPE_TIMESTAMP
 				],
 				'time' => [
 					K::TYPE_DATA_TYPE => K::DATATYPE_TIME

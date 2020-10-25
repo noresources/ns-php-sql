@@ -1,14 +1,34 @@
 <?php
-namespace NoreSources\SQL\DBMS;
+namespace NoreSources\SQL\DBMS\Types;
 
 use NoreSources\Container;
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\DBMS\TypeInterface;
 
-/**
- * Reference implementation of TypeInterface::getTypeMaxLength()
- */
-trait TypeMaxLengthTrait
+abstract class AbstractType implements TypeInterface
 {
+
+	public function getTypeFlags()
+	{
+		if ($this->has(K::TYPE_FLAGS))
+			return $this->get(K::TYPE_FLAGS);
+
+		$dataType = Container::keyValue($this, K::TYPE_DATA_TYPE,
+			K::DATATYPE_UNDEFINED);
+
+		return 0;
+	}
+
+	public function acceptDefaultValue($withDataType = 0)
+	{
+		if ($this->has(K::TYPE_DEFAULT_DATA_TYPE))
+			return (($this->get(K::TYPE_DEFAULT_DATA_TYPE) &
+				$withDataType) == $withDataType);
+		if ($this->has(K::TYPE_DATA_TYPE))
+			return ((($this->get(K::TYPE_DATA_TYPE) | K::DATATYPE_NULL) &
+				$withDataType) == $withDataType);
+		return ($withDataType & K::DATATYPE_NULL) == K::DATATYPE_NULL;
+	}
 
 	public function getTypeMaxLength()
 	{

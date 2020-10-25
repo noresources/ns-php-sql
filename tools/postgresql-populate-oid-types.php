@@ -30,99 +30,99 @@ EOF;
 $typePropertiesMap = [
 	// Range tool limited
 	// 'abstime' => [
-	// K::TYPE_DATA_TYPE => 'K::DATATYPE_DATETIME'
+	// K::TYPE_DATA_TYPE => K::DATATYPE_DATETIME
 	// ],
 	'boolean' => [
-		K::TYPE_DATA_TYPE => 'K::DATATYPE_BOOLEAN'
+		K::TYPE_DATA_TYPE => K::DATATYPE_BOOLEAN
 	],
 	'bigint' => [
-		K::TYPE_DATA_TYPE => 'K::DATATYPE_INTEGER'
+		K::TYPE_DATA_TYPE => K::DATATYPE_INTEGER
 	],
 	'bit varying' => [
-		K::TYPE_DATA_TYPE => 'K::DATATYPE_STRING',
+		K::TYPE_DATA_TYPE => K::DATATYPE_STRING,
 		K::TYPE_FLAGS => K::TYPE_FLAGS_DEFAULT | K::TYPE_FLAG_LENGTH,
 		K::TYPE_MEDIA_TYPE => '	K::MEDIA_TYPE_BIT_STRING'
 	],
 	// Require a strict glyph count property / auto pad
 	// 'bit'
 	'bytea' => [
-		K::TYPE_DATA_TYPE => 'K::DATATYPE_BINARY'
+		K::TYPE_DATA_TYPE => K::DATATYPE_BINARY
 	],
 	'"char"' => [
-		K::TYPE_DATA_TYPE => 'K::DATATYPE_STRING',
+		K::TYPE_DATA_TYPE => K::DATATYPE_STRING,
 		K::TYPE_MAX_LENGTH => 1
 	],
 	// Require strict glyph count / autopad
 	// 'character'
 	'character varying' => [
-		K::TYPE_DATA_TYPE => 'K::DATATYPE_STRING',
+		K::TYPE_DATA_TYPE => K::DATATYPE_STRING,
 		K::TYPE_FLAGS => K::TYPE_FLAGS_DEFAULT | K::TYPE_FLAG_LENGTH
 	],
 	// 'cstring' => [
-	// K::TYPE_DATA_TYPE => 'K::DATATYPE_STRING'
+	// K::TYPE_DATA_TYPE => K::DATATYPE_STRING
 	//
 	'date' => [
-		K::TYPE_DATA_TYPE => 'K::DATATYPE_DATE'
+		K::TYPE_DATA_TYPE => K::DATATYPE_DATE
 	],
 	'double precision' => [
-		K::TYPE_DATA_TYPE => 'K::DATATYPE_FLOAT'
+		K::TYPE_DATA_TYPE => K::DATATYPE_FLOAT
 	],
 
 	// This is an alias of int4
 	'integer' => [
-		K::TYPE_DATA_TYPE => 'K::DATATYPE_INTEGER'
+		K::TYPE_DATA_TYPE => K::DATATYPE_INTEGER
 	],
 	'json' => [
-		K::TYPE_DATA_TYPE => 'K::DATATYPE_STRING',
+		K::TYPE_DATA_TYPE => K::DATATYPE_STRING,
 		K::TYPE_MEDIA_TYPE => '\'application/json\''
 	],
 	'jsonb' => [
-		K::TYPE_DATA_TYPE => 'K::DATATYPE_BINARY',
+		K::TYPE_DATA_TYPE => K::DATATYPE_BINARY,
 		K::TYPE_MEDIA_TYPE => '\'application/json\''
 	],
 	// 'money' => [
-	// K::TYPE_DATA_TYPE => 'K::DATATYPE_NUMBER',
+	// K::TYPE_DATA_TYPE => K::DATATYPE_NUMBER,
 	// K::TYPE_TEXT_PATTERN => 'TBD'
 	// ],
 	'numeric' => [
-		K::TYPE_DATA_TYPE => 'K::DATATYPE_NUMBER',
+		K::TYPE_DATA_TYPE => K::DATATYPE_NUMBER,
 		K::TYPE_FLAGS => K::TYPE_FLAGS_DEFAULT |
 		K::TYPE_FLAG_FRACTION_SCALE
 	],
 
 	// 'oid' => [
-	// K::TYPE_DATA_TYPE => 'K::DATATYPE_INTEGER'
+	// K::TYPE_DATA_TYPE => K::DATATYPE_INTEGER
 	// ],
 	'real' => [
-		K::TYPE_DATA_TYPE => 'K::DATATYPE_FLOAT'
+		K::TYPE_DATA_TYPE => K::DATATYPE_FLOAT
 	],
 	// Too specific
 	// 'reltime' => [
-	// K::TYPE_DATA_TYPE => 'K::DATATYPE_DATETIME',
+	// K::TYPE_DATA_TYPE => K::DATATYPE_DATETIME,
 	// ],
 	'smallint' => [
-		K::TYPE_DATA_TYPE => 'K::DATATYPE_INTEGER'
+		K::TYPE_DATA_TYPE => K::DATATYPE_INTEGER
 	],
 	'text' => [
-		K::TYPE_DATA_TYPE => 'K::DATATYPE_STRING'
+		K::TYPE_DATA_TYPE => K::DATATYPE_STRING
 	],
 	'time without time zone' => [
-		K::TYPE_DATA_TYPE => 'K::DATATYPE_TIME'
+		K::TYPE_DATA_TYPE => K::DATATYPE_TIME
 	],
 	'timestamp without time zone' => [
-		K::TYPE_DATA_TYPE => 'K::DATATYPE_DATETIME'
+		K::TYPE_DATA_TYPE => K::DATATYPE_DATETIME
 	],
 	'timestamp with time zone' => [
-		K::TYPE_DATA_TYPE => 'K::DATATYPE_TIMESTAMP'
+		K::TYPE_DATA_TYPE => K::DATATYPE_TIMESTAMP
 	],
 	'time with time zone' => [
-		K::TYPE_DATA_TYPE => 'K::DATATYPE_TIME | K::DATATYPE_TIMEZONE'
+		K::TYPE_DATA_TYPE => K::DATATYPE_TIME | K::DATATYPE_TIMEZONE
 	],
 	// 'uuid' => [
-	// K::TYPE_DATA_TYPE => 'K::DATATYPE_STRING'
+	// K::TYPE_DATA_TYPE => K::DATATYPE_STRING
 	// ],
 	'xml' => [
-		K::TYPE_DATA_TYPE => 'K::DATATYPE_STRING',
+		K::TYPE_DATA_TYPE => K::DATATYPE_STRING,
 		K::TYPE_MEDIA_TYPE => '\'text/xml\''
 	]
 ];
@@ -147,10 +147,17 @@ while ($row = pg_fetch_assoc($result))
 	echo (sprintf('%-5d %-30.30s %3d %s', $oid, $name, $length,
 		$row['desc']) . PHP_EOL);
 
-	if (\array_key_exists($name, $typePropertiesMap))
+	if (Container::keyExists($typePropertiesMap, $name))
 	{
 		if ($size > 0)
 			$typePropertiesMap[$name][K::TYPE_SIZE] = $size;
+
+		if ((Container::keyValue($typePropertiesMap[$name],
+			K::TYPE_DATA_TYPE) & K::DATATYPE_TIMESTAMP) &&
+			!Container::keyExists($typePropertiesMap[$name],
+				K::TYPE_DEFAULT_DATA_TYPE))
+			$typePropertiesMap[$name][K::TYPE_DEFAULT_DATA_TYPE] = K::DATATYPE_TIMESTAMP;
+
 		$oidToDataType[$oid] = $typePropertiesMap[$name][K::COLUMN_DATA_TYPE];
 	}
 }

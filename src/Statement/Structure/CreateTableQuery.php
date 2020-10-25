@@ -230,8 +230,7 @@ class CreateTableQuery extends Statement implements
 			->space()
 			->identifier($typeName);
 
-		$typeFlags = Container::keyValue($type, K::TYPE_FLAGS,
-			K::TYPE_FLAGS_DEFAULT);
+		$typeFlags = Container::keyValue($type, K::TYPE_FLAGS, 0);
 
 		$lengthSupport = (($typeFlags & K::TYPE_FLAG_LENGTH) ==
 			K::TYPE_FLAG_LENGTH);

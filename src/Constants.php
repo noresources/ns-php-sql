@@ -329,11 +329,21 @@ class Constants
 	/**
 	 * DBMS type data type affinity
 	 *
-	 * Property value is expected to be an integer.
+	 * Property value is expected to be an integer, combination of
+	 * DATATYPE_* constants.
 	 *
 	 * @var integer
 	 */
 	const TYPE_DATA_TYPE = self::COLUMN_DATA_TYPE;
+
+	/**
+	 * Supported data type for the DEFAULT clause.
+	 *
+	 * If this property is not set, the TYPE_DATA_TYPE is used
+	 *
+	 * @var string
+	 */
+	const TYPE_DEFAULT_DATA_TYPE = 'typedefaultdatatype';
 
 	/**
 	 * DBMS type name
@@ -364,20 +374,6 @@ class Constants
 	 * @var string
 	 */
 	const TYPE_FLAGS = 'typeflags';
-
-	/**
-	 * Type accepts default values
-	 *
-	 * @var integer
-	 */
-	const TYPE_FLAG_DEFAULT_VALUE = Bitset::BIT_01;
-
-	/**
-	 * Type accepts NULL values
-	 *
-	 * @var integer
-	 */
-	const TYPE_FLAG_NULLABLE = Bitset::BIT_02;
 
 	/**
 	 * Indicates if the DBMS type supports length specification
@@ -414,17 +410,6 @@ class Constants
 	 * @var integer
 	 */
 	const TYPE_FLAG_SIGNNESS = Bitset::BIT_06;
-
-	/**
-	 * Default type flags
-	 *
-	 * @var integer
-	 */
-	const TYPE_FLAGS_DEFAULT = self::TYPE_FLAG_DEFAULT_VALUE |
-		self::TYPE_FLAG_NULLABLE;
-
-	const TYPE_FLAGS_NUMBER_DEFAULT = self::TYPE_FLAGS_DEFAULT |
-		self::TYPE_FLAG_SIGNNESS;
 
 	/**
 	 * Maximum glyph count / length.

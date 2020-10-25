@@ -7,9 +7,9 @@ use NoreSources\Text;
 use NoreSources\MediaType\MediaType;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\AbstractPlatform;
-use NoreSources\SQL\DBMS\ArrayObjectType;
 use NoreSources\SQL\DBMS\TimestampFormatTranslationMap;
 use NoreSources\SQL\DBMS\TypeRegistry;
+use NoreSources\SQL\DBMS\Types\ArrayObjectType;
 use NoreSources\SQL\Expression\FunctionCall;
 use NoreSources\SQL\Expression\Literal;
 use NoreSources\SQL\Expression\MetaFunctionCall;
@@ -220,8 +220,7 @@ class SQLitePlatform extends AbstractPlatform
 						[
 							K::TYPE_NAME => 'REAL',
 							K::TYPE_DATA_TYPE => K::DATATYPE_FLOAT,
-							K::TYPE_FLAGS => K::TYPE_FLAGS_DEFAULT |
-							K::TYPE_FLAG_FRACTION_SCALE
+							K::TYPE_FLAGS => K::TYPE_FLAG_FRACTION_SCALE
 						]),
 					'text' => new ArrayObjectType(
 						[

@@ -7,6 +7,8 @@ use NoreSources\Container;
 use NoreSources\TypeConversion;
 use NoreSources\MediaType\MediaTypeInterface;
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\DBMS\Types\ArrayObjectType;
+use NoreSources\SQL\Expression\ExpressionHelper;
 use NoreSources\SQL\Structure\ColumnDescriptionInterface;
 use NoreSources\SQL\Structure\ColumnStructure;
 use Psr\Container\ContainerInterface;
@@ -40,26 +42,27 @@ class TypeRegistry implements \ArrayAccess, \Countable,
 				$typeFlags = $type->get(K::TYPE_FLAGS);
 
 			// Data type
-			$dataTypeScore = 0;
+			$targetDataTypeScore = 0;
 			if ($description->hasColumnProperty(K::COLUMN_DATA_TYPE))
 			{
-				$dataType = $description->getColumnProperty(
+				$targetDataType = $description->getColumnProperty(
 					K::COLUMN_DATA_TYPE);
 				$typeDataType = K::DATATYPE_STRING;
 				if ($type->has(K::TYPE_DATA_TYPE))
 					$typeDataType = $type->get(K::TYPE_DATA_TYPE);
 
-				if ($typeDataType == $dataType) // Exact match
-					$dataTypeScore = 4;
-				elseif (($typeDataType & $dataType) == $dataType) // More than necessary
-					$dataTypeScore = 3;
-				elseif (($typeDataType & $dataType) != 0) // Partial match
+				if ($typeDataType == $targetDataType) // Exact match
+					$targetDataTypeScore = 4;
+				elseif (($typeDataType & $targetDataType) ==
+					$targetDataType) // More than necessary
+					$targetDataTypeScore = 3;
+				elseif (($typeDataType & $targetDataType) != 0) // Partial match
 				{
-					if (($typeDataType & $dataType) ==
-						($dataType & ~K::DATATYPE_TIMEZONE))
-						$dataTypeScore = 2;
+					if (($typeDataType & $targetDataType) ==
+						($targetDataType & ~K::DATATYPE_TIMEZONE))
+						$targetDataTypeScore = 2;
 					else
-						$dataTypeScore = 1;
+						$targetDataTypeScore = 1;
 				}
 				else
 				{
@@ -68,21 +71,17 @@ class TypeRegistry implements \ArrayAccess, \Countable,
 				}
 			}
 
-			$scores[$typeKey] += ($dataTypeScore *
+			$scores[$typeKey] += ($targetDataTypeScore *
 				self::SCORE_MULTIPLIER_DATA_TYPE);
 
 			if ($description->hasColumnProperty(K::COLUMN_DEFAULT_VALUE))
 			{
-				if (($typeFlags & K::TYPE_FLAG_DEFAULT_VALUE) == 0)
-				{
-					$scores[$typeKey] = -1000;
-					continue;
-				}
-			}
+				$defaultValue = $description->getColumnProperty(
+					K::COLUMN_DEFAULT_VALUE);
+				$defaultValueDataType = ExpressionHelper::getDataType(
+					$defaultValue);
 
-			if ($descriptionFlags & K::COLUMN_FLAG_NULLABLE)
-			{
-				if (($typeFlags & K::TYPE_FLAG_NULLABLE) == 0)
+				if (!$type->acceptDefaultValue($defaultValueDataType))
 				{
 					$scores[$typeKey] = -1000;
 					continue;
@@ -94,7 +93,7 @@ class TypeRegistry implements \ArrayAccess, \Countable,
 				$length = TypeConversion::toInteger(
 					$description->getColumnProperty(K::COLUMN_LENGTH));
 
-				if ($dataType == K::DATATYPE_INTEGER &&
+				if ($targetDataType == K::DATATYPE_INTEGER &&
 					$type->has(K::TYPE_SIZE))
 				{
 					$typeSize = $type->get(K::TYPE_SIZE);
@@ -337,8 +336,12 @@ class TypeRegistry implements \ArrayAccess, \Countable,
 		$this->map->offsetSet($alias, $this->get($target));
 	}
 
-	const PROPERTY_FLAGS_DEFAULT = K::TYPE_FLAG_DEFAULT_VALUE |
-		K::TYPE_FLAG_NULLABLE;
+	/**
+	 *
+	 * @deprecated
+	 * @var unknown
+	 */
+	const PROPERTY_FLAGS_DEFAULT = 0;
 
 	const SCORE_MULTIPLIER_DATA_TYPE = 100;
 
