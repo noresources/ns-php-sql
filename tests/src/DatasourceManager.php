@@ -30,8 +30,8 @@ class DatasourceManager extends \PHPUnit\Framework\TestCase
 
 		$this->assertFileExists($filename, $name . ' datasource loading');
 
-		$structure = StructureSerializerFactory::structureFromFile(
-			$filename);
+		$serializer = StructureSerializerFactory::getInstance();
+		$structure = $serializer->structureFromFile($filename);
 
 		$this->assertInstanceOf(DatasourceStructure::class, $structure,
 			$name . ' datasource loading');

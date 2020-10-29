@@ -320,9 +320,12 @@ final class DBMSCommonTest extends TestCase
 
 		reset($rows);
 		$count = 0;
+		$rowIterator = new \ArrayIterator($rows);
 		foreach ($recordset as $index => $record)
 		{
-			list ($label, $columns) = each($rows);
+			$label = $rowIterator->key();
+			$columns = $rowIterator->current();
+			$rowIterator->next();
 			$count++;
 			foreach ($columns as $columnName => $specs)
 			{

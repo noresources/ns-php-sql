@@ -10,7 +10,7 @@
 namespace NoreSources\SQL\Structure;
 
 use NoreSources\Container;
-use NoreSources\StaticallyCallableSingletonTrait;
+use NoreSources\SingletonTrait;
 use NoreSources\MediaType\MediaType;
 use NoreSources\MediaType\MediaTypeFactory;
 use NoreSources\MediaType\MediaTypeInterface;
@@ -21,7 +21,7 @@ use NoreSources\MediaType\MediaTypeInterface;
 class StructureSerializerFactory
 {
 
-	use StaticallyCallableSingletonTrait;
+	use SingletonTrait;
 
 	/**
 	 *
@@ -40,14 +40,19 @@ class StructureSerializerFactory
 			return self::getInstance()->structureFromFile($filename);
 
 		$mediaType = MediaTypeFactory::fromMedia($filename);
-		$importer = Container::keyValue($this->fileImporters, \strval($mediaType));
-		if (!\is_subclass_of($importer, StructureFileImporterInterface::class, true))
-			$importer = Container::keyValue($this->fileImporters, $mediaType->getStructuredSyntax());
+		$importer = Container::keyValue($this->fileImporters,
+			\strval($mediaType));
+		if (!\is_subclass_of($importer,
+			StructureFileImporterInterface::class, true))
+			$importer = Container::keyValue($this->fileImporters,
+				$mediaType->getStructuredSyntax());
 
-		if (!\is_subclass_of($importer, StructureFileImporterInterface::class, true))
+		if (!\is_subclass_of($importer,
+			StructureFileImporterInterface::class, true))
 			throw new StructureSerializationException(
-				'No ' . StructureFileImporterInterface::class . ' found for file "' . $filename .
-				'" (' . \strval($mediaType) . ')');
+				'No ' . StructureFileImporterInterface::class .
+				' found for file "' . $filename . '" (' .
+				\strval($mediaType) . ')');
 
 		if (!($importer instanceof StructureFileImporterInterface))
 		{
@@ -63,11 +68,13 @@ class StructureSerializerFactory
 	 * @param StructureElementInterface $structure
 	 * @param string $filename
 	 */
-	public function structureToFile(StructureElementInterface $structure, $filename,
+	public function structureToFile(
+		StructureElementInterface $structure, $filename,
 		$mediaType = null)
 	{
 		if (!isset($this))
-			return self::getInstance()->structureToFile($filename, $filename);
+			return self::getInstance()->structureToFile($filename,
+				$filename);
 
 		if (\is_string($mediaType))
 			$mediaType = MediaTypeFactory::fromString($mediaType);
@@ -75,13 +82,18 @@ class StructureSerializerFactory
 		if (!($mediaType instanceof MediaType))
 			$mediaType = MediaTypeFactory::fromMedia($filename);
 
-		$exporter = Container::keyValue($this->fileExporters, \strval($mediaType));
-		if (!\is_subclass_of($exporter, StructureFileExporterInterface::class, true))
-			$exporter = Container::keyValue($this->fileExporters, $mediaType->getStructuredSyntax());
+		$exporter = Container::keyValue($this->fileExporters,
+			\strval($mediaType));
+		if (!\is_subclass_of($exporter,
+			StructureFileExporterInterface::class, true))
+			$exporter = Container::keyValue($this->fileExporters,
+				$mediaType->getStructuredSyntax());
 
-		if (!\is_subclass_of($exporter, StructureFileExporterInterface::class, true))
+		if (!\is_subclass_of($exporter,
+			StructureFileExporterInterface::class, true))
 			throw new StructureSerializationException(
-				'No ' . StructureFileExporterInterface::class . ' found for file ' . $filename . '(' .
+				'No ' . StructureFileExporterInterface::class .
+				' found for file ' . $filename . '(' .
 				\strval($mediaType) . ')');
 
 		if (!($exporter instanceof StructureFileExporterInterface))
@@ -132,10 +144,14 @@ class StructureSerializerFactory
 		$this->fileImporters = [];
 		$this->fileExporters = [];
 
-		$this->registerFileExporter('text/xml', XMLStructureFileExporter::class);
-		$this->registerFileExporter('application/xml', XMLStructureFileExporter::class);
-		$this->registerFileImporter('text/xml', XMLStructureFileImporter::class);
-		$this->registerFileImporter('application/xml', XMLStructureFileImporter::class);
+		$this->registerFileExporter('text/xml',
+			XMLStructureFileExporter::class);
+		$this->registerFileExporter('application/xml',
+			XMLStructureFileExporter::class);
+		$this->registerFileImporter('text/xml',
+			XMLStructureFileImporter::class);
+		$this->registerFileImporter('application/xml',
+			XMLStructureFileImporter::class);
 	}
 
 	/**

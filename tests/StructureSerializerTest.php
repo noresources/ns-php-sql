@@ -17,7 +17,8 @@ final class StructureSerializerTest extends \PHPUnit\Framework\TestCase
 
 	public function testBinarySerialize()
 	{
-		$structure = StructureSerializerFactory::structureFromFile(
+		$serializer = StructureSerializerFactory::getInstance();
+		$structure = $serializer->structureFromFile(
 			$this->getStructureFile('types'));
 		$this->assertInstanceOf(DatasourceStructure::class, $structure);
 

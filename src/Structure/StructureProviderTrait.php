@@ -27,7 +27,11 @@ trait StructureProviderTrait
 		if ($structure instanceof StructureElementInterface)
 			$this->structureReference = $structure;
 		elseif (is_file($structure))
-			$this->structureReference = StructureSerializerFactory::structureFromFile($filename);
+		{
+			$serializer = StructureSerializerFactory::getInstance();
+			$this->structureReference = $serializer->structureFromFile(
+				$filename);
+		}
 		else
 			throw new \InvalidArgumentException(
 				TypeDescription::getName($structure) .
