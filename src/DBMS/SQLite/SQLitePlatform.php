@@ -10,9 +10,11 @@ use NoreSources\SQL\DBMS\AbstractPlatform;
 use NoreSources\SQL\DBMS\TimestampFormatTranslationMap;
 use NoreSources\SQL\DBMS\TypeRegistry;
 use NoreSources\SQL\DBMS\Types\ArrayObjectType;
+use NoreSources\SQL\Expression\ColumnDeclaration;
 use NoreSources\SQL\Expression\FunctionCall;
 use NoreSources\SQL\Expression\Literal;
 use NoreSources\SQL\Expression\MetaFunctionCall;
+use NoreSources\SQL\Expression\TableConstraintDeclaration;
 use NoreSources\SQL\Statement\ParameterData;
 use NoreSources\SQL\Structure\ColumnDescriptionInterface;
 use Psr\Log\LoggerAwareTrait;
@@ -90,7 +92,7 @@ class SQLitePlatform extends AbstractPlatform
 			case K::KEYWORD_FALSE:
 				return 0;
 			case K::KEYWORD_AUTOINCREMENT:
-				return 'AUTOINCREMENT';
+				return 'PRIMARY KEY AUTOINCREMENT';
 		}
 
 		return parent::getKeyword($keyword);
@@ -170,6 +172,19 @@ class SQLitePlatform extends AbstractPlatform
 
 		return Container::keyValue(self::$timestampFormatTranslations,
 			$formatToken, null);
+	}
+
+	public function newExpression($baseClassname, ...$arguments)
+	{
+		switch ($baseClassname)
+		{
+			case ColumnDeclaration::class:
+				return new SQLiteColumnDeclaration(...$arguments);
+			case TableConstraintDeclaration::class:
+				return new SQLiteTableConstraintDeclaration(
+					...$arguments);
+		}
+		return parent::newExpression($baseClassname, ...$arguments);
 	}
 
 	public function translateFunction(MetaFunctionCall $metaFunction)

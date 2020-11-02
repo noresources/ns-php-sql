@@ -6,6 +6,7 @@ use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DataSerializerInterface;
 use NoreSources\SQL\Expression\FunctionCall;
 use NoreSources\SQL\Expression\MetaFunctionCall;
+use NoreSources\SQL\Expression\TokenizableExpressionInterface;
 use NoreSources\SQL\Statement\ParameterData;
 use NoreSources\SQL\Statement\StatementFactoryInterface;
 use NoreSources\SQL\Structure\ColumnDescriptionInterface;
@@ -128,6 +129,15 @@ interface PlatformInterface extends FeatureQueryInterface,
 	 * @return mixed A literal value
 	 */
 	function literalize($value, $dataType = null);
+
+	/**
+	 *
+	 * @param string $baseClassname
+	 * @param mixed[] ...$arguments
+	 *        	Expression class constructor arguments
+	 * @return TokenizableExpressionInterface
+	 */
+	function newExpression($baseClassname, ...$arguments);
 
 	/**
 	 *

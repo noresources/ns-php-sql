@@ -9,8 +9,6 @@
  */
 namespace NoreSources\SQL\Structure;
 
-use NoreSources\SQL\Constants as K;
-
 /**
  *
  * @see https://www.sqlite.org/syntax/foreign-key-clause.html
@@ -19,11 +17,18 @@ use NoreSources\SQL\Constants as K;
 class TableConstraint
 {
 
-	/**
-	 *
-	 * @var string
-	 */
-	public $constraintName;
+	public function setName($name)
+	{
+		if (\is_string($name))
+			$this->constraintName = $name;
+		else
+			$this->constraintName = null;
+	}
+
+	public function getName()
+	{
+		return $this->constraintName;
+	}
 
 	/**
 	 *
@@ -34,5 +39,11 @@ class TableConstraint
 	{
 		$this->constraintName = $name;
 	}
+
+	/**
+	 *
+	 * @var string
+	 */
+	private $constraintName;
 }
 

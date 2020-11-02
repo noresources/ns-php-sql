@@ -170,7 +170,7 @@ class TokenStream implements \IteratorAggregate, \Countable,
 		$newTokens = $stream->getArrayCopy();
 		$tokens = $this->getArrayCopy();
 
-		\array_splice($tokens, $a, 0, $newTokens);
+		\array_splice($tokens, $at, 0, $newTokens);
 		$this->tokens->exchangeArray($tokens);
 		return $this;
 	}

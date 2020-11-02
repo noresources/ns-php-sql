@@ -137,7 +137,7 @@ class TableStructure implements StructureElementContainerInterface,
 			 */
 			if (\is_string($constraint))
 			{
-				if ($constraint->constraintName == $constraint)
+				if ($constraint->getName() == $constraint)
 				{
 					$this->constraints->offsetUnset($i);
 					return;

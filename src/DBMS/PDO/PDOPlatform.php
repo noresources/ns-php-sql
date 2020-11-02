@@ -94,6 +94,12 @@ class PDOPlatform implements PlatformInterface,
 		return $this->basePlatform->queryFeature($query, $dflt);
 	}
 
+	public function newExpression($baseClassname, ...$arguments)
+	{
+		return $this->basePlatform->newExpression($baseClassname,
+			...$arguments);
+	}
+
 	public function translateFunction(MetaFunctionCall $metaFunction)
 	{
 		return $this->basePlatform->translateFunction($metaFunction);

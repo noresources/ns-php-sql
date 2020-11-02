@@ -12,6 +12,7 @@ use NoreSources\SQL\MediaTypeUtility;
 use NoreSources\SQL\Expression\FunctionCall;
 use NoreSources\SQL\Expression\Literal;
 use NoreSources\SQL\Expression\MetaFunctionCall;
+use NoreSources\SQL\Expression\TokenizableExpressionInterface;
 use NoreSources\SQL\Statement\ClassMapStatementFactoryTrait;
 use NoreSources\SQL\Structure\ColumnDescriptionInterface;
 use NoreSources\SQL\Structure\DatasourceStructure;
@@ -31,14 +32,14 @@ abstract class AbstractPlatform implements PlatformInterface
 	public function literalize($value, $dataType = null)
 	{
 		if ($dataType === null)
-		{
 			$dataType = Literal::dataTypeFromValue($value);
-		}
+
+		if ($dataType == K::DATATYPE_NULL)
+			return null;
+		$dataType &= ~K::DATATYPE_NULL;
 
 		switch ($dataType)
 		{
-			case K::DATATYPE_NULL:
-				return null;
 			case K::DATATYPE_BOOLEAN:
 				return TypeConversion::toBoolean($value);
 			case K::DATATYPE_STRING:
@@ -90,10 +91,12 @@ abstract class AbstractPlatform implements PlatformInterface
 			$dataType = $description->getColumnProperty(
 				K::COLUMN_DATA_TYPE);
 
+		if ($dataType == K::DATATYPE_NULL)
+			return $this->getKeyword(K::KEYWORD_NULL);
+		$dataType &= ~K::DATATYPE_NULL;
+
 		switch ($dataType)
 		{
-			case K::DATATYPE_NULL:
-				return $this->getKeyword(K::KEYWORD_NULL);
 			case K::DATATYPE_BINARY:
 				return $this->quoteBinaryData($data);
 			case K::DATATYPE_BOOLEAN:
@@ -314,6 +317,18 @@ abstract class AbstractPlatform implements PlatformInterface
 	public function getTimestampFormatTokenTranslation($formatToken)
 	{
 		return false;
+	}
+
+	public function newExpression($baseClassname, ...$arguments)
+	{
+		$reflection = new \ReflectionClass($baseClassname);
+		if (!$reflection->implementsInterface(
+			TokenizableExpressionInterface::class))
+			throw new \LogicException(
+				$baseClassname . ' is not a ' .
+				TokenizableExpressionInterface::class);
+
+		return $reflection->newInstanceArgs($arguments);
 	}
 
 	/**

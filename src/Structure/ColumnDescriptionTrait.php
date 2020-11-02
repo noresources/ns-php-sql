@@ -25,7 +25,6 @@ trait ColumnDescriptionTrait
 	public function initializeColumnProperties($properties = array())
 	{
 		$this->columnProperties = [
-			K::COLUMN_FLAGS => K::COLUMN_FLAGS_DEFAULT,
 			K::COLUMN_DATA_TYPE => K::DATATYPE_STRING
 		];
 
@@ -148,10 +147,10 @@ class ColumnPropertyDefault
 	private static function initialize()
 	{
 		self::$defaultValues = [
-			K::COLUMN_FLAGS => K::COLUMN_FLAGS_DEFAULT,
+			K::COLUMN_FLAGS => 0,
 			K::COLUMN_FRACTION_SCALE => 0,
 			K::COLUMN_LENGTH => 0,
-			K::COLUMN_DATA_TYPE => K::DATATYPE_STRING,
+			K::COLUMN_DATA_TYPE => K::DATATYPE_STRING | K::DATATYPE_NULL,
 			K::COLUMN_ENUMERATION => null,
 			K::COLUMN_DEFAULT_VALUE => null,
 			K::COLUMN_MEDIA_TYPE => null

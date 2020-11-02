@@ -38,6 +38,10 @@ trait DefaultDataUnserializerTrait
 		if ($column->hasColumnProperty(K::COLUMN_DATA_TYPE))
 			$type = $column->getColumnProperty(K::COLUMN_DATA_TYPE);
 
+		if ($type == K::DATATYPE_NULL)
+			$data = null;
+		$type &= ~K::DATATYPE_NULL;
+
 		if ($type == K::DATATYPE_BINARY)
 			$data = $this->unserializeBinaryColumnData($column, $data);
 		elseif ($type == K::DATATYPE_BOOLEAN)
@@ -51,8 +55,6 @@ trait DefaultDataUnserializerTrait
 			else
 				$data = TypeConversion::toInteger($data);
 		}
-		elseif ($type == K::DATATYPE_NULL)
-			$data = null;
 
 		if ($column->hasColumnProperty(K::COLUMN_MEDIA_TYPE))
 		{

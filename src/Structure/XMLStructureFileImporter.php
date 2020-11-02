@@ -20,7 +20,8 @@ use NoreSources\SQL\Structure\XMLStructureFileConstants as K;
 /**
  * ns-xml SQL schema definition file importer
  */
-class XMLStructureFileImporter implements StructureFileImporterInterface
+class XMLStructureFileImporter implements
+	StructureFileImporterInterface
 {
 
 	use XMLStructureFileTrait;
@@ -48,7 +49,8 @@ class XMLStructureFileImporter implements StructureFileImporterInterface
 		$context = new XMLStructureFileImporterContext($document);
 		$namespaceURI = null;
 		$validDocument = false;
-		foreach ($context->xpath->query('namespace::*', $document->documentElement) as $node)
+		foreach ($context->xpath->query('namespace::*',
+			$document->documentElement) as $node)
 		{
 			if (\strpos($node->nodeValue, K::XML_NAMESPACE_BASEURI) !== 0)
 				continue;
@@ -56,12 +58,15 @@ class XMLStructureFileImporter implements StructureFileImporterInterface
 			$namespaceURI = $node->nodeValue;
 
 			$validDocument = true;
-			$version = \trim(\trim(\substr($node->nodeValue, \strlen(K::XML_NAMESPACE_BASEURI))),
-				'/');
+			$version = \trim(
+				\trim(
+					\substr($node->nodeValue,
+						\strlen(K::XML_NAMESPACE_BASEURI))), '/');
 			if (\strlen($version) == 0)
 				$version = '1.0.0';
 
-			$context->setSchemaVersion(new SemanticVersion($version), $namespaceURI);
+			$context->setSchemaVersion(new SemanticVersion($version),
+				$namespaceURI);
 		}
 
 		$versionNumber = $context->schemaVersion->getIntegerValue();
@@ -73,24 +78,26 @@ class XMLStructureFileImporter implements StructureFileImporterInterface
 		if ($document->documentElement->localName == 'datasource')
 		{
 			$context->structureElement = new DatasourceStructure($name);
-			$this->importDatasourceNode($document->documentElement, $context->structureElement,
-				$context);
+			$this->importDatasourceNode($document->documentElement,
+				$context->structureElement, $context);
 		}
 		elseif ($document->documentElement->localName == 'namespace')
 		{
 			$context->structureElement = new NamespaceStructure($name);
-			$this->importNamespaceNode($document->documentElement, $context->structureElement,
-				$context);
+			$this->importNamespaceNode($document->documentElement,
+				$context->structureElement, $context);
 		}
 		elseif ($document->documentElement->localName == 'table')
 		{
 			$context->structureElement = new TableStructure($name);
-			$this->importTableNode($document->documentElement, $context->structureElement, $context);
+			$this->importTableNode($document->documentElement,
+				$context->structureElement, $context);
 		}
 		elseif ($document->documentElement->localName == 'column')
 		{
 			$context->structureElement = new ColumnStructure($name);
-			$this->importColumnNode($document->documentElement, $context->structureElement, $context);
+			$this->importColumnNode($document->documentElement,
+				$context->structureElement, $context);
 		}
 
 		$this->importPostprocess($context);
@@ -101,98 +108,119 @@ class XMLStructureFileImporter implements StructureFileImporterInterface
 		XMLStructureFileImporterContext $context)
 	{
 		if ($node->hasAttribute('id'))
-			$context->identifiedElements->offsetSet($node->getAttribute('id'), $structure);
+			$context->identifiedElements->offsetSet(
+				$node->getAttribute('id'), $structure);
 
 		$nodeName = K::XML_NAMESPACE_PREFIX . ':' .
-			self::getXmlNodeName(NamespaceStructure::class, $context->schemaVersion);
+			self::getXmlNodeName(NamespaceStructure::class,
+				$context->schemaVersion);
 		$namespaceNodes = $context->xpath->query($nodeName);
 		foreach ($namespaceNodes as $namespaceNode)
 		{
-			$namespace = new NamespaceStructure($namespaceNode->getAttribute('name'), $structure);
+			$namespace = new NamespaceStructure(
+				$namespaceNode->getAttribute('name'), $structure);
 			$structure->appendElement($namespace);
-			$this->importNamespaceNode($namespaceNode, $namespace, $context);
+			$this->importNamespaceNode($namespaceNode, $namespace,
+				$context);
 		}
 	}
 
-	public function importNamespaceNode(\DOMNode $node, NamespaceStructure $structure,
+	public function importNamespaceNode(\DOMNode $node,
+		NamespaceStructure $structure,
 		XMLStructureFileImporterContext $context)
 	{
 		if ($node->hasAttribute('id'))
-			$context->identifiedElements->offsetSet($node->getAttribute('id'), $structure);
+			$context->identifiedElements->offsetSet(
+				$node->getAttribute('id'), $structure);
 
 		$tableNodeName = K::XML_NAMESPACE_PREFIX . ':' .
-			self::getXmlNodeName(TableStructure::class, $context->schemaVersion);
+			self::getXmlNodeName(TableStructure::class,
+				$context->schemaVersion);
 		$tableNodes = $context->xpath->query($tableNodeName, $node);
 
 		foreach ($tableNodes as $tableNode)
 		{
-			$table = new TableStructure($tableNode->getAttribute('name'), $structure);
+			$table = new TableStructure(
+				$tableNode->getAttribute('name'), $structure);
 			$structure->appendElement($table);
 			$this->importTableNode($tableNode, $table, $context);
 		}
 
 		$indexNodeName = K::XML_NAMESPACE_PREFIX . ':' .
-			self::getXmlNodeName(IndexStructure::class, $context->schemaVersion);
+			self::getXmlNodeName(IndexStructure::class,
+				$context->schemaVersion);
 		$indexNodes = $context->xpath->query($indexNodeName, $node);
 
 		foreach ($indexNodes as $indexNode)
 		{
-			$index = new IndexStructure($indexNode->getAttribute('name'), $structure);
+			$index = new IndexStructure(
+				$indexNode->getAttribute('name'), $structure);
 			$structure->appendElement($index);
 			$this->importIndexNode($indexNode, $index, $context);
 		}
 	}
 
-	public function importIndexNode(\DOMNode $node, IndexStructure $structure,
+	public function importIndexNode(\DOMNode $node,
+		IndexStructure $structure,
 		XMLStructureFileImporterContext $context)
 	{
 		if ($node->hasAttribute('id'))
-			$context->identifiedElements->offsetSet($node->getAttribute('id'), $structure);
+			$context->identifiedElements->offsetSet(
+				$node->getAttribute('id'), $structure);
 
 		$flags = 0;
 
-		if ($node->hasAttribute('unique') && $node->getAttribute('unique') == 'yes')
+		if ($node->hasAttribute('unique') &&
+			$node->getAttribute('unique') == 'yes')
 		{
 			$flags |= IndexStructure::UNIQUE;
 		}
 
 		$structure->setIndexFlags($flags);
 
-		$context->indexes->append([
-			'structure' => $structure,
-			'node' => $node
-		]);
+		$context->indexes->append(
+			[
+				'structure' => $structure,
+				'node' => $node
+			]);
 	}
 
-	public function importTableNode(\DOMNode $node, TableStructure $structure,
+	public function importTableNode(\DOMNode $node,
+		TableStructure $structure,
 		XMLStructureFileImporterContext $context)
 	{
 		if ($node->hasAttribute('id'))
-			$context->identifiedElements->offsetSet($node->getAttribute('id'), $structure);
+			$context->identifiedElements->offsetSet(
+				$node->getAttribute('id'), $structure);
 
 		$columnNodeName = K::XML_NAMESPACE_PREFIX . ':' .
-			self::getXmlNodeName(ColumnStructure::class, $context->schemaVersion);
+			self::getXmlNodeName(ColumnStructure::class,
+				$context->schemaVersion);
 		$columnNodes = $context->xpath->query($columnNodeName, $node);
 		foreach ($columnNodes as $columnNode)
 		{
-			$column = new ColumnStructure($columnNode->getAttribute('name'), $structure);
+			$column = new ColumnStructure(
+				$columnNode->getAttribute('name'), $structure);
 			$structure->appendElement($column);
 			$this->importColumnNode($columnNode, $column, $context);
 		}
 
-		$pkNode = self::getSingleElementByTagName($context->namespaceURI, $node, 'primarykey');
+		$pkNode = self::getSingleElementByTagName(
+			$context->namespaceURI, $node, 'primarykey');
 		if ($pkNode instanceof \DOMElement)
 		{
 			$constraint = new PrimaryKeyTableConstraint();
-			$constraint->constraintName = $pkNode->getAttribute('name');
+			$constraint->setName($pkNode->getAttribute('name'));
 
-			$columnNodes = $context->xpath->query($columnNodeName, $pkNode);
+			$columnNodes = $context->xpath->query($columnNodeName,
+				$pkNode);
 			foreach ($columnNodes as $columnNode)
 			{
 				$name = $columnNode->getAttribute('name');
 				if (!$structure->offsetExists($name))
 				{
-					throw new StructureException('Invalid primary column "' . $name . '"',
+					throw new StructureException(
+						'Invalid primary column "' . $name . '"',
 						$structure);
 				}
 				$constraint->append($structure->offsetGet($name));
@@ -201,52 +229,55 @@ class XMLStructureFileImporter implements StructureFileImporterInterface
 			$structure->addConstraint($constraint);
 		}
 
-		$fkNodes = $node->getElementsByTagNameNS($context->namespaceURI, 'foreignkey');
+		$fkNodes = $node->getElementsByTagNameNS($context->namespaceURI,
+			'foreignkey');
 		foreach ($fkNodes as $fkNode)
 		{
-			$context->foreignKeys->append([
-				'table' => $structure,
-				'node' => $fkNode
-			]);
+			$context->foreignKeys->append(
+				[
+					'table' => $structure,
+					'node' => $fkNode
+				]);
 		}
 	}
 
-	public function importColumnNode(\DOMNode $node, ColumnStructure $structure,
+	public function importColumnNode(\DOMNode $node,
+		ColumnStructure $structure,
 		XMLStructureFileImporterContext $context)
 	{
+		$isNullable = true;
+
 		if ($node->hasAttribute('id'))
-			$context->identifiedElements->offsetSet($node->getAttribute('id'), $structure);
+			$context->identifiedElements->offsetSet(
+				$node->getAttribute('id'), $structure);
 
 		if ($context->schemaVersion->getIntegerValue() < 20000)
 		{
-			$notNullNode = self::getSingleElementByTagName($context->namespaceURI, $node, 'notnull');
+			$notNullNode = self::getSingleElementByTagName(
+				$context->namespaceURI, $node, 'notnull');
 			if ($notNullNode instanceof \DOMNode)
-			{
-				$flg = $structure->getColumnProperty(K::COLUMN_FLAGS);
-				$structure->setColumnProperty(K::COLUMN_FLAGS, ($flg & ~K::COLUMN_FLAG_NULLABLE));
-			}
+				$isNullable = false;
 		}
 
 		$dataType = K::DATATYPE_UNDEFINED;
 		$typeNode = null;
 
-		$dataTypeNode = self::getSingleElementByTagName($context->namespaceURI, $node, 'datatype');
+		$dataTypeNode = self::getSingleElementByTagName(
+			$context->namespaceURI, $node, 'datatype');
+
 		if ($dataTypeNode instanceof \DOMElement)
 		{
 			if ($dataTypeNode->hasAttribute('nullable'))
 			{
 				$nullable = $dataTypeNode->getAttribute('nullable');
-				$flg = $structure->getColumnProperty(K::COLUMN_FLAGS);
-				if ($nullable == 'yes')
-					$structure->setColumnProperty(K::COLUMN_FLAGS, ($flg | K::COLUMN_FLAG_NULLABLE));
-				else
-					$structure->setColumnProperty(K::COLUMN_FLAGS, ($flg & ~K::COLUMN_FLAG_NULLABLE));
+				$isNullable = ($nullable == 'yes');
 			}
 
 			$dataType = K::DATATYPE_UNDEFINED;
 			foreach ($dataTypeNode->childNodes as $child)
 			{
-				$dataType = self::getDataTypeFromNodeName($child->localName, $context->schemaVersion);
+				$dataType = self::getDataTypeFromNodeName(
+					$child->localName, $context->schemaVersion);
 				if ($dataType != K::DATATYPE_UNDEFINED)
 				{
 					$typeNode = $child;
@@ -276,11 +307,12 @@ class XMLStructureFileImporter implements StructureFileImporterInterface
 			}
 			else
 			{
-				$dateNode = self::getSingleElementByTagName($context->namespaceURI, $typeNode,
-					'date');
-				$timeNode = self::getSingleElementByTagName($context->namespaceURI, $typeNode,
-					'time');
-				if ($dateNode instanceof \DOMElement || $timeNode instanceof \DOMElement)
+				$dateNode = self::getSingleElementByTagName(
+					$context->namespaceURI, $typeNode, 'date');
+				$timeNode = self::getSingleElementByTagName(
+					$context->namespaceURI, $typeNode, 'time');
+				if ($dateNode instanceof \DOMElement ||
+					$timeNode instanceof \DOMElement)
 					$dataType = 0;
 
 				if ($dateNode instanceof \DOMElement)
@@ -295,21 +327,25 @@ class XMLStructureFileImporter implements StructureFileImporterInterface
 		}
 		elseif ($dataType & K::DATATYPE_NUMBER)
 		{
-			$scaleAttribute = ($context->schemaVersion->getIntegerValue() < 20000) ? 'decimals' : 'scale';
+			$scaleAttribute = ($context->schemaVersion->getIntegerValue() <
+				20000) ? 'decimals' : 'scale';
 			$dataType = K::DATATYPE_INTEGER;
 			if ($typeNode->hasAttribute('signed'))
 			{
 				$flg = $structure->getColumnProperty(K::COLUMN_FLAGS);
 				$signed = $typeNode->getAttribute('signed');
 				if ($signed == 'yes')
-					$structure->setColumnProperty(K::COLUMN_FLAGS, $flg & ~K::COLUMN_FLAG_UNSIGNED);
+					$structure->setColumnProperty(K::COLUMN_FLAGS,
+						$flg & ~K::COLUMN_FLAG_UNSIGNED);
 				else
-					$structure->setColumnProperty(K::COLUMN_FLAGS, $flg | K::COLUMN_FLAG_UNSIGNED);
+					$structure->setColumnProperty(K::COLUMN_FLAGS,
+						$flg | K::COLUMN_FLAG_UNSIGNED);
 			}
 			if ($typeNode->hasAttribute('autoincrement'))
 			{
 				$flg = $structure->getColumnProperty(K::COLUMN_FLAGS);
-				$structure->setColumnProperty(K::COLUMN_FLAGS, $flg | K::COLUMN_FLAG_AUTO_INCREMENT);
+				$structure->setColumnProperty(K::COLUMN_FLAGS,
+					$flg | K::COLUMN_FLAG_AUTO_INCREMENT);
 			}
 			if ($typeNode->hasAttribute('length'))
 			{
@@ -318,34 +354,47 @@ class XMLStructureFileImporter implements StructureFileImporterInterface
 			}
 			if ($typeNode->hasAttribute($scaleAttribute))
 			{
-				$count = intval($typeNode->getAttribute($scaleAttribute));
-				$structure->setColumnProperty(K::COLUMN_FRACTION_SCALE, $count);
+				$count = intval(
+					$typeNode->getAttribute($scaleAttribute));
+				$structure->setColumnProperty(K::COLUMN_FRACTION_SCALE,
+					$count);
 				if ($count > 0)
 				{
 					$dataType = K::DATATYPE_FLOAT;
 				}
 			}
 		}
-		elseif ($dataType == K::DATATYPE_STRING && ($typeNode instanceof \DOMNode))
+		elseif ($dataType == K::DATATYPE_STRING &&
+			($typeNode instanceof \DOMNode))
 		{
-			$enumerationNode = self::getSingleElementByTagName($context->namespaceURI, $typeNode,
-				'enumeration');
+			$enumerationNode = self::getSingleElementByTagName(
+				$context->namespaceURI, $typeNode, 'enumeration');
 			if ($enumerationNode instanceof \DOMNode)
 			{
 				$values = [];
-				$valueNodes = $context->xpath->query(K::XML_NAMESPACE_PREFIX . ':value',
-					$enumerationNode);
+				$valueNodes = $context->xpath->query(
+					K::XML_NAMESPACE_PREFIX . ':value', $enumerationNode);
 				foreach ($valueNodes as $valueNode)
-					$values[] = new Literal($valueNode->nodeValue, K::DATATYPE_STRING);
+					$values[] = new Literal($valueNode->nodeValue,
+						K::DATATYPE_STRING);
 
-				$structure->setColumnProperty(K::COLUMN_ENUMERATION, $values);
+				$structure->setColumnProperty(K::COLUMN_ENUMERATION,
+					$values);
 			}
 		}
 
-		if ($dataType != K::DATATYPE_UNDEFINED)
-			$structure->setColumnProperty(K::COLUMN_DATA_TYPE, $dataType);
+		if ($isNullable)
+			$dataType |= K::DATATYPE_NULL;
 
-		$defaultNode = self::getSingleElementByTagName($context->namespaceURI, $node, 'default');
+		if ($dataType != K::DATATYPE_UNDEFINED)
+		{
+			if ($dataType == K::DATATYPE_NULL)
+				$dataType |= K::DATATYPE_STRING;
+			$structure->setColumnProperty(K::COLUMN_DATA_TYPE, $dataType);
+		}
+
+		$defaultNode = self::getSingleElementByTagName(
+			$context->namespaceURI, $node, 'default');
 		if ($defaultNode instanceof \DOMElement)
 		{
 			$nodeNames = [
@@ -362,8 +411,8 @@ class XMLStructureFileImporter implements StructureFileImporterInterface
 
 			foreach ($nodeNames as $name)
 			{
-				$defaultValueNode = self::getSingleElementByTagName($context->namespaceURI,
-					$defaultNode, $name);
+				$defaultValueNode = self::getSingleElementByTagName(
+					$context->namespaceURI, $defaultNode, $name);
 				if (!($defaultValueNode instanceof \DOMNode))
 					continue;
 
@@ -383,9 +432,11 @@ class XMLStructureFileImporter implements StructureFileImporterInterface
 					case 'datetime':
 						$defaultValueType = K::DATATYPE_TIMESTAMP;
 						if (\strlen($value))
-							$value = \DateTime::createFromFormat(\DateTime::ISO8601, $value);
+							$value = \DateTime::createFromFormat(
+								\DateTime::ISO8601, $value);
 						else
-							$value = new Keyword(K::KEYWORD_CURRENT_TIMESTAMP);
+							$value = new Keyword(
+								K::KEYWORD_CURRENT_TIMESTAMP);
 					break;
 					case 'null':
 						$defaultValueType = K::DATATYPE_NULL;
@@ -414,21 +465,25 @@ class XMLStructureFileImporter implements StructureFileImporterInterface
 				}
 
 				if (!($value instanceof TokenizableExpressionInterface))
-					$value = ExpressionHelper::literal($value, $defaultValueType);
+					$value = ExpressionHelper::literal($value,
+						$defaultValueType);
 
-				$structure->setColumnProperty(K::COLUMN_DEFAULT_VALUE, $value);
+				$structure->setColumnProperty(K::COLUMN_DEFAULT_VALUE,
+					$value);
 
 				break;
 			} // for each default value type
 		} // default node
 	}
 
-	private static function importPostprocess(XMLStructureFileImporterContext $context)
+	private static function importPostprocess(
+		XMLStructureFileImporterContext $context)
 	{
 		$resolver = new StructureResolver(null);
 
 		$columnNodeName = K::XML_NAMESPACE_PREFIX . ':' .
-			self::getXmlNodeName(ColumnStructure::class, $context->schemaVersion);
+			self::getXmlNodeName(ColumnStructure::class,
+				$context->schemaVersion);
 
 		foreach ($context->indexes as $entry)
 		{
@@ -446,15 +501,16 @@ class XMLStructureFileImporter implements StructureFileImporterInterface
 
 			$columnNodes = $context->xpath->query($columnNodeName, $node);
 
-			$referenceTableNode = self::getSingleElementByTagName($context->namespaceURI, $node,
-				'tableref', true);
+			$referenceTableNode = self::getSingleElementByTagName(
+				$context->namespaceURI, $node, 'tableref', true);
 
 			$table = null;
 			if ($referenceTableNode->hasAttribute('id'))
 			{
 				$id = $referenceTableNode->getAttribute('id');
 				if (!$context->identifiedElements->offsetExists($id))
-					throw new StructureException('Invalid table identifier ' . $id, $structure);
+					throw new StructureException(
+						'Invalid table identifier ' . $id, $structure);
 
 				$table = $context->identifiedElements->offsetGet($id);
 			}
@@ -469,7 +525,9 @@ class XMLStructureFileImporter implements StructureFileImporterInterface
 
 			foreach ($columnNodes as $columnNode)
 			{
-				$structure->addIndexColumn($resolver->findColumn($columnNode->getAttribute('name')));
+				$structure->addIndexColumn(
+					$resolver->findColumn(
+						$columnNode->getAttribute('name')));
 			}
 		}
 
@@ -479,21 +537,24 @@ class XMLStructureFileImporter implements StructureFileImporterInterface
 			$fkNode = $entry['node'];
 			$resolver->setPivot($context->structureElement);
 
-			$referenceNode = self::getSingleElementByTagName($context->namespaceURI, $fkNode,
-				'reference', true);
-			$columnNodes = $context->xpath->query($columnNodeName, $fkNode);
+			$referenceNode = self::getSingleElementByTagName(
+				$context->namespaceURI, $fkNode, 'reference', true);
+			$columnNodes = $context->xpath->query($columnNodeName,
+				$fkNode);
 
-			$referenceTableNode = self::getSingleElementByTagName($context->namespaceURI,
-				$referenceNode, 'tableref', true);
+			$referenceTableNode = self::getSingleElementByTagName(
+				$context->namespaceURI, $referenceNode, 'tableref', true);
 			$foreignTable = null;
 
 			if ($referenceTableNode->hasAttribute('id'))
 			{
 				$id = $referenceTableNode->getAttribute('id');
 				if (!$context->identifiedElements->offsetExists($id))
-					throw new StructureException('Invalid table identifier ' . $id, $structure);
+					throw new StructureException(
+						'Invalid table identifier ' . $id, $structure);
 
-				$foreignTable = $context->identifiedElements->offsetGet($id);
+				$foreignTable = $context->identifiedElements->offsetGet(
+					$id);
 			}
 			elseif ($referenceTableNode->hasAttribute('name'))
 			{
@@ -502,13 +563,15 @@ class XMLStructureFileImporter implements StructureFileImporterInterface
 			}
 
 			if (!($foreignTable instanceof TableStructure))
-				throw new StructureException('Invalid foreign key reference table', $structure);
+				throw new StructureException(
+					'Invalid foreign key reference table', $structure);
 
-			$foreignColumnNodes = $context->xpath->query($columnNodeName, $referenceNode);
+			$foreignColumnNodes = $context->xpath->query(
+				$columnNodeName, $referenceNode);
 
 			$fk = new ForeignKeyTableConstraint($foreignTable);
 			if ($fkNode->hasAttribute('name'))
-				$fk->constraintName = $fkNode->getAttribute('name');
+				$fk->setName($fkNode->getAttribute('name'));
 
 			for ($i = 0; $i < $columnNodes->length; $i++)
 			{
@@ -516,15 +579,18 @@ class XMLStructureFileImporter implements StructureFileImporterInterface
 				$foreignColumnNode = $foreignColumnNodes->item($i);
 
 				$name = $columnNode->getAttribute('name');
-				$foreignColumnName = $foreignColumnNode->getAttribute('name');
+				$foreignColumnName = $foreignColumnNode->getAttribute(
+					'name');
 
 				if (!$structure->offsetExists($name))
-					throw new StructureException('Invalid foreign key column "' . $name . '"',
+					throw new StructureException(
+						'Invalid foreign key column "' . $name . '"',
 						$structure);
 
 				if (!$foreignTable->offsetExists($foreignColumnName))
 					throw new StructureException(
-						'Invalid foreign key column "' . $foreignColumnName . '"', $foreignTable);
+						'Invalid foreign key column "' .
+						$foreignColumnName . '"', $foreignTable);
 
 				$fk->addColumn($name, $foreignColumnName);
 			}
@@ -544,16 +610,17 @@ class XMLStructureFileImporter implements StructureFileImporterInterface
 			$actionsNode = $referenceNode;
 			if ($context->schemaVersion->getIntegerValue() >= 20000)
 			{
-				$actionsNode = self::getSingleElementByTagName($context->namespaceURI, $fkNode,
-					'actions');
+				$actionsNode = self::getSingleElementByTagName(
+					$context->namespaceURI, $fkNode, 'actions');
 			}
 
 			if ($actionsNode)
 			{
 				foreach ($events as $event)
 				{
-					$eventNode = self::getSingleElementByTagName($context->namespaceURI,
-						$actionsNode, strtolower($event));
+					$eventNode = self::getSingleElementByTagName(
+						$context->namespaceURI, $actionsNode,
+						strtolower($event));
 					if ($eventNode)
 					{
 						$action = $eventNode->getAttribute('action');
@@ -580,11 +647,13 @@ class XMLStructureFileImporterContext
 		$this->identifiedElements = new \ArrayObject();
 	}
 
-	public function setSchemaVersion(SemanticVersion $version, $namespaceURI)
+	public function setSchemaVersion(SemanticVersion $version,
+		$namespaceURI)
 	{
 		$this->schemaVersion = $version;
 		$this->namespaceURI = $namespaceURI;
-		$this->xpath->registerNamespace(K::XML_NAMESPACE_PREFIX, $namespaceURI);
+		$this->xpath->registerNamespace(K::XML_NAMESPACE_PREFIX,
+			$namespaceURI);
 	}
 
 	/**

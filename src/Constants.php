@@ -204,13 +204,6 @@ class Constants
 	const COLUMN_FLAGS = 'volumnflags';
 
 	/**
-	 * Column accepts NULL as a valid value
-	 *
-	 * @var integer
-	 */
-	const COLUMN_FLAG_NULLABLE = Bitset::BIT_01;
-
-	/**
 	 * Column is auto incremented.
 	 *
 	 * For integer column only. On most DBMS, this property is also only available for primary key
@@ -227,13 +220,6 @@ class Constants
 	 * @var integer
 	 */
 	const COLUMN_FLAG_UNSIGNED = Bitset::BIT_03;
-
-	/**
-	 * Default column flags
-	 *
-	 * @var integer
-	 */
-	const COLUMN_FLAGS_DEFAULT = self::COLUMN_FLAG_NULLABLE;
 
 	/**
 	 * Maximum or fixed number of elements that will represents a column value
@@ -418,6 +404,19 @@ class Constants
 	 * @var string
 	 */
 	const TYPE_MAX_LENGTH = 'maxlength';
+
+	/**
+	 * Column length if the length is unspecified
+	 *
+	 * In most case, a column without length specification
+	 * is assumed to use the maximum length available for its type.
+	 * Some rate types have another behavior.
+	 *
+	 * Property value is expected to be an integer.
+	 *
+	 * @var string
+	 */
+	const TYPE_DEFAULT_LENGTH = 'defaultlength';
 
 	/**
 	 * Media Type

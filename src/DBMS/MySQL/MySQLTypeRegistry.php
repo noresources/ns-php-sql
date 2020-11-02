@@ -97,6 +97,12 @@ class MySQLTypeRegistry extends TypeRegistry
 					K::TYPE_FLAGS => (K::TYPE_FLAG_LENGTH |
 					K::TYPE_FLAG_MANDATORY_LENGTH)
 				],
+				'bit' => [
+					K::TYPE_DATA_TYPE => K::DATATYPE_BINARY,
+					K::TYPE_DEFAULT_LENGTH => 1,
+					K::TYPE_MAX_LENGTH => 64,
+					K::TYPE_FLAGS => (K::TYPE_FLAG_LENGTH)
+				],
 				'binary' => [
 					K::TYPE_DATA_TYPE => K::DATATYPE_BINARY,
 					K::TYPE_MAX_LENGTH => 255,
@@ -305,12 +311,6 @@ class MySQLTypeRegistry extends TypeRegistry
 				 *
 				 * @note Type unit is "1 bit"
 				 */
-				'bit' => [
-					K::TYPE_DATA_TYPE => K::DATATYPE_BINARY,
-					K::TYPE_MAX_LENGTH => 64,
-					K::TYPE_FLAGS => (K::TYPE_FLAG_LENGTH |
-					K::TYPE_FLAG_MANDATORY_LENGTH)
-				],
 				'tinyblob' => [
 					K::TYPE_MAX_LENGTH => 255,
 					K::TYPE_DATA_TYPE => K::DATATYPE_BINARY

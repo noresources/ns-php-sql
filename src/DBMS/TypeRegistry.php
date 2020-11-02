@@ -46,7 +46,7 @@ class TypeRegistry implements \ArrayAccess, \Countable,
 			if ($description->hasColumnProperty(K::COLUMN_DATA_TYPE))
 			{
 				$targetDataType = $description->getColumnProperty(
-					K::COLUMN_DATA_TYPE);
+					K::COLUMN_DATA_TYPE) & ~K::DATATYPE_NULL;
 				$typeDataType = K::DATATYPE_STRING;
 				if ($type->has(K::TYPE_DATA_TYPE))
 					$typeDataType = $type->get(K::TYPE_DATA_TYPE);

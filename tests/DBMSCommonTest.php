@@ -3,6 +3,7 @@ namespace NoreSources\SQL;
 
 use NoreSources\Container;
 use NoreSources\DateTime;
+use NoreSources\SemanticVersion;
 use NoreSources\SingletonTrait;
 use NoreSources\TypeConversion;
 use NoreSources\TypeDescription;
@@ -20,13 +21,17 @@ use NoreSources\SQL\DBMS\MySQL\MySQLPlatform;
 use NoreSources\SQL\DBMS\PDO\PDOConnection;
 use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLPlatform;
 use NoreSources\SQL\DBMS\SQLite\SQLitePlatform;
+use NoreSources\SQL\DBMS\Types\ArrayObjectType;
 use NoreSources\SQL\Expression\CastFunction;
+use NoreSources\SQL\Expression\ColumnDeclaration;
 use NoreSources\SQL\Expression\Literal;
 use NoreSources\SQL\Expression\Parameter;
 use NoreSources\SQL\Expression\TimestampFormatFunction;
 use NoreSources\SQL\Result\InsertionStatementResultInterface;
 use NoreSources\SQL\Result\Recordset;
 use NoreSources\SQL\Statement\ParameterData;
+use NoreSources\SQL\Statement\StatementBuilder;
+use NoreSources\SQL\Statement\StatementTokenStreamContext;
 use NoreSources\SQL\Statement\Manipulation\DeleteQuery;
 use NoreSources\SQL\Statement\Manipulation\InsertQuery;
 use NoreSources\SQL\Statement\Manipulation\UpdateQuery;
@@ -35,6 +40,7 @@ use NoreSources\SQL\Statement\Structure\CreateTableQuery;
 use NoreSources\SQL\Statement\Structure\DropTableQuery;
 use NoreSources\SQL\Structure\ArrayColumnDescription;
 use NoreSources\SQL\Structure\ColumnStructure;
+use NoreSources\SQL\Structure\PrimaryKeyTableConstraint;
 use NoreSources\SQL\Structure\StructureElementInterface;
 use NoreSources\SQL\Structure\TableStructure;
 use NoreSources\Test\ConnectionHelper;
@@ -100,11 +106,16 @@ final class DBMSCommonTest extends TestCase
 
 	public function logKeyValue($key, $value, $level = 0)
 	{
+		echo ($this->textKeyValue($key, $value, $level));
+	}
+
+	public function textKeyValue($key, $value, $level = 0)
+	{
 		$length = 32;
 		$format = \str_repeat('  ', $level) . '%-' . $length . '.' .
 			$length . 's: %s' . PHP_EOL;
 
-		\printf($format, $key, TypeConversion::toString($value));
+		return \sprintf($format, $key, TypeConversion::toString($value));
 	}
 
 	public function testConnections()
@@ -161,7 +172,183 @@ final class DBMSCommonTest extends TestCase
 		}
 	}
 
-	public function testTypes()
+	public function testTypeMapping()
+	{
+		$settings = $this->connections->getAvailableConnectionNames();
+
+		foreach ($settings as $dbmsName)
+		{
+			$connection = $this->connections->get($dbmsName);
+
+			if ($connection instanceof PDOConnection)
+				continue;
+
+			$this->dbmsTestTypeMapping($connection, $dbmsName);
+		}
+	}
+
+	public function dbmsTestTypeMapping(ConnectionInterface $connection,
+		$dbmsName)
+	{
+		$platform = $connection->getPlatform();
+
+		$version = $platform->getPlatformVersion(
+			K::PLATFORM_VERSION_COMPATIBILITY);
+		$versionString = $version->slice(SemanticVersion::MAJOR,
+			SemanticVersion::MINOR);
+
+		$dbmsName .= '_' . $versionString;
+
+		$context = new StatementTokenStreamContext($platform);
+		$builder = new StatementBuilder();
+		$tableWithPk = new TableStructure('table');
+		$pk = new ColumnStructure('pk');
+		$tableWithPk->addConstraint(
+			new PrimaryKeyTableConstraint([
+				$pk
+			]));
+
+		$tests = [
+			'small binary with length' => [
+				'properties' => [
+					K::COLUMN_DATA_TYPE => K::DATATYPE_BINARY |
+					K::DATATYPE_NULL,
+					K::COLUMN_LENGTH => 2
+				]
+			],
+			'binary without length' => [
+				'properties' => [
+					K::COLUMN_DATA_TYPE => K::DATATYPE_BINARY |
+					K::DATATYPE_NULL
+				]
+			],
+			'integer primary key' => [
+				'properties' => [
+					K::COLUMN_DATA_TYPE => K::DATATYPE_INTEGER
+				],
+				'primary' => true
+			],
+			'int. primary key auto increment' => [
+				'properties' => [
+					K::COLUMN_DATA_TYPE => K::DATATYPE_INTEGER,
+					K::COLUMN_FLAGS => K::COLUMN_FLAG_AUTO_INCREMENT
+				],
+				'primary' => true
+			],
+			'int auto increment' => [
+				'properties' => [
+					K::COLUMN_DATA_TYPE => K::DATATYPE_INTEGER,
+					K::COLUMN_FLAGS => K::COLUMN_FLAG_AUTO_INCREMENT
+				]
+			],
+			'int. composite PK auto inc.' => [
+				'properties' => [
+					K::COLUMN_DATA_TYPE => K::DATATYPE_INTEGER,
+					K::COLUMN_FLAGS => K::COLUMN_FLAG_AUTO_INCREMENT
+				],
+				'primary' => true,
+				'table' => $tableWithPk
+			],
+			'type with dflt length' => [
+				'properties' => [
+					K::COLUMN_DATA_TYPE => (K::DATATYPE_NULL |
+					K::DATATYPE_STRING)
+				],
+				'type' => new ArrayObjectType(
+					[
+						K::TYPE_NAME => 'bit',
+						K::TYPE_FLAGS => K::TYPE_FLAG_LENGTH,
+						K::TYPE_DEFAULT_LENGTH => 1,
+						K::TYPE_MAX_LENGTH => 64
+					])
+			]
+		];
+
+		$declaractionClassInstance = $platform->newExpression(
+			ColumnDeclaration::class);
+
+		$content = '';
+		$content .= $this->textKeyValue($dbmsName,
+			'-- ' .
+			TypeDescription::getLocalName($declaractionClassInstance));
+
+		foreach ($tests as $label => $test)
+		{
+			$method = __CLASS__ . '::' . debug_backtrace()[1]['function'];
+			$primary = Container::keyValue($test, 'primary', false);
+			$table = Container::keyValue($test, 'table');
+			if ($table)
+			{
+				$table = clone $table;
+			}
+
+			if ($primary)
+			{
+				if (!$table)
+				{
+					$table = new TableStructure('table');
+				}
+			}
+
+			$column = new ColumnStructure('column', $table);
+			if ($table)
+				$table->appendElement($column);
+
+			$this->assertEquals($table, $column->getParentElement(),
+				$dbmsName . ' ' . $label . ' table');
+
+			foreach ($test['properties'] as $k => $v)
+				$column->setColumnProperty($k, $v);
+
+			if ($primary)
+			{
+				/**
+				 *
+				 * @var PrimaryKeyTableConstraint $pkc
+				 */
+				$pkc = null;
+				foreach ($table->getConstraints() as $c)
+				{
+					if ($c instanceof PrimaryKeyTableConstraint)
+					{
+						$pkc = $c;
+						break;
+					}
+				}
+				if (!$pkc)
+				{
+					$pkc = new PrimaryKeyTableConstraint([]);
+					$table->addConstraint($pkc);
+				}
+
+				$pkc->append($column);
+			}
+
+			$flags = $column->getConstraintFlags();
+			$this->assertEquals(
+				($primary ? K::COLUMN_CONSTRAINT_PRIMARY_KEY : 0),
+				($flags & K::COLUMN_CONSTRAINT_PRIMARY_KEY),
+				$dbmsName . ' ' . $label . ' is' .
+				($primary ? ' ' : ' not ') . 'part of a primary key');
+
+			$type = Container::keyValue($test, 'type');
+			if (!($type instanceof TypeInterface))
+				$type = $platform->getColumnType($column);
+
+			$this->assertInstanceOf(TypeInterface::class, $type,
+				$dbmsName . ' ' . $label . ' column');
+
+			$declaration = $platform->newExpression(
+				ColumnDeclaration::class, $column, $type);
+			$data = $builder->build($declaration, $context);
+			$content .= $this->textKeyValue($label, \strval($data));
+		}
+
+		$this->derivedFileManager->assertDerivedFile($content, $method,
+			$dbmsName, 'sql');
+	}
+
+	public function testTypeSerialization()
 	{
 		$settings = $this->connections->getAvailableConnectionNames();
 
@@ -173,12 +360,12 @@ final class DBMSCommonTest extends TestCase
 				continue;
 
 			$this->assertTrue($connection->isConnected(), $dbmsName);
-			$this->dbmsTestTypes($connection, $dbmsName);
+			$this->dbmsTestTypeSerialization($connection, $dbmsName);
 		}
 	}
 
-	public function dbmsTestTypes(ConnectionInterface $connection,
-		$dbmsName)
+	public function dbmsTestTypeSerialization(
+		ConnectionInterface $connection, $dbmsName)
 	{
 		$structure = $this->structures->get('types');
 		$this->assertInstanceOf(StructureElementInterface::class,
