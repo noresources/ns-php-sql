@@ -15,8 +15,8 @@ namespace NoreSources\SQL\Structure;
  *
  * @todo table constraints (primary keys etc. & index)
  */
-class TableStructure implements StructureElementContainerInterface, StructureElementInterface,
-	ColumnDescriptionMapInterface
+class TableStructure implements StructureElementContainerInterface,
+	StructureElementInterface, ColumnDescriptionMapInterface
 {
 
 	use StructureElementTrait;
@@ -29,7 +29,8 @@ class TableStructure implements StructureElementContainerInterface, StructureEle
 	 * @param NamespaceStructure $parent
 	 *        	Parent namespace
 	 */
-	public function __construct($name, StructureElementContainerInterface $parent = null)
+	public function __construct($name,
+		StructureElementContainerInterface $parent = null)
 	{
 		$this->initializeStructureElement($name, $parent);
 		$this->initializeStructureElementContainer();
@@ -40,6 +41,12 @@ class TableStructure implements StructureElementContainerInterface, StructureEle
 	{
 		$this->cloneStructureElement();
 		$this->cloneStructureElementContainer();
+
+		$c = new \ArrayObject();
+		foreach ($this->constraints as $key => $constraint)
+		{
+			$c->offsetSet($key, clone $constraint);
+		}
 	}
 
 	public function getColumnCount()
@@ -102,7 +109,8 @@ class TableStructure implements StructureElementContainerInterface, StructureEle
 			foreach ($this->constraints as $value)
 			{
 				if ($value instanceof PrimaryKeyTableConstraint)
-					throw new StructureException('Primary key already exists.', $this);
+					throw new StructureException(
+						'Primary key already exists.', $this);
 			}
 		}
 
