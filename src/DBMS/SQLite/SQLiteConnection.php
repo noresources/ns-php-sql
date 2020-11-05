@@ -91,7 +91,7 @@ class SQLiteConnection implements ConnectionInterface,
 			});
 
 		if ($this->connection instanceof \SQLite3)
-			$this->connection->close();
+			@$this->connection->close();
 
 		$this->connection = null;
 
@@ -189,7 +189,7 @@ class SQLiteConnection implements ConnectionInterface,
 
 		foreach ($pragmas as $pragma => $value)
 		{
-			$result = $this->connection->exec(
+			$result = @$this->connection->exec(
 				'PRAGMA ' . $pragma . '=' . $value);
 			if ($result === false)
 				throw new SQLiteConnectionException($this,
@@ -202,7 +202,7 @@ class SQLiteConnection implements ConnectionInterface,
 		$this->endTransactions(false);
 		if (!($this->connection instanceof \SQLite3))
 			throw new SQLiteConnectionException($this, 'Not connected');
-		$this->connection->close();
+		@$this->connection->close();
 		$this->connection = null;
 	}
 
@@ -245,7 +245,7 @@ class SQLiteConnection implements ConnectionInterface,
 		if (!($this->connection instanceof \SQLite3))
 			throw new SQLiteConnectionException($this, 'Not connected');
 
-		$stmt = $this->connection->prepare($statement);
+		$stmt = @$this->connection->prepare($statement);
 		if (!($stmt instanceof \SQLite3Stmt))
 			throw new SQLiteConnectionException($this,
 				'Unable to create SQLite statement');
@@ -279,7 +279,7 @@ class SQLiteConnection implements ConnectionInterface,
 				$stmt->reset();
 			}
 			else
-				$stmt = $this->connection->prepare($statement);
+				$stmt = @$this->connection->prepare($statement);
 
 			foreach ($parameters as $key => $entry)
 			{
@@ -342,7 +342,7 @@ class SQLiteConnection implements ConnectionInterface,
 			if (($result instanceof \SQLite3Result) || $result)
 			{
 				return new DefaultRowModificationStatementResult(
-					$this->connection->changes());
+					@$this->connection->changes());
 			}
 		}
 		elseif ($statementType == K::QUERY_INSERT)
@@ -350,7 +350,7 @@ class SQLiteConnection implements ConnectionInterface,
 			if (($result instanceof \SQLite3Result) || $result)
 			{
 				return new DefaultInsertionStatementResult(
-					$this->connection->lastInsertRowID());
+					@$this->connection->lastInsertRowID());
 			}
 		}
 		elseif ($statementType == K::QUERY_SELECT)

@@ -1,4 +1,4 @@
-CREATE TABLE "Employees" (
+CREATE TABLE IF NOT EXISTS "Employees" (
   "id" INTEGER NOT NULL, 
   "name" TEXT, 
   "gender" TEXT, 
