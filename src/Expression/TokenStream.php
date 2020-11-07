@@ -9,13 +9,27 @@
  */
 namespace NoreSources\SQL\Expression;
 
+use NoreSources\ArrayRepresentation;
 use NoreSources\SQL\Constants as K;
 
 /**
  * Sequence of SQL language tokens
  */
-class TokenStream implements \IteratorAggregate, \Countable
+class TokenStream implements \IteratorAggregate, \Countable,
+	ArrayRepresentation, \JsonSerializable
 {
+
+	const IDENTIFIER = K::TOKEN_IDENTIFIER;
+
+	const KEYWORD = K::TOKEN_KEYWORD;
+
+	const LITERAL = K::TOKEN_LITERAL;
+
+	const PARAMETER = K::TOKEN_PARAMETER;
+
+	const SPACE = K::TOKEN_SPACE;
+
+	const TEXT = K::TOKEN_TEXT;
 
 	const INDEX_TOKEN = 0;
 
@@ -29,7 +43,7 @@ class TokenStream implements \IteratorAggregate, \Countable
 	/**
 	 * Add a space to stream
 	 *
-	 * @return \NoreSources\SQL\Expression\TokenStream
+	 * @return $this
 	 */
 	public function space()
 	{
@@ -41,7 +55,7 @@ class TokenStream implements \IteratorAggregate, \Countable
 	 *
 	 * @param mixed $value
 	 *        	Literal value
-	 * @return \NoreSources\SQL\Expression\TokenStream
+	 * @return $this
 	 */
 	public function literal($value)
 	{
@@ -53,7 +67,7 @@ class TokenStream implements \IteratorAggregate, \Countable
 	 *
 	 * @param string $value
 	 *        	Structure element identifier, type name etc.
-	 * @return \NoreSources\SQL\Expression\TokenStream
+	 * @return $this
 	 */
 	public function identifier($value)
 	{
@@ -65,7 +79,7 @@ class TokenStream implements \IteratorAggregate, \Countable
 	 *
 	 * @param string $value
 	 *        	Keyword
-	 * @return \NoreSources\SQL\Expression\TokenStream
+	 * @return $this
 	 */
 	public function keyword($value)
 	{
@@ -76,7 +90,7 @@ class TokenStream implements \IteratorAggregate, \Countable
 	 * Add arbitrary text to the stream
 	 *
 	 * @param string $value
-	 * @return \NoreSources\SQL\Expression\TokenStream
+	 * @return $this
 	 */
 	public function text($value)
 	{
@@ -88,7 +102,7 @@ class TokenStream implements \IteratorAggregate, \Countable
 	 *
 	 * @param string $value
 	 *        	parameter key
-	 * @return \NoreSources\SQL\Expression\TokenStream
+	 * @return $this
 	 */
 	public function parameter($value)
 	{
@@ -100,7 +114,7 @@ class TokenStream implements \IteratorAggregate, \Countable
 	 *
 	 * @param TokenizableExpressionInterface $expression
 	 * @param TokenStreamContextInterface $context
-	 * @return \NoreSources\SQL\Expression\TokenStream
+	 * @return $this
 	 */
 	public function expression(
 		TokenizableExpressionInterface $expression,
@@ -115,7 +129,7 @@ class TokenStream implements \IteratorAggregate, \Countable
 	 *
 	 * @param array|\Traversable $constraints
 	 * @param TokenStreamContextInterface $context
-	 * @return \NoreSources\SQL\Expression\TokenStream
+	 * @return $this
 	 */
 	public function constraints($constraints,
 		TokenStreamContextInterface $context)
@@ -137,29 +151,10 @@ class TokenStream implements \IteratorAggregate, \Countable
 	}
 
 	/**
-	 * Append arbitrary token to stream
-	 *
-	 * @param mixed $token
-	 *        	Token value
-	 * @param integer $type
-	 *        	Token type
-	 * @return \NoreSources\SQL\Expression\TokenStream
-	 */
-	public function append($token, $type)
-	{
-		$this->tokens->append(
-			array(
-				self::INDEX_TOKEN => $token,
-				self::INDEX_TYPE => $type
-			));
-		return $this;
-	}
-
-	/**
 	 * Merge a TokenStream to the stream
 	 *
 	 * @param TokenStream $stream
-	 * @return \NoreSources\SQL\Expression\TokenStream
+	 * @return $this
 	 */
 	public function stream(TokenStream $stream)
 	{
@@ -170,18 +165,71 @@ class TokenStream implements \IteratorAggregate, \Countable
 		return $this;
 	}
 
+	public function streamAt(TokenStream $stream, $at)
+	{
+		$newTokens = $stream->getArrayCopy();
+		$tokens = $this->getArrayCopy();
+
+		\array_splice($tokens, $a, 0, $newTokens);
+		$this->tokens->exchangeArray($tokens);
+		return $this;
+	}
+
 	/**
 	 *
-	 * @return Number of token in the stream
+	 * @return int Number of token in the stream
 	 */
 	public function count()
 	{
 		return $this->tokens->count();
 	}
 
+	/**
+	 *
+	 * @return array
+	 */
+	public function jsonSerialize()
+	{
+		return $this->tokens->getArrayCopy();
+	}
+
+	/**
+	 *
+	 * {@inheritdoc}
+	 * @see \NoreSources\ArrayRepresentation::getArrayCopy()
+	 */
+	public function getArrayCopy()
+	{
+		return $this->tokens->getArrayCopy();
+	}
+
+	/**
+	 *
+	 * {@inheritdoc}
+	 * @see IteratorAggregate::getIterator()
+	 */
 	public function getIterator()
 	{
 		return $this->tokens->getIterator();
+	}
+
+	/**
+	 * Append arbitrary token to stream
+	 *
+	 * @param mixed $token
+	 *        	Token value
+	 * @param integer $type
+	 *        	Token type
+	 * @return \NoreSources\SQL\Expression\TokenStream
+	 */
+	protected function append($token, $type)
+	{
+		$this->tokens->append(
+			[
+				self::INDEX_TOKEN => $token,
+				self::INDEX_TYPE => $type
+			]);
+		return $this;
 	}
 
 	/**
