@@ -19,6 +19,7 @@ use NoreSources\SQL\DBMS\TransactionInterface;
 use NoreSources\SQL\DBMS\TypeInterface;
 use NoreSources\SQL\DBMS\MySQL\MySQLPlatform;
 use NoreSources\SQL\DBMS\PDO\PDOConnection;
+use NoreSources\SQL\DBMS\PDO\PDOPlatform;
 use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLPlatform;
 use NoreSources\SQL\DBMS\SQLite\SQLitePlatform;
 use NoreSources\SQL\DBMS\Types\ArrayObjectType;
@@ -36,10 +37,12 @@ use NoreSources\SQL\Statement\Manipulation\DeleteQuery;
 use NoreSources\SQL\Statement\Manipulation\InsertQuery;
 use NoreSources\SQL\Statement\Manipulation\UpdateQuery;
 use NoreSources\SQL\Statement\Query\SelectQuery;
+use NoreSources\SQL\Statement\Structure\CreateNamespaceQuery;
 use NoreSources\SQL\Statement\Structure\CreateTableQuery;
 use NoreSources\SQL\Statement\Structure\DropTableQuery;
 use NoreSources\SQL\Structure\ArrayColumnDescription;
 use NoreSources\SQL\Structure\ColumnStructure;
+use NoreSources\SQL\Structure\NamespaceStructure;
 use NoreSources\SQL\Structure\PrimaryKeyTableConstraint;
 use NoreSources\SQL\Structure\StructureElementInterface;
 use NoreSources\SQL\Structure\TableStructure;
@@ -198,6 +201,7 @@ final class DBMSCommonTest extends TestCase
 			SemanticVersion::MINOR);
 
 		$dbmsName .= '_' . $versionString;
+		$method = $this->getMethodName();
 
 		$context = new StatementTokenStreamContext($platform);
 		$builder = new StatementBuilder();
@@ -274,7 +278,7 @@ final class DBMSCommonTest extends TestCase
 
 		foreach ($tests as $label => $test)
 		{
-			$method = __CLASS__ . '::' . debug_backtrace()[1]['function'];
+
 			$primary = Container::keyValue($test, 'primary', false);
 			$table = Container::keyValue($test, 'table');
 			if ($table)
@@ -600,10 +604,8 @@ final class DBMSCommonTest extends TestCase
 	public function dbmsTimestampFormats(
 		ConnectionInterface $connection, TableStructure $tableStructure)
 	{
-		$dbmsName = \preg_replace('/Connection/', '',
-			TypeDescription::getLocalName($connection));
-
-		$method = __CLASS__ . '::' . debug_backtrace()[1]['function'];
+		$dbmsName = $this->getDBMSName($connection);
+		$method = $this->getMethodName();
 
 		$timestamps = [];
 		for ($i = 0; $i < 10; $i++)
@@ -728,14 +730,14 @@ final class DBMSCommonTest extends TestCase
 			if ($connection instanceof PDOConnection)
 				continue;
 			$this->assertTrue($connection->isConnected(), $dbmsName);
-			$this->dbmsParameters($connection, $dbmsName);
+			$this->dbmsParameters($connection);
 		}
 	}
 
-	private function dbmsParameters(ConnectionInterface $connection,
-		$dbmsName)
+	private function dbmsParameters(ConnectionInterface $connection)
 	{
-		$method = __CLASS__ . '::' . debug_backtrace()[1]['function'];
+		$dbmsName = $this->getDBMSName($connection);
+		$method = $this->getMethodName();
 		$platform = $connection->getPlatform();
 
 		/**
@@ -826,9 +828,8 @@ final class DBMSCommonTest extends TestCase
 	private function dbmsParametersTypes(
 		ConnectionInterface $connection, TableStructure $tableStructure)
 	{
-		$dbmsName = \preg_replace('/Connection/', '',
-			TypeDescription::getLocalName($connection));
-		$method = __CLASS__ . '::' . debug_backtrace()[1]['function'];
+		$dbmsName = $this->getDBMSName($connection);
+		$method = $this->getMethodName();
 		/**
 		 *
 		 * @var \NoreSources\SQL\Statement\Manipulation\InsertQuery $i
@@ -1024,8 +1025,7 @@ final class DBMSCommonTest extends TestCase
 	private function connectionTransactionTest(
 		ConnectionInterface $connection, TableStructure $tableStructure)
 	{
-		$dbmsName = \preg_replace('/Connection/', '',
-			TypeDescription::getLocalName($connection));
+		$dbmsName = $this->getDBMSName($connection);
 
 		$insert = new InsertQuery($tableStructure);
 		$insert('id', ':id');
@@ -1191,9 +1191,8 @@ final class DBMSCommonTest extends TestCase
 	private function dbmsEmployeesTable(TableStructure $tableStructure,
 		ConnectionInterface $connection)
 	{
-		$dbmsName = \preg_replace('/Connection/', '',
-			TypeDescription::getLocalName($connection));
-		$method = __CLASS__ . '::' . debug_backtrace()[1]['function'];
+		$dbmsName = $this->getDBMSName($connection);
+		$method = $this->getMethodName();
 		$this->recreateTable($connection, $tableStructure);
 
 		// Insert QUery
@@ -1217,8 +1216,8 @@ final class DBMSCommonTest extends TestCase
 
 		$sql = \SqlFormatter::format(strval($sql), false);
 		if (!($connection instanceof PDOConnection))
-			$this->derivedFileManager->assertDerivedFile($sql,
-				__METHOD__, $dbmsName . '_insert', 'sql');
+			$this->derivedFileManager->assertDerivedFile($sql, $method,
+				$dbmsName . '_insert', 'sql');
 
 		$p = [
 			'nameValue' => 'Bob',
@@ -1569,8 +1568,7 @@ final class DBMSCommonTest extends TestCase
 	private function dbmsMediaType(ConnectionInterface $connection)
 	{
 		$platform = $connection->getPlatform();
-		$dbmsName = \preg_replace('/Connection/', '',
-			TypeDescription::getLocalName($connection));
+		$dbmsName = $this->getDBMSName($connection);
 
 		$textColumn = new ColumnStructure('textColumn');
 
@@ -1684,12 +1682,45 @@ final class DBMSCommonTest extends TestCase
 	private function recreateTable(ConnectionInterface $connection,
 		TableStructure $tableStructure)
 	{
-		$dbmsName = \preg_replace('/Connection/', '',
-			TypeDescription::getLocalName($connection));
+		$dbmsName = $this->getDBMSName($connection);
+		$method = $this->getMethodName(3);
 
 		$platform = $connection->getPlatform();
+		$factory = $connection->getPlatform();
 
-		$existsCondition = $platform->queryFeature(
+		$parent = $tableStructure->getParentElement();
+		if ($parent instanceof NamespaceStructure)
+		{
+			$nsExistanceCondition = $platform->queryFeature(
+				[
+					K::PLATFORM_FEATURE_CREATE,
+					K::PLATFORM_FEATURE_NAMESPACE,
+					K::PLATFORM_FEATURE_EXISTS_CONDITION
+				], false);
+
+			/**
+			 *
+			 * @var CreateNamespaceQuery
+			 */
+			$createNamespace = $factory->newStatement(
+				K::QUERY_CREATE_NAMESPACE);
+
+			try
+			{
+				if (!($createNamespace instanceof CreateNamespaceQuery))
+					throw new \Exception(
+						'not CREATE NAMESPACE query available');
+				$createNamespace->identifier($parent->getName());
+
+				$data = ConnectionHelper::buildStatement($connection,
+					$createNamespace, $parent);
+				$connection->executeStatement($data);
+			}
+			catch (ConnectionException $e)
+			{}
+		}
+
+		$tableExistanceCondition = $platform->queryFeature(
 			[
 				K::PLATFORM_FEATURE_DROP,
 				K::PLATFORM_FEATURE_EXISTS_CONDITION
@@ -1708,11 +1739,9 @@ final class DBMSCommonTest extends TestCase
 		}
 		catch (ConnectionException $e)
 		{
-			if ($existsCondition)
+			if ($tableExistanceCondition)
 				throw $e;
 		}
-
-		$factory = $connection->getPlatform();
 
 		/**
 		 *
@@ -1734,8 +1763,7 @@ final class DBMSCommonTest extends TestCase
 			$createTable, $tableStructure);
 		$sql = \SqlFormatter::format(strval($data), false);
 		if (!($connection instanceof PDOConnection))
-			$this->derivedFileManager->assertDerivedFile($sql,
-				__METHOD__,
+			$this->derivedFileManager->assertDerivedFile($sql, $method,
 				$dbmsName . '_create_' . $tableStructure->getName(),
 				'sql');
 
@@ -1756,6 +1784,38 @@ final class DBMSCommonTest extends TestCase
 			TypeDescription::getLocalName($connection));
 
 		return $result;
+	}
+
+	private function getMethodName($backLevel = 2)
+	{
+		return __CLASS__ . '::' .
+			debug_backtrace()[$backLevel]['function'];
+	}
+
+	private function getDBMSName(ConnectionInterface $connection)
+	{
+		$dbmsName = \preg_replace('/Connection/', '',
+			TypeDescription::getLocalName($connection));
+
+		$platform = $connection->getPlatform();
+		if ($connection instanceof PDOPlatform)
+		{
+			$base = $platform->getBasePlatform();
+
+			$baseName = \preg_replace('/Platform$/', '',
+				TypeDescription::getLocalName($base));
+
+			$dbmsName .= '_' . $base;
+		}
+
+		$version = $platform->getPlatformVersion(
+			K::PLATFORM_VERSION_COMPATIBILITY);
+		$versionString = $version->slice(SemanticVersion::MAJOR,
+			SemanticVersion::MINOR);
+
+		$dbmsName .= '_' . $versionString;
+
+		return $dbmsName;
 	}
 
 	/**

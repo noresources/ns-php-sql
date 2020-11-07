@@ -139,6 +139,15 @@ class PDOPlatform implements PlatformInterface,
 
 	/**
 	 *
+	 * @return \NoreSources\SQL\DBMS\PlatformInterface
+	 */
+	public function getBasePlatform()
+	{
+		return $this->basePlatform;
+	}
+
+	/**
+	 *
 	 * @var PDOConnection
 	 */
 	private $connection;
