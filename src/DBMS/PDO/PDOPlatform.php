@@ -127,6 +127,11 @@ class PDOPlatform implements PlatformInterface,
 		return $this->basePlatform->getPlatformVersion($kind);
 	}
 
+	public function getStructureFilenameFactory()
+	{
+		return $this->basePlatform->getStructureFilenameFactory();
+	}
+
 	public function getTimestampTypeStringFormat($type = 0)
 	{
 		return $this->basePlatform->getTimestampTypeStringFormat($type);

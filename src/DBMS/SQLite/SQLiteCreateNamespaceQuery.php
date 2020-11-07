@@ -11,6 +11,7 @@
 //
 namespace NoreSources\SQL\DBMS\SQLite;
 
+use NoreSources\Container;
 use NoreSources\SQL\DBMS\SQLite\SQLiteConstants as K;
 use NoreSources\SQL\Expression\Literal;
 use NoreSources\SQL\Expression\TokenStream;
@@ -33,10 +34,19 @@ class SQLiteCreateNamespaceQuery extends CreateNamespaceQuery
 	{
 		$platform = $context->getPlatform();
 
-		$path = $this->getNamespaceIdentifier() . '.sqlite';
+		$factory = $platform->getStructureFilenameFactory();
 		$structure = $context->findNamespace(
 			$this->getNamespaceIdentifier()
 				->getLocalName());
+
+		$path = $this->getNamespaceIdentifier() . '.sqlite';
+		if (!\is_callable($factory) &&
+			(Container::isTraversable($factory) ||
+			Container::isArray($factory)))
+			$factory = Container::createArray($factory);
+
+		if (\is_callable($factory))
+			$path = $factory($structure);
 
 		$path = new Literal($path, K::DATATYPE_STRING);
 

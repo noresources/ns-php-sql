@@ -14,9 +14,14 @@ class ReferencePlatform extends AbstractPlatform
 
 	const DEFAULT_VERSION = '1.0.0';
 
-	public function __construct($features = array())
+	public function __construct($parameters = array(),
+		$features = array())
 	{
-		parent::__construct(self::DEFAULT_VERSION);
+		parent::__construct(
+			\array_merge(
+				[
+					self::VERSION_CURRENT => self::DEFAULT_VERSION
+				], $parameters));
 		$this->initializeStatementFactory();
 		foreach ($features as $feature)
 			$this->setPlatformFeature($feature[0], $feature[1]);

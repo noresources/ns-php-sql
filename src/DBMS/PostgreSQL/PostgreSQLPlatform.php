@@ -32,10 +32,10 @@ class PostgreSQLPlatform extends AbstractPlatform implements
 	 */
 	const DEFAULT_VERSION = '7.3.0';
 
-	public function __construct(ConnectionInterface $connection,
-		$version = self::DEFAULT_VERSION)
+	public function __construct($parameters,
+		ConnectionInterface $connection)
 	{
-		parent::__construct($version);
+		parent::__construct($parameters);
 		$this->initializeStatementFactory();
 		$this->setConnection($connection);
 

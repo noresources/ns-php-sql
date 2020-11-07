@@ -84,6 +84,13 @@ class SQLiteConnection implements ConnectionInterface,
 	public function __construct($parameters)
 	{
 		$this->connection = null;
+		$platformParameters = [
+			K::CONNECTION_STRUCTURE_FILENAME_FACTORY
+		];
+		$this->platformParameters = Container::filter($parameters,
+			function ($k, $v) use ($platformParameters) {
+				return \in_array($k, $platformParameters);
+			});
 
 		$this->setTransactionBlockFactory(
 			function ($depth, $name) {
@@ -228,8 +235,11 @@ class SQLiteConnection implements ConnectionInterface,
 		if (!isset($this->platform))
 		{
 			$version = \Sqlite3::version();
-			$this->platform = new SQLitePlatform(
-				$version['versionString']);
+			$parameters = \array_merge($this->platformParameters,
+				[
+					K::PLATFORM_VERSION_CURRENT => $version['versionString']
+				]);
+			$this->platform = new SQLitePlatform($parameters);
 		}
 
 		return $this->platform;
@@ -448,4 +458,10 @@ class SQLiteConnection implements ConnectionInterface,
 	 * @var \SQLite3
 	 */
 	private $connection;
+
+	/**
+	 *
+	 * @var array
+	 */
+	private $platformParameters;
 }

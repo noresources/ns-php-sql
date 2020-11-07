@@ -182,6 +182,8 @@ class Constants
 	 */
 	const CONNECTION_STRUCTURE = 'structure';
 
+	const CONNECTION_STRUCTURE_FILENAME_FACTORY = 'structurefilefactory';
+
 	/**
 	 * DBMS version.
 	 * This may help Statement Builder togenerate a more accurate SQL string.
@@ -695,6 +697,8 @@ class Constants
 	 * @var string
 	 */
 	const METAFUNCTION_TIMESTAMP_FORMAT = 'timestampformat';
+
+	const PLATFORM_STRUCTURE_FILENAME_FACTORY = self::CONNECTION_STRUCTURE_FILENAME_FACTORY;
 
 	/**
 	 * DBMS current version

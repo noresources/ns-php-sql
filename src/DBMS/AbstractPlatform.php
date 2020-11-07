@@ -223,6 +223,11 @@ abstract class AbstractPlatform implements PlatformInterface
 		return Container::keyValue($this->versions, $kind, false);
 	}
 
+	public function getStructureFilenameFactory()
+	{
+		return $this->structureFilenameFactory;
+	}
+
 	public function getKeyword($keyword)
 	{
 		switch ($keyword)
@@ -354,9 +359,19 @@ abstract class AbstractPlatform implements PlatformInterface
 			($dflt === null) ? true : $dflt);
 	}
 
-	protected function __construct($version = self::DEFAULT_VERSION)
+	protected function __construct($parameters)
 	{
-		$version = new SemanticVersion($version);
+		if (!Container::isArray($parameters))
+			$parameters = [
+				self::VERSION_CURRENT => $parameters
+			];
+
+		$this->structureFilenameFactory = Container::keyValue(
+			$parameters, self::STRUCTURE_FILENAME_FACTORY);
+
+		$version = new SemanticVersion(
+			Container::keyValue($parameters, self::VERSION_CURRENT,
+				static::DEFAULT_VERSION));
 		$this->versions = [
 			self::VERSION_CURRENT => $version,
 			self::VERSION_COMPATIBILITY => new SemanticVersion(
@@ -398,6 +413,12 @@ abstract class AbstractPlatform implements PlatformInterface
 	 * @var SemanticVersion[]
 	 */
 	private $versions;
+
+	/**
+	 *
+	 * @var callable
+	 */
+	private $structureFilenameFactory;
 
 	/**
 	 *

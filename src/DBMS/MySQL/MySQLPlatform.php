@@ -28,10 +28,10 @@ class MySQLPlatform extends AbstractPlatform implements
 
 	const DEFAULT_VERSION = '4.0.0';
 
-	public function __construct(ConnectionInterface $connection,
-		$version)
+	public function __construct($parameters,
+		ConnectionInterface $connection)
 	{
-		parent::__construct($version);
+		parent::__construct($parameters);
 		$this->initializeStatementFactory();
 		$this->setConnection($connection);
 		$this->setPlatformFeature(

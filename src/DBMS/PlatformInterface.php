@@ -31,6 +31,13 @@ interface PlatformInterface extends FeatureQueryInterface,
 
 	/**
 	 *
+	 * @return callable A function taking a StructureElementInterface as parameter and returning an
+	 *         absolute file path.
+	 */
+	function getStructureFilenameFactory();
+
+	/**
+	 *
 	 * @param ColumnDescriptionInterface $column
 	 *        	Column description
 	 * @param number $constraintFlags
@@ -153,6 +160,8 @@ interface PlatformInterface extends FeatureQueryInterface,
 	 * @return string
 	 */
 	function quoteIdentifierPath($path);
+
+	const STRUCTURE_FILENAME_FACTORY = K::PLATFORM_STRUCTURE_FILENAME_FACTORY;
 
 	const VERSION_CURRENT = K::PLATFORM_VERSION_CURRENT;
 

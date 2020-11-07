@@ -83,6 +83,14 @@ class PDOConnection implements ConnectionInterface, TransactionInterface,
 	public function __construct($parameters)
 	{
 		$this->connection = null;
+		$platformParameters = [
+			K::CONNECTION_STRUCTURE_FILENAME_FACTORY
+		];
+		$this->platformParameters = Container::filter($parameters,
+			function ($k, $v) use ($platformParameters) {
+				return \in_array($k, $platformParameters);
+			});
+
 		$this->setTransactionBlockFactory(
 			function ($depth, $name) {
 				return new ReferenceTransactionBlock($this, $name);
@@ -220,19 +228,12 @@ class PDOConnection implements ConnectionInterface, TransactionInterface,
 			catch (\Exception $e)
 			{}
 
-			$platformClassName = [
-				ReferencePlatform::class,
-				[
-					$version
-				]
-			];
-
 			$platformClassName = Container::keyValue(
 				[
 					self::DRIVER_POSTGRESQL => PostgreSQLPlatform::class,
 					self::DRIVER_SQLITE => SQLitePlatform::class,
 					self::DRIVER_MYSQL => MySQLPlatform::class
-				], $this->driverName, $platformClassName);
+				], $this->driverName, ReferencePlatform::class);
 
 			$platformClass = new \ReflectionClass($platformClassName);
 
@@ -243,22 +244,14 @@ class PDOConnection implements ConnectionInterface, TransactionInterface,
 				else
 					$version = '0.0.0';
 
-			$platformConstructorArguments = Container::keyValue(
+			$platformParameters = \array_merge(
+				$this->platformParameters,
 				[
-					self::DRIVER_POSTGRESQL => [
-						$this,
-						$version
-					],
-					self::DRIVER_MYSQL => [
-						$this,
-						$version
-					]
-				], $this->driverName, [
-					$version
+					K::PLATFORM_VERSION_CURRENT => $version
 				]);
 
-			$basePlatform = $platformClass->newInstanceArgs(
-				$platformConstructorArguments);
+			$basePlatform = $platformClass->newInstance(
+				$platformParameters, $this);
 			$this->platform = new PDOPlatform($this, $basePlatform);
 		}
 
@@ -320,7 +313,6 @@ class PDOConnection implements ConnectionInterface, TransactionInterface,
 		{
 			$pdo = $this->connection->prepare(
 				TypeConversion::toString($statement));
-
 		}
 		else
 			throw new \InvalidArgumentException(
@@ -432,4 +424,10 @@ class PDOConnection implements ConnectionInterface, TransactionInterface,
 	 * @var string
 	 */
 	private $driverName;
+
+	/**
+	 *
+	 * @var array
+	 */
+	private $platformParameters;
 }

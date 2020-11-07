@@ -54,7 +54,8 @@ final class InsertTest extends \PHPUnit\Framework\TestCase
 
 		foreach ($builderFlags as $key => $platformFeatures)
 		{
-			$platformFeatures = new ReferencePlatform($platformFeatures);
+			$platformFeatures = new ReferencePlatform([],
+				$platformFeatures);
 			$context = new StatementTokenStreamContext(
 				$platformFeatures);
 			$context->setPivot($t);

@@ -10,6 +10,7 @@
 namespace NoreSources\Test;
 
 use NoreSources\Container;
+use NoreSources\Path;
 use NoreSources\TypeConversion;
 use NoreSources\TypeDescription;
 use NoreSources\SQL\Constants as K;
@@ -35,6 +36,14 @@ use NoreSources\SQL\Structure\TableStructure;
  */
 class ConnectionHelper
 {
+
+	public static function sqliteDatabaseFilenameFactory(
+		NamespaceStructure $namespace)
+	{
+		return Path::cleanup(
+			__DIR__ . '/../derived/SQLite/' . $namespace->getName() .
+			'.sqlite');
+	}
 
 	/**
 	 *

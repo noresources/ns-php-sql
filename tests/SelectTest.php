@@ -88,7 +88,7 @@ final class SelectTest extends \PHPUnit\Framework\TestCase
 		$tableStructure = $structure['ns_unittests']['Tasks'];
 		$this->assertInstanceOf(Structure\TableStructure::class,
 			$tableStructure);
-		$platform = new ReferencePlatform(
+		$platform = new ReferencePlatform([],
 			[
 				'with extended alias support' => [
 					[

@@ -45,7 +45,7 @@ final class CreateTest extends \PHPUnit\Framework\TestCase
 	{
 		$structure = $this->datasources->get('Company');
 		$tableStructure = $structure['ns_unittests']['Employees'];
-		$platform = new ReferencePlatform(
+		$platform = new ReferencePlatform([],
 			[
 				[
 					[
@@ -94,7 +94,7 @@ final class CreateTest extends \PHPUnit\Framework\TestCase
 	public function testCreateTableCompanyTables()
 	{
 		$structure = $this->datasources->get('Company');
-		$platform = new ReferencePlatform(
+		$platform = new ReferencePlatform([],
 			[
 				'or replace' => [
 					[

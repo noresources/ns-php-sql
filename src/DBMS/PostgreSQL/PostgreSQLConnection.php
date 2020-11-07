@@ -127,8 +127,10 @@ class PostgreSQLConnection implements ConnectionInterface,
 				if (\preg_match('/^[0-9]+(\.[0-9]+)*/', $info['server'],
 					$m))
 					$serverVersion = $m[0];
-				$this->platform = new PostgreSQLPlatform($this,
-					$serverVersion);
+				$this->platform = new PostgreSQLPlatform(
+					[
+						K::PLATFORM_VERSION_CURRENT => $serverVersion
+					], $this);
 			}
 		}
 

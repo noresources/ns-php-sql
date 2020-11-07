@@ -26,9 +26,9 @@ class SQLitePlatform extends AbstractPlatform
 
 	const DEFAULT_VERSION = '3.0.0';
 
-	public function __construct($version = self::DEFAULT_VERSION)
+	public function __construct($parameters = array())
 	{
-		parent::__construct($version);
+		parent::__construct($parameters);
 
 		$this->initializeStatementFactory(
 			[

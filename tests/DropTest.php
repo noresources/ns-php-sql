@@ -51,7 +51,7 @@ final class DropTest extends \PHPUnit\Framework\TestCase
 
 	public function testDropView()
 	{
-		$platform = new ReferencePlatform(
+		$platform = new ReferencePlatform([],
 			[
 				'scoped' => [
 					[

@@ -134,7 +134,10 @@ class MySQLConnection implements ConnectionInterface,
 			$version = MySQLPlatform::DEFAULT_VERSION;
 			if ($this->isConnected())
 				$version = $this->getServerLink()->server_version;
-			$this->platform = new MySQLPlatform($this, $version);
+			$this->platform = new MySQLPlatform(
+				[
+					K::PLATFORM_VERSION_CURRENT => $version
+				], $this);
 		}
 
 		return $this->platform;
