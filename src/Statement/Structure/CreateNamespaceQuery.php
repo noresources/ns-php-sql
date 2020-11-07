@@ -63,6 +63,7 @@ class CreateNamespaceQuery extends Statement
 	function tokenize(TokenStream $stream,
 		TokenStreamContextInterface $context)
 	{
+		$platform = $context->getPlatform();
 		$existsCondition = $platform->queryFeature(
 			[
 				K::PLATFORM_FEATURE_CREATE,

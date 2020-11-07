@@ -9,8 +9,10 @@
  */
 namespace NoreSources\SQL\DBMS\PDO;
 
+use NoreSources\Container;
 use NoreSources\SQL\Result\Recordset;
 use NoreSources\SQL\Result\RecordsetException;
+use NoreSources\SQL\Statement\ResultColumn;
 
 class PDORecordset extends Recordset
 {
@@ -40,6 +42,29 @@ class PDORecordset extends Recordset
 		{
 			$this->pdoFlags &= ~self::PDO_SCROLLABLE;
 		}
+
+		try
+		{
+			$map = $this->getResultColumns();
+			for ($i = 0; $i < $pdo->columnCount(); $i++)
+			{
+				$meta = $pdo->getColumnMeta($i);
+
+				if ($i < $map->count())
+					$column = $map->getColumn($i);
+				else
+				{
+					$pdoType = Container::keyValue($meta, 'pdo_type');
+					$dataType = PDOConnection::getDataTypeFromPDOType(
+						$pdoType);
+					$column = new ResultColumn($dataType);
+					$column->name = Container::keyValue($meta, 'name',
+						'column' . $i);
+				}
+			}
+		}
+		catch (\Exception $e)
+		{}
 	}
 
 	public function __destruct()

@@ -13,7 +13,6 @@ use NoreSources\SQL\DBMS\SQLite\SQLiteConstants as K;
 use NoreSources\SQL\Result\Recordset;
 use NoreSources\SQL\Statement\ResultColumn;
 use NoreSources\SQL\Statement\ResultColumnMap;
-use NoreSources\SQL\Statement\StatementOutputDataInterface;
 
 class SQLiteRecordset extends Recordset
 {
@@ -22,28 +21,25 @@ class SQLiteRecordset extends Recordset
 	{
 		parent::__construct($data);
 		$this->result = $result;
-		if (!($data instanceof StatementOutputDataInterface))
+		$map = $this->getResultColumns();
+		for ($i = 0; $i < $result->numColumns(); $i++)
 		{
-			$map = $this->getResultColumns();
-			for ($i = 0; $i < $result->numColumns(); $i++)
+			$column = null;
+			if ($i < $map->count())
+				$column = $map->getColumn($i);
+			else
 			{
-				$column = null;
-				if ($i < $map->count())
-					$column = $map->getColumn($i);
-				else
-				{
-					$column = new ResultColumn(K::DATATYPE_UNDEFINED);
-					$column->name = $result->columnName($i);
-				}
-
-				if ($column->getDataType() == K::DATATYPE_UNDEFINED)
-					$column->setColumnProperty(K::COLUMN_DATA_TYPE,
-						SQLiteConnection::dataTypeFromSQLiteDataType(
-							$result->columnType($i)));
-
-				if ($i >= $map->count())
-					$map->setColumn($i, $column);
+				$column = new ResultColumn(K::DATATYPE_UNDEFINED);
+				$column->name = $result->columnName($i);
 			}
+
+			if ($column->getDataType() == K::DATATYPE_UNDEFINED)
+				$column->setColumnProperty(K::COLUMN_DATA_TYPE,
+					SQLiteConnection::dataTypeFromSQLiteDataType(
+						$result->columnType($i)));
+
+			if ($i >= $map->count())
+				$map->setColumn($i, $column);
 		}
 	}
 

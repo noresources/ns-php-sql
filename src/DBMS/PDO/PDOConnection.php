@@ -320,12 +320,17 @@ class PDOConnection implements ConnectionInterface, TransactionInterface,
 		{
 			$pdo = $this->connection->prepare(
 				TypeConversion::toString($statement));
+
 		}
 		else
 			throw new \InvalidArgumentException(
 				'Invalid type ' . TypeDescription::getName($statement) .
 				' for statement argument. string or ' .
 				PDOPreparedStatementInterface::class . ' expected');
+
+		if ($pdo === false)
+			throw new ConnectionException($this,
+				'Failed to prepare statement');
 
 		if (Container::count($parameters))
 		{
