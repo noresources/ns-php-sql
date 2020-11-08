@@ -9,11 +9,22 @@
  */
 namespace NoreSources\SQL\Expression;
 
+use NoreSources\Container;
 use NoreSources\SQL\DataTypeProviderInterface;
 
 class Group implements TokenizableExpressionInterface,
 	DataTypeProviderInterface
 {
+
+	public static function createWithParameterList(
+		TokenizableExpressionInterface $leftOperand, ...$operands)
+	{
+		if (Container::count($operands) != 1)
+			throw \LogicException(
+				'Only 1 operand expected for ' . static::class . '. Got ' .
+				Container::count($operands));
+		return new Group(Container::firstValue($operands));
+	}
 
 	/**
 	 *

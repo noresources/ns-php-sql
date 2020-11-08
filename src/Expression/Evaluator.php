@@ -13,6 +13,7 @@ use Ferno\Loco;
 use Ferno\Loco\EmptyParser;
 use Ferno\Loco\LazyAltParser;
 use Ferno\Loco\StringParser;
+use NoreSources\Bitset;
 use NoreSources\Container;
 use NoreSources\SingletonTrait;
 use NoreSources\TypeDescription;
@@ -87,25 +88,23 @@ class Evaluator
 					PolishNotationOperation::SPACE),
 				'like' => new BinaryPolishNotationOperation('LIKE',
 					PolishNotationOperation::KEYWORD |
-					PolishNotationOperation::SPACE)
+					PolishNotationOperation::SPACE),
+				'~=' => new PolishNotationOperation(null, 0,
+					SmartCompare::class)
 			],
 			'*' => [
-				'between' => new BinaryPolishNotationOperation('IN',
+				'()' => new PolishNotationOperation(null, 0,
+					Group::class),
+				'between' => new PolishNotationOperation(null,
 					PolishNotationOperation::PRE_SPACE |
 					PolishNotationOperation::POST_WHITESPACE,
 					Between::class),
-				'in' => new BinaryPolishNotationOperation('IN',
+				'in' => new PolishNotationOperation(null,
 					PolishNotationOperation::PRE_SPACE |
-					PolishNotationOperation::POST_WHITESPACE,
-					MemberOf::class),
-				'!in' => new BinaryPolishNotationOperation('IN',
-					PolishNotationOperation::PRE_SPACE |
-					PolishNotationOperation::POST_WHITESPACE,
-					MemberOf::class),
-				'not in' => new BinaryPolishNotationOperation('IN',
-					PolishNotationOperation::PRE_SPACE |
-					PolishNotationOperation::POST_WHITESPACE,
-					MemberOf::class)
+					PolishNotationOperation::POST_WHITESPACE |
+					PolishNotationOperation::KEYWORD, MemberOf::class),
+				'~=' => new PolishNotationOperation(null, 0,
+					SmartCompare::class)
 			]
 		];
 	}
@@ -230,18 +229,11 @@ class Evaluator
 			}
 			else
 			{
-				$e = null;
-				foreach ($evaluable as $v)
-				{
-					$x = $this->evaluateEvaluable($v);
-					if ($e instanceof TokenizableExpressionInterface)
-						$e = new BinaryOperation(
-							BinaryOperation::LOGICAL_AND, $e, $x);
-					else
-						$e = $x;
-				}
-
-				return $e;
+				return new ExpressionList(
+					Container::map($evaluable,
+						function ($k, $v) {
+							return $this->evaluateEvaluable($v);
+						}));
 			}
 		}
 
@@ -314,7 +306,18 @@ class Evaluator
 	private function evaluatePolishNotationElement($key, $operands)
 	{
 		$key = \trim($key);
+		$toggleState = true;
 		$length = \strlen($key);
+		if (\strpos($key, 'not ') === 0)
+		{
+			$toggleState = false;
+			$key = \ltrim(\substr($key, 3));
+		}
+		elseif (\strpos($key, '!') === 0)
+		{
+			$toggleState = false;
+			$key = \substr($key, 1);
+		}
 
 		/*
 		 *  Automatically fix missing  [] around polish operation operands
@@ -330,18 +333,8 @@ class Evaluator
 				return $this->evaluateEvaluable($operand);
 			}, $operands);
 
-		// Group
-		if ($key == '()')
-		{
-			if (\count($operands) != 1)
-				throw new EvaluatorException(
-					'Group operator expect exactly one operand');
-
-			$operand = Container::firstValue($operands);
-			return new Group($operand);
-		}
 		// Function
-		elseif (\strpos($key, '()') === ($length - 2))
+		if (\strpos($key, '()') === ($length - 2))
 		{
 			if (\strpos($key, '@') === 0)
 				return new MetaFunctionCall(
@@ -365,28 +358,19 @@ class Evaluator
 				'Unable to evalate Polish notation "' . $key . '" => [' .
 				$c . ' argument(s)... ]');
 
-		if ($o->className === MemberOf::class)
-		{
-			$left = \array_shift($operands);
-			$include = true;
-			if ((\strpos($key, '!') === 0) ||
-				(\strpos($key, 'not ') === 0))
-				$include = false;
-			return new MemberOf($left, $operands, $include);
-		}
-		elseif ($o->className == Between::class)
-		{
-			$cls = new \ReflectionClass($o->className);
-			return $cls->newInstanceArgs($operands);
-		}
+		$cls = new \ReflectionClass($o->className);
+
+		if ($o->operator)
+			array_unshift($operands, $o->operator);
+		$instance = null;
+		if ($cls->hasMethod('createWithParameterList'))
+			$instance = $cls->getMethod('createWithParameterList')->invokeArgs(
+				null, $operands);
 		else
-		{
-			$cls = new \ReflectionClass($o->className);
-			return $cls->newInstanceArgs(
-				\array_merge([
-					$o->operator
-				], $operands));
-		}
+			$instance = $cls->newInstanceArgs($operands);
+		if ($instance instanceof ToggleableInterface)
+			$instance->toggle($toggleState);
+		return $instance;
 	}
 
 	/**
@@ -991,8 +975,10 @@ class Evaluator
 				'whitespace',
 				new Loco\StringParser(')')
 			],
-			function ($left, $_s1, $include, $_s2, $_po, $_s3, $right) {
-				return new MemberOf($left, $right, $include);
+			function ($left, $_s1, $include, $_s2, $_po, $_s3, $members) {
+				$instance = new MemberOf($left, $members);
+				$instance->toggle($include);
+				return $instance;
 			});
 
 		$between = new Loco\ConcParser(
@@ -1009,7 +995,8 @@ class Evaluator
 			],
 			function ($left, $s1, $between, $s2, $min, $s3, $nd, $s4,
 				$max) {
-				$x = new Between($left, $min, $max, $between);
+				$x = new Between($left, $min, $max);
+				$x->toggle($between);
 				return $x;
 			});
 
@@ -1127,21 +1114,21 @@ class Evaluator
 class PolishNotationOperation
 {
 
-	const PRE_WHITESPACE = 0x10;
+	const PRE_WHITESPACE = Bitset::BIT_01;
 
-	const PRE_SPACE = 0x30;
+	const PRE_SPACE = self::PRE_WHITESPACE | Bitset::BIT_02;
 
 	// (0x20 + 0x10);
-	const POST_WHITESPACE = 0x01;
+	const POST_WHITESPACE = Bitset::BIT_03;
 
-	const POST_SPACE = 0x03;
+	const POST_SPACE = self::POST_WHITESPACE | Bitset::BIT_04;
 
 	// (0x02 + 0x01);
-	const WHITESPACE = 0x11;
+	const WHITESPACE = self::PRE_WHITESPACE | self::POST_WHITESPACE;
 
-	const SPACE = 0x33;
+	const SPACE = self::PRE_SPACE | self::POST_SPACE;
 
-	const KEYWORD = 0x04;
+	const KEYWORD = Bitset::BIT_05;
 
 	public $operator;
 
@@ -1151,24 +1138,6 @@ class PolishNotationOperation
 
 	public function __construct($key, $flags, $className)
 	{
-		$builder = debug_backtrace();
-		$context = null;
-		if (count($builder) >= 2 && isset($builder[1]['class']))
-		{
-			$context = $builder[1]['class'];
-		}
-
-		if (!($context &&
-			($context == Evaluator::class ||
-			is_subclass_of($context, self::class, true))))
-		{
-			$context = ($context ? $context : 'global');
-			throw new EvaluatorException(
-				self::class . ' is a private class of ' .
-				Evaluator::class . ' (not allowed in ' . $context .
-				' context)');
-		}
-
 		$this->operator = $key;
 		$this->flags = $flags;
 		$this->className = $className;

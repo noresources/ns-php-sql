@@ -12,38 +12,53 @@ namespace NoreSources\SQL\Expression;
 use NoreSources\Expression\Set;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DataTypeProviderInterface;
+use NoreSources\SQL\Expression\Traits\ToggleableTrait;
 
 /**
  * IN(), NOT IN() SQL operator
  */
 class MemberOf extends Set implements TokenizableExpressionInterface,
-	DataTypeProviderInterface
+	DataTypeProviderInterface, ToggleableInterface
 {
-
-	/**
-	 * Indicate if the left operand should be a member of the set or not
-	 *
-	 * @var boolean
-	 */
-	public $memberOf;
+	use ToggleableTrait;
 
 	/**
 	 *
 	 * @param TokenizableExpressionInterface $leftOperand
-	 * @param array $expressionList
-	 *        	List of expression
-	 * @param boolean $memberOf
-	 *        	Indicate if @c $leftOperand should be a momber of the @c $expressionList or not
+	 * @param Evaluable ...$members
+	 * @return \MemberOf
+	 */
+	public static function createWithParameterList(
+		TokenizableExpressionInterface $leftOperand, ...$members)
+	{
+		return new MemberOf($leftOperand,
+			ExpressionList::flatten(...$members));
+	}
+
+	/**
+	 *
+	 * @param TokenizableExpressionInterface $leftOperand
+	 * @param Evaluable[] $members
 	 */
 	public function __construct(
-		TokenizableExpressionInterface $leftOperand,
-		$expressionList = array(), $memberOf = true)
+		TokenizableExpressionInterface $leftOperand, $members)
 	{
 		parent::__construct();
 		$this->leftOperand = $leftOperand;
-		$this->memberOf = $memberOf;
-		foreach ($expressionList as $x)
+		foreach ($members as $x)
 			$this->append(Evaluator::evaluate($x));
+	}
+
+	/**
+	 *
+	 * @param Evaluable[] $members
+	 * @return \NoreSources\SQL\Expression\MemberOf
+	 */
+	public function members($members)
+	{
+		foreach ($members as $x)
+			$this->append(Evaluator::evaluate($x));
+		return $this;
 	}
 
 	/**
@@ -55,7 +70,7 @@ class MemberOf extends Set implements TokenizableExpressionInterface,
 		TokenStreamContextInterface $context)
 	{
 		$stream->expression($this->leftOperand, $context);
-		if (!$this->memberOf)
+		if (!$this->getToggleState())
 			$stream->space()->keyword('NOT');
 		$stream->space()
 			->keyword('IN')

@@ -11,7 +11,10 @@
 //
 namespace NoreSources\SQL\Statement\Traits;
 
+use NoreSources\Container;
+use NoreSources\SQL\Expression\BinaryOperation;
 use NoreSources\SQL\Expression\Evaluator;
+use NoreSources\SQL\Expression\Group;
 use NoreSources\SQL\Expression\TokenizableExpressionInterface;
 
 trait ConstraintExpressionListTrait
@@ -24,10 +27,25 @@ trait ConstraintExpressionListTrait
 	 *        	Array to which constraints definition are added.
 	 * @param Evaluable[] $args
 	 *        	List of constraints.
-	 * @return \NoreSources\SQL\Statement\Statement
+	 * @return $this
 	 */
 	protected function addConstraints(\ArrayObject $constraints, $args)
 	{
+		if ($constraints->count() && Container::count($args))
+		{
+			$a = $constraints->getArrayCopy();
+			$left = \array_pop($a);
+			while (Container::count($a))
+			{
+				$right = \array_pop($a);
+				$left = new BinaryOperation('AND', $left, $right);
+			}
+
+			$constraints->exchangeArray([
+				new Group($left)
+			]);
+		}
+
 		foreach ($args as $x)
 		{
 			if (!($x instanceof TokenizableExpressionInterface))

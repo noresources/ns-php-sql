@@ -1,7 +1,11 @@
 <?php
 namespace NoreSources\SQL\Expression;
 
+use NoreSources\Container;
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\DBMS\Reference\ReferencePlatform;
+use NoreSources\SQL\Statement\StatementBuilder;
+use NoreSources\SQL\Structure\VirtualStructureResolver;
 use NoreSources\Test\DatasourceManager;
 
 final class ExpressionEvaluatorTest extends \PHPUnit\Framework\TestCase
@@ -99,8 +103,7 @@ final class ExpressionEvaluatorTest extends \PHPUnit\Framework\TestCase
 			$this->assertInstanceOf(Literal::class, $e, $label);
 			if ($e instanceof Literal)
 			{
-				$this->assertEquals($e->getDataType(),
-					$test[1], $label);
+				$this->assertEquals($e->getDataType(), $test[1], $label);
 			}
 		}
 	}
@@ -315,8 +318,72 @@ final class ExpressionEvaluatorTest extends \PHPUnit\Framework\TestCase
 					Literal::class,
 					Parameter::class
 				]
+			],
+			'smart equal' => [
+				'expression' => [
+					'~=' => [
+						':param',
+						7
+					]
+				],
+				'main' => SmartCompare::class,
+				'sql' => '$param = 7'
+			],
+			'smart (not) is null' => [
+				'expression' => [
+					'!~=' => [
+						':param',
+						null
+					]
+				],
+				'main' => SmartCompare::class,
+				'sql' => '$param IS NOT NULL'
+			],
+			'smart in (array style)' => [
+				'expression' => [
+					'~=' => [
+						'table.column',
+						[
+							1,
+							"'text'"
+						]
+					]
+				],
+				'main' => SmartCompare::class,
+				'sql' => '[table].[column] IN (1, \'text\')'
+			],
+			'smart in (list style)' => [
+				'expression' => [
+					'~=' => [
+						'table.column',
+						1,
+						"'text'"
+					]
+				],
+				'main' => SmartCompare::class,
+				'sql' => '[table].[column] IN (1, \'text\')'
+			],
+			'not between' => [
+				'expression' => [
+					"!between" => [
+						'architecture',
+						16,
+						64
+					]
+				],
+				'main' => Between::class,
+				'validator' => function ($label, Between $x) {
+					$this->assertFalse($x->getToggleState(),
+						'NOT between');
+					$this->assertInstanceOf(Column::class,
+						$x->getLeftOperand(), $label . ' left operand');
+				}
 			]
 		];
+
+		$builder = new StatementBuilder();
+		$vsr = new VirtualStructureResolver();
+		$platform = new ReferencePlatform();
 
 		foreach ($expressions as $label => $test)
 		{
@@ -345,6 +412,19 @@ final class ExpressionEvaluatorTest extends \PHPUnit\Framework\TestCase
 							$x->getArgument($i), $label . ' arg ' . $i);
 					}
 				}
+			}
+
+			if (($sql = Container::keyValue($test, 'sql')))
+			{
+				$data = $builder->build($x, $platform, $vsr);
+				$this->assertEquals($sql, \strval($data),
+					$label . ' SQL');
+			}
+
+			if (\is_callable(
+				$validator = Container::keyValue($test, 'validator')))
+			{
+				\call_user_func($validator, $label, $x);
 			}
 		}
 	}

@@ -9,8 +9,8 @@
  */
 namespace NoreSources\SQL\Expression;
 
-use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DataTypeProviderInterface;
+use NoreSources\SQL\Expression\Traits\ToggleableTrait;
 
 /**
  * Shorthand expression for SQL BETWEEN operator.
@@ -18,15 +18,23 @@ use NoreSources\SQL\DataTypeProviderInterface;
  * expression BETWEEN expression AND expression
  */
 class Between implements TokenizableExpressionInterface,
-	DataTypeProviderInterface
+	DataTypeProviderInterface, ToggleableInterface
 {
 
+	use ToggleableTrait;
+
 	/**
-	 * Indicate if the left operand must be inside or ouside the range
 	 *
-	 * @var boolean
+	 * @param Evaluable $leftOperand
+	 * @param Evaluable $min
+	 * @param Evaluable $max
 	 */
-	public $inside;
+	public static function createWithParameterList($leftOperand, $min,
+		$max)
+	{
+		return new Between(Evaluator::evaluate($leftOperand),
+			Evaluator::evaluate($min), Evaluator::evaluate($max));
+	}
 
 	/**
 	 *
@@ -37,10 +45,11 @@ class Between implements TokenizableExpressionInterface,
 	public function __construct(
 		TokenizableExpressionInterface $leftOperand,
 		TokenizableExpressionInterface $min,
-		TokenizableExpressionInterface $max, $inside = true)
+		TokenizableExpressionInterface $max)
+
 	{
-		$this->inside = true;
 		$this->leftOperand = $leftOperand;
+
 		$this->range = [
 			$min,
 			$max
@@ -97,7 +106,7 @@ class Between implements TokenizableExpressionInterface,
 		TokenStreamContextInterface $context)
 	{
 		$stream->expression($this->leftOperand, $context);
-		if (!$this->inside)
+		if (!$this->getToggleState())
 			$stream->space()->text('NOT');
 
 		return $stream->space()

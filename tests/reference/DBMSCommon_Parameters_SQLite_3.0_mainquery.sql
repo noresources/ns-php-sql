@@ -3,7 +3,7 @@ SELECT
 FROM 
   "Namespace" AS "n" 
 WHERE 
-  "Namespace"."name" = :nsname 
+  ("Namespace"."name" = :nsname) 
   AND "Namespace"."classId" IN (
     SELECT 
       "Classes"."id" AS "classId" 

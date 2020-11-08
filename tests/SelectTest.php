@@ -41,12 +41,18 @@ final class SelectTest extends \PHPUnit\Framework\TestCase
 		$q->columns('name');
 
 		$q->where(
-			new MemberOf(ExpressionHelper::column('id'), [
-				2,
-				4,
-				6,
-				8
-			]), "name like 'Jean%'");
+			[
+				'or' => [
+					new MemberOf(ExpressionHelper::column('id'),
+						[
+							2,
+							4,
+							6,
+							8
+						]),
+					"name like 'Jean%'"
+				]
+			])->where("name != 'Jean-Claude'");
 
 		$result =  StatementBuilder::getInstance() ($q, $platform, $tableStructure);
 

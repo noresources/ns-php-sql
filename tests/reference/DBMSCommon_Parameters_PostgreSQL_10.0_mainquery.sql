@@ -3,7 +3,7 @@ SELECT
 FROM 
   "Namespace" AS "n" 
 WHERE 
-  "Namespace"."name" = $1 
+  ("Namespace"."name" = $1) 
   AND "Namespace"."classId" IN (
     SELECT 
       "Classes"."id" AS "classId" 
