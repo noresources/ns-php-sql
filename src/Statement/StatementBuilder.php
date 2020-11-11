@@ -63,10 +63,26 @@ class StatementBuilder
 
 		foreach ($stream as $token)
 		{
-			$value = $token[TokenStream::INDEX_TOKEN];
+
 			$type = $token[TokenStream::INDEX_TYPE];
 
-			if ($type == K::TOKEN_PARAMETER)
+			if ($type == K::TOKEN_COMMENT)
+				continue;
+
+			if ($type == K::TOKEN_SPACE)
+			{
+				$sql .= ' ';
+				continue;
+			}
+
+			$value = $token[TokenStream::INDEX_TOKEN];
+
+			if ($type == K::TOKEN_KEYWORD)
+			{
+				if (\is_integer($value))
+					$value = $context->getPlatform()->getKeyword($value);
+			}
+			elseif ($type == K::TOKEN_PARAMETER)
 			{
 				$name = \strval($value);
 				$dbmsName = $context->getPlatform()->getParameter($name,

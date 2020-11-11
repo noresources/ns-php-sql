@@ -474,22 +474,22 @@ class Constants
 	 *
 	 * @var integer
 	 */
-	const KEYWORD_CURRENT_TIMESTAMP = 'currenttimestamp';
+	const KEYWORD_CURRENT_TIMESTAMP = 1;
 
 	/**
 	 * NULL keyword
 	 *
 	 * @var integer
 	 */
-	const KEYWORD_NULL = 'null';
+	const KEYWORD_NULL = 2;
 
-	const KEYWORD_TRUE = 'true';
+	const KEYWORD_TRUE = 3;
 
-	const KEYWORD_FALSE = 'false';
+	const KEYWORD_FALSE = 4;
 
-	const KEYWORD_DEFAULT = 'default';
+	const KEYWORD_DEFAULT = 5;
 
-	const KEYWORD_AUTOINCREMENT = 'autoincrement';
+	const KEYWORD_AUTOINCREMENT = 6;
 
 	/**
 	 * Name of the object containing table.
@@ -498,14 +498,14 @@ class Constants
 	 *
 	 * @var string
 	 */
-	const KEYWORD_NAMESPACE = 'namespace';
+	const KEYWORD_NAMESPACE = 7;
 
 	/**
 	 * TEMPORARY attribute used in temporary structure element creation.
 	 *
 	 * @var string
 	 */
-	const KEYWORD_TEMPORARY = 'temporary';
+	const KEYWORD_TEMPORARY = 8;
 
 	/**
 	 * Ascending ORDER BY
@@ -565,6 +565,8 @@ class Constants
 	const TOKEN_TEXT = 4;
 
 	const TOKEN_PARAMETER = 5;
+
+	const TOKEN_COMMENT = 6;
 
 	// Query types
 	const QUERY_SELECT = Bitset::BIT_01;

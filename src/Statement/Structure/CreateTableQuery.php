@@ -134,8 +134,7 @@ class CreateTableQuery extends Statement implements
 				->space()
 				->keyword('replace');
 		if (($this->createFlags & self::TEMPORARY) && $temporarySupport)
-			$stream->space()->keyword(
-				$platform->getKeyword(K::KEYWORD_TEMPORARY));
+			$stream->space()->keyword(K::KEYWORD_TEMPORARY);
 		$stream->space()->keyword('table');
 
 		if ($existsCondition)

@@ -19,6 +19,8 @@ class TokenStream implements \IteratorAggregate, \Countable,
 	ArrayRepresentation, \JsonSerializable
 {
 
+	const COMMENT = K::TOKEN_COMMENT;
+
 	const IDENTIFIER = K::TOKEN_IDENTIFIER;
 
 	const KEYWORD = K::TOKEN_KEYWORD;
@@ -47,7 +49,10 @@ class TokenStream implements \IteratorAggregate, \Countable,
 	 */
 	public function space()
 	{
-		return $this->append(' ', K::TOKEN_SPACE);
+		$this->tokens->append([
+			self::INDEX_TYPE => self::SPACE
+		]);
+		return $this;
 	}
 
 	/**
@@ -77,13 +82,15 @@ class TokenStream implements \IteratorAggregate, \Countable,
 	/**
 	 * Add SQL syntax keyword to stream
 	 *
-	 * @param string $value
-	 *        	Keyword
+	 * @param string|integer $value
+	 *        	Keyword identifier or keyword value
 	 * @return $this
 	 */
 	public function keyword($value)
 	{
-		return $this->append(\strtoupper(trim($value)), K::TOKEN_KEYWORD);
+		if (\is_string($value))
+			$value = \strtoupper(\trim($value));
+		return $this->append($value, K::TOKEN_KEYWORD);
 	}
 
 	/**
@@ -107,6 +114,16 @@ class TokenStream implements \IteratorAggregate, \Countable,
 	public function parameter($value)
 	{
 		return $this->append($value, K::TOKEN_PARAMETER);
+	}
+
+	/**
+	 *
+	 * @param string $value
+	 * @return $this
+	 */
+	public function comment($value)
+	{
+		return $this->append($value, self::COMMENT);
 	}
 
 	/**
