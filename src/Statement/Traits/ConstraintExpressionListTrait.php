@@ -12,10 +12,10 @@
 namespace NoreSources\SQL\Statement\Traits;
 
 use NoreSources\Container;
+use NoreSources\Expression\ExpressionInterface;
 use NoreSources\SQL\Expression\BinaryOperation;
 use NoreSources\SQL\Expression\Evaluator;
 use NoreSources\SQL\Expression\Group;
-use NoreSources\SQL\Expression\TokenizableExpressionInterface;
 
 trait ConstraintExpressionListTrait
 {
@@ -48,7 +48,7 @@ trait ConstraintExpressionListTrait
 
 		foreach ($args as $x)
 		{
-			if (!($x instanceof TokenizableExpressionInterface))
+			if (!($x instanceof ExpressionInterface))
 				$x = Evaluator::evaluate($x);
 
 			$constraints->append($x);

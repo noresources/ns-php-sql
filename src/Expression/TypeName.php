@@ -22,7 +22,7 @@ class TypeName implements TokenizableExpressionInterface
 
 	/**
 	 *
-	 * @param \NoreSources\SQL\Structure\ColumnDescriptionInterface|\NoreSources\SQL\DBMS\TypeInterface $type
+	 * @param ColumnDescriptionInterface|TypeInterface $type
 	 */
 	public function __construct($type)
 	{
@@ -31,7 +31,7 @@ class TypeName implements TokenizableExpressionInterface
 
 	/**
 	 *
-	 * @return \NoreSources\SQL\Structure\ColumnDescriptionInterface|\NoreSources\SQL\DBMS\TypeInterface
+	 * @return ColumnDescriptionInterface|TypeInterface
 	 */
 	public function getType()
 	{
@@ -40,7 +40,7 @@ class TypeName implements TokenizableExpressionInterface
 
 	/**
 	 *
-	 * @param \NoreSources\SQL\Structure\ColumnDescriptionInterface|\NoreSources\SQL\DBMS\TypeInterface $type
+	 * @param ColumnDescriptionInterface|TypeInterface $type
 	 */
 	public function setType($type)
 	{
@@ -98,7 +98,7 @@ class TypeName implements TokenizableExpressionInterface
 
 	/**
 	 *
-	 * @var \NoreSources\SQL\Structure\ColumnDescriptionInterface|\NoreSources\SQL\DBMS\TypeInterface
+	 * @var ColumnDescriptionInterface|TypeInterface
 	 */
 	private $type;
 }

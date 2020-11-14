@@ -20,7 +20,7 @@ use NoreSources\SQL\DBMS\StringSerializerInterface;
 use NoreSources\SQL\DBMS\TransactionInterface;
 use NoreSources\SQL\DBMS\TransactionStackTrait;
 use NoreSources\SQL\DBMS\MySQL\MySQLConstants as K;
-use NoreSources\SQL\Expression\Literal;
+use NoreSources\SQL\Expression\Evaluator;
 use NoreSources\SQL\Result\DefaultInsertionStatementResult;
 use NoreSources\SQL\Result\DefaultRowModificationStatementResult;
 use NoreSources\SQL\Statement\ParameterData;
@@ -309,7 +309,7 @@ class MySQLConnection implements ConnectionInterface,
 		if ($p instanceof ParameterValue)
 			$dataType = $p->type;
 		else
-			$dataType = Literal::dataTypeFromValue($p);
+			$dataType = Evaluator::getInstance()->getDataType($p);
 
 		if ($dataType == K::DATATYPE_INTEGER)
 			return 'i';

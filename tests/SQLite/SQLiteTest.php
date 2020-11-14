@@ -273,7 +273,7 @@ final class SQLiteTest extends \PHPUnit\Framework\TestCase
 				$token . ' translation rule exists');
 		}
 
-		$timestamp = '2010-11-12 13:14:15+02:00';
+		$timestamp = new DateTime('2010-11-12 13:14:15+02:00');
 
 		$tests = [
 			'date' => [

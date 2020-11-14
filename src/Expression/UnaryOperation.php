@@ -29,11 +29,8 @@ class UnaryOperation extends xpr\UnaryOperation implements
 	public function tokenize(TokenStream $stream,
 		TokenStreamContextInterface $context)
 	{
-		$stream->text($this->getOperator());
-		if (\preg_match('/[a-z][0-9]/i', $this->getOperator()))
-			$stream->space();
-
-		return $stream->expression($this->getOperand(), $context);
+		return Tokenizer::getInstance()->tokenizeUnaryOperation($this,
+			$stream, $context);
 	}
 
 	public function getDataType()
@@ -41,7 +38,7 @@ class UnaryOperation extends xpr\UnaryOperation implements
 		switch ($this->getOperator())
 		{
 			case self::MINUS:
-				return ExpressionHelper::getDataType(
+				return Evaluator::getInstance()->getDataType(
 					$this->getOperand());
 			case self::BITWISE_NOT:
 				return K::DATATYPE_INTEGER;

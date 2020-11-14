@@ -11,7 +11,7 @@
 //
 namespace NoreSources\SQL\Statement\Traits;
 
-use NoreSources\Expression\Expression;
+use NoreSources\Expression\ExpressionInterface;
 use NoreSources\SQL\Expression\Evaluator;
 
 /**
@@ -37,12 +37,14 @@ trait ColumnValueTrait
 	{
 		$args = func_get_args();
 		if (count($args) != 2)
-			throw new \BadMethodCallException(__CLASS__ . ' invokation expects exactly 2 arguments');
+			throw new \BadMethodCallException(
+				__CLASS__ . ' invokation expects exactly 2 arguments');
 
 		if (!\is_string($args[0]))
-			throw new \InvalidArgumentException(__CLASS__ . '() first argument expects string');
+			throw new \InvalidArgumentException(
+				__CLASS__ . '() first argument expects string');
 
-		$this->setColumnValue($args[0], $args[1], true);
+		$this->setColumnData($args[0], $args[1], true);
 	}
 
 	/**
@@ -50,15 +52,17 @@ trait ColumnValueTrait
 	 * @param string $columnName
 	 * @param mixed $columnValue
 	 * @param boolean $evaluate
-	 *        	If @c true, the value will be evaluated at build stage. Otherwise, the value is considered as a
+	 *        	If @c true, the value will be evaluated at build stage. Otherwise, the value is
+	 *        	considered as a
 	 *        	literal of the same type as the column data type..
 	 *        	If @c null, the
 	 * @return \NoreSources\SQL\Statement\Manipulation\UpdateQuery
 	 */
-	public function setColumnValue($columnName, $columnValue, $evaluate = null)
+	public function setColumnData($columnName, $columnValue,
+		$evaluate = null)
 	{
 		if ($evaluate === null)
-			$evaluate = !($columnName instanceof Expression);
+			$evaluate = !($columnName instanceof ExpressionInterface);
 
 		if ($evaluate)
 			$columnValue = Evaluator::evaluate($columnValue);
@@ -103,7 +107,7 @@ trait ColumnValueTrait
 	public function offsetSet($offset, $value)
 	{
 		$evaluate = false;
-		$this->setColumnValue($offset, $value, $evaluate);
+		$this->setColumnData($offset, $value, $evaluate);
 	}
 
 	/**
@@ -120,7 +124,7 @@ trait ColumnValueTrait
 	 *
 	 * @var \ArrayObject Associative array where
 	 *      keys are column names
-	 *      and values are \NoreSources\SQL\TokenizableExpressionInterface
+	 *      and values are ExpressionInterface
 	 */
 	private $columnValues;
 }

@@ -9,9 +9,9 @@
  */
 namespace NoreSources\SQL\Expression;
 
-use NoreSources\Expression as xpr;
+use NoreSources\Expression\ExpressionInterface;
 
-interface TokenizableExpressionInterface extends xpr\Expression
+interface TokenizableExpressionInterface extends ExpressionInterface
 {
 
 	/**
@@ -20,5 +20,6 @@ interface TokenizableExpressionInterface extends xpr\Expression
 	 * @see \NoreSources\SQL\TokenizableExpressionInterface::tokenize()
 	 * @return TokenStream
 	 */
-	function tokenize(TokenStream $stream, TokenStreamContextInterface $context);
+	function tokenize(TokenStream $stream,
+		TokenStreamContextInterface $context);
 }

@@ -9,6 +9,7 @@
  */
 namespace NoreSources\SQL\Expression;
 
+use NoreSources\Expression\ExpressionInterface;
 use NoreSources\SQL\DataTypeProviderInterface;
 use NoreSources\SQL\Expression\Traits\ToggleableTrait;
 
@@ -38,14 +39,12 @@ class Between implements TokenizableExpressionInterface,
 
 	/**
 	 *
-	 * @param TokenizableExpressionInterface $leftOperand
-	 * @param TokenizableExpressionInterface $min
-	 * @param TokenizableExpressionInterface $max
+	 * @param ExpressionInterface $leftOperand
+	 * @param ExpressionInterface $min
+	 * @param ExpressionInterface $max
 	 */
-	public function __construct(
-		TokenizableExpressionInterface $leftOperand,
-		TokenizableExpressionInterface $min,
-		TokenizableExpressionInterface $max)
+	public function __construct(ExpressionInterface $leftOperand,
+		ExpressionInterface $min, ExpressionInterface $max)
 
 	{
 		$this->leftOperand = $leftOperand;
@@ -63,7 +62,7 @@ class Between implements TokenizableExpressionInterface,
 
 	/**
 	 *
-	 * @return \NoreSources\SQL\Expression\TokenizableExpressionInterface
+	 * @return ExpressionInterface
 	 */
 	public function getLeftOperand()
 	{
@@ -72,7 +71,7 @@ class Between implements TokenizableExpressionInterface,
 
 	/**
 	 *
-	 * @return array<integer,TokenizableExpressionInterface>
+	 * @return ExpressionInterface
 	 */
 	public function getRange()
 	{
@@ -81,7 +80,7 @@ class Between implements TokenizableExpressionInterface,
 
 	/**
 	 *
-	 * @return TokenizableExpressionInterface Range min boundary
+	 * @return ExpressionInterface Range min boundary
 	 */
 	public function getMin()
 	{
@@ -90,18 +89,13 @@ class Between implements TokenizableExpressionInterface,
 
 	/**
 	 *
-	 * @return TokenizableExpressionInterface Range max boundary
+	 * @return ExpressionInterface Range max boundary
 	 */
 	public function getMax()
 	{
 		return $this->range[1];
 	}
 
-	/**
-	 *
-	 * {@inheritdoc}
-	 * @see \NoreSources\SQL\TokenizableExpressionInterface::tokenize()
-	 */
 	public function tokenize(TokenStream $stream,
 		TokenStreamContextInterface $context)
 	{
@@ -121,13 +115,13 @@ class Between implements TokenizableExpressionInterface,
 
 	/**
 	 *
-	 * @var TokenizableExpressionInterface
+	 * @var ExpressionInterface
 	 */
 	private $leftOperand;
 
 	/**
 	 *
-	 * @var \array<integer,TokenizableExpressionInterface>
+	 * @var ExpressionInterface[]
 	 */
 	private $range;
 }

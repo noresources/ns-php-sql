@@ -12,16 +12,17 @@
 namespace NoreSources\SQL\Statement\Query;
 
 use NoreSources\Container;
+use NoreSources\Expression\ExpressionInterface;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DataTypeProviderInterface;
 use NoreSources\SQL\Expression\Column;
 use NoreSources\SQL\Expression\DataRowContainerReference;
+use NoreSources\SQL\Expression\Evaluable;
 use NoreSources\SQL\Expression\Evaluator;
 use NoreSources\SQL\Expression\Table;
 use NoreSources\SQL\Expression\TableReference;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Expression\TokenStreamContextInterface;
-use NoreSources\SQL\Expression\TokenizableExpressionInterface;
 use NoreSources\SQL\Statement\Statement;
 use NoreSources\SQL\Statement\StatementException;
 use NoreSources\SQL\Statement\Traits\ConstraintExpressionListTrait;
@@ -105,7 +106,7 @@ class SelectQuery extends Statement
 				else
 					$expression = $arg;
 
-				if (!($expression instanceof TokenizableExpressionInterface))
+				if (!($expression instanceof ExpressionInterface))
 					$expression = Evaluator::evaluate($expression);
 
 				$this->resultColumns->append(
@@ -247,7 +248,7 @@ class SelectQuery extends Statement
 	public function orderBy($reference, $direction = K::ORDERING_ASC,
 		$collation = null)
 	{
-		if (!($reference instanceof TokenizableExpressionInterface))
+		if (!($reference instanceof ExpressionInterface))
 			$reference = Evaluator::evaluate($reference);
 
 		if (!($this->orderByClauses instanceof \ArrayObject))
@@ -647,7 +648,7 @@ class ResultColumnReference
 	/**
 	 * Result column
 	 *
-	 * @var TokenizableExpressionInterface
+	 * @var ExpressionInterface
 	 */
 	public $expression;
 
@@ -660,11 +661,10 @@ class ResultColumnReference
 	/**
 	 *
 	 * @param
-	 *        	TokenizableExpressionInterface
+	 *        	ExpressionInterface
 	 * @param string $alias
 	 */
-	public function __construct(
-		TokenizableExpressionInterface $expression, $alias)
+	public function __construct(ExpressionInterface $expression, $alias)
 	{
 		$this->expression = $expression;
 		$this->alias = $alias;

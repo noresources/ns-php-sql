@@ -11,6 +11,10 @@ namespace NoreSources\SQL;
 
 use NoreSources\SQL\Structure\ColumnDescriptionInterface;
 
+/**
+ * Provide an API for classes that can transform PHP value and objects to
+ * something understandable by the target DBMS
+ */
 interface DataSerializerInterface
 {
 
@@ -24,4 +28,17 @@ interface DataSerializerInterface
 	 */
 	function serializeColumnData(
 		ColumnDescriptionInterface $description, $data);
+
+	/**
+	 * Serialize a data of a given type
+	 *
+	 * @param mixed $data
+	 *        	Data to serialize/quote
+	 * @param integer $dataType
+	 *        	Data type
+	 *
+	 *  @note This method is a less accurate version of serializeColumnData() thant only take
+	 *        	care of the value type. It should be used internaly by serializeColumnData() implementations for the most basic cases.
+	 */
+	function serializeData($data, $dataType);
 }

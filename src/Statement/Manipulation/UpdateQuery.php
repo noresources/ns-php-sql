@@ -11,11 +11,11 @@
 //
 namespace NoreSources\SQL\Statement\Manipulation;
 
+use NoreSources\Expression\ExpressionInterface;
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\Expression\Literal;
+use NoreSources\SQL\Expression\ColumnData;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Expression\TokenStreamContextInterface;
-use NoreSources\SQL\Expression\TokenizableExpressionInterface;
 use NoreSources\SQL\Statement\Statement;
 use NoreSources\SQL\Statement\StatementException;
 use NoreSources\SQL\Statement\Traits\ColumnValueTrait;
@@ -89,14 +89,10 @@ class UpdateQuery extends Statement implements \ArrayAccess
 			 * @var ColumnStructure $column
 			 */
 
-			if (!($value instanceof TokenizableExpressionInterface))
+			if (!($value instanceof ExpressionInterface))
 			{
 				$type = K::DATATYPE_UNDEFINED;
-				if ($column->hasColumnProperty(K::COLUMN_DATA_TYPE))
-					$type = $column->getColumnProperty(
-						K::COLUMN_DATA_TYPE);
-
-				$value = new Literal($value, $type);
+				$value = new ColumnData($value, $column);
 			}
 
 			$stream->identifier(

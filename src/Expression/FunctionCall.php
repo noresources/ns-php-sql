@@ -13,8 +13,11 @@ use NoreSources\Expression\ProcedureInvocation;
 
 /**
  * SQL function call expression
+ *
+ * @deprecated Use ProcedureInvocation directly
  */
-class FunctionCall extends ProcedureInvocation implements TokenizableExpressionInterface
+class FunctionCall extends ProcedureInvocation implements
+	TokenizableExpressionInterface
 {
 
 	/**
@@ -27,33 +30,10 @@ class FunctionCall extends ProcedureInvocation implements TokenizableExpressionI
 		parent::__construct($name, $arguments);
 	}
 
-	/**
-	 *
-	 * @param mixed $argument
-	 * @return FunctionCall
-	 */
-	public function appendArgument($argument)
+	public function tokenize(TokenStream $stream,
+		TokenStreamContextInterface $context)
 	{
-		if (!($argument instanceof TokenizableExpressionInterface))
-		{
-			$argument = Evaluator::evaluate($argument);
-		}
-
-		return parent::appendArgument($argument);
-	}
-
-	public function tokenize(TokenStream $stream, TokenStreamContextInterface $context)
-	{
-		$stream->keyword($this->getFunctionName())
-			->text('(');
-		$index = 0;
-		foreach ($this as $a)
-		{
-			if ($index++ > 0)
-				$stream->text(', ');
-
-			$stream->expression($a, $context);
-		}
-		return $stream->text(')');
+		return Tokenizer::getInstance()->tokenizeProcedureInvocation(
+			$this, $stream, $context);
 	}
 }

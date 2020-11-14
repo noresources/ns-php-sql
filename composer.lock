@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "964c6870dca377e61a5f7471db4634cb",
+    "content-hash": "d977858cb868d34e171990e34202f5f5",
     "packages": [
         {
             "name": "ferno/loco",
@@ -120,12 +120,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/noresources/ns-php-expression.git",
-                "reference": "87a428956e056cd49698e1d6f2103f972b22d6e2"
+                "reference": "552723987527ce3689a79db8786e8db606b44455"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/noresources/ns-php-expression/zipball/87a428956e056cd49698e1d6f2103f972b22d6e2",
-                "reference": "87a428956e056cd49698e1d6f2103f972b22d6e2",
+                "url": "https://api.github.com/repos/noresources/ns-php-expression/zipball/552723987527ce3689a79db8786e8db606b44455",
+                "reference": "552723987527ce3689a79db8786e8db606b44455",
                 "shasum": ""
             },
             "require": {
@@ -133,13 +133,13 @@
                 "php": ">= 5.5"
             },
             "require-dev": {
-                "phpunit/phpunit": "^4.8"
+                "phpunit/phpunit": "^7.0"
             },
             "default-branch": true,
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.0.x-dev"
+                    "dev-master": "1.1.x-dev"
                 }
             },
             "autoload": {
@@ -163,7 +163,7 @@
                 "issues": "https://github.com/noresources/ns-php-expression/issues",
                 "source": "https://github.com/noresources/ns-php-expression/tree/master"
             },
-            "time": "2020-10-20T21:58:55+00:00"
+            "time": "2020-11-14T14:34:40+00:00"
         },
         {
             "name": "noresources/ns-php-http-core",
@@ -517,12 +517,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/myclabs/DeepCopy.git",
-                "reference": "00aba97fc36feabc8d94667eebd5d43959e60008"
+                "reference": "776f831124e9c62e1a2c601ecc52e776d8bb7220"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/myclabs/DeepCopy/zipball/00aba97fc36feabc8d94667eebd5d43959e60008",
-                "reference": "00aba97fc36feabc8d94667eebd5d43959e60008",
+                "url": "https://api.github.com/repos/myclabs/DeepCopy/zipball/776f831124e9c62e1a2c601ecc52e776d8bb7220",
+                "reference": "776f831124e9c62e1a2c601ecc52e776d8bb7220",
                 "shasum": ""
             },
             "require": {
@@ -560,7 +560,7 @@
             ],
             "support": {
                 "issues": "https://github.com/myclabs/DeepCopy/issues",
-                "source": "https://github.com/myclabs/DeepCopy/tree/1.x"
+                "source": "https://github.com/myclabs/DeepCopy/tree/1.10.2"
             },
             "funding": [
                 {
@@ -568,7 +568,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2020-10-01T09:35:15+00:00"
+            "time": "2020-11-13T09:40:50+00:00"
         },
         {
             "name": "noresources/ns-xml",

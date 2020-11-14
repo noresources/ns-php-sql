@@ -11,7 +11,9 @@
 //
 namespace NoreSources\SQL\Statement\Structure;
 
+use NoreSources\TypeDescription;
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\DBMS\TypeInterface;
 use NoreSources\SQL\Expression\ColumnDeclaration;
 use NoreSources\SQL\Expression\TableConstraintDeclaration;
 use NoreSources\SQL\Expression\TokenStream;
@@ -154,10 +156,17 @@ class CreateTableQuery extends Statement implements
 			if ($c++ > 0)
 				$stream->text(',')->space();
 
+			$type = $platform->getColumnType($column,
+				$column->getConstraintFlags());
+
+			if (!($type instanceof TypeInterface))
+				throw new StatementException($this,
+					'Unable to find a ' .
+					TypeDescription::getLocalName($platform) .
+					' type for column "' . $column->getName() . '"');
+
 			$declaration = $platform->newExpression(
-				ColumnDeclaration::class, $column,
-				$platform->getColumnType($column,
-					$column->getConstraintFlags()));
+				ColumnDeclaration::class, $column, $type);
 			$declaration->tokenize($stream, $context);
 		}
 

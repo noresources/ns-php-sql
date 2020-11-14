@@ -144,7 +144,7 @@ class TestConnection extends \PHPUnit\Framework\TestCase
 				foreach ($expectedValues as $key => $value)
 				{
 					$this->assertEquals($value, $record[$key],
-						$label . ' - record ' . $key . ' value');
+						$label . ' - [' . $key . '] result column value');
 				}
 		}
 

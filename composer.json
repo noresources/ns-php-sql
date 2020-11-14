@@ -28,7 +28,7 @@
 		"php": ">= 5.6",
 		"ferno/loco": "dev-main",
 		"noresources/ns-php-core": "~2.2",
-		"noresources/ns-php-expression": "~1.0",
+		"noresources/ns-php-expression": "~1.1",
 		"noresources/ns-php-mediatype": "~1.0",
 		"psr/container": "^1.0"
 	},

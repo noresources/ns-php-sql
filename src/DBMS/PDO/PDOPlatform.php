@@ -68,6 +68,11 @@ class PDOPlatform implements PlatformInterface,
 		return $this->basePlatform->serializeColumnData($column, $data);
 	}
 
+	public function serializeData($data, $dataType)
+	{
+		return $this->basePlatform->serializeData($data, $dataType);
+	}
+
 	public function getParameter($name, ParameterData $parameters = null)
 	{
 		return (':' . $parameters->count());

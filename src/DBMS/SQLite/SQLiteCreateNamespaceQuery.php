@@ -13,7 +13,7 @@ namespace NoreSources\SQL\DBMS\SQLite;
 
 use NoreSources\Container;
 use NoreSources\SQL\DBMS\SQLite\SQLiteConstants as K;
-use NoreSources\SQL\Expression\Literal;
+use NoreSources\SQL\Expression\Data;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Expression\TokenStreamContextInterface;
 use NoreSources\SQL\Statement\Structure\CreateNamespaceQuery;
@@ -48,7 +48,7 @@ class SQLiteCreateNamespaceQuery extends CreateNamespaceQuery
 		if (\is_callable($factory))
 			$path = $factory($structure);
 
-		$path = new Literal($path, K::DATATYPE_STRING);
+		$path = new Data($path, K::DATATYPE_STRING);
 
 		return $stream->keyword('attach')
 			->space()

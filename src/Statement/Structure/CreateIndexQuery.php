@@ -13,11 +13,12 @@ namespace NoreSources\SQL\Statement\Structure;
 
 use NoreSources\TypeConversion;
 use NoreSources\TypeDescription;
+use NoreSources\Expression\ExpressionInterface;
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\Expression\Evaluable;
 use NoreSources\SQL\Expression\TableReference;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Expression\TokenStreamContextInterface;
-use NoreSources\SQL\Expression\TokenizableExpressionInterface;
 use NoreSources\SQL\Statement\Statement;
 use NoreSources\SQL\Statement\StatementException;
 use NoreSources\SQL\Statement\Traits\WhereConstraintTrait;
@@ -118,7 +119,7 @@ class CreateIndexQuery extends Statement
 		for ($i = 0; $i < $c; $i++)
 		{
 			$column = func_get_arg($i);
-			if ($column instanceof TokenizableExpressionInterface)
+			if ($column instanceof ExpressionInterface)
 				$this->indexColumns[] = $column;
 			elseif (TypeDescription::hasStringRepresentation($column))
 				$this->indexColumns[] = TypeConversion::toString(
@@ -243,7 +244,7 @@ class CreateIndexQuery extends Statement
 			if ($i++)
 				$stream->text(',');
 
-			if ($column instanceof TokenizableExpressionInterface)
+			if ($column instanceof ExpressionInterface)
 				$stream->space()->expression($column, $context);
 			else
 				$stream->space()->identifier(

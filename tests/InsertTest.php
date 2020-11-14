@@ -1,10 +1,10 @@
 <?php
 namespace NoreSources\SQL;
 
+use NoreSources\Expression\ExpressionInterface;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\Reference\ReferencePlatform;
-use NoreSources\SQL\Expression\ExpressionHelper;
-use NoreSources\SQL\Expression\TokenizableExpressionInterface;
+use NoreSources\SQL\Expression\Data;
 use NoreSources\SQL\Statement\StatementBuilder;
 use NoreSources\SQL\Statement\StatementTokenStreamContext;
 use NoreSources\SQL\Statement\Manipulation\InsertQuery;
@@ -83,11 +83,11 @@ final class InsertTest extends \PHPUnit\Framework\TestCase
 			'empty' => array(),
 			'literals' => [
 				'name' => [
-					ExpressionHelper::literal('Test task'),
+					new Data('Test task'),
 					null
 				],
 				'creationDateTime' => [
-					ExpressionHelper::literal(
+					new Data(
 						\DateTime::createFromFormat(\DateTime::ISO8601,
 							'2012-01-16T16:35:26+0100')),
 					null
@@ -95,7 +95,7 @@ final class InsertTest extends \PHPUnit\Framework\TestCase
 			],
 			'polish' => [
 				'name' => [
-					ExpressionHelper::literal('Random priority'),
+					new Data('Random priority'),
 					null
 				],
 				'priority' => [
@@ -128,10 +128,10 @@ final class InsertTest extends \PHPUnit\Framework\TestCase
 
 			foreach ($values as $column => $value)
 			{
-				if ($value instanceof TokenizableExpressionInterface)
+				if ($value instanceof ExpressionInterface)
 					$q[$column] = $value;
 				else
-					$q->setColumnValue($column, $value[0], $value[1]);
+					$q->setColumnData($column, $value[0], $value[1]);
 			}
 
 			$result =  StatementBuilder::getInstance() ($q, $context);

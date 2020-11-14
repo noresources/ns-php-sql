@@ -4,6 +4,7 @@ namespace NoreSources\SQL\DBMS\PostgreSQL;
 use NoreSources\Container;
 use NoreSources\DateTime;
 use NoreSources\SemanticVersion;
+use NoreSources\Expression\Value;
 use NoreSources\SQL\DBMS\AbstractPlatform;
 use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\ConnectionProviderInterface;
@@ -13,7 +14,6 @@ use NoreSources\SQL\DBMS\TypeRegistry;
 use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLConstants as K;
 use NoreSources\SQL\DBMS\Types\BasicType;
 use NoreSources\SQL\Expression\FunctionCall;
-use NoreSources\SQL\Expression\Literal;
 use NoreSources\SQL\Expression\MetaFunctionCall;
 use NoreSources\SQL\Statement\ParameterData;
 use NoreSources\SQL\Structure\ColumnDescriptionInterface;
@@ -293,7 +293,7 @@ class PostgreSQLPlatform extends AbstractPlatform implements
 		MetaFunctionCall $metaFunction)
 	{
 		$format = $metaFunction->getArgument(0);
-		if ($format instanceof Literal)
+		if ($format instanceof Value)
 		{
 			$s = \str_split(\strval($format->getValue()));
 			$escapeChar = '\\';

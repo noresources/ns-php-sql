@@ -3,6 +3,7 @@ namespace NoreSources\SQL\DBMS\MySQL;
 
 use NoreSources\Container;
 use NoreSources\DateTime;
+use NoreSources\Expression\Value;
 use NoreSources\SQL\DBMS\AbstractPlatform;
 use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\ConnectionProviderInterface;
@@ -12,7 +13,6 @@ use NoreSources\SQL\DBMS\TypeInterface;
 use NoreSources\SQL\DBMS\MySQL\MySQLConstants as K;
 use NoreSources\SQL\DBMS\Types\ArrayObjectType;
 use NoreSources\SQL\Expression\FunctionCall;
-use NoreSources\SQL\Expression\Literal;
 use NoreSources\SQL\Expression\MetaFunctionCall;
 use NoreSources\SQL\Statement\ParameterData;
 use NoreSources\SQL\Structure\ColumnDescriptionInterface;
@@ -168,7 +168,7 @@ class MySQLPlatform extends AbstractPlatform implements
 
 	public function getTimestampTypeStringFormat($type = 0)
 	{
-		if ($type == K::DATATYPE_TIMESTAMP)
+		if ($type & K::DATATYPE_DATETIME) // with or without timezone
 			return 'Y-m-d H:i:s';
 		elseif ($type == (K::DATATYPE_TIME | K::DATATYPE_TIMEZONE))
 			return 'H:i:s';
@@ -250,7 +250,7 @@ class MySQLPlatform extends AbstractPlatform implements
 		MetaFunctionCall $metaFunction)
 	{
 		$format = $metaFunction->getArgument(0);
-		if ($format instanceof Literal)
+		if ($format instanceof Value)
 		{
 			$s = \str_split(\strval($format->getValue()));
 			$escapeChar = '\\';

@@ -10,6 +10,7 @@
 namespace NoreSources\SQL\Expression;
 
 use NoreSources\ArrayRepresentation;
+use NoreSources\Expression\ExpressionInterface;
 use NoreSources\SQL\Constants as K;
 
 /**
@@ -59,7 +60,7 @@ class TokenStream implements \IteratorAggregate, \Countable,
 	 * Add a literal to stream
 	 *
 	 * @param mixed $value
-	 *        	Literal value
+	 *        	value
 	 * @return $this
 	 */
 	public function literal($value)
@@ -129,16 +130,21 @@ class TokenStream implements \IteratorAggregate, \Countable,
 	/**
 	 * Add an expression to the stream
 	 *
-	 * @param TokenizableExpressionInterface $expression
+	 * @param Evaluable $expression
 	 * @param TokenStreamContextInterface $context
 	 * @return $this
 	 */
-	public function expression(
-		TokenizableExpressionInterface $expression,
+	public function expression($expression,
 		TokenStreamContextInterface $context)
 	{
-		$expression->tokenize($this, $context);
-		return $this;
+		if (!($expression instanceof ExpressionInterface))
+			$expression = Evaluator::evaluate($expression);
+
+		if ($expression instanceof TokenizableExpressionInterface)
+			return $expression->tokenize($this, $context);
+
+		return Tokenizer::getInstance()->tokenizeExpression($expression,
+			$this, $context);
 	}
 
 	/**
@@ -161,7 +167,7 @@ class TokenStream implements \IteratorAggregate, \Countable,
 				$c = $e;
 		}
 
-		if ($c instanceof TokenizableExpressionInterface)
+		if ($c instanceof ExpressionInterface)
 			return $this->expression($c, $context);
 
 		return $this;

@@ -28,8 +28,8 @@ class MetaFunctionCall extends FunctionCall
 	public function tokenize(TokenStream $stream,
 		TokenStreamContextInterface $context)
 	{
-		return $context->getPlatform()
-			->translateFunction($this)
-			->tokenize($stream, $context);
+		return Tokenizer::getInstance()->tokenizeProcedureInvocation(
+			$context->getPlatform()
+				->translateFunction($this), $stream, $context);
 	}
 }

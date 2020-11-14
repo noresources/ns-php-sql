@@ -17,7 +17,7 @@ use NoreSources\SQL\DBMS\PlatformProviderTrait;
 use NoreSources\SQL\DBMS\TransactionInterface;
 use NoreSources\SQL\DBMS\TransactionStackTrait;
 use NoreSources\SQL\DBMS\SQLite\SQLiteConstants as K;
-use NoreSources\SQL\Expression\Literal;
+use NoreSources\SQL\Expression\Evaluator;
 use NoreSources\SQL\Result\DefaultInsertionStatementResult;
 use NoreSources\SQL\Result\DefaultRowModificationStatementResult;
 use NoreSources\SQL\Statement\ParameterData;
@@ -306,7 +306,8 @@ class SQLiteConnection implements ConnectionInterface,
 					$type = $entry->getDataType();
 
 				if ($type == K::DATATYPE_UNDEFINED)
-					$type = Literal::dataTypeFromValue($value);
+					$type = Evaluator::getInstance()->getDataType(
+						$value);
 
 				/**
 				 * SQLite does not have type for DateTIme etc.

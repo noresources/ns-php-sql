@@ -25,7 +25,7 @@ use NoreSources\SQL\DBMS\SQLite\SQLitePlatform;
 use NoreSources\SQL\DBMS\Types\ArrayObjectType;
 use NoreSources\SQL\Expression\CastFunction;
 use NoreSources\SQL\Expression\ColumnDeclaration;
-use NoreSources\SQL\Expression\Literal;
+use NoreSources\SQL\Expression\Data;
 use NoreSources\SQL\Expression\Parameter;
 use NoreSources\SQL\Expression\TimestampFormatFunction;
 use NoreSources\SQL\Result\InsertionStatementResultInterface;
@@ -462,7 +462,7 @@ final class DBMSCommonTest extends TestCase
 			{
 				if (Container::keyExists($specs, 'insert'))
 				{
-					$as = $q->setColumnValue($columnName,
+					$as = $q->setColumnData($columnName,
 						$specs['insert'],
 						Container::keyValue($specs, 'evaluate', false));
 				}
@@ -555,7 +555,7 @@ final class DBMSCommonTest extends TestCase
 			$s->orderBy('int');
 			$s->columns('binary');
 			$s->where([
-				'base' => new Literal($fileName)
+				'base' => new Data($fileName)
 			]);
 
 			$result = $connection->executeStatement(
@@ -830,6 +830,7 @@ final class DBMSCommonTest extends TestCase
 	{
 		$dbmsName = $this->getDBMSName($connection);
 		$method = $this->getMethodName();
+		$platform = $connection->getPlatform();
 		/**
 		 *
 		 * @var \NoreSources\SQL\Statement\Manipulation\InsertQuery $i
@@ -840,8 +841,10 @@ final class DBMSCommonTest extends TestCase
 		$i('large_int', ':odd');
 		$i('small_int', ':even');
 
-		$select = ConnectionHelper::buildStatement($connection,
-			new SelectQuery($tableStructure), $tableStructure);
+		$select = $platform->newStatement(K::QUERY_SELECT,
+			$tableStructure);
+		$select = ConnectionHelper::buildStatement($connection, $select,
+			$tableStructure);
 
 		$delete = ConnectionHelper::buildStatement($connection,
 			new DeleteQuery($tableStructure), $tableStructure);
@@ -1197,7 +1200,7 @@ final class DBMSCommonTest extends TestCase
 
 		// Insert QUery
 		$insertQuery = new InsertQuery($tableStructure);
-		$insertQuery->setColumnValue('id', ':identifier', true);
+		$insertQuery->setColumnData('id', ':identifier', true);
 		$insertQuery['gender'] = 'M';
 		$insertQuery('name', ':nameValue');
 		$insertQuery('salary', ':salaryValue');
@@ -1312,7 +1315,7 @@ final class DBMSCommonTest extends TestCase
 				K::QUERY_INSERT);
 			$q->into($tableStructure);
 			foreach ($row as $name => $value)
-				$q->setColumnValue($name, new Literal($value));
+				$q->setColumnData($name, new Data($value));
 
 			$r = $connection->executeStatement(
 				ConnectionHelper::prepareStatement($connection, $q,

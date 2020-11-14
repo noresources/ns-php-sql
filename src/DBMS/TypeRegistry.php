@@ -8,7 +8,7 @@ use NoreSources\TypeConversion;
 use NoreSources\MediaType\MediaTypeInterface;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\Types\ArrayObjectType;
-use NoreSources\SQL\Expression\ExpressionHelper;
+use NoreSources\SQL\Expression\Evaluator;
 use NoreSources\SQL\Structure\ColumnDescriptionInterface;
 use NoreSources\SQL\Structure\ColumnStructure;
 use Psr\Container\ContainerInterface;
@@ -78,7 +78,7 @@ class TypeRegistry implements \ArrayAccess, \Countable,
 			{
 				$defaultValue = $description->getColumnProperty(
 					K::COLUMN_DEFAULT_VALUE);
-				$defaultValueDataType = ExpressionHelper::getDataType(
+				$defaultValueDataType = Evaluator::getInstance()->getDataType(
 					$defaultValue);
 
 				if (!$type->acceptDefaultValue($defaultValueDataType))

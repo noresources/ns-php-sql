@@ -11,7 +11,9 @@ namespace NoreSources\SQL\Structure;
 
 use NoreSources\SemanticVersion;
 use NoreSources\TypeConversion;
-use NoreSources\SQL\Expression\Literal;
+use NoreSources\Expression\Value;
+use NoreSources\SQL\DataTypeProviderInterface;
+use NoreSources\SQL\Expression\Evaluator;
 use NoreSources\SQL\Structure\XMLStructureFileConstants as K;
 
 /**
@@ -230,15 +232,17 @@ class XMLStructureFileExporter implements
 			$value = $structure->getColumnProperty(
 				K::COLUMN_DEFAULT_VALUE);
 			$valueType = $dataType;
-			if ($value instanceof Literal)
-				$valueType = Literal::dataTypeFromValue(
+			if ($value instanceof DataTypeProviderInterface)
+				$dataType = $value->getDataType();
+			elseif ($value instanceof Value)
+				$valueType = Evaluator::getInstance()->getDataType(
 					$value->getValue());
 
 			$defaultNodeValueNodeName = self::getDefaultNodeValueNodeName(
 				$dataType, $valueType, $this->schemaVersion);
 
 			$defaultValue = '';
-			if ($value instanceof Literal)
+			if ($value instanceof Value)
 			{
 				$v = $value->getValue();
 				if ($v instanceof \DateTimeInterface)

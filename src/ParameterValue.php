@@ -10,7 +10,7 @@
 namespace NoreSources\SQL;
 
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\Expression\Literal;
+use NoreSources\SQL\Expression\Evaluator;
 
 /**
  * Value of statement parameter.
@@ -51,6 +51,6 @@ class ParameterValue implements DataTypeProviderInterface
 	public function __construct($value, $type = K::DATATYPE_UNDEFINED)
 	{
 		if ($type == K::DATATYPE_UNDEFINED)
-			$type = Literal::dataTypeFromValue($value);
+			$type = Evaluator::getInstance()->getDataType($value);
 	}
 }

@@ -11,10 +11,12 @@ namespace NoreSources\SQL\Statement;
 
 use NoreSources\Container;
 use NoreSources\SingletonTrait;
+use NoreSources\Expression\ExpressionInterface;
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\Expression\Tokenizer;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Expression\TokenStreamContextInterface;
-use NoreSources\SQL\Expression\TokenizableExpressionInterface;
+use phpDocumentor\Reflection\Types\Expression;
 
 /**
  * This should be used as base class for all DBMS-specific statement builders.
@@ -37,13 +39,12 @@ class StatementBuilder
 
 	/**
 	 *
-	 * @param TokenizableExpressionInterface $expression
+	 * @param Expression $expression
 	 * @param ... ...$context
 	 *        	StatementTokenStreamContext constructor arguments.
 	 * @return StatementData
 	 */
-	public function build(TokenizableExpressionInterface $expression,
-		...$context)
+	public function build(ExpressionInterface $expression, ...$context)
 	{
 		$stream = new TokenStream();
 		if (\count($context) &&
@@ -51,7 +52,8 @@ class StatementBuilder
 			$context = clone $first;
 		else
 			$context = new StatementTokenStreamContext(...$context);
-		$expression->tokenize($stream, $context);
+		Tokenizer::getInstance()->tokenizeExpression(
+			$expression, $stream, $context);
 		return $this->finalizeStatement($stream, $context);
 	}
 
@@ -63,7 +65,6 @@ class StatementBuilder
 
 		foreach ($stream as $token)
 		{
-
 			$type = $token[TokenStream::INDEX_TYPE];
 
 			if ($type == K::TOKEN_COMMENT)

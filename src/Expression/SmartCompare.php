@@ -2,6 +2,9 @@
 namespace NoreSources\SQL\Expression;
 
 use NoreSources\Container;
+use NoreSources\Expression\ExpressionInterface;
+use NoreSources\Expression\Set;
+use NoreSources\Expression\Value;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Expression\Traits\ToggleableTrait;
 
@@ -12,7 +15,7 @@ class SmartCompare implements TokenizableExpressionInterface,
 	use ToggleableTrait;
 
 	public static function createWithParameterList(
-		TokenizableExpressionInterface $leftOperand, ...$members)
+		ExpressionInterface $leftOperand, ...$members)
 	{
 		if (Container::count($members) > 1)
 			return new SmartCompare($leftOperand,
@@ -34,9 +37,10 @@ class SmartCompare implements TokenizableExpressionInterface,
 	{
 		$r = $this->rightOperand;
 
-		if ($r instanceof Literal)
+		if ($r instanceof Value)
 		{
-			if ($r->getDataType() == K::DATATYPE_NULL)
+			$dataType = Evaluator::getDataType($r);
+			if ($dataType == K::DATATYPE_NULL)
 			{
 				$stream->expression($this->leftOperand, $context)
 					->space()
@@ -49,7 +53,7 @@ class SmartCompare implements TokenizableExpressionInterface,
 				return $stream;
 			}
 		}
-		elseif ($r instanceof ExpressionList)
+		elseif ($r instanceof Set)
 		{
 			$stream->expression($this->leftOperand, $context)->space();
 			if ($this->getToggleState() == false)

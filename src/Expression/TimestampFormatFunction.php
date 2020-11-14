@@ -10,6 +10,8 @@
 namespace NoreSources\SQL\Expression;
 
 use NoreSources\DateTime;
+use NoreSources\Expression\ExpressionInterface;
+use NoreSources\Expression\Value;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DataTypeProviderInterface;
 
@@ -22,9 +24,9 @@ class TimestampFormatFunction extends MetaFunctionCall implements
 
 	/**
 	 *
-	 * @param string $format
+	 * @param Evaluable $format
 	 *        	Format string. The format must follow the PHP strftime supported format.
-	 * @param mixed $timestamp
+	 * @param Evaluable $timestamp
 	 *        	Timestamp expression
 	 *
 	 * @see https://www.php.net/manual/en/function.strftime.php
@@ -32,10 +34,11 @@ class TimestampFormatFunction extends MetaFunctionCall implements
 	 */
 	public function __construct($format, $timestamp)
 	{
-		if (!($format instanceof TokenizableExpressionInterface))
-			$format = new Literal($format, K::DATATYPE_STRING);
-		if (!($timestamp instanceof TokenizableExpressionInterface))
-			$timestamp = new Literal(new DateTime($timestamp),
+		if (!($format instanceof Value))
+			$format = new Value($format);
+
+		if (!($timestamp instanceof ExpressionInterface))
+			$timestamp = new Data(new DateTime($timestamp),
 				K::DATATYPE_TIMESTAMP);
 
 		parent::__construct(K::METAFUNCTION_TIMESTAMP_FORMAT,

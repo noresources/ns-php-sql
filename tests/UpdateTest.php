@@ -91,7 +91,7 @@ final class UpdateTest extends \PHPUnit\Framework\TestCase
 
 			foreach ($columnValues as $column => $value)
 			{
-				$q->setColumnValue($column, $value[0], $value[1]);
+				$q->setColumnData($column, $value[0], $value[1]);
 			}
 
 			$result =  StatementBuilder::getInstance()($q, $platform,  $tableStructure);
@@ -112,7 +112,7 @@ final class UpdateTest extends \PHPUnit\Framework\TestCase
 
 		$q = new UpdateQuery($tableStructure);
 
-		$q->setColumnValue('salary', 'salary * 2', true);
+		$q->setColumnData('salary', 'salary * 2', true);
 
 		$sub = new SelectQuery('Employees', 'e');
 		$sub->columns('id');

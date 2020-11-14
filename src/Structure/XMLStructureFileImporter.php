@@ -11,10 +11,9 @@ namespace NoreSources\SQL\Structure;
 
 use NoreSources\Container;
 use NoreSources\SemanticVersion;
-use NoreSources\SQL\Expression\ExpressionHelper;
+use NoreSources\Expression\ExpressionInterface;
+use NoreSources\SQL\Expression\Data;
 use NoreSources\SQL\Expression\Keyword;
-use NoreSources\SQL\Expression\Literal;
-use NoreSources\SQL\Expression\TokenizableExpressionInterface;
 use NoreSources\SQL\Structure\XMLStructureFileConstants as K;
 
 /**
@@ -375,7 +374,7 @@ class XMLStructureFileImporter implements
 				$valueNodes = $context->xpath->query(
 					K::XML_NAMESPACE_PREFIX . ':value', $enumerationNode);
 				foreach ($valueNodes as $valueNode)
-					$values[] = new Literal($valueNode->nodeValue,
+					$values[] = new Data($valueNode->nodeValue,
 						K::DATATYPE_STRING);
 
 				$structure->setColumnProperty(K::COLUMN_ENUMERATION,
@@ -464,9 +463,9 @@ class XMLStructureFileImporter implements
 					break;
 				}
 
-				if (!($value instanceof TokenizableExpressionInterface))
-					$value = ExpressionHelper::literal($value,
-						$defaultValueType);
+				$defaultValueType &= $dataType;
+				if (!($value instanceof ExpressionInterface))
+					$value = new Data($value, $defaultValueType);
 
 				$structure->setColumnProperty(K::COLUMN_DEFAULT_VALUE,
 					$value);

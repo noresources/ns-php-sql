@@ -2,7 +2,6 @@
 namespace NoreSources\SQL\Expression;
 
 use NoreSources\Container;
-use NoreSources\TypeDescription;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\TypeInterface;
 use NoreSources\SQL\Statement\StatementException;
@@ -68,6 +67,11 @@ class ColumnDeclaration implements TokenizableExpressionInterface
 		$logger = null;
 		if ($platform instanceof LoggerInterface)
 			$logger = $platform;
+		if (!isset($this->columnStructure))
+			throw new \RuntimeException(
+				ColumnStructure::class . ' not set');
+		if (!isset($this->dbmsType))
+			throw \RuntimeException(TypeInterface::class . ' not set');
 
 		$columnDeclaration = $platform->queryFeature(
 			[
@@ -78,13 +82,6 @@ class ColumnDeclaration implements TokenizableExpressionInterface
 
 		$columnFlags = $this->getColumn()->getColumnProperty(
 			K::COLUMN_FLAGS);
-
-		if (!($this->dbmsType instanceof TypeInterface))
-			throw new StatementException($this,
-				'Unable to find a ' .
-				TypeDescription::getLocalName($platform) .
-				' type for column "' . $this->columnStructure->getName() .
-				'"');
 
 		$stream->identifier(
 			$context->getPlatform()

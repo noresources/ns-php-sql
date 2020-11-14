@@ -14,10 +14,15 @@ use Ferno\Loco\EmptyParser;
 use Ferno\Loco\LazyAltParser;
 use Ferno\Loco\StringParser;
 use NoreSources\Bitset;
+use NoreSources\BooleanRepresentation;
 use NoreSources\Container;
+use NoreSources\FloatRepresentation;
+use NoreSources\IntegerRepresentation;
 use NoreSources\SingletonTrait;
 use NoreSources\TypeDescription;
+use NoreSources\Expression\ExpressionInterface;
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\DataTypeProviderInterface;
 
 /**
  * Exception raised when an expression failed to be evaluated
@@ -32,7 +37,7 @@ class EvaluatorException extends \ErrorException
 }
 
 /**
- * Expression evaluator
+ * ExpressionInterface evaluator
  */
 class Evaluator
 {
@@ -122,12 +127,12 @@ class Evaluator
 
 	/**
 	 *
-	 * @method TokenizableExpressionInterface evaluate ($evaluable)
+	 * @method ExpressionInterface evaluate ($evaluable)
 	 *
 	 * @param string $name
 	 * @param array $args
 	 *
-	 * @return TokenizableExpressionInterface
+	 * @return ExpressionInterface
 	 *
 	 * @throws \BadMethodCallException
 	 */
@@ -147,12 +152,11 @@ class Evaluator
 
 	/**
 	 *
-	 * @method TokenizableExpressionInterface evaluate ($evaluable)
+	 * @method ExpressionInterface evaluate ($evaluable)
 	 *
 	 * @param string $name
 	 * @param array $args
-	 *
-	 * @return TokenizableExpressionInterface
+	 *        	enizableExpressionInterface
 	 *
 	 * @throws \BadMethodCallException
 	 */
@@ -171,6 +175,45 @@ class Evaluator
 			$name . ' is not a valid method name');
 	}
 
+	/**
+	 *
+	 * @param mixed $expression
+	 *        	Any object
+	 * @return integer Data type identifier
+	 */
+	public static function getDataType($expression)
+	{
+		if ($expression instanceof DataTypeProviderInterface)
+			return $expression->getDataType();
+		elseif (\is_object($expression))
+		{
+			if ($expression instanceof \DateTimeInterface)
+				return K::DATATYPE_TIMESTAMP;
+			elseif (TypeDescription::hasStringRepresentation(
+				$expression))
+				return K::DATATYPE_STRING;
+			elseif ($expression instanceof FloatRepresentation)
+				return K::DATATYPE_FLOAT;
+			elseif ($expression instanceof IntegerRepresentation)
+				return K::DATATYPE_INTEGER;
+			elseif ($expression instanceof BooleanRepresentation)
+				return K::DATATYPE_BOOLEAN;
+		}
+
+		if (\is_integer($expression))
+			return K::DATATYPE_INTEGER;
+		elseif (\is_float($expression))
+			return K::DATATYPE_FLOAT;
+		elseif (\is_bool($expression))
+			return K::DATATYPE_BOOLEAN;
+		elseif (\is_null($expression))
+			return K::DATATYPE_NULL;
+		elseif (\is_string($expression))
+			return K::DATATYPE_STRING;
+
+		return K::DATATYPE_UNDEFINED;
+	}
+
 	// bm3
 	/**
 	 *
@@ -180,27 +223,27 @@ class Evaluator
 	{
 		if (\is_object($evaluable))
 		{
-			if ($evaluable instanceof TokenizableExpressionInterface)
+			if ($evaluable instanceof ExpressionInterface)
 				return $evaluable;
 			elseif ($evaluable instanceof \DateTimeInterface)
-				return new Literal($evaluable, K::DATATYPE_TIMESTAMP);
+				return new Data($evaluable, K::DATATYPE_TIMESTAMP);
 		}
 		elseif (\is_null($evaluable))
-			return new Literal($evaluable, K::DATATYPE_NULL);
+			return new Data($evaluable, K::DATATYPE_NULL);
 		elseif (\is_bool($evaluable))
-			return new Literal($evaluable, K::DATATYPE_BOOLEAN);
+			return new Data($evaluable, K::DATATYPE_BOOLEAN);
 		elseif (is_int($evaluable))
-			return new Literal($evaluable, K::DATATYPE_INTEGER);
+			return new Data($evaluable, K::DATATYPE_INTEGER);
 		elseif (is_float($evaluable))
-			return new Literal($evaluable, K::DATATYPE_FLOAT);
+			return new Data($evaluable, K::DATATYPE_FLOAT);
 		elseif (\is_numeric($evaluable))
 		{
 			$i = \intval($evaluable);
 			$f = \floatval($evaluable);
 			if ($i == $f)
-				return new Literal($i, K::DATATYPE_INTEGER);
+				return new Data($i, K::DATATYPE_INTEGER);
 			else
-				return new Literal($f, K::DATATYPE_FLOAT);
+				return new Data($f, K::DATATYPE_FLOAT);
 		}
 		elseif (is_string($evaluable))
 		{
@@ -322,8 +365,8 @@ class Evaluator
 		/*
 		 *  Automatically fix missing  [] around polish operation operands
 		 */
-		if (\count($operands) == 1 &&
-			Container::isAssociative($operands))
+		if (\count($operands) == 1 && Container::isAssociative(
+			$operands))
 			$operands = [
 				$operands
 			];
@@ -491,7 +534,7 @@ class Evaluator
 			function ($a) {
 				if (\is_null($a))
 					return [];
-				elseif ($a instanceof TokenizableExpressionInterface)
+				elseif ($a instanceof ExpressionInterface)
 					return [
 						$a
 					];
@@ -608,7 +651,7 @@ class Evaluator
 				new Loco\StringParser("'")
 			],
 			function () {
-				return new Literal(func_get_arg(1), K::DATATYPE_STRING);
+				return new Data(func_get_arg(1), K::DATATYPE_STRING);
 			});
 
 		// Date & Time
@@ -905,7 +948,7 @@ class Evaluator
 				$dateTime = \DateTime::createFromFormat(
 					self::DATETIME_FORMAT, $dateTimeString);
 
-				return new Literal($dateTime, K::DATATYPE_TIMESTAMP);
+				return new Data($dateTime, K::DATATYPE_TIMESTAMP);
 			});
 
 		$number = new Loco\RegexParser(
@@ -914,9 +957,9 @@ class Evaluator
 				$i = \intval($v);
 				$f = \floatval($v);
 				if ($i == $v)
-					return new Literal($i, K::DATATYPE_INTEGER);
+					return new Data($i, K::DATATYPE_INTEGER);
 				else
-					return new Literal($f, K::DATATYPE_FLOAT);
+					return new Data($f, K::DATATYPE_FLOAT);
 			});
 
 		$unaryOperators = [];
@@ -925,7 +968,8 @@ class Evaluator
 			$unaryOperators[] = $po->createParser($key);
 		}
 
-		$unaryOperatorLiteral = new Loco\LazyAltParser($unaryOperators);
+		$unaryOperatorColumnData = new Loco\LazyAltParser(
+			$unaryOperators);
 
 		$unaryOperation = new Loco\ConcParser(
 			[
@@ -942,7 +986,7 @@ class Evaluator
 			$binaryOperators[] = $po->createParser($key);
 		}
 
-		$binaryOperatorLiteral = new Loco\LazyAltParser(
+		$binaryOperatorColumnData = new Loco\LazyAltParser(
 			$binaryOperators);
 
 		/**
@@ -1051,18 +1095,18 @@ class Evaluator
 				'number' => $number,
 				'true' => self::keywordParser('true',
 					function () {
-						return new Literal(true, K::DATATYPE_BOOLEAN);
+						return new Data(true, K::DATATYPE_BOOLEAN);
 					}),
 				'false' => self::keywordParser('false',
 					function () {
-						return new Literal(false, K::DATATYPE_BOOLEAN);
+						return new Data(false, K::DATATYPE_BOOLEAN);
 					}),
 				'null' => self::keywordParser('null',
 					function () {
-						return new Literal(null, K::DATATYPE_NULL);
+						return new Data(null, K::DATATYPE_NULL);
 					}),
-				'unary-operator-literal' => $unaryOperatorLiteral,
-				'binary-operator-literal' => $binaryOperatorLiteral,
+				'unary-operator-literal' => $unaryOperatorColumnData,
+				'binary-operator-literal' => $binaryOperatorColumnData,
 				'whitespace' => $whitespace,
 				'space' => $space
 			]); // grammar

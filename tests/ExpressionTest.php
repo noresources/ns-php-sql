@@ -2,7 +2,10 @@
 namespace NoreSources\SQL\Expression;
 
 use NoreSources\Container;
+use NoreSources\Expression\ProcedureInvocation;
+use NoreSources\Expression\Value;
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\DataTypeProviderInterface;
 use NoreSources\SQL\DBMS\Reference\ReferencePlatform;
 use NoreSources\SQL\Statement\StatementBuilder;
 use NoreSources\SQL\Structure\VirtualStructureResolver;
@@ -16,6 +19,22 @@ final class ExpressionEvaluatorTest extends \PHPUnit\Framework\TestCase
 	{
 		parent::__construct($name, $data, $dataName);
 		$this->datasources = new DatasourceManager();
+	}
+
+	public function testBinaryOperation()
+	{
+		$op = new BinaryOperation('<>', new Column('table.column'),
+			new Value('Foo'));
+
+		$this->assertEquals(BinaryOperation::DIFFER, '<>');
+
+		$this->assertTrue($op->isComparison(),
+			'<> is a comparison operator (use of late static binding)');
+
+		$reference = new ReferencePlatform();
+		$data = StatementBuilder::getInstance()->build($op, $reference);
+		$this->assertEquals('[table].[column] <> \'Foo\'',
+			\strval($data));
 	}
 
 	public function testBasics()
@@ -47,7 +66,7 @@ final class ExpressionEvaluatorTest extends \PHPUnit\Framework\TestCase
 		}
 	}
 
-	public function testLiterals()
+	public function testColumnDatas()
 	{
 		$list = [
 			'true string' => [
@@ -100,8 +119,8 @@ final class ExpressionEvaluatorTest extends \PHPUnit\Framework\TestCase
 		{
 			$label = $label . ' ' . strval($test[0]);
 			$e = Evaluator::evaluate($test[0]);
-			$this->assertInstanceOf(Literal::class, $e, $label);
-			if ($e instanceof Literal)
+			$this->assertInstanceOf(Data::class, $e, $label);
+			if ($e instanceof DataTypeProviderInterface)
 			{
 				$this->assertEquals($e->getDataType(), $test[1], $label);
 			}
@@ -167,20 +186,20 @@ final class ExpressionEvaluatorTest extends \PHPUnit\Framework\TestCase
 			'max' => [
 				'max(1, 2)',
 				2,
-				Literal::class,
-				Literal::class
+				Data::class,
+				Data::class
 			],
 			'substr' => [
 				"substr(:string, 0, 2)",
 				3,
 				Parameter::class,
-				Literal::class,
-				Literal::class
+				Data::class,
+				Data::class
 			],
 			'meta function' => [
 				"@strftime('%Y', timeCol)",
 				2,
-				Literal::class,
+				Data::class,
 				ColumnExpression::class
 			],
 			'complex' => [
@@ -192,7 +211,7 @@ final class ExpressionEvaluatorTest extends \PHPUnit\Framework\TestCase
 			'complex 2' => [
 				'expressions(#2010-07-12#, :p, (:v + 2))',
 				3,
-				Literal::class,
+				Data::class,
 				Parameter::class,
 				BinaryOperation::class
 			]
@@ -257,9 +276,8 @@ final class ExpressionEvaluatorTest extends \PHPUnit\Framework\TestCase
 		foreach ($timestamps as $label => $timestamp)
 		{
 			$x = Evaluator::evaluate($timestamp['expression']);
-			$this->assertInstanceOf(Literal::class, $x,
-				$label . ' class');
-			if ($x instanceof Literal)
+			$this->assertInstanceOf(Data::class, $x, $label . ' class');
+			if ($x instanceof ColumnData)
 			{
 				$this->assertEquals(K::DATATYPE_TIMESTAMP,
 					$x->getDataType());
@@ -276,7 +294,7 @@ final class ExpressionEvaluatorTest extends \PHPUnit\Framework\TestCase
 				],
 				'main' => BinaryOperation::class,
 				'left' => Column::class,
-				'right' => Literal::class
+				'right' => Data::class
 			],
 			'short' => [
 				'expression' => [
@@ -287,21 +305,21 @@ final class ExpressionEvaluatorTest extends \PHPUnit\Framework\TestCase
 				],
 				'main' => BinaryOperation::class,
 				'left' => Column::class,
-				'right' => Literal::class
+				'right' => Data::class
 			],
 			'function' => [
 				'expression' => [
 					"func()" => [
 						2,
 						'column',
-						ExpressionHelper::literal('string')
+						new Data('string')
 					]
 				],
-				'main' => FunctionCall::class,
+				'main' => ProcedureInvocation::class,
 				'args' => [
-					Literal::class,
+					Data::class,
 					Column::class,
-					Literal::class
+					Data::class
 				]
 			],
 			'in' => [
@@ -314,8 +332,8 @@ final class ExpressionEvaluatorTest extends \PHPUnit\Framework\TestCase
 				],
 				'main' => MemberOf::class,
 				'args' => [
-					Literal::class,
-					Literal::class,
+					Data::class,
+					Data::class,
 					Parameter::class
 				]
 			],

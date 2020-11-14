@@ -4,8 +4,8 @@ namespace NoreSources\SQL;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\Reference\ReferenceConnection;
 use NoreSources\SQL\DBMS\Reference\ReferencePlatform;
-use NoreSources\SQL\Expression\ExpressionHelper;
-use NoreSources\SQL\Expression\Literal;
+use NoreSources\SQL\Expression\Column;
+use NoreSources\SQL\Expression\Data;
 use NoreSources\SQL\Expression\MemberOf;
 use NoreSources\SQL\Statement\StatementBuilder;
 use NoreSources\SQL\Statement\StatementTokenStreamContext;
@@ -43,13 +43,12 @@ final class SelectTest extends \PHPUnit\Framework\TestCase
 		$q->where(
 			[
 				'or' => [
-					new MemberOf(ExpressionHelper::column('id'),
-						[
-							2,
-							4,
-							6,
-							8
-						]),
+					new MemberOf(new Column('id'), [
+						2,
+						4,
+						6,
+						8
+					]),
 					"name like 'Jean%'"
 				]
 			])->where("name != 'Jean-Claude'");
@@ -73,7 +72,7 @@ final class SelectTest extends \PHPUnit\Framework\TestCase
 		$platform = new ReferencePlatform();
 
 		$select = new SelectQuery();
-		$column = new Literal(true);
+		$column = new Data(true);
 		$this->assertEquals(K::DATATYPE_BOOLEAN, $column->getDataType(),
 			'Column value type');
 

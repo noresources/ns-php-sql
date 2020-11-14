@@ -10,6 +10,7 @@
 namespace NoreSources\SQL\Expression;
 
 use NoreSources\Container;
+use NoreSources\Expression\ExpressionInterface;
 use NoreSources\SQL\DataTypeProviderInterface;
 
 class Group implements TokenizableExpressionInterface,
@@ -17,7 +18,7 @@ class Group implements TokenizableExpressionInterface,
 {
 
 	public static function createWithParameterList(
-		TokenizableExpressionInterface $leftOperand, ...$operands)
+		ExpressionInterface $leftOperand, ...$operands)
 	{
 		if (Container::count($operands) != 1)
 			throw \LogicException(
@@ -28,13 +29,12 @@ class Group implements TokenizableExpressionInterface,
 
 	/**
 	 *
-	 * @param TokenizableExpressionInterface $expression
+	 * @param ExpressionInterface $expression
 	 * @param string $open
 	 * @param string $close
 	 */
-	public function __construct(
-		TokenizableExpressionInterface $expression, $open = '(',
-		$close = ')')
+	public function __construct(ExpressionInterface $expression,
+		$open = '(', $close = ')')
 	{
 		$this->expression = $expression;
 		$this->openingText = $open;
@@ -43,7 +43,7 @@ class Group implements TokenizableExpressionInterface,
 
 	/**
 	 *
-	 * @return \NoreSources\SQL\Expression\TokenizableExpressionInterface
+	 * @return ExpressionInterface
 	 */
 	public function getExpression()
 	{
@@ -78,12 +78,12 @@ class Group implements TokenizableExpressionInterface,
 
 	public function getDataType()
 	{
-		return ExpressionHelper::getDataType($this->expression);
+		return Evaluator::getInstance()->getDataType($this->expression);
 	}
 
 	/**
 	 *
-	 * @var TokenizableExpressionInterface
+	 * @var ExpressionInterface
 	 */
 	private $expression;
 

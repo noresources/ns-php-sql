@@ -16,7 +16,7 @@ class ExpressionList extends Set implements
 	/**
 	 * FTransform expression and expression list to an array of expressions
 	 *
-	 * @param TokenizableExpressionInterface[] ...$expressions
+	 * @param ExpressionInterface[] ...$expressions
 	 * @return array
 	 */
 	public static function flatten(...$expressions)
@@ -24,7 +24,7 @@ class ExpressionList extends Set implements
 		$list = [];
 		foreach ($expressions as $x)
 		{
-			if ($x instanceof ExpressionList)
+			if ($x instanceof Set)
 			{
 				$c = -1;
 				$x = $x->getArrayCopy();
@@ -45,7 +45,7 @@ class ExpressionList extends Set implements
 
 	/**
 	 *
-	 * @param TokenizableExpressionInterface[] $expressionList
+	 * @param ExpressionInterface[] $expressionList
 	 * @param string $separator
 	 */
 	public function __construct($expressionList, $separator = ',')
@@ -80,19 +80,13 @@ class ExpressionList extends Set implements
 	 * Sould not be used
 	 *
 	 * {@inheritdoc}
-	 * @see \NoreSources\SQL\Expression\TokenizableExpressionInterface::tokenize()
+	 * @see ExpressionInterface::tokenize()
 	 */
 	public function tokenize(TokenStream $stream,
 		TokenStreamContextInterface $context)
 	{
-		$i = 0;
-		foreach ($this as $value)
-		{
-			if ($i++ > 0)
-				$stream->text($this->separator)->space();
-			$stream->expression($value, $context);
-		}
-		return $stream;
+		return Tokenizer::getInstance()->tokenizeSet($this,
+			$stream, $context);
 	}
 
 	private $separator;

@@ -1,6 +1,9 @@
 <?php
 namespace NoreSources\SQL\Expression;
 
+/**
+ * An expression which have a negated counterparts.
+ */
 interface ToggleableInterface
 {
 

@@ -19,7 +19,7 @@ class Alternative implements TokenizableExpressionInterface,
 
 	public function getDataType()
 	{
-		return ExpressionHelper::getDataType($this->then);
+		return Evaluator::getInstance()->getDataType($this->then);
 	}
 
 	public function getCondition()

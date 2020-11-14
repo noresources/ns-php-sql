@@ -9,6 +9,7 @@
  */
 namespace NoreSources\SQL\Expression;
 
+use NoreSources\Expression\ExpressionInterface;
 use NoreSources\Expression\Set;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DataTypeProviderInterface;
@@ -24,12 +25,12 @@ class MemberOf extends Set implements TokenizableExpressionInterface,
 
 	/**
 	 *
-	 * @param TokenizableExpressionInterface $leftOperand
+	 * @param ExpressionInterface $leftOperand
 	 * @param Evaluable ...$members
 	 * @return \MemberOf
 	 */
 	public static function createWithParameterList(
-		TokenizableExpressionInterface $leftOperand, ...$members)
+		ExpressionInterface $leftOperand, ...$members)
 	{
 		return new MemberOf($leftOperand,
 			ExpressionList::flatten(...$members));
@@ -37,11 +38,11 @@ class MemberOf extends Set implements TokenizableExpressionInterface,
 
 	/**
 	 *
-	 * @param TokenizableExpressionInterface $leftOperand
+	 * @param ExpressionInterface $leftOperand
 	 * @param Evaluable[] $members
 	 */
-	public function __construct(
-		TokenizableExpressionInterface $leftOperand, $members)
+	public function __construct(ExpressionInterface $leftOperand,
+		$members)
 	{
 		parent::__construct();
 		$this->leftOperand = $leftOperand;
@@ -64,7 +65,7 @@ class MemberOf extends Set implements TokenizableExpressionInterface,
 	/**
 	 *
 	 * {@inheritdoc}
-	 * @see \NoreSources\SQL\TokenizableExpressionInterface::tokenize()
+	 * @see ExpressionInterface::tokenize()
 	 */
 	public function tokenize(TokenStream $stream,
 		TokenStreamContextInterface $context)
@@ -96,12 +97,12 @@ class MemberOf extends Set implements TokenizableExpressionInterface,
 
 	protected function isValidElement($element)
 	{
-		return ($element instanceof TokenizableExpressionInterface);
+		return ($element instanceof ExpressionInterface);
 	}
 
 	/**
 	 *
-	 * @var TokenizableExpressionInterface
+	 * @var ExpressionInterface
 	 */
 	private $leftOperand;
 }

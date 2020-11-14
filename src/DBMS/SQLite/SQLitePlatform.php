@@ -4,6 +4,7 @@ namespace NoreSources\SQL\DBMS\SQLite;
 use NoreSources\Container;
 use NoreSources\DateTime;
 use NoreSources\Text;
+use NoreSources\Expression\Value;
 use NoreSources\MediaType\MediaType;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\AbstractPlatform;
@@ -12,7 +13,6 @@ use NoreSources\SQL\DBMS\TypeRegistry;
 use NoreSources\SQL\DBMS\Types\ArrayObjectType;
 use NoreSources\SQL\Expression\ColumnDeclaration;
 use NoreSources\SQL\Expression\FunctionCall;
-use NoreSources\SQL\Expression\Literal;
 use NoreSources\SQL\Expression\MetaFunctionCall;
 use NoreSources\SQL\Expression\TableConstraintDeclaration;
 use NoreSources\SQL\Statement\ParameterData;
@@ -260,7 +260,7 @@ class SQLitePlatform extends AbstractPlatform
 		MetaFunctionCall $metaFunction)
 	{
 		$format = $metaFunction->getArgument(0);
-		if ($format instanceof Literal)
+		if ($format instanceof Value)
 		{
 			$s = \str_split(\strval($format->getValue()));
 			$escapeChar = '\\';

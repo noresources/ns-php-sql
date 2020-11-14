@@ -7,12 +7,12 @@ use NoreSources\DateTime;
 use NoreSources\SemanticVersion;
 use NoreSources\TypeConversion;
 use NoreSources\TypeDescription;
+use NoreSources\Expression\ExpressionInterface;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\MediaTypeUtility;
+use NoreSources\SQL\Expression\Evaluator;
 use NoreSources\SQL\Expression\FunctionCall;
-use NoreSources\SQL\Expression\Literal;
 use NoreSources\SQL\Expression\MetaFunctionCall;
-use NoreSources\SQL\Expression\TokenizableExpressionInterface;
 use NoreSources\SQL\Statement\ClassMapStatementFactoryTrait;
 use NoreSources\SQL\Structure\ColumnDescriptionInterface;
 use NoreSources\SQL\Structure\DatasourceStructure;
@@ -32,7 +32,7 @@ abstract class AbstractPlatform implements PlatformInterface
 	public function literalize($value, $dataType = null)
 	{
 		if ($dataType === null)
-			$dataType = Literal::dataTypeFromValue($value);
+			$dataType = Evaluator::getInstance()->getDataType($value);
 
 		if ($dataType == K::DATATYPE_NULL)
 			return null;
@@ -75,22 +75,8 @@ abstract class AbstractPlatform implements PlatformInterface
 		return TypeConversion::toString($value);
 	}
 
-	public function serializeColumnData(
-		ColumnDescriptionInterface $description, $data)
+	function serializeData($data, $dataType)
 	{
-		if ($description->hasColumnProperty(K::COLUMN_MEDIA_TYPE))
-		{
-			$mediaType = $description->getColumnProperty(
-				K::COLUMN_MEDIA_TYPE);
-
-			$data = MediaTypeUtility::toString($data, $mediaType);
-		}
-
-		$dataType = K::DATATYPE_UNDEFINED;
-		if ($description->hasColumnProperty(K::COLUMN_DATA_TYPE))
-			$dataType = $description->getColumnProperty(
-				K::COLUMN_DATA_TYPE);
-
 		if ($dataType == K::DATATYPE_NULL)
 			return $this->getKeyword(K::KEYWORD_NULL);
 		$dataType &= ~K::DATATYPE_NULL;
@@ -111,6 +97,25 @@ abstract class AbstractPlatform implements PlatformInterface
 
 		return $this->quoteStringValue(
 			$this->literalize($data, $dataType));
+	}
+
+	public function serializeColumnData(
+		ColumnDescriptionInterface $description, $data)
+	{
+		if ($description->hasColumnProperty(K::COLUMN_MEDIA_TYPE))
+		{
+			$mediaType = $description->getColumnProperty(
+				K::COLUMN_MEDIA_TYPE);
+
+			$data = MediaTypeUtility::toString($data, $mediaType);
+		}
+
+		$dataType = K::DATATYPE_UNDEFINED;
+		if ($description->hasColumnProperty(K::COLUMN_DATA_TYPE))
+			$dataType = $description->getColumnProperty(
+				K::COLUMN_DATA_TYPE);
+
+		return $this->serializeData($data, $dataType);
 	}
 
 	public function quoteStringValue($value)
@@ -328,10 +333,10 @@ abstract class AbstractPlatform implements PlatformInterface
 	{
 		$reflection = new \ReflectionClass($baseClassname);
 		if (!$reflection->implementsInterface(
-			TokenizableExpressionInterface::class))
+			ExpressionInterface::class))
 			throw new \LogicException(
 				$baseClassname . ' is not a ' .
-				TokenizableExpressionInterface::class);
+				ExpressionInterface::class);
 
 		return $reflection->newInstanceArgs($arguments);
 	}

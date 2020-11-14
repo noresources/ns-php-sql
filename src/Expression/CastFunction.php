@@ -9,6 +9,7 @@
  */
 namespace NoreSources\SQL\Expression;
 
+use NoreSources\Expression\ExpressionInterface;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Structure\ArrayColumnDescription;
 
@@ -20,18 +21,19 @@ class CastFunction extends FunctionCall
 
 	/**
 	 *
-	 * @param TokenizableExpressionInterface $expression
+	 * @param ExpressionInterface $expression
 	 * @param \NoreSources\SQL\Structure\ArrayColumnDescription|\NoreSources\SQL\DBMS\TypeInterface|TypeName|integer $type
 	 *        	Type. description
 	 */
-	public function __construct(TokenizableExpressionInterface $expression, $type)
+	public function __construct(ExpressionInterface $expression, $type)
 	{
 		parent::__construct('cast');
 
 		if (\is_integer($type))
-			$type = new ArrayColumnDescription([
-				K::COLUMN_DATA_TYPE => $type
-			]);
+			$type = new ArrayColumnDescription(
+				[
+					K::COLUMN_DATA_TYPE => $type
+				]);
 
 		if (!($type instanceof TypeName))
 			$type = new TypeName($type);
@@ -40,13 +42,3 @@ class CastFunction extends FunctionCall
 		$this->appendArgument($asOperator);
 	}
 }
-
-
-
-
-
-
-
-
-
-

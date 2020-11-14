@@ -10,6 +10,7 @@
 namespace NoreSources\SQL\Expression;
 
 use NoreSources\Expression as xpr;
+use NoreSources\Expression\ExpressionInterface;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DataTypeProviderInterface;
 
@@ -31,21 +32,10 @@ class BinaryOperation extends xpr\BinaryOperation implements
 	 * @param TokenizableExpressionInterface $left
 	 * @param TokenizableExpressionInterface $right
 	 */
-	public function __construct($operator,
-		TokenizableExpressionInterface $left,
-		TokenizableExpressionInterface $right)
+	public function __construct($operator, ExpressionInterface $left,
+		ExpressionInterface $right)
 	{
 		parent::__construct($operator, $left, $right);
-	}
-
-	public function isComparison()
-	{
-		return (parent::isComparison() ||
-			\in_array($this->getOperator(),
-				[
-					self::EQUAL,
-					self::DIFFER
-				]));
 	}
 
 	public function getDataType()
@@ -56,10 +46,10 @@ class BinaryOperation extends xpr\BinaryOperation implements
 		$type = K::DATATYPE_UNDEFINED;
 		if ($this->isArithmetic())
 		{
-			$type = ExpressionHelper::getDataType(
+			$type = Evaluator::getInstance()->getDataType(
 				$this->getLeftOperand());
 			if ($type == K::DATATYPE_UNDEFINED)
-				return ExpressionHelper::getDataType(
+				return Evaluator::getInstance()->getDataType(
 					$this->getRightOperand());
 		}
 
@@ -69,10 +59,7 @@ class BinaryOperation extends xpr\BinaryOperation implements
 	public function tokenize(TokenStream $stream,
 		TokenStreamContextInterface $context)
 	{
-		return $stream->expression($this->getLeftOperand(), $context)
-			->space()
-			->text($this->getOperator())
-			->space()
-			->expression($this->getRightOperand(), $context);
+		return Tokenizer::getInstance()->tokenizeBinaryOperation($this,
+			$stream, $context);
 	}
 }
