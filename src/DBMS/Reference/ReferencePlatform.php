@@ -5,7 +5,6 @@ use NoreSources\Container;
 use NoreSources\SQL\DBMS\AbstractPlatform;
 use NoreSources\SQL\DBMS\TypeRegistry;
 use NoreSources\SQL\Statement\ParameterData;
-use NoreSources\SQL\Structure\ColumnDescriptionInterface;
 use Psr\Log\LoggerAwareTrait;
 
 class ReferencePlatform extends AbstractPlatform
@@ -42,8 +41,7 @@ class ReferencePlatform extends AbstractPlatform
 		return '[' . $identifier . ']';
 	}
 
-	function getColumnType(ColumnDescriptionInterface $column,
-		$constraintFlags = 0)
+	function getColumnType($columnDescription, $constraintFlags = 0)
 	{
 
 		/**
@@ -53,7 +51,7 @@ class ReferencePlatform extends AbstractPlatform
 		$registry = StandardTypeRegistry::getInstance();
 
 		return Container::firstValue(
-			$registry->matchDescription($column));
+			$registry->matchDescription($columnDescription));
 	}
 
 	public function getTypeRegistry()

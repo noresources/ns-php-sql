@@ -16,7 +16,6 @@ use NoreSources\SQL\DefaultDataUnserializer;
 use NoreSources\SQL\Statement\OutputDataTrait;
 use NoreSources\SQL\Statement\ResultColumnMap;
 use NoreSources\SQL\Statement\StatementOutputDataInterface;
-use NoreSources\SQL\Structure\ColumnDescriptionInterface;
 
 /**
  * Recordset query result
@@ -232,14 +231,14 @@ abstract class Recordset implements \Iterator,
 		$this->unserializer = $unserializer;
 	}
 
-	public function unserializeColumnData(
-		ColumnDescriptionInterface $column, $data)
+	public function unserializeColumnData($columnDescription, $data)
 	{
 		$unserializer = $this->unserializer;
 		if (!($unserializer instanceof DataUnserializerInterface))
 			$unserializer = DefaultDataUnserializer::getInstance();
 
-		return $unserializer->unserializeColumnData($column, $data);
+		return $unserializer->unserializeColumnData($columnDescription,
+			$data);
 	}
 
 	protected function __construct($data = null)
@@ -315,10 +314,8 @@ abstract class Recordset implements \Iterator,
 				if ($this->flags & self::FETCH_UNSERIALIZE)
 				{
 					$u = $this;
-					if ($column->hasColumnProperty(
-						K::COLUMN_UNSERIALIZER))
-						$u = $column->getColumnProperty(
-							K::COLUMN_UNSERIALIZER);
+					if ($column->has(K::COLUMN_UNSERIALIZER))
+						$u = $column->get(K::COLUMN_UNSERIALIZER);
 
 					$value = $u->unserializeColumnData($column, $value);
 				}

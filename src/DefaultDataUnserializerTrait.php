@@ -9,6 +9,7 @@
  */
 namespace NoreSources\SQL;
 
+use NoreSources\Container;
 use NoreSources\StructuredText;
 use NoreSources\TypeConversion;
 use NoreSources\TypeConversionException;
@@ -26,44 +27,47 @@ trait DefaultDataUnserializerTrait
 
 	/**
 	 *
-	 * @param ColumnDescriptionInterface $column
+	 * @param ColumnDescriptionInterface $columnDescription
 	 * @param mixed $data
 	 *        	Data retrieved from DBMS storage
 	 * @return mixed Unserialized data
 	 */
-	public function unserializeColumnData(
-		ColumnDescriptionInterface $column, $data)
+	public function unserializeColumnData($columnDescription, $data)
 	{
-		$type = K::DATATYPE_UNDEFINED;
-		if ($column->hasColumnProperty(K::COLUMN_DATA_TYPE))
-			$type = $column->getColumnProperty(K::COLUMN_DATA_TYPE);
+		$dataType = K::DATATYPE_UNDEFINED;
+		if ($columnDescription instanceof DataTypeProviderInterface)
+			$dataType = $columnDescription->getDataType();
+		else
+			$dataType = Container::keyValue($columnDescription,
+				K::COLUMN_DATA_TYPE, $dataType);
 
-		if ($type == K::DATATYPE_NULL)
+		if ($dataType == K::DATATYPE_NULL)
 			$data = null;
-		$type &= ~K::DATATYPE_NULL;
+		$dataType &= ~K::DATATYPE_NULL;
 
-		if ($type == K::DATATYPE_BINARY)
-			$data = $this->unserializeBinaryColumnData($column, $data);
-		elseif ($type == K::DATATYPE_BOOLEAN)
-			$data = $this->unserializeBooleanColumnData($column, $data);
-		elseif ($type & K::DATATYPE_TIMESTAMP)
+		if ($dataType == K::DATATYPE_BINARY)
+			$data = $this->unserializeBinaryColumnData(
+				$columnDescription, $data);
+		elseif ($dataType == K::DATATYPE_BOOLEAN)
+			$data = $this->unserializeBooleanColumnData(
+				$columnDescription, $data);
+		elseif ($dataType & K::DATATYPE_TIMESTAMP)
 			$data = TypeConversion::toDateTime($data);
-		elseif ($type & K::DATATYPE_NUMBER)
+		elseif ($dataType & K::DATATYPE_NUMBER)
 		{
-			if ($type & K::DATATYPE_FLOAT)
+			if ($dataType & K::DATATYPE_FLOAT)
 				$data = TypeConversion::toFloat($data);
 			else
 				$data = TypeConversion::toInteger($data);
 		}
 
-		if ($column->hasColumnProperty(K::COLUMN_MEDIA_TYPE))
+		if (($mediaType = Container::keyValue($columnDescription,
+			K::COLUMN_MEDIA_TYPE)))
 		{
-			$mediaType = $column->getColumnProperty(
-				K::COLUMN_MEDIA_TYPE);
 			if ($mediaType instanceof MediaType)
 			{
 				$data = $this->unserializeStructuredSyntaxColumnData(
-					$column, $mediaType, $data);
+					$columnDescription, $mediaType, $data);
 			}
 		}
 

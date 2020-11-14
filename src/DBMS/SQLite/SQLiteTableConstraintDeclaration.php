@@ -22,9 +22,9 @@ class SQLiteTableConstraintDeclaration extends TableConstraintDeclaration
 		{
 			foreach ($constraint->getColumns() as $column)
 			{
-				if ($column->hasColumnProperty(K::COLUMN_FLAGS))
+				if ($column->has(K::COLUMN_FLAGS))
 				{
-					if ($column->getColumnProperty(K::COLUMN_FLAGS) &
+					if ($column->get(K::COLUMN_FLAGS) &
 						K::COLUMN_FLAG_AUTO_INCREMENT)
 						return 'unique';
 				}

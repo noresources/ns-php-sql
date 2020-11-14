@@ -7,7 +7,6 @@ use NoreSources\SQL\DBMS\IdentifierSerializerInterface;
 use NoreSources\SQL\DBMS\PlatformInterface;
 use NoreSources\SQL\Expression\MetaFunctionCall;
 use NoreSources\SQL\Statement\ParameterData;
-use NoreSources\SQL\Structure\ColumnDescriptionInterface;
 use Psr\Log\LoggerInterface;
 
 class PDOPlatform implements PlatformInterface,
@@ -62,10 +61,10 @@ class PDOPlatform implements PlatformInterface,
 		return $this->basePlatform->literalize($value, $dataType);
 	}
 
-	public function serializeColumnData(
-		ColumnDescriptionInterface $column, $data)
+	public function serializeColumnData($columnDescription, $data)
 	{
-		return $this->basePlatform->serializeColumnData($column, $data);
+		return $this->basePlatform->serializeColumnData(
+			$columnDescription, $data);
 	}
 
 	public function serializeData($data, $dataType)
@@ -115,10 +114,10 @@ class PDOPlatform implements PlatformInterface,
 		return $this->basePlatform->setLogger($logger);
 	}
 
-	public function getColumnType(ColumnDescriptionInterface $column,
+	public function getColumnType($columnDescription,
 		$constraintFlags = 0)
 	{
-		return $this->basePlatform->getColumnType($column,
+		return $this->basePlatform->getColumnType($columnDescription,
 			$constraintFlags);
 	}
 

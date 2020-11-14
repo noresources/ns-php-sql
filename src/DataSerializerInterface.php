@@ -26,8 +26,7 @@ interface DataSerializerInterface
 	 * @param mixed $data
 	 *        	Data to serialize
 	 */
-	function serializeColumnData(
-		ColumnDescriptionInterface $description, $data);
+	function serializeColumnData($description, $data);
 
 	/**
 	 * Serialize a data of a given type

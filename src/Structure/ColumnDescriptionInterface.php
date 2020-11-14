@@ -10,31 +10,14 @@
 namespace NoreSources\SQL\Structure;
 
 use NoreSources\SQL\DataTypeProviderInterface;
+use Psr\Container\ContainerInterface;
 
 /**
  * Describe table or result column properties
  */
-interface ColumnDescriptionInterface extends DataTypeProviderInterface
+interface ColumnDescriptionInterface extends DataTypeProviderInterface,
+	ContainerInterface, \IteratorAggregate
 {
-
-	/**
-	 *
-	 * @param string $key
-	 */
-	function hasColumnProperty($key);
-
-	/**
-	 *
-	 * @param string $key
-	 * @return boolean
-	 */
-	function getColumnProperty($key);
-
-	/**
-	 * Get all column properties
-	 * #return \Traversable
-	 */
-	function getColumnProperties();
 
 	/**
 	 *
@@ -42,11 +25,4 @@ interface ColumnDescriptionInterface extends DataTypeProviderInterface
 	 * @param mixed $value
 	 */
 	function setColumnProperty($key, $value);
-
-	/**
-	 * Remove a column property
-	 *
-	 * @param string $key
-	 */
-	function removeColumnProperty($key);
 }

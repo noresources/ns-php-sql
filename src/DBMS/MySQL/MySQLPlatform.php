@@ -15,7 +15,6 @@ use NoreSources\SQL\DBMS\Types\ArrayObjectType;
 use NoreSources\SQL\Expression\FunctionCall;
 use NoreSources\SQL\Expression\MetaFunctionCall;
 use NoreSources\SQL\Statement\ParameterData;
-use NoreSources\SQL\Structure\ColumnDescriptionInterface;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
 
@@ -68,10 +67,11 @@ class MySQLPlatform extends AbstractPlatform implements
 		return '`' . \str_replace('`', '``', $identifier) . '`';
 	}
 
-	public function getColumnType(ColumnDescriptionInterface $column,
+	public function getColumnType($columnDescription,
 		$constraintFlags = 0)
 	{
-		if ($column->hasColumnProperty(K::COLUMN_ENUMERATION))
+		if (Container::keyExists($columnDescription,
+			K::COLUMN_ENUMERATION))
 		{
 			return MySQLTypeRegistry::getInstance()->get('enum');
 		}
@@ -105,7 +105,7 @@ class MySQLPlatform extends AbstractPlatform implements
 				});
 		}
 
-		$types = $types->matchDescription($column);
+		$types = $types->matchDescription($columnDescription);
 
 		if (Container::count($types) > 0)
 		{

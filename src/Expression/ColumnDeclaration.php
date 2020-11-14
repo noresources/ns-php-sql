@@ -80,7 +80,7 @@ class ColumnDeclaration implements TokenizableExpressionInterface
 				K::PLATFORM_FEATURE_COLUMN_DECLARATION_FLAGS
 			], 0);
 
-		$columnFlags = $this->getColumn()->getColumnProperty(
+		$columnFlags = $this->getColumn()->get(
 			K::COLUMN_FLAGS);
 
 		$stream->identifier(
@@ -109,7 +109,7 @@ class ColumnDeclaration implements TokenizableExpressionInterface
 		TokenStreamContextInterface $context)
 	{
 		$platform = $context->getPlatform();
-		$columnFlags = $this->columnStructure->getColumnProperty(
+		$columnFlags = $this->columnStructure->get(
 			K::COLUMN_FLAGS);
 		$columnDeclaration = $platform->queryFeature(
 			[
@@ -130,12 +130,12 @@ class ColumnDeclaration implements TokenizableExpressionInterface
 		$fractionScaleSupport = (($typeFlags &
 			K::TYPE_FLAG_FRACTION_SCALE) == K::TYPE_FLAG_FRACTION_SCALE);
 
-		$hasLength = $this->columnStructure->hasColumnProperty(
+		$hasLength = $this->columnStructure->has(
 			K::COLUMN_LENGTH);
-		$hasFractionScale = $this->columnStructure->hasColumnProperty(
+		$hasFractionScale = $this->columnStructure->has(
 			K::COLUMN_FRACTION_SCALE);
 
-		$hasEnumeration = $this->columnStructure->hasColumnProperty(
+		$hasEnumeration = $this->columnStructure->has(
 			K::COLUMN_ENUMERATION);
 
 		$mandatoryLength = (($typeFlags & K::TYPE_FLAG_MANDATORY_LENGTH) ==
@@ -148,7 +148,7 @@ class ColumnDeclaration implements TokenizableExpressionInterface
 			($columnDeclaration & K::PLATFORM_FEATURE_COLUMN_ENUM))
 		{
 			$stream->text('(');
-			$values = $this->columnStructure->getColumnProperty(
+			$values = $this->columnStructure->get(
 				K::COLUMN_ENUMERATION);
 			$i = 0;
 			foreach ($values as $value)
@@ -165,16 +165,16 @@ class ColumnDeclaration implements TokenizableExpressionInterface
 			$length = null;
 
 			if ($fractionScaleSupport &&
-				$this->columnStructure->hasColumnProperty(
+				$this->columnStructure->has(
 					K::COLUMN_FRACTION_SCALE) && $fractionScaleSupport)
 			{
-				$scale = $this->columnStructure->getColumnProperty(
+				$scale = $this->columnStructure->get(
 					K::COLUMN_FRACTION_SCALE);
 			}
 
 			if ($hasLength)
 			{
-				$length = $this->columnStructure->getColumnProperty(
+				$length = $this->columnStructure->get(
 					K::COLUMN_LENGTH);
 			}
 			elseif ($hasFractionScale && $fractionScaleSupport)
@@ -240,14 +240,14 @@ class ColumnDeclaration implements TokenizableExpressionInterface
 		$platform = $context->getPlatform();
 		$typeFlags = Container::keyValue($this->dbmsType, K::TYPE_FLAGS,
 			0);
-		$columnFlags = $this->columnStructure->getColumnProperty(
+		$columnFlags = $this->columnStructure->get(
 			K::COLUMN_FLAGS);
-		$dataType = $this->columnStructure->getColumnProperty(
+		$dataType = $this->columnStructure->get(
 			K::COLUMN_DATA_TYPE);
 		$nullable = ($dataType & K::DATATYPE_NULL);
 		$dataType &= ~K::DATATYPE_NULL;
 
-		if ($this->columnStructure->hasColumnProperty(
+		if ($this->columnStructure->has(
 			K::COLUMN_DEFAULT_VALUE))
 		{
 			if ($stream->count())
@@ -292,7 +292,7 @@ class ColumnDeclaration implements TokenizableExpressionInterface
 		TokenStreamContextInterface $context)
 	{
 		$v = Evaluator::evaluate(
-			$this->columnStructure->getColumnProperty(
+			$this->columnStructure->get(
 				K::COLUMN_DEFAULT_VALUE));
 		$stream->keyword('DEFAULT')
 			->space()

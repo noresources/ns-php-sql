@@ -38,14 +38,13 @@ interface PlatformInterface extends FeatureQueryInterface,
 
 	/**
 	 *
-	 * @param ColumnDescriptionInterface $column
+	 * @param ColumnDescriptionInterface $columnDescription
 	 *        	Column description
 	 * @param number $constraintFlags
 	 *        	Column constraint flags
 	 * @return TypeInterface
 	 */
-	function getColumnType(ColumnDescriptionInterface $column,
-		$constraintFlags = 0);
+	function getColumnType($columnDescription, $constraintFlags = 0);
 
 	/**
 	 *

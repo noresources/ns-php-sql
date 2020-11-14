@@ -83,10 +83,10 @@ class ColumnStructure implements StructureElementInterface,
 	public function __clone()
 	{
 		$this->cloneStructureElement();
-		if ($this->hasColumnProperty(self::DEFAULT_VALUE))
+		if ($this->has(self::DEFAULT_VALUE))
 		{
 			$this->setColumnProperty(self::DEFAULT_VALUE,
-				clone $this->getColumnProperty(self::DEFAULT_VALUE));
+				clone $this->get(self::DEFAULT_VALUE));
 		}
 	}
 }

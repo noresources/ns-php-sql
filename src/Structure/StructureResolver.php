@@ -191,7 +191,7 @@ class StructureResolver implements StructureResolverInterface
 			 */
 
 			$column = new ColumnStructure($n, $table);
-			foreach ($c->getColumnProperties() as $key => $value)
+			foreach ($c as $key => $value)
 			{
 				$column->setColumnProperty($key, $value);
 			}

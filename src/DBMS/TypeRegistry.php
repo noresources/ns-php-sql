@@ -9,8 +9,6 @@ use NoreSources\MediaType\MediaTypeInterface;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\Types\ArrayObjectType;
 use NoreSources\SQL\Expression\Evaluator;
-use NoreSources\SQL\Structure\ColumnDescriptionInterface;
-use NoreSources\SQL\Structure\ColumnStructure;
 use Psr\Container\ContainerInterface;
 
 /**
@@ -22,11 +20,10 @@ class TypeRegistry implements \ArrayAccess, \Countable,
 
 	use CaseInsensitiveKeyMapTrait;
 
-	public function matchDescription(
-		ColumnDescriptionInterface $description)
+	public function matchDescription($columnDescription)
 	{
 		$scores = [];
-		$descriptionFlags = $description->getColumnProperty(
+		$descriptionFlags = Container::keyValue($columnDescription,
 			K::COLUMN_FLAGS);
 		foreach ($this as $typeKey => $type)
 		{
@@ -43,10 +40,12 @@ class TypeRegistry implements \ArrayAccess, \Countable,
 
 			// Data type
 			$targetDataTypeScore = 0;
-			if ($description->hasColumnProperty(K::COLUMN_DATA_TYPE))
+			if (Container::keyExists($columnDescription,
+				K::COLUMN_DATA_TYPE))
 			{
-				$targetDataType = $description->getColumnProperty(
-					K::COLUMN_DATA_TYPE) & ~K::DATATYPE_NULL;
+				$targetDataType = Container::keyValue(
+					$columnDescription, K::COLUMN_DATA_TYPE) &
+					~K::DATATYPE_NULL;
 				$typeDataType = K::DATATYPE_STRING;
 				if ($type->has(K::TYPE_DATA_TYPE))
 					$typeDataType = $type->get(K::TYPE_DATA_TYPE);
@@ -74,9 +73,10 @@ class TypeRegistry implements \ArrayAccess, \Countable,
 			$scores[$typeKey] += ($targetDataTypeScore *
 				self::SCORE_MULTIPLIER_DATA_TYPE);
 
-			if ($description->hasColumnProperty(K::COLUMN_DEFAULT_VALUE))
+			if (Container::keyExists($columnDescription,
+				K::COLUMN_DEFAULT_VALUE))
 			{
-				$defaultValue = $description->getColumnProperty(
+				$defaultValue = Container::keyValue($columnDescription,
 					K::COLUMN_DEFAULT_VALUE);
 				$defaultValueDataType = Evaluator::getInstance()->getDataType(
 					$defaultValue);
@@ -88,10 +88,12 @@ class TypeRegistry implements \ArrayAccess, \Countable,
 				}
 			}
 
-			if ($description->hasColumnProperty(K::COLUMN_LENGTH))
+			if (Container::keyExists($columnDescription,
+				K::COLUMN_LENGTH))
 			{
 				$length = TypeConversion::toInteger(
-					$description->getColumnProperty(K::COLUMN_LENGTH));
+					Container::keyValue($columnDescription,
+						K::COLUMN_LENGTH));
 
 				if ($targetDataType == K::DATATYPE_INTEGER &&
 					$type->has(K::TYPE_SIZE))
@@ -121,11 +123,11 @@ class TypeRegistry implements \ArrayAccess, \Countable,
 					}
 				} // length
 
-				if ($description->hasColumnProperty(
+				if (Container::keyExists($columnDescription,
 					K::COLUMN_FRACTION_SCALE))
 				{
 					$scale = TypeConversion::toInteger(
-						$description->getColumnProperty(
+						Container::keyValue($columnDescription,
 							K::COLUMN_FRACTION_SCALE));
 
 					if ($scale > 0)
@@ -141,10 +143,10 @@ class TypeRegistry implements \ArrayAccess, \Countable,
 			} // length
 
 			$paddingScore = 0;
-			if ($description->hasColumnProperty(
+			if (Container::keyExists($columnDescription,
 				K::COLUMN_PADDING_DIRECTION))
 			{
-				$cd = $description->getColumnProperty(
+				$cd = Container::keyValue($columnDescription,
 					K::COLUMN_PADDING_DIRECTION);
 				if ($type->has(K::TYPE_PADDING_DIRECTION))
 				{
@@ -154,12 +156,12 @@ class TypeRegistry implements \ArrayAccess, \Countable,
 					if ($cd == $tc)
 						$paddingScore++;
 
-					if ($description->hasColumnProperty(
+					if (Container::keyExists($columnDescription,
 						K::COLUMN_PADDING_GLYPH))
 					{
 						if ($type->has(K::TYPE_PADDING_GLYPH))
 						{
-							if ($description->getColumnProperty(
+							if (Container::keyValue($columnDescription,
 								K::COLUMN_PADDING_GLYPH) ==
 								$type->get(K::TYPE_PADDING_GLYPH))
 								$paddingScore++;
@@ -181,10 +183,9 @@ class TypeRegistry implements \ArrayAccess, \Countable,
 				self::SCORE_MULTIPLIER_PADDING;
 
 			$mediaTypeScore = 0;
-			if ($description->hasColumnProperty(K::COLUMN_MEDIA_TYPE))
+			if (($descriptionMediaType = Container::keyValue(
+				$columnDescription, K::COLUMN_MEDIA_TYPE)))
 			{
-				$descriptionMediaType = $description->getColumnProperty(
-					K::COLUMN_MEDIA_TYPE);
 				if (!$type->has(K::TYPE_MEDIA_TYPE))
 				{
 					$scores[$typeKey] = -1000;
@@ -229,34 +230,31 @@ class TypeRegistry implements \ArrayAccess, \Countable,
 				return $scores[$typeKey] >= 0;
 			});
 
-		if ($description instanceof ColumnStructure)
-		{
-			$types = $this->map;
-			uksort($filtered,
-				function ($ka, $kb) use ($scores, $description) {
-					$a = $scores[$ka];
-					$b = $scores[$kb];
-					$v = ($b - $a);
+		$types = $this->map;
+		uksort($filtered,
+			function ($ka, $kb) use ($scores, $columnDescription) {
+				$a = $scores[$ka];
+				$b = $scores[$kb];
+				$v = ($b - $a);
 
-					$ta = $this->get($ka);
-					$tb = $this->get($kb);
+				$ta = $this->get($ka);
+				$tb = $this->get($kb);
 
-					if ($v != 0)
-						return $v;
-
-					// Smallest first
-					$v = self::compareTypeLength($ta, $tb);
-
-					if (!$description->hasColumnProperty(
-						K::COLUMN_LENGTH))
-					{
-						// Larger first
-						$v = -$v;
-					}
-
+				if ($v != 0)
 					return $v;
-				});
-		}
+
+				// Smallest first
+				$v = self::compareTypeLength($ta, $tb);
+
+				if (!Container::keyExists($columnDescription,
+					K::COLUMN_LENGTH))
+				{
+					// Larger first
+					$v = -$v;
+				}
+
+				return $v;
+			});
 
 		return new TypeRegistry($filtered, [], true);
 	}

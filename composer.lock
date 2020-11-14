@@ -120,12 +120,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/noresources/ns-php-expression.git",
-                "reference": "552723987527ce3689a79db8786e8db606b44455"
+                "reference": "73d6c9bbbbb9f713736a1ce88ddf672d992c217e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/noresources/ns-php-expression/zipball/552723987527ce3689a79db8786e8db606b44455",
-                "reference": "552723987527ce3689a79db8786e8db606b44455",
+                "url": "https://api.github.com/repos/noresources/ns-php-expression/zipball/73d6c9bbbbb9f713736a1ce88ddf672d992c217e",
+                "reference": "73d6c9bbbbb9f713736a1ce88ddf672d992c217e",
                 "shasum": ""
             },
             "require": {
@@ -163,7 +163,7 @@
                 "issues": "https://github.com/noresources/ns-php-expression/issues",
                 "source": "https://github.com/noresources/ns-php-expression/tree/master"
             },
-            "time": "2020-11-14T14:34:40+00:00"
+            "time": "2020-11-15T14:43:04+00:00"
         },
         {
             "name": "noresources/ns-php-http-core",

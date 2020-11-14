@@ -56,12 +56,12 @@ class MySQLRecordset extends Recordset implements \Countable,
 				$column->name = Container::keyValue($field, 'name',
 					Container::keyValue($field, 'orgname'));
 
-			if (!$column->hasColumnProperty(K::COLUMN_FRACTION_SCALE) &&
+			if (!$column->has(K::COLUMN_FRACTION_SCALE) &&
 				Container::keyExists($field, 'decimals'))
 				$column->setColumnProperty(K::COLUMN_FRACTION_SCALE,
 					intval($field->decimals));
 
-			if (!$column->hasColumnProperty(K::COLUMN_DATA_TYPE) &&
+			if (!$column->has(K::COLUMN_DATA_TYPE) &&
 				Container::keyExists($field, 'type'))
 				$column->setColumnProperty(K::COLUMN_DATA_TYPE,
 					MySQLConnection::dataTypeFromMysqlType($field->type));

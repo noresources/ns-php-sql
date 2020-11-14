@@ -143,7 +143,7 @@ class InsertQuery extends Statement implements \ArrayAccess
 				 * @var ColumnStructure $column
 				 */
 
-				if ($column->hasColumnProperty(K::COLUMN_DEFAULT_VALUE))
+				if ($column->has(K::COLUMN_DEFAULT_VALUE))
 				{
 					$c++;
 					$columns[] = $context->getPlatform()->quoteIdentifier(
@@ -153,7 +153,7 @@ class InsertQuery extends Statement implements \ArrayAccess
 					else
 					{
 						$x = Evaluator::evaluate(
-							$column->getColumnProperty(
+							$column->get(
 								K::COLUMN_DEFAULT_VALUE));
 						$values[] = $x;
 					}

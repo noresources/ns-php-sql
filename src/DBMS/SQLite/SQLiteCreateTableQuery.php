@@ -47,7 +47,7 @@ class SQLiteCreateTableQuery extends CreateTableQuery
 			$columns = $constraint->getColumns();
 			foreach ($columns as $column)
 			{
-				$flags = $column->getColumnProperty(K::COLUMN_FLAGS);
+				$flags = $column->get(K::COLUMN_FLAGS);
 
 				if ($flags & K::COLUMN_FLAG_AUTO_INCREMENT)
 					return Container::count($columns) > 1;

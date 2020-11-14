@@ -46,8 +46,7 @@ class ResultColumn implements ColumnDescriptionInterface
 
 		if ($data instanceof ColumnDescriptionInterface)
 		{
-			$this->initializeColumnProperties(
-				$data->getColumnProperties());
+			$this->initializeColumnProperties($data);
 		}
 		elseif ($data instanceof DataTypeProviderInterface)
 		{

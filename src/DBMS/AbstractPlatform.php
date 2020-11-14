@@ -9,12 +9,12 @@ use NoreSources\TypeConversion;
 use NoreSources\TypeDescription;
 use NoreSources\Expression\ExpressionInterface;
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\DataTypeProviderInterface;
 use NoreSources\SQL\MediaTypeUtility;
 use NoreSources\SQL\Expression\Evaluator;
 use NoreSources\SQL\Expression\FunctionCall;
 use NoreSources\SQL\Expression\MetaFunctionCall;
 use NoreSources\SQL\Statement\ClassMapStatementFactoryTrait;
-use NoreSources\SQL\Structure\ColumnDescriptionInterface;
 use NoreSources\SQL\Structure\DatasourceStructure;
 use NoreSources\SQL\Structure\StructureElementIdentifier;
 use NoreSources\SQL\Structure\StructureElementInterface;
@@ -99,21 +99,21 @@ abstract class AbstractPlatform implements PlatformInterface
 			$this->literalize($data, $dataType));
 	}
 
-	public function serializeColumnData(
-		ColumnDescriptionInterface $description, $data)
+	public function serializeColumnData($columnDescription, $data)
 	{
-		if ($description->hasColumnProperty(K::COLUMN_MEDIA_TYPE))
+		if (($mediaType = Container::keyValue($columnDescription,
+			K::COLUMN_MEDIA_TYPE)))
 		{
-			$mediaType = $description->getColumnProperty(
-				K::COLUMN_MEDIA_TYPE);
-
+			$mediaType = $columnDescription->get(K::COLUMN_MEDIA_TYPE);
 			$data = MediaTypeUtility::toString($data, $mediaType);
 		}
 
 		$dataType = K::DATATYPE_UNDEFINED;
-		if ($description->hasColumnProperty(K::COLUMN_DATA_TYPE))
-			$dataType = $description->getColumnProperty(
-				K::COLUMN_DATA_TYPE);
+		if ($columnDescription instanceof DataTypeProviderInterface)
+			$dataType = $columnDescription->getDataType();
+		else
+			$dataType = Container::keyValue($columnDescription,
+				K::COLUMN_DATA_TYPE, $dataType);
 
 		return $this->serializeData($data, $dataType);
 	}

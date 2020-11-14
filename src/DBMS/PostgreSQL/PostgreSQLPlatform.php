@@ -16,7 +16,6 @@ use NoreSources\SQL\DBMS\Types\BasicType;
 use NoreSources\SQL\Expression\FunctionCall;
 use NoreSources\SQL\Expression\MetaFunctionCall;
 use NoreSources\SQL\Statement\ParameterData;
-use NoreSources\SQL\Structure\ColumnDescriptionInterface;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
 
@@ -156,10 +155,11 @@ class PostgreSQLPlatform extends AbstractPlatform implements
 		return $this->connection->quoteIdentifier($identifier);
 	}
 
-	public function getColumnType(ColumnDescriptionInterface $column,
+	public function getColumnType($columnDescription,
 		$constraintFlags = 0)
 	{
-		$columnFlags = $column->getColumnProperty(K::COLUMN_FLAGS);
+		$columnFlags = Container::keyValue($columnDescription,
+			K::COLUMN_FLAGS, 0);
 		// Special case for auto-increment column
 		if ($columnFlags & K::COLUMN_FLAG_AUTO_INCREMENT)
 		{
@@ -171,7 +171,7 @@ class PostgreSQLPlatform extends AbstractPlatform implements
 		 * @var TypeRegistry $types
 		 */
 		$types = PostgreSQLTypeRegistry::getInstance();
-		$matchingTypes = $types->matchDescription($column);
+		$matchingTypes = $types->matchDescription($columnDescription);
 		return Container::firstValue($matchingTypes);
 	}
 

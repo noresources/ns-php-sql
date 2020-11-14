@@ -207,8 +207,8 @@ class XMLStructureFileExporter implements
 		$versionNumber = $this->schemaVersion->getIntegerValue();
 		$dataTypeNode = $context->dom->createElementNS($namespaceURI,
 			'datatype');
-		$dataType = $structure->getColumnProperty(K::COLUMN_DATA_TYPE);
-		$flags = $structure->getColumnProperty(K::COLUMN_FLAGS);
+		$dataType = $structure->get(K::COLUMN_DATA_TYPE);
+		$flags = $structure->get(K::COLUMN_FLAGS);
 
 		if ($dataType & K::DATATYPE_NULL)
 		{
@@ -224,12 +224,12 @@ class XMLStructureFileExporter implements
 
 		$dataType &= ~K::DATATYPE_NULL;
 
-		if ($structure->hasColumnProperty(K::COLUMN_DEFAULT_VALUE))
+		if ($structure->has(K::COLUMN_DEFAULT_VALUE))
 		{
 			$defaultNode = $context->dom->createElementNS($namespaceURI,
 				'default');
 
-			$value = $structure->getColumnProperty(
+			$value = $structure->get(
 				K::COLUMN_DEFAULT_VALUE);
 			$valueType = $dataType;
 			if ($value instanceof DataTypeProviderInterface)
@@ -280,9 +280,9 @@ class XMLStructureFileExporter implements
 
 			if ($dataType == K::DATATYPE_STRING)
 			{
-				if ($structure->hasColumnProperty(K::COLUMN_ENUMERATION))
+				if ($structure->has(K::COLUMN_ENUMERATION))
 				{
-					$values = $structure->getColumnProperty(
+					$values = $structure->get(
 						K::COLUMN_ENUMERATION);
 					$enumerationNode = $context->dom->createElementNS(
 						$namespaceURI, 'enumeration');
@@ -348,17 +348,17 @@ class XMLStructureFileExporter implements
 				}
 			}
 
-			if ($structure->hasColumnProperty(K::COLUMN_LENGTH))
+			if ($structure->has(K::COLUMN_LENGTH))
 			{
 				$typeNode->setAttribute('length',
-					$structure->getColumnProperty(K::COLUMN_LENGTH));
+					$structure->get(K::COLUMN_LENGTH));
 			}
 
-			if ($structure->hasColumnProperty(K::COLUMN_FRACTION_SCALE))
+			if ($structure->has(K::COLUMN_FRACTION_SCALE))
 			{
 				$n = ($versionNumber >= 20000) ? 'scale' : 'decimals';
 				$typeNode->setAttribute($n,
-					$structure->getColumnProperty(
+					$structure->get(
 						K::COLUMN_FRACTION_SCALE));
 			}
 

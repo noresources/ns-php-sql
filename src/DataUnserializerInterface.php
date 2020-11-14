@@ -17,12 +17,12 @@ interface DataUnserializerInterface
 	/**
 	 * Unserialize data from DBMS record column
 	 *
-	 * @param ColumnDescriptionInterface $column
+	 * @param ColumnDescriptionInterface $columnDescription
 	 *        	Column properties
 	 * @param mixed $data
 	 *        	Data to unserialize
 	 * @return mixed Unserialized data
 	 */
-	function unserializeColumnData(ColumnDescriptionInterface $column, $data);
+	function unserializeColumnData($columnDescription, $data);
 }
 

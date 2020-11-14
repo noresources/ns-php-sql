@@ -65,7 +65,7 @@ class ColumnData extends Value implements
 
 	public function getDataType()
 	{
-		return $this->serializationTarget->getColumnProperty(
+		return $this->serializationTarget->get(
 			K::COLUMN_DATA_TYPE);
 	}
 

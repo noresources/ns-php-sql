@@ -331,7 +331,7 @@ class XMLStructureFileImporter implements
 			$dataType = K::DATATYPE_INTEGER;
 			if ($typeNode->hasAttribute('signed'))
 			{
-				$flg = $structure->getColumnProperty(K::COLUMN_FLAGS);
+				$flg = $structure->get(K::COLUMN_FLAGS);
 				$signed = $typeNode->getAttribute('signed');
 				if ($signed == 'yes')
 					$structure->setColumnProperty(K::COLUMN_FLAGS,
@@ -342,7 +342,7 @@ class XMLStructureFileImporter implements
 			}
 			if ($typeNode->hasAttribute('autoincrement'))
 			{
-				$flg = $structure->getColumnProperty(K::COLUMN_FLAGS);
+				$flg = $structure->get(K::COLUMN_FLAGS);
 				$structure->setColumnProperty(K::COLUMN_FLAGS,
 					$flg | K::COLUMN_FLAG_AUTO_INCREMENT);
 			}

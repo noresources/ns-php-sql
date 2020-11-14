@@ -28,7 +28,7 @@ trait ColumnDescriptionTrait
 			K::COLUMN_DATA_TYPE => K::DATATYPE_STRING
 		];
 
-		if ($properties)
+		if (Container::isTraversable($properties))
 		{
 			foreach ($properties as $key => $value)
 			{
@@ -39,26 +39,26 @@ trait ColumnDescriptionTrait
 
 	public function getDataType()
 	{
-		if ($this->hasColumnProperty(K::COLUMN_DATA_TYPE))
-			return $this->getColumnProperty(K::COLUMN_DATA_TYPE);
+		if ($this->has(K::COLUMN_DATA_TYPE))
+			return $this->get(K::COLUMN_DATA_TYPE);
 		return K::DATATYPE_UNDEFINED;
 	}
 
-	public function hasColumnProperty($key)
+	public function has($key)
 	{
 		return Container::keyExists($this->columnProperties, $key);
 	}
 
-	public function getColumnProperty($key)
+	public function get($key)
 	{
 		if (Container::keyExists($this->columnProperties, $key))
 			return $this->columnProperties[$key];
 		return ColumnPropertyDefault::get($key);
 	}
 
-	public function getColumnProperties()
+	public function getIterator()
 	{
-		return $this->columnProperties;
+		return new \ArrayIterator($this->columnProperties);
 	}
 
 	public function setColumnProperty($key, $value)
@@ -88,12 +88,6 @@ trait ColumnDescriptionTrait
 		}
 
 		$this->columnProperties[$key] = $value;
-	}
-
-	public function removeColumnProperty($key)
-	{
-		if (Container::keyExists($this->columnProperties, $key))
-			unset($this->columnProperties[$key]);
 	}
 
 	/**
@@ -140,8 +134,7 @@ class ColumnPropertyDefault
 		if (\array_key_exists($key, self::$defaultValues))
 			return self::$defaultValues[$key];
 
-		throw new StructureException(
-			'Invalid column property key ' . $key);
+		throw new ColumnPropertyNotFoundException($key);
 	}
 
 	private static function initialize()

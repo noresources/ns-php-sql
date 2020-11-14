@@ -16,7 +16,6 @@ use NoreSources\SQL\Expression\FunctionCall;
 use NoreSources\SQL\Expression\MetaFunctionCall;
 use NoreSources\SQL\Expression\TableConstraintDeclaration;
 use NoreSources\SQL\Statement\ParameterData;
-use NoreSources\SQL\Structure\ColumnDescriptionInterface;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
 
@@ -66,12 +65,12 @@ class SQLitePlatform extends AbstractPlatform
 		], true);
 	}
 
-	public function getColumnType(ColumnDescriptionInterface $column,
+	public function getColumnType($columnDescription,
 		$constraintFlags = 0)
 	{
 		$registry = $this->getTypeRegistry();
 		$type = Container::firstValue(
-			$registry->matchDescription($column));
+			$registry->matchDescription($columnDescription));
 		if (!$type)
 			return $registry->get('text');
 

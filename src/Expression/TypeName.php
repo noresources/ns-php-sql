@@ -73,7 +73,7 @@ class TypeName implements TokenizableExpressionInterface
 				if ($type instanceof ColumnDescriptionInterface)
 				{
 					$s = new ColumnStructure('runtime_type', null);
-					foreach ($type->getColumnProperties() as $key => $value)
+					foreach ($type as $key => $value)
 						$s->setColumnProperty($key, $value);
 					$type = $s;
 				}
