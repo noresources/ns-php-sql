@@ -39,9 +39,19 @@ class VirtualStructureResolver extends StructureResolver implements
 
 		if ($c == 1)
 		{
-			$table = $this->getDefaultTable();
-			array_unshift($path, $table->getName());
-			$c++;
+			try
+			{
+				$table = $this->getDefaultTable();
+				array_unshift($path, $table->getName());
+				$c++;
+			}
+			catch (StructureResolverException $e)
+			{
+				return $this->addStructurePath(\array_reverse($path),
+					[
+						ColumnStructure::class
+					]);
+			}
 		}
 
 		if ($c == 2)

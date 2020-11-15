@@ -6,9 +6,9 @@ use NoreSources\SQL\DBMS\Reference\ReferenceConnection;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Statement\StatementBuilder;
 use NoreSources\SQL\Statement\StatementTokenStreamContext;
+use NoreSources\SQL\Structure\ColumnStructure;
 use NoreSources\SQL\Structure\DatasourceStructure;
 use NoreSources\SQL\Structure\NamespaceStructure;
-use NoreSources\SQL\Structure\StructureResolverException;
 use NoreSources\SQL\Structure\StructureResolverInterface;
 use NoreSources\SQL\Structure\TableStructure;
 use NoreSources\SQL\Structure\VirtualStructureResolver;
@@ -96,6 +96,14 @@ final class VirtualStructureTest extends \PHPUnit\Framework\TestCase
 		$this->assertInstanceOf(NamespaceStructure::class, $notNsAlias);
 	}
 
+	public function testLonelyColumn()
+	{
+		$vsr = new VirtualStructureResolver();
+		$column = $vsr->findColumn('lonely');
+
+		$this->assertInstanceOf(ColumnStructure::class, $column);
+	}
+
 	public function testColumn()
 	{
 		$vsr = new VirtualStructureResolver();
@@ -107,27 +115,6 @@ final class VirtualStructureTest extends \PHPUnit\Framework\TestCase
 		$this->assertEquals('ns.t.c', $c->getPath());
 		$c2 = $vsr->findColumn('t.c2');
 		$this->assertEquals('ns.t.c2', $c2->getPath());
-	}
-
-	public function testColumnResolutionException()
-	{
-		$vsr = new VirtualStructureResolver();
-
-		$this->expectException(StructureResolverException::class,
-			"Can't resolve column before resolving at least one table");
-
-		$c = $vsr->findColumn('lonely');
-
-		$t2 = $vsr->findTable('t2');
-
-		$t2c = $vsr->findColumn('t2.c');
-		$this->assertEquals('ns.t2.c', $t2c->getPath(),
-			'Column path of the second table');
-
-		$vsr->setPivot($t2);
-		$t2c2 = $vsr->findColumn('c2');
-		$this->assertEquals('ns.t2.c2', $t2c2->getPath(),
-			'Second column path of the second table');
 	}
 
 	public function testStatementBuilding()
