@@ -40,19 +40,19 @@ class PostgreSQLPlatform extends AbstractPlatform implements
 
 		$this->setPlatformFeature(
 			[
-				self::FEATURE_INSERT,
-				self::FEATURE_DEFAULT
+				K::FEATURE_INSERT,
+				K::FEATURE_DEFAULT
 			], true);
 		$this->setPlatformFeature(
 			[
-				self::FEATURE_INSERT,
-				self::FEATURE_DEFAULTVALUES
+				K::FEATURE_INSERT,
+				K::FEATURE_DEFAULTVALUES
 			], true);
 		$this->setPlatformFeature(
 			[
-				self::FEATURE_CREATE,
-				self::FEATURE_TABLE,
-				self::FEATURE_TEMPORARY
+				K::FEATURE_CREATE,
+				K::FEATURE_TABLE,
+				K::FEATURE_TEMPORARY
 			], true);
 
 		$serverVersion = $this->getPlatformVersion();
@@ -64,8 +64,8 @@ class PostgreSQLPlatform extends AbstractPlatform implements
 		{
 			$this->setPlatformFeature(
 				[
-					self::FEATURE_DROP,
-					self::FEATURE_CASCADE
+					K::FEATURE_DROP,
+					K::FEATURE_CASCADE
 				], false);
 
 			$compatibility = '7.3.0';
@@ -76,9 +76,9 @@ class PostgreSQLPlatform extends AbstractPlatform implements
 		{
 			$this->setPlatformFeature(
 				[
-					self::FEATURE_CREATE,
-					self::FEATURE_VIEW,
-					self::FEATURE_TEMPORARY
+					K::FEATURE_CREATE,
+					K::FEATURE_VIEW,
+					K::FEATURE_TEMPORARY
 				], true);
 
 			$compatibility = '8.1.0';
@@ -89,8 +89,8 @@ class PostgreSQLPlatform extends AbstractPlatform implements
 		{
 			$this->setPlatformFeature(
 				[
-					self::FEATURE_DROP,
-					self::FEATURE_EXISTS_CONDITION
+					K::FEATURE_DROP,
+					K::FEATURE_EXISTS_CONDITION
 				], true);
 
 			$compatibility = '8.2.0';
@@ -101,9 +101,9 @@ class PostgreSQLPlatform extends AbstractPlatform implements
 		{
 			$this->setPlatformFeature(
 				[
-					self::FEATURE_CREATE,
-					self::FEATURE_TABLE,
-					self::FEATURE_EXISTS_CONDITION
+					K::FEATURE_CREATE,
+					K::FEATURE_TABLE,
+					K::FEATURE_EXISTS_CONDITION
 				], true);
 
 			$compatibility = '9.1.0';
@@ -114,9 +114,9 @@ class PostgreSQLPlatform extends AbstractPlatform implements
 		{
 			$this->setPlatformFeature(
 				[
-					self::FEATURE_CREATE,
-					self::FEATURE_NAMESPACE,
-					self::FEATURE_EXISTS_CONDITION
+					K::FEATURE_CREATE,
+					K::FEATURE_NAMESPACE,
+					K::FEATURE_EXISTS_CONDITION
 				], true);
 
 			$compatibility = '9.3.0';

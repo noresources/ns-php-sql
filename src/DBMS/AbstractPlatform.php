@@ -394,8 +394,8 @@ abstract class AbstractPlatform implements PlatformInterface
 
 		$this->features = new CascadedValueTree();
 
-		$this->features[self::FEATURE_JOINS] = 0xFFFF;
-		$this->features[self::FEATURE_EVENT_ACTIONS] = 0xFFFF;
+		$this->features[K::FEATURE_JOINS] = 0xFFFF;
+		$this->features[K::FEATURE_EVENT_ACTIONS] = 0xFFFF;
 	}
 
 	protected function setPlatformVersion($kind, $version)

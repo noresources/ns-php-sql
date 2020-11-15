@@ -35,31 +35,31 @@ class MySQLPlatform extends AbstractPlatform implements
 		$this->setConnection($connection);
 		$this->setPlatformFeature(
 			[
-				self::FEATURE_INSERT,
-				self::FEATURE_DEFAULT
+				K::FEATURE_INSERT,
+				K::FEATURE_DEFAULT
 			], true);
 
 		$this->setPlatformFeature(
 			[
-				self::FEATURE_CREATE,
-				self::FEATURE_TABLE,
-				self::FEATURE_REPLACE
+				K::FEATURE_CREATE,
+				K::FEATURE_TABLE,
+				K::FEATURE_REPLACE
 			], true);
 		$this->setPlatformFeature(
 			[
-				self::FEATURE_CREATE,
-				self::FEATURE_TABLE,
-				self::FEATURE_TEMPORARY
+				K::FEATURE_CREATE,
+				K::FEATURE_TABLE,
+				K::FEATURE_TEMPORARY
 			], true);
 
 		$this->setPlatformFeature(
 			[
-				self::FEATURE_CREATE,
-				self::FEATURE_TABLE,
-				self::FEATURE_COLUMN_DECLARATION_FLAGS
+				K::FEATURE_CREATE,
+				K::FEATURE_TABLE,
+				K::FEATURE_COLUMN_DECLARATION_FLAGS
 			],
-			(self::FEATURE_COLUMN_ENUM |
-			self::FEATURE_COLUMN_KEY_MANDATORY_LENGTH));
+			(K::FEATURE_COLUMN_ENUM |
+			K::FEATURE_COLUMN_KEY_MANDATORY_LENGTH));
 	}
 
 	public function quoteIdentifier($identifier)

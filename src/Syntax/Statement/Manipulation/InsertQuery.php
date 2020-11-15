@@ -95,14 +95,14 @@ class InsertQuery extends Statement implements \ArrayAccess
 
 		$hasDefaultValues = $platform->queryFeature(
 			[
-				K::PLATFORM_FEATURE_INSERT,
-				K::PLATFORM_FEATURE_DEFAULTVALUES
+				K::FEATURE_INSERT,
+				K::FEATURE_DEFAULTVALUES
 			], false);
 
 		$hasDefaultKeyword = $platform->queryFeature(
 			[
-				K::PLATFORM_FEATURE_INSERT,
-				K::PLATFORM_FEATURE_DEFAULT
+				K::FEATURE_INSERT,
+				K::FEATURE_DEFAULT
 			], false);
 
 		if (($c == 0) && $hasDefaultValues)

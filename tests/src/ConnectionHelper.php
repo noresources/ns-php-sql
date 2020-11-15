@@ -17,10 +17,7 @@ use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\ConnectionFactoryInterface;
 use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\DefaultConnectionFactory;
-use NoreSources\SQL\Syntax\Statement\Statement;
-use NoreSources\SQL\Syntax\Statement\StatementBuilder;
-use NoreSources\SQL\Syntax\Statement\StatementDataInterface;
-use NoreSources\SQL\Syntax\Statement\StatementTokenStreamContext;
+use NoreSources\SQL\DBMS\PreparedStatementInterface;
 use NoreSources\SQL\Structure\DatasourceStructure;
 use NoreSources\SQL\Structure\IndexStructure;
 use NoreSources\SQL\Structure\NamespaceStructure;
@@ -28,6 +25,10 @@ use NoreSources\SQL\Structure\StructureElementInterface;
 use NoreSources\SQL\Structure\StructureProviderInterface;
 use NoreSources\SQL\Structure\StructureSerializerFactory;
 use NoreSources\SQL\Structure\TableStructure;
+use NoreSources\SQL\Syntax\Statement\Statement;
+use NoreSources\SQL\Syntax\Statement\StatementBuilder;
+use NoreSources\SQL\Syntax\Statement\StatementDataInterface;
+use NoreSources\SQL\Syntax\Statement\StatementTokenStreamContext;
 
 /**
  * Helper method for creation of Connection, statement and prepared statement
@@ -204,7 +205,7 @@ class ConnectionHelper
 	 * @param ConnectionInterface $connection
 	 * @param Statement|StatementDataInterface $statement
 	 * @param StructureElementInterface $reference
-	 * @return PreparedStatement
+	 * @return PreparedStatementInterface
 	 */
 	public static function prepareStatement(
 		ConnectionInterface $connection, $statement,

@@ -69,14 +69,14 @@ class DropViewQuery extends Statement
 
 		$hasExistsCondition = $platform->queryFeature(
 			[
-				K::PLATFORM_FEATURE_DROP,
-				K::PLATFORM_FEATURE_VIEW,
-				K::PLATFORM_FEATURE_EXISTS_CONDITION
+				K::FEATURE_DROP,
+				K::FEATURE_VIEW,
+				K::FEATURE_EXISTS_CONDITION
 			], false);
 		$scopedStructure = $platform->queryFeature(
 			[
-				K::PLATFORM_FEATURE_VIEW,
-				K::PLATFORM_FEATURE_SCOPED
+				K::FEATURE_VIEW,
+				K::FEATURE_SCOPED
 			], false);
 
 		$context->setStatementType(K::QUERY_DROP_VIEW);

@@ -75,9 +75,9 @@ class ColumnDeclaration implements TokenizableExpressionInterface
 
 		$columnDeclaration = $platform->queryFeature(
 			[
-				K::PLATFORM_FEATURE_CREATE,
-				K::PLATFORM_FEATURE_TABLE,
-				K::PLATFORM_FEATURE_COLUMN_DECLARATION_FLAGS
+				K::FEATURE_CREATE,
+				K::FEATURE_TABLE,
+				K::FEATURE_COLUMN_DECLARATION_FLAGS
 			], 0);
 
 		$columnFlags = $this->getColumn()->get(
@@ -113,9 +113,9 @@ class ColumnDeclaration implements TokenizableExpressionInterface
 			K::COLUMN_FLAGS);
 		$columnDeclaration = $platform->queryFeature(
 			[
-				K::PLATFORM_FEATURE_CREATE,
-				K::PLATFORM_FEATURE_TABLE,
-				K::PLATFORM_FEATURE_COLUMN_DECLARATION_FLAGS
+				K::FEATURE_CREATE,
+				K::FEATURE_TABLE,
+				K::FEATURE_COLUMN_DECLARATION_FLAGS
 			], 0);
 
 		$isPrimary = (($this->columnStructure->getConstraintFlags() &
@@ -142,10 +142,10 @@ class ColumnDeclaration implements TokenizableExpressionInterface
 			K::TYPE_FLAG_MANDATORY_LENGTH) ||
 			($isPrimary &&
 			($columnDeclaration &
-			K::PLATFORM_FEATURE_COLUMN_KEY_MANDATORY_LENGTH));
+			K::FEATURE_COLUMN_KEY_MANDATORY_LENGTH));
 
 		if ($hasEnumeration &&
-			($columnDeclaration & K::PLATFORM_FEATURE_COLUMN_ENUM))
+			($columnDeclaration & K::FEATURE_COLUMN_ENUM))
 		{
 			$stream->text('(');
 			$values = $this->columnStructure->get(

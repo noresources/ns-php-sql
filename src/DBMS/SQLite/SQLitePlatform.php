@@ -35,33 +35,35 @@ class SQLitePlatform extends AbstractPlatform
 				K::QUERY_CREATE_NAMESPACE => SQLiteCreateNamespaceQuery::class
 			]);
 
+		$this->setPlatformFeature(K::FEATURE_NAMED_PARAMETERS, true);
+
 		$this->setPlatformFeature(
 			[
-				self::FEATURE_INSERT,
-				self::FEATURE_DEFAULT
+				K::FEATURE_INSERT,
+				K::FEATURE_DEFAULT
 			], false);
 		$this->setPlatformFeature(
 			[
-				self::FEATURE_INSERT,
-				self::FEATURE_DEFAULTVALUES
+				K::FEATURE_INSERT,
+				K::FEATURE_DEFAULTVALUES
 			], true);
 		$this->setPlatformFeature(
 			[
-				self::FEATURE_CREATE,
-				self::FEATURE_TEMPORARY
+				K::FEATURE_CREATE,
+				K::FEATURE_TEMPORARY
 			], true);
 		$this->setPlatformFeature(
 			[
-				self::FEATURE_CREATE,
-				self::FEATURE_EXISTS_CONDITION
+				K::FEATURE_CREATE,
+				K::FEATURE_EXISTS_CONDITION
 			], true);
 		$this->setPlatformFeature(
 			[
-				self::FEATURE_SELECT,
-				self::FEATURE_EXTENDED_RESULTCOLUMN_RESOLUTION
+				K::FEATURE_SELECT,
+				K::FEATURE_EXTENDED_RESULTCOLUMN_RESOLUTION
 			], true);
 		$this->setPlatformFeature([
-			self::FEATURE_SCOPED
+			K::FEATURE_SCOPED
 		], true);
 	}
 

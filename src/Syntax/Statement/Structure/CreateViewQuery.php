@@ -103,14 +103,14 @@ class CreateViewQuery extends Statement
 		$platform = $context->getPlatform();
 		$scoped = $platform->queryFeature(
 			[
-				K::PLATFORM_FEATURE_VIEW,
-				K::PLATFORM_FEATURE_SCOPED
+				K::FEATURE_VIEW,
+				K::FEATURE_SCOPED
 			], false);
 		$existsCondition = $platform->queryFeature(
 			[
-				K::PLATFORM_FEATURE_CREATE,
-				K::PLATFORM_FEATURE_VIEW,
-				K::PLATFORM_FEATURE_EXISTS_CONDITION
+				K::FEATURE_CREATE,
+				K::FEATURE_VIEW,
+				K::FEATURE_EXISTS_CONDITION
 			], false);
 
 		$context->setStatementType(K::QUERY_CREATE_VIEW);
@@ -120,9 +120,9 @@ class CreateViewQuery extends Statement
 		if ($this->viewFlags & self::TEMPORARY &&
 			$platform->queryFeature(
 				[
-					K::PLATFORM_FEATURE_CREATE,
-					K::PLATFORM_FEATURE_VIEW,
-					K::PLATFORM_FEATURE_TEMPORARY
+					K::FEATURE_CREATE,
+					K::FEATURE_VIEW,
+					K::FEATURE_TEMPORARY
 				], false))
 			$stream->space()->keyword('temporary');
 

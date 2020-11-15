@@ -69,14 +69,14 @@ class DropIndexQuery extends Statement
 
 		$scoped = $platform->queryFeature(
 			[
-				K::PLATFORM_FEATURE_INDEX,
-				K::PLATFORM_FEATURE_SCOPED
+				K::FEATURE_INDEX,
+				K::FEATURE_SCOPED
 			], false);
 		$existsCondition = $platform->queryFeature(
 			[
-				K::PLATFORM_FEATURE_DROP,
-				K::PLATFORM_FEATURE_INDEX,
-				K::PLATFORM_FEATURE_EXISTS_CONDITION
+				K::FEATURE_DROP,
+				K::FEATURE_INDEX,
+				K::FEATURE_EXISTS_CONDITION
 			], false);
 
 		$context->setStatementType(K::QUERY_DROP_INDEX);

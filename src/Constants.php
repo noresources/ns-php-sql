@@ -724,7 +724,7 @@ class Constants
 	 *
 	 * @var string
 	 */
-	const PLATFORM_FEATURE_NAMESPACE = 'namespace';
+	const FEATURE_NAMESPACE = 'namespace';
 
 	/**
 	 * Platform feature doman.
@@ -733,7 +733,7 @@ class Constants
 	 *
 	 * @var string
 	 */
-	const PLATFORM_FEATURE_TABLE = 'table';
+	const FEATURE_TABLE = 'table';
 
 	/**
 	 * Platform feature doman.
@@ -742,7 +742,7 @@ class Constants
 	 *
 	 * @var string
 	 */
-	const PLATFORM_FEATURE_VIEW = 'view';
+	const FEATURE_VIEW = 'view';
 
 	/**
 	 * Platform feature doman.
@@ -751,7 +751,7 @@ class Constants
 	 *
 	 * @var string
 	 */
-	const PLATFORM_FEATURE_INDEX = 'index';
+	const FEATURE_INDEX = 'index';
 
 	/**
 	 * Platform feature doman.
@@ -760,7 +760,7 @@ class Constants
 	 *
 	 * @var string
 	 */
-	const PLATFORM_FEATURE_TRIGGER = 'trigger';
+	const FEATURE_TRIGGER = 'trigger';
 
 	/**
 	 * Platform feature doman.
@@ -769,14 +769,14 @@ class Constants
 	 *
 	 * @var string
 	 */
-	const PLATFORM_FEATURE_FUNCTION = 'function';
+	const FEATURE_FUNCTION = 'function';
 
 	/**
 	 * Platform feature domain
 	 *
 	 * @var string
 	 */
-	const PLATFORM_FEATURE_CREATE = 'create';
+	const FEATURE_CREATE = 'create';
 
 	/**
 	 * Platform feature support.
@@ -785,7 +785,7 @@ class Constants
 	 *
 	 * @var string
 	 */
-	const PLATFORM_FEATURE_REPLACE = 'replace';
+	const FEATURE_REPLACE = 'replace';
 
 	/**
 	 * Platform feature support.
@@ -794,7 +794,7 @@ class Constants
 	 *
 	 * @var string
 	 */
-	const PLATFORM_FEATURE_TEMPORARY = 'temporary';
+	const FEATURE_TEMPORARY = 'temporary';
 
 	/**
 	 * Platform feature
@@ -803,7 +803,7 @@ class Constants
 	 *
 	 * @var string
 	 */
-	const PLATFORM_FEATURE_SCOPED = 'scoped';
+	const FEATURE_SCOPED = 'scoped';
 
 	/**
 	 * Platform feature support.
@@ -812,7 +812,7 @@ class Constants
 	 *
 	 * @var string
 	 */
-	const PLATFORM_FEATURE_COLUMN_DECLARATION_FLAGS = 'columndeclaration';
+	const FEATURE_COLUMN_DECLARATION_FLAGS = 'columndeclaration';
 
 	/**
 	 * Column declaration flags
@@ -821,7 +821,7 @@ class Constants
 	 *
 	 * @var number
 	 */
-	const PLATFORM_FEATURE_COLUMN_KEY_MANDATORY_LENGTH = Bitset::BIT_01;
+	const FEATURE_COLUMN_KEY_MANDATORY_LENGTH = Bitset::BIT_01;
 
 	/**
 	 * Column declaration flags
@@ -830,7 +830,7 @@ class Constants
 	 *
 	 * @var string
 	 */
-	const PLATFORM_FEATURE_COLUMN_ENUM = Bitset::BIT_02;
+	const FEATURE_COLUMN_ENUM = Bitset::BIT_02;
 
 	/**
 	 * Platform feature domain
@@ -839,7 +839,7 @@ class Constants
 	 *
 	 * @var string
 	 */
-	const PLATFORM_FEATURE_DROP = 'drop';
+	const FEATURE_DROP = 'drop';
 
 	/**
 	 * Platform feature domain
@@ -848,7 +848,7 @@ class Constants
 	 *
 	 * @var string
 	 */
-	const PLATFORM_FEATURE_CASCADE = 'cascade';
+	const FEATURE_CASCADE = 'cascade';
 
 	/**
 	 * Platform feature support
@@ -857,7 +857,7 @@ class Constants
 	 *
 	 * @var string
 	 */
-	const PLATFORM_FEATURE_EXISTS_CONDITION = 'exists';
+	const FEATURE_EXISTS_CONDITION = 'exists';
 
 	/**
 	 * Platform feature domain.
@@ -866,7 +866,7 @@ class Constants
 	 *
 	 * @var string
 	 */
-	const PLATFORM_FEATURE_SELECT = 'select';
+	const FEATURE_SELECT = 'select';
 
 	/**
 	 * Platform feature support.
@@ -875,7 +875,14 @@ class Constants
 	 *
 	 * @var string
 	 */
-	const PLATFORM_FEATURE_EXTENDED_RESULTCOLUMN_RESOLUTION = 'extendedresultcolumnresolution';
+	const FEATURE_EXTENDED_RESULTCOLUMN_RESOLUTION = 'extendedresultcolumnresolution';
+
+	/**
+	 * DBMS natively support named parameters
+	 *
+	 * @var string
+	 */
+	const FEATURE_NAMED_PARAMETERS = 'namedparameters';
 
 	/**
 	 * Platform feature domain
@@ -884,7 +891,7 @@ class Constants
 	 *
 	 * @var string
 	 */
-	const PLATFORM_FEATURE_INSERT = 'insert';
+	const FEATURE_INSERT = 'insert';
 
 	/**
 	 * Platform feature support
@@ -893,7 +900,7 @@ class Constants
 	 *
 	 * @var string
 	 */
-	const PLATFORM_FEATURE_DEFAULTVALUES = 'defaultvalues';
+	const FEATURE_DEFAULTVALUES = 'defaultvalues';
 
 	/**
 	 * Platform feature support.
@@ -902,7 +909,7 @@ class Constants
 	 *
 	 * @var string
 	 */
-	const PLATFORM_FEATURE_DEFAULT = 'default';
+	const FEATURE_DEFAULT = 'default';
 
 	/**
 	 * Platform feature support.
@@ -913,7 +920,7 @@ class Constants
 	 *
 	 * @var string
 	 */
-	const PLATFORM_FEATURE_JOINS = 'joins';
+	const FEATURE_JOINS = 'joins';
 
 	/**
 	 * Platform feature domain.
@@ -922,7 +929,7 @@ class Constants
 	 *
 	 * @var string
 	 */
-	const PLATFORM_FEATURE_EVENTS = 'events';
+	const FEATURE_EVENTS = 'events';
 
 	/**
 	 * Platform feature support
@@ -931,7 +938,7 @@ class Constants
 	 *
 	 * @var string
 	 */
-	const PLATFORM_FEATURE_EVENT_UPDATE = 'onupdate';
+	const FEATURE_EVENT_UPDATE = 'onupdate';
 
 	/**
 	 * Platform feature support
@@ -940,13 +947,13 @@ class Constants
 	 *
 	 * @var string
 	 */
-	const PLATFORM_FEATURE_EVENT_DELETE = 'ondelete';
+	const FEATURE_EVENT_DELETE = 'ondelete';
 
 	/**
 	 *
 	 * @var string
 	 */
-	const PLATFORM_FEATURE_EVENT_ACTIONS = 'eventactions';
+	const FEATURE_EVENT_ACTIONS = 'eventactions';
 
 	/**
 	 * Hexadecimal string media type

@@ -55,8 +55,8 @@ final class DropTest extends \PHPUnit\Framework\TestCase
 			[
 				'scoped' => [
 					[
-						K::PLATFORM_FEATURE_VIEW,
-						K::PLATFORM_FEATURE_SCOPED
+						K::FEATURE_VIEW,
+						K::FEATURE_SCOPED
 					],
 					true
 				]

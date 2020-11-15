@@ -37,8 +37,8 @@ final class InsertTest extends \PHPUnit\Framework\TestCase
 			'default_values' => [
 				[
 					[
-						K::PLATFORM_FEATURE_INSERT,
-						K::PLATFORM_FEATURE_DEFAULTVALUES
+						K::FEATURE_INSERT,
+						K::FEATURE_DEFAULTVALUES
 					],
 					true
 				]
@@ -46,8 +46,8 @@ final class InsertTest extends \PHPUnit\Framework\TestCase
 			'default_keyword' => [
 				[
 					[
-						K::PLATFORM_FEATURE_INSERT,
-						K::PLATFORM_FEATURE_DEFAULT
+						K::FEATURE_INSERT,
+						K::FEATURE_DEFAULT
 					],
 					true
 				]

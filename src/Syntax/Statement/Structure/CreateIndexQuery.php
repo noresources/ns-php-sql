@@ -160,15 +160,15 @@ class CreateIndexQuery extends Statement
 		$platform = $context->getPlatform();
 		$scoped = $platform->queryFeature(
 			[
-				K::PLATFORM_FEATURE_INDEX,
-				K::PLATFORM_FEATURE_SCOPED
+				K::FEATURE_INDEX,
+				K::FEATURE_SCOPED
 			], false);
 
 		$existsCondition = $platform->queryFeature(
 			[
-				K::PLATFORM_FEATURE_CREATE,
-				K::PLATFORM_FEATURE_INDEX,
-				K::PLATFORM_FEATURE_EXISTS_CONDITION
+				K::FEATURE_CREATE,
+				K::FEATURE_INDEX,
+				K::FEATURE_EXISTS_CONDITION
 			], false);
 
 		$context->setStatementType(K::QUERY_CREATE_INDEX);

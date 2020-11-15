@@ -66,9 +66,9 @@ class CreateNamespaceQuery extends Statement
 		$platform = $context->getPlatform();
 		$existsCondition = $platform->queryFeature(
 			[
-				K::PLATFORM_FEATURE_CREATE,
-				K::PLATFORM_FEATURE_NAMESPACE,
-				K::PLATFORM_FEATURE_EXISTS_CONDITION
+				K::FEATURE_CREATE,
+				K::FEATURE_NAMESPACE,
+				K::FEATURE_EXISTS_CONDITION
 			], false);
 
 		$context->setStatementType(K::QUERY_CREATE_NAMESPACE);

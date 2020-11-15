@@ -97,8 +97,8 @@ final class SelectTest extends \PHPUnit\Framework\TestCase
 			[
 				'with extended alias support' => [
 					[
-						K::PLATFORM_FEATURE_SELECT,
-						K::PLATFORM_FEATURE_EXTENDED_RESULTCOLUMN_RESOLUTION
+						K::FEATURE_SELECT,
+						K::FEATURE_EXTENDED_RESULTCOLUMN_RESOLUTION
 					],
 					true
 				]

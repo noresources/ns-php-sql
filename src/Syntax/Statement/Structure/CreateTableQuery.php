@@ -98,23 +98,23 @@ class CreateTableQuery extends Statement implements
 
 		$existsCondition = $platform->queryFeature(
 			[
-				K::PLATFORM_FEATURE_CREATE,
-				K::PLATFORM_FEATURE_TABLE,
-				K::PLATFORM_FEATURE_EXISTS_CONDITION
+				K::FEATURE_CREATE,
+				K::FEATURE_TABLE,
+				K::FEATURE_EXISTS_CONDITION
 			], false);
 
 		$replaceSupport = $platform->queryFeature(
 			[
-				K::PLATFORM_FEATURE_CREATE,
-				K::PLATFORM_FEATURE_TABLE,
-				K::PLATFORM_FEATURE_REPLACE
+				K::FEATURE_CREATE,
+				K::FEATURE_TABLE,
+				K::FEATURE_REPLACE
 			], false);
 
 		$temporarySupport = $platform->queryFeature(
 			[
-				K::PLATFORM_FEATURE_CREATE,
-				K::PLATFORM_FEATURE_TABLE,
-				K::PLATFORM_FEATURE_TEMPORARY
+				K::FEATURE_CREATE,
+				K::FEATURE_TABLE,
+				K::FEATURE_TEMPORARY
 			], false);
 
 		$structure = $this->structure;

@@ -49,8 +49,8 @@ final class CreateTest extends \PHPUnit\Framework\TestCase
 			[
 				[
 					[
-						K::PLATFORM_FEATURE_CREATE,
-						K::PLATFORM_FEATURE_TEMPORARY
+						K::FEATURE_CREATE,
+						K::FEATURE_TEMPORARY
 					],
 					true
 				]
@@ -98,9 +98,9 @@ final class CreateTest extends \PHPUnit\Framework\TestCase
 			[
 				'or replace' => [
 					[
-						K::PLATFORM_FEATURE_CREATE,
-						K::PLATFORM_FEATURE_TABLE,
-						K::PLATFORM_FEATURE_REPLACE
+						K::FEATURE_CREATE,
+						K::FEATURE_TABLE,
+						K::FEATURE_REPLACE
 					],
 					true
 				]

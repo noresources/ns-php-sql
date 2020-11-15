@@ -319,8 +319,8 @@ class SelectQuery extends Statement
 
 		$hasExtendedAlias = $platform->queryFeature(
 			[
-				K::PLATFORM_FEATURE_SCOPED,
-				K::PLATFORM_FEATURE_EXTENDED_RESULTCOLUMN_RESOLUTION
+				K::FEATURE_SCOPED,
+				K::FEATURE_EXTENDED_RESULTCOLUMN_RESOLUTION
 			], false);
 
 		$context->setStatementType(K::QUERY_SELECT);

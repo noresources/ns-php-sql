@@ -75,15 +75,15 @@ class DropTableQuery extends Statement
 		$cascade = ($this->dropFlags & self::CASCADE) &&
 			$platform->queryFeature(
 				[
-					K::PLATFORM_FEATURE_DROP,
-					K::PLATFORM_FEATURE_CASCADE
+					K::FEATURE_DROP,
+					K::FEATURE_CASCADE
 				], false);
 
 		$existsCondition = $platform->queryFeature(
 			[
-				K::PLATFORM_FEATURE_DROP,
-				K::PLATFORM_FEATURE_TABLE,
-				K::PLATFORM_FEATURE_EXISTS_CONDITION
+				K::FEATURE_DROP,
+				K::FEATURE_TABLE,
+				K::FEATURE_EXISTS_CONDITION
 			], false);
 
 		$context->setStatementType(K::QUERY_DROP_TABLE);
