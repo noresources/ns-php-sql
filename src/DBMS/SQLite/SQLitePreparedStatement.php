@@ -12,7 +12,6 @@ namespace NoreSources\SQL\DBMS\SQLite;
 use NoreSources\TypeConversion;
 use NoreSources\TypeDescription;
 use NoreSources\SQL\DBMS\PreparedStatementInterface;
-use NoreSources\SQL\Syntax\Statement\ParameterDataProviderInterface;
 use NoreSources\SQL\Syntax\Statement\StatementInputDataInterface;
 use NoreSources\SQL\Syntax\Statement\StatementTokenStreamContext;
 use NoreSources\SQL\Syntax\Statement\Traits\InputDataTrait;
@@ -44,20 +43,6 @@ class SQLitePreparedStatement implements PreparedStatementInterface
 
 		$this->sqliteStatement = $statement;
 
-		if ($data instanceof ParameterDataProviderInterface)
-		{
-			$npc = $data->getParameters()->getDistinctParameterCount();
-			if ($npc != $statement->paramCount())
-			{
-				throw new \BadMethodCallException(
-					'SQLite statement and ' .
-					ParameterDataProviderInterface::class .
-					' parameter mismatch. Got ' . $npc . ' for ' .
-					ParameterDataProviderInterface::class . ' and ' .
-					$statement->paramCount() . ' for SQLiteStmt');
-			}
-		}
-
 		if (!\method_exists($this->sqliteStatement, 'getSQL'))
 			if (TypeDescription::hasStringRepresentation($data))
 				$this->sql = TypeConversion::toString($data);
@@ -69,11 +54,6 @@ class SQLitePreparedStatement implements PreparedStatementInterface
 			return $this->sqliteStatement->getSQL(false);
 
 		return $this->sql;
-	}
-
-	public function getParameterCount()
-	{
-		return $this->sqliteStatement->paramCount();
 	}
 
 	/**

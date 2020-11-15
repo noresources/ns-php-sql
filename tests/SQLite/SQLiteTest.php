@@ -10,15 +10,15 @@ use NoreSources\SQL\DBMS\SQLite\SQLiteConstants;
 use NoreSources\SQL\DBMS\SQLite\SQLitePlatform;
 use NoreSources\SQL\DBMS\SQLite\SQLitePreparedStatement;
 use NoreSources\SQL\DBMS\SQLite\SQLiteRecordset;
-use NoreSources\SQL\Syntax\FunctionCall;
-use NoreSources\SQL\Syntax\TimestampFormatFunction;
 use NoreSources\SQL\Result\InsertionStatementResultInterface;
 use NoreSources\SQL\Result\Recordset;
+use NoreSources\SQL\Structure\TableStructure;
+use NoreSources\SQL\Syntax\FunctionCall;
+use NoreSources\SQL\Syntax\TimestampFormatFunction;
 use NoreSources\SQL\Syntax\Statement\StatementBuilder;
 use NoreSources\SQL\Syntax\Statement\StatementData;
 use NoreSources\SQL\Syntax\Statement\Manipulation\InsertQuery;
 use NoreSources\SQL\Syntax\Statement\Query\SelectQuery;
-use NoreSources\SQL\Structure\TableStructure;
 use NoreSources\Test\ConnectionHelper;
 use NoreSources\Test\DatasourceManager;
 use NoreSources\Test\DerivedFileManager;
@@ -116,6 +116,12 @@ final class SQLiteTest extends \PHPUnit\Framework\TestCase
 		$sql = \SqlFormatter::format(strval($sql), false);
 		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__,
 			'insert', 'sql');
+
+		$rawPrepared = $this->connection->prepareStatement($sql);
+
+		$this->assertEquals(2, $rawPrepared->getParameters()
+			->count(),
+			'Number of parameters in prepared statement from raw SQL');
 
 		$p = [];
 

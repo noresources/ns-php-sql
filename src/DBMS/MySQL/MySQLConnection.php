@@ -12,7 +12,6 @@ namespace NoreSources\SQL\DBMS\MySQL;
 use NoreSources\Container;
 use NoreSources\TypeConversion;
 use NoreSources\TypeDescription;
-use NoreSources\SQL\ParameterValue;
 use NoreSources\SQL\DBMS\BinaryDataSerializerInterface;
 use NoreSources\SQL\DBMS\ConnectionException;
 use NoreSources\SQL\DBMS\ConnectionInterface;
@@ -24,6 +23,7 @@ use NoreSources\SQL\Result\DefaultInsertionStatementResult;
 use NoreSources\SQL\Result\DefaultRowModificationStatementResult;
 use NoreSources\SQL\Syntax\Evaluator;
 use NoreSources\SQL\Syntax\Statement\ParameterData;
+use NoreSources\SQL\Syntax\Statement\ParameterDataProviderInterface;
 use NoreSources\SQL\Syntax\Statement\Statement;
 
 class MySQLConnection implements ConnectionInterface,
@@ -152,6 +152,7 @@ class MySQLConnection implements ConnectionInterface,
 	 */
 	public function prepareStatement($statement)
 	{
+		$detectParameters = !($statement instanceof ParameterDataProviderInterface);
 		$stmt = $this->link->stmt_init();
 		$stmt->prepare(\strval($statement));
 		/**
@@ -159,7 +160,15 @@ class MySQLConnection implements ConnectionInterface,
 		 * @todo error management
 		 */
 
-		return new MySQLPreparedStatement($stmt, $statement);
+		$prepared = new MySQLPreparedStatement($stmt, $statement);
+		if ($detectParameters)
+		{
+			$map = $prepared->getParameters();
+			$map->clear();
+			for ($i = 0; $i < $stmt->param_count; $i++)
+				$map->setParameter($i, null, '?');
+		}
+		return $prepared;
 	}
 
 	/**
@@ -190,12 +199,23 @@ class MySQLConnection implements ConnectionInterface,
 			$bindArguments = [];
 			$bindArguments[0] = '';
 			$map = $prepared->getParameters();
+			$indexIterator = $map->getIterator();
 			$values = [];
+			$isIndexed = Container::isIndexed($parameters);
 
-			foreach ($map as $index => $data)
+			foreach ($indexIterator as $index => $data)
 			{
-				$key = $data[ParameterData::KEY];
-				$entry = Container::keyValue($parameters, $key, null);
+				$entry = null;
+				if ($isIndexed)
+				{
+					$entry = Container::keyValue($parameters, $index,
+						null);
+				}
+				else
+				{
+					$key = $data[ParameterData::KEY];
+					$entry = Container::keyValue($parameters, $key, null);
+				}
 				$bindArguments[0] .= self::getParameterValueTypeKey(
 					$entry);
 				$values[$index] = $this->getPlatform()->literalize(
@@ -305,17 +325,13 @@ class MySQLConnection implements ConnectionInterface,
 
 	private static function getParameterValueTypeKey($p)
 	{
-		$dataType = K::DATATYPE_UNDEFINED;
-		if ($p instanceof ParameterValue)
-			$dataType = $p->type;
-		else
-			$dataType = Evaluator::getInstance()->getDataType($p);
+		$dataType = Evaluator::getInstance()->getDataType($p);
 
-		if ($dataType == K::DATATYPE_INTEGER)
+		if (($dataType & K::DATATYPE_NUMBER) == K::DATATYPE_INTEGER)
 			return 'i';
-		elseif ($dataType & K::DATATYPE_FLOAT)
+		elseif (($dataType & K::DATATYPE_FLOAT) == K::DATATYPE_FLOAT)
 			return 'd';
-		elseif ($dataType == K::DATATYPE_BINARY)
+		elseif (($dataType & K::DATATYPE_BINARY) == K::DATATYPE_BINARY)
 			return 'b';
 
 		return 's';

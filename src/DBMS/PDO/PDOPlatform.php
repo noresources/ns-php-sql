@@ -1,6 +1,8 @@
 <?php
 namespace NoreSources\SQL\DBMS\PDO;
 
+use NoreSources\CascadedValueTree;
+use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\ConnectionProviderInterface;
 use NoreSources\SQL\DBMS\IdentifierSerializerInterface;
@@ -18,6 +20,8 @@ class PDOPlatform implements PlatformInterface,
 		PlatformInterface $basePlatform)
 	{
 		$this->basePlatform = $basePlatform;
+
+		$this->pdoFeatures = new CascadedValueTree();
 	}
 
 	public function newStatement($statementType)
@@ -74,7 +78,10 @@ class PDOPlatform implements PlatformInterface,
 
 	public function getParameter($name, ParameterData $parameters = null)
 	{
-		return (':' . $parameters->count());
+		if ($this->queryFeature(K::FEATURE_NAMED_PARAMETERS, false))
+			return (':' . $name);
+		else
+			return '?';
 	}
 
 	public function getKeyword($keyword)
@@ -95,7 +102,8 @@ class PDOPlatform implements PlatformInterface,
 
 	public function queryFeature($query, $dflt = null)
 	{
-		return $this->basePlatform->queryFeature($query, $dflt);
+		return $this->pdoFeatures->query($query,
+			$this->basePlatform->queryFeature($query, $dflt));
 	}
 
 	public function newExpression($baseClassname, ...$arguments)
@@ -166,4 +174,10 @@ class PDOPlatform implements PlatformInterface,
 	 * @var PlatformInterface
 	 */
 	private $basePlatform;
+
+	/**
+	 *
+	 * @var CascadedValueTree
+	 */
+	private $pdoFeatures;
 }

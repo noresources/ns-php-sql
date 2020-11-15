@@ -36,11 +36,6 @@ class MySQLPreparedStatement implements PreparedStatementInterface
 		$this->mysqlStatement->close();
 	}
 
-	public function getParameterCount()
-	{
-		return $this->mysqlStatement->param_count;
-	}
-
 	public function getMySQLStmt()
 	{
 		return $this->mysqlStatement;

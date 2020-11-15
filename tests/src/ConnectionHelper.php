@@ -241,5 +241,27 @@ class ConnectionHelper
 		$prepared = $connection->prepareStatement($statementData);
 		return $prepared;
 	}
+
+	public static function queryFirstRow(
+		ConnectionInterface $connection, $statement,
+		$flags = K::RECORDSET_FETCH_ASSOCIATIVE |
+		K::RECORDSET_FETCH_UBSERIALIZE, $parameters = array(),
+		$column = null)
+	{
+		$recordset = $connection->executeStatement($statement,
+			$parameters);
+		if (!$recordset)
+			return false;
+
+		$recordset->setFlags($flags);
+		$row = $recordset->current();
+		if (!$row)
+			return false;
+
+		if ($column !== null)
+			return Container::keyValue($row, $column);
+
+		return $row;
+	}
 }
 

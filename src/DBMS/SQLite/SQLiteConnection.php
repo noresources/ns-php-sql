@@ -11,6 +11,7 @@ namespace NoreSources\SQL\DBMS\SQLite;
 
 use NoreSources\Container;
 use NoreSources\TypeDescription;
+use NoreSources\Http\ParameterMapProviderInterface;
 use NoreSources\SQL\DataTypeProviderInterface;
 use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\TransactionInterface;
@@ -255,12 +256,28 @@ class SQLiteConnection implements ConnectionInterface,
 		if (!($this->connection instanceof \SQLite3))
 			throw new SQLiteConnectionException($this, 'Not connected');
 
-		$stmt = @$this->connection->prepare($statement);
+		$detectParameters = !($statement instanceof ParameterDataProviderInterface);
+		$sql = \strval($statement);
+		$stmt = @$this->connection->prepare($sql);
 		if (!($stmt instanceof \SQLite3Stmt))
 			throw new SQLiteConnectionException($this,
 				'Unable to create SQLite statement');
 
-		return new SQLitePreparedStatement($stmt, $statement);
+		$prepared = new SQLitePreparedStatement($stmt, $statement);
+
+		/**
+		 * Get parameter info if needed
+		 *
+		 * @see https://sqlite.org/lang_expr.html
+		 * @see https://sqlite.org/lang_explain.html
+		 */
+		if ($detectParameters && $stmt->paramCount())
+		{
+			$map = $prepared->getParameters();
+			$map->clear();
+			$this->populateParameterData($map, $sql);
+		}
+		return $prepared;
 	}
 
 	public function executeStatement($statement, $parameters = array())
@@ -281,7 +298,12 @@ class SQLiteConnection implements ConnectionInterface,
 
 		if (Container::count($parameters))
 		{
+			/**
+			 *
+			 * @var \SQLite3Stmt $stmt
+			 */
 			$stmt = null;
+
 			if ($statement instanceof SQLitePreparedStatement)
 			{
 				$stmt = $statement->getSQLite3Stmt();
@@ -291,46 +313,61 @@ class SQLiteConnection implements ConnectionInterface,
 			else
 				$stmt = @$this->connection->prepare($statement);
 
-			foreach ($parameters as $key => $entry)
+			if ($stmt->paramCount())
 			{
-				$dbmsName = $key;
-				if ($statement instanceof ParameterDataProviderInterface)
-					$dbmsName = $statement->getParameters()->get($key)[ParameterData::DBMSNAME];
-				else
-					$dbmsName = $this->getPlatform()->getParameter($key,
-						null);
-
-				$value = $this->getPlatform()->literalize($entry);
-				$type = K::DATATYPE_UNDEFINED;
-				if ($entry instanceof DataTypeProviderInterface)
-					$type = $entry->getDataType();
-
-				if ($type == K::DATATYPE_UNDEFINED)
-					$type = Evaluator::getInstance()->getDataType(
-						$value);
-
 				/**
-				 * SQLite does not have type for DateTIme etc.
-				 * but Date/Time functions
-				 * expects a strict datetime format.
 				 *
-				 * Workaround: format DateTIme to string with the correct format before
+				 * @var ParameterMapProviderInterface $map
 				 */
+				$map = null;
 
-				if ($type & K::DATATYPE_TIMESTAMP)
+				if ($statement instanceof ParameterDataProviderInterface)
+					$map = $statement->getParameters();
+				else
+					$this->populateParameterData(
+						($map = new ParameterData()), $statement);
+
+				foreach ($parameters as $key => $entry)
 				{
-					if ($value instanceof \DateTimeInterface)
-						$value = $value->format(
-							$this->getPlatform()
-								->getTimestampTypeStringFormat($type));
-				}
+					if (!$map->has($key))
+						continue;
 
-				$type = self::sqliteDataTypeFromDataType($type);
-				$bindResult = $stmt->bindValue($dbmsName, $value, $type);
-				if (!$bindResult)
-					throw new SQLiteConnectionException($this,
-						'Failed to bind "' . $key . '" (' . $dbmsName .
-						')');
+					$dbmsName = $map->get($key)[ParameterData::DBMSNAME];
+
+					$value = $this->getPlatform()->literalize($entry);
+					$type = K::DATATYPE_UNDEFINED;
+					if ($entry instanceof DataTypeProviderInterface)
+						$type = $entry->getDataType();
+
+					if ($type == K::DATATYPE_UNDEFINED)
+						$type = Evaluator::getInstance()->getDataType(
+							$value);
+
+					/**
+					 * SQLite does not have type for DateTIme etc.
+					 * but Date/Time functions
+					 * expects a strict datetime format.
+					 *
+					 * Workaround: format DateTIme to string with the correct format before
+					 */
+
+					if ($type & K::DATATYPE_TIMESTAMP)
+					{
+						if ($value instanceof \DateTimeInterface)
+							$value = $value->format(
+								$this->getPlatform()
+									->getTimestampTypeStringFormat(
+									$type));
+					}
+
+					$type = self::sqliteDataTypeFromDataType($type);
+					$bindResult = $stmt->bindValue($dbmsName, $value,
+						$type);
+					if (!$bindResult)
+						throw new SQLiteConnectionException($this,
+							'Failed to bind "' . $key . '" (' . $dbmsName .
+							')');
+				}
 			}
 
 			$result = @$stmt->execute();
@@ -422,6 +459,30 @@ class SQLiteConnection implements ConnectionInterface,
 	public function getSQLite()
 	{
 		return $this->connection;
+	}
+
+	private function populateParameterData(ParameterData $map,
+		$statement)
+	{
+		$explained = $this->connection->query(
+			'EXPLAIN ' . \strval($statement));
+		$index = 0;
+		while ($row = $explained->fetchArray())
+		{
+			if ($row['opcode'] != 'Variable')
+				continue;
+			$dbmsName = $row['p4'];
+			$prefix = \substr($dbmsName, 0, 1);
+			$key = \substr($dbmsName, 1);
+			if (empty($key))
+			{
+				$key = $index;
+				$dbmsName = '?';
+			}
+
+			$map->setParameter($index, $key, $dbmsName);
+			$index++;
+		}
 	}
 
 	/**

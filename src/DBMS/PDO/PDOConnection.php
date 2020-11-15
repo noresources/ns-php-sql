@@ -28,9 +28,11 @@ use NoreSources\SQL\DBMS\Traits\PlatformProviderTrait;
 use NoreSources\SQL\DBMS\Traits\TransactionStackTrait;
 use NoreSources\SQL\Result\DefaultInsertionStatementResult;
 use NoreSources\SQL\Result\DefaultRowModificationStatementResult;
+use NoreSources\SQL\Syntax\Evaluator;
 use NoreSources\SQL\Syntax\Statement\ParameterData;
 use NoreSources\SQL\Syntax\Statement\ParameterDataProviderInterface;
 use NoreSources\SQL\Syntax\Statement\Statement;
+use PDO;
 
 /**
  * PDO connection
@@ -326,18 +328,91 @@ class PDOConnection implements ConnectionInterface, TransactionInterface,
 
 		if (Container::count($parameters))
 		{
-			foreach ($parameters as $key => $entry)
+			$platform = $this->getPlatform();
+			if ($statement instanceof ParameterDataProviderInterface)
 			{
-				$dbmsName = '';
-				if ($statement instanceof ParameterDataProviderInterface)
-					$dbmsName = $statement->getParameters()->get($key)[ParameterData::DBMSNAME];
-				else
-					$dbmsName = ':' . $key;
+				$map = $statement->getParameters();
+				$indexedValues = Container::isIndexed($parameters);
+				$useNamedParameter = $platform->queryFeature(
+					K::FEATURE_NAMED_PARAMETERS, false);
 
-				$pdo->bindValue($dbmsName,
-					$this->getPlatform()
-						->literalize($entry));
+				// Bind everything to NULL by default
+				if ($useNamedParameter)
+				{
+					foreach ($map->getKeyIterator() as $parameter)
+					{
+						$pdo->bindValue(
+							$parameter[ParameterData::DBMSNAME], NULL,
+							\PDO::PARAM_NULL);
+					}
+				}
+				else
+				{
+					$c = $map->count();
+					for ($i = 0; $i < $c; $i++)
+					{
+
+						$pdo->bindValue($i + 1, NULL, \PDO::PARAM_NULL);
+					}
+				}
+
+				foreach ($parameters as $key => $entry)
+				{
+					$value = $platform->literalize($entry);
+					$pdoType = self::getPDOTypeFromDataType(
+						Evaluator::getDataType($entry));
+
+					$parameterData = $map->get($key);
+
+					if ($indexedValues)
+					{
+						if ($useNamedParameter)
+							$pdoParameter = $parameterData[ParameterData::DBMSNAME];
+						else
+							$pdoParameter = $key + 1;
+
+						$pdo->bindValue($pdoParameter, $value, $pdoType);
+					}
+					else
+					{
+						if ($useNamedParameter)
+						{
+							$pdo->bindValue(
+								$parameterData[ParameterData::DBMSNAME],
+								$value, $pdoType);
+						}
+						else
+						{
+							$positions = $parameterData[ParameterData::POSITIONS];
+							foreach ($positions as $index)
+								$pdo->bindValue($index + 1, $value,
+									$pdoType);
+						}
+					}
+				}
 			}
+			elseif (Container::isIndexed($parameters))
+			{
+				foreach ($parameters as $index => $entry)
+				{
+					$pdo->bindValue($index + 1,
+						$platform->literalize($entry),
+						self::getPDOTypeFromDataType(
+							Evaluator::getDataType($entry)));
+				}
+			}
+			else // Key-value
+			{
+				foreach ($parameters as $key => $entry)
+				{
+					$pdo->bindValue($platform->getParameter($key),
+						$platform->literalize($entry),
+						self::getPDOTypeFromDataType(
+							Evaluator::getDataType($entry)));
+				}
+			}
+
+			// var_dump($bindings);
 		}
 
 		$result = $pdo->execute();
@@ -345,7 +420,8 @@ class PDOConnection implements ConnectionInterface, TransactionInterface,
 		{
 			$error = $pdo->errorInfo();
 			$message = self::getErrorMessage($error);
-			throw new ConnectionException($this, 'Failed to execute');
+			throw new ConnectionException($this,
+				'Execution error: ' . $message);
 		}
 
 		$result = true;
@@ -377,6 +453,12 @@ class PDOConnection implements ConnectionInterface, TransactionInterface,
 			});
 	}
 
+	/**
+	 *
+	 * @param integer $attribute
+	 * @throws ConnectionException
+	 * @return mixed
+	 */
 	public function getPDOAttribute($attribute)
 	{
 		if (!($this->connection instanceof \PDO))
@@ -385,10 +467,31 @@ class PDOConnection implements ConnectionInterface, TransactionInterface,
 		return $this->connection->getAttribute($attribute);
 	}
 
+	public static function getPDOTypeFromDataType($dataType)
+	{
+		if ($dataType == K::DATATYPE_NULL)
+			return \PDO::PARAM_NULL;
+		if ($dataType & K::DATATYPE_BOOLEAN)
+			return PDO::PARAM_BOOL;
+		if ($dataType & K::DATATYPE_BINARY)
+			return PDO::PARAM_LOB;
+		elseif (($dataType & K::DATATYPE_NUMBER) == K::DATATYPE_INTEGER)
+			return PDO::PARAM_INT;
+
+		return PDO::PARAM_STR;
+	}
+
+	/**
+	 *
+	 * @param integer $pdoType
+	 * @return string
+	 */
 	public static function getDataTypeFromPDOType($pdoType)
 	{
 		switch ($pdoType)
 		{
+			case \PDO::PARAM_LOB:
+				return K::DATATYPE_BINARY;
 			case \PDO::PARAM_BOOL:
 				return K::DATATYPE_BOOLEAN;
 			case \PDO::PARAM_NULL:
@@ -398,9 +501,14 @@ class PDOConnection implements ConnectionInterface, TransactionInterface,
 			case \PDO::PARAM_STR:
 				return K::DATATYPE_STRING;
 		}
+
 		return K::DATATYPE_UNDEFINED;
 	}
 
+	/**
+	 *
+	 * @return PDO
+	 */
 	public function getConnectionObject()
 	{
 		return $this->connection;

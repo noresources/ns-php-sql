@@ -197,7 +197,7 @@ class PostgreSQLPlatform extends AbstractPlatform implements
 			return '$' . ($parameters->getDistinctParameterCount() + 1);
 		}
 
-		return '$' . ($parameters->getParameterCount() + 1);
+		return '$' . ($parameters->count() + 1);
 	}
 
 	public function getKeyword($keyword)

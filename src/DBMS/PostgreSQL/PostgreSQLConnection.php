@@ -12,7 +12,7 @@ namespace NoreSources\SQL\DBMS\PostgreSQL;
 use NoreSources\Container;
 use NoreSources\SemanticVersion;
 use NoreSources\TypeDescription;
-use NoreSources\SQL\ParameterValue;
+use NoreSources\Expression\Value;
 use NoreSources\SQL\DBMS\ConnectionException;
 use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\IdentifierSerializerInterface;
@@ -146,6 +146,10 @@ class PostgreSQLConnection implements ConnectionInterface,
 	{
 		$this->checkConnection();
 		$identifier = PostgreSQLPreparedStatement::newUniqueId();
+		$sql = \strval($statement);
+		$detectParameters = (!($statement instanceof ParameterDataProviderInterface) &&
+			(\strpos($sql, '$') !== false));
+
 		$result = \pg_prepare($this->resource, $identifier,
 			\strval($statement));
 		$status = \pg_result_status($result);
@@ -154,7 +158,29 @@ class PostgreSQLConnection implements ConnectionInterface,
 				'Failed to prepare statement. ' .
 				\pg_result_error($result));
 
-		return new PostgreSQLPreparedStatement($identifier, $statement);
+		$prepared = new PostgreSQLPreparedStatement($identifier,
+			$statement);
+
+		if ($detectParameters)
+		{
+			$parameterCount = 0;
+			$text = '';
+			$sql = 'SELECT "parameter_types" FROM "pg_prepared_statements" WHERE "name"=\'' .
+				$identifier . '\'';
+			;
+			if (($result = @\pg_query($sql)) !== false &&
+				($row = @\pg_fetch_row($result)) &&
+				($text = \str_replace(' ', '', $row[0])) &&
+				($parameterCount = \str_word_count($text)))
+			{
+				$map = $prepared->getParameters();
+				$map->clear();
+				for ($i = 0; $i < $parameterCount; $i++)
+					$map->setParameter($i, null, '$' . ($i + 1));
+			}
+		}
+
+		return $prepared;
 	}
 
 	public function executeStatement($statement, $parameters = array())
@@ -279,7 +305,7 @@ class PostgreSQLConnection implements ConnectionInterface,
 					$p = $map->get($index);
 					$dbmsName = $p[ParameterData::DBMSNAME];
 					$entry = Container::keyValue($parameters, $key, null);
-					$value = ($entry instanceof ParameterValue) ? $entry->value : $entry;
+					$value = ($entry instanceof Value) ? $entry->getValue() : $entry;
 					$a[$index] = $value;
 				}
 			}

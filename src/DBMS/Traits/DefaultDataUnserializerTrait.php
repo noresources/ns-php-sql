@@ -97,6 +97,8 @@ trait DefaultDataUnserializerTrait
 	protected function unserializeBinaryColumnData(
 		ColumnDescriptionInterface $column, $data)
 	{
+		if (\is_resource($data) && \get_resource_type($data))
+			return \stream_get_contents($data);
 		return $data;
 	}
 

@@ -8,42 +8,19 @@
  * @package SQL
  */
 
-// 
+//
 namespace NoreSources\SQL\Syntax\Statement;
 
 use NoreSources\ArrayRepresentation;
+use NoreSources\Container;
 use Psr\Container\ContainerInterface;
 
 /**
  * Internal class used to bind logical parameter key and DBMS parameter names
  */
-class ParameterData implements ContainerInterface, \IteratorAggregate, \Countable,
-	ArrayRepresentation
+class ParameterData implements ContainerInterface, \IteratorAggregate,
+	\Countable, ArrayRepresentation
 {
-
-	/**
-	 * Parameter information key.
-	 * Parameter positions
-	 *
-	 * @var string
-	 */
-	const POSITIONS = 'positions';
-
-	/**
-	 * Parameter information key..
-	 * Parameter DBMS name
-	 *
-	 * @var string
-	 */
-	const DBMSNAME = 'dbmsname';
-
-	/**
-	 * Parameter information key..
-	 * Parameter logical name
-	 *
-	 * @var string
-	 */
-	const KEY = 'key';
 
 	public function __construct()
 	{
@@ -66,7 +43,14 @@ class ParameterData implements ContainerInterface, \IteratorAggregate, \Countabl
 	 */
 	public function count()
 	{
-		return $this->getParameterCount();
+		$c = 0;
+		foreach ($this->entries as $key => $entry)
+		{
+			if (\is_integer($key))
+				$c++;
+		}
+
+		return $c;
 	}
 
 	/**
@@ -77,7 +61,7 @@ class ParameterData implements ContainerInterface, \IteratorAggregate, \Countabl
 	 */
 	public function appendParameter($key, $dbmsName)
 	{
-		$c = $this->getParameterCount();
+		$c = $this->count();
 
 		$this->entries[$c] = [
 			self::KEY => $key,
@@ -103,6 +87,52 @@ class ParameterData implements ContainerInterface, \IteratorAggregate, \Countabl
 
 	/**
 	 *
+	 * @param integer $index
+	 *        	Zero-based parameter position
+	 * @param string|NULL $key
+	 *        	Parameter key
+	 * @param string $dbmsName
+	 *        	Parameter DBMS name
+	 */
+	public function setParameter($index, $key, $dbmsName)
+	{
+		$index = \intval($index);
+		if ($key === null)
+			$key = \strval($index);
+
+		if ($this->entries->offsetExists($index))
+		{
+			$previousKey = $this->entries[$index][self::KEY];
+			if ($this->entries->offsetExists($previousKey))
+				$this->entries[$previousKey][self::POSITIONS] = Container::filter(
+					$this->entries[$previousKey][self::POSITIONS],
+					function ($k, $v) use ($index) {
+						return ($v != $index);
+					});
+		}
+
+		$this->entries[$index] = [
+			self::KEY => $key,
+			self::DBMSNAME => $dbmsName
+		];
+
+		if ($this->entries->offsetExists($key))
+		{
+			$this->entries[$key][self::POSITIONS][] = $index;
+		}
+		else
+		{
+			$this->entries[$key] = [
+				self::DBMSNAME => $dbmsName,
+				self::POSITIONS => [
+					$index
+				]
+			];
+		}
+	}
+
+	/**
+	 *
 	 * @return number Number of distinct parameter keys
 	 */
 	public function getDistinctParameterCount()
@@ -111,22 +141,6 @@ class ParameterData implements ContainerInterface, \IteratorAggregate, \Countabl
 		foreach ($this->entries as $key => $entry)
 		{
 			if (\is_string($key))
-				$c++;
-		}
-
-		return $c;
-	}
-
-	/**
-	 *
-	 * @return number Number of parameters
-	 */
-	public function getParameterCount()
-	{
-		$c = 0;
-		foreach ($this->entries as $key => $entry)
-		{
-			if (\is_integer($key))
 				$c++;
 		}
 
@@ -166,6 +180,38 @@ class ParameterData implements ContainerInterface, \IteratorAggregate, \Countabl
 	{
 		return $this->entries->getArrayCopy();
 	}
+
+	/**
+	 * Clear all parameter data
+	 */
+	public function clear()
+	{
+		$this->entries->exchangeArray([]);
+	}
+
+	/**
+	 * Parameter information key.
+	 * Parameter positions
+	 *
+	 * @var string
+	 */
+	const POSITIONS = 'positions';
+
+	/**
+	 * Parameter information key..
+	 * Parameter DBMS name
+	 *
+	 * @var string
+	 */
+	const DBMSNAME = 'dbmsname';
+
+	/**
+	 * Parameter information key..
+	 * Parameter logical name
+	 *
+	 * @var string
+	 */
+	const KEY = 'key';
 
 	/**
 	 *
