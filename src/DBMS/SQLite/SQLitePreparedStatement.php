@@ -12,11 +12,11 @@ namespace NoreSources\SQL\DBMS\SQLite;
 use NoreSources\TypeConversion;
 use NoreSources\TypeDescription;
 use NoreSources\SQL\DBMS\PreparedStatementInterface;
-use NoreSources\SQL\Statement\InputDataTrait;
-use NoreSources\SQL\Statement\OutputDataTrait;
-use NoreSources\SQL\Statement\ParameterDataProviderInterface;
-use NoreSources\SQL\Statement\StatementInputDataInterface;
-use NoreSources\SQL\Statement\StatementTokenStreamContext;
+use NoreSources\SQL\Syntax\Statement\ParameterDataProviderInterface;
+use NoreSources\SQL\Syntax\Statement\StatementInputDataInterface;
+use NoreSources\SQL\Syntax\Statement\StatementTokenStreamContext;
+use NoreSources\SQL\Syntax\Statement\Traits\InputDataTrait;
+use NoreSources\SQL\Syntax\Statement\Traits\OutputDataTrait;
 
 /**
  * SQLite3 implementation of NoreSources\SQL\SQLitePreparedStatement

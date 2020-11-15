@@ -13,8 +13,9 @@ use NoreSources\SemanticVersion;
 use NoreSources\TypeConversion;
 use NoreSources\Expression\Value;
 use NoreSources\SQL\DataTypeProviderInterface;
-use NoreSources\SQL\Expression\Evaluator;
 use NoreSources\SQL\Structure\XMLStructureFileConstants as K;
+use NoreSources\SQL\Structure\Traits\XMLStructureFileTrait;
+use NoreSources\SQL\Syntax\Evaluator;
 
 /**
  * Export Structure to a XML file following ns-xml SQL schema definition
@@ -229,8 +230,7 @@ class XMLStructureFileExporter implements
 			$defaultNode = $context->dom->createElementNS($namespaceURI,
 				'default');
 
-			$value = $structure->get(
-				K::COLUMN_DEFAULT_VALUE);
+			$value = $structure->get(K::COLUMN_DEFAULT_VALUE);
 			$valueType = $dataType;
 			if ($value instanceof DataTypeProviderInterface)
 				$dataType = $value->getDataType();
@@ -282,8 +282,7 @@ class XMLStructureFileExporter implements
 			{
 				if ($structure->has(K::COLUMN_ENUMERATION))
 				{
-					$values = $structure->get(
-						K::COLUMN_ENUMERATION);
+					$values = $structure->get(K::COLUMN_ENUMERATION);
 					$enumerationNode = $context->dom->createElementNS(
 						$namespaceURI, 'enumeration');
 					foreach ($values as $value)
@@ -358,8 +357,7 @@ class XMLStructureFileExporter implements
 			{
 				$n = ($versionNumber >= 20000) ? 'scale' : 'decimals';
 				$typeNode->setAttribute($n,
-					$structure->get(
-						K::COLUMN_FRACTION_SCALE));
+					$structure->get(K::COLUMN_FRACTION_SCALE));
 			}
 
 			$dataTypeNode->appendChild($typeNode);

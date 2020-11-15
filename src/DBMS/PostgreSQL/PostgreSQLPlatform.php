@@ -8,14 +8,14 @@ use NoreSources\Expression\Value;
 use NoreSources\SQL\DBMS\AbstractPlatform;
 use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\ConnectionProviderInterface;
-use NoreSources\SQL\DBMS\ConnectionProviderTrait;
 use NoreSources\SQL\DBMS\TimestampFormatTranslationMap;
 use NoreSources\SQL\DBMS\TypeRegistry;
 use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLConstants as K;
+use NoreSources\SQL\DBMS\Traits\ConnectionProviderTrait;
 use NoreSources\SQL\DBMS\Types\BasicType;
-use NoreSources\SQL\Expression\FunctionCall;
-use NoreSources\SQL\Expression\MetaFunctionCall;
-use NoreSources\SQL\Statement\ParameterData;
+use NoreSources\SQL\Syntax\FunctionCall;
+use NoreSources\SQL\Syntax\MetaFunctionCall;
+use NoreSources\SQL\Syntax\Statement\ParameterData;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
 

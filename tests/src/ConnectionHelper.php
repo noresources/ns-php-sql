@@ -17,10 +17,10 @@ use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\ConnectionFactoryInterface;
 use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\DefaultConnectionFactory;
-use NoreSources\SQL\Statement\Statement;
-use NoreSources\SQL\Statement\StatementBuilder;
-use NoreSources\SQL\Statement\StatementDataInterface;
-use NoreSources\SQL\Statement\StatementTokenStreamContext;
+use NoreSources\SQL\Syntax\Statement\Statement;
+use NoreSources\SQL\Syntax\Statement\StatementBuilder;
+use NoreSources\SQL\Syntax\Statement\StatementDataInterface;
+use NoreSources\SQL\Syntax\Statement\StatementTokenStreamContext;
 use NoreSources\SQL\Structure\DatasourceStructure;
 use NoreSources\SQL\Structure\IndexStructure;
 use NoreSources\SQL\Structure\NamespaceStructure;
@@ -123,7 +123,7 @@ class ConnectionHelper
 		{
 			/**
 			 *
-			 * @var \NoreSources\SQL\Statement\Structure\CreateNamespaceQuery $q
+			 * @var \NoreSources\SQL\Syntax\Statement\Structure\CreateNamespaceQuery $q
 			 */
 			$q = $connection->getPlatform()->newStatement(
 				K::QUERY_CREATE_NAMESPACE, $structure);
@@ -157,7 +157,7 @@ class ConnectionHelper
 		{
 			/**
 			 *
-			 * @var \NoreSources\SQL\Statement\Structure\CreateIndexQuery $q
+			 * @var \NoreSources\SQL\Syntax\Statement\Structure\CreateIndexQuery $q
 			 */
 			$q = $connection->getPlatform()->newStatement(
 				K::QUERY_CREATE_INDEX);

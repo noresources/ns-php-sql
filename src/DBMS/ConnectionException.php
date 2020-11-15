@@ -9,6 +9,8 @@
  */
 namespace NoreSources\SQL\DBMS;
 
+use NoreSources\SQL\DBMS\Traits\ConnectionProviderTrait;
+
 /**
  * DBMS connection or command exception
  */

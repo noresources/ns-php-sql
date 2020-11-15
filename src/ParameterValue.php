@@ -10,7 +10,7 @@
 namespace NoreSources\SQL;
 
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\Expression\Evaluator;
+use NoreSources\SQL\Syntax\Evaluator;
 
 /**
  * Value of statement parameter.

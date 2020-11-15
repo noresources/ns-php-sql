@@ -13,16 +13,16 @@ use NoreSources\Container;
 use NoreSources\TypeDescription;
 use NoreSources\SQL\DataTypeProviderInterface;
 use NoreSources\SQL\DBMS\ConnectionInterface;
-use NoreSources\SQL\DBMS\PlatformProviderTrait;
 use NoreSources\SQL\DBMS\TransactionInterface;
-use NoreSources\SQL\DBMS\TransactionStackTrait;
 use NoreSources\SQL\DBMS\SQLite\SQLiteConstants as K;
-use NoreSources\SQL\Expression\Evaluator;
+use NoreSources\SQL\DBMS\Traits\PlatformProviderTrait;
+use NoreSources\SQL\DBMS\Traits\TransactionStackTrait;
 use NoreSources\SQL\Result\DefaultInsertionStatementResult;
 use NoreSources\SQL\Result\DefaultRowModificationStatementResult;
-use NoreSources\SQL\Statement\ParameterData;
-use NoreSources\SQL\Statement\ParameterDataProviderInterface;
-use NoreSources\SQL\Statement\Statement;
+use NoreSources\SQL\Syntax\Evaluator;
+use NoreSources\SQL\Syntax\Statement\ParameterData;
+use NoreSources\SQL\Syntax\Statement\ParameterDataProviderInterface;
+use NoreSources\SQL\Syntax\Statement\Statement;
 
 /**
  * SQLite connection
@@ -449,7 +449,7 @@ class SQLiteConnection implements ConnectionInterface,
 
 	/**
 	 *
-	 * @var \NoreSources\SQL\Statement\StatementFactoryInterface
+	 * @var \NoreSources\SQL\Syntax\Statement\StatementFactoryInterface
 	 */
 	private $statementFactory;
 

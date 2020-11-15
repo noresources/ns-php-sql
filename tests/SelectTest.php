@@ -4,12 +4,12 @@ namespace NoreSources\SQL;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\Reference\ReferenceConnection;
 use NoreSources\SQL\DBMS\Reference\ReferencePlatform;
-use NoreSources\SQL\Expression\Column;
-use NoreSources\SQL\Expression\Data;
-use NoreSources\SQL\Expression\MemberOf;
-use NoreSources\SQL\Statement\StatementBuilder;
-use NoreSources\SQL\Statement\StatementTokenStreamContext;
-use NoreSources\SQL\Statement\Query\SelectQuery;
+use NoreSources\SQL\Syntax\Column;
+use NoreSources\SQL\Syntax\Data;
+use NoreSources\SQL\Syntax\MemberOf;
+use NoreSources\SQL\Syntax\Statement\StatementBuilder;
+use NoreSources\SQL\Syntax\Statement\StatementTokenStreamContext;
+use NoreSources\SQL\Syntax\Statement\Query\SelectQuery;
 use NoreSources\SQL\Structure\NamespaceStructure;
 use NoreSources\Test\DatasourceManager;
 use NoreSources\Test\DerivedFileManager;
@@ -276,7 +276,7 @@ final class SelectTest extends \PHPUnit\Framework\TestCase
 
 		/**
 		 *
-		 * @var \NoreSources\SQL\Statement\Query\SelectQuery $innerSelect
+		 * @var \NoreSources\SQL\Syntax\Statement\Query\SelectQuery $innerSelect
 		 */
 		$innerSelect = $connection->getPlatform()->newStatement(
 			K::QUERY_SELECT);
@@ -301,7 +301,7 @@ final class SelectTest extends \PHPUnit\Framework\TestCase
 
 		/**
 		 *
-		 * @var \NoreSources\SQL\Statement\Query\SelectQuery $outerSelect
+		 * @var \NoreSources\SQL\Syntax\Statement\Query\SelectQuery $outerSelect
 		 */
 		$outerSelect = $connection->getPlatform()->newStatement(
 			K::QUERY_SELECT);

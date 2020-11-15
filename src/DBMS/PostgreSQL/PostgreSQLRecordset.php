@@ -11,9 +11,9 @@ namespace NoreSources\SQL\DBMS\PostgreSQL;
 
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Result\Recordset;
-use NoreSources\SQL\Result\SeekableRecordsetTrait;
-use NoreSources\SQL\Statement\ResultColumn;
-use NoreSources\SQL\Statement\ResultColumnMap;
+use NoreSources\SQL\Result\Traits\SeekableRecordsetTrait;
+use NoreSources\SQL\Syntax\Statement\ResultColumn;
+use NoreSources\SQL\Syntax\Statement\ResultColumnMap;
 
 class PostgreSQLRecordset extends Recordset implements
 	\SeekableIterator, \Countable

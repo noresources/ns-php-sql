@@ -9,7 +9,10 @@
  */
 namespace NoreSources\SQL\Structure;
 
-use NoreSources\SQL\Statement\Traits\WhereConstraintTrait;
+use NoreSources\SQL\Structure\Traits\StructureElementTrait;
+use NoreSources\SQL\Syntax\TableReference;
+use NoreSources\SQL\Syntax\Statement\Traits\WhereConstraintTrait;
+use ArrayObject;
 
 class IndexStructure implements StructureElementInterface
 {

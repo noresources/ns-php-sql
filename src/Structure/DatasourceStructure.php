@@ -10,11 +10,14 @@
 namespace NoreSources\SQL\Structure;
 
 use NoreSources\TypeDescription;
+use NoreSources\SQL\Structure\Traits\StructureElementContainerTrait;
+use NoreSources\SQL\Structure\Traits\StructureElementTrait;
 
 /**
  * Top-level structure container definition
  */
-class DatasourceStructure implements StructureElementInterface, StructureElementContainerInterface
+class DatasourceStructure implements StructureElementInterface,
+	StructureElementContainerInterface
 {
 
 	use StructureElementContainerTrait;

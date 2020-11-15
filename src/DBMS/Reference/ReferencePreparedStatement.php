@@ -10,7 +10,7 @@
 namespace NoreSources\SQL\DBMS\Reference;
 
 use NoreSources\SQL\DBMS\PreparedStatementInterface;
-use NoreSources\SQL\Statement\StatementDataTrait;
+use NoreSources\SQL\Syntax\Statement\Traits\StatementDataTrait;
 
 /**
  * SQLite3 implementation of NoreSources\SQL\ReferencePreparedStatement
@@ -22,7 +22,7 @@ class ReferencePreparedStatement implements PreparedStatementInterface
 
 	/**
 	 *
-	 * @param \NoreSources\SQL\Statement\ParameterDataProviderInterface $data
+	 * @param \NoreSources\SQL\Syntax\Statement\ParameterDataProviderInterface $data
 	 */
 	public function __construct($data)
 	{

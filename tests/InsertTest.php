@@ -4,10 +4,12 @@ namespace NoreSources\SQL;
 use NoreSources\Expression\ExpressionInterface;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\Reference\ReferencePlatform;
-use NoreSources\SQL\Expression\Data;
-use NoreSources\SQL\Statement\StatementBuilder;
-use NoreSources\SQL\Statement\StatementTokenStreamContext;
-use NoreSources\SQL\Statement\Manipulation\InsertQuery;
+use NoreSources\SQL\Structure\TableStructure;
+use NoreSources\SQL\Syntax\Data;
+use NoreSources\SQL\Syntax\Statement\StatementBuilder;
+use NoreSources\SQL\Syntax\Statement\StatementOutputDataInterface;
+use NoreSources\SQL\Syntax\Statement\StatementTokenStreamContext;
+use NoreSources\SQL\Syntax\Statement\Manipulation\InsertQuery;
 use NoreSources\Test\DatasourceManager;
 use NoreSources\Test\DerivedFileManager;
 
@@ -26,7 +28,7 @@ final class InsertTest extends \PHPUnit\Framework\TestCase
 	{
 		$structure = $this->datasources->get('types');
 		$t = $structure['ns_unittests']['types'];
-		$this->assertInstanceOf(Structure\TableStructure::class, $t);
+		$this->assertInstanceOf(TableStructure::class, $t);
 
 		$q = new InsertQuery($t);
 
@@ -61,9 +63,9 @@ final class InsertTest extends \PHPUnit\Framework\TestCase
 			$context->setPivot($t);
 			$result =  StatementBuilder::getInstance()($q, $context);
 
-			$this->assertInstanceOf(
-				Statement\StatementOutputDataInterface::class, $result,
-				'Result is (at least) a Statement\StatementOutputDataInterface');
+			$this->assertInstanceOf(StatementOutputDataInterface::class,
+				$result,
+				'Result is (at least) a StatementOutputDataInterface');
 			$this->derivedFileManager->assertDerivedFile(
 				strval($result), __METHOD__, $key, 'sql');
 		}
@@ -73,8 +75,7 @@ final class InsertTest extends \PHPUnit\Framework\TestCase
 	{
 		$structure = $this->datasources->get('Company');
 		$tableStructure = $structure['ns_unittests']['Tasks'];
-		$this->assertInstanceOf(Structure\TableStructure::class,
-			$tableStructure);
+		$this->assertInstanceOf(TableStructure::class, $tableStructure);
 		$platform = new ReferencePlatform();
 		StatementBuilder::getInstance(); // IDO workaround
 		$context = new StatementTokenStreamContext($platform);

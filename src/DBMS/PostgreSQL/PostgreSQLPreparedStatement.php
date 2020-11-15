@@ -10,8 +10,8 @@
 namespace NoreSources\SQL\DBMS\PostgreSQL;
 
 use NoreSources\SQL\DBMS\PreparedStatementInterface;
-use NoreSources\SQL\Statement\StatementDataTrait;
-use NoreSources\SQL\Statement\StatementOutputDataInterface;
+use NoreSources\SQL\Syntax\Statement\StatementOutputDataInterface;
+use NoreSources\SQL\Syntax\Statement\Traits\StatementDataTrait;
 
 class PostgreSQLPreparedStatement implements PreparedStatementInterface
 {

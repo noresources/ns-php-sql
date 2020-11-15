@@ -2,10 +2,10 @@
 namespace NoreSources\SQL;
 
 use NoreSources\SQL\DBMS\Reference\ReferencePlatform;
-use NoreSources\SQL\Statement\StatementBuilder;
-use NoreSources\SQL\Statement\StatementTokenStreamContext;
-use NoreSources\SQL\Statement\Manipulation\UpdateQuery;
-use NoreSources\SQL\Statement\Query\SelectQuery;
+use NoreSources\SQL\Syntax\Statement\StatementBuilder;
+use NoreSources\SQL\Syntax\Statement\StatementTokenStreamContext;
+use NoreSources\SQL\Syntax\Statement\Manipulation\UpdateQuery;
+use NoreSources\SQL\Syntax\Statement\Query\SelectQuery;
 use NoreSources\Test\ConnectionHelper;
 use NoreSources\Test\DatasourceManager;
 use NoreSources\Test\DerivedFileManager;

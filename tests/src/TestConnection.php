@@ -9,7 +9,7 @@ use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\Result\InsertionStatementResultInterface;
 use NoreSources\SQL\Result\Recordset;
 use NoreSources\SQL\Result\RowModificationStatementResultInterface;
-use NoreSources\SQL\Statement\StatementDataInterface;
+use NoreSources\SQL\Syntax\Statement\StatementDataInterface;
 
 class TestConnection extends \PHPUnit\Framework\TestCase
 {

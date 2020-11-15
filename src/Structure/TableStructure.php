@@ -10,6 +10,9 @@
  */
 namespace NoreSources\SQL\Structure;
 
+use NoreSources\SQL\Structure\Traits\StructureElementContainerTrait;
+use NoreSources\SQL\Structure\Traits\StructureElementTrait;
+
 /**
  * Table structure definition
  *

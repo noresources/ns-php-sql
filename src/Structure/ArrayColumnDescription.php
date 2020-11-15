@@ -9,6 +9,8 @@
  */
 namespace NoreSources\SQL\Structure;
 
+use NoreSources\SQL\Structure\Traits\ColumnDescriptionTrait;
+
 /**
  * Implementation of ColumnDescriptionInterface using an \ArrayObject of column properties
  */

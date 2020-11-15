@@ -11,11 +11,11 @@ use NoreSources\SQL\DBMS\AbstractPlatform;
 use NoreSources\SQL\DBMS\TimestampFormatTranslationMap;
 use NoreSources\SQL\DBMS\TypeRegistry;
 use NoreSources\SQL\DBMS\Types\ArrayObjectType;
-use NoreSources\SQL\Expression\ColumnDeclaration;
-use NoreSources\SQL\Expression\FunctionCall;
-use NoreSources\SQL\Expression\MetaFunctionCall;
-use NoreSources\SQL\Expression\TableConstraintDeclaration;
-use NoreSources\SQL\Statement\ParameterData;
+use NoreSources\SQL\Syntax\ColumnDeclaration;
+use NoreSources\SQL\Syntax\FunctionCall;
+use NoreSources\SQL\Syntax\MetaFunctionCall;
+use NoreSources\SQL\Syntax\TableConstraintDeclaration;
+use NoreSources\SQL\Syntax\Statement\ParameterData;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
 

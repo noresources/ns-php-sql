@@ -11,11 +11,11 @@ namespace NoreSources\SQL\Result;
 
 use NoreSources\ArrayRepresentation;
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\DataUnserializerInterface;
-use NoreSources\SQL\DefaultDataUnserializer;
-use NoreSources\SQL\Statement\OutputDataTrait;
-use NoreSources\SQL\Statement\ResultColumnMap;
-use NoreSources\SQL\Statement\StatementOutputDataInterface;
+use NoreSources\SQL\DBMS\DataUnserializerInterface;
+use NoreSources\SQL\DBMS\DefaultDataUnserializer;
+use NoreSources\SQL\Syntax\Statement\ResultColumnMap;
+use NoreSources\SQL\Syntax\Statement\StatementOutputDataInterface;
+use NoreSources\SQL\Syntax\Statement\Traits\OutputDataTrait;
 
 /**
  * Recordset query result

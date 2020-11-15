@@ -23,23 +23,23 @@ use NoreSources\SQL\DBMS\PDO\PDOPlatform;
 use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLPlatform;
 use NoreSources\SQL\DBMS\SQLite\SQLitePlatform;
 use NoreSources\SQL\DBMS\Types\ArrayObjectType;
-use NoreSources\SQL\Expression\CastFunction;
-use NoreSources\SQL\Expression\ColumnDeclaration;
-use NoreSources\SQL\Expression\Data;
-use NoreSources\SQL\Expression\Parameter;
-use NoreSources\SQL\Expression\TimestampFormatFunction;
+use NoreSources\SQL\Syntax\CastFunction;
+use NoreSources\SQL\Syntax\ColumnDeclaration;
+use NoreSources\SQL\Syntax\Data;
+use NoreSources\SQL\Syntax\Parameter;
+use NoreSources\SQL\Syntax\TimestampFormatFunction;
 use NoreSources\SQL\Result\InsertionStatementResultInterface;
 use NoreSources\SQL\Result\Recordset;
-use NoreSources\SQL\Statement\ParameterData;
-use NoreSources\SQL\Statement\StatementBuilder;
-use NoreSources\SQL\Statement\StatementTokenStreamContext;
-use NoreSources\SQL\Statement\Manipulation\DeleteQuery;
-use NoreSources\SQL\Statement\Manipulation\InsertQuery;
-use NoreSources\SQL\Statement\Manipulation\UpdateQuery;
-use NoreSources\SQL\Statement\Query\SelectQuery;
-use NoreSources\SQL\Statement\Structure\CreateNamespaceQuery;
-use NoreSources\SQL\Statement\Structure\CreateTableQuery;
-use NoreSources\SQL\Statement\Structure\DropTableQuery;
+use NoreSources\SQL\Syntax\Statement\ParameterData;
+use NoreSources\SQL\Syntax\Statement\StatementBuilder;
+use NoreSources\SQL\Syntax\Statement\StatementTokenStreamContext;
+use NoreSources\SQL\Syntax\Statement\Manipulation\DeleteQuery;
+use NoreSources\SQL\Syntax\Statement\Manipulation\InsertQuery;
+use NoreSources\SQL\Syntax\Statement\Manipulation\UpdateQuery;
+use NoreSources\SQL\Syntax\Statement\Query\SelectQuery;
+use NoreSources\SQL\Syntax\Statement\Structure\CreateNamespaceQuery;
+use NoreSources\SQL\Syntax\Statement\Structure\CreateTableQuery;
+use NoreSources\SQL\Syntax\Statement\Structure\DropTableQuery;
 use NoreSources\SQL\Structure\ArrayColumnDescription;
 use NoreSources\SQL\Structure\ColumnStructure;
 use NoreSources\SQL\Structure\NamespaceStructure;
@@ -453,7 +453,7 @@ final class DBMSCommonTest extends TestCase
 		{
 			/**
 			 *
-			 * @var \NoreSources\SQL\Statement\Manipulation\InsertQuery $q
+			 * @var \NoreSources\SQL\Syntax\Statement\Manipulation\InsertQuery $q
 			 */
 			$q = $connection->getPlatform()->newStatement(
 				K::QUERY_INSERT);
@@ -833,7 +833,7 @@ final class DBMSCommonTest extends TestCase
 		$platform = $connection->getPlatform();
 		/**
 		 *
-		 * @var \NoreSources\SQL\Statement\Manipulation\InsertQuery $i
+		 * @var \NoreSources\SQL\Syntax\Statement\Manipulation\InsertQuery $i
 		 */
 		$i = $connection->getPlatform()->newStatement(K::QUERY_INSERT);
 		$i->table($tableStructure);

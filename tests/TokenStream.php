@@ -1,7 +1,7 @@
 <?php
 namespace NoreSources\SQL;
 
-use NoreSources\SQL\Expression\TokenStream;
+use NoreSources\SQL\Syntax\TokenStream;
 
 final class TokenStremTest extends \PHPUnit\Framework\TestCase
 {

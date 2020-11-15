@@ -12,9 +12,10 @@ namespace NoreSources\SQL\Structure;
 use NoreSources\Container;
 use NoreSources\SemanticVersion;
 use NoreSources\Expression\ExpressionInterface;
-use NoreSources\SQL\Expression\Data;
-use NoreSources\SQL\Expression\Keyword;
 use NoreSources\SQL\Structure\XMLStructureFileConstants as K;
+use NoreSources\SQL\Structure\Traits\XMLStructureFileTrait;
+use NoreSources\SQL\Syntax\Data;
+use NoreSources\SQL\Syntax\Keyword;
 
 /**
  * ns-xml SQL schema definition file importer

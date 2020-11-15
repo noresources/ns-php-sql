@@ -12,7 +12,7 @@ namespace NoreSources\SQL\DBMS\PDO;
 use NoreSources\Container;
 use NoreSources\SQL\Result\Recordset;
 use NoreSources\SQL\Result\RecordsetException;
-use NoreSources\SQL\Statement\ResultColumn;
+use NoreSources\SQL\Syntax\Statement\ResultColumn;
 
 class PDORecordset extends Recordset
 {

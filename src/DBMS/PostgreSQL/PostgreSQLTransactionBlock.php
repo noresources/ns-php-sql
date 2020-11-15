@@ -11,10 +11,10 @@ namespace NoreSources\SQL\DBMS\PostgreSQL;
 
 use NoreSources\ChainElementTrait;
 use NoreSources\SQL\DBMS\ConnectionProviderInterface;
-use NoreSources\SQL\DBMS\ConnectionProviderTrait;
 use NoreSources\SQL\DBMS\TransactionBlockException;
 use NoreSources\SQL\DBMS\TransactionBlockInterface;
-use NoreSources\SQL\DBMS\TransactionBlockTrait;
+use NoreSources\SQL\DBMS\Traits\ConnectionProviderTrait;
+use NoreSources\SQL\DBMS\Traits\TransactionBlockTrait;
 
 class PostgreSQLTransactionBlock implements TransactionBlockInterface,
 	ConnectionProviderInterface

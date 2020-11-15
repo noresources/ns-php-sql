@@ -10,11 +10,14 @@
  */
 namespace NoreSources\SQL\Structure;
 
+use NoreSources\SQL\Structure\Traits\StructureElementContainerTrait;
+use NoreSources\SQL\Structure\Traits\StructureElementTrait;
+
 /**
  * View structure definition
- *
  */
-class ViewStructure implements StructureElementContainerInterface, StructureElementInterface
+class ViewStructure implements StructureElementContainerInterface,
+	StructureElementInterface
 {
 
 	use StructureElementTrait;
@@ -23,9 +26,11 @@ class ViewStructure implements StructureElementContainerInterface, StructureElem
 	/**
 	 *
 	 * @param string $name
-	 * @param NamespaceStructure $parent Parent element
+	 * @param NamespaceStructure $parent
+	 *        	Parent element
 	 */
-	public function __construct($name, StructureElementContainerInterface $parent = null)
+	public function __construct($name,
+		StructureElementContainerInterface $parent = null)
 	{
 		$this->initializeStructureElement($name, $parent);
 		$this->initializeStructureElementContainer();

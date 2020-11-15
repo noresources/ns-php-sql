@@ -1,7 +1,7 @@
 <?php
 namespace NoreSources\SQL\DBMS;
 
-use NoreSources\SQL\Statement\StatementDataInterface;
+use NoreSources\SQL\Syntax\Statement\StatementDataInterface;
 
 /**
  * A statement which was prepared

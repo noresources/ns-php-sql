@@ -10,15 +10,20 @@
  */
 namespace NoreSources\SQL\Structure;
 
+use NoreSources\SQL\Structure\Traits\StructureElementContainerTrait;
+use NoreSources\SQL\Structure\Traits\StructureElementTrait;
+
 /**
  * Table set structure definition
  */
-class NamespaceStructure implements StructureElementContainerInterface, StructureElementInterface
+class NamespaceStructure implements StructureElementContainerInterface,
+	StructureElementInterface
 {
 	use StructureElementTrait;
 	use StructureElementContainerTrait;
 
-	public function __construct($name, StructureElementContainerInterface $parent = null)
+	public function __construct($name,
+		StructureElementContainerInterface $parent = null)
 	{
 		$this->initializeStructureElement($name, $parent);
 		$this->initializeStructureElementContainer();

@@ -2,7 +2,7 @@
 namespace NoreSources\SQL\DBMS\SQLite;
 
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\Expression\TableConstraintDeclaration;
+use NoreSources\SQL\Syntax\TableConstraintDeclaration;
 use NoreSources\SQL\Structure\PrimaryKeyTableConstraint;
 
 class SQLiteTableConstraintDeclaration extends TableConstraintDeclaration

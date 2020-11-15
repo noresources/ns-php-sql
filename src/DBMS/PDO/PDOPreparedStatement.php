@@ -12,12 +12,10 @@ namespace NoreSources\SQL\DBMS\PDO;
 use NoreSources\Container;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\PreparedStatementInterface;
-use NoreSources\SQL\Statement\InputDataTrait;
-use NoreSources\SQL\Statement\OutputDataTrait;
-use NoreSources\SQL\Statement\ResultColumn;
-use NoreSources\SQL\Statement\Statement;
-use NoreSources\SQL\Statement\StatementData;
-use NoreSources\SQL\Statement\StatementInputDataInterface;
+use NoreSources\SQL\Syntax\Statement\ResultColumn;
+use NoreSources\SQL\Syntax\Statement\StatementInputDataInterface;
+use NoreSources\SQL\Syntax\Statement\Traits\InputDataTrait;
+use NoreSources\SQL\Syntax\Statement\Traits\OutputDataTrait;
 
 class PDOPreparedStatement implements PreparedStatementInterface
 {
@@ -28,7 +26,7 @@ class PDOPreparedStatement implements PreparedStatementInterface
 	/**
 	 *
 	 * @param \PDOStatement $statement
-	 * @param string|SQL\StatementData $data
+	 * @param string|SQL\Syntax\StatementData $data
 	 */
 	public function __construct(\PDOStatement $statement, $data)
 	{
@@ -41,7 +39,7 @@ class PDOPreparedStatement implements PreparedStatementInterface
 		$this->pdoStatement = $statement;
 
 		if ($this->getStatementType() == 0)
-			$this->statementType = SQL\Statement::statementTypeFromData(
+			$this->statementType = SQL\Syntax\Statement::statementTypeFromData(
 				$data);
 
 		if ($this->getStatementType() == K::QUERY_SELECT)

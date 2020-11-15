@@ -8,7 +8,7 @@ use NoreSources\TypeConversion;
 use NoreSources\MediaType\MediaTypeInterface;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\Types\ArrayObjectType;
-use NoreSources\SQL\Expression\Evaluator;
+use NoreSources\SQL\Syntax\Evaluator;
 use Psr\Container\ContainerInterface;
 
 /**

@@ -6,11 +6,11 @@ use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\ConnectionProviderInterface;
 use NoreSources\SQL\DBMS\DefaultConnectionFactory;
 use NoreSources\SQL\DBMS\PlatformProviderInterface;
-use NoreSources\SQL\Expression\TokenizableExpressionInterface;
+use NoreSources\SQL\Syntax\TokenizableExpressionInterface;
 use NoreSources\SQL\Result\StatementResultInterface;
-use NoreSources\SQL\Statement\Statement;
-use NoreSources\SQL\Statement\StatementBuilder;
-use NoreSources\SQL\Statement\StatementFactoryInterface;
+use NoreSources\SQL\Syntax\Statement\Statement;
+use NoreSources\SQL\Syntax\Statement\StatementBuilder;
+use NoreSources\SQL\Syntax\Statement\StatementFactoryInterface;
 use NoreSources\SQL\Structure\StructureElementInterface;
 use NoreSources\SQL\Structure\StructureProviderInterface;
 use NoreSources\SQL\Structure\StructureResolver;
@@ -93,7 +93,7 @@ class Environment implements ConnectionProviderInterface,
 	/**
 	 *
 	 * {@inheritdoc}
-	 * @see \NoreSources\SQL\Statement\StatementFactoryInterface::newStatement()
+	 * @see \NoreSources\SQL\Syntax\Statement\StatementFactoryInterface::newStatement()
 	 */
 	public function newStatement($statementType)
 	{

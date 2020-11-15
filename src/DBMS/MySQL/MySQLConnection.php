@@ -18,13 +18,13 @@ use NoreSources\SQL\DBMS\ConnectionException;
 use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\StringSerializerInterface;
 use NoreSources\SQL\DBMS\TransactionInterface;
-use NoreSources\SQL\DBMS\TransactionStackTrait;
 use NoreSources\SQL\DBMS\MySQL\MySQLConstants as K;
-use NoreSources\SQL\Expression\Evaluator;
+use NoreSources\SQL\DBMS\Traits\TransactionStackTrait;
 use NoreSources\SQL\Result\DefaultInsertionStatementResult;
 use NoreSources\SQL\Result\DefaultRowModificationStatementResult;
-use NoreSources\SQL\Statement\ParameterData;
-use NoreSources\SQL\Statement\Statement;
+use NoreSources\SQL\Syntax\Evaluator;
+use NoreSources\SQL\Syntax\Statement\ParameterData;
+use NoreSources\SQL\Syntax\Statement\Statement;
 
 class MySQLConnection implements ConnectionInterface,
 	StringSerializerInterface, BinaryDataSerializerInterface,
@@ -323,7 +323,7 @@ class MySQLConnection implements ConnectionInterface,
 
 	/**
 	 *
-	 * @var \NoreSources\SQL\Statement\StatementFactoryInterface
+	 * @var \NoreSources\SQL\Syntax\Statement\StatementFactoryInterface
 	 */
 	private $statementFactory;
 

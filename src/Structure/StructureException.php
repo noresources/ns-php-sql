@@ -10,12 +10,16 @@
  */
 namespace NoreSources\SQL\Structure;
 
-class StructureException extends \Exception implements StructureProviderInterface
+use NoreSources\SQL\Structure\Traits\StructureProviderTrait;
+
+class StructureException extends \Exception implements
+	StructureProviderInterface
 {
 
 	use StructureProviderTrait;
 
-	public function __construct($message, StructureElementInterface $element = null)
+	public function __construct($message,
+		StructureElementInterface $element = null)
 	{
 		parent::__construct($message);
 		if ($element instanceof StructureElementInterface)

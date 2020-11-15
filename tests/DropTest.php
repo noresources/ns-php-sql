@@ -3,10 +3,10 @@ namespace NoreSources\SQL;
 
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\Reference\ReferencePlatform;
-use NoreSources\SQL\Statement\StatementBuilder;
-use NoreSources\SQL\Statement\Structure\DropIndexQuery;
-use NoreSources\SQL\Statement\Structure\DropTableQuery;
-use NoreSources\SQL\Statement\Structure\DropViewQuery;
+use NoreSources\SQL\Syntax\Statement\StatementBuilder;
+use NoreSources\SQL\Syntax\Statement\Structure\DropIndexQuery;
+use NoreSources\SQL\Syntax\Statement\Structure\DropTableQuery;
+use NoreSources\SQL\Syntax\Statement\Structure\DropViewQuery;
 use NoreSources\SQL\Structure\NamespaceStructure;
 use NoreSources\Test\DatasourceManager;
 use NoreSources\Test\DerivedFileManager;

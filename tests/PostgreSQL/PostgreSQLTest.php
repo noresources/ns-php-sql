@@ -9,11 +9,11 @@ use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLConnection;
 use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLConstants as K;
 use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLPreparedStatement;
 use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLTypeRegistry;
-use NoreSources\SQL\Statement\Statement;
-use NoreSources\SQL\Statement\Structure\CreateIndexQuery;
-use NoreSources\SQL\Statement\Structure\CreateTableQuery;
-use NoreSources\SQL\Statement\Structure\DropIndexQuery;
-use NoreSources\SQL\Statement\Structure\DropTableQuery;
+use NoreSources\SQL\Syntax\Statement\Statement;
+use NoreSources\SQL\Syntax\Statement\Structure\CreateIndexQuery;
+use NoreSources\SQL\Syntax\Statement\Structure\CreateTableQuery;
+use NoreSources\SQL\Syntax\Statement\Structure\DropIndexQuery;
+use NoreSources\SQL\Syntax\Statement\Structure\DropTableQuery;
 use NoreSources\SQL\Structure\IndexStructure;
 use NoreSources\SQL\Structure\TableStructure;
 use NoreSources\Test\ConnectionHelper;
@@ -140,7 +140,7 @@ final class PostgreSQLTest extends \PHPUnit\Framework\TestCase
 
 		/**
 		 *
-		 * @var \NoreSources\SQL\Statement\Manipulation\InsertQuery $query
+		 * @var \NoreSources\SQL\Syntax\Statement\Manipulation\InsertQuery $query
 		 */
 		$query = $connection->getPlatform()->newStatement(
 			K::QUERY_INSERT);

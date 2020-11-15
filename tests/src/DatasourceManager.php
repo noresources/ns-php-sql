@@ -3,7 +3,7 @@ namespace NoreSources\Test;
 
 use NoreSources\TypeDescription;
 use NoreSources\SQL\DBMS\ConnectionInterface;
-use NoreSources\SQL\Statement\Structure\CreateTableQuery;
+use NoreSources\SQL\Syntax\Statement\Structure\CreateTableQuery;
 use NoreSources\SQL\Structure\DatasourceStructure;
 use NoreSources\SQL\Structure\StructureSerializerFactory;
 use NoreSources\SQL\Structure\TableStructure;

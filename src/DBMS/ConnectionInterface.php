@@ -25,7 +25,7 @@ interface ConnectionInterface extends PlatformProviderInterface
 
 	/**
 	 *
-	 * @param \NoreSources\SQL\Statement\\StatementData|string $statement
+	 * @param \NoreSources\SQL\Syntax\Statement\\StatementData|string $statement
 	 * @return PreparedStatement
 	 */
 	function prepareStatement($statement);

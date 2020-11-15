@@ -1,0 +1,196 @@
+<?php
+/**
+ * Copyright © 2012 - 2020 by Renaud Guillard (dev@nore.fr)
+ * Distributed under the terms of the MIT License, see LICENSE
+ */
+/**
+ *
+ * @package SQL
+ */
+
+//
+namespace NoreSources\SQL\Syntax\Statement\Structure;
+
+use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\Syntax\TokenStream;
+use NoreSources\SQL\Syntax\TokenStreamContextInterface;
+use NoreSources\SQL\Syntax\Statement\Statement;
+use NoreSources\SQL\Syntax\Statement\Query\SelectQuery;
+use NoreSources\SQL\Structure\IndexStructure;
+use NoreSources\SQL\Structure\NamespaceStructure;
+use NoreSources\SQL\Structure\StructureElementIdentifier;
+use NoreSources\SQL\Structure\ViewStructure;
+
+/**
+ * CREATE VIEW statement
+ *
+ *
+ * References
+ * <dl>
+ * <dt>SQLite</dt>
+ * <dd>https://www.sqlite.org/lang_createview.html</dd>
+ * <dt>MySQL</dt>
+ * <dd>https://dev.mysql.com/doc/refman/8.0/en/create-view.html</dd>
+ * <dt>PostgreSQL</dt>
+ * <dd>https://www.postgresql.org/docs/9.2/sql-createview.html</dd>
+ * </dl>
+ */
+class CreateViewQuery extends Statement
+{
+
+	const TEMPORARY = 0x01;
+
+	/**
+	 *
+	 * @param string|StructureElementIdentifier|IndexStructure $identifier
+	 *        	View identifier
+	 */
+	public function __construct($identifier = null)
+	{
+		$this->viewFlags = 0;
+		$this->viewIdentifier = null;
+		$this->selectQuery = null;
+
+		if ($identifier !== null)
+			$this->identifier($identifier);
+	}
+
+	/**
+	 *
+	 * @param string|StructureElementIdentifier|IndexStructure $identifier
+	 *        	View identifier
+	 * @return \NoreSources\SQL\Syntax\Statement\Structure\DropViewQuery
+	 */
+	public function identifier($identifier)
+	{
+		if ($identifier instanceof ViewStructure)
+			$identifier = $identifier->getPath();
+
+		if ($identifier instanceof StructureElementIdentifier)
+			$this->viewIdentifier = $identifier;
+		else
+			$this->viewIdentifier = new StructureElementIdentifier(
+				\strval($identifier));
+
+		return $this;
+	}
+
+	/**
+	 *
+	 * @param integer $flags
+	 * @return \NoreSources\SQL\Syntax\Statement\Structure\CreateViewQuery
+	 */
+	public function flags($flags)
+	{
+		$this->viewFlags = $flags;
+		return $this;
+	}
+
+	/**
+	 *
+	 * @param SelectQuery $identifierAs
+	 * @return \NoreSources\SQL\Syntax\Statement\Structure\CreateViewQuery
+	 */
+	public function select(SelectQuery $identifierAs)
+	{
+		$this->selectQuery = $identifierAs;
+		return $this;
+	}
+
+	public function tokenize(TokenStream $stream,
+		TokenStreamContextInterface $context)
+	{
+		$platform = $context->getPlatform();
+		$scoped = $platform->queryFeature(
+			[
+				K::PLATFORM_FEATURE_VIEW,
+				K::PLATFORM_FEATURE_SCOPED
+			], false);
+		$existsCondition = $platform->queryFeature(
+			[
+				K::PLATFORM_FEATURE_CREATE,
+				K::PLATFORM_FEATURE_VIEW,
+				K::PLATFORM_FEATURE_EXISTS_CONDITION
+			], false);
+
+		$context->setStatementType(K::QUERY_CREATE_VIEW);
+
+		$stream->keyword('create');
+
+		if ($this->viewFlags & self::TEMPORARY &&
+			$platform->queryFeature(
+				[
+					K::PLATFORM_FEATURE_CREATE,
+					K::PLATFORM_FEATURE_VIEW,
+					K::PLATFORM_FEATURE_TEMPORARY
+				], false))
+			$stream->space()->keyword('temporary');
+
+		$stream->space()->keyword('view');
+		if ($existsCondition)
+		{
+			$stream->space()
+				->keyword('if')
+				->space()
+				->keyword('not')
+				->space()
+				->keyword('exists');
+		}
+
+		$stream->space();
+
+		if ($scoped)
+		{
+			$parts = $this->viewIdentifier->getPathParts();
+			if (\count($parts) > 1)
+			{
+				$stream->identifier(
+					$context->getPlatform()
+						->quoteIdentifierPath($parts));
+			}
+			else // Last chance to find the element namespace
+			{
+				$structure = $context->getPivot();
+				if ($stream instanceof ViewStructure)
+					$structure = $structure->getParentElement();
+
+				if ($structure instanceof NamespaceStructure)
+					$stream->identifier(
+						$context->getPlatform()
+							->quoteIdentifierPath($structure))
+						->text('.');
+
+				$stream->identifier(
+					$context->getPlatform()
+						->quoteIdentifier($this->viewIdentifier->path));
+			}
+		}
+		else
+			$stream->identifier(
+				$platform->quoteIdentifier($this->viewIdentifier));
+
+		return $stream->space()
+			->keyword('as')
+			->space()
+			->expression($this->selectQuery, $context);
+	}
+
+	/**
+	 *
+	 * @var integer
+	 */
+	private $identifierFlags;
+
+	/**
+	 * View name
+	 *
+	 * @var StructureElementIdentifier
+	 */
+	private $viewIdentifier;
+
+	/**
+	 *
+	 * @var SelectQuery
+	 */
+	private $selectQuery;
+}

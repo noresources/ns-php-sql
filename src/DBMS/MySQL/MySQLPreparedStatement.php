@@ -10,7 +10,7 @@
 namespace NoreSources\SQL\DBMS\MySQL;
 
 use NoreSources\SQL\DBMS\PreparedStatementInterface;
-use NoreSources\SQL\Statement\StatementDataTrait;
+use NoreSources\SQL\Syntax\Statement\Traits\StatementDataTrait;
 
 /**
  * MySQL3 implementation of NoreSources\SQL\MySQLPreparedStatement
@@ -22,7 +22,7 @@ class MySQLPreparedStatement implements PreparedStatementInterface
 	/**
 	 *
 	 * @param \mysqli_stmt $statement
-	 * @param string|\NoreSources\SQL\Statement\StatementOutputDataInterface $data
+	 * @param string|\NoreSources\SQL\Syntax\Statement\StatementOutputDataInterface $data
 	 * @throws \Exception
 	 */
 	public function __construct(\mysqli_stmt $statement, $data = null)

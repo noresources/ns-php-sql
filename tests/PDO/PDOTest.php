@@ -8,9 +8,9 @@ use NoreSources\SQL\DBMS\PDO\PDOConstants as K;
 use NoreSources\SQL\DBMS\PDO\PDOPreparedStatement;
 use NoreSources\SQL\DBMS\PDO\PDORecordset;
 use NoreSources\SQL\Result\RowModificationStatementResultInterface;
-use NoreSources\SQL\Statement\Manipulation\UpdateQuery;
-use NoreSources\SQL\Statement\Query\SelectQuery;
-use NoreSources\SQL\Statement\Structure\CreateTableQuery;
+use NoreSources\SQL\Syntax\Statement\Manipulation\UpdateQuery;
+use NoreSources\SQL\Syntax\Statement\Query\SelectQuery;
+use NoreSources\SQL\Syntax\Statement\Structure\CreateTableQuery;
 use NoreSources\Test\ConnectionHelper;
 use NoreSources\Test\DatasourceManager;
 use NoreSources\Test\DerivedFileManager;
@@ -135,7 +135,7 @@ final class PDOTest extends \PHPUnit\Framework\TestCase
 
 		/**
 		 *
-		 * @var \NoreSources\SQL\Statement\Manipulation\InsertQuery $insert
+		 * @var \NoreSources\SQL\Syntax\Statement\Manipulation\InsertQuery $insert
 		 */
 		$insert = $connection->getPlatform()->newStatement(
 			K::QUERY_INSERT);

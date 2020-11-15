@@ -4,7 +4,7 @@ namespace NoreSources\SQL\DBMS\Reference;
 use NoreSources\Container;
 use NoreSources\SQL\DBMS\AbstractPlatform;
 use NoreSources\SQL\DBMS\TypeRegistry;
-use NoreSources\SQL\Statement\ParameterData;
+use NoreSources\SQL\Syntax\Statement\ParameterData;
 use Psr\Log\LoggerAwareTrait;
 
 class ReferencePlatform extends AbstractPlatform

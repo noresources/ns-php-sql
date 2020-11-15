@@ -10,10 +10,10 @@
 namespace NoreSources\SQL\DBMS\Reference;
 
 use NoreSources\SQL\DBMS\ConnectionInterface;
-use NoreSources\SQL\DBMS\PlatformProviderTrait;
 use NoreSources\SQL\DBMS\TransactionInterface;
-use NoreSources\SQL\DBMS\TransactionStackTrait;
-use NoreSources\SQL\Statement\ClassMapStatementFactoryTrait;
+use NoreSources\SQL\DBMS\Traits\PlatformProviderTrait;
+use NoreSources\SQL\DBMS\Traits\TransactionStackTrait;
+use NoreSources\SQL\Syntax\Statement\Traits\ClassMapStatementFactoryTrait;
 
 /**
  * SQLite connection

@@ -5,8 +5,8 @@ use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\ConnectionProviderInterface;
 use NoreSources\SQL\DBMS\IdentifierSerializerInterface;
 use NoreSources\SQL\DBMS\PlatformInterface;
-use NoreSources\SQL\Expression\MetaFunctionCall;
-use NoreSources\SQL\Statement\ParameterData;
+use NoreSources\SQL\Syntax\MetaFunctionCall;
+use NoreSources\SQL\Syntax\Statement\ParameterData;
 use Psr\Log\LoggerInterface;
 
 class PDOPlatform implements PlatformInterface,

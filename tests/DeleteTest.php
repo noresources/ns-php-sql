@@ -2,8 +2,8 @@
 namespace NoreSources\SQL;
 
 use NoreSources\SQL\DBMS\Reference\ReferencePlatform;
-use NoreSources\SQL\Statement\StatementBuilder;
-use NoreSources\SQL\Statement\Manipulation\DeleteQuery;
+use NoreSources\SQL\Syntax\Statement\StatementBuilder;
+use NoreSources\SQL\Syntax\Statement\Manipulation\DeleteQuery;
 use NoreSources\Test\DatasourceManager;
 use NoreSources\Test\DerivedFileManager;
 

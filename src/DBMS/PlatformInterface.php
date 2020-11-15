@@ -1,16 +1,23 @@
 <?php
+/**
+ * Copyright © 2012 - 2020 by Renaud Guillard (dev@nore.fr)
+ * Distributed under the terms of the MIT License, see LICENSE
+ */
+/**
+ *
+ * @package SQL
+ */
 namespace NoreSources\SQL\DBMS;
 
 use NoreSources\SemanticVersion;
 use NoreSources\Expression\ExpressionInterface;
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\DataSerializerInterface;
-use NoreSources\SQL\Expression\FunctionCall;
-use NoreSources\SQL\Expression\MetaFunctionCall;
-use NoreSources\SQL\Statement\ParameterData;
-use NoreSources\SQL\Statement\StatementFactoryInterface;
 use NoreSources\SQL\Structure\ColumnDescriptionInterface;
 use NoreSources\SQL\Structure\StructureElementInterface;
+use NoreSources\SQL\Syntax\FunctionCall;
+use NoreSources\SQL\Syntax\MetaFunctionCall;
+use NoreSources\SQL\Syntax\Statement\ParameterData;
+use NoreSources\SQL\Syntax\Statement\StatementFactoryInterface;
 use Psr\Log\LoggerAwareInterface;
 
 /**

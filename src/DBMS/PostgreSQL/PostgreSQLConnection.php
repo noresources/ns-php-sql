@@ -16,16 +16,16 @@ use NoreSources\SQL\ParameterValue;
 use NoreSources\SQL\DBMS\ConnectionException;
 use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\IdentifierSerializerInterface;
-use NoreSources\SQL\DBMS\PlatformProviderTrait;
 use NoreSources\SQL\DBMS\StringSerializerInterface;
 use NoreSources\SQL\DBMS\TransactionInterface;
-use NoreSources\SQL\DBMS\TransactionStackTrait;
 use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLConstants as K;
+use NoreSources\SQL\DBMS\Traits\PlatformProviderTrait;
+use NoreSources\SQL\DBMS\Traits\TransactionStackTrait;
 use NoreSources\SQL\Result\DefaultInsertionStatementResult;
 use NoreSources\SQL\Result\DefaultRowModificationStatementResult;
-use NoreSources\SQL\Statement\ParameterData;
-use NoreSources\SQL\Statement\ParameterDataProviderInterface;
-use NoreSources\SQL\Statement\Statement;
+use NoreSources\SQL\Syntax\Statement\ParameterData;
+use NoreSources\SQL\Syntax\Statement\ParameterDataProviderInterface;
+use NoreSources\SQL\Syntax\Statement\Statement;
 
 class PostgreSQLConnection implements ConnectionInterface,
 	TransactionInterface, StringSerializerInterface,

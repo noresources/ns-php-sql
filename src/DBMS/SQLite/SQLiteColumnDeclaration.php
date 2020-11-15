@@ -1,9 +1,9 @@
 <?php
 namespace NoreSources\SQL\DBMS\SQLite;
 
-use NoreSources\SQL\Expression\ColumnDeclaration;
-use NoreSources\SQL\Expression\TokenStream;
-use NoreSources\SQL\Expression\TokenStreamContextInterface;
+use NoreSources\SQL\Syntax\ColumnDeclaration;
+use NoreSources\SQL\Syntax\TokenStream;
+use NoreSources\SQL\Syntax\TokenStreamContextInterface;
 
 class SQLiteColumnDeclaration extends ColumnDeclaration
 {
@@ -12,7 +12,7 @@ class SQLiteColumnDeclaration extends ColumnDeclaration
 	 * SQLite doesn't have any kind of type constraints.
 	 *
 	 * {@inheritdoc}
-	 * @see \NoreSources\SQL\Expression\ColumnDeclaration::tokenizeTypeConstraints()
+	 * @see \NoreSources\SQL\Syntax\ColumnDeclaration::tokenizeTypeConstraints()
 	 */
 	public function tokenizeTypeConstraints(TokenStream $stream,
 		TokenStreamContextInterface $context)

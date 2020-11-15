@@ -1,5 +1,5 @@
 <?php
-namespace NoreSources\SQL\Expression;
+namespace NoreSources\SQL\Syntax;
 
 use NoreSources\Container;
 use NoreSources\Expression\ProcedureInvocation;
@@ -7,7 +7,7 @@ use NoreSources\Expression\Value;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DataTypeProviderInterface;
 use NoreSources\SQL\DBMS\Reference\ReferencePlatform;
-use NoreSources\SQL\Statement\StatementBuilder;
+use NoreSources\SQL\Syntax\Statement\StatementBuilder;
 use NoreSources\SQL\Structure\VirtualStructureResolver;
 use NoreSources\Test\DatasourceManager;
 

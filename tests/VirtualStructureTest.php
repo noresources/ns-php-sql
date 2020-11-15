@@ -3,9 +3,9 @@ namespace NoreSources\SQL;
 
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\Reference\ReferenceConnection;
-use NoreSources\SQL\Expression\TokenStream;
-use NoreSources\SQL\Statement\StatementBuilder;
-use NoreSources\SQL\Statement\StatementTokenStreamContext;
+use NoreSources\SQL\Syntax\TokenStream;
+use NoreSources\SQL\Syntax\Statement\StatementBuilder;
+use NoreSources\SQL\Syntax\Statement\StatementTokenStreamContext;
 use NoreSources\SQL\Structure\ColumnStructure;
 use NoreSources\SQL\Structure\DatasourceStructure;
 use NoreSources\SQL\Structure\NamespaceStructure;
@@ -128,7 +128,7 @@ final class VirtualStructureTest extends \PHPUnit\Framework\TestCase
 
 		/**
 		 *
-		 * @var \NoreSources\SQL\Statement\Query\SelectQuery $select
+		 * @var \NoreSources\SQL\Syntax\Statement\Query\SelectQuery $select
 		 */
 		$select = $platform->newStatement(K::QUERY_SELECT);
 

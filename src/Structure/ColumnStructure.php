@@ -10,6 +10,8 @@
 namespace NoreSources\SQL\Structure;
 
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\Structure\Traits\ColumnDescriptionTrait;
+use NoreSources\SQL\Structure\Traits\StructureElementTrait;
 
 /**
  * Table column properties

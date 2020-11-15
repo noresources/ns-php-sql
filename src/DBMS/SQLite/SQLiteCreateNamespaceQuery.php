@@ -13,10 +13,10 @@ namespace NoreSources\SQL\DBMS\SQLite;
 
 use NoreSources\Container;
 use NoreSources\SQL\DBMS\SQLite\SQLiteConstants as K;
-use NoreSources\SQL\Expression\Data;
-use NoreSources\SQL\Expression\TokenStream;
-use NoreSources\SQL\Expression\TokenStreamContextInterface;
-use NoreSources\SQL\Statement\Structure\CreateNamespaceQuery;
+use NoreSources\SQL\Syntax\Data;
+use NoreSources\SQL\Syntax\TokenStream;
+use NoreSources\SQL\Syntax\TokenStreamContextInterface;
+use NoreSources\SQL\Syntax\Statement\Structure\CreateNamespaceQuery;
 
 /**
  * ATTACH DATABASE

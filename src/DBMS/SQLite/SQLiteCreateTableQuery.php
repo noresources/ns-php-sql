@@ -11,7 +11,7 @@ namespace NoreSources\SQL\DBMS\SQLite;
 
 use NoreSources\Container;
 use NoreSources\SQL\DBMS\SQLite\SQLiteConstants as K;
-use NoreSources\SQL\Statement\Structure\CreateTableQuery;
+use NoreSources\SQL\Syntax\Statement\Structure\CreateTableQuery;
 use NoreSources\SQL\Structure\PrimaryKeyTableConstraint;
 use NoreSources\SQL\Structure\TableConstraint;
 use NoreSources\SQL\Structure\TableStructure;
