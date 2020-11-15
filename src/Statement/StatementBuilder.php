@@ -13,15 +13,16 @@ use NoreSources\Container;
 use NoreSources\SingletonTrait;
 use NoreSources\Expression\ExpressionInterface;
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\Expression\Tokenizer;
 use NoreSources\SQL\Expression\TokenStream;
 use NoreSources\SQL\Expression\TokenStreamContextInterface;
+use NoreSources\SQL\Expression\TokenStreamExporterInterface;
+use NoreSources\SQL\Expression\Tokenizer;
 use phpDocumentor\Reflection\Types\Expression;
 
 /**
  * This should be used as base class for all DBMS-specific statement builders.
  */
-class StatementBuilder
+class StatementBuilder implements TokenStreamExporterInterface
 {
 
 	use SingletonTrait;
@@ -52,12 +53,16 @@ class StatementBuilder
 			$context = clone $first;
 		else
 			$context = new StatementTokenStreamContext(...$context);
-		Tokenizer::getInstance()->tokenizeExpression(
-			$expression, $stream, $context);
-		return $this->finalizeStatement($stream, $context);
+		Tokenizer::getInstance()->tokenizeExpression($expression,
+			$stream, $context);
+		return $this->export($stream, $context);
 	}
 
-	protected function finalizeStatement(TokenStream $stream,
+	/**
+	 *
+	 * @return StatementData
+	 */
+	public function export(TokenStream $stream,
 		TokenStreamContextInterface $context)
 	{
 		$data = new StatementData($context);

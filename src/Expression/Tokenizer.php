@@ -14,11 +14,26 @@ use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DataTypeProviderInterface;
 use NoreSources\SQL\Structure\ArrayColumnDescription;
 
+/**
+ * Expression tokenizer
+ */
 class Tokenizer
 {
 
 	use SingletonTrait;
 
+	/**
+	 *
+	 * @param ExpressionInterface $expression
+	 *        	Expression to tokenize
+	 * @param TokenStream $stream
+	 *        	TokenStream to fill
+	 * @param TokenStreamContextInterface $context
+	 *        	Context
+	 * @throws \InvalidArgumentException
+	 *
+	 * @return TokenStream
+	 */
 	public function tokenizeExpression(ExpressionInterface $expression,
 		TokenStream $stream, TokenStreamContextInterface $context)
 	{
@@ -41,6 +56,14 @@ class Tokenizer
 			TypeDescription::getName($expression));
 	}
 
+	/**
+	 * Tokenize a UnaryOperation expression
+	 *
+	 * @param UnaryOperation $expression
+	 * @param TokenStream $stream
+	 * @param TokenStreamContextInterface $context
+	 * @return \NoreSources\SQL\Expression\TokenStream
+	 */
 	public function tokenizeUnaryOperation(UnaryOperation $expression,
 		TokenStream $stream, TokenStreamContextInterface $context)
 	{
@@ -52,6 +75,14 @@ class Tokenizer
 		return $stream->expression($expression->getOperand(), $context);
 	}
 
+	/**
+	 * Tokenize a BinaryOperation expression
+	 *
+	 * @param BinaryOperation $expression
+	 * @param TokenStream $stream
+	 * @param TokenStreamContextInterface $context
+	 * @return \NoreSources\SQL\Expression\TokenStream
+	 */
 	public function tokenizeBinaryOperation(BinaryOperation $expression,
 		TokenStream $stream, TokenStreamContextInterface $context)
 	{
@@ -63,6 +94,14 @@ class Tokenizer
 			->expression($expression->getRightOperand(), $context, $this);
 	}
 
+	/**
+	 * Tokenize a ProcedureInvocation expression
+	 *
+	 * @param ProcedureInvocation $expression
+	 * @param TokenStream $stream
+	 * @param TokenStreamContextInterface $context
+	 * @return \NoreSources\SQL\Expression\TokenStream
+	 */
 	public function tokenizeProcedureInvocation(
 		ProcedureInvocation $expression, TokenStream $stream,
 		TokenStreamContextInterface $context)
@@ -80,6 +119,14 @@ class Tokenizer
 		return $stream->text(')');
 	}
 
+	/**
+	 * Tokenize a literal value expression
+	 *
+	 * @param Value $expression
+	 * @param TokenStream $stream
+	 * @param TokenStreamContextInterface $context
+	 * @return \NoreSources\SQL\Expression\TokenStream
+	 */
 	public function tokenizeValue(Value $expression, TokenStream $stream,
 		TokenStreamContextInterface $context)
 	{
@@ -98,6 +145,14 @@ class Tokenizer
 					]), $expression->getValue()));
 	}
 
+	/**
+	 * Tokenize a list of expression
+	 *
+	 * @param Set $expression
+	 * @param TokenStream $stream
+	 * @param TokenStreamContextInterface $context
+	 * @return \NoreSources\SQL\Expression\TokenStream
+	 */
 	public function tokenizeSet(Set $expression, TokenStream $stream,
 		TokenStreamContextInterface $context)
 	{
