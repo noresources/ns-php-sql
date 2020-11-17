@@ -176,12 +176,12 @@ class PostgreSQLConnection implements ConnectionInterface,
 			{
 				$result = \pg_execute($this->resource,
 					$statement->getPreparedStatementId(),
-					self::getPostgreSQLParameterArray($statement,
+					$this->getPostgreSQLParameterArray($statement,
 						$parameters));
 			}
 			else
 				$result = \pg_query_params($this->resource, $statement,
-					self::getPostgreSQLParameterArray($statement,
+					$this->getPostgreSQLParameterArray($statement,
 						$parameters));
 		}
 		else
@@ -254,7 +254,7 @@ class PostgreSQLConnection implements ConnectionInterface,
 		return $this->resource;
 	}
 
-	private static function getPostgreSQLParameterArray($statement,
+	private function getPostgreSQLParameterArray($statement,
 		$parameters = array())
 	{
 		$a = [];
