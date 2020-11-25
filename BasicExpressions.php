@@ -30,7 +30,7 @@ interface DatasourceAwareInterface
 /**
  * An expression relative to a data source connection
  *
- * @deprecated Remove this
+ * @deprecated Remove this or rename it
  */
 interface IExpression extends \NoreSources\IExpression, DatasourceAwareInterface
 {
@@ -74,6 +74,8 @@ class Alias implements IExpression
 	public function __construct(Datasource $Datasource = null, $aliasName)
 	{
 		$this->m_datasource = $Datasource;
+		if (!\is_string($aliasName))
+			throw new \InvalidArgumentException('String expected for alias name. Gout ' . gettype($aliasName));
 		$this->m_aliasName = $aliasName;
 	}
 
