@@ -1,22 +1,18 @@
 <?php
 /**
- * Copyright © 2012 - 2020 by Renaud Guillard (dev@nore.fr)
+ * Copyright © 2020 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
- */
-/**
  *
  * @package SQL
  */
-
-//
 namespace NoreSources\SQL\Syntax\Statement\Structure;
 
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\Structure\NamespaceStructure;
+use NoreSources\SQL\Structure\StructureElementIdentifier;
 use NoreSources\SQL\Syntax\TokenStream;
 use NoreSources\SQL\Syntax\TokenStreamContextInterface;
 use NoreSources\SQL\Syntax\Statement\Statement;
-use NoreSources\SQL\Structure\NamespaceStructure;
-use NoreSources\SQL\Structure\StructureElementIdentifier;
 
 /**
  * CREATE DATABASE / SCHEMA

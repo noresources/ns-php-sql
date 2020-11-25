@@ -1,20 +1,20 @@
 <?php
 /**
- * Copyright © 2012 - 2020 by Renaud Guillard (dev@nore.fr)
+ * Copyright © 2020 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
- */
-/**
  *
  * @package SQL
  */
-
-//
 namespace NoreSources\SQL\Syntax\Statement\Query;
 
 use NoreSources\Container;
 use NoreSources\Expression\ExpressionInterface;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DataTypeProviderInterface;
+use NoreSources\SQL\Structure\StructureElementContainerInterface;
+use NoreSources\SQL\Structure\StructureElementInterface;
+use NoreSources\SQL\Structure\TableStructure;
+use NoreSources\SQL\Structure\ViewStructure;
 use NoreSources\SQL\Syntax\Column;
 use NoreSources\SQL\Syntax\DataRowContainerReference;
 use NoreSources\SQL\Syntax\Evaluable;
@@ -26,10 +26,6 @@ use NoreSources\SQL\Syntax\TokenStreamContextInterface;
 use NoreSources\SQL\Syntax\Statement\Statement;
 use NoreSources\SQL\Syntax\Statement\StatementException;
 use NoreSources\SQL\Syntax\Statement\Traits\ConstraintExpressionListTrait;
-use NoreSources\SQL\Structure\StructureElementContainerInterface;
-use NoreSources\SQL\Structure\StructureElementInterface;
-use NoreSources\SQL\Structure\TableStructure;
-use NoreSources\SQL\Structure\ViewStructure;
 
 /**
  * SELECT query statement

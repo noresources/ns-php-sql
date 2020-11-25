@@ -1,18 +1,17 @@
 <?php
 /**
- * Copyright © 2012 - 2020 by Renaud Guillard (dev@nore.fr)
+ * Copyright © 2020 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
- */
-/**
  *
  * @package SQL
  */
-
-//
 namespace NoreSources\SQL\Syntax\Statement\Manipulation;
 
 use NoreSources\Expression\ExpressionInterface;
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\Structure\ColumnStructure;
+use NoreSources\SQL\Structure\NamespaceStructure;
+use NoreSources\SQL\Structure\TableStructure;
 use NoreSources\SQL\Syntax\ColumnData;
 use NoreSources\SQL\Syntax\TokenStream;
 use NoreSources\SQL\Syntax\TokenStreamContextInterface;
@@ -21,9 +20,6 @@ use NoreSources\SQL\Syntax\Statement\StatementException;
 use NoreSources\SQL\Syntax\Statement\Traits\ColumnValueTrait;
 use NoreSources\SQL\Syntax\Statement\Traits\StatementTableTrait;
 use NoreSources\SQL\Syntax\Statement\Traits\WhereConstraintTrait;
-use NoreSources\SQL\Structure\ColumnStructure;
-use NoreSources\SQL\Structure\NamespaceStructure;
-use NoreSources\SQL\Structure\TableStructure;
 
 /**
  * UPDATE query

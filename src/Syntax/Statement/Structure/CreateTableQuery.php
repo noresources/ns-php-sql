@@ -1,28 +1,24 @@
 <?php
 /**
- * Copyright © 2012 - 2020 by Renaud Guillard (dev@nore.fr)
+ * Copyright © 2020 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
- */
-/**
  *
  * @package SQL
  */
-
-//
 namespace NoreSources\SQL\Syntax\Statement\Structure;
 
 use NoreSources\TypeDescription;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\TypeInterface;
+use NoreSources\SQL\Structure\StructureProviderInterface;
+use NoreSources\SQL\Structure\TableConstraint;
+use NoreSources\SQL\Structure\TableStructure;
 use NoreSources\SQL\Syntax\ColumnDeclaration;
 use NoreSources\SQL\Syntax\TableConstraintDeclaration;
 use NoreSources\SQL\Syntax\TokenStream;
 use NoreSources\SQL\Syntax\TokenStreamContextInterface;
 use NoreSources\SQL\Syntax\Statement\Statement;
 use NoreSources\SQL\Syntax\Statement\StatementException;
-use NoreSources\SQL\Structure\StructureProviderInterface;
-use NoreSources\SQL\Structure\TableConstraint;
-use NoreSources\SQL\Structure\TableStructure;
 
 /**
  * CREATE TABLE statement

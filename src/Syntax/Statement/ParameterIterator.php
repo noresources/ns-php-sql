@@ -1,14 +1,10 @@
 <?php
 /**
- * Copyright © 2012 - 2020 by Renaud Guillard (dev@nore.fr)
+ * Copyright © 2020 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
- */
-/**
  *
  * @package SQL
  */
-
-// 
 namespace NoreSources\SQL\Syntax\Statement;
 
 use NoreSources\TypeDescription;
@@ -50,7 +46,8 @@ class ParameterIterator implements \Iterator
 			$this->iterator->next();
 		}
 		while ($this->iterator->valid() &&
-			TypeDescription::getName($this->iterator->key()) != $this->keyType);
+			TypeDescription::getName($this->iterator->key()) !=
+			$this->keyType);
 	}
 
 	public function valid()
@@ -62,7 +59,8 @@ class ParameterIterator implements \Iterator
 	{
 		$this->iterator->rewind();
 		if ($this->iterator->valid() &&
-			TypeDescription::getName($this->iterator->key()) != $this->keyType)
+			TypeDescription::getName($this->iterator->key()) !=
+			$this->keyType)
 			$this->next();
 	}
 
