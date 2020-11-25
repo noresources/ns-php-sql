@@ -572,7 +572,8 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 		$recordset = $s->execute();
 
 		if (!($recordset instanceof Recordset))
-			throw new \RuntimeException(static::class . 'Invalid query result ' . @get_class($recordset));
+			throw new \RuntimeException(
+				static::class . 'Invalid query result ' . @get_class($recordset));
 
 		$c = $recordset->rowCount;
 		if ($c == 1)
@@ -804,7 +805,8 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 
 		$recordset = $s->execute();
 		if (!($recordset instanceof Recordset))
-			throw new \RuntimeException(static::class . ' Invalid result type ' . @get_class($recordset));
+			throw new \RuntimeException(
+				static::class . ' Invalid result type ' . @get_class($recordset));
 
 		if ($flags & self::QUERY_COUNT)
 			return intval($recordset->current()[0]);
@@ -1474,7 +1476,13 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 		$this->m_values[$f->getName()] = $value;
 	}
 
-	private static function buildForeignKeyJoins(SelectQuery &$s, Table $table)
+	/**
+	 * 
+	 * @param SelectQuery $s
+	 * @param Table $table
+	 * @return number Number of joins added
+	 */
+	private static function buildForeignKeyJoins(SelectQuery $s, Table $table)
 	{
 		$structure = $table->getStructure();
 		$references = $structure->getForeignKeyReferences();
@@ -1490,19 +1498,27 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 			$foreignTableName = $foreignKey['table']->getName();
 			$foreignColumnName = $foreignKey['column']->getName();
 
-			$foreignTable = new Table($table->owner, $foreignTableName, 'j' . $joinIndex,
+			$foreignTable = new Table($table->owner, $foreignTableName, 'fk' . $joinIndex,
 				$foreignKey['table']);
 			$foreignColumn = new TableColumn($foreignTable, $foreignColumnName,
 				$columnName . '::' . $foreignColumnName, $foreignKey['column']);
 
-			$join = $s->createJoin($foreignTable, kJoinLeft);
+			$join = $s->createJoin($foreignTable, SQL::JOIN_LEFT);
 			$join->addLink($table->getColumn($columnName), $foreignColumn);
 
 			$s->addJoin($join);
 
-			foreach ($foreignTable->getStructure() as $fkcn => $fkc)
+			foreach ($foreignTable->getStructure() as $foreignKeyColumnName => $foreignKeyColumn)
 			{
-				$c = new TableColumn($foreignTable, $fkcn, $columnName . '::' . $fkcn, $fkc);
+				/**
+				 * @var $foreignKeyColumn TableColumnStructure
+				 */
+				
+				$c = new TableColumn($foreignTable, $foreignKeyColumnName,
+					// Alias
+					$columnName . '::' . $foreignKeyColumnName,
+					// Structure
+					$foreignKeyColumn);
 				$s->addColumn($c);
 			}
 
