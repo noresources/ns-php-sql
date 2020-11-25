@@ -1477,7 +1477,7 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 	}
 
 	/**
-	 * 
+	 *
 	 * @param SelectQuery $s
 	 * @param Table $table
 	 * @return number Number of joins added
@@ -1511,12 +1511,13 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 			foreach ($foreignTable->getStructure() as $foreignKeyColumnName => $foreignKeyColumn)
 			{
 				/**
+				 *
 				 * @var $foreignKeyColumn TableColumnStructure
 				 */
-				
+
 				$c = new TableColumn($foreignTable, $foreignKeyColumnName,
 					// Alias
-					$columnName . '::' . $foreignKeyColumnName,
+					$columnName . '::' . $foreignKeyColumnName, 
 					// Structure
 					$foreignKeyColumn);
 				$s->addColumn($c);
