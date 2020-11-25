@@ -23,22 +23,6 @@ class ColumnStructure implements StructureElementInterface,
 	use StructureElementTrait;
 	use ColumnDescriptionTrait;
 
-	const DATA_TYPE = K::COLUMN_DATA_TYPE;
-
-	const FLAGS = K::COLUMN_FLAGS;
-
-	const LENGTH = K::COLUMN_LENGTH;
-
-	const FRACTION_DIGIT_COUNT = K::COLUMN_FRACTION_SCALE;
-
-	const ENUMERATION = K::COLUMN_ENUMERATION;
-
-	const DEFAULT_VALUE = K::COLUMN_DEFAULT_VALUE;
-
-	const CONSTRAINT_PRIMARY_KEY = K::COLUMN_CONSTRAINT_PRIMARY_KEY;
-
-	const CONSTRAINT_UNIQUE = K::COLUMN_CONSTRAINT_UNIQUE;
-
 	public function getConstraintFlags()
 	{
 		/**
@@ -55,12 +39,12 @@ class ColumnStructure implements StructureElementInterface,
 			if ($constraint instanceof PrimaryKeyTableConstraint &&
 				($constraint->getColumns()->offsetExists(
 					$this->getName())))
-				$flags |= self::CONSTRAINT_PRIMARY_KEY;
+				$flags |= K::COLUMN_CONSTRAINT_PRIMARY_KEY;
 
 			elseif ($constraint instanceof UniqueTableConstraint &&
 				($constraint->getColumns()->offsetExists(
 					$this->getName())))
-				$flags |= self::CONSTRAINT_UNIQUE;
+				$flags |= K::COLUMN_CONSTRAINT_UNIQUE;
 		}
 
 		return $flags;
@@ -76,7 +60,22 @@ class ColumnStructure implements StructureElementInterface,
 	public function __construct($name, /*TableStructure */$tableStructure = null)
 	{
 		$this->initializeStructureElement($name, $tableStructure);
-		$this->initializeColumnProperties();
+		$this->initializeColumnProperties([
+			K::COLUMN_NAME => $name
+		]);
+	}
+
+	public function setColumnProperty($key, $value)
+	{
+		$value = ColumnPropertyHelper::normalizeValue($key, $value);
+		if ($key == K::COLUMN_NAME &&
+			(\strcmp($this->getName(), $value) != 0))
+			throw new \LogicException(
+				$key . ' column property is immutable in ' .
+				static::cloneStructureElement());
+
+		$this->columnProperties[$key] = $value;
+		;
 	}
 
 	/**
@@ -85,10 +84,10 @@ class ColumnStructure implements StructureElementInterface,
 	public function __clone()
 	{
 		$this->cloneStructureElement();
-		if ($this->has(self::DEFAULT_VALUE))
+		if ($this->has(K::COLUMN_DEFAULT_VALUE))
 		{
-			$this->setColumnProperty(self::DEFAULT_VALUE,
-				clone $this->get(self::DEFAULT_VALUE));
+			$this->setColumnProperty(K::COLUMN_DEFAULT_VALUE,
+				clone $this->get(K::COLUMN_DEFAULT_VALUE));
 		}
 	}
 }

@@ -16,7 +16,22 @@ use NoreSources\StringRepresentation;
  * - Result column informations
  * - String representation must output the SQL statement string.
  */
-interface StatementDataInterface extends StatementInputDataInterface,
-	StatementOutputDataInterface, StringRepresentation
+interface StatementDataInterface extends ParameterDataProviderInterface,
+	StatementTypeProviderInterface, ResultColumnProviderInterface,
+	StringRepresentation
 {
+
+	/**
+	 *
+	 * @return string Serialized statement data
+	 */
+	function serialize();
+
+	const SERIALIZATION_SQL = 'sql';
+
+	const SERIALIZATION_TYPE = 'type';
+
+	const SERIALIZATION_COLUMNS = 'columns';
+
+	const SERIALIZATION_PARAMETERS = 'parameters';
 }

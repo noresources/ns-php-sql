@@ -12,10 +12,10 @@ namespace NoreSources\SQL\DBMS\SQLite;
 use NoreSources\TypeConversion;
 use NoreSources\TypeDescription;
 use NoreSources\SQL\DBMS\PreparedStatementInterface;
-use NoreSources\SQL\Syntax\Statement\StatementInputDataInterface;
 use NoreSources\SQL\Syntax\Statement\StatementTokenStreamContext;
-use NoreSources\SQL\Syntax\Statement\Traits\InputDataTrait;
-use NoreSources\SQL\Syntax\Statement\Traits\OutputDataTrait;
+use NoreSources\SQL\Syntax\Statement\Traits\StatementInputDataTrait;
+use NoreSources\SQL\Syntax\Statement\Traits\StatementOutputDataTrait;
+use NoreSources\SQL\Syntax\Statement\Traits\StatementSerializationTrait;
 
 /**
  * SQLite3 implementation of NoreSources\SQL\SQLitePreparedStatement
@@ -23,8 +23,9 @@ use NoreSources\SQL\Syntax\Statement\Traits\OutputDataTrait;
 class SQLitePreparedStatement implements PreparedStatementInterface
 {
 
-	use InputDataTrait;
-	use OutputDataTrait;
+	use StatementInputDataTrait;
+	use StatementOutputDataTrait;
+	use StatementSerializationTrait;
 
 	/**
 	 *
@@ -35,12 +36,8 @@ class SQLitePreparedStatement implements PreparedStatementInterface
 	 */
 	public function __construct(\SQLite3Stmt $statement, $data = null)
 	{
-		if ($data instanceof StatementInputDataInterface)
-			$this->initializeInputData($data);
-		else
-			$this->initializeInputData(null);
+		$this->initializeParameterData($data);
 		$this->initializeOutputData($data);
-
 		$this->sqliteStatement = $statement;
 
 		if (!\method_exists($this->sqliteStatement, 'getSQL'))
@@ -50,10 +47,10 @@ class SQLitePreparedStatement implements PreparedStatementInterface
 
 	public function __toString()
 	{
-		if (\method_exists($this->sqliteStatement, 'getSQL'))
-			return $this->sqliteStatement->getSQL(false);
+		if (isset($this->sql))
+			return $this->sql;
 
-		return $this->sql;
+		return $this->sqliteStatement->getSQL(false);
 	}
 
 	/**

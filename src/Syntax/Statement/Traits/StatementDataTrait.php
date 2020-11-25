@@ -9,27 +9,23 @@ namespace NoreSources\SQL\Syntax\Statement\Traits;
 
 use NoreSources\TypeConversion;
 use NoreSources\TypeDescription;
-use NoreSources\SQL\Syntax\Statement\StatementInputDataInterface;
 
 /**
  * Reference implementation of StatementDataInterface
  */
 trait StatementDataTrait
 {
-	use InputDataTrait;
-	use OutputDataTrait;
+	use StatementInputDataTrait;
+	use StatementOutputDataTrait;
 
 	/**
 	 *
 	 * @param mixed $data
 	 *        	Statement data
 	 */
-	protected function initializeStatementData($data)
+	protected function initializeStatementData($data = null)
 	{
-		if ($data instanceof StatementInputDataInterface)
-			$this->initializeInputData($data);
-		else
-			$this->initializeInputData(null);
+		$this->initializeParameterData($data);
 		$this->initializeOutputData($data);
 
 		$this->sql = '';

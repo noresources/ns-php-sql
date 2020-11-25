@@ -411,8 +411,6 @@ class PDOConnection implements ConnectionInterface, TransactionInterface,
 							Evaluator::getDataType($entry)));
 				}
 			}
-
-			// var_dump($bindings);
 		}
 
 		$result = $pdo->execute();

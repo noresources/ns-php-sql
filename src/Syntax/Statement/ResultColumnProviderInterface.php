@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright © 2020 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
@@ -7,17 +8,8 @@
  */
 namespace NoreSources\SQL\Syntax\Statement;
 
-/**
- * Statement building data
- */
-interface StatementOutputDataInterface
+interface ResultColumnProviderInterface
 {
-
-	/**
-	 *
-	 * @return integer
-	 */
-	function getStatementType();
 
 	/**
 	 *
@@ -25,4 +17,3 @@ interface StatementOutputDataInterface
 	 */
 	function getResultColumns();
 }
-

@@ -14,18 +14,18 @@ use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\DataUnserializerInterface;
 use NoreSources\SQL\DBMS\DefaultDataUnserializer;
 use NoreSources\SQL\Syntax\Statement\ResultColumnMap;
-use NoreSources\SQL\Syntax\Statement\StatementOutputDataInterface;
-use NoreSources\SQL\Syntax\Statement\Traits\OutputDataTrait;
+use NoreSources\SQL\Syntax\Statement\ResultColumnProviderInterface;
+use NoreSources\SQL\Syntax\Statement\Traits\ResultColumnProviderTrait;
 
 /**
  * Recordset query result
  */
-abstract class Recordset implements \Iterator,
-	StatementOutputDataInterface, StatementResultInterface,
-	ArrayRepresentation, \JsonSerializable, DataUnserializerInterface
+abstract class Recordset implements \Iterator, StatementResultInterface,
+	ArrayRepresentation, \JsonSerializable,
+	ResultColumnProviderInterface, DataUnserializerInterface
 {
 
-	use OutputDataTrait;
+	use ResultColumnProviderTrait;
 
 	/**
 	 * Fetch record row to an associative array
@@ -119,11 +119,6 @@ abstract class Recordset implements \Iterator,
 	public function getFlags()
 	{
 		return $this->flags;
-	}
-
-	public function setResultColumns(ResultColumnMap $columns)
-	{
-		$this->resultColumns = $columns;
 	}
 
 	public function getArrayCopy()
@@ -243,7 +238,7 @@ abstract class Recordset implements \Iterator,
 
 	protected function __construct($data = null)
 	{
-		$this->initializeOutputData($data);
+		$this->initializeResultColumnData($data);
 
 		$this->flags = self::getDefaultFlags();
 		$this->record = [];
@@ -323,7 +318,7 @@ abstract class Recordset implements \Iterator,
 				if ($this->flags & self::FETCH_INDEXED)
 					$this->record[$index] = $value;
 				if ($this->flags & self::FETCH_ASSOCIATIVE)
-					$this->record[$column->name] = $value;
+					$this->record[$column->getName()] = $value;
 			}
 		}
 	}

@@ -7,6 +7,9 @@
  */
 namespace NoreSources\SQL\Syntax\Statement;
 
+use NoreSources\Container;
+use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\Structure\ArrayColumnDescription;
 use NoreSources\SQL\Structure\ColumnDescriptionMapInterface;
 use NoreSources\SQL\Structure\ColumnNotFoundException;
 
@@ -57,7 +60,7 @@ class ResultColumnMap implements \Countable,
 
 		foreach ($this->columns as $column)
 		{
-			if (\strcasecmp($column->name, $name) == 0)
+			if (\strcasecmp($column->getName(), $name) == 0)
 				return true;
 		}
 
@@ -88,20 +91,28 @@ class ResultColumnMap implements \Countable,
 
 		foreach ($this->columns as $index => $column)
 		{
-			if (\strcasecmp($column->name, $key) == 0)
+			if (\strcasecmp($column->getName(), $key) == 0)
 				return $column;
 		}
 
 		throw new ColumnNotFoundException($key);
 	}
 
+	/**
+	 *
+	 * @param integer $index
+	 * @param array $data
+	 *        	Column property
+	 * @param string $as
+	 *        	Optional alias
+	 */
 	public function setColumn($index, $data, $as = null)
 	{
-		if (!($data instanceof ResultColumn))
-			$data = new ResultColumn($data);
+		$data = new ArrayColumnDescription(
+			Container::createArray($data));
 
 		if (\is_string($as) && \strlen($as))
-			$data->name = $as;
+			$data->setColumnProperty(K::COLUMN_NAME, $as);
 
 		$this->columns->offsetSet($index, $data);
 	}

@@ -9,14 +9,18 @@
  */
 namespace NoreSources\SQL\Structure;
 
+use NoreSources\ArrayRepresentation;
 use NoreSources\SQL\DataTypeProviderInterface;
+use NoreSources\SQL\NameProviderInterface;
 use Psr\Container\ContainerInterface;
 
 /**
  * Describe table or result column properties
  */
 interface ColumnDescriptionInterface extends DataTypeProviderInterface,
-	ContainerInterface, \IteratorAggregate
+	NameProviderInterface, ContainerInterface, \IteratorAggregate,
+	ArrayRepresentation
+
 {
 
 	/**

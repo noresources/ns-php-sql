@@ -193,6 +193,13 @@ class Constants
 	const CONNECTION_VERSION = 'version';
 
 	/**
+	 * Column name
+	 *
+	 * @var string
+	 */
+	const COLUMN_NAME = 'columnname';
+
+	/**
 	 * The type of Datasource column.
 	 * Value type: integer
 	 */

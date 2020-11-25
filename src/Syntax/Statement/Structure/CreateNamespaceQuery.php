@@ -12,12 +12,12 @@ use NoreSources\SQL\Structure\NamespaceStructure;
 use NoreSources\SQL\Structure\StructureElementIdentifier;
 use NoreSources\SQL\Syntax\TokenStream;
 use NoreSources\SQL\Syntax\TokenStreamContextInterface;
-use NoreSources\SQL\Syntax\Statement\Statement;
+use NoreSources\SQL\Syntax\Statement\TokenizableStatementInterface;
 
 /**
  * CREATE DATABASE / SCHEMA
  */
-class CreateNamespaceQuery extends Statement
+class CreateNamespaceQuery implements TokenizableStatementInterface
 {
 
 	/**
@@ -29,6 +29,11 @@ class CreateNamespaceQuery extends Statement
 	{
 		if ($identifier !== null)
 			$this->identifier($identifier);
+	}
+
+	public function getStatementType()
+	{
+		return K::QUERY_CREATE_NAMESPACE;
 	}
 
 	/**
@@ -66,8 +71,6 @@ class CreateNamespaceQuery extends Statement
 				K::FEATURE_NAMESPACE,
 				K::FEATURE_EXISTS_CONDITION
 			], false);
-
-		$context->setStatementType(K::QUERY_CREATE_NAMESPACE);
 
 		$stream->keyword('create')
 			->space()

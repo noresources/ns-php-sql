@@ -14,6 +14,6 @@ class ColumnPropertyNotFoundException extends \InvalidArgumentException implemen
 	 */
 	public function __construct($property)
 	{
-		parent::\__construct($property . ' property not found', 404);
+		parent::__construct($property . ' property not found', 404);
 	}
 }

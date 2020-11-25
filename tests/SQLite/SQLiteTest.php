@@ -15,6 +15,7 @@ use NoreSources\SQL\Result\Recordset;
 use NoreSources\SQL\Structure\TableStructure;
 use NoreSources\SQL\Syntax\FunctionCall;
 use NoreSources\SQL\Syntax\TimestampFormatFunction;
+use NoreSources\SQL\Syntax\Statement\Statement;
 use NoreSources\SQL\Syntax\Statement\StatementBuilder;
 use NoreSources\SQL\Syntax\Statement\StatementData;
 use NoreSources\SQL\Syntax\Statement\Manipulation\InsertQuery;
@@ -35,6 +36,62 @@ final class SQLiteTest extends \PHPUnit\Framework\TestCase
 			__DIR__ . '/..');
 		$this->datasources = new DatasourceManager();
 		$this->createdTables = new \ArrayObject();
+	}
+
+	public function testStringStatement()
+	{
+		$environment = new Environment(
+			[
+				K::CONNECTION_TYPE => SQLiteConnection::class,
+				K::CONNECTION_SOURCE => [
+					'foo' => __DIR__ . '/../data/Company.sqlite'
+				]
+			]);
+
+		$this->assertInstanceOf(SQLiteConnection::class,
+			$environment->getConnection(), 'Valid connection');
+
+		$sql = 'select name, salary as Money from foo.employees where gender = :g';
+		$data = new Statement($sql);
+		$data->getParameters()->setParameter(0, 'g', ':g');
+
+		foreach ([
+			'SQL' => $sql,
+			Statement::class => $data
+		] as $label => $statement)
+		{
+
+			/**
+			 *
+			 * @var Recordset $result
+			 */
+			$result = $environment($statement, [
+				'g' => 'M'
+			]);
+
+			$this->assertInstanceOf(Recordset::class, $result,
+				$label . ' result type');
+
+			$expectedNames = [
+				'name',
+				'Money'
+			];
+			$expectedRowCount = 2;
+
+			$this->assertCount(\count($expectedNames),
+				$result->getResultColumns(),
+				$label . ' number of result columns');
+
+			foreach ($result->getResultColumns() as $index => $column)
+			{
+				$this->assertEquals($expectedNames[$index],
+					$column->getName(),
+					$label . ' column #' . $index . ' name');
+			}
+
+			$this->assertCount($expectedRowCount, $result,
+				$label . ' number of rows');
+		}
 	}
 
 	public function testUnserialize()
@@ -193,10 +250,10 @@ final class SQLiteTest extends \PHPUnit\Framework\TestCase
 			{
 				$byIndex = $result->getResultColumns()->getColumn(
 					$index);
-				$this->assertEquals($name, $byIndex->name,
+				$this->assertEquals($name, $byIndex->getName(),
 					'Recordset result column #' . $index);
 				$byName = $result->getResultColumns()->getColumn($name);
-				$this->assertEquals($name, $byName->name,
+				$this->assertEquals($name, $byName->getName(),
 					'Recordset result column ' . $name);
 				$index++;
 			}

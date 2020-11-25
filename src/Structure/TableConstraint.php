@@ -9,12 +9,14 @@
  */
 namespace NoreSources\SQL\Structure;
 
+use NoreSources\SQL\NameProviderInterface;
+
 /**
  *
  * @see https://www.sqlite.org/syntax/foreign-key-clause.html
  *
  */
-class TableConstraint
+class TableConstraint implements NameProviderInterface
 {
 
 	public function setName($name)

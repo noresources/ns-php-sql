@@ -9,13 +9,13 @@ use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLConnection;
 use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLConstants as K;
 use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLPreparedStatement;
 use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLTypeRegistry;
-use NoreSources\SQL\Syntax\Statement\Statement;
+use NoreSources\SQL\Structure\IndexStructure;
+use NoreSources\SQL\Structure\TableStructure;
+use NoreSources\SQL\Syntax\Statement\TokenizableStatementInterface;
 use NoreSources\SQL\Syntax\Statement\Structure\CreateIndexQuery;
 use NoreSources\SQL\Syntax\Statement\Structure\CreateTableQuery;
 use NoreSources\SQL\Syntax\Statement\Structure\DropIndexQuery;
 use NoreSources\SQL\Syntax\Statement\Structure\DropTableQuery;
-use NoreSources\SQL\Structure\IndexStructure;
-use NoreSources\SQL\Structure\TableStructure;
 use NoreSources\Test\ConnectionHelper;
 use NoreSources\Test\DatasourceManager;
 use NoreSources\Test\DerivedFileManager;
@@ -91,7 +91,7 @@ final class PostgreSQLTest extends \PHPUnit\Framework\TestCase
 			else
 				continue;
 
-			$this->assertInstanceOf(Statement::class, $s,
+			$this->assertInstanceOf(TokenizableStatementInterface::class, $s,
 				'Valid CREATE query');
 
 			$sql = ConnectionHelper::buildStatement($connection, $s,

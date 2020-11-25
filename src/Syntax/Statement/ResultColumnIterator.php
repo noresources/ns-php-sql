@@ -17,6 +17,6 @@ class ResultColumnIterator extends \ArrayIterator
 
 	public function key()
 	{
-		return $this->current()->name;
+		return $this->current()->getName();
 	}
 }

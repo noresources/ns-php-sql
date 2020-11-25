@@ -1,21 +1,26 @@
 <?php
 namespace NoreSources\SQL;
 
+use NoreSources\Container;
+use NoreSources\TypeDescription;
 use NoreSources\SQL\DBMS\ConnectionFactoryStack;
 use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\ConnectionProviderInterface;
 use NoreSources\SQL\DBMS\DefaultConnectionFactory;
 use NoreSources\SQL\DBMS\PlatformProviderInterface;
-use NoreSources\SQL\Syntax\TokenizableExpressionInterface;
+use NoreSources\SQL\DBMS\PreparedStatementInterface;
+use NoreSources\SQL\Result\RowModificationStatementResultInterface;
 use NoreSources\SQL\Result\StatementResultInterface;
-use NoreSources\SQL\Syntax\Statement\Statement;
-use NoreSources\SQL\Syntax\Statement\StatementBuilder;
-use NoreSources\SQL\Syntax\Statement\StatementFactoryInterface;
 use NoreSources\SQL\Structure\StructureElementInterface;
 use NoreSources\SQL\Structure\StructureProviderInterface;
 use NoreSources\SQL\Structure\StructureResolver;
 use NoreSources\SQL\Structure\StructureSerializerFactory;
 use NoreSources\SQL\Structure\VirtualStructureResolver;
+use NoreSources\SQL\Syntax\TokenizableExpressionInterface;
+use NoreSources\SQL\Syntax\Statement\StatementBuilder;
+use NoreSources\SQL\Syntax\Statement\StatementDataInterface;
+use NoreSources\SQL\Syntax\Statement\StatementFactoryInterface;
+use NoreSources\SQL\Syntax\Statement\TokenizableStatementInterface;
 
 /**
  * SQL environment container
@@ -34,9 +39,10 @@ class Environment implements ConnectionProviderInterface,
 
 	/**
 	 *
-	 * @param string|Statement $statement
+	 * @param string|TokenizableStatementInterface $statement
 	 * @param StructureElementInterface $reference
-	 * @return \NoreSources\SQL\DBMS\PreparedStatement
+	 *
+	 * @return PreparedStatementInterface
 	 */
 	public function prepareStatement($statement,
 		StructureElementInterface $reference = null)
@@ -56,8 +62,9 @@ class Environment implements ConnectionProviderInterface,
 
 	/**
 	 *
-	 * @param string|Statement $statement
+	 * @param string|TokenizableStatementInterface $statement
 	 * @param array $parameters
+	 *
 	 * @return StatementResultInterface|boolean
 	 */
 	public function executeStatement($statement, $parameters = null)
@@ -68,6 +75,47 @@ class Environment implements ConnectionProviderInterface,
 
 		return $this->connection->executeStatement($statement,
 			$parameters);
+	}
+
+	/**
+	 * Execute statement
+	 *
+	 * @param mixed ...$arguments
+	 *        	Arguments that can be passed to prepare() or execute() methods
+	 * @throws \BadMethodCallException
+	 * @return RowModificationStatementResultInterface|boolean
+	 */
+	public function __invoke(...$arguments)
+	{
+		$statement = null;
+		$statementData = null;
+		$structure = $this->getStructure();
+		$parameters = null;
+
+		foreach ($arguments as $argument)
+		{
+			if ($argument instanceof TokenizableStatementInterface)
+				$statement = $argument;
+			elseif ($argument instanceof StatementDataInterface)
+				$statement = $argument;
+			elseif ($argument instanceof StructureElementInterface)
+				$structure = $argument;
+			elseif (Container::isArray($argument))
+				$parameters = $argument;
+			elseif (TypeDescription::hasStringRepresentation(
+				$statementData))
+				$statementData = $argument;
+		}
+
+		if (isset($statement))
+			$statementData = $this->prepareStatement($statement,
+				$structure);
+		if (!isset($statementData))
+			throw new \BadMethodCallException(
+				'No statement data found in method parameters.');
+
+		return $this->executeStatement($statementData,
+			($parameters ? $parameters : []));
 	}
 
 	/**

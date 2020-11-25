@@ -16,15 +16,15 @@ use NoreSources\SQL\Syntax\Evaluator;
 use NoreSources\SQL\Syntax\Keyword;
 use NoreSources\SQL\Syntax\TokenStream;
 use NoreSources\SQL\Syntax\TokenStreamContextInterface;
-use NoreSources\SQL\Syntax\Statement\Statement;
 use NoreSources\SQL\Syntax\Statement\StatementException;
+use NoreSources\SQL\Syntax\Statement\TokenizableStatementInterface;
 use NoreSources\SQL\Syntax\Statement\Traits\ColumnValueTrait;
 use NoreSources\SQL\Syntax\Statement\Traits\StatementTableTrait;
 
 /**
  * INSERT query
  */
-class InsertQuery extends Statement implements \ArrayAccess
+class InsertQuery implements TokenizableStatementInterface, \ArrayAccess
 {
 
 	use ColumnValueTrait;
@@ -55,13 +55,17 @@ class InsertQuery extends Statement implements \ArrayAccess
 		$this->columnValues = new \ArrayObject();
 	}
 
+	public function getStatementType()
+	{
+		return K::QUERY_INSERT;
+	}
+
 	public function tokenize(TokenStream $stream,
 		TokenStreamContextInterface $context)
 	{
 		$platform = $context->getPlatform();
 
 		$tableStructure = $context->findTable($this->getTable()->path);
-		$context->setStatementType(K::QUERY_INSERT);
 
 		/**
 		 *

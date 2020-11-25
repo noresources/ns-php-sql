@@ -10,9 +10,10 @@
  */
 namespace NoreSources\SQL\Structure;
 
+use NoreSources\SQL\NameProviderInterface;
 use NoreSources\SQL\DBMS\PlatformInterface;
 
-interface StructureElementInterface
+interface StructureElementInterface extends NameProviderInterface
 {
 
 	/**

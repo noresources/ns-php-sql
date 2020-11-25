@@ -17,8 +17,8 @@ use NoreSources\SQL\Structure\StructureResolverInterface;
 use NoreSources\SQL\Structure\VirtualStructureResolver;
 use NoreSources\SQL\Structure\Traits\StructureResolverProviderTrait;
 use NoreSources\SQL\Syntax\TokenStreamContextInterface;
-use NoreSources\SQL\Syntax\Statement\Traits\InputDataTrait;
-use NoreSources\SQL\Syntax\Statement\Traits\OutputDataTrait;
+use NoreSources\SQL\Syntax\Statement\Traits\StatementInputDataTrait;
+use NoreSources\SQL\Syntax\Statement\Traits\StatementOutputDataTrait;
 
 /**
  * Token stream context dedicated to DBMS statement building
@@ -26,8 +26,8 @@ use NoreSources\SQL\Syntax\Statement\Traits\OutputDataTrait;
 class StatementTokenStreamContext implements
 	TokenStreamContextInterface
 {
-	use InputDataTrait;
-	use OutputDataTrait;
+	use StatementInputDataTrait;
+	use StatementOutputDataTrait;
 	use StructureResolverProviderTrait;
 
 	/**
@@ -175,7 +175,7 @@ class StatementTokenStreamContext implements
 	public function findColumn($path)
 	{
 		if ($this->statementElements->isEmpty())
-			$this->statementElements->push(new StatementElementDMap());
+			$this->statementElements->push(new StatementElementMap());
 
 		if ($this->statementElements->aliases->offsetExists($path))
 			return $this->statementElements->aliases->offsetGet($path);
@@ -191,7 +191,7 @@ class StatementTokenStreamContext implements
 		{
 			if ($this->statementElements->isEmpty())
 				$this->statementElements->push(
-					new StatementElementDMap());
+					new StatementElementMap());
 
 			$this->statementElements->aliases->offsetSet($alias,
 				$reference);
@@ -219,7 +219,7 @@ class StatementTokenStreamContext implements
 	public function pushResolverContext(
 		StructureElementInterface $pivot)
 	{
-		$this->statementElements->push(new StatementElementDMap());
+		$this->statementElements->push(new StatementElementMap());
 		$this->structureResolver->pushResolverContext($pivot);
 	}
 
@@ -242,7 +242,7 @@ class StatementTokenStreamContext implements
 	protected function resetState(
 		StructureElementInterface $pivot = null)
 	{
-		$this->initializeInputData(null);
+		$this->initializeParameterData(null);
 		$this->initializeOutputData(null);
 		$this->statementElements = new Stack();
 		if ($pivot instanceof StructureElementInterface)
@@ -265,10 +265,11 @@ class StatementTokenStreamContext implements
 /**
  * Private class
  */
-class StatementElementDMap implements StatementOutputDataInterface
+class StatementElementMap implements StatementTypeProviderInterface,
+	ResultColumnProviderInterface
 {
 
-	use OutputDataTrait;
+	use StatementOutputDataTrait;
 
 	/**
 	 *

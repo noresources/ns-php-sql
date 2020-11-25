@@ -12,8 +12,7 @@ namespace NoreSources\SQL\DBMS\PostgreSQL;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Result\Recordset;
 use NoreSources\SQL\Result\Traits\SeekableRecordsetTrait;
-use NoreSources\SQL\Syntax\Statement\ResultColumn;
-use NoreSources\SQL\Syntax\Statement\ResultColumnMap;
+use NoreSources\SQL\Structure\ArrayColumnDescription;
 
 class PostgreSQLRecordset extends Recordset implements
 	\SeekableIterator, \Countable
@@ -37,16 +36,18 @@ class PostgreSQLRecordset extends Recordset implements
 			if ($i < $map->count())
 				$column = $map->getColumn($i);
 			else
-			{
-				$column = new ResultColumn(K::DATATYPE_UNDEFINED);
-				$column->name = \pg_field_name($this->resource, $i);
-			}
+				$column = new ArrayColumnDescription();
+
+			$column->setColumnProperty(K::COLUMN_NAME,
+				\pg_field_name($this->resource, $i));
 
 			if ($column->getDataType() == K::DATATYPE_UNDEFINED)
 			{
-				$oid = \pg_field_type_oid($this->resource, $i);
+				$typename = \pg_field_type($this->resource, $i);
 				$column->setColumnProperty(K::COLUMN_DATA_TYPE,
-					PostgreSQLTypeRegistry::oidToDataType($oid));
+					PostgreSQLTypeRegistry::getInstance()->get(
+						$typename)
+						->get(K::TYPE_DATA_TYPE));
 			}
 
 			if ($i >= $map->count())
@@ -57,15 +58,6 @@ class PostgreSQLRecordset extends Recordset implements
 	public function __destruct()
 	{
 		\pg_free_result($this->resource);
-	}
-
-	public function setResultColumns(ResultColumnMap $columns)
-	{
-		parent::setResultColumns($columns);
-		foreach ($columns as $index => $column)
-		{
-			$columns->name = \pg_field_name($this->resource, $index);
-		}
 	}
 
 	public function getColumnCount()

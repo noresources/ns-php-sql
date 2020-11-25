@@ -9,6 +9,7 @@
  */
 namespace NoreSources\SQL\Structure;
 
+use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Structure\Traits\ColumnDescriptionTrait;
 
 /**
@@ -17,6 +18,11 @@ use NoreSources\SQL\Structure\Traits\ColumnDescriptionTrait;
 class ArrayColumnDescription implements ColumnDescriptionInterface
 {
 	use ColumnDescriptionTrait;
+
+	public function getName()
+	{
+		return $this->get(K::COLUMN_NAME);
+	}
 
 	public function __construct($properties = array())
 	{

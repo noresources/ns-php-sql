@@ -7,6 +7,7 @@
  */
 namespace NoreSources\SQL\Syntax\Statement\Structure;
 
+use NoreSources\Bitset;
 use NoreSources\TypeDescription;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\TypeInterface;
@@ -17,8 +18,8 @@ use NoreSources\SQL\Syntax\ColumnDeclaration;
 use NoreSources\SQL\Syntax\TableConstraintDeclaration;
 use NoreSources\SQL\Syntax\TokenStream;
 use NoreSources\SQL\Syntax\TokenStreamContextInterface;
-use NoreSources\SQL\Syntax\Statement\Statement;
 use NoreSources\SQL\Syntax\Statement\StatementException;
+use NoreSources\SQL\Syntax\Statement\TokenizableStatementInterface;
 
 /**
  * CREATE TABLE statement
@@ -32,13 +33,13 @@ use NoreSources\SQL\Syntax\Statement\StatementException;
  * <dd>https://www.postgresql.org/docs/7.1/sql-createtable.html</dd>
  * </dl>
  */
-class CreateTableQuery extends Statement implements
+class CreateTableQuery implements TokenizableStatementInterface,
 	StructureProviderInterface
 {
 
-	const REPLACE = 0x01;
+	const REPLACE = Bitset::BIT_01;
 
-	const TEMPORARY = 0x02;
+	const TEMPORARY = Bitset::BIT_02;
 
 	/**
 	 *
@@ -51,6 +52,11 @@ class CreateTableQuery extends Statement implements
 			$this->table($structure);
 
 		$this->createFlags = 0;
+	}
+
+	public function getStatementType()
+	{
+		return K::QUERY_CREATE_TABLE;
 	}
 
 	public function getStructure()
@@ -123,7 +129,6 @@ class CreateTableQuery extends Statement implements
 				'Missing or invalid table structure');
 
 		$context->pushResolverContext($structure);
-		$context->setStatementType(K::QUERY_CREATE_TABLE);
 
 		$stream->keyword('create');
 		if (($this->createFlags & self::REPLACE) && $replaceSupport)

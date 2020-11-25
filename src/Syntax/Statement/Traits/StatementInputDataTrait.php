@@ -8,12 +8,12 @@
 namespace NoreSources\SQL\Syntax\Statement\Traits;
 
 use NoreSources\SQL\Syntax\Statement\ParameterData;
-use NoreSources\SQL\Syntax\Statement\StatementInputDataInterface;
+use NoreSources\SQL\Syntax\Statement\ParameterDataProviderInterface;
 
 /**
- * Implementation of StatementInputDataInterface
+ * Implementation of ParameterDataProviderInterface
  */
-trait InputDataTrait
+trait StatementInputDataTrait
 {
 
 	/**
@@ -25,11 +25,17 @@ trait InputDataTrait
 		return $this->parameters;
 	}
 
-	public function initializeInputData(
-		StatementInputDataInterface $data = null)
+	/**
+	 *
+	 * @param ParameterDataProviderInterface $data
+	 */
+	protected function initializeParameterData($data = null)
 	{
-		if ($data)
-			$this->parameters = $data->getParameters();
+		if ($data instanceof ParameterDataProviderInterface)
+			$data = $data->getParameters();
+
+		if ($data instanceof ParameterData)
+			$this->parameters = $data;
 		else
 			$this->parameters = new ParameterData();
 	}

@@ -10,17 +10,19 @@
 namespace NoreSources\SQL\Syntax;
 
 use NoreSources\SQL\DBMS\PlatformProviderInterface;
-use NoreSources\SQL\Syntax\Statement\ParameterDataProviderInterface;
-use NoreSources\SQL\Syntax\Statement\StatementOutputDataInterface;
 use NoreSources\SQL\Structure\ColumnStructure;
 use NoreSources\SQL\Structure\StructureResolverInterface;
+use NoreSources\SQL\Syntax\Statement\ParameterDataProviderInterface;
+use NoreSources\SQL\Syntax\Statement\ResultColumnProviderInterface;
+use NoreSources\SQL\Syntax\Statement\StatementTypeProviderInterface;
 
 /**
  * Statement tokenization context
  */
 interface TokenStreamContextInterface extends
 	StructureResolverInterface, ParameterDataProviderInterface,
-	StatementOutputDataInterface, PlatformProviderInterface
+	StatementTypeProviderInterface, ResultColumnProviderInterface,
+	PlatformProviderInterface
 {
 
 	/**

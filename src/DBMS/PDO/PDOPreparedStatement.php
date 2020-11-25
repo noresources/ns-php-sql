@@ -12,16 +12,17 @@ namespace NoreSources\SQL\DBMS\PDO;
 use NoreSources\Container;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\PreparedStatementInterface;
-use NoreSources\SQL\Syntax\Statement\ResultColumn;
-use NoreSources\SQL\Syntax\Statement\StatementInputDataInterface;
-use NoreSources\SQL\Syntax\Statement\Traits\InputDataTrait;
-use NoreSources\SQL\Syntax\Statement\Traits\OutputDataTrait;
+use NoreSources\SQL\Structure\ArrayColumnDescription;
+use NoreSources\SQL\Syntax\Statement\Traits\StatementInputDataTrait;
+use NoreSources\SQL\Syntax\Statement\Traits\StatementOutputDataTrait;
+use NoreSources\SQL\Syntax\Statement\Traits\StatementSerializationTrait;
 
 class PDOPreparedStatement implements PreparedStatementInterface
 {
 
-	use InputDataTrait;
-	use OutputDataTrait;
+	use StatementInputDataTrait;
+	use StatementOutputDataTrait;
+	use StatementSerializationTrait;
 
 	/**
 	 *
@@ -30,10 +31,7 @@ class PDOPreparedStatement implements PreparedStatementInterface
 	 */
 	public function __construct(\PDOStatement $statement, $data)
 	{
-		if ($data instanceof StatementInputDataInterface)
-			$this->initializeInputData($data);
-		else
-			$this->initializeInputData(null);
+		$this->initializeParameterData($data);
 		$this->initializeOutputData($data);
 
 		$this->pdoStatement = $statement;
@@ -73,7 +71,7 @@ class PDOPreparedStatement implements PreparedStatementInterface
 						$column = $map->getColumn($i);
 					else
 					{
-						$column = new ResultColumn(
+						$column = new ArrayColumnDescription(
 							K::DATATYPE_UNDEFINED);
 						$column->name = $meta['name'];
 					}

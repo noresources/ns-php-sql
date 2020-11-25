@@ -14,6 +14,7 @@ use NoreSources\Path;
 use NoreSources\TypeConversion;
 use NoreSources\TypeDescription;
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\DBMS\ConnectionException;
 use NoreSources\SQL\DBMS\ConnectionFactoryInterface;
 use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\DefaultConnectionFactory;
@@ -29,6 +30,7 @@ use NoreSources\SQL\Syntax\Statement\Statement;
 use NoreSources\SQL\Syntax\Statement\StatementBuilder;
 use NoreSources\SQL\Syntax\Statement\StatementDataInterface;
 use NoreSources\SQL\Syntax\Statement\StatementTokenStreamContext;
+use NoreSources\SQL\Syntax\Statement\TokenizableStatementInterface;
 
 /**
  * Helper method for creation of Connection, statement and prepared statement
@@ -178,7 +180,7 @@ class ConnectionHelper
 	 *
 	 * @param ConnectionInterface $connection
 	 *        	DBMS connection
-	 * @param Statement $statement
+	 * @param TokenizableStatementInterface $statement
 	 *        	Statement to convert to string
 	 * @param StructureElementInterface $reference
 	 *        	Pivot StructureElement
@@ -188,7 +190,7 @@ class ConnectionHelper
 	 * Tf these information are needed, use ConnectionHelper::prepareStatement()
 	 */
 	public static function buildStatement($connection,
-		Statement $statement,
+		TokenizableStatementInterface $statement,
 		StructureElementInterface $reference = null)
 	{
 		if (!($reference instanceof StructureElementInterface))
@@ -196,6 +198,7 @@ class ConnectionHelper
 				$reference = $connection->getStructure();
 		$platform = $connection->getPlatform();
 		$context = new StatementTokenStreamContext($platform, $reference);
+		$context->setStatementType($statement->getStatementType());
 		$builder = StatementBuilder::getInstance(); // IDO workaround;
 		return $builder->build($statement, $context);
 	}
@@ -219,7 +222,7 @@ class ConnectionHelper
 		{
 			$statementData = $statement;
 		}
-		elseif ($statement instanceof Statement)
+		elseif ($statement instanceof TokenizableStatementInterface)
 		{
 			$builder = new StatementBuilder();
 			$platform = $connection->getPlatform();
@@ -233,8 +236,9 @@ class ConnectionHelper
 			$statementData = TypeConversion::toString($statement);
 		}
 		else
-			throw ConnectionException($connection,
-				'Unable to prepare statement. ' . Statement::class . ', ' .
+			throw new ConnectionException($connection,
+				'Unable to prepare statement. ' .
+				TokenizableStatementInterface::class . ', ' .
 				StatementDataInterface::class .
 				' or stringifiable type expected. Got ' .
 				TypeDescription::getName($statement));

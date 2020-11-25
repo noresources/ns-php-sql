@@ -10,13 +10,16 @@
 namespace NoreSources\SQL\DBMS\PostgreSQL;
 
 use NoreSources\SQL\DBMS\PreparedStatementInterface;
-use NoreSources\SQL\Syntax\Statement\StatementOutputDataInterface;
+use NoreSources\SQL\Syntax\Statement\ResultColumnProviderInterface;
+use NoreSources\SQL\Syntax\Statement\StatementTypeProviderInterface;
 use NoreSources\SQL\Syntax\Statement\Traits\StatementDataTrait;
+use NoreSources\SQL\Syntax\Statement\Traits\StatementSerializationTrait;
 
 class PostgreSQLPreparedStatement implements PreparedStatementInterface
 {
 
 	use StatementDataTrait;
+	use StatementSerializationTrait;
 
 	public static function newUniqueId()
 	{
@@ -27,8 +30,9 @@ class PostgreSQLPreparedStatement implements PreparedStatementInterface
 	 *
 	 * @param string $identifier
 	 *        	Prepared statement identifier
-	 * @param StatementOutputDataInterface|string $data
-	 *        	StatementOutputDataInterface or SQL statement string
+	 * @param StatementTypeProviderInterface|ResultColumnProviderInterface|string $data
+	 *        	StatementTypeProviderInterface, ResultColumnProviderInterface or SQL statement
+	 *        	string
 	 */
 	public function __construct($identifier, $data = null)
 	{

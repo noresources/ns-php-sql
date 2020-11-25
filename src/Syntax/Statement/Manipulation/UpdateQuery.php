@@ -15,8 +15,8 @@ use NoreSources\SQL\Structure\TableStructure;
 use NoreSources\SQL\Syntax\ColumnData;
 use NoreSources\SQL\Syntax\TokenStream;
 use NoreSources\SQL\Syntax\TokenStreamContextInterface;
-use NoreSources\SQL\Syntax\Statement\Statement;
 use NoreSources\SQL\Syntax\Statement\StatementException;
+use NoreSources\SQL\Syntax\Statement\TokenizableStatementInterface;
 use NoreSources\SQL\Syntax\Statement\Traits\ColumnValueTrait;
 use NoreSources\SQL\Syntax\Statement\Traits\StatementTableTrait;
 use NoreSources\SQL\Syntax\Statement\Traits\WhereConstraintTrait;
@@ -24,7 +24,7 @@ use NoreSources\SQL\Syntax\Statement\Traits\WhereConstraintTrait;
 /**
  * UPDATE query
  */
-class UpdateQuery extends Statement implements \ArrayAccess
+class UpdateQuery implements TokenizableStatementInterface, \ArrayAccess
 {
 
 	use ColumnValueTrait;
@@ -44,6 +44,11 @@ class UpdateQuery extends Statement implements \ArrayAccess
 			$this->table($table, $alias);
 	}
 
+	public function getStatementType()
+	{
+		return K::QUERY_UPDATE;
+	}
+
 	public function tokenize(TokenStream $stream,
 		TokenStreamContextInterface $context)
 	{
@@ -52,7 +57,6 @@ class UpdateQuery extends Statement implements \ArrayAccess
 
 		$tableStructure = $context->findTable($this->getTable()->path);
 		$context->pushResolverContext($tableStructure);
-		$context->setStatementType(K::QUERY_UPDATE);
 		/**
 		 *
 		 * @var TableStructure $tableStructure

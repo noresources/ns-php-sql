@@ -11,6 +11,7 @@ use NoreSources\Container;
 use NoreSources\Expression\ExpressionInterface;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DataTypeProviderInterface;
+use NoreSources\SQL\NameProviderInterface;
 use NoreSources\SQL\Structure\StructureElementContainerInterface;
 use NoreSources\SQL\Structure\StructureElementInterface;
 use NoreSources\SQL\Structure\TableStructure;
@@ -23,14 +24,14 @@ use NoreSources\SQL\Syntax\Table;
 use NoreSources\SQL\Syntax\TableReference;
 use NoreSources\SQL\Syntax\TokenStream;
 use NoreSources\SQL\Syntax\TokenStreamContextInterface;
-use NoreSources\SQL\Syntax\Statement\Statement;
 use NoreSources\SQL\Syntax\Statement\StatementException;
+use NoreSources\SQL\Syntax\Statement\TokenizableStatementInterface;
 use NoreSources\SQL\Syntax\Statement\Traits\ConstraintExpressionListTrait;
 
 /**
  * SELECT query statement
  */
-class SelectQuery extends Statement
+class SelectQuery implements TokenizableStatementInterface
 {
 	use ConstraintExpressionListTrait;
 
@@ -53,6 +54,11 @@ class SelectQuery extends Statement
 
 		if ($table)
 			$this->from($table, $alias);
+	}
+
+	public function getStatementType()
+	{
+		return K::QUERY_SELECT;
 	}
 
 	/**
@@ -319,8 +325,6 @@ class SelectQuery extends Statement
 				K::FEATURE_EXTENDED_RESULTCOLUMN_RESOLUTION
 			], false);
 
-		$context->setStatementType(K::QUERY_SELECT);
-
 		/**
 		 *
 		 * @var TableReference $table
@@ -435,11 +439,17 @@ class SelectQuery extends Statement
 				}
 				else
 				{
+					$name = $columnIndex;
+					if ($column->expression instanceof NameProviderInterface)
+						$name = $column->expression->getName();
 					$type = K::DATATYPE_UNDEFINED;
 					if ($column->expression instanceof DataTypeProviderInterface)
 						$type = $column->expression->getDataType();
-					$context->setResultColumn($columnIndex, $type,
-						$column->alias);
+					$context->setResultColumn($columnIndex,
+						[
+							K::COLUMN_NAME => $name,
+							K::COLUMN_DATA_TYPE => $type
+						], $column->alias);
 				}
 
 				if ($column->alias)

@@ -38,6 +38,7 @@ use NoreSources\SQL\Syntax\Parameter;
 use NoreSources\SQL\Syntax\TimestampFormatFunction;
 use NoreSources\SQL\Syntax\Statement\ParameterData;
 use NoreSources\SQL\Syntax\Statement\ParameterDataProviderInterface;
+use NoreSources\SQL\Syntax\Statement\Statement;
 use NoreSources\SQL\Syntax\Statement\StatementBuilder;
 use NoreSources\SQL\Syntax\Statement\StatementTokenStreamContext;
 use NoreSources\SQL\Syntax\Statement\Manipulation\DeleteQuery;
@@ -763,23 +764,47 @@ final class DBMSCommonTest extends TestCase
 
 		$mainData = ConnectionHelper::buildStatement($connection,
 			$mainSelect);
-		$mainSQL = \SqlFormatter::format(\strval($mainData), false);
 
-		$mainParameters = $mainData->getParameters();
-		$this->assertCount(2, $mainParameters,
-			$dbmsName . ' parameter count');
+		$unserializedStatement = new Statement();
+		{
+			$json = $mainData->jsonSerialize();
+			$serialized = $mainData->serialize();
+			$unserializedStatement->unserialize($serialized);
+		}
 
-		$firstParameter = $mainParameters->get(0);
-		$this->assertEquals('nsname',
-			$firstParameter[ParameterData::KEY],
-			$dbmsName . ' first parameter key');
-		$secondparameter = $mainParameters->get(1);
-		$this->assertEquals('param',
-			$secondparameter[ParameterData::KEY],
-			$dbmsName . ' second parameter key');
+		foreach ([
+			'prepared' => $mainData,
+			'unserialized' => $unserializedStatement
+		] as $label => $data)
+		{
+			$this->assertEquals(K::QUERY_SELECT,
+				$data->getStatementType(),
+				$dbmsName . ' ' . $label . ' statement type');
 
-		$this->derivedFileManager->assertDerivedFile($mainSQL, $method,
-			$dbmsName . '_mainquery', 'sql');
+			$columns = $data->getResultColumns();
+
+			$this->assertCount(1, $columns,
+				$dbmsName . ' ' . $label . ' result column count');
+
+			$parameters = $data->getParameters();
+			$this->assertCount(2, $parameters,
+				$dbmsName . ' ' . $label . ' parameter count');
+
+			$firstParameter = $parameters->get(0);
+			$this->assertEquals('nsname',
+				$firstParameter[ParameterData::KEY],
+				$dbmsName . ' ' . $label . ' first parameter key');
+
+			$secondparameter = $parameters->get(1);
+			$this->assertEquals('param',
+				$secondparameter[ParameterData::KEY],
+				$dbmsName . ' ' . $label . ' second parameter key');
+
+			$sql = \SqlFormatter::format(\strval($data), false);
+
+			$this->derivedFileManager->assertDerivedFile($sql, $method,
+				$dbmsName . '_mainquery', 'sql');
+		}
 	}
 
 	public function testParameters2()
@@ -1481,11 +1506,11 @@ final class DBMSCommonTest extends TestCase
 				$dbmsName . ' column "' . $name . '" exists');
 
 			$byIndex = $result->getResultColumns()->getColumn($index);
-			$this->assertEquals($name, $byIndex->name,
+			$this->assertEquals($name, $byIndex->getName(),
 				$dbmsName . ' Recordset result column #' . $index);
 
 			$byName = $result->getResultColumns()->getColumn($name);
-			$this->assertEquals($name, $byName->name,
+			$this->assertEquals($name, $byName->getName(),
 				$dbmsName . ' Recordset result column "' . $name . '"');
 
 			$index++;

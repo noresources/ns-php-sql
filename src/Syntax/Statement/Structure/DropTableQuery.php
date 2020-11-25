@@ -7,12 +7,13 @@
  */
 namespace NoreSources\SQL\Syntax\Statement\Structure;
 
+use NoreSources\Bitset;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Structure\StructureElementIdentifier;
 use NoreSources\SQL\Structure\TableStructure;
 use NoreSources\SQL\Syntax\TokenStream;
 use NoreSources\SQL\Syntax\TokenStreamContextInterface;
-use NoreSources\SQL\Syntax\Statement\Statement;
+use NoreSources\SQL\Syntax\Statement\TokenizableStatementInterface;
 use NoreSources\SQL\Syntax\Statement\Traits\StatementTableTrait;
 use Psr\Log\LoggerInterface;
 
@@ -28,7 +29,7 @@ use Psr\Log\LoggerInterface;
  * <dd>https://mariadb.com/kb/en/drop-table/</dd>
  * </dl>
  */
-class DropTableQuery extends Statement
+class DropTableQuery implements TokenizableStatementInterface
 {
 	use StatementTableTrait;
 
@@ -37,7 +38,7 @@ class DropTableQuery extends Statement
 	 *
 	 * @var integer
 	 */
-	const CASCADE = 0x01;
+	const CASCADE = Bitset::BIT_01;
 
 	/**
 	 *
@@ -49,6 +50,11 @@ class DropTableQuery extends Statement
 		$this->dropFlags = 0;
 		if ($identifier != null)
 			$this->table($identifier);
+	}
+
+	public function getStatementType()
+	{
+		return K::QUERY_DROP_TABLE;
 	}
 
 	/**
@@ -81,8 +87,6 @@ class DropTableQuery extends Statement
 				K::FEATURE_TABLE,
 				K::FEATURE_EXISTS_CONDITION
 			], false);
-
-		$context->setStatementType(K::QUERY_DROP_TABLE);
 
 		$stream->keyword('drop')
 			->space()

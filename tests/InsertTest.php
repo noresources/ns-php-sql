@@ -6,9 +6,10 @@ use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\Reference\ReferencePlatform;
 use NoreSources\SQL\Structure\TableStructure;
 use NoreSources\SQL\Syntax\Data;
+use NoreSources\SQL\Syntax\Statement\ResultColumnProviderInterface;
 use NoreSources\SQL\Syntax\Statement\StatementBuilder;
-use NoreSources\SQL\Syntax\Statement\StatementOutputDataInterface;
 use NoreSources\SQL\Syntax\Statement\StatementTokenStreamContext;
+use NoreSources\SQL\Syntax\Statement\StatementTypeProviderInterface;
 use NoreSources\SQL\Syntax\Statement\Manipulation\InsertQuery;
 use NoreSources\Test\DatasourceManager;
 use NoreSources\Test\DerivedFileManager;
@@ -63,9 +64,15 @@ final class InsertTest extends \PHPUnit\Framework\TestCase
 			$context->setPivot($t);
 			$result =  StatementBuilder::getInstance()($q, $context);
 
-			$this->assertInstanceOf(StatementOutputDataInterface::class,
-				$result,
-				'Result is (at least) a StatementOutputDataInterface');
+			foreach ([
+				ResultColumnProviderInterface::class,
+				StatementTypeProviderInterface::class
+			] as $classname)
+			{
+				$this->assertInstanceOf($classname, $result,
+					'Result is (at least) a ' . $classname);
+			}
+
 			$this->derivedFileManager->assertDerivedFile(
 				strval($result), __METHOD__, $key, 'sql');
 		}

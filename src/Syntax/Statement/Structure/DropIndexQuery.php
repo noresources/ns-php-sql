@@ -13,7 +13,7 @@ use NoreSources\SQL\Structure\NamespaceStructure;
 use NoreSources\SQL\Structure\StructureElementIdentifier;
 use NoreSources\SQL\Syntax\TokenStream;
 use NoreSources\SQL\Syntax\TokenStreamContextInterface;
-use NoreSources\SQL\Syntax\Statement\Statement;
+use NoreSources\SQL\Syntax\Statement\TokenizableStatementInterface;
 
 /**
  * DROP INDEX statement
@@ -28,7 +28,7 @@ use NoreSources\SQL\Syntax\Statement\Statement;
  * <dd></dd>
  * </dl>
  */
-class DropIndexQuery extends Statement
+class DropIndexQuery implements TokenizableStatementInterface
 {
 
 	public function __construct($identifier = null)
@@ -36,6 +36,11 @@ class DropIndexQuery extends Statement
 		$this->indexIdentifier = null;
 		if ($identifier != null)
 			$this->identifier($identifier);
+	}
+
+	public function getStatementType()
+	{
+		return K::QUERY_DROP_INDEX;
 	}
 
 	/**
@@ -74,8 +79,6 @@ class DropIndexQuery extends Statement
 				K::FEATURE_INDEX,
 				K::FEATURE_EXISTS_CONDITION
 			], false);
-
-		$context->setStatementType(K::QUERY_DROP_INDEX);
 
 		$stream->keyword('drop')
 			->space()

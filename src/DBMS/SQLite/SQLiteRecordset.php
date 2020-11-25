@@ -11,8 +11,7 @@ namespace NoreSources\SQL\DBMS\SQLite;
 
 use NoreSources\SQL\DBMS\SQLite\SQLiteConstants as K;
 use NoreSources\SQL\Result\Recordset;
-use NoreSources\SQL\Syntax\Statement\ResultColumn;
-use NoreSources\SQL\Syntax\Statement\ResultColumnMap;
+use NoreSources\SQL\Structure\ArrayColumnDescription;
 
 class SQLiteRecordset extends Recordset
 {
@@ -28,12 +27,13 @@ class SQLiteRecordset extends Recordset
 			if ($i < $map->count())
 				$column = $map->getColumn($i);
 			else
-			{
-				$column = new ResultColumn(K::DATATYPE_UNDEFINED);
-				$column->name = $result->columnName($i);
-			}
+				$column = new ArrayColumnDescription();
 
-			if ($column->getDataType() == K::DATATYPE_UNDEFINED)
+			if (!$column->has(K::COLUMN_NAME))
+				$column->setColumnProperty(K::COLUMN_NAME,
+					$result->columnName($i));
+
+			if (!$column->has(K::COLUMN_DATA_TYPE))
 				$column->setColumnProperty(K::COLUMN_DATA_TYPE,
 					SQLiteConnection::dataTypeFromSQLiteDataType(
 						$result->columnType($i)));
@@ -46,13 +46,6 @@ class SQLiteRecordset extends Recordset
 	public function __destruct()
 	{
 		$this->result->finalize();
-	}
-
-	public function setResultColumns(ResultColumnMap $columns)
-	{
-		parent::setResultColumns($columns);
-		foreach ($columns as $index => $column)
-			$columns->name = $this->result->columnName($index);
 	}
 
 	public function getColumnCount()

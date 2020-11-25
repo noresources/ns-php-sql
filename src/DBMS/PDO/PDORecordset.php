@@ -10,9 +10,10 @@
 namespace NoreSources\SQL\DBMS\PDO;
 
 use NoreSources\Container;
+use NoreSources\SQL\DBMS\MySQL\MySQLConstants as K;
 use NoreSources\SQL\Result\Recordset;
 use NoreSources\SQL\Result\RecordsetException;
-use NoreSources\SQL\Syntax\Statement\ResultColumn;
+use NoreSources\SQL\Structure\ArrayColumnDescription;
 
 class PDORecordset extends Recordset
 {
@@ -53,14 +54,20 @@ class PDORecordset extends Recordset
 				if ($i < $map->count())
 					$column = $map->getColumn($i);
 				else
+					$column = new ArrayColumnDescription();
+
+				if ($column->getDataType() == K::DATATYPE_UNDEFINED)
 				{
 					$pdoType = Container::keyValue($meta, 'pdo_type');
 					$dataType = PDOConnection::getDataTypeFromPDOType(
 						$pdoType);
-					$column = new ResultColumn($dataType);
-					$column->name = Container::keyValue($meta, 'name',
-						'column' . $i);
+					$column->setColumnProperty(K::COLUMN_DATA_TYPE,
+						$dataType);
 				}
+
+				if (!$column->has(K::COLUMN_NAME))
+					$column->setColumnProperty(K::COLUMN_DATA_TYPE,
+						Container::keyValue($meta, 'name', 'column' . $i));
 			}
 		}
 		catch (\Exception $e)

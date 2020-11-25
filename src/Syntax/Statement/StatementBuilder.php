@@ -9,11 +9,11 @@ namespace NoreSources\SQL\Syntax\Statement;
 
 use NoreSources\Container;
 use NoreSources\SingletonTrait;
-use NoreSources\Expression\ExpressionInterface;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Syntax\TokenStream;
 use NoreSources\SQL\Syntax\TokenStreamContextInterface;
 use NoreSources\SQL\Syntax\TokenStreamExporterInterface;
+use NoreSources\SQL\Syntax\TokenizableExpressionInterface;
 use NoreSources\SQL\Syntax\Tokenizer;
 use phpDocumentor\Reflection\Types\Expression;
 
@@ -43,7 +43,8 @@ class StatementBuilder implements TokenStreamExporterInterface
 	 *        	StatementTokenStreamContext constructor arguments.
 	 * @return StatementData
 	 */
-	public function build(ExpressionInterface $expression, ...$context)
+	public function build(TokenizableExpressionInterface $expression,
+		...$context)
 	{
 		$stream = new TokenStream();
 		if (\count($context) &&
@@ -51,6 +52,10 @@ class StatementBuilder implements TokenStreamExporterInterface
 			$context = clone $first;
 		else
 			$context = new StatementTokenStreamContext(...$context);
+
+		if ($expression instanceof StatementTypeProviderInterface)
+			$context->setStatementType($expression->getStatementType());
+
 		Tokenizer::getInstance()->tokenizeExpression($expression,
 			$stream, $context);
 		return $this->export($stream, $context);

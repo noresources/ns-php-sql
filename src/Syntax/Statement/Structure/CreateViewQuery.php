@@ -7,6 +7,7 @@
  */
 namespace NoreSources\SQL\Syntax\Statement\Structure;
 
+use NoreSources\Bitset;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Structure\IndexStructure;
 use NoreSources\SQL\Structure\NamespaceStructure;
@@ -14,7 +15,7 @@ use NoreSources\SQL\Structure\StructureElementIdentifier;
 use NoreSources\SQL\Structure\ViewStructure;
 use NoreSources\SQL\Syntax\TokenStream;
 use NoreSources\SQL\Syntax\TokenStreamContextInterface;
-use NoreSources\SQL\Syntax\Statement\Statement;
+use NoreSources\SQL\Syntax\Statement\TokenizableStatementInterface;
 use NoreSources\SQL\Syntax\Statement\Query\SelectQuery;
 
 /**
@@ -31,10 +32,10 @@ use NoreSources\SQL\Syntax\Statement\Query\SelectQuery;
  * <dd>https://www.postgresql.org/docs/9.2/sql-createview.html</dd>
  * </dl>
  */
-class CreateViewQuery extends Statement
+class CreateViewQuery implements TokenizableStatementInterface
 {
 
-	const TEMPORARY = 0x01;
+	const TEMPORARY = Bitset::BIT_01;
 
 	/**
 	 *
@@ -49,6 +50,11 @@ class CreateViewQuery extends Statement
 
 		if ($identifier !== null)
 			$this->identifier($identifier);
+	}
+
+	public function getStatementType()
+	{
+		return K::QUERY_CREATE_VIEW;
 	}
 
 	/**
@@ -108,8 +114,6 @@ class CreateViewQuery extends Statement
 				K::FEATURE_VIEW,
 				K::FEATURE_EXISTS_CONDITION
 			], false);
-
-		$context->setStatementType(K::QUERY_CREATE_VIEW);
 
 		$stream->keyword('create');
 

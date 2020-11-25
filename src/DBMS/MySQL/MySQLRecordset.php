@@ -13,7 +13,7 @@ use NoreSources\Container;
 use NoreSources\SQL\DBMS\MySQL\MySQLConstants as K;
 use NoreSources\SQL\Result\Recordset;
 use NoreSources\SQL\Result\Traits\SeekableRecordsetTrait;
-use NoreSources\SQL\Syntax\Statement\ResultColumn;
+use NoreSources\SQL\Structure\ArrayColumnDescription;
 
 /**
  *
@@ -49,12 +49,14 @@ class MySQLRecordset extends Recordset implements \Countable,
 			else
 			{
 				$created = true;
-				$column = new ResultColumn(K::DATATYPE_UNDEFINED);
+				$column = new ArrayColumnDescription();
 			}
 
-			if (\strlen($column->name) == 0)
-				$column->name = Container::keyValue($field, 'name',
-					Container::keyValue($field, 'orgname'));
+			if (!$column->has(K::COLUMN_NAME) ||
+				empty($column->getName()))
+				$column->setColumnProperty(K::COLUMN_NAME,
+					Container::keyValue($field, 'name',
+						Container::keyValue($field, 'orgname')));
 
 			if (!$column->has(K::COLUMN_FRACTION_SCALE) &&
 				Container::keyExists($field, 'decimals'))

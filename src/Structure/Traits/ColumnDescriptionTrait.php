@@ -12,11 +12,10 @@ namespace NoreSources\SQL\Structure\Traits;
 use NoreSources\Container;
 use NoreSources\TypeConversion;
 use NoreSources\TypeDescription;
-use NoreSources\MediaType\MediaType;
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\DBMS\DataUnserializerInterface;
-use NoreSources\SQL\Structure\ColumnPropertyNotFoundException;
-use NoreSources\SQL\Structure\StructureException;
+use NoreSources\SQL\DataTypeProviderInterface;
+use NoreSources\SQL\NameProviderInterface;
+use NoreSources\SQL\Structure\ColumnPropertyHelper;
 
 /**
  * Reference implementation of ColumnDescriptionInterface
@@ -24,21 +23,10 @@ use NoreSources\SQL\Structure\StructureException;
 trait ColumnDescriptionTrait
 {
 
-	public function initializeColumnProperties($properties = array())
-	{
-		$this->columnProperties = [
-			K::COLUMN_DATA_TYPE => K::DATATYPE_STRING
-		];
-
-		if (Container::isTraversable($properties))
-		{
-			foreach ($properties as $key => $value)
-			{
-				$this->setColumnProperty($key, $value);
-			}
-		}
-	}
-
+	/**
+	 *
+	 * @return integer Column data type
+	 */
 	public function getDataType()
 	{
 		if ($this->has(K::COLUMN_DATA_TYPE))
@@ -46,50 +34,76 @@ trait ColumnDescriptionTrait
 		return K::DATATYPE_UNDEFINED;
 	}
 
+	/**
+	 *
+	 * @param string $key
+	 * @return boolean
+	 */
 	public function has($key)
 	{
-		return Container::keyExists($this->columnProperties, $key);
+		if (isset($this->columnProperties))
+			return Container::keyExists($this->columnProperties, $key);
+		return false;
 	}
 
+	/**
+	 *
+	 * @param string $key
+	 * @return string|number|boolean|NULL
+	 */
 	public function get($key)
 	{
-		if (Container::keyExists($this->columnProperties, $key))
-			return $this->columnProperties[$key];
-		return ColumnPropertyDefault::get($key);
+		if (isset($this->columnProperties))
+			if (Container::keyExists($this->columnProperties, $key))
+				return $this->columnProperties[$key];
+
+		return ColumnPropertyHelper::get($key);
 	}
 
 	public function getIterator()
 	{
-		return new \ArrayIterator($this->columnProperties);
+		return new \ArrayIterator(
+			$this->columnProperties ? $this->columnProperties : []);
+	}
+
+	public function getArrayCopy()
+	{
+		return $this->columnProperties;
 	}
 
 	public function setColumnProperty($key, $value)
 	{
-		if (!ColumnPropertyDefault::isValidKey($key))
-			throw new StructureException(
-				'Invalid column property key ' . $key);
+		if (!isset($this->columnProperties))
+			$this->columnProperties = [];
+		$this->columnProperties[$key] = ColumnPropertyHelper::normalizeValue(
+			$key, $value);
+		;
+	}
 
-		switch ($key)
-		{
-			case K::COLUMN_LENGTH:
-			case K::COLUMN_DATA_TYPE:
-			case K::COLUMN_FRACTION_SCALE:
-				$value = TypeConversion::toInteger($value);
-			break;
-			case K::COLUMN_MEDIA_TYPE:
-				if (!($value instanceof MediaType))
-					$value = MediaType::fromString($value);
-			break;
-			case K::COLUMN_UNSERIALIZER:
-				if (!($value instanceof DataUnserializerInterface))
-					throw new \InvalidArgumentException(
-						'Invalid value type ' .
-						TypeDescription::getName($value) .
-						' for property ' . $key);
-			break;
-		}
+	/**
+	 *
+	 * @param array $data
+	 */
+	protected function initializeColumnProperties($data = array())
+	{
+		$this->columnProperties = [
+			K::COLUMN_DATA_TYPE => K::DATATYPE_STRING
+		];
 
-		$this->columnProperties[$key] = $value;
+		if (Container::isTraversable($data))
+			foreach ($data as $key => $value)
+				$this->setColumnProperty($key, $value);
+
+		if ($data instanceof DataTypeProviderInterface)
+			$this->setColumnProperty(K::COLUMN_DATA_TYPE,
+				$data->getDataType());
+		if ($data instanceof NameProviderInterface)
+			$this->setColumnProperty(K::COLUMN_NAME, $data->getName());
+
+		if (!$this->has(K::COLUMN_NAME) &&
+			TypeDescription::hasStringRepresentation($data) &&
+			($name = TypeConversion::toString($data)) && !empty($name))
+			$this->setColumnProperty(K::COLUMN_NAME, $name);
 	}
 
 	/**
@@ -99,58 +113,3 @@ trait ColumnDescriptionTrait
 	private $columnProperties;
 }
 
-class ColumnPropertyDefault
-{
-
-	public static function isValidKey($key)
-	{
-		if (self::$defaultValues == null)
-			self::initialize();
-
-		return \array_key_exists($key, self::$defaultValues);
-	}
-
-	public static function isValidValue($key, $value)
-	{
-		if (self::$defaultValues == null)
-			self::initialize();
-
-		switch ($key)
-		{
-			case K::COLUMN_UNSERIALIZER:
-				return ($value instanceof DataUnserializerInterface);
-			case K::COLUMN_DATA_TYPE:
-			case K::COLUMN_LENGTH:
-			case K::COLUMN_FRACTION_SCALE:
-				return is_int($value);
-		}
-
-		return true;
-	}
-
-	public static function get($key)
-	{
-		if (self::$defaultValues == null)
-			self::initialize();
-
-		if (\array_key_exists($key, self::$defaultValues))
-			return self::$defaultValues[$key];
-
-		throw new ColumnPropertyNotFoundException($key);
-	}
-
-	private static function initialize()
-	{
-		self::$defaultValues = [
-			K::COLUMN_FLAGS => 0,
-			K::COLUMN_FRACTION_SCALE => 0,
-			K::COLUMN_LENGTH => 0,
-			K::COLUMN_DATA_TYPE => K::DATATYPE_STRING | K::DATATYPE_NULL,
-			K::COLUMN_ENUMERATION => null,
-			K::COLUMN_DEFAULT_VALUE => null,
-			K::COLUMN_MEDIA_TYPE => null
-		];
-	}
-
-	private static $defaultValues = null;
-}

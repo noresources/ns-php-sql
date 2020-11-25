@@ -8,6 +8,7 @@
 namespace NoreSources\SQL\Syntax\Statement;
 
 use NoreSources\SQL\Syntax\Statement\Traits\StatementDataTrait;
+use NoreSources\SQL\Syntax\Statement\Traits\StatementSerializationTrait;
 
 /**
  * Reference implementation of StatementDataInterface
@@ -15,6 +16,7 @@ use NoreSources\SQL\Syntax\Statement\Traits\StatementDataTrait;
 class StatementData implements StatementDataInterface
 {
 	use StatementDataTrait;
+	use StatementSerializationTrait;
 
 	public function __construct($data)
 	{

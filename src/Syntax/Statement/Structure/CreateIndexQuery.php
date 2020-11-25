@@ -7,6 +7,7 @@
  */
 namespace NoreSources\SQL\Syntax\Statement\Structure;
 
+use NoreSources\Bitset;
 use NoreSources\TypeConversion;
 use NoreSources\TypeDescription;
 use NoreSources\Expression\ExpressionInterface;
@@ -19,8 +20,8 @@ use NoreSources\SQL\Syntax\Evaluable;
 use NoreSources\SQL\Syntax\TableReference;
 use NoreSources\SQL\Syntax\TokenStream;
 use NoreSources\SQL\Syntax\TokenStreamContextInterface;
-use NoreSources\SQL\Syntax\Statement\Statement;
 use NoreSources\SQL\Syntax\Statement\StatementException;
+use NoreSources\SQL\Syntax\Statement\TokenizableStatementInterface;
 use NoreSources\SQL\Syntax\Statement\Traits\WhereConstraintTrait;
 
 /**
@@ -28,11 +29,11 @@ use NoreSources\SQL\Syntax\Statement\Traits\WhereConstraintTrait;
  *
  * @see https://www.sqlite.org/lang_createindex.html
  */
-class CreateIndexQuery extends Statement
+class CreateIndexQuery implements TokenizableStatementInterface
 {
 	use WhereConstraintTrait;
 
-	const UNIQUE = 0x01;
+	const UNIQUE = Bitset::BIT_01;
 
 	public function __construct($identifier = null)
 	{
@@ -43,6 +44,11 @@ class CreateIndexQuery extends Statement
 
 		if ($identifier !== null)
 			$this->identifier($identifier);
+	}
+
+	public function getStatementType()
+	{
+		return K::QUERY_CREATE_INDEX;
 	}
 
 	public function setFromIndexStructure(IndexStructure $index)
@@ -166,8 +172,6 @@ class CreateIndexQuery extends Statement
 				K::FEATURE_INDEX,
 				K::FEATURE_EXISTS_CONDITION
 			], false);
-
-		$context->setStatementType(K::QUERY_CREATE_INDEX);
 
 		$tableStructure = $context->findTable($this->indexTable->path);
 		$context->pushResolverContext($tableStructure);

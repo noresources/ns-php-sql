@@ -13,7 +13,7 @@ use NoreSources\SQL\Structure\StructureElementIdentifier;
 use NoreSources\SQL\Structure\ViewStructure;
 use NoreSources\SQL\Syntax\TokenStream;
 use NoreSources\SQL\Syntax\TokenStreamContextInterface;
-use NoreSources\SQL\Syntax\Statement\Statement;
+use NoreSources\SQL\Syntax\Statement\TokenizableStatementInterface;
 
 /**
  * DROP VIEW statement
@@ -28,7 +28,7 @@ use NoreSources\SQL\Syntax\Statement\Statement;
  * <dd></dd>
  * </dl>
  */
-class DropViewQuery extends Statement
+class DropViewQuery implements TokenizableStatementInterface
 {
 
 	public function __construct($identifier = null)
@@ -36,6 +36,11 @@ class DropViewQuery extends Statement
 		$this->viewIdentifier = null;
 		if ($identifier != null)
 			$this->identifier($identifier);
+	}
+
+	public function getStatementType()
+	{
+		return K::QUERY_DROP_VIEW;
 	}
 
 	/**
@@ -74,8 +79,6 @@ class DropViewQuery extends Statement
 				K::FEATURE_VIEW,
 				K::FEATURE_SCOPED
 			], false);
-
-		$context->setStatementType(K::QUERY_DROP_VIEW);
 
 		$stream->keyword('drop')
 			->space()

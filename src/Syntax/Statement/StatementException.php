@@ -13,7 +13,12 @@ namespace NoreSources\SQL\Syntax\Statement;
 class StatementException extends \Exception
 {
 
-	public function __construct(Statement $statement, $message)
+	/**
+	 *
+	 * @param TokenizableStatementInterface $statement
+	 * @param unknown $message
+	 */
+	public function __construct(TokenizableStatementInterface $statement, $message)
 	{
 		parent::__construct($message);
 		$this->statement = $statement;

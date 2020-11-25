@@ -11,14 +11,14 @@ use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Structure\TableStructure;
 use NoreSources\SQL\Syntax\TokenStream;
 use NoreSources\SQL\Syntax\TokenStreamContextInterface;
-use NoreSources\SQL\Syntax\Statement\Statement;
+use NoreSources\SQL\Syntax\Statement\TokenizableStatementInterface;
 use NoreSources\SQL\Syntax\Statement\Traits\StatementTableTrait;
 use NoreSources\SQL\Syntax\Statement\Traits\WhereConstraintTrait;
 
 /**
  * DELETE query
  */
-class DeleteQuery extends Statement
+class DeleteQuery implements TokenizableStatementInterface
 {
 
 	use WhereConstraintTrait;
@@ -35,13 +35,17 @@ class DeleteQuery extends Statement
 			$this->table($table);
 	}
 
+	public function getStatementType()
+	{
+		return K::QUERY_DELETE;
+	}
+
 	public function tokenize(TokenStream $stream,
 		TokenStreamContextInterface $context)
 	{
 		$tableStructure = $context->findTable($this->getTable()->path);
 
 		$context->pushResolverContext($tableStructure);
-		$context->setStatementType(K::QUERY_DELETE);
 
 		$stream->keyword('delete')
 			->space()
