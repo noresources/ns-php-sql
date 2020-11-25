@@ -30,9 +30,13 @@ interface DatasourceAwareInterface
 /**
  * An expression relative to a data source connection
  *
- * @deprecated Remove this or rename it
+ * @deprecated Use DatasourceAwareExpression
  */
 interface IExpression extends \NoreSources\IExpression, DatasourceAwareInterface
+{
+}
+
+interface DatasourceAwareExpression extends \NoreSources\IExpression, DatasourceAwareInterface
 {
 }
 
@@ -75,7 +79,8 @@ class Alias implements IExpression
 	{
 		$this->m_datasource = $Datasource;
 		if (!\is_string($aliasName))
-			throw new \InvalidArgumentException('String expected for alias name. Gout ' . gettype($aliasName));
+			throw new \InvalidArgumentException(
+				'String expected for alias name. Gout ' . gettype($aliasName));
 		$this->m_aliasName = $aliasName;
 	}
 
@@ -239,10 +244,10 @@ class SQLFunction extends \NoreSources\UnaryOperatorExpression implements IAlias
 	 */
 	public function alias(Alias $alias = null)
 	{
-		if (!is_null($alias))
-		{
+		if ($alias instanceof Alias)
 			$this->m_alias = $alias;
-		}
+		elseif ($alias === false)
+			$this->m_alias = null;
 
 		return $this->m_alias;
 	}
