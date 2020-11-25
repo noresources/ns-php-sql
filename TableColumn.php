@@ -209,9 +209,9 @@ class ConstantColumn implements IExpression, IAliasable
 	public function alias(Alias $alias = null)
 	{
 		if ($alias instanceof Alias)
-		{
 			$this->alias = $alias;
-		}
+		elseif ($alias === false)
+			$this->alias = null;
 
 		return $this->alias;
 	}
@@ -352,7 +352,7 @@ class SelectQueryResultTableColumn extends ITableColumn
 	public function __construct(SelectQueryResultTable $query, $name)
 	{
 		$structure = null;
-		
+
 		parent::__construct(null);
 		$this->query = $query;
 		$this->column = $name;
@@ -407,6 +407,8 @@ class SelectQueryResultTableColumn extends ITableColumn
 	{
 		if ($alias instanceof Alias)
 			$this->columnAlias = $alias;
+		elseif ($alias === false)
+			$this->columnAlias = null;
 		return $this->columnAlias;
 	}
 
@@ -448,21 +450,22 @@ class TableColumn extends ITableColumn implements IAliasedClone, ITableColumnVal
 	 *        	Table reference
 	 * @param string $a_strName
 	 *        	field name
-	 * @param string $a_strAlias
+	 * @param string $a_alias
 	 *        	Alias (optional)
 	 * @param array $a_structure
 	 *        	TableColumnStructure
 	 */
-	public function __construct(Table $a_table, $a_strName, $a_strAlias = null,
+	public function __construct(Table $a_table, $a_strName, $a_alias = null,
 		TableColumnStructure $a_structure = null)
 	{
 		parent::__construct($a_structure);
 		$this->m_table = $a_table;
 		$this->m_fieldName = $a_strName;
-		if (is_string($a_strAlias))
-		{
-			$this->m_alias = new Alias($this->getDatasource(), $a_strAlias);
-		}
+		if (is_string($a_alias))
+			$a_alias = new Alias($this->getDatasource(), $a_alias);
+		if ($a_alias && !($a_alias instanceof Alias))
+			throw new \InvalidArgumentException(
+				'Alias or string expected. Got ' . get_class($a_alias));
 		$this->m_valueValidator = null;
 
 		if ($this->structure)
@@ -599,10 +602,10 @@ class TableColumn extends ITableColumn implements IAliasedClone, ITableColumnVal
 	 */
 	public function alias(Alias $alias = null)
 	{
-		if ($alias)
-		{
+		if ($alias instanceof Alias)
 			$this->m_alias = $alias;
-		}
+		elseif ($alias === false)
+			$this->m_alias = null;
 
 		return $this->m_alias;
 	}

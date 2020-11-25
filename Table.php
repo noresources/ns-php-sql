@@ -39,6 +39,10 @@ class Table extends SQLObject implements TableInterface, IAliasedClone
 		$this->m_name = $a_name;
 		if (\is_string($a_aliasName))
 			$a_aliasName = new Alias($this->getDatasource(), $a_aliasName);
+		if ($a_aliasName)
+			if (!($a_aliasName instanceof Alias))
+				throw new \InvalidArgumentException(
+					'Alias or string expected. Got ' . gettype($a_aliasName));
 		$this->tableAlias = $a_aliasName;
 	}
 
@@ -84,7 +88,7 @@ class Table extends SQLObject implements TableInterface, IAliasedClone
 		if (($a_options & kExpressionElementDeclaration) == kExpressionElementDeclaration)
 		{
 			return $db . $Datasource->encloseElement($this->m_name) .
-				($this->hasAlias() ? ' AS ' . $Datasource->encloseElement($this->alias()) : '');
+				($this->hasAlias() ? ' AS ' . $this->alias()->expressionString() : '');
 			;
 		}
 		elseif ($a_options == kExpressionElementName)
@@ -93,7 +97,7 @@ class Table extends SQLObject implements TableInterface, IAliasedClone
 		}
 		elseif ($this->hasAlias())
 		{
-			return $Datasource->encloseElement($this->alias());
+			return $this->alias()->expressionString();
 		}
 
 		return $db . ($Datasource->encloseElement($this->m_name));
@@ -540,6 +544,8 @@ class SelectQueryResultTable implements TableInterface
 	{
 		if ($alias instanceof Alias)
 			$this->queryAlias = $alias;
+		elseif ($alias === false)
+			$this->queryAlias = null;
 		return $this->queryAlias;
 	}
 

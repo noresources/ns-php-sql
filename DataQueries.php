@@ -362,15 +362,20 @@ class SelectQueryStaticValueColumn implements IExpression
 	 *
 	 * @param \NoreSources\SQL\SelectQuery $a_query
 	 * @param mixed $a_value
-	 * @param string $a_strAlias
+	 * @param string $a_alias
 	 */
-	public function __construct(SelectQuery $a_query, $a_value, $a_strAlias)
+	public function __construct(SelectQuery $a_query, $a_value, $a_alias)
 	{
 		$this->m_oQuery = $a_query;
 		$this->m_oValue = (($a_value instanceof IExpression) ? $a_value : new FormattedData(
 			$a_value));
-		$this->m_alias = (is_string($a_strAlias) && strlen($a_strAlias)) ? new Alias(
-			$a_query->datasource, $a_strAlias) : null;
+
+		if (\is_string($a_alias))
+			$a_alias = new Alias($a_query->getDatasource(), $a_alias);
+		if ($a_alias && !($a_alias instanceof Alias))
+			throw new \InvalidArgumentException(
+				Alias::class . ' or string expected. Got ' . gettype($a_alias));
+		$this->m_alias = $a_alias;
 	}
 
 	/**
@@ -399,6 +404,10 @@ class SelectQueryStaticValueColumn implements IExpression
 
 	protected $m_oValue;
 
+	/**
+	 *
+	 * @var Alias
+	 */
 	protected $m_alias;
 }
 
@@ -635,7 +644,7 @@ class SelectQueryGroupByStatement implements IExpression
 
 	public function __construct(Datasource $a_datasource)
 	{
-		$this->m_columns = array();
+		$this->m_columns = [];
 		$this->datasource = $a_datasource;
 	}
 
@@ -687,24 +696,18 @@ class SelectQueryGroupByStatement implements IExpression
 		{
 			$c = func_get_arg($i);
 			if (($c instanceof Alias) || ($c instanceof ITableColumn))
-			{
 				$this->m_columns[] = $c;
-			}
 			elseif (($c instanceof IAliasable) && $c->hasAlias())
-			{
 				$this->m_columns[] = $c->alias();
-			}
 			elseif (is_string($c))
-			{
 				$this->m_columns[] = new Alias($this->datasource, $c);
-			}
 		}
 		return $n;
 	}
 
 	public function clear()
 	{
-		$this->m_columns = array();
+		$this->m_columns = [];
 	}
 
 	protected $m_columns;
@@ -745,7 +748,7 @@ class SelectQueryOrderByStatement implements ISelectQueryOrderByStatement
 
 	public function __construct()
 	{
-		$this->m_columns = array();
+		$this->m_columns = [];
 	}
 
 	/**
@@ -792,7 +795,7 @@ class SelectQueryOrderByStatement implements ISelectQueryOrderByStatement
 
 	public function clear()
 	{
-		$this->m_columns = array();
+		$this->m_columns = [];
 	}
 
 	/**
@@ -995,7 +998,7 @@ class SelectQuery extends TableQuery implements IExpression
 		$this->m_where = new WhereQueryConditionStatement();
 		$this->m_unionQueries = array();
 		$this->m_joins = array();
-		$this->m_columns = array();
+		$this->m_columns = [];
 		$this->m_randomOrder = false;
 	}
 
@@ -1129,7 +1132,7 @@ class SelectQuery extends TableQuery implements IExpression
 			$qs .= 'DISTINCT ';
 
 		// columns
-		$selectColumnAliases = array();
+		$selectColumnAliases = [];
 		if (count($this->m_columns))
 		{
 			foreach ($this->m_columns as $c)
@@ -1258,6 +1261,12 @@ class SelectQuery extends TableQuery implements IExpression
 		ksort($this->m_columns);
 	}
 
+	/**
+	 *
+	 * @param integer $index
+	 * @param TableColumn|string $column
+	 * @return boolean
+	 */
 	public function setColumn($index, $column)
 	{
 		if (\is_string($column))
