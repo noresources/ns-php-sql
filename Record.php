@@ -461,17 +461,17 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 	const QUERY_COUNT = 0x40;
 
 	/**
-	 * Starting point for all query flag extensions
+	 * Starting point for all Specific Record query extensions
 	 *
 	 * User-defined query flags should have the form
 	 *
-	 * @c{ (kRecordQueryFlagExtension << n) @}
+	 * @c{ (QUERY_FLAGEXTENSION << n) @}
 	 *
-	 * Witn n >= 1
+	 * With n >= 1
 	 *
 	 * @var integer
 	 */
-	const QUERY_FLAGEXTENSION = 0x20;
+	const QUERY_FLAGEXTENSION = 0x00010000;
 
 	/**
 	 * The record values differs from the entry stored in the datasource
