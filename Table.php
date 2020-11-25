@@ -392,7 +392,8 @@ class Table extends SQLObject implements TableInterface, IAliasedClone
 	 */
 	public final function alias(Alias $alias = null)
 	{
-		if ($alias instanceof Alias) $this->tableAlias = $alias;
+		if ($alias instanceof Alias)
+			$this->tableAlias = $alias;
 		return $this->tableAlias;
 	}
 
@@ -456,7 +457,7 @@ class SelectQueryResultTable implements TableInterface
 {
 
 	/**
-	 * 
+	 *
 	 * @param SelectQuery $query
 	 * @param unknown $alias
 	 * @throws \InvalidArgumentException
@@ -484,10 +485,10 @@ class SelectQueryResultTable implements TableInterface
 	public function getColumn($a_name, $a_alias = null, $a_className = null)
 	{
 		$cls = ($a_className ? $a_className : $this->defaultColumnClassName());
-		
+
 		foreach ($this->selectQuery->getColumns() as $index => $column)
 		{
-			if ($column instanceof IAliasable && $column->hasAlias ())
+			if ($column instanceof IAliasable && $column->hasAlias())
 			{
 				if (\strcmp($column->alias()->getAliasName(), $a_name) == 0)
 				{
@@ -558,8 +559,8 @@ class SelectQueryResultTable implements TableInterface
 
 		if (($a_options & kExpressionElementDeclaration) == kExpressionElementDeclaration)
 		{
-			return '('.$this->selectQuery->expressionString()
-			.') AS ' . $this->queryAlias->expressionString();
+			return '(' . $this->selectQuery->expressionString() . ') AS ' .
+				$this->queryAlias->expressionString();
 		}
 		elseif ($a_options & kExpressionElementName)
 		{
@@ -574,20 +575,16 @@ class SelectQueryResultTable implements TableInterface
 		return $this->queryAlias->expressionString() . '.' .
 			$connection->encloseElement($this->column);
 	}
-	
+
 	/**
 	 *
 	 * @var SelectQuery
 	 */
 	private $selectQuery;
-	
+
 	/**
-	 * 
+	 *
 	 * @var Alias
 	 */
 	private $queryAlias;
-	
-
-	
-
 }
