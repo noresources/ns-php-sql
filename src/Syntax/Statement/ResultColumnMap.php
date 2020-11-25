@@ -1,22 +1,20 @@
 <?php
 /**
- * Copyright © 2012 - 2020 by Renaud Guillard (dev@nore.fr)
+ * Copyright © 2020 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
- */
-/**
  *
  * @package SQL
  */
-
-//
 namespace NoreSources\SQL\Syntax\Statement;
 
 use NoreSources\SQL\Structure\ColumnDescriptionMapInterface;
 use NoreSources\SQL\Structure\ColumnNotFoundException;
 
 /**
+ * Result columns of a SELECT statement or a Recordset
  */
-class ResultColumnMap implements \Countable, ColumnDescriptionMapInterface, \IteratorAggregate
+class ResultColumnMap implements \Countable,
+	ColumnDescriptionMapInterface, \IteratorAggregate
 {
 
 	public function __construct()
@@ -115,42 +113,3 @@ class ResultColumnMap implements \Countable, ColumnDescriptionMapInterface, \Ite
 	private $columns;
 }
 
-class ResultColumnIterator implements \Iterator
-{
-
-	public function __construct(ResultColumnMap $map)
-	{
-		$this->iterator = $map->getIterator();
-	}
-
-	public function current()
-	{
-		return $this->iterator->current();
-	}
-
-	public function key()
-	{
-		return $this->iterator->current()->name;
-	}
-
-	public function next()
-	{
-		return $this->iterator->next();
-	}
-
-	public function rewind()
-	{
-		$this->iterator->rewind();
-	}
-
-	public function valid()
-	{
-		return $this->iterator->valid();
-	}
-
-	/**
-	 *
-	 * @var \ArrayIterator
-	 */
-	private $iterator;
-}
