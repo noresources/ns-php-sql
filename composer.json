@@ -15,13 +15,13 @@
 			"."
 		],
 		"exclude-from-classmap": [
-			"sql.autoload.inc.php"
+			"sql.autoload.inc.php",
+			"vendor"
 		]
 	},
 	"minimum-stability": "dev",
 	"require": {
-		"php": ">= 5.3",
-		"noresources/ns-php-core": "~1.1"
+		"php": ">= 5.3"
 	},
 	"suggest": {
 		"ext-sqlite": "*",
