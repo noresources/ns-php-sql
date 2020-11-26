@@ -793,7 +793,6 @@ class SQLiteDatasource extends Datasource implements ITransactionBlock, ITablePr
 	 */
 	public function resultlessQuery($a_strQuery)
 	{
-		//ns\Reporter::debug ($this, $a_strQuery);
 		$errorMessage = '';
 		$result = null;
 		if ($this->m_implementation == self::kImplementationSQLite3)

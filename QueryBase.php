@@ -47,13 +47,19 @@ abstract class IQuery
 	{
 		if ($member == 'datasource')
 			return $this->datasource;
-		
-		throw new \InvalidArgumentException($member);
+
+		throw new \InvalidArgumentException(
+			static::class . '::$' . $member . ' member is not availalbe');
 	}
 
 	public function __invoke($flags = 0)
 	{
 		return $this->execute($flags);
+	}
+
+	public function setDatasource(Datasource $ds)
+	{
+		$this->datasource = $ds;
 	}
 
 	/**
@@ -62,12 +68,12 @@ abstract class IQuery
 	 * @return QueryResult
 	 */
 	public abstract function execute($flags = 0);
-	
+
 	/**
 	 *
 	 * @var numeric
 	 */
-	const IS_UNION = 0x1;
+	const IS_UNION = kExpressionElementUnion;
 
 	/**
 	 * Indicates if query contains a UNION statement
@@ -97,7 +103,8 @@ class FormattedQuery extends IQuery implements ns\IExpression
 	 * Constructor
 	 *
 	 * @param Datasource $a_datasource
-	 * @param string $a_strQuery SQL Query
+	 * @param string $a_strQuery
+	 *        	SQL Query
 	 */
 	public function __construct(Datasource $a_datasource, $a_strQuery = null)
 	{
@@ -116,7 +123,7 @@ class FormattedQuery extends IQuery implements ns\IExpression
 		{
 			return ns\Reporter::addError($this, __METHOD__ . '(): Null query', __FILE__, __LINE__);
 		}
-		
+
 		$resultClassName = QueryResult::queryResultClassName($this->queryString);
 		$result = $this->datasource->executeQuery($this->expressionString());
 		if ($result)
@@ -151,10 +158,29 @@ abstract class TableQuery extends IQuery
 	 * @param Datasource $a_datasource
 	 * @param mixed $a_table
 	 */
-	protected function __construct(Table $a_table)
+	protected function __construct(TableInterface $a_table)
 	{
-		parent::__construct($a_table->datasource);
+		parent::__construct($a_table->getDatasource());
 		$this->table = $a_table;
+	}
+	
+	/**
+	 * @param Table $table
+	 */
+	public function setQueryTable (TableInterface $table)
+	{
+		$this->setDatasource($table->getDatasource());
+		$this->table = $table;
+		return $this;
+	}
+	
+	/**
+	 * 
+	 * @return \NoreSources\SQL\TableInterface
+	 */
+	public function getQueryTable ()
+	{
+		return $this->table;
 	}
 
 	public function __get($key)
@@ -167,7 +193,7 @@ abstract class TableQuery extends IQuery
 
 	/**
 	 *
-	 * @var Table
+	 * @var TableInterface
 	 */
 	protected $table;
 }

@@ -11,8 +11,8 @@
  */
 namespace NoreSources\SQL;
 
+use NoreSources\IExpression;
 use NoreSources as ns;
-
 require_once (__DIR__ . '/../base.php');
 
 /**
@@ -22,6 +22,7 @@ require_once (__DIR__ . '/../base.php');
  */
 class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransactionBlock
 {
+
 	const kDefaultTableSetName = 'public';
 
 	// construction - destruction
@@ -33,9 +34,9 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 	{
 		parent::__construct($a_structure);
 		$this->setDatasourceString(self::kStringTimestampFormat, 'Y-m-d H:i:sO');
-		
+
 		$this->activeTableSetName = self::kDefaultTableSetName;
-		
+
 		// Keywords
 		$this->setDatasourceString(self::kStringKeywordTrue, "TRUE");
 		$this->setDatasourceString(self::kStringKeywordFalse, "FALSE");
@@ -51,7 +52,7 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 	}
 
 	// ITransactionBlock implementation
-	
+
 	/**
 	 *
 	 * @see sources/sql/ITransactionBlock#startTransaction()
@@ -84,14 +85,14 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 
 	public function getDefaultTableSet()
 	{
-		return self::kDefaultTableSetName;	
+		return self::kDefaultTableSetName;
 	}
-	
+
 	public function getActiveTableSet()
 	{
 		return $this->activeTableSetName;
 	}
-	
+
 	// ITableSetProvider implementation
 	public function setActiveTableSet($name)
 	{
@@ -99,7 +100,9 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 		{
 			$n = new StringData($this);
 			$n->import($name);
-			$result = $this->executeQuery('SELECT count (*) FROM "pg_catalog"."pg_namespace" WHERE "nspname"=' . $n->expressionString());
+			$result = $this->executeQuery(
+				'SELECT count (*) FROM "pg_catalog"."pg_namespace" WHERE "nspname"=' .
+				$n->expressionString());
 			if (($result instanceof Recordset) && ($result->rowCount))
 			{
 				$c = $result->current();
@@ -109,22 +112,25 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 				}
 			}
 		}
-		
+
 		$this->activeTableSetName = $name;
-		
+
 		return true;
 	}
 
 	// ITableProvider implementation
-	
+
 	/**
 	 *
 	 * @todo Check behavior
 	 */
-	public function getTable($a_strName, $a_strAlias = null, $a_strClassName = null, $useAliasAsName = false)
+	public function getTable($a_strName, $a_strAlias = null, $a_strClassName = null,
+		$useAliasAsName = false)
 	{
 		$schema = $this->getTableSet($this->activeTableSetName);
-		$res = tableProviderGenericTableObjectMethod($schema, $schema->structure->offsetGet($a_strName), $a_strName, $a_strAlias, $a_strClassName, $useAliasAsName);
+		$res = tableProviderGenericTableObjectMethod($schema,
+			$schema->structure->offsetGet($a_strName), $a_strName, $a_strAlias, $a_strClassName,
+			$useAliasAsName);
 		return $res;
 	}
 
@@ -139,7 +145,7 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 		{
 			return $this->structure->offsetGet($this->activeTableSetName);
 		}
-		
+
 		return null;
 	}
 
@@ -158,13 +164,15 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 				}
 			}
 		}
-		
+
 		if ($a_mode & kObjectQueryDatasource)
 		{
 			$a = $this->getTableSetStructure($this, false);
-			$result = ($result && (($a instanceof TableSetStructure) && $a->offsetExists($a_strName) && ($a[$a_strName] instanceof TableStructure)));
+			$result = ($result &&
+				(($a instanceof TableSetStructure) && $a->offsetExists($a_strName) &&
+				($a[$a_strName] instanceof TableStructure)));
 		}
-		
+
 		return $result;
 	}
 
@@ -180,19 +188,20 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 		{
 			$schemaName = $a_containerObject->getName();
 		}
-		
+
 		$n = new StringData($this);
 		$n->import($schemaName);
-		$s = 'SELECT table_name FROM "information_schema"."tables" where "table_schema"=' . $n->expressionString();
+		$s = 'SELECT table_name FROM "information_schema"."tables" where "table_schema"=' .
+			$n->expressionString();
 		$s = new FormattedQuery($this, $s);
 		$records = $s->execute();
 		if (!(is_object($records) && ($records instanceof Recordset)))
 		{
 			return false;
 		}
-		
+
 		$structure = new TableSetStructure($this->structure, $schemaName);
-		
+
 		foreach ($records as $row)
 		{
 			$ts = null;
@@ -204,13 +213,13 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 			{
 				$ts = new TableStructure($structure, $row['table_name']);
 			}
-			
+
 			if ($ts)
 			{
 				$structure->addTableStructure($ts);
 			}
 		}
-		
+
 		return $structure;
 	}
 
@@ -220,11 +229,12 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 	}
 
 	// Datasource implementation
-	
+
 	/**
 	 * Connection
 	 *
-	 * @param array $parameters parameters
+	 * @param array $parameters
+	 *        	parameters
 	 * @return boolean
 	 */
 	public function connect($parameters)
@@ -233,12 +243,16 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 		{
 			$this->disconnect();
 		}
-		
-		if (!(array_key_exists(kConnectionParameterHostname, $parameters) && array_key_exists(kConnectionParameterUsername, $parameters)))
+
+		if (!(array_key_exists(kConnectionParameterHostname, $parameters) &&
+			array_key_exists(kConnectionParameterUsername, $parameters)))
 		{
-			return ns\Reporter::error($this, __METHOD__ . "(): Parameters are missing. 'host', 'user', ['password' and 'Database'] must be provided.", __FILE__, __LINE__);
+			return ns\Reporter::error($this,
+				__METHOD__ .
+				"(): Parameters are missing. 'host', 'user', ['password' and 'Database'] must be provided.",
+				__FILE__, __LINE__);
 		}
-		
+
 		$connectionString = "host = '" . $parameters[kConnectionParameterHostname] . "'";
 		if (array_key_exists(kConnectionParameterPort, $parameters))
 		{
@@ -249,29 +263,32 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 		{
 			$connectionString .= " password = '" . $parameters[kConnectionParameterPassword] . "'";
 		}
-		
+
 		$database = array_key_exists(kConnectionParameterDatabasename, $parameters) ? $parameters[kConnectionParameterDatabasename] : $parameters[kConnectionParameterUsername];
 		$connectionString .= " dbname = '" . $database . "'";
-		
+
 		if (function_exists("pg_connect"))
 		{
 			$this->m_datasourceResource = pg_connect($connectionString);
 		}
 		else
 		{
-			return ns\Reporter::error($this, __METHOD__ . "(): PostgreSQL extension is not installed", __FILE__, __LINE__);
+			return ns\Reporter::error($this,
+				__METHOD__ . "(): PostgreSQL extension is not installed", __FILE__, __LINE__);
 		}
-		
+
 		if (!$this->m_datasourceResource)
 		{
-			return ns\Reporter::error($this, __METHOD__ . "(): Unable to connect to data source " . $parameters[kConnectionParameterHostname], __FILE__, __LINE__);
+			return ns\Reporter::error($this,
+				__METHOD__ . "(): Unable to connect to data source " .
+				$parameters[kConnectionParameterHostname], __FILE__, __LINE__);
 		}
-		
+
 		if (array_key_exists(kConnectionParameterActiveTableSet, $parameters))
 		{
 			$this->setActiveTableSet($parameters[kConnectionParameterActiveTableSet]);
 		}
-		
+
 		return true;
 	}
 
@@ -290,15 +307,35 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 		$sqlType = self::guessDataType($dataType);
 		if ($sqlType === false)
 		{
-			return ns\Reporter::error($this, __METHOD__ . '(): Unable to find type', __FILE__, __LINE__);
+			return ns\Reporter::error($this, __METHOD__ . '(): Unable to find type', __FILE__,
+				__LINE__);
 		}
-		
+
 		if ($sqlType == kDataTypeBinary)
 		{
 			return new PostgreSQLBinaryData($this);
 		}
-		
+
 		return parent::createData($dataType);
+	}
+
+	public function createCast(IExpression $expression, $type)
+	{
+		$sqlType = self::guessDataType($type);
+
+		$expressionType = $sqlType;
+		if ($expression instanceof TableColumn)
+			$expressionType = $expression->type();
+
+		if ($sqlType == SQL::DATATYPE_INTEGER)
+		{
+			if (!($expressionType & SQL::DATATYPE_NUMBER))
+			{
+				$expression = parent::createCast ($expression, SQL::DATATYPE_FLOAT);
+			}
+		}
+
+		return parent::createCast($expression, $type);
 	}
 
 	public function serializeStringData($stringData)
@@ -312,15 +349,15 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 	}
 
 	/**
-	 * PostgreSQL use a non-standard, nearly ISO8601 format. 
-	 * 
+	 * PostgreSQL use a non-standard, nearly ISO8601 format.
+	 *
 	 * This method recognize this form, transform the time to ISO 8601 and call the parent method
-	 * 
+	 *
 	 * @return \DateTime
 	 */
-	public function unserializeTimestamp ($time, $extended = true)
+	public function unserializeTimestamp($time, $extended = true)
 	{
-		if (\is_string ($time))
+		if (\is_string($time))
 		{
 			$pattern = '(.*)((\+|-)[0-9][0-9])$';
 			if (\preg_match(chr(1) . $pattern . chr(1), $time))
@@ -328,10 +365,10 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 				$time = $time . '00';
 			}
 		}
-		
+
 		return parent::unserializeTimestamp($time, $extended);
 	}
-	
+
 	public function unserializeBinaryData($data)
 	{
 		return pg_unescape_bytea($data);
@@ -347,9 +384,11 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 		$result = @pg_query($this->resource, $a_strQuery);
 		if ($result === false)
 		{
-			return ns\Reporter::error($this, __METHOD__ . "(): Query error: " . $a_strQuery . " / " . pg_last_error($this->resource), __FILE__, __LINE__);
+			return ns\Reporter::error($this,
+				__METHOD__ . "(): Query error: " . $a_strQuery . " / " .
+				pg_last_error($this->resource), __FILE__, __LINE__);
 		}
-		
+
 		return $result;
 	}
 
@@ -366,20 +405,20 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 		$id = null;
 		$savePointKey = '_NS_PHP_SQL_LASTVAL_SAVEPOINT_';
 		$transaction = (pg_transaction_status($this->resource) !== PGSQL_TRANSACTION_IDLE);
-		
+
 		if ($transaction)
-			@pg_query ('SAVEPOINT ' . $savePointKey);
+			@pg_query('SAVEPOINT ' . $savePointKey);
 		$result = @pg_query('SELECT LASTVAL()');
 		if (pg_result_status($result, PGSQL_TUPLES_OK))
 		{
-			$id = intval (pg_fetch_result($result, 0, 0));
+			$id = intval(pg_fetch_result($result, 0, 0));
 		}
 		if ($transaction)
 		{
-			@pg_query ('RELEASE ' . $savePointKey);
-			@pg_query ('ROLLBACK TO SAVEPOINT ' . $savePointKey);
+			@pg_query('RELEASE ' . $savePointKey);
+			@pg_query('ROLLBACK TO SAVEPOINT ' . $savePointKey);
 		}
-				
+
 		return $id;
 	}
 
@@ -390,37 +429,37 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 	public function fetchResult(QueryResult $a_queryResult, $fetchFlags = kRecordsetFetchBoth)
 	{
 		$resource = $a_queryResult->resultResource;
-		
-		$names = array ();
+
+		$names = array();
 		$numbers = pg_fetch_array($resource, null, PGSQL_NUM);
 		if (!\is_array($numbers))
 			return $numbers;
-		
+
 		foreach ($numbers as $index => &$value)
 		{
 			$oid = pg_field_type_oid($resource, $index);
 			switch ($oid)
 			{
 				case 16: // boolean
-				{
-						$value = \in_array($value, array (
-								TRUE,
-								't',
-								'true',
-								'y',
-								'yes',
-								'on',
-								'1' 
+					{
+						$value = \in_array($value, array(
+							TRUE,
+							't',
+							'true',
+							'y',
+							'yes',
+							'on',
+							'1'
 						), true);
 					}
-					break;
+				break;
 				case 17: // bytea
-				{
-					$value = pg_unescape_bytea($value);
+					{
+						$value = pg_unescape_bytea($value);
 					}
-					break;
+				break;
 			}
-						
+
 			if ($fetchFlags & kRecordsetFetchName)
 			{
 				if ($fetchFlags & kRecordsetFetchName)
@@ -429,18 +468,18 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 				}
 			}
 		}
-		
+
 		if ($fetchFlags & kRecordsetFetchName)
 		{
 			if ($fetchFlags & kRecordsetFetchNumeric)
 			{
 				return array_merge($numbers, $names);
 			}
-			
+
 			return $names;
 		}
-		
-		return $numbers;		
+
+		return $numbers;
 	}
 
 	public function resetResult(QueryResult $a_queryResult)
@@ -479,7 +518,7 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 	 */
 	public function recordsetColumnArray(QueryResult $a_queryResult)
 	{
-		$res = array ();
+		$res = array();
 		$n = pg_num_fields($a_queryResult->resultResource);
 		for ($i = 0; $i < $n; $i++)
 		{
@@ -512,7 +551,7 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 			}
 			return '"' . $element . '"';
 		}
-		
+
 		return $element;
 	}
 
@@ -522,72 +561,72 @@ class PostgreSQLDatasource extends Datasource implements ITableProvider, ITransa
 	{
 		if (!self::initializeDatasourceData(get_called_class()))
 			return;
-		
+
 		// Data types
-		
-		$type = array (
-				'character varying',
-				'varchar',
-				'text' 
+
+		$type = array(
+			'varchar',
+			'character varying',
+			'text'
 		);
-		
+
 		foreach ($type as $name)
 		{
 			self::addDataType($name, kDataTypeString);
 		}
-		
-		$type = array (
-				'bytes' 
+
+		$type = array(
+			'bytes'
 		);
 		foreach ($type as $name)
 		{
 			self::addDataType($name, kDataTypeBinary, __NAMESPACE__ . '\\PostgreSQLBinaryData');
 		}
-		
-		$type = array (
-				'timestamp',
-				'timestamp without timezone',
-				'date',
-				'time',
-				'time without timezone' 
+
+		$type = array(
+			'timestamp',
+			'timestamp without timezone',
+			'date',
+			'time',
+			'time without timezone'
 		);
-		
+
 		foreach ($type as $name)
 		{
 			self::addDataType($name, kDataTypeTimestamp);
 		}
-		
+
 		self::addDataType("boolean", kDataTypeBoolean);
-		
-		$type = array (
-				'numeric',
-				'decimal',
-				'real',
-				'double precision' 
+
+		$type = array(
+			'numeric',
+			'decimal',
+			'real',
+			'double precision'
 		);
 		foreach ($type as $name)
 		{
 			self::addDataType($name, kDataTypeDecimal);
 			self::addDataType($name, kDataTypeNumber);
 		}
-		
+
 		// number types
-		$type = array (
-				'smallint',
-				'integer',
-				'bigint',
-				'int2',
-				'int4',
-				'int8',
-				'serial',
-				'big serial' 
+		$type = array(
+			'smallint',
+			'integer',
+			'bigint',
+			'int2',
+			'int4',
+			'int8',
+			'serial',
+			'big serial'
 		);
 		foreach ($type as $name)
 		{
 			self::addDataType($name, kDataTypeInteger);
 			self::addDataType($name, kDataTypeNumber);
 		}
-		
+
 		self::setDefaultTypeName(kDataTypeBinary, 'bytes', PostgreSQLBinaryData::class);
 		self::setDefaultTypeName(kDataTypeBoolean, 'boolean');
 		self::setDefaultTypeName(kDataTypeTimestamp, 'timestamp');

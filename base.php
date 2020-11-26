@@ -11,8 +11,8 @@
  */
 namespace NoreSources\SQL;
 
-use NoreSources as ns;
 use NoreSources\Reporter;
+use NoreSources as ns;
 
 /**
  * Protect a string with the standard protection character (simple quote)
@@ -30,8 +30,10 @@ function protectString($a_strString, $start = '\'', $end = '\'')
 
 /**
  *
- * @param mixed $a_value Value to import
- * @param Datasource $a_source Datasource
+ * @param mixed $a_value
+ *        	Value to import
+ * @param Datasource $a_source
+ *        	Datasource
  * @return Data or null
  */
 function bestEffortImport($a_value, Datasource $a_source = null)
@@ -43,7 +45,7 @@ function bestEffortImport($a_value, Datasource $a_source = null)
 		$v->import($a_value);
 		return $v;
 	}
-	
+
 	$t = dataTypeFromValue($a_value);
 	$v = null;
 	if (!is_null($t))
@@ -54,15 +56,17 @@ function bestEffortImport($a_value, Datasource $a_source = null)
 		 */
 		Reporter::fatalError(null, __METHOD__ . '() without datasource not supported yet');
 	}
-	
+
 	return $v;
 }
 
 /**
  * Convert a variable in a TableColumn if possible
  *
- * @param $a_mixedValue
- * @param $a_provider
+ * @param
+ *        	$a_mixedValue
+ * @param
+ *        	$a_provider
  * @return TableColumn
  *
  */
@@ -72,21 +76,26 @@ function mixedToTableColumn($a_mixedValue, ITableColumnProvider $a_provider)
 	{
 		return $a_mixedValue;
 	}
-	
+
 	if (!is_string($a_mixedValue))
 	{
 		$a_mixedValue = null;
-		ns\Reporter::error(null, __METHOD__ . '(): Invalid argument 1. string expected, got "' . gettype($a_mixedValue) . '"', __FILE__, __LINE__);
+		ns\Reporter::error(null,
+			__METHOD__ . '(): Invalid argument 1. string expected, got "' . gettype($a_mixedValue) .
+			'"', __FILE__, __LINE__);
 		return $a_mixedValue;
 	}
-	
+
 	$name = $a_mixedValue;
-	if (!($a_provider instanceof ITableColumnProvider) || !($a_mixedValue = $a_provider->getColumn($a_mixedValue)))
+	if (!($a_provider instanceof ITableColumnProvider) ||
+		!($a_mixedValue = $a_provider->getColumn($a_mixedValue)))
 	{
 		$a_mixedValue = null;
-		ns\Reporter::error(null, __METHOD__ . '(' . $name . ',' . get_class($a_provider) . '): Unable to retrieve field', __FILE__, __LINE__);
+		ns\Reporter::error(null,
+			__METHOD__ . '(' . $name . ',' . get_class($a_provider) . '): Unable to retrieve field',
+			__FILE__, __LINE__);
 	}
-	
+
 	return $a_mixedValue;
 }
 
@@ -99,7 +108,8 @@ function mixedToTableColumn($a_mixedValue, ITableColumnProvider $a_provider)
  * @param string $a_className
  * @return Table
  */
-function tableProviderGenericTableObjectMethod(ITableProvider $a_provider, $a_structure, $a_name, $a_aliasName = null, $a_className = null, $useAliasAsName = false)
+function tableProviderGenericTableObjectMethod(ITableProvider $a_provider, $a_structure, $a_name,
+	$a_aliasName = null, $a_className = null, $useAliasAsName = false)
 {
 	$n = $a_name;
 	$a = $a_aliasName;
@@ -108,10 +118,10 @@ function tableProviderGenericTableObjectMethod(ITableProvider $a_provider, $a_st
 		$n = $a_aliasName;
 		$a = null;
 	}
-	
+
 	$ds = $a_provider->datasource;
 	$className = $ds->getDatasourceString(Datasource::kStringClassNameTable);
-	
+
 	$className = strlen($a_className) ? $a_className : $className;
 	$result = new $className($a_provider, $n, $a, $a_structure);
 	return $result;
@@ -128,7 +138,7 @@ function getStructure($object)
 	{
 		$structure = $object;
 	}
-	
+
 	return $structure;
 }
 
@@ -161,14 +171,16 @@ function dataTypeFromValue($a_value)
 	{
 		return kDataTypeNumber;
 	}
-	
+
 	return kDataTypeBinary;
 }
 
 /**
  *
- * @param $definition
- * @param $typeUpperCase
+ * @param
+ *        	$definition
+ * @param
+ *        	$typeUpperCase
  * @return array
  */
 function parseDataTypeDefinition($definition, $typeUpperCase = false)
@@ -176,19 +188,19 @@ function parseDataTypeDefinition($definition, $typeUpperCase = false)
 	$type = $definition;
 	$size = false;
 	$dsize = false;
-	$regs = array ();
+	$regs = array();
 	if (preg_match('/(([A-Za-z0-9_]+)(\(([0-9]+)(,([0-9]+)){0,1}\){0,1}))/', $type, $regs))
 	{
 		$type = ($typeUpperCase) ? strtoupper($regs[2]) : $regs[2];
 		$size = $regs[4];
 		$dsize = $regs[6];
 	}
-	
-	return array (
-			'type' => $type,
-			'size' => $size,
-			'dec_size' => $dsize,
-			kStructureAcceptMultipleValues => false 
+
+	return array(
+		'type' => $type,
+		'size' => $size,
+		'dec_size' => $dsize,
+		kStructureAcceptMultipleValues => false
 	);
 }
 
@@ -198,7 +210,7 @@ function glueElementDeclarations($k, $element)
 	{
 		ns\Reporter::error($element, 'glueElementDeclaration(): Invalid ns\IExpression');
 	}
-	
+
 	return $element->expressionString(kExpressionElementDeclaration);
 }
 
@@ -208,57 +220,66 @@ function glueElementAliases($k, $element)
 	{
 		ns\Reporter::error($element, 'glueElementDeclaration(): Invalid ns\IExpression');
 	}
-	
+
 	return $element->expressionString(kExpressionElementAlias);
-}
-
-function begin(Datasource $a_datasource)
-{
-	if ($a_datasource instanceof ITransactionBlock)
-	{
-		$a_datasource->startTransaction();
-		return true;
-	}
-	return false;
-}
-
-function commit(Datasource $a_datasource)
-{
-	if ($a_datasource instanceof ITransactionBlock)
-	{
-		$a_datasource->commitTransaction();
-		return true;
-	}
-	return false;
-}
-
-function rollback(Datasource $a_datasource)
-{
-	if ($a_datasource instanceof ITransactionBlock)
-	{
-		$a_datasource->rollbackTransaction();
-		return true;
-	}
-	return false;
 }
 
 /**
  *
- * @param int|string $value UNIX timestamp or string timestamp
- * @param \DateTimeZone $timezone Time zone
- * @param Datasource $datasource Datasourcce
- * @param TableColumnStructure $structure Column property
- *       
+ * @deprecated Use SQL::begin ()
+ * @param Datasource $a_datasource
+ * @return boolean
+ */
+function begin(Datasource $a_datasource)
+{
+	return SQL::begin($a_datasource);
+}
+
+/**
+ *
+ * @deprecated Use SQL::commit ()
+ * @param Datasource $a_datasource
+ * @return boolean
+ */
+function commit(Datasource $a_datasource)
+{
+	return SQL::commit($a_datasource);
+}
+
+/**
+ *
+ * @deprecated Use SQL::rollback()
+ * @param Datasource $a_datasource
+ * @return boolean
+ */
+function rollback(Datasource $a_datasource)
+{
+	return SQL::rollback($a_datasource);
+}
+
+/**
+ *
+ * @param int|string $value
+ *        	UNIX timestamp or string timestamp
+ * @param \DateTimeZone $timezone
+ *        	Time zone
+ * @param Datasource $datasource
+ *        	Datasourcce
+ * @param TableColumnStructure $structure
+ *        	Column property
+ *        	
  * @return \DateTime|null
  */
-function timestampToDateTime($value, \DateTimeZone $timezone = null, Datasource $datasource = null, TableColumnStructure $structure = null)
+function timestampToDateTime($value, \DateTimeZone $timezone = null, Datasource $datasource = null,
+	TableColumnStructure $structure = null)
 {
 	if (!($timezone instanceof \DateTimeZone))
 	{
 		$timezone = new \DateTimeZone(date_default_timezone_get());
 	}
-	
-	if ($value instanceof \DateTime) return $value;
+
+	if ($value instanceof \DateTime)
+		return $value;
 	
 	if (is_numeric($value))
 	{

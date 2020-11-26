@@ -11,10 +11,9 @@
  */
 namespace NoreSources\SQL;
 
-use NoreSources as ns;
-use Iterator;
 use Countable;
-
+use Iterator;
+use NoreSources as ns;
 require_once ('base.php');
 
 /**
@@ -50,14 +49,15 @@ class QueryResult
 		{
 			return $prefix . 'DeleteQueryResult';
 		}
-		
+
 		return $prefix . 'Recordset';
 	}
 
 	/**
 	 *
 	 * @param Datasource $datasource
-	 * @param resource $resultResource DBMS dependant result resource
+	 * @param resource $resultResource
+	 *        	DBMS dependant result resource
 	 */
 	public function __construct(Datasource $datasource, $resultResource)
 	{
@@ -88,7 +88,7 @@ class QueryResult
 			return $this->datasource;
 		elseif ($member == 'resultResource')
 			return $this->resultResource;
-		
+
 		throw new \InvalidArgumentException(get_class($this) . '::' . $member);
 	}
 
@@ -97,12 +97,13 @@ class QueryResult
 		if (count($args) == 0)
 		{
 			$functionName = 'get' . strtoupper(substr($member, 0, 1)) . substr($member, 1);
-			
+
 			if (method_exists($this, $functionName))
 			{
-				ns\Reporter::notice($this, 'Attempting to call ' . $member . '(). Did you mean ' . $functionName . '() ?');
+				ns\Reporter::notice($this,
+					'Attempting to call ' . $member . '(). Did you mean ' . $functionName . '() ?');
 			}
-			
+
 			return $this->__get($member);
 		}
 	}
@@ -128,18 +129,24 @@ class QueryResult
  */
 class Recordset extends QueryResult implements Iterator, Countable
 {
+
 	const kIteratorIndexBefore = -1;
+
 	const kStateUnitialized = 0x10000000;
+
 	const kStateIteratorEnd = 0x20000000;
+
 	const kRowCount = 0x40000000;
 
 	/**
 	 * Recordset result
+	 *
 	 * @param Datasource $datasource
 	 * @param resource $resultResource
 	 * @param integer $fetchFlags
 	 */
-	public function __construct(Datasource $datasource, $resultResource, $fetchFlags = kRecordsetFetchBoth)
+	public function __construct(Datasource $datasource, $resultResource,
+		$fetchFlags = kRecordsetFetchBoth)
 	{
 		parent::__construct($datasource, $resultResource);
 		$this->currentRowIndex = self::kIteratorIndexBefore;
@@ -150,8 +157,19 @@ class Recordset extends QueryResult implements Iterator, Countable
 		{
 			$fetchFlags = kRecordsetFetchBoth;
 		}
-		
+
 		$this->flags |= ($fetchFlags & kRecordsetFetchBoth);
+	}
+
+	public function setFetchFlags($fetchFlags)
+	{
+		$this->flags &= ~(kRecordsetFetchBoth);
+		$this->flags |= ($fetchFlags & kRecordsetFetchBoth);
+	}
+
+	public function getFetchFlags()
+	{
+		return $this->flags & kRecordsetFetchBoth;
 	}
 
 	public function rewind()
@@ -160,10 +178,11 @@ class Recordset extends QueryResult implements Iterator, Countable
 		$this->currentRow = null;
 		$this->flags |= self::kStateUnitialized;
 		$this->flags &= ~self::kStateIteratorEnd;
-		
+
 		if ($this->datasource->resetResult($this))
 		{
-			$this->currentRow = $this->datasource->fetchResult($this, ($this->flags & kRecordsetFetchBoth));
+			$this->currentRow = $this->datasource->fetchResult($this,
+				($this->flags & kRecordsetFetchBoth));
 			if ($this->currentRow)
 			{
 				$this->currentRowIndex = 0;
@@ -178,11 +197,12 @@ class Recordset extends QueryResult implements Iterator, Countable
 
 	public function current()
 	{
-		if (($this->currentRowIndex == self::kIteratorIndexBefore) && !($this->flags & self::kStateIteratorEnd))
+		if (($this->currentRowIndex == self::kIteratorIndexBefore) &&
+			!($this->flags & self::kStateIteratorEnd))
 		{
 			$this->next();
 		}
-		
+
 		return $this->currentRow;
 	}
 
@@ -193,7 +213,8 @@ class Recordset extends QueryResult implements Iterator, Countable
 
 	public function next()
 	{
-		$this->currentRow = $this->datasource->fetchResult($this, ($this->flags & kRecordsetFetchBoth));
+		$this->currentRow = $this->datasource->fetchResult($this,
+			($this->flags & kRecordsetFetchBoth));
 		if ($this->currentRow)
 		{
 			$this->currentRowIndex++;
@@ -203,7 +224,7 @@ class Recordset extends QueryResult implements Iterator, Countable
 			$this->currentRowIndex = self::kIteratorIndexBefore;
 			$this->flags |= self::kStateIteratorEnd;
 		}
-		
+
 		return $this->currentRow;
 	}
 
@@ -231,12 +252,13 @@ class Recordset extends QueryResult implements Iterator, Countable
 			return $this->getCurrentRowIndex();
 		elseif ($member == 'columnNames')
 			return $this->getColumnNames();
-		
+
 		return parent::__get($member);
 	}
 
 	/**
 	 * Return the number of selected rows.
+	 *
 	 * @attention This feature is not available on some data sources like certain ODBC drivers.
 	 *
 	 * @return int or false if feature is not supported
@@ -247,13 +269,13 @@ class Recordset extends QueryResult implements Iterator, Countable
 		{
 			return $this->rowCount;
 		}
-		
+
 		$this->rowCount = $this->datasource->resultRowCount($this);
 		if ($this->rowCount !== false)
 		{
 			$this->flags |= self::kRowCount;
 		}
-		
+
 		return $this->rowCount;
 	}
 
@@ -277,11 +299,12 @@ class Recordset extends QueryResult implements Iterator, Countable
 	 */
 	function getColumnNames()
 	{
-		if (!$this->columnNames && !($this->columnNames = $this->datasource->recordsetColumnArray($this)))
+		if (!$this->columnNames &&
+			!($this->columnNames = $this->datasource->recordsetColumnArray($this)))
 		{
 			return ns\Reporter::error($this, __METHOD__ . '(): Ubable to retrieve Column list');
 		}
-		
+
 		return $this->columnNames;
 	}
 

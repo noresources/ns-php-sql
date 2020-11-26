@@ -10,7 +10,11 @@
  * @package SQL
  */
 namespace NoreSources\SQL;
-use NoreSources as ns;
+
+use NoreSources\ArrayUtil;
+use NoreSources\BinaryOperatorExpression;
+use NoreSources\IExpression;
+use NoreSources\Reporter;
 use NoreSources\TypeUtil;
 require_once (__DIR__ . '/base.php');
 
@@ -24,17 +28,17 @@ interface ITransactionBlock
 	/**
 	 * Begin transaction block of instruction
 	 */
-	function startTransaction ();
+	function startTransaction();
 
 	/**
 	 * Commit all changes since last startTransaction() call
 	 */
-	function commitTransaction ();
+	function commitTransaction();
 
 	/**
 	 * Cancel all changes since last startTransaction() call
 	 */
-	function rollbackTransaction ();
+	function rollbackTransaction();
 }
 
 /**
@@ -134,17 +138,18 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 	 *        	
 	 * @return Datasource
 	 */
-	public static function create ($settings, $connect = false)
+	public static function create($settings, $connect = false)
 	{
 		if (!\is_array($settings))
 		{
-			$settings = ns\ArrayUtil::createArray($settings, kConnectionParameterHostname);
+			$settings = ArrayUtil::createArray($settings, kConnectionParameterHostname);
 		}
 
-		$cls = ns\ArrayUtil::keyValue($settings, kConnectionParameterClassname, null);
+		$cls = ArrayUtil::keyValue($settings, kConnectionParameterClassname, null);
 		if (!is_string($cls))
 		{
-			throw new \Exception('Unable to create Datasource without ' . kConnectionParameterClassname . ' parameter');
+			throw new \Exception(
+				'Unable to create Datasource without ' . kConnectionParameterClassname . ' parameter');
 		}
 
 		if (!(class_exists($cls) && is_a($cls, __CLASS__, true)))
@@ -162,7 +167,7 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 			}
 		}
 
-		$structureFile = ns\ArrayUtil::keyValue($settings, kConnectionParameterStructureFile, null);
+		$structureFile = ArrayUtil::keyValue($settings, kConnectionParameterStructureFile, null);
 		if ($structureFile)
 		{
 			if (!file_exists($structureFile))
@@ -189,7 +194,7 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 	 * @param DatasourceStructure $a_structure
 	 *        	Datasource structure
 	 */
-	protected function __construct (DatasourceStructure $a_structure = null)
+	protected function __construct(DatasourceStructure $a_structure = null)
 	{
 		parent::__construct($a_structure);
 		$this->m_datasourceResource = null;
@@ -197,22 +202,22 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 		$this->m_nowExpression = new SQLFunction('now');
 		$this->m_datasourceStrings = array(
 
-				// Keyworks
-				self::kStringKeywordNull => 'NULL',
-				self::kStringKeywordTrue => '1',
-				self::kStringKeywordFalse => '0',
-				self::kStringKeywordAutoincrement => 'AUTO INCREMENT',
-				self::kStringKeywordJoinNatural => 'NATURAL JOIN',
-				self::kStringKeywordJoinCross => 'CROSS JOIN',
-				self::kStringKeywordJoinOuter => 'OUTER JOIN',
-				self::kStringKeywordJoinInner => 'INNER JOIN',
-				self::kStringKeywordJoinLeft => 'LEFT JOIN',
-				self::kStringKeywordJoinRight => 'RIGHT JOIN',
-				// Class names
-				self::kStringClassNameTableSet => __NAMESPACE__ . '\\TableSet',
-				self::kStringClassNameTable => __NAMESPACE__ . '\\Table',
-				// Other
-				self::kStringTimestampFormat => 'Y-m-d H:i:s'
+			// Keyworks
+			self::kStringKeywordNull => 'NULL',
+			self::kStringKeywordTrue => '1',
+			self::kStringKeywordFalse => '0',
+			self::kStringKeywordAutoincrement => 'AUTO INCREMENT',
+			self::kStringKeywordJoinNatural => 'NATURAL JOIN',
+			self::kStringKeywordJoinCross => 'CROSS JOIN',
+			self::kStringKeywordJoinOuter => 'OUTER JOIN',
+			self::kStringKeywordJoinInner => 'INNER JOIN',
+			self::kStringKeywordJoinLeft => 'LEFT JOIN',
+			self::kStringKeywordJoinRight => 'RIGHT JOIN',
+			// Class names
+			self::kStringClassNameTableSet => __NAMESPACE__ . '\\TableSet',
+			self::kStringClassNameTable => __NAMESPACE__ . '\\Table',
+			// Other
+			self::kStringTimestampFormat => 'Y-m-d H:i:s'
 		);
 	}
 
@@ -220,7 +225,7 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 	 * Default destructor
 	 * Disconnect from data source if non-persistent
 	 */
-	public function __destruct ()
+	public function __destruct()
 	{
 		if (!($this->m_datasourceFlags & kConnectionPersistent))
 		{
@@ -228,7 +233,7 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 		}
 	}
 
-	public function __get ($member)
+	public function __get($member)
 	{
 		if ($member == 'datasource')
 		{
@@ -259,7 +264,7 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 	 *        	Table set name or NULL to get the active one
 	 * @return \NoreSources\SQL\TableSet
 	 */
-	public function getTableSet ($a_name = null)
+	public function getTableSet($a_name = null)
 	{
 		if ($a_name === null)
 			$a_name = $this->getActiveTableSet();
@@ -280,7 +285,7 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 	 *
 	 * @return Iterator
 	 */
-	public function getTableSetIterator ()
+	public function getTableSetIterator()
 	{
 		if ($this->structure)
 		{
@@ -300,7 +305,7 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 	 * @param string $tablesetName
 	 * @return bool
 	 */
-	public function tableSetExists ($tablesetName)
+	public function tableSetExists($tablesetName)
 	{
 		return ($this->structure) ? ($this->structure->offsetExists($tablesetName)) : true;
 	}
@@ -313,7 +318,7 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 	 * @param DatasourceStructure $a_structure
 	 *        	Datasource structure
 	 */
-	public final function setStructure (StructureElement $a_structure)
+	public final function setStructure(StructureElement $a_structure)
 	{
 		if ($a_structure !== null)
 			if (!($a_structure instanceof DatasourceStructure))
@@ -329,12 +334,12 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 	 *        	connection parameters (depend on connection type)
 	 * @return bool
 	 */
-	public abstract function connect ($a_aParameters);
+	public abstract function connect($a_aParameters);
 
 	/**
 	 * Disconnect from connection
 	 */
-	protected abstract function disconnect ();
+	protected abstract function disconnect();
 
 	/**
 	 * Execute a query with the given parameters
@@ -343,7 +348,7 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 	 *        	Query string
 	 * @return QueryResult
 	 */
-	public abstract function executeQuery ($a_queryString);
+	public abstract function executeQuery($a_queryString);
 
 	/**
 	 * Fetch query result
@@ -352,7 +357,8 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 	 *        	query result ressource
 	 * @return array
 	 */
-	public abstract function fetchResult (QueryResult $a_queryResult, $fetchFlags = kRecordsetFetchBoth);
+	public abstract function fetchResult(QueryResult $a_queryResult,
+		$fetchFlags = kRecordsetFetchBoth);
 
 	/**
 	 * Reset the result cursor before the first record
@@ -360,21 +366,21 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 	 * @param QueryResult $a_queryResult
 	 * @return @c true on success and if recordset contains at least one element
 	 */
-	public abstract function resetResult (QueryResult $a_queryResult);
+	public abstract function resetResult(QueryResult $a_queryResult);
 
 	/**
 	 * Free KK associated to a query result
 	 *
 	 * @param QueryResult $a_queryResult
 	 */
-	public abstract function freeResult (QueryResult $a_queryResult);
+	public abstract function freeResult(QueryResult $a_queryResult);
 
 	/**
 	 *
 	 * @param QueryResult $a_queryResult
 	 * @return integer last auto increment insert id
 	 */
-	public abstract function getLastInsertId (QueryResult $a_queryResult = null);
+	public abstract function getLastInsertId(QueryResult $a_queryResult = null);
 
 	/**
 	 * Number of row returned by query
@@ -382,7 +388,7 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 	 * @param QueryResult $a_queryResult
 	 * @return integer
 	 */
-	public abstract function resultRowCount (QueryResult $a_queryResult);
+	public abstract function resultRowCount(QueryResult $a_queryResult);
 
 	/**
 	 * Provide an ArrayObject containing all column names in a
@@ -392,7 +398,7 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 	 *        	A resource representing the recordset
 	 * @return array
 	 */
-	public abstract function recordsetColumnArray (QueryResult $a_queryResult);
+	public abstract function recordsetColumnArray(QueryResult $a_queryResult);
 
 	/**
 	 * Number of affected row by query
@@ -401,14 +407,14 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 	 *        	query result ressource
 	 * @return integer
 	 */
-	public abstract function getAffectedRowCount (QueryResult $a_queryResult);
+	public abstract function getAffectedRowCount(QueryResult $a_queryResult);
 
 	/**
 	 * Protect SQL element following Database management system requirements
 	 *
 	 * @param string $a_strElement
 	 */
-	public abstract function encloseElement ($a_strElement);
+	public abstract function encloseElement($a_strElement);
 
 	/**
 	 * Get the structures contained in the given table container element
@@ -422,14 +428,14 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 	 *        	
 	 * @return TableSetStructure
 	 */
-	public abstract function getTableSetStructure (SQLObject $a_containerObject, $recursive = false);
+	public abstract function getTableSetStructure(SQLObject $a_containerObject, $recursive = false);
 
 	/**
 	 * Get the table structure
 	 *
 	 * @param Table $a_table
 	 */
-	public abstract function getTableStructure (Table $a_table);
+	public abstract function getTableStructure(Table $a_table);
 
 	/**
 	 * Get datasource-specific strings
@@ -438,7 +444,7 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 	 *        	String identifier
 	 * @return string String value
 	 */
-	public final function getDatasourceString ($a_key)
+	public final function getDatasourceString($a_key)
 	{
 		return \array_key_exists($a_key, $this->m_datasourceStrings) ? $this->m_datasourceStrings[$a_key] : null;
 	}
@@ -451,7 +457,7 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 	 *        	
 	 * @return Data
 	 */
-	public function createData ($dataType)
+	public function createData($dataType)
 	{
 		$sqlType = self::guessDataType($dataType);
 		if ($sqlType === false)
@@ -490,23 +496,43 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 	}
 
 	/**
+	 *
+	 * @param IExpression $expression
+	 *        	Expression to cast to
+	 * @param integer|string $type
+	 *        	Generic type ID or DBMS type name
+	 * @return \NoreSources\SQL\SQLFunction
+	 */
+	public function createCast(IExpression $expression, $type)
+	{
+		if (\is_integer($type))
+			$type = $this->getDefaultTypeName($type);
+
+		$cast = new SQLFunction('CAST');
+		$e = new BinaryOperatorExpression('AS', $expression, new FormattedData($type));
+		$e->protect = false;
+		$cast->addParameter($e);
+		return $cast;
+	}
+
+	/**
 	 * Serialize string to be inserted in a test/string column
 	 *
 	 * @return string
 	 */
-	public function serializeStringData ($stringData)
+	public function serializeStringData($stringData)
 	{
 		return preg_replace("/'/", "''", -StringData);
 	}
 
-	public function serializeTimestamp ($data)
+	public function serializeTimestamp($data)
 	{
 		$fmt = $this->getDatasourceString(self::kStringTimestampFormat);
 		if (!($data instanceof \DateTime))
 		{
 			try
 			{
-				$data = ns\TypeUtil::toDateTime($data);
+				$data = TypeUtil::toDateTime($data);
 			}
 			catch (\Exception $e)
 			{
@@ -527,7 +553,8 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 		}
 		else
 		{
-			ns\Reporter::warning($this, 'Timestamp serialization was unable to convert input to DateTime.');
+			Reporter::warning($this,
+				'Timestamp serialization was unable to convert input to DateTime.');
 			return $this->serializeStringData($data);
 		}
 	}
@@ -540,7 +567,7 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 	 *        	
 	 * @return string Escaped binary string
 	 */
-	public function serializeBinaryData ($data)
+	public function serializeBinaryData($data)
 	{
 		return $data;
 	}
@@ -551,7 +578,7 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 	 * @param unknown $value
 	 * @return NULL|unknown|number|string|\DateTime
 	 */
-	public function unserializeColumn (TableColumnStructure $column, $value)
+	public function unserializeColumn(TableColumnStructure $column, $value)
 	{
 		$type = kDataTypeString;
 		if ($column->hasProperty(kStructureDatatype))
@@ -561,7 +588,8 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 
 		if ($value === null)
 		{
-			if ($column->hasProperty(kStructureAcceptNull) && $column->getProperty(kStructureAcceptNull))
+			if ($column->hasProperty(kStructureAcceptNull) &&
+				$column->getProperty(kStructureAcceptNull))
 				return $value;
 		}
 
@@ -574,7 +602,7 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 	 * @param mixed $value
 	 * @return string|\DateTime|number|unknown|NULL
 	 */
-	public function unserializeValue ($type, $value)
+	public function unserializeValue($type, $value)
 	{
 		switch ($type)
 		{
@@ -609,16 +637,16 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 	 * @throws \InvalidArgumentException
 	 * @return \DateTime|string
 	 */
-	public function unserializeTimestamp ($time, $extended = true)
+	public function unserializeTimestamp($time, $extended = true)
 	{
 		$format = $this->getDatasourceString(self::kStringTimestampFormat);
 		if (\is_string($time))
 		{
 			try
 			{
-				$time = ns\TypeUtil::toDateTime([
-						'format' => $format,
-						'time' => $time
+				$time = TypeUtil::toDateTime([
+					'format' => $format,
+					'time' => $time
 				]);
 			}
 			catch (\Exception $e)
@@ -633,7 +661,7 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 		}
 		elseif ($extended)
 		{
-			$time = ns\TypeUtil::toDateTime($time);
+			$time = TypeUtil::toDateTime($time);
 		}
 
 		if (!($time instanceof \DateTime))
@@ -651,7 +679,7 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 	 *        	Data to unserialze
 	 * @return string A string representing binary data
 	 */
-	public function unserializeBinaryData ($data)
+	public function unserializeBinaryData($data)
 	{
 		return $data;
 	}
@@ -663,7 +691,7 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 	 *        	one of the kDataType*
 	 * @return string
 	 */
-	public final function getDefaultTypeName ($a_sqlType)
+	public final function getDefaultTypeName($a_sqlType)
 	{
 		$table = self::$m_defaultTypeNames[get_called_class()];
 		if (\array_key_exists($a_sqlType, $table))
@@ -680,7 +708,7 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 	 * @return integer SQL type index or <code>false</code> if type can't be
 	 *         found
 	 */
-	protected function guessDataType ($dataType)
+	protected function guessDataType($dataType)
 	{
 		if (is_int($dataType))
 		{
@@ -710,7 +738,7 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 		return false;
 	}
 
-	protected function setDatasourceFlags ($flags)
+	protected function setDatasourceFlags($flags)
 	{
 		$this->m_datasourceFlags = $flags;
 	}
@@ -723,12 +751,12 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 	 * @param string $a_value
 	 *        	value
 	 */
-	protected function setDatasourceString ($a_key, $a_value)
+	protected function setDatasourceString($a_key, $a_value)
 	{
 		$this->m_datasourceStrings[$a_key] = $a_value;
 	}
 
-	protected function setNowExpression (ns\IExpression $expression)
+	protected function setNowExpression(IExpression $expression)
 	{
 		$this->m_nowExpression = $expression;
 	}
@@ -778,7 +806,7 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 	 * @param integer $sqlType
 	 *        	SQL type index
 	 */
-	protected static function addDataType ($a_typeName, $sqlType, $className = null)
+	protected static function addDataType($a_typeName, $sqlType, $className = null)
 	{
 		$a_typeName = strtolower($a_typeName);
 		$table = self::$m_dataTypeNames[get_called_class()];
@@ -789,8 +817,8 @@ abstract class Datasource extends SQLObject implements ITableSetProvider
 		}
 
 		$table[$a_typeName][] = array(
-				'type' => $sqlType,
-				'class' => $className
+			'type' => $sqlType,
+			'class' => $className
 		);
 
 		if (!\array_key_exists($sqlType, self::$m_defaultTypeNames[get_called_class()]))

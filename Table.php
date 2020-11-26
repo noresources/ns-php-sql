@@ -8,7 +8,13 @@
  */
 namespace NoreSources\SQL;
 
-use NoreSources as ns;
+use NoreSources\IExpression;
+use NoreSources\Reporter;
+
+interface TableInterface extends StructureAwareInterface, DatasourceAwareInterface, IExpression,
+	ITableColumnProvider, IAliasable
+{
+}
 
 /**
  * Table representation class
@@ -16,20 +22,28 @@ use NoreSources as ns;
  * Provide data source independant methods
  * to manipulate data
  */
-class Table extends SQLObject implements IExpression, IAliasedClone, ITableColumnProvider
+class Table extends SQLObject implements TableInterface, IAliasedClone
 {
 
 	// construction / destruction
-	public function __construct(ITableProvider $a_owner, $a_name, $a_aliasName = '', TableStructure $a_structure = null)
+	public function __construct(ITableProvider $a_owner, $a_name, $a_aliasName = '',
+		TableStructure $a_structure = null)
 	{
 		parent::__construct($a_structure, __NAMESPACE__ . '\\TableStructure');
 		if (!(($a_owner instanceof Datasource) || ($a_owner instanceof TableSet)))
 		{
-			return ns\Reporter::fatalError($this, __METHOD__ . '(): Invalid owner class "' . get_class($a_owner) . '"');
+			return Reporter::fatalError($this,
+				__METHOD__ . '(): Invalid owner class "' . get_class($a_owner) . '"');
 		}
 		$this->m_owner = $a_owner;
 		$this->m_name = $a_name;
-		$this->m_aliasName = $a_aliasName;
+		if (\is_string($a_aliasName))
+			$a_aliasName = new Alias($this->getDatasource(), $a_aliasName);
+		if ($a_aliasName)
+			if (!($a_aliasName instanceof Alias))
+				throw new \InvalidArgumentException(
+					'Alias or string expected. Got ' . gettype($a_aliasName));
+		$this->tableAlias = $a_aliasName;
 	}
 
 	public function __destruct()
@@ -53,16 +67,17 @@ class Table extends SQLObject implements IExpression, IAliasedClone, ITableColum
 		{
 			return $this->getRowCount();
 		}
-		
+
 		return parent::__get($member);
 	}
 
-	// ns\IExpression implementation
-	
+	// IExpression implementation
+
 	/**
 	 * Enter description here...
 	 *
-	 * @param int $a_options ELEMENT_*
+	 * @param int $a_options
+	 *        	ELEMENT_*
 	 * @return string
 	 */
 	public function expressionString($a_options = null)
@@ -72,7 +87,8 @@ class Table extends SQLObject implements IExpression, IAliasedClone, ITableColum
 		$db = ($direct) ? '' : $this->m_owner->expressionString(kExpressionElementAlias) . '.';
 		if (($a_options & kExpressionElementDeclaration) == kExpressionElementDeclaration)
 		{
-			return $db . $Datasource->encloseElement($this->m_name) . ($this->hasAlias() ? ' AS ' . $Datasource->encloseElement($this->alias()) : '');
+			return $db . $Datasource->encloseElement($this->m_name) .
+				($this->hasAlias() ? ' AS ' . $this->alias()->expressionString() : '');
 			;
 		}
 		elseif ($a_options == kExpressionElementName)
@@ -81,16 +97,16 @@ class Table extends SQLObject implements IExpression, IAliasedClone, ITableColum
 		}
 		elseif ($this->hasAlias())
 		{
-			return $Datasource->encloseElement($this->alias());
+			return $this->alias()->expressionString();
 		}
-		
+
 		return $db . ($Datasource->encloseElement($this->m_name));
 	}
 
-	// end of ns\IExpression implementation
-	
+	// end of IExpression implementation
+
 	// IExpression implementation
-	
+
 	/**
 	 *
 	 * @return Datasource
@@ -101,23 +117,25 @@ class Table extends SQLObject implements IExpression, IAliasedClone, ITableColum
 		{
 			return $this->m_owner->getDatasource();
 		}
-		
+
 		return $this->m_owner;
 	}
 
 	// IAliasedClone implementation
 	/**
-	 * {@inheritDoc}
-	 * @see \NoreSources\SQL\IAliasedClone::cloneWithOtherAlias()
-	 * @return \NoreSources\SQL\Table
+	 *
+	 * {@inheritdoc}
+	 * @see IAliasedClone::cloneWithOtherAlias()
+	 * @return Table
 	 */
 	public function cloneWithOtherAlias($a_aliasName)
 	{
 		if ($a_aliasName == $this->alias())
 		{
-			return ns\Reporter::error($this, __METHOD__ . '(): Alias is the same than the current object');
+			return Reporter::error($this,
+				__METHOD__ . '(): Alias is the same than the current object');
 		}
-		
+
 		$cn = get_class($this);
 		$result = new $cn($this->m_owner, $this->m_name, $a_aliasName);
 		$result->m_structure = $this->structure;
@@ -125,7 +143,7 @@ class Table extends SQLObject implements IExpression, IAliasedClone, ITableColum
 	}
 
 	// ITableColumnProvider implementation
-	
+
 	/**
 	 * (non-PHPdoc)
 	 *
@@ -158,7 +176,7 @@ class Table extends SQLObject implements IExpression, IAliasedClone, ITableColum
 		{
 			$a_className = $this->defaultStarColumnClassName();
 		}
-		
+
 		$res = new $a_className($this);
 		return $res;
 	}
@@ -172,28 +190,32 @@ class Table extends SQLObject implements IExpression, IAliasedClone, ITableColum
 	{
 		if ($a_name == '*')
 		{
-			$res = $this->starColumnObject(strlen($a_className) ? $a_className : $this->defaultStarColumnClassName());
+			$res = $this->starColumnObject(
+				strlen($a_className) ? $a_className : $this->defaultStarColumnClassName());
 			return $res;
 		}
-		
+
 		$subStructure = null;
 		if ($this->structure)
 		{
 			$subStructure = $this->structure->offsetGet($a_name);
 			if (!$subStructure)
 			{
-				ns\Reporter::warning($this, __METHOD__ . '(): No structure for column ' . $a_name . ' of table ' . $this->m_name, __FILE__, __LINE__);
+				Reporter::warning($this,
+					__METHOD__ . '(): No structure for column ' . $a_name . ' of table ' .
+					$this->m_name, __FILE__, __LINE__);
 			}
 		}
 		else
 		{
-			ns\Reporter::warning($this, __METHOD__ . '(): No structure for table ' . $this->m_name, __FILE__, __LINE__);
+			Reporter::warning($this, __METHOD__ . '(): No structure for table ' . $this->m_name,
+				__FILE__, __LINE__);
 		}
-		
+
 		$class = strlen($a_className) ? $a_className : $this->defaultColumnClassName();
-		
+
 		$obj = new $class($this, $a_name, $a_aliasName, $subStructure);
-		
+
 		return $obj;
 	}
 
@@ -208,7 +230,7 @@ class Table extends SQLObject implements IExpression, IAliasedClone, ITableColum
 		{
 			return $this->m_structure;
 		}
-		
+
 		return null;
 	}
 
@@ -226,7 +248,7 @@ class Table extends SQLObject implements IExpression, IAliasedClone, ITableColum
 		{
 			return $this->structure->offsetExists($a_name);
 		}
-		
+
 		return true;
 	}
 
@@ -237,29 +259,30 @@ class Table extends SQLObject implements IExpression, IAliasedClone, ITableColum
 	 */
 	public final function hasAlias()
 	{
-		return is_string($this->m_aliasName) && strlen($this->m_aliasName);
+		return $this->tableAlias instanceof Alias;
 	}
 
 	/**
 	 * Number of row in the table
 	 *
-	 * @param $a_oWhereCondition ns\IExpression to filter results
+	 * @param $a_oWhereCondition IExpression
+	 *        	to filter results
 	 * @param $a_oJoins SelectQueryJoin
 	 * @return numeric
 	 */
-	public final function getRowCount(ns\IExpression $a_oWhereCondition = null, $a_oJoins = null)
+	public final function getRowCount(IExpression $a_oWhereCondition = null, $a_oJoins = null)
 	{
 		$oQuery = new SelectQuery($this);
-		
+
 		$star = new FormattedData('*');
 		$e = new SQLFunction('COUNT', $star);
 		$oQuery->addColumn($e);
-		
+
 		if ($a_oWhereCondition)
 		{
 			$oQuery->where->expression($a_oWhereCondition);
 		}
-		
+
 		if (($a_oJoins instanceof SelectQueryJoin))
 		{
 			$oQuery->addJoin($a_oJoins);
@@ -274,78 +297,85 @@ class Table extends SQLObject implements IExpression, IAliasedClone, ITableColum
 				}
 			}
 		}
-		
+
 		$res = false;
 		if (!($res = $oQuery->execute()))
 		{
 			return false;
 		}
-		
+
 		$r = $res->currentRow();
-		
+
 		return intval($r[0]);
 	}
 
 	/**
 	 * Insert a new row
 	 *
-	 * @param $a_fieldsAndValues Associative array of field/value pair
+	 * @param $a_fieldsAndValues Associative
+	 *        	array of field/value pair
 	 * @return InsertQueryResult
 	 */
 	public function insert($a_fieldsAndValues)
 	{
 		if (!is_array($a_fieldsAndValues))
 		{
-			return ns\Reporter::error($this, __METHOD__ . '(): Invalid parameter. Array expected', __FILE__, __LINE__);
+			return Reporter::error($this, __METHOD__ . '(): Invalid parameter. Array expected',
+				__FILE__, __LINE__);
 		}
-		
+
 		$iq = new InsertQuery($this);
 		$iq->addColumnValues($a_fieldsAndValues);
-		
+
 		return $iq->execute();
 	}
 
 	/**
 	 *
-	 * @param $a_fieldAndValues
-	 * @param $a_conditions
+	 * @param
+	 *        	$a_fieldAndValues
+	 * @param
+	 *        	$a_conditions
 	 * @return UpdateQueryResult
 	 */
-	public function update($a_fieldAndValues, ns\IExpression $a_conditions = null)
+	public function update($a_fieldAndValues, IExpression $a_conditions = null)
 	{
 		if (!is_array($a_fieldsAndValues))
 		{
-			return ns\Reporter::error($this, __METHOD__ . '(): Invalid parameter. Array expected', __FILE__, __LINE__);
+			return Reporter::error($this, __METHOD__ . '(): Invalid parameter. Array expected',
+				__FILE__, __LINE__);
 		}
-		
+
 		if (is_null($a_conditions))
 		{
-			ns\Reporter::notice($this, __METHOD__ . '(): Null condition will update all table rows', __FILE__, __LINE__);
+			Reporter::notice($this, __METHOD__ . '(): Null condition will update all table rows',
+				__FILE__, __LINE__);
 		}
-		
+
 		$uq = new UpdateQuery($this);
 		$uq->addColumnValues($a_fieldAndValues);
 		$uq->where->addAndExpression($a_conditions);
-		
+
 		return $uq->execute();
 	}
 
 	/**
 	 * Delete a set of rows, depending of conditions
 	 *
-	 * @param ns\IExpression $a_conditions
+	 * @param IExpression $a_conditions
 	 * @return DeleteQueryResult
 	 */
-	public function delete(ns\IExpression $a_conditions = null)
+	public function delete(IExpression $a_conditions = null)
 	{
 		if (is_null($a_conditions))
 		{
-			ns\Reporter::notice($this, __METHOD__ . '(): Null condition will update all table rows', __FILE__, __LINE__);
+			Reporter::notice($this, __METHOD__ . '(): Null condition will update all table rows',
+				__FILE__, __LINE__);
 		}
-		
+
 		$dq = new DeleteQuery($this);
 		$dq->where->addAndExpression($a_conditions);
-		
+
 		return $dq->execute();
 	}
 
@@ -364,9 +394,11 @@ class Table extends SQLObject implements IExpression, IAliasedClone, ITableColum
 	 *
 	 * @return string
 	 */
-	public final function alias()
+	public final function alias(Alias $alias = null)
 	{
-		return $this->m_aliasName;
+		if ($alias instanceof Alias)
+			$this->tableAlias = $alias;
+		return $this->tableAlias;
 	}
 
 	/**
@@ -391,11 +423,13 @@ class Table extends SQLObject implements IExpression, IAliasedClone, ITableColum
 		{
 			$v = $this->m_owner;
 		}
-		
+
 		return $v;
 	}
 
-	/** Legacy */
+	/**
+	 * Legacy
+	 */
 	public function database()
 	{
 		return $this->tableSet();
@@ -413,7 +447,7 @@ class Table extends SQLObject implements IExpression, IAliasedClone, ITableColum
 	 *
 	 * @var string
 	 */
-	protected $m_aliasName;
+	protected $tableAlias;
 
 	/**
 	 * TableSet or Datasource reference
@@ -421,4 +455,142 @@ class Table extends SQLObject implements IExpression, IAliasedClone, ITableColum
 	 * @var SQLObject
 	 */
 	protected $m_owner;
+}
+
+class SelectQueryResultTable implements TableInterface
+{
+
+	/**
+	 *
+	 * @param SelectQuery $query
+	 * @param unknown $alias
+	 * @throws \InvalidArgumentException
+	 */
+	public function __construct(SelectQuery $query, $alias)
+	{
+		$this->selectQuery = $query;
+		if (\is_string($alias))
+			$alias = new Alias($query->getDatasource(), $alias);
+		if (!($alias instanceof Alias))
+			throw new \InvalidArgumentException('Alias is mandatory');
+		$this->queryAlias = $alias;
+	}
+
+	function defaultColumnClassName()
+	{
+		return SelectQueryResultTableColumn::class;
+	}
+
+	public function defaultStarColumnClassName()
+	{
+		return $this->selectQuery->getQueryTable()->defaultStarColumnClassName();
+	}
+
+	public function getColumn($a_name, $a_alias = null, $a_className = null)
+	{
+		$cls = ($a_className ? $a_className : $this->defaultColumnClassName());
+
+		foreach ($this->selectQuery->getColumns() as $index => $column)
+		{
+			if ($column instanceof IAliasable && $column->hasAlias())
+			{
+				if (\strcmp($column->alias()->getAliasName(), $a_name) == 0)
+				{
+					return new $cls($this, $a_name);
+				}
+			}
+			elseif ($column instanceof ITableColumn)
+			{
+				if (\strcmp($column->getName(), $a_name) == 0)
+					return new $cls($this, $a_name);
+			}
+		}
+
+		throw new \InvalidArgumentException($a_name . ' column not found');
+	}
+
+	public function columnIterator()
+	{
+		return new \ArrayIterator($this->selectQuery->getColumns());
+	}
+
+	public function columnExists($a_name)
+	{
+		foreach ($this->selectQuery->getColumns() as $index => $column)
+		{
+			if ($column instanceof IAliasable)
+			{
+				if ($column->hasAlias() && \strcmp($column->alias()->getAliasName(), $a_name) == 0)
+				{
+					return true;
+				}
+			}
+			elseif ($column instanceof TableColumn)
+			{
+				if (\strcmp($column->getName(), $a_name) == 0)
+					return true;
+			}
+		}
+
+		return false;
+	}
+
+	public function getStructure()
+	{
+		return $this->selectQuery->getQueryTable()->getStructure();
+	}
+
+	public function alias(Alias $alias = null)
+	{
+		if ($alias instanceof Alias)
+			$this->queryAlias = $alias;
+		elseif ($alias === false)
+			$this->queryAlias = null;
+		return $this->queryAlias;
+	}
+
+	public function hasAlias()
+	{
+		return true;
+	}
+
+	public function getDatasource()
+	{
+		return $this->selectQuery->getDatasource();
+	}
+
+	public function expressionString($a_options = null)
+	{
+		$connection = $this->getDatasource();
+
+		if (($a_options & kExpressionElementDeclaration) == kExpressionElementDeclaration)
+		{
+			return '(' . $this->selectQuery->expressionString() . ') AS ' .
+				$this->queryAlias->expressionString();
+		}
+		elseif ($a_options & kExpressionElementName)
+		{
+			return $this->queryAlias->expressionString() . '.' .
+				$connection->encloseElement($this->column);
+		}
+		elseif ($this->hasAlias())
+		{
+			return $this->queryAlias->expressionString();
+		}
+
+		return $this->queryAlias->expressionString() . '.' .
+			$connection->encloseElement($this->column);
+	}
+
+	/**
+	 *
+	 * @var SelectQuery
+	 */
+	private $selectQuery;
+
+	/**
+	 *
+	 * @var Alias
+	 */
+	private $queryAlias;
 }

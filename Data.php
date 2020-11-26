@@ -10,6 +10,7 @@
  * @package SQL
  */
 namespace NoreSources\SQL;
+
 use NoreSources as ns;
 require_once ('base.php');
 
@@ -55,7 +56,7 @@ abstract class Data implements ns\IExpression
 	 *        	Any value
 	 * @return integer the most accurate Data type for the value
 	 */
-	public static function dataTypeFromValue ($value)
+	public static function dataTypeFromValue($value)
 	{
 		if (is_null($value))
 			return kDataTypeNull;
@@ -78,7 +79,7 @@ abstract class Data implements ns\IExpression
 	 * @param integer $type
 	 *        	Data type
 	 */
-	protected function __construct ($type)
+	protected function __construct($type)
 	{
 		$this->m_type = $type;
 		$this->m_flags = 0;
@@ -91,7 +92,7 @@ abstract class Data implements ns\IExpression
 	 *        	Member name (flags, type or value)
 	 * @throws \InvalidArgumentException
 	 */
-	public function __get ($member)
+	public function __get($member)
 	{
 		if ($member == 'flags')
 		{
@@ -119,23 +120,23 @@ abstract class Data implements ns\IExpression
 	 * @param mixed $value
 	 * @return <code>true</code> if the value can be imported
 	 */
-	abstract function import ($value);
+	abstract function import($value);
 
 	/**
 	 *
 	 * @return mixed The current value
 	 */
-	abstract function getValue ();
+	abstract function getValue();
 
 	/**
 	 * Configure Data to match Table column specifications
 	 *
 	 * @param TableColumnStructure $structure
 	 */
-	public function configure (TableColumnStructure $structure)
+	public function configure(TableColumnStructure $structure)
 	{}
 
-	protected function check ()
+	protected function check()
 	{
 		if (!($this->m_flags & self::kValid))
 		{
@@ -146,7 +147,7 @@ abstract class Data implements ns\IExpression
 		return true;
 	}
 
-	protected function importResult ($value)
+	protected function importResult($value)
 	{
 		if ($value)
 		{
@@ -160,7 +161,7 @@ abstract class Data implements ns\IExpression
 		return (($value) ? true : false);
 	}
 
-	protected function setFlags ($flags)
+	protected function setFlags($flags)
 	{
 		$this->m_flags = $flags;
 	}
@@ -182,24 +183,24 @@ class NullData extends Data
 	 *
 	 * @param Datasource $datasource
 	 */
-	public function __construct (Datasource $datasource)
+	public function __construct(Datasource $datasource)
 	{
 		parent::__construct(kDataTypeNull);
 		$this->setFlags($this->flags | self::kValid);
 		$this->m_nullKeyword = $datasource->getDatasourceString(Datasource::kStringKeywordNull);
 	}
 
-	public function import ($data)
+	public function import($data)
 	{
 		return $this->importResult(true);
 	}
 
-	public function getValue ()
+	public function getValue()
 	{
 		return null;
 	}
 
-	public function expressionString ($options = null)
+	public function expressionString($options = null)
 	{
 		return $this->m_nullKeyword;
 	}
@@ -213,28 +214,28 @@ class NullData extends Data
 class BooleanData extends Data
 {
 
-	public function __construct (Datasource $datasource)
+	public function __construct(Datasource $datasource)
 	{
 		parent::__construct(kDataTypeBoolean);
 		$this->m_datasource = $datasource;
 	}
 
-	public function import ($data)
+	public function import($data)
 	{
 		$this->m_value = $data;
 		return $this->importResult(true);
 	}
 
-	public function getValue ()
+	public function getValue()
 	{
 		return $this->m_value;
 	}
 
-	public function expressionString ($options = null)
+	public function expressionString($options = null)
 	{
 		$this->check();
 		return $this->m_datasource->getDatasourceString(
-				(($this->m_value) ? Datasource::kStringKeywordTrue : Datasource::kStringKeywordFalse));
+			(($this->m_value) ? Datasource::kStringKeywordTrue : Datasource::kStringKeywordFalse));
 	}
 
 	private $m_value;
@@ -248,25 +249,25 @@ class BooleanData extends Data
 class FormattedData extends Data
 {
 
-	public function __construct ($data = null)
+	public function __construct($data = null)
 	{
 		parent::__construct(kDataTypeString);
 		$this->m_value = $data;
 		$this->importResult(true);
 	}
 
-	public function import ($data)
+	public function import($data)
 	{
 		$this->m_value = $data;
 		return $this->importResult(true);
 	}
 
-	public function getValue ()
+	public function getValue()
 	{
 		return $this->m_value;
 	}
 
-	public function expressionString ($options = null)
+	public function expressionString($options = null)
 	{
 		return $this->m_value;
 	}
@@ -284,13 +285,13 @@ class StringData extends Data
 	 *
 	 * @param Datasource $datasource
 	 */
-	public function __construct (Datasource $datasource)
+	public function __construct(Datasource $datasource)
 	{
 		parent::__construct(kDataTypeString);
 		$this->m_datasource = $datasource;
 	}
 
-	public function __get ($member)
+	public function __get($member)
 	{
 		if ($member == 'datasource')
 		{
@@ -300,10 +301,10 @@ class StringData extends Data
 		return parent::__get($member);
 	}
 
-	public function import ($data)
+	public function import($data)
 	{
 		$valid = false;
-		if (is_string($data) || is_null($data))
+		if (\is_string($data) || is_null($data))
 		{
 			$valid = true;
 		}
@@ -314,10 +315,15 @@ class StringData extends Data
 		}
 		elseif (is_object($data))
 		{
-			if ($data instanceof \DateTime)
+			if ($data instanceof \DateTimeInterface)
 			{
 				$fmt = $this->datasource->getDatasourceString(Datasource::kStringTimestampFormat);
 				$data = $data->format($fmt);
+				$valid = true;
+			}
+			elseif (\method_exists($data, '__toString'))
+			{
+				$data = \strval($data);
 				$valid = true;
 			}
 		}
@@ -326,7 +332,7 @@ class StringData extends Data
 		return $this->importResult($valid);
 	}
 
-	public function expressionString ($options = null)
+	public function expressionString($options = null)
 	{
 		$this->check();
 
@@ -338,7 +344,7 @@ class StringData extends Data
 		return protectString($this->m_datasource->serializeStringData($this->getValue()));
 	}
 
-	public function getValue ()
+	public function getValue()
 	{
 		return $this->m_value;
 	}
@@ -347,7 +353,7 @@ class StringData extends Data
 	 *
 	 * @return The string value as it should appear in SQL statement
 	 */
-	protected function getDatasourceStringExpression ($value)
+	protected function getDatasourceStringExpression($value)
 	{
 		return $value;
 	}
@@ -388,7 +394,7 @@ class NumberData extends Data
 	 *
 	 * @param Datasource $datasource
 	 */
-	public function __construct (Datasource $datasource)
+	public function __construct(Datasource $datasource)
 	{
 		parent::__construct(kDataTypeNumber);
 		$this->m_value = null;
@@ -400,7 +406,7 @@ class NumberData extends Data
 	 *
 	 * @param TableColumnStructure $structure
 	 */
-	public function configure (TableColumnStructure $structure)
+	public function configure(TableColumnStructure $structure)
 	{
 		$this->decimals = $structure->getProperty(kStructureDecimalCount);
 		if ($structure->getProperty(kStructureAcceptNull))
@@ -413,7 +419,7 @@ class NumberData extends Data
 		}
 	}
 
-	public function expressionString ($options = null)
+	public function expressionString($options = null)
 	{
 		$this->check();
 
@@ -446,7 +452,7 @@ class NumberData extends Data
 		return $data;
 	}
 
-	public function import ($data)
+	public function import($data)
 	{
 		if (is_null($data) || (is_string($data) && (strlen($data) == 0)))
 		{
@@ -467,7 +473,7 @@ class NumberData extends Data
 		return $this->importResult(true);
 	}
 
-	public function getValue ()
+	public function getValue()
 	{
 		return $this->m_value;
 	}
@@ -487,7 +493,7 @@ class TimestampData extends Data
 	 *
 	 * @param Datasource $datasource
 	 */
-	public function __construct (Datasource $datasource)
+	public function __construct(Datasource $datasource)
 	{
 		parent::__construct(kDataTypeTimestamp);
 		$this->m_datasource = $datasource;
@@ -503,7 +509,7 @@ class TimestampData extends Data
 	 *        	or an array containing {format, time} using 'format'/0 and
 	 *        	'time'/1 keys
 	 */
-	public function import ($data)
+	public function import($data)
 	{
 		$valid = false;
 
@@ -524,12 +530,13 @@ class TimestampData extends Data
 			// Last chance, use Datasource format instead of ISO
 			if (\is_string($data))
 			{
-				$d = \DateTime::createFromFormat($this->m_datasource->getDatasourceString(Datasource::kStringTimestampFormat),
-						$data);
+				$d = \DateTime::createFromFormat(
+					$this->m_datasource->getDatasourceString(Datasource::kStringTimestampFormat),
+					$data);
 				if ($d instanceof \DateTime)
 					$data = $d;
 				else /* @todo warning */
-					$data = new \DateTime ($data);
+					$data = new \DateTime($data);
 				$valid = true;
 			}
 		}
@@ -538,12 +545,12 @@ class TimestampData extends Data
 		return $this->importResult($valid);
 	}
 
-	public function getValue ()
+	public function getValue()
 	{
 		return $this->m_dateTime;
 	}
 
-	public function expressionString ($options = null)
+	public function expressionString($options = null)
 	{
 		$this->check();
 		$fmtString = $this->m_datasource->getDatasourceString(Datasource::kStringTimestampFormat);
@@ -574,7 +581,7 @@ class TimestampData extends Data
 class BinaryData extends Data
 {
 
-	public static function stringToInteger ($binaryString)
+	public static function stringToInteger($binaryString)
 	{
 		return base_convert(bin2hex($binaryString), 16, 10);
 	}
@@ -583,14 +590,14 @@ class BinaryData extends Data
 	 *
 	 * @param Datasource $datasource
 	 */
-	public function __construct (Datasource $datasource)
+	public function __construct(Datasource $datasource)
 	{
 		parent::__construct(kDataTypeBinary);
 		$this->setFlags($this->flags | self::kAcceptNull);
 		$this->m_datasource = $datasource;
 	}
 
-	public function __get ($member)
+	public function __get($member)
 	{
 		if ($member == 'datasource')
 		{
@@ -608,7 +615,7 @@ class BinaryData extends Data
 	 *        	binary representation of a float
 	 *        	
 	 */
-	public function import ($data)
+	public function import($data)
 	{
 		if (is_null($data) && !($this->flags & self::kAcceptNull))
 		{
@@ -623,7 +630,7 @@ class BinaryData extends Data
 		return $this->importResult(true);
 	}
 
-	public function expressionString ($options = null)
+	public function expressionString($options = null)
 	{
 		$this->check();
 

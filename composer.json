@@ -27,5 +27,11 @@
 		"ext-sqlite": "*",
 		"ext-mysql": "*",
 		"ext-mysql": "*"
+	},
+	"extra": {
+		"branch-alias": {
+			"dev-v1.1.x": "1.1.x-dev",
+			"dev-master": "2.0.x-dev"
+		}
 	}
 }
