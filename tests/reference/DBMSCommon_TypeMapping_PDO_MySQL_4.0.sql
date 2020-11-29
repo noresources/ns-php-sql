@@ -1,0 +1,8 @@
+PDO_MySQL_4.0                   : -- ColumnDeclaration
+small binary with length        : `column` bit(2)
+binary without length           : `column` longblob
+integer primary key             : `column` bigint(20) NOT NULL
+int. primary key auto increment : `column` bigint(20) NOT NULL AUTO_INCREMENT
+int auto increment              : `column` bigint NOT NULL AUTO_INCREMENT
+int. composite PK auto inc.     : `column` bigint(20) NOT NULL AUTO_INCREMENT
+type with dflt length           : `column` bit(64)
