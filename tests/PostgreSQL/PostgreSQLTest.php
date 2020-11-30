@@ -65,6 +65,11 @@ final class PostgreSQLTest extends \PHPUnit\Framework\TestCase
 		 * @var PostgreSQLConnection $connection
 		 */
 		$connection = self::createConnection();
+		if ($connection === NULL)
+		{
+			$this->assertTrue(true, 'Not available');
+			return;
+		}
 
 		$version = $connection->getPlatform()->getPlatformVersion(
 			K::PLATFORM_VERSION_COMPATIBILITY);
@@ -91,7 +96,8 @@ final class PostgreSQLTest extends \PHPUnit\Framework\TestCase
 			else
 				continue;
 
-			$this->assertInstanceOf(TokenizableStatementInterface::class, $s,
+			$this->assertInstanceOf(
+				TokenizableStatementInterface::class, $s,
 				'Valid CREATE query');
 
 			$sql = ConnectionHelper::buildStatement($connection, $s,
@@ -133,6 +139,8 @@ final class PostgreSQLTest extends \PHPUnit\Framework\TestCase
 		$this->assertEquals(true, true);
 
 		$connection = self::createConnection();
+		if ($connection === NULL)
+			return;
 		$structure = $this->datasources->get('Company');
 		$tableStructure = $structure['ns_unittests']['Employees'];
 		$this->assertInstanceOf(Structure\TableStructure::class,
@@ -179,13 +187,12 @@ final class PostgreSQLTest extends \PHPUnit\Framework\TestCase
 		if ($this->connection instanceof PostgreSQLConnection)
 			return $this->connection;
 
-		$settings = [
-			K::CONNECTION_TYPE => \NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLConnection::class
-		];
 		$settingsFile = __DIR__ . '/../settings/' . basename(__DIR__) .
 			'.php';
-		if (\file_exists($settingsFile))
-			$settings = require ($settingsFile);
+		if (!\file_exists($settingsFile))
+			return NULL;
+
+		$settings = require ($settingsFile);
 
 		return ConnectionHelper::createConnection($settings);
 	}

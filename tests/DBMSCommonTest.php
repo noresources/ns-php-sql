@@ -77,7 +77,7 @@ class DBMSTestSilentLogger implements LoggerInterface, \Countable
 		$this->logs = [];
 	}
 
-	public function log($level, $message, $context = array())
+	public function log($level, $message, array $context = array())
 	{
 		$this->logs[] = [
 			$level,
@@ -647,6 +647,7 @@ final class DBMSCommonTest extends TestCase
 							$desc[DateTime::FORMAT_DESCRIPTION_RANGE]) .
 						']';
 			}
+
 			$select = $connection->getPlatform()->newStatement(
 				K::QUERY_SELECT);
 
@@ -656,7 +657,7 @@ final class DBMSCommonTest extends TestCase
 						new CastFunction(new Parameter('timestamp'),
 							$columnType)),
 					'format'
-				]);
+				], new Data($label . ' [' . $format . ']'));
 
 			$validate = true;
 			$translation = $connection->getPlatform()->getTimestampFormatTokenTranslation(
@@ -681,9 +682,15 @@ final class DBMSCommonTest extends TestCase
 				'Number of parameters of SELECT');
 
 			if (!($connection instanceof PDOConnection))
+			{
+				// Fix case-insensitive filesystem issue
+				$formatName = \preg_replace('/([A-Z])/', 'uppercase_$1',
+					$format);
+				$derivedFilename = $dbmsName . '_' . $formatName;
 				$this->derivedFileManager->assertDerivedFile(
 					\strval($select) . PHP_EOL, $method,
-					$dbmsName . '_' . $format, 'sql');
+					$derivedFilename, 'sql', $label);
+			}
 
 			foreach ($timestamps as $test => $dateTime)
 			{
@@ -1136,6 +1143,10 @@ final class DBMSCommonTest extends TestCase
 	public function testTransaction()
 	{
 		$settings = $this->connections->getAvailableConnectionNames();
+		if (\count ($settings) == 0) {
+			$this->assertTrue(true, 'Skip');
+			return;
+		}
 		foreach ($settings as $dbmsName)
 		{
 			$connection = $this->connections->get($dbmsName);

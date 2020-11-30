@@ -1,6 +1,6 @@
 <?php
-use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLConnection;
+use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLConstants as K;
 
 /**
  * ConnectionInterface settings for PostgreSQL

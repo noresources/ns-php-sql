@@ -138,7 +138,8 @@ class TestConnection extends \PHPUnit\Framework\TestCase
 
 			$record = $recordset->current();
 
-			$this->assertIsArray($record, $dbmsName . ' valid record');
+			$this->assertTrue(\is_array($record),
+				$dbmsName . ' valid record');
 
 			if ($assertValue)
 				foreach ($expectedValues as $key => $value)
