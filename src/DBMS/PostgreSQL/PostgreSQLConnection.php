@@ -58,24 +58,19 @@ class PostgreSQLConnection implements ConnectionInterface,
 				$dsn[$name] = Container::keyValue($parameters, $key);
 		}
 
-		$dsn = Container::implode($dsn, ' ',
-			function ($k, $v) {
-				return $k . " = '" . $v . "'";
-			});
+		$dsn = self::buildDSN($dsn);
 
-		if (Container::keyExists($parameters, K::CONNECTION_PGSQL))
+		if (($extension = Container::keyValue($parameters,
+			K::CONNECTION_PGSQL)))
 		{
-			$value = Container::keyValue($parameters,
-				K::CONNECTION_PGSQL, $key);
-			if (\is_string($value))
-				$dsn .= ' ' . $value;
-			elseif (Container::isTraversable($value))
+			if (Container::isTraversable($extension))
+				$extension = self::buildDSN($extension);
+			if (!empty($extension))
 			{
-				$dsn .= ' ' .
-					Container::implode($value, ' ',
-						function ($k, $v) {
-							return $k . " = '" . $v . "'";
-						});
+				$dsn = \implode(' ', [
+					$dsn,
+					$extension
+				]);
 			}
 		}
 
@@ -278,6 +273,20 @@ class PostgreSQLConnection implements ConnectionInterface,
 	public function getConnectionResource()
 	{
 		return $this->resource;
+	}
+
+	/**
+	 *
+	 * @param array $dsn
+	 */
+	public static function buildDSN($dsn)
+	{
+		return Container::implode($dsn, ' ',
+			function ($k, $v) {
+				if (\preg_match('/[^a-zA-Z0-9_-]/', $v))
+					$v = '"' . \addslashes($v) . '"';
+				return $k . '=' . $v;
+			});
 	}
 
 	private function getPostgreSQLParameterArray($statement,

@@ -329,7 +329,7 @@ abstract class AbstractPlatform implements PlatformInterface
 				return 'Y-m-d\TH:i:s';
 		}
 
-		return \DateTimeInterface::ISO8601;
+		return \DateTime::ISO8601;
 	}
 
 	public function getTimestampFormatTokenTranslation($formatToken)
