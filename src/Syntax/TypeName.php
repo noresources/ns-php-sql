@@ -31,15 +31,6 @@ class TypeName implements TokenizableExpressionInterface
 
 	/**
 	 *
-	 * @return ColumnDescriptionInterface|TypeInterface
-	 */
-	public function getType()
-	{
-		return $this->type;
-	}
-
-	/**
-	 *
 	 * @param ColumnDescriptionInterface|TypeInterface $type
 	 */
 	public function setType($type)
