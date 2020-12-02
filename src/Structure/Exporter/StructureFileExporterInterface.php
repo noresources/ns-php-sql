@@ -1,14 +1,13 @@
 <?php
-
 /**
- * Copyright © 2012 - 2020 by Renaud Guillard (dev@nore.fr)
+ * Copyright © 2020 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
- */
-/**
  *
  * @package SQL
  */
-namespace NoreSources\SQL\Structure;
+namespace NoreSources\SQL\Structure\Exporter;
+
+use NoreSources\SQL\Structure\StructureElementInterface;
 
 /**
  * Provide serialization of StructureElement to a file
@@ -25,5 +24,6 @@ interface StructureFileExporterInterface
 	 *        	Output file path
 	 * @return boolean TRUE on success, FALSE on error
 	 */
-	function exportStructureToFile(StructureElementInterface $structure, $filename);
+	function exportStructureToFile(StructureElementInterface $structure,
+		$filename);
 }

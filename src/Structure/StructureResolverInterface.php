@@ -1,9 +1,7 @@
 <?php
 /**
- * Copyright © 2012 - 2020 by Renaud Guillard (dev@nore.fr)
+ * Copyright © 2020 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
- */
-/**
  *
  * @package SQL
  */
@@ -30,7 +28,7 @@ interface StructureResolverInterface
 
 	/**
 	 *
-	 * @param string $path
+	 * @param StructureElementIdentifier $path
 	 * @throws StructureResolverException
 	 * @return ColumnStructure
 	 */
@@ -39,7 +37,7 @@ interface StructureResolverInterface
 	/**
 	 * Get Table, View or any other "row" container
 	 *
-	 * @param string $path
+	 * @param StructureElementIdentifier $path
 	 * @throws StructureResolverException
 	 * @return TableStructure
 	 */
@@ -47,7 +45,7 @@ interface StructureResolverInterface
 
 	/**
 	 *
-	 * @param string $path
+	 * @param StructureElementIdentifier $path
 	 * @throws StructureResolverException
 	 * @return NamespaceStructure
 	 */

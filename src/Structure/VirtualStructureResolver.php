@@ -1,4 +1,10 @@
 <?php
+/**
+ * Copyright © 2020 by Renaud Guillard (dev@nore.fr)
+ * Distributed under the terms of the MIT License, see LICENSE
+ *
+ * @package SQL
+ */
 namespace NoreSources\SQL\Structure;
 
 use NoreSources\Container;
@@ -25,6 +31,7 @@ class VirtualStructureResolver extends StructureResolver implements
 
 	public function findColumn($path)
 	{
+		$path = StructureElementIdentifier::make($path);
 		try
 		{
 			return parent::findColumn($path);
@@ -32,8 +39,7 @@ class VirtualStructureResolver extends StructureResolver implements
 		catch (StructureResolverException $e)
 		{}
 
-		if (!\is_array($path))
-			$path = \explode('.', $path);
+		$path = $path->getArrayCopy();
 
 		$c = \count($path);
 
@@ -71,6 +77,7 @@ class VirtualStructureResolver extends StructureResolver implements
 
 	public function findTable($path)
 	{
+		$path = StructureElementIdentifier::make($path);
 		try
 		{
 			return parent::findTable($path);
@@ -78,7 +85,7 @@ class VirtualStructureResolver extends StructureResolver implements
 		catch (StructureResolverException $e)
 		{}
 
-		$path = \explode('.', $path);
+		$path = $path->getArrayCopy();
 		$c = \count($path);
 		if ($c == 1)
 		{
@@ -96,6 +103,7 @@ class VirtualStructureResolver extends StructureResolver implements
 
 	public function findNamespace($path)
 	{
+		$path = StructureElementIdentifier::make($path);
 		try
 		{
 			return parent::findNamespace($path);
@@ -103,7 +111,7 @@ class VirtualStructureResolver extends StructureResolver implements
 		catch (StructureResolverException $e)
 		{}
 
-		$path = \explode('.', $path);
+		$path = $path->getArrayCopy();
 		return $this->addStructurePath(\array_reverse($path),
 			[
 				NamespaceStructure::class

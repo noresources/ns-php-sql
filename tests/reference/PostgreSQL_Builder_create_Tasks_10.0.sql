@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS "ns_unittests"."Tasks" (
   "id" serial, 
-  "name" text, 
+  "name" character varying(32), 
   "creationDateTime" timestamp with time zone DEFAULT CURRENT_TIMESTAMP, 
   "priority" bigint, 
   "category" bigint, 

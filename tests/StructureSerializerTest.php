@@ -1,8 +1,20 @@
 <?php
+/**
+ * Copyright © 2020 by Renaud Guillard (dev@nore.fr)
+ * Distributed under the terms of the MIT License, see LICENSE
+ *
+ * @package SQL
+ */
 namespace NoreSources\SQL;
 
+use NoreSources\Container;
+use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\Structure\ColumnStructure;
 use NoreSources\SQL\Structure\DatasourceStructure;
+use NoreSources\SQL\Structure\IndexStructure;
+use NoreSources\SQL\Structure\StructureElementInterface;
 use NoreSources\SQL\Structure\StructureSerializerFactory;
+use NoreSources\SQL\Structure\TableStructure;
 use NoreSources\Test\DerivedFileManager;
 
 final class StructureSerializerTest extends \PHPUnit\Framework\TestCase
@@ -13,6 +25,53 @@ final class StructureSerializerTest extends \PHPUnit\Framework\TestCase
 	{
 		parent::__construct($name, $data, $dataName);
 		$this->derivedFileManager = new DerivedFileManager(__DIR__);
+	}
+
+	public function testXMLSerializer()
+	{
+		/**
+		 *
+		 * @var StructureSerializerFactory $serializer
+		 */
+		$serializer = StructureSerializerFactory::getInstance();
+		$structure = $serializer->structureFromFile(
+			$this->getStructureFile('Company'));
+
+		$this->assertInstanceOf(StructureElementInterface::class,
+			$structure, 'Load company structure');
+
+		/**
+		 *
+		 * @var TableStructure $employees
+		 */
+		$employees = $structure['ns_unittests']['Employees'];
+
+		$this->assertInstanceOf(TableStructure::class, $employees);
+
+		$index_employees_name = $structure['ns_unittests']['index_employees_name'];
+
+		$this->assertInstanceOf(IndexStructure::class,
+			$index_employees_name);
+
+		/**
+		 *
+		 * @var ColumnStructure $gender
+		 */
+		$gender = $employees->getColumn('gender');
+
+		$this->assertTrue($gender->has(K::COLUMN_LENGTH),
+			'Gender column has length');
+
+		$genderStringLength = Container::keyValue($gender,
+			K::COLUMN_LENGTH, false);
+
+		$this->assertEquals(1, $genderStringLength,
+			'Gender column length');
+
+		$derivedFilePath = $this->derivedFileManager->getDerivedFilename(
+			__METHOD__, 'Company', 'xml');
+
+		$serializer->structureToFile($structure, $derivedFilePath);
 	}
 
 	public function testBinarySerialize()

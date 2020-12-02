@@ -1,18 +1,27 @@
 <?php
 /**
- * Copyright © 2012 - 2020 by Renaud Guillard (dev@nore.fr)
+ * Copyright © 2020 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
- */
-/**
  *
  * @package SQL
  */
-namespace NoreSources\SQL\Structure;
+namespace NoreSources\SQL\Structure\Exporter;
 
+use NoreSources\Container;
 use NoreSources\SemanticVersion;
 use NoreSources\TypeConversion;
 use NoreSources\Expression\Value;
 use NoreSources\SQL\DataTypeProviderInterface;
+use NoreSources\SQL\Structure\ColumnStructure;
+use NoreSources\SQL\Structure\DatasourceStructure;
+use NoreSources\SQL\Structure\ForeignKeyTableConstraint;
+use NoreSources\SQL\Structure\IndexStructure;
+use NoreSources\SQL\Structure\PrimaryKeyTableConstraint;
+use NoreSources\SQL\Structure\StructureElementContainerInterface;
+use NoreSources\SQL\Structure\StructureElementIdentifier;
+use NoreSources\SQL\Structure\StructureElementInterface;
+use NoreSources\SQL\Structure\StructureResolver;
+use NoreSources\SQL\Structure\TableStructure;
 use NoreSources\SQL\Structure\XMLStructureFileConstants as K;
 use NoreSources\SQL\Structure\Traits\XMLStructureFileTrait;
 use NoreSources\SQL\Syntax\Evaluator;
@@ -28,9 +37,19 @@ class XMLStructureFileExporter implements
 
 	use XMLStructureFileTrait;
 
+	/**
+	 *
+	 * @param string $version
+	 *        	Schema version
+	 */
 	public function __construct($version = '2.0')
 	{
 		$this->schemaVersion = new SemanticVersion($version);
+		$this->setIdentifierGenerator(
+			[
+				self::class,
+				'defaultIdentifierGenerator'
+			]);
 	}
 
 	public function exportStructureToFile(
@@ -48,6 +67,7 @@ class XMLStructureFileExporter implements
 		StructureElementInterface $structure)
 	{
 		$context = new XMLStructureFileExporterContext();
+		$context->resolver = new StructureResolver($structure);
 		$namespaceURI = self::getXmlNamespaceURI($this->schemaVersion);
 		$impl = new \DOMImplementation();
 		$context->dom = $impl->createDocument($namespaceURI,
@@ -61,8 +81,12 @@ class XMLStructureFileExporter implements
 			$context) {
 				$path = $structure->getPath();
 				if (\strlen($path))
-					$context->identifiers[$path] = $path . '-' .
-					\uniqid();
+				{
+					$id = \call_user_func($this->identifierGenerator,
+						$structure);
+
+					$context->identifiers[$path] = $id;
+				}
 			});
 
 		$this->exportNode($structure, $context,
@@ -72,9 +96,26 @@ class XMLStructureFileExporter implements
 		return $context->dom;
 	}
 
+	/**
+	 *
+	 * @param callable $generator
+	 */
+	public function setIdentifierGenerator($generator)
+	{
+		$this->identifierGenerator = $generator;
+	}
+
+	public static function defaultIdentifierGenerator(
+		StructureElementInterface $element)
+	{
+		return \base64_encode($element->getPath());
+	}
+
 	private function exportNode(StructureElementInterface $structure,
 		XMLStructureFileExporterContext $context, \DOMNode $node)
 	{
+		$context->resolver->setPivot($structure);
+
 		$path = $structure->getPath();
 		$namespaceURI = self::getXmlNamespaceURI($this->schemaVersion);
 		$versionNumber = $this->schemaVersion->getIntegerValue();
@@ -85,33 +126,65 @@ class XMLStructureFileExporter implements
 		}
 		else
 		{
-			$node->setAttribute('id', $context->identifiers[$path]);
 			$node->setAttribute('name', $structure->getName());
+			$node->setAttribute('id', $context->identifiers[$path]);
 		}
 
 		if ($structure instanceof ColumnStructure)
-		{
 			$this->exportColumnNode($structure, $context, $node);
-		}
 
-		foreach ($structure as $name => $child)
-		{
-			$nodeName = self::getXmlNodeName($child,
-				$this->schemaVersion);
+		if ($structure instanceof StructureElementContainerInterface)
+			foreach ($structure as $name => $child)
+			{
+				$nodeName = self::getXmlNodeName($child,
+					$this->schemaVersion);
 
-			$n = $context->dom->createElementNS($namespaceURI, $nodeName);
-			$this->exportNode($child, $context, $n);
-			$node->appendChild($n);
-		}
+				$n = $context->dom->createElementNS($namespaceURI,
+					$nodeName);
+				$this->exportNode($child, $context, $n);
+				$node->appendChild($n);
+			}
 
 		if ($structure instanceof TableStructure)
-		{
 			$this->exportTableNode($structure, $context, $node);
+		elseif ($structure instanceof IndexStructure)
+			$this->exportIndexNode($structure, $context, $node);
+	}
+
+	private function exportIndexNode(IndexStructure $structure,
+		XMLStructureFileExporterContext $context, \DOMElement $node)
+	{
+		$namespaceURI = self::getXmlNamespaceURI($this->schemaVersion);
+
+		$flags = $structure->getIndexFlags();
+		if ($flags & IndexStructure::UNIQUE)
+			$node->setAttribute('unique', 'yes');
+
+		$tableref = $context->dom->createElementNS($namespaceURI,
+			'tableref');
+		$ft = $context->resolver->findTable($structure->getIndexTable());
+		if ($ft->getParentElement() == $structure->getParentElement())
+			$tableref->setAttribute('name', $ft->getName());
+		else
+			$tableref->setAttribute('id',
+				$context->identifiers[$ft->getPath()]);
+
+		$columns = $structure->getIndexColumns();
+		foreach ($columns as $column)
+		{
+			$column = StructureElementIdentifier::make($column);
+
+			$columnNode = $context->dom->createElementNS($namespaceURI,
+				'column');
+			$columnNode->setAttribute('name', $column->getLocalName());
+			$tableref->appendChild($columnNode);
 		}
+
+		$node->appendChild($tableref);
 	}
 
 	private function exportTableNode(TableStructure $structure,
-		XMLStructureFileExporterContext $context, \DOMNode $node)
+		XMLStructureFileExporterContext $context, \DOMElement $node)
 	{
 		$namespaceURI = self::getXmlNamespaceURI($this->schemaVersion);
 		$versionNumber = $this->schemaVersion->getIntegerValue();
@@ -128,7 +201,7 @@ class XMLStructureFileExporter implements
 				{
 					$c = $context->dom->createElementNS($namespaceURI,
 						'column');
-					$c->setAttribute('name', $column->getName());
+					$c->setAttribute('name', $column);
 					$constraintNode->appendChild($c);
 				}
 			}
@@ -141,9 +214,12 @@ class XMLStructureFileExporter implements
 
 				$reft = $context->dom->createElementNS($namespaceURI,
 					'tableref');
+				$ft = $constraint->getForeignTable();
+
+				$ft = $context->resolver->findTable(\strval($ft));
+
 				$reft->setAttribute('id',
-					$context->identifiers[$constraint->getForeignTable()
-						->getPath()]);
+					$context->identifiers[$ft->getPath()]);
 				$ref->appendChild($reft);
 
 				foreach ($constraint as $column => $reference)
@@ -202,7 +278,7 @@ class XMLStructureFileExporter implements
 	}
 
 	private function exportColumnNode(ColumnStructure $structure,
-		XMLStructureFileExporterContext $context, \DOMNode $node)
+		XMLStructureFileExporterContext $context, \DOMElement $node)
 	{
 		$namespaceURI = self::getXmlNamespaceURI($this->schemaVersion);
 		$versionNumber = $this->schemaVersion->getIntegerValue();
@@ -211,7 +287,7 @@ class XMLStructureFileExporter implements
 		$dataType = $structure->get(K::COLUMN_DATA_TYPE);
 		$flags = $structure->get(K::COLUMN_FLAGS);
 
-		if ($dataType & K::DATATYPE_NULL)
+		if (!($dataType & K::DATATYPE_NULL))
 		{
 			if ($versionNumber >= 20000)
 				$dataTypeNode->setAttribute('nullable', 'no');
@@ -278,6 +354,12 @@ class XMLStructureFileExporter implements
 			$typeNode = $context->dom->createElementNS($namespaceURI,
 				$typeNodeName);
 
+			if (($length = Container::keyValue($structure,
+				K::COLUMN_LENGTH, 0)))
+			{
+				$typeNode->setAttribute("length", $length);
+			}
+
 			if ($dataType == K::DATATYPE_STRING)
 			{
 				if ($structure->has(K::COLUMN_ENUMERATION))
@@ -290,7 +372,8 @@ class XMLStructureFileExporter implements
 						$valueNode = $context->dom->createElementNS(
 							$namespaceURI, 'value');
 						$valueNode->appendChild(
-							$context->dom->createTextNode($value));
+							$context->dom->createTextNode(
+								$value->getValue()));
 						$enumerationNode->appendChild($valueNode);
 					}
 					$typeNode->appendChild($enumerationNode);
@@ -298,9 +381,19 @@ class XMLStructureFileExporter implements
 			}
 			elseif ($dataType & K::DATATYPE_NUMBER)
 			{
+				if ($flags & K::COLUMN_FLAG_AUTO_INCREMENT)
+					$typeNode->setAttribute('autoincrement', 'yes');
+
 				if ($flags & K::COLUMN_FLAG_UNSIGNED &&
 					($versionNumber >= 20000))
 					$typeNode->setAttribute('signed', 'no');
+
+				if (($scale = Container::keyValue($structure,
+					K::COLUMN_FRACTION_SCALE)))
+				{
+					$scaleAttribute = ($versionNumber < 20000) ? 'decimals' : 'scale';
+					$typeNode->setAttribute($scaleAttribute, $scale);
+				}
 			}
 			elseif ($dataType & K::DATATYPE_TIMESTAMP)
 			{
@@ -376,7 +469,8 @@ class XMLStructureFileExporter implements
 		call_user_func($callable, $structure);
 		foreach ($structure as $name => $child)
 		{
-			self::traverseStructure($child, $callable);
+			if ($child instanceof StructureElementInterface)
+				self::traverseStructure($child, $callable);
 		}
 	}
 
@@ -385,6 +479,12 @@ class XMLStructureFileExporter implements
 	 * @var SemanticVersion
 	 */
 	private $schemaVersion;
+
+	/**
+	 *
+	 * @var callable
+	 */
+	private $identifierGenerator;
 }
 
 class XMLStructureFileExporterContext
@@ -402,4 +502,10 @@ class XMLStructureFileExporterContext
 	 * @var string[]
 	 */
 	public $identifiers;
+
+	/**
+	 *
+	 * @var StructureResolver
+	 */
+	public $resolver;
 }

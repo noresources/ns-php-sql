@@ -1,9 +1,7 @@
 <?php
 /**
- * Copyright © 2012 - 2020 by Renaud Guillard (dev@nore.fr)
+ * Copyright © 2020 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
- */
-/**
  *
  * @package SQL
  */
@@ -14,6 +12,8 @@ use NoreSources\SingletonTrait;
 use NoreSources\MediaType\MediaType;
 use NoreSources\MediaType\MediaTypeFactory;
 use NoreSources\MediaType\MediaTypeInterface;
+use NoreSources\SQL\Structure\Importer\StructureFileImporterInterface;
+use NoreSources\SQL\Structure\Importer\XMLStructureFileImporter;
 
 /**
  * Provide serialization and deserialization of StructureElement

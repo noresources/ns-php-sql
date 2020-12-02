@@ -1,9 +1,7 @@
 <?php
 /**
- * Copyright © 2012 - 2020 by Renaud Guillard (dev@nore.fr)
+ * Copyright © 2020 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
- */
-/**
  *
  * @package SQL
  */
@@ -69,10 +67,13 @@ class StructureResolver implements StructureResolverInterface
 
 	public function findColumn($path)
 	{
-		if ($this->cache[ColumnStructure::class]->offsetExists($path))
-			return $this->cache[ColumnStructure::class][$path];
+		$path = StructureElementIdentifier::make($path);
+		$structureKey = ColumnStructure::class;
+		if (($cached = Container::keyValue($this->cache[$structureKey],
+			$path->getPath())))
+			return $cached;
 
-		$x = \explode('.', $path);
+		$x = $path->getArrayCopy();
 		$c = \count($x);
 		$name = $x[$c - 1];
 
@@ -97,27 +98,29 @@ class StructureResolver implements StructureResolverInterface
 		if ($column instanceof ColumnStructure)
 		{
 			$key = ColumnStructure::class;
-			$this->cache[$key]->offsetSet($path, $column);
+			$this->cache[$key]->offsetSet($path->getPath(), $column);
 		}
 		else
-			throw new StructureResolverException($path, 'column');
+			throw new StructureResolverException($path->getPath(),
+				'column');
 
 		return $column;
 	}
 
 	public function findTable($path)
 	{
+		$path = StructureElementIdentifier::make($path);
 		$cached = null;
 
 		if (($cached = Container::keyValue(
-			$this->cache[TableStructure::class], $path)))
+			$this->cache[TableStructure::class], $path->getPath())))
 			return $cached;
 
 		if (($cached = Container::keyValue(
-			$this->cache[ViewStructure::class], $path)))
+			$this->cache[ViewStructure::class], $path->getPath())))
 			return $cached;
 
-		$x = explode('.', $path);
+		$x = $path->getArrayCopy();
 		$c = \count($x);
 		$name = $x[$c - 1];
 
@@ -135,18 +138,21 @@ class StructureResolver implements StructureResolverInterface
 			($table instanceof ViewStructure))
 		{
 			$key = \get_class($table);
-			$this->cache[$key]->offsetSet($path, $table);
+			$this->cache[$key]->offsetSet($path->getPath(), $table);
 		}
 		else
-			throw new StructureResolverException($path, 'table');
+			throw new StructureResolverException($path->getPath(),
+				'table');
 
 		return $table;
 	}
 
 	public function findNamespace($path)
 	{
-		if ($this->cache[NamespaceStructure::class]->offsetExists($path))
-			return $this->cache[NamespaceStructure::class][$path];
+		$path = StructureElementIdentifier::make($path);
+		if ($this->cache[NamespaceStructure::class]->offsetExists(
+			$path->getPath()))
+			return $this->cache[NamespaceStructure::class][$path->getPath()];
 
 		$datasource = $this->pivot;
 		while ($datasource &&
@@ -154,15 +160,16 @@ class StructureResolver implements StructureResolverInterface
 			$datasource = $datasource->getParentElement();
 
 		$namespace = ($datasource instanceof DatasourceStructure) ? $datasource->offsetGet(
-			$path) : null;
+			$path->getPath()) : null;
 
 		if ($namespace instanceof NamespaceStructure)
 		{
 			$key = NamespaceStructure::class;
-			$this->cache[$key]->offsetSet($path, $namespace);
+			$this->cache[$key]->offsetSet($path->getPath(), $namespace);
 		}
 		else
-			throw new StructureResolverException($path, 'namespace');
+			throw new StructureResolverException($path->getPath(),
+				'namespace');
 
 		return $namespace;
 	}

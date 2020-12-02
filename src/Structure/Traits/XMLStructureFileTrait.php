@@ -11,6 +11,7 @@ namespace NoreSources\SQL\Structure\Traits;
 
 use NoreSources\Container;
 use NoreSources\SemanticVersion;
+use NoreSources\TypeDescription;
 use NoreSources\SQL\Structure\ColumnStructure;
 use NoreSources\SQL\Structure\DatasourceStructure;
 use NoreSources\SQL\Structure\IndexStructure;
@@ -74,7 +75,9 @@ trait XMLStructureFileTrait
 		elseif ($element == ColumnStructure::class)
 			return 'column';
 
-		throw new \InvalidArgumentException();
+		throw new \InvalidArgumentException(
+			TypeDescription::getName($element) . ' is not a ' .
+			StructureElementInterface::class);
 	}
 
 	public static function getDataTypeFromNodeName($nodeName,

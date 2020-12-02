@@ -1,17 +1,26 @@
 <?php
 /**
- * Copyright © 2012 - 2020 by Renaud Guillard (dev@nore.fr)
+ * Copyright © 2020 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
- */
-/**
  *
  * @package SQL
  */
-namespace NoreSources\SQL\Structure;
+namespace NoreSources\SQL\Structure\Importer;
 
 use NoreSources\Container;
 use NoreSources\SemanticVersion;
 use NoreSources\Expression\ExpressionInterface;
+use NoreSources\SQL\Structure\ColumnStructure;
+use NoreSources\SQL\Structure\DatasourceStructure;
+use NoreSources\SQL\Structure\ForeignKeyTableConstraint;
+use NoreSources\SQL\Structure\IndexStructure;
+use NoreSources\SQL\Structure\NamespaceStructure;
+use NoreSources\SQL\Structure\PrimaryKeyTableConstraint;
+use NoreSources\SQL\Structure\StructureElementInterface;
+use NoreSources\SQL\Structure\StructureException;
+use NoreSources\SQL\Structure\StructureResolver;
+use NoreSources\SQL\Structure\StructureSerializationException;
+use NoreSources\SQL\Structure\TableStructure;
 use NoreSources\SQL\Structure\XMLStructureFileConstants as K;
 use NoreSources\SQL\Structure\Traits\XMLStructureFileTrait;
 use NoreSources\SQL\Syntax\Data;
@@ -286,6 +295,13 @@ class XMLStructureFileImporter implements
 			}
 		}
 
+		if (($typeNode instanceof \DOMNode) &&
+			$typeNode->hasAttribute('length'))
+		{
+			$structure->setColumnProperty(K::COLUMN_LENGTH,
+				intval($typeNode->getAttribute('length')));
+		}
+
 		if ($dataType & K::DATATYPE_TIMESTAMP)
 		{
 			if ($context->schemaVersion->getIntegerValue() < 20000)
@@ -347,11 +363,7 @@ class XMLStructureFileImporter implements
 				$structure->setColumnProperty(K::COLUMN_FLAGS,
 					$flg | K::COLUMN_FLAG_AUTO_INCREMENT);
 			}
-			if ($typeNode->hasAttribute('length'))
-			{
-				$structure->setColumnProperty(K::COLUMN_LENGTH,
-					intval($typeNode->getAttribute('length')));
-			}
+
 			if ($typeNode->hasAttribute($scaleAttribute))
 			{
 				$count = intval(
