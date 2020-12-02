@@ -54,11 +54,8 @@ class DropIndexQuery implements TokenizableStatementInterface
 		if ($identifier instanceof IndexStructure)
 			$identifier = $identifier->getPath();
 
-		if ($identifier instanceof StructureElementIdentifier)
-			$this->indexIdentifier = $identifier;
-		else
-			$this->indexIdentifier = new StructureElementIdentifier(
-				\strval($identifier));
+		$this->indexIdentifier = StructureElementIdentifier::make(
+			$identifier);
 
 		return $this;
 	}

@@ -43,7 +43,8 @@ class DeleteQuery implements TokenizableStatementInterface
 	public function tokenize(TokenStream $stream,
 		TokenStreamContextInterface $context)
 	{
-		$tableStructure = $context->findTable($this->getTable()->path);
+		$tableStructure = $context->findTable(
+			\strval($this->getTable()));
 
 		$context->pushResolverContext($tableStructure);
 

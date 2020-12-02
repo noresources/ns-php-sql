@@ -335,7 +335,7 @@ class SelectQuery implements TokenizableStatementInterface
 			if ($this->fromTarget->expression instanceof Table)
 			{
 				$targetStructure = $context->findTable(
-					$this->fromTarget->expression->path);
+					\strval($this->fromTarget->expression));
 				$context->pushResolverContext($targetStructure);
 			}
 		}
@@ -362,7 +362,7 @@ class SelectQuery implements TokenizableStatementInterface
 						$structure = $join->subject;
 						if ($join->subject->expression instanceof Table)
 							$structure = $context->findTable(
-								$join->subject->expression->path);
+								\strval($join->subject->expression));
 						$context->setAlias($join->subject->alias,
 							$structure);
 					}
@@ -433,7 +433,7 @@ class SelectQuery implements TokenizableStatementInterface
 				if ($column->expression instanceof Column)
 				{
 					$structure = $context->findColumn(
-						$column->expression->path);
+						\strval($column->expression));
 					$context->setResultColumn($columnIndex, $structure,
 						$column->alias);
 				}

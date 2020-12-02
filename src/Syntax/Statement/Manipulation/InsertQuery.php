@@ -65,7 +65,8 @@ class InsertQuery implements TokenizableStatementInterface, \ArrayAccess
 	{
 		$platform = $context->getPlatform();
 
-		$tableStructure = $context->findTable($this->getTable()->path);
+		$tableStructure = $context->findTable(
+			\strval($this->getTable()));
 
 		/**
 		 *

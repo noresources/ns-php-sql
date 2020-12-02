@@ -19,9 +19,7 @@ use NoreSources\Expression\ExpressionInterface;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DataTypeProviderInterface;
 use NoreSources\SQL\MediaTypeUtility;
-use NoreSources\SQL\Structure\DatasourceStructure;
 use NoreSources\SQL\Structure\StructureElementIdentifier;
-use NoreSources\SQL\Structure\StructureElementInterface;
 use NoreSources\SQL\Syntax\Evaluator;
 use NoreSources\SQL\Syntax\FunctionCall;
 use NoreSources\SQL\Syntax\MetaFunctionCall;
@@ -181,35 +179,9 @@ abstract class AbstractPlatform implements PlatformInterface
 
 	public function quoteIdentifierPath($path)
 	{
-		if ($path instanceof StructureElementInterface)
-		{
-			$identifier = $this->quoteIdentifier($path->getName());
-			while (($path = $path->getParentElement()))
-			{
-				if (empty($path->getName()) ||
-					$path instanceof DatasourceStructure)
-					break;
+		$path = StructureElementIdentifier::make($path);
 
-				$identifier = $this->quoteIdentifier($path->getName()) .
-					'.' . $identifier;
-			}
-
-			return $identifier;
-		}
-
-		if (\is_string($path))
-			$path = \explode('.', $path);
-		elseif ($path instanceof StructureElementIdentifier)
-			$path = $path->getPathParts();
-
-		if (!Container::isTraversable($path))
-			throw new \InvalidArgumentException(
-				StructureElementInterface::class . ', ' .
-				StructureElementIdentifier::class .
-				', array or string expected. Got ' .
-				TypeDescription::getName($path));
-
-		return Container::implodeValues($path, '.',
+		return Container::implodeValues($path->getPathParts(), '.',
 			function ($name) {
 				return $this->quoteIdentifier($name);
 			});

@@ -68,11 +68,8 @@ class CreateViewQuery implements TokenizableStatementInterface
 		if ($identifier instanceof ViewStructure)
 			$identifier = $identifier->getPath();
 
-		if ($identifier instanceof StructureElementIdentifier)
-			$this->viewIdentifier = $identifier;
-		else
-			$this->viewIdentifier = new StructureElementIdentifier(
-				\strval($identifier));
+		$this->viewIdentifier = StructureElementIdentifier::make(
+			$identifier);
 
 		return $this;
 	}
@@ -162,7 +159,8 @@ class CreateViewQuery implements TokenizableStatementInterface
 
 				$stream->identifier(
 					$context->getPlatform()
-						->quoteIdentifier($this->viewIdentifier->path));
+						->quoteIdentifier(
+						$this->viewIdentifier->getLocalName()));
 			}
 		}
 		else

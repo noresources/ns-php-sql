@@ -54,11 +54,8 @@ class DropViewQuery implements TokenizableStatementInterface
 		if ($identifier instanceof ViewStructure)
 			$identifier = $identifier->getPath();
 
-		if ($identifier instanceof StructureElementIdentifier)
-			$this->viewIdentifier = $identifier;
-		else
-			$this->viewIdentifier = new StructureElementIdentifier(
-				\strval($identifier));
+		$this->viewIdentifier = StructureElementIdentifier::make(
+			$identifier);
 
 		return $this;
 	}
@@ -99,7 +96,7 @@ class DropViewQuery implements TokenizableStatementInterface
 			if (\count($parts) > 1)
 				$stream->identifier(
 					$context->getPlatform()
-						->quoteIdentifierPath($parts));
+						->quoteIdentifierPath($this->viewIdentifier));
 			else // Last chance to find the element namespace
 			{
 				$structure = $context->getPivot();
@@ -114,7 +111,8 @@ class DropViewQuery implements TokenizableStatementInterface
 
 				$stream->identifier(
 					$context->getPlatform()
-						->quoteIdentifier($this->viewIdentifier->path));
+						->quoteIdentifier(
+						$this->viewIdentifier->getLocalName()));
 			}
 		}
 		else

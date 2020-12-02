@@ -75,11 +75,8 @@ class CreateIndexQuery implements TokenizableStatementInterface
 		if ($identifier instanceof IndexStructure)
 			$identifier = $identifier->getPath();
 
-		if ($identifier instanceof StructureElementIdentifier)
-			$this->indexIdentifier = $identifier;
-		else
-			$this->indexIdentifier = new StructureElementIdentifier(
-				\strval($identifier));
+		$this->indexIdentifier = StructureElementIdentifier::make(
+			$identifier);
 
 		return $this;
 	}
@@ -173,7 +170,8 @@ class CreateIndexQuery implements TokenizableStatementInterface
 				K::FEATURE_EXISTS_CONDITION
 			], false);
 
-		$tableStructure = $context->findTable($this->indexTable->path);
+		$tableStructure = $context->findTable(
+			\strval($this->indexTable));
 		$context->pushResolverContext($tableStructure);
 
 		/**
@@ -219,7 +217,7 @@ class CreateIndexQuery implements TokenizableStatementInterface
 					$stream->identifier(
 						$context->getPlatform()
 							->quoteIdentifier(
-							$this->indexIdentifier->path));
+							$this->indexIdentifier->getLocalName()));
 				}
 			}
 			else

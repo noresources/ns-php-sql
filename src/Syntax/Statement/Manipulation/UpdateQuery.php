@@ -55,7 +55,8 @@ class UpdateQuery implements TokenizableStatementInterface, \ArrayAccess
 		if ($this->columnValues->count() == 0)
 			throw new StatementException($this, 'No column value');
 
-		$tableStructure = $context->findTable($this->getTable()->path);
+		$tableStructure = $context->findTable(
+			\strval($this->getTable()));
 		$context->pushResolverContext($tableStructure);
 		/**
 		 *

@@ -47,11 +47,8 @@ class CreateNamespaceQuery implements TokenizableStatementInterface
 		if ($identifier instanceof NamespaceStructure)
 			$identifier = $identifier->getPath();
 
-		if ($identifier instanceof StructureElementIdentifier)
-			$this->namespaceIdentifier = $identifier;
-		else
-			$this->namespaceIdentifier = new StructureElementIdentifier(
-				\strval($identifier));
+		$this->namespaceIdentifier = StructureElementIdentifier::make(
+			$identifier);
 
 		return $this;
 	}
