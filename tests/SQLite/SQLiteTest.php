@@ -321,6 +321,17 @@ final class SQLiteTest extends \PHPUnit\Framework\TestCase
 		}
 	}
 
+	public function testRawPragmas()
+	{
+		$this->assertTrue($this->createDatabase());
+
+		$result = $this->connection->executeStatement(
+			'PRAGMA database_list');
+
+		$this->assertInstanceOf(Recordset::class, $result,
+			'Pragma returns a recordset');
+	}
+
 	public function testTimestampFormat()
 	{
 		$platform = new SQLitePlatform();

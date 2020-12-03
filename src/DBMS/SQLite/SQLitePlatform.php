@@ -1,4 +1,10 @@
 <?php
+/**
+ * Copyright © 2020 by Renaud Guillard (dev@nore.fr)
+ * Distributed under the terms of the MIT License, see LICENSE
+ *
+ * @package SQL
+ */
 namespace NoreSources\SQL\DBMS\SQLite;
 
 use NoreSources\Container;
@@ -238,6 +244,7 @@ class SQLitePlatform extends AbstractPlatform
 							K::TYPE_DATA_TYPE => K::DATATYPE_FLOAT,
 							K::TYPE_FLAGS => K::TYPE_FLAG_FRACTION_SCALE
 						]),
+
 					'text' => new ArrayObjectType(
 						[
 							K::TYPE_NAME => 'TEXT',
@@ -251,6 +258,8 @@ class SQLitePlatform extends AbstractPlatform
 							K::TYPE_MEDIA_TYPE => MediaType::fromString(
 								'application/json')
 						])
+				], [
+					'numeric' => 'real'
 				]);
 		}
 

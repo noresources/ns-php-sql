@@ -374,10 +374,14 @@ class SQLiteConnection implements ConnectionInterface,
 		}
 		else
 		{
-			if ($statementType != K::QUERY_SELECT)
-				$result = @$this->connection->exec(strval($statement));
-			else
+
+			$rowExpected = ($statementType == K::QUERY_SELECT ||
+				$statementType == 0);
+
+			if ($rowExpected)
 				$result = @$this->connection->query(strval($statement));
+			else
+				$result = @$this->connection->exec(strval($statement));
 		}
 
 		if ($result === false)
@@ -387,27 +391,18 @@ class SQLiteConnection implements ConnectionInterface,
 
 		if ($statementType & K::QUERY_FAMILY_ROWMODIFICATION)
 		{
-			if (($result instanceof \SQLite3Result) || $result)
-			{
-				return new DefaultRowModificationStatementResult(
-					@$this->connection->changes());
-			}
+			return new DefaultRowModificationStatementResult(
+				@$this->connection->changes());
 		}
 		elseif ($statementType == K::QUERY_INSERT)
 		{
-			if (($result instanceof \SQLite3Result) || $result)
-			{
-				return new DefaultInsertionStatementResult(
-					@$this->connection->lastInsertRowID());
-			}
+			return new DefaultInsertionStatementResult(
+				@$this->connection->lastInsertRowID());
 		}
-		elseif ($statementType == K::QUERY_SELECT)
+		elseif ($statementType == K::QUERY_SELECT ||
+			($result instanceof \SQLite3Result && $result->numColumns()))
 		{
-			if ($result instanceof \SQLite3Result)
-				return new SQLiteRecordset($result, $statement);
-			else
-				throw new SQLiteConnectionException($this,
-					'Invalid execution result');
+			return new SQLiteRecordset($result, $statement);
 		}
 		else
 			return (($result instanceof \SQLite3Result) || $result);
@@ -505,7 +500,7 @@ class SQLiteConnection implements ConnectionInterface,
 			return self::NAMESPACE_NAME_DEFAULT;
 		}
 
-		return pathinfo($source, 'filename');
+		return pathinfo($source, PATHINFO_FILENAME);
 	}
 
 	/**
