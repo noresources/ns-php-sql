@@ -55,6 +55,12 @@ class PostgreSQLPlatform extends AbstractPlatform implements
 				K::FEATURE_TEMPORARY
 			], true);
 
+		$this->setPlatformFeature(
+			[
+				K::FEATURE_CREATE,
+				K::FEATURE_CONSTRAINT_DECLARATION_FLAGS
+			], (K::FEATURE_CONSTRAINT_REFERENCES_QUALIFIED));
+
 		$serverVersion = $this->getPlatformVersion();
 		$compatibility = $serverVersion->slice(SemanticVersion::MAJOR,
 			SemanticVersion::MAJOR);

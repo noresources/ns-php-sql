@@ -150,6 +150,25 @@ final class PostgreSQLTest extends \PHPUnit\Framework\TestCase
 			$prepared);
 	}
 
+	public function testExplorer()
+	{
+		$this->assertTrue(true);
+
+		$connection = self::createConnection();
+		if ($connection === NULL)
+			return;
+
+		$explorer = $connection->getStructureExplorer();
+
+		$namespaces = $explorer->getNamespaceNames();
+
+		$this->assertContains('public', $namespaces, 'Namespace names');
+		$this->assertContains('ns_unittests', $namespaces,
+			'Namespace names');
+
+		$utTables = $explorer->getTableNames('ns_unittests');
+	}
+
 	public function _testSelect()
 	{}
 
@@ -168,7 +187,7 @@ final class PostgreSQLTest extends \PHPUnit\Framework\TestCase
 
 	/**
 	 *
-	 * @return \NoreSources\SQL\DBMS\ConnectionInterface
+	 * @return PostgreSQLConnection
 	 */
 	private function createConnection()
 	{

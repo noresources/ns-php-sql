@@ -631,8 +631,8 @@ class XMLStructureFileImporter implements
 			}
 
 			$events = [
-				'onUpdate',
-				'onDelete'
+				K::EVENT_UPDATE,
+				K::EVENT_DELETE
 			];
 
 			$actions = [
@@ -655,12 +655,13 @@ class XMLStructureFileImporter implements
 				{
 					$eventNode = self::getSingleElementByTagName(
 						$context->namespaceURI, $actionsNode,
-						strtolower($event));
+						strtolower('on' . $event));
 					if ($eventNode)
 					{
 						$action = $eventNode->getAttribute('action');
 						if (Container::keyExists($actions, $action))
-							$fk->$event = $actions[$action];
+							$fk->getEvents()->on($event,
+								$actions[$action]);
 					}
 				}
 			}

@@ -1,10 +1,17 @@
 <?php
+/**
+ * Copyright © 2020 by Renaud Guillard (dev@nore.fr)
+ * Distributed under the terms of the MIT License, see LICENSE
+ *
+ * @package SQL
+ */
 namespace NoreSources\SQL;
 
 use NoreSources\Container;
 use NoreSources\DateTime;
 use NoreSources\TypeDescription;
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\DBMS\StructureExplorerInterface;
 use NoreSources\SQL\DBMS\SQLite\SQLiteConnection;
 use NoreSources\SQL\DBMS\SQLite\SQLiteConstants;
 use NoreSources\SQL\DBMS\SQLite\SQLitePlatform;
@@ -12,7 +19,14 @@ use NoreSources\SQL\DBMS\SQLite\SQLitePreparedStatement;
 use NoreSources\SQL\DBMS\SQLite\SQLiteRecordset;
 use NoreSources\SQL\Result\InsertionStatementResultInterface;
 use NoreSources\SQL\Result\Recordset;
+use NoreSources\SQL\Structure\ColumnStructure;
+use NoreSources\SQL\Structure\DatasourceStructure;
+use NoreSources\SQL\Structure\ForeignKeyTableConstraint;
+use NoreSources\SQL\Structure\IndexTableConstraintInterface;
+use NoreSources\SQL\Structure\NamespaceStructure;
+use NoreSources\SQL\Structure\PrimaryKeyTableConstraint;
 use NoreSources\SQL\Structure\TableStructure;
+use NoreSources\SQL\Syntax\Data;
 use NoreSources\SQL\Syntax\FunctionCall;
 use NoreSources\SQL\Syntax\TimestampFormatFunction;
 use NoreSources\SQL\Syntax\Statement\Statement;
@@ -376,6 +390,163 @@ final class SQLiteTest extends \PHPUnit\Framework\TestCase
 			$this->assertEquals($test->translation, $format,
 				$label . ' translated format');
 		}
+	}
+
+	public function testStructureExplorer()
+	{
+		$environment = new Environment(
+			[
+				K::CONNECTION_TYPE => SQLiteConnection::class,
+				K::CONNECTION_SOURCE => [
+					'ACME' => __DIR__ . '/../data/Company.sqlite',
+					__DIR__ . '/../data/keyvalue.sqlite'
+				]
+			]);
+
+		$connection = $environment->getConnection();
+
+		/**
+		 *
+		 * @var StructureExplorerInterface $explorer
+		 */
+		$explorer = $connection->getStructureExplorer();
+
+		$this->assertInstanceOf(StructureExplorerInterface::class,
+			$explorer);
+
+		$namespaces = $explorer->getNamespaceNames();
+
+		$this->assertContains('ACME', $namespaces, 'Namespace names');
+		$this->assertContains('keyvalue', $namespaces, 'Namespace names');
+
+		$acmeViews = $explorer->getViewNames('acme');
+		$this->assertEquals([
+			'Managers'
+		], $acmeViews);
+
+		$acmeTables = $explorer->getTableNames('acme');
+		$this->assertEquals(
+			[
+				'Employees',
+				'Hierarchy',
+				'Tasks',
+				'types'
+			], $acmeTables, 'ACME table names');
+
+		$keyvalueTables = $explorer->getTableNames([
+			'keyvalue'
+		]);
+		$this->assertEquals([
+			'keyvalue'
+		], $keyvalueTables, 'keyvalue table names');
+
+		$employeesIndexes = $explorer->getTableIndexNames(
+			'acme.Employees');
+
+		$this->assertEquals([
+			'index_employees_name'
+		], $employeesIndexes, 'Employees table indexes');
+
+		$employeesColumn = $explorer->getTableColumnNames(
+			[
+				'acme',
+				'Employees'
+			]);
+
+		$this->assertEquals([
+			'id',
+			'name',
+			'gender',
+			'salary'
+		], $employeesColumn, 'ACME employees column');
+
+		$tasksPrimaryKey = $explorer->getTablePrimaryKeyConstraint(
+			'ACME.Tasks');
+
+		$this->assertInstanceOf(PrimaryKeyTableConstraint::class,
+			$tasksPrimaryKey, 'Tasks primary key');
+
+		$tasksForeignKeys = $explorer->getTableForeignKeyConstraints(
+			'ACME.Tasks');
+
+		$this->assertCount(2, $tasksForeignKeys,
+			'Task foreign key count');
+
+		$structure = $explorer->getStructure();
+
+		$this->assertInstanceOf(DatasourceStructure::class, $structure,
+			'Structure from SQLite');
+
+		$acme = $structure['ACME'];
+		$this->assertInstanceOf(NamespaceStructure::class, $acme,
+			'ACME namespace');
+
+		$employees = $acme['Employees'];
+		$this->assertInstanceOf(TableStructure::class, $employees);
+
+		$index = Container::firstValue(
+			Container::filter($employees->getConstraints(),
+				function ($k, $c) {
+					return ($c instanceof IndexTableConstraintInterface &&
+					$c->getName() == 'index_employees_name');
+				}));
+
+		$this->assertInstanceOf(IndexTableConstraintInterface::class,
+			$index);
+
+		/**
+		 *
+		 * @var TableStructure $tasks
+		 */
+		$tasks = $acme['Tasks'];
+		$this->assertInstanceOf(TableStructure::class, $tasks,
+			'Tasks table');
+
+		$this->assertTrue($tasks->hasColumn('id'), 'Tasks has id column');
+
+		$tasksPrimaryKey = Container::firstValue(
+			Container::filter($tasks->getConstraints(),
+				function ($k, $constraint) {
+					return ($constraint instanceof PrimaryKeyTableConstraint);
+				}));
+
+		$this->assertInstanceOf(PrimaryKeyTableConstraint::class,
+			$tasksPrimaryKey, 'Tasks primary key');
+
+		$foreignKeys = Container::filter($tasks->getConstraints(),
+			function ($k, $v) {
+				return ($v instanceof ForeignKeyTableConstraint);
+			});
+
+		$this->assertCount(2, $foreignKeys, 'Tasks foreign key count');
+
+		$id = $tasks->getColumn('id');
+
+		$this->assertInstanceOf(ColumnStructure::class, $id);
+
+		$this->assertTrue($id->has(K::COLUMN_FLAGS),
+			'Tasks.id has flags');
+
+		$idFlags = $id->get(K::COLUMN_FLAGS);
+
+		$this->assertEquals(K::COLUMN_FLAG_AUTO_INCREMENT,
+			$idFlags & K::COLUMN_FLAG_AUTO_INCREMENT,
+			'Tasks.id is auto-increment');
+
+		/**
+		 *
+		 * @var TableStructure $types
+		 */
+		$types = $acme['types'];
+		$this->assertInstanceOf(TableStructure::class, $types);
+
+		$timestamp = $types['timestamp'];
+		$this->assertInstanceOf(ColumnStructure::class, $timestamp);
+
+		$dflt = $timestamp->get(K::COLUMN_DEFAULT_VALUE);
+		$this->assertInstanceOf(Data::class, $dflt);
+		$this->assertInstanceOf(\DateTimeInterface::class,
+			$dflt->GetValue());
 	}
 
 	private function getRowValue(StatementData $query, $column,

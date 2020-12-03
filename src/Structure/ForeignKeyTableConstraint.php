@@ -7,6 +7,7 @@
  */
 namespace NoreSources\SQL\Structure;
 
+use NoreSources\SQL\EventMap;
 use NoreSources\SQL\Structure\Traits\ConstraintNameTrait;
 
 /**
@@ -24,24 +25,23 @@ class ForeignKeyTableConstraint implements \IteratorAggregate,
 		return 0;
 	}
 
-	/**
-	 * ON DELETE action.
-	 */
-	public $onDelete;
-
-	/**
-	 * ON UPDATE action.
-	 */
-	public $onUpdate;
-
 	public function __construct($foreignTable, $name = '')
 	{
 		$this->setName($name);
-		$this->onDelete = null;
-		$this->onUpdate = null;
 		$this->foreignTable = StructureElementIdentifier::make(
 			$foreignTable);
 		$this->columns = new \ArrayObject();
+	}
+
+	/**
+	 *
+	 * @return EventMap
+	 */
+	public function getEvents()
+	{
+		if (!isset($this->events))
+			$this->events = new EventMap();
+		return $this->events;
 	}
 
 	/**
@@ -75,5 +75,11 @@ class ForeignKeyTableConstraint implements \IteratorAggregate,
 	 * @var \ArrayObject
 	 */
 	private $columns;
+
+	/**
+	 *
+	 * @var EventMap
+	 */
+	private $events;
 }
 

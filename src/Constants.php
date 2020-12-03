@@ -537,6 +537,10 @@ class Constants
 	 */
 	const ORDERING_DESC = 'DESC';
 
+	const EVENT_UPDATE = 'update';
+
+	const EVENT_DELETE = 'delete';
+
 	/**
 	 * Foreign key action "SET NULL".
 	 * The constant value is used in StructureFileImporterInterface

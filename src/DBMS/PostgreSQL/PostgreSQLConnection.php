@@ -17,8 +17,10 @@ use NoreSources\SQL\DBMS\ConnectionException;
 use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\IdentifierSerializerInterface;
 use NoreSources\SQL\DBMS\StringSerializerInterface;
+use NoreSources\SQL\DBMS\StructureExplorerProviderInterface;
 use NoreSources\SQL\DBMS\TransactionInterface;
 use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLConstants as K;
+use NoreSources\SQL\DBMS\SQLite\SQLiteStructureExplorer;
 use NoreSources\SQL\DBMS\Traits\PlatformProviderTrait;
 use NoreSources\SQL\DBMS\Traits\TransactionStackTrait;
 use NoreSources\SQL\Result\DefaultInsertionStatementResult;
@@ -29,7 +31,7 @@ use NoreSources\SQL\Syntax\Statement\Statement;
 
 class PostgreSQLConnection implements ConnectionInterface,
 	TransactionInterface, StringSerializerInterface,
-	IdentifierSerializerInterface
+	IdentifierSerializerInterface, StructureExplorerProviderInterface
 {
 
 	use TransactionStackTrait;
@@ -130,6 +132,19 @@ class PostgreSQLConnection implements ConnectionInterface,
 		}
 
 		return $this->platform;
+	}
+
+	/**
+	 *
+	 * @return \NoreSources\SQL\DBMS\SQLite\SQLiteStructureExplorer
+	 */
+	public function getStructureExplorer()
+	{
+		if (!isset($this->structureExplorer))
+			$this->structureExplorer = new PostgreSQLStructureExplorer(
+				$this);
+
+		return $this->structureExplorer;
 	}
 
 	/**
@@ -391,4 +406,10 @@ class PostgreSQLConnection implements ConnectionInterface,
 	 * @var resource
 	 */
 	private $resource;
+
+	/**
+	 *
+	 * @var SQLiteStructureExplorer
+	 */
+	private $structureExplorer;
 }

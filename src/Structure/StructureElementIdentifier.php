@@ -98,7 +98,7 @@ class StructureElementIdentifier implements StringRepresentation,
 	/**
 	 * Get parent identifier
 	 *
-	 * @return NULL|Structure\StructureElementIdentifier.
+	 * @return StructureElementIdentifier|NULL Parent identifier if any, otherwise NULL.
 	 */
 	public function getParentIdentifier()
 	{

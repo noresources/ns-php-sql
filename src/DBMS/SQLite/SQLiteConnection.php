@@ -14,6 +14,7 @@ use NoreSources\TypeDescription;
 use NoreSources\Http\ParameterMapProviderInterface;
 use NoreSources\SQL\DataTypeProviderInterface;
 use NoreSources\SQL\DBMS\ConnectionInterface;
+use NoreSources\SQL\DBMS\StructureExplorerProviderInterface;
 use NoreSources\SQL\DBMS\TransactionInterface;
 use NoreSources\SQL\DBMS\SQLite\SQLiteConstants as K;
 use NoreSources\SQL\DBMS\Traits\PlatformProviderTrait;
@@ -29,7 +30,7 @@ use NoreSources\SQL\Syntax\Statement\Statement;
  * SQLite connection
  */
 class SQLiteConnection implements ConnectionInterface,
-	TransactionInterface
+	TransactionInterface, StructureExplorerProviderInterface
 {
 	use TransactionStackTrait;
 	use PlatformProviderTrait;
@@ -244,6 +245,19 @@ class SQLiteConnection implements ConnectionInterface,
 		}
 
 		return $this->platform;
+	}
+
+	/**
+	 *
+	 * @return \NoreSources\SQL\DBMS\SQLite\SQLiteStructureExplorer
+	 */
+	public function getStructureExplorer()
+	{
+		if (!isset($this->structureExplorer))
+			$this->structureExplorer = new SQLiteStructureExplorer(
+				$this);
+
+		return $this->structureExplorer;
 	}
 
 	/**
@@ -521,4 +535,10 @@ class SQLiteConnection implements ConnectionInterface,
 	 * @var array
 	 */
 	private $platformParameters;
+
+	/**
+	 *
+	 * @var SQLiteStructureExplorer
+	 */
+	private $structureExplorer;
 }

@@ -60,7 +60,6 @@ class TableConstraintDeclaration implements
 		TokenStreamContextInterface $context)
 	{
 		$platform = $context->getPlatform();
-
 		if ($this->constraint->getName())
 			$stream->keyword('constraint')
 				->space()
@@ -141,6 +140,14 @@ class TableConstraintDeclaration implements
 	public function tokenizeForeignKey(TokenStream $stream,
 		TokenStreamContextInterface $context)
 	{
+		$platform = $context->getPlatform();
+
+		$constraintFeatureFlags = $platform->queryFeature(
+			[
+				K::FEATURE_CREATE,
+				K::FEATURE_CONSTRAINT_DECLARATION_FLAGS
+			], 0);
+
 		$stream->keyword('foreign key')
 			->space()
 			->text('(');
@@ -163,15 +170,17 @@ class TableConstraintDeclaration implements
 
 		$ft = $context->findTable(
 			\strval($this->constraint->getForeignTable()));
-		if ($ft->getParentElement() == $this->table->getParentElement())
-			$stream->identifier(
-				$context->getPlatform()
-					->quoteIdentifier($ft->getName()));
-		else
+		if (($ft->getParentElement() != $this->table->getParentElement()) ||
+			($constraintFeatureFlags &
+			K::FEATURE_CONSTRAINT_REFERENCES_QUALIFIED))
 			$stream->identifier(
 				$context->getPlatform()
 					->quoteIdentifierPath(
 					$this->constraint->getForeignTable()));
+		else
+			$stream->identifier(
+				$context->getPlatform()
+					->quoteIdentifier($ft->getName()));
 
 		$stream->space()->text('(');
 
@@ -186,24 +195,28 @@ class TableConstraintDeclaration implements
 		}
 		$stream->text(')');
 
-		if ($this->constraint->onUpdate)
+		if ($this->constraint->getEvents()->has(K::EVENT_UPDATE))
 		{
 			$stream->space()
 				->keyword('on update')
 				->space()
 				->keyword(
 				$context->getPlatform()
-					->getForeignKeyAction($this->constraint->onUpdate));
+					->getForeignKeyAction(
+					$this->constraint->getEvents()
+						->get(K::EVENT_UPDATE)));
 		}
 
-		if ($this->constraint->onDelete)
+		if ($this->constraint->getEvents()->has(K::EVENT_DELETE))
 		{
 			$stream->space()
 				->keyword('on delete')
 				->space()
 				->keyword(
 				$context->getPlatform()
-					->getForeignKeyAction($this->constraint->onDelete));
+					->getForeignKeyAction(
+					$this->constraint->getEvents()
+						->get(K::EVENT_DELETE)));
 		}
 
 		return $stream;

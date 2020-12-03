@@ -237,18 +237,22 @@ class XMLStructureFileExporter implements
 				if ($this->schemaVersion->getIntegerValue() >= 20000)
 					$actionsNode = $context->dom->createElementNS(
 						$namespaceURI, 'actions');
-				if ($constraint->onUpdate)
+				if ($constraint->getEvents()->has(K::EVENT_UPDATE))
 				{
 					$a = $context->dom->createElementNS($namespaceURI,
 						'onupdate');
-					$a->setAttribute('action', $constraint->onUpdate);
+					$a->setAttribute('action',
+						$constraint->getEvents()
+							->get(K::EVENT_UPDATE));
 					$actionsNode->appendChild($a);
 				}
-				if ($constraint->onDelete)
+				if ($constraint->getEvents()->has(K::EVENT_DELETE))
 				{
 					$a = $context->dom->createElementNS($namespaceURI,
 						'ondelete');
-					$a->setAttribute('action', $constraint->onDelete);
+					$a->setAttribute('action',
+						$constraint->getEvents()
+							->get(K::EVENT_DELETE));
 					$actionsNode->appendChild($a);
 				}
 
