@@ -306,18 +306,29 @@ class Constants
 	const COLUMN_MEDIA_TYPE = 'mediatype';
 
 	/**
-	 * Table column primary key constraint.
+	 * Table column is part of a key constraint (index, primary key)
 	 *
-	 * Returned by ColumnStructure::getConstraintFlags ()
+	 * @var integer
 	 */
-	const COLUMN_CONSTRAINT_PRIMARY_KEY = Bitset::BIT_01;
+	const CONSTRAINT_COLUMN_KEY = Bitset::BIT_01;
 
 	/**
 	 * Table column uniqueness constraint.
 	 *
 	 * Returned by ColumnStructure::getConstraintFlags ()
 	 */
-	const COLUMN_CONSTRAINT_UNIQUE = Bitset::BIT_02;
+	const CONSTRAINT_COLUMN_UNIQUE = Bitset::BIT_02 |
+		self::CONSTRAINT_COLUMN_KEY;
+
+	/**
+	 * Table column primary key constraint.
+	 *
+	 * Returned by ColumnStructure::getConstraintFlags ()
+	 */
+	const CONSTRAINT_COLUMN_PRIMARY_KEY = Bitset::BIT_03 |
+		self::CONSTRAINT_COLUMN_UNIQUE;
+
+	const CONSTRAINT_COLUMN_PARTIAL = Bitset::BIT_04;
 
 	/**
 	 * DBMS type data type affinity
@@ -557,6 +568,13 @@ class Constants
 	 * @var string
 	 */
 	const FOREIGN_KEY_ACTION_RESTRICT = 'restrict';
+
+	/**
+	 * UNIQUE index
+	 *
+	 * @var integer
+	 */
+	const INDEX_UNIQUE = Bitset::BIT_01;
 
 	// Tokens
 	const TOKEN_SPACE = 0;

@@ -11,8 +11,9 @@ use NoreSources\Bitset;
 use NoreSources\TypeDescription;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\TypeInterface;
+use NoreSources\SQL\Structure\IndexTableConstraintInterface;
 use NoreSources\SQL\Structure\StructureProviderInterface;
-use NoreSources\SQL\Structure\TableConstraint;
+use NoreSources\SQL\Structure\TableConstraintInterface;
 use NoreSources\SQL\Structure\TableStructure;
 use NoreSources\SQL\Syntax\ColumnDeclaration;
 use NoreSources\SQL\Syntax\TableConstraintDeclaration;
@@ -74,6 +75,15 @@ class CreateTableQuery implements TokenizableStatementInterface,
 	{
 		$this->structure = $table;
 		return $this;
+	}
+
+	/**
+	 *
+	 * @return \NoreSources\SQL\Structure\TableStructure
+	 */
+	public function getTable()
+	{
+		return $this->structure;
 	}
 
 	/**
@@ -189,14 +199,27 @@ class CreateTableQuery implements TokenizableStatementInterface,
 		return $stream;
 	}
 
+	/**
+	 * Indicates if the constraint can be declared in a CREATE TABLE statement.
+	 *
+	 * @param TableConstraintInterface $constraint
+	 *        	Table constraint
+	 * @return boolean
+	 */
 	protected function acceptTableConstraint(
-		TableConstraint $constraint)
+		TableConstraintInterface $constraint)
 	{
+		if ($constraint instanceof IndexTableConstraintInterface)
+		{
+			return (($constraint->getIndexFlags() & K::INDEX_UNIQUE) ==
+				K::INDEX_UNIQUE);
+		}
+
 		return true;
 	}
 
 	protected function tokenizeTableConstraint(
-		TableConstraint $constraint, TokenStream $stream,
+		TableConstraintInterface $constraint, TokenStream $stream,
 		TokenStreamContextInterface $context)
 	{
 		$declaration = $context->getPlatform()->newExpression(

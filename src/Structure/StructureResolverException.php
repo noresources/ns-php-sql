@@ -13,11 +13,13 @@ namespace NoreSources\SQL\Structure;
 class StructureResolverException extends \Exception
 {
 
-	public function __construct($path, $elementType = '')
+	public function __construct($path, $elementType = '', $pivot = null)
 	{
-		parent::__construct(
-			'"' . $path . '"' .
+		$message = '"' . $path . '"' .
 			(\strlen($elementType) ? ' ' . $elementType : '') .
-			' not found');
+			' not found';
+		if ($pivot instanceof StructureElementIdentifier)
+			$message .= ' in ' . $pivot->getPath() . ' context';
+		parent::__construct($message);
 	}
 }

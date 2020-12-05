@@ -81,11 +81,10 @@ class MySQLPlatform extends AbstractPlatform implements
 		 * @var MySQLTypeRegistry $types
 		 */
 		$types = MySQLTypeRegistry::getInstance();
-		$isPrimaryKey = (($constraintFlags &
-			K::COLUMN_CONSTRAINT_PRIMARY_KEY) ==
-			K::COLUMN_CONSTRAINT_PRIMARY_KEY);
+		$isKey = (($constraintFlags & K::CONSTRAINT_COLUMN_KEY) ==
+			K::CONSTRAINT_COLUMN_KEY);
 
-		if ($isPrimaryKey)
+		if ($isKey)
 		{
 			// Types must have a key length
 			$types = $types->filter(
@@ -115,13 +114,11 @@ class MySQLPlatform extends AbstractPlatform implements
 			 */
 			$type = Container::firstValue($types);
 
-			if ($isPrimaryKey)
+			if ($isKey)
 			{
 
 				/**
 				 * Use active character set maxlen instead
-				 *
-				 * @var integer $glyphLength
 				 */
 				$glyphLength = 4;
 				$keyMaxLength = intval(

@@ -1,10 +1,15 @@
 <?php
 namespace NoreSources\SQL\Syntax;
 
-use NoreSources\SQL\Structure\ColumnTableConstraint;
+use NoreSources\Container;
+use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\Structure\CheckTableConstraint;
 use NoreSources\SQL\Structure\ForeignKeyTableConstraint;
+use NoreSources\SQL\Structure\IndexTableConstraintInterface;
 use NoreSources\SQL\Structure\PrimaryKeyTableConstraint;
+use NoreSources\SQL\Structure\StructureElementIdentifier;
 use NoreSources\SQL\Structure\TableConstraint;
+use NoreSources\SQL\Structure\TableConstraintInterface;
 use NoreSources\SQL\Structure\TableStructure;
 
 class TableConstraintDeclaration implements
@@ -36,16 +41,15 @@ class TableConstraintDeclaration implements
 	 * @param mixed $constraint
 	 * @return $this
 	 */
-	public function constraint($constraint)
+	public function constraint(TableConstraintInterface $constraint)
 	{
-		if ($constraint instanceof TableConstraint)
-			$this->constraint = $constraint;
+		$this->constraint = $constraint;
 		return $this;
 	}
 
 	/**
 	 *
-	 * @return \NoreSources\SQL\Structure\TableConstraint
+	 * @return TableConstraintInterface
 	 */
 	public function getConstraint()
 	{
@@ -65,10 +69,12 @@ class TableConstraintDeclaration implements
 
 		$c = $stream->count();
 
-		if ($this->constraint instanceof ColumnTableConstraint)
-			$this->tokenizeColumnTableConstraint($stream, $context);
+		if ($this->constraint instanceof IndexTableConstraintInterface)
+			$this->tokenizeIndexTableConstraint($stream, $context);
 		elseif ($this->constraint instanceof ForeignKeyTableConstraint)
 			$this->tokenizeForeignKey($stream, $context);
+		elseif ($this->constraint instanceof CheckTableConstraint)
+			$this->tokenizeCheckTableConstraint($stream, $context);
 
 		$c2 = $stream->count();
 		if ($c && ($c != $c2))
@@ -77,27 +83,50 @@ class TableConstraintDeclaration implements
 		return $stream;
 	}
 
+	public function tokenizeCheckTableConstraint(TokenStream $stream,
+		TokenStreamContextInterface $context)
+	{
+		/**
+		 *
+		 * @var CheckTableConstraint $check
+		 */
+		$check = $this->constraint;
+		$expression = $check->getConstraintExpression();
+
+		if (!($expression && Container::count($expression)))
+			$expression = new Data(true, K::DATATYPE_BOOLEAN);
+
+		$stream->keyword('check')
+			->space()
+			->text('(')
+			->constraints($expression, $context)
+			->text(')');
+
+		return $this;
+	}
+
 	/**
 	 *
 	 * @param TokenStream $stream
 	 * @param TokenStreamContextInterface $context
-	 * @return \NoreSources\SQL\Syntax\TableConstraint
+	 * @return TableConstraint
 	 */
-	public function tokenizeColumnTableConstraint(TokenStream $stream,
+	public function tokenizeIndexTableConstraint(TokenStream $stream,
 		TokenStreamContextInterface $context)
 	{
-		$stream->keyword($this->getColumnTableConstraintNameKeyword());
+		$stream->keyword($this->getIndexTableConstraintNameKeyword());
 
 		$stream->space()->text('(');
 		$i = 0;
-		foreach ($this->constraint as $column)
+		foreach ($this->constraint->getColumns() as $column)
 		{
+			$column = StructureElementIdentifier::make($column);
 			if ($i++ > 0)
 				$stream->text(',')->space();
 
 			$stream->identifier(
 				$context->getPlatform()
-					->quoteIdentifier($column->getName()));
+					->quoteIdentifier($column->getLocalName()));
 		}
 		$stream->text(')');
 		return $this;
@@ -107,7 +136,7 @@ class TableConstraintDeclaration implements
 	 *
 	 * @param TokenStream $stream
 	 * @param TokenStreamContextInterface $context
-	 * @return \NoreSources\SQL\Syntax\TokenStream
+	 * @return TokenStream
 	 */
 	public function tokenizeForeignKey(TokenStream $stream,
 		TokenStreamContextInterface $context)
@@ -132,7 +161,8 @@ class TableConstraintDeclaration implements
 			->keyword('references')
 			->space();
 
-		$ft = $this->constraint->getForeignTable();
+		$ft = $context->findTable(
+			\strval($this->constraint->getForeignTable()));
 		if ($ft->getParentElement() == $this->table->getParentElement())
 			$stream->identifier(
 				$context->getPlatform()
@@ -179,7 +209,7 @@ class TableConstraintDeclaration implements
 		return $stream;
 	}
 
-	protected function getColumnTableConstraintNameKeyword()
+	protected function getIndexTableConstraintNameKeyword()
 	{
 		if ($this->constraint instanceof PrimaryKeyTableConstraint)
 			return 'primary key';

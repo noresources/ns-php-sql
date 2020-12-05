@@ -20,7 +20,6 @@ use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\DefaultConnectionFactory;
 use NoreSources\SQL\DBMS\PreparedStatementInterface;
 use NoreSources\SQL\Structure\DatasourceStructure;
-use NoreSources\SQL\Structure\IndexStructure;
 use NoreSources\SQL\Structure\NamespaceStructure;
 use NoreSources\SQL\Structure\StructureElementInterface;
 use NoreSources\SQL\Structure\StructureProviderInterface;
@@ -153,19 +152,6 @@ class ConnectionHelper
 			$q = $connection->getPlatform()->newStatement(
 				K::QUERY_CREATE_TABLE, $structure);
 			$statement = self::buildStatement($connection, $q,
-				$structure);
-			return $connection->executeStatement($statement);
-		}
-		elseif ($structure instanceof IndexStructure)
-		{
-			/**
-			 *
-			 * @var \NoreSources\SQL\Syntax\Statement\Structure\CreateIndexQuery $q
-			 */
-			$q = $connection->getPlatform()->newStatement(
-				K::QUERY_CREATE_INDEX);
-			$q->setFromIndexStructure($structure);
-			$statement = self::buildStatement($connection, $statement,
 				$structure);
 			return $connection->executeStatement($statement);
 		}

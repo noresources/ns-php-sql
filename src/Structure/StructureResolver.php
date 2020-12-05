@@ -102,7 +102,7 @@ class StructureResolver implements StructureResolverInterface
 		}
 		else
 			throw new StructureResolverException($path->getPath(),
-				'column');
+				'column', $this->getPivot());
 
 		return $column;
 	}
@@ -142,7 +142,7 @@ class StructureResolver implements StructureResolverInterface
 		}
 		else
 			throw new StructureResolverException($path->getPath(),
-				'table');
+				'table', $this->getPivot());
 
 		return $table;
 	}
@@ -169,7 +169,7 @@ class StructureResolver implements StructureResolverInterface
 		}
 		else
 			throw new StructureResolverException($path->getPath(),
-				'namespace');
+				'namespace', $this->getPivot());
 
 		return $namespace;
 	}
@@ -245,7 +245,8 @@ class StructureResolver implements StructureResolverInterface
 		elseif ($this->pivot instanceof ColumnStructure)
 			return $this->pivot->getParentElement(2);
 
-		throw new StructureResolverException('Default namespace');
+		throw new StructureResolverException('Default namespace', null,
+			$this->getPivot());
 	}
 
 	/**
@@ -272,7 +273,8 @@ class StructureResolver implements StructureResolverInterface
 				return Container::firstValue($tables);
 		}
 
-		throw new StructureResolverException('Default table');
+		throw new StructureResolverException('Default table', null,
+			$this->getPivot());
 	}
 
 	/**

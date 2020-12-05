@@ -7,22 +7,22 @@
  */
 namespace NoreSources\SQL\Structure;
 
-use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\Structure\Traits\ConstraintNameTrait;
 
 /**
  *
  * @see https://www.sqlite.org/syntax/foreign-key-clause.html
  */
-class ForeignKeyTableConstraint extends TableConstraint implements \IteratorAggregate, \Countable
+class ForeignKeyTableConstraint implements \IteratorAggregate,
+	TableConstraintInterface
 {
 
-	const ACTION_SET_NULL = K::FOREIGN_KEY_ACTION_SET_NULL;
+	use ConstraintNameTrait;
 
-	const ACTION_SET_DEFAULT = K::FOREIGN_KEY_ACTION_SET_DEFAULT;
-
-	const ACTION_CASCADE = K::FOREIGN_KEY_ACTION_CASCADE;
-
-	const ACTION_RESTRICT = K::FOREIGN_KEY_ACTION_RESTRICT;
+	public function getConstraintFlags()
+	{
+		return 0;
+	}
 
 	/**
 	 * ON DELETE action.
@@ -34,27 +34,19 @@ class ForeignKeyTableConstraint extends TableConstraint implements \IteratorAggr
 	 */
 	public $onUpdate;
 
-	public function __construct(TableStructure $foreignTable, $name = '')
+	public function __construct($foreignTable, $name = '')
 	{
-		parent::__construct($name);
+		$this->setName($name);
 		$this->onDelete = null;
 		$this->onUpdate = null;
-		$this->foreignTable = $foreignTable;
+		$this->foreignTable = StructureElementIdentifier::make(
+			$foreignTable);
 		$this->columns = new \ArrayObject();
 	}
 
 	/**
 	 *
-	 * @return Number of columns on which the foreign key is applied
-	 */
-	public function count()
-	{
-		return $this->columns->count();
-	}
-
-	/**
-	 *
-	 * @return \NoreSources\SQL\Structure\TableStructure
+	 * @return StructureElementIdentifier
 	 */
 	public function getForeignTable()
 	{
@@ -73,7 +65,7 @@ class ForeignKeyTableConstraint extends TableConstraint implements \IteratorAggr
 
 	/**
 	 *
-	 * @var TableStructure
+	 * @var StructureElementIdentifier
 	 */
 	private $foreignTable;
 

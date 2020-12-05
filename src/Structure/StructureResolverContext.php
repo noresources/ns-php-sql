@@ -40,8 +40,7 @@ class StructureResolverContext
 				TableStructure::class => new \ArrayObject(),
 				ViewStructure::class => new \ArrayObject(),
 				NamespaceStructure::class => new \ArrayObject(),
-				DatasourceStructure::class => new \ArrayObject(),
-				IndexStructure::class => new \ArrayObject()
+				DatasourceStructure::class => new \ArrayObject()
 			]);
 		$this->aliases = new \ArrayObject();
 

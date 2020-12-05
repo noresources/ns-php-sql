@@ -7,40 +7,41 @@
  */
 namespace NoreSources\SQL\Syntax\Statement\Structure;
 
-use NoreSources\Bitset;
+use NoreSources\Container;
 use NoreSources\TypeConversion;
 use NoreSources\TypeDescription;
 use NoreSources\Expression\ExpressionInterface;
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\Structure\IndexStructure;
+use NoreSources\SQL\Structure\IndexDescriptionInterface;
+use NoreSources\SQL\Structure\IndexTableConstraintInterface;
 use NoreSources\SQL\Structure\NamespaceStructure;
 use NoreSources\SQL\Structure\StructureElementIdentifier;
 use NoreSources\SQL\Structure\TableStructure;
-use NoreSources\SQL\Syntax\Evaluable;
+use NoreSources\SQL\Structure\Traits\IndexDescriptionTrait;
 use NoreSources\SQL\Syntax\TableReference;
 use NoreSources\SQL\Syntax\TokenStream;
 use NoreSources\SQL\Syntax\TokenStreamContextInterface;
 use NoreSources\SQL\Syntax\Statement\StatementException;
 use NoreSources\SQL\Syntax\Statement\TokenizableStatementInterface;
-use NoreSources\SQL\Syntax\Statement\Traits\WhereConstraintTrait;
 
 /**
  * CREATE INDEX statement
  *
  * @see https://www.sqlite.org/lang_createindex.html
  */
-class CreateIndexQuery implements TokenizableStatementInterface
+class CreateIndexQuery implements TokenizableStatementInterface,
+	IndexDescriptionInterface
 {
-	use WhereConstraintTrait;
+	use IndexDescriptionTrait;
 
-	const UNIQUE = Bitset::BIT_01;
-
+	/**
+	 *
+	 * @param StructureElementIdentifier $identifier
+	 */
 	public function __construct($identifier = null)
 	{
 		$this->indexTable = null;
-		$this->indexFlags = 0;
 		$this->initializeWhereConstraints();
-		$this->indexColumns = [];
 
 		if ($identifier !== null)
 			$this->identifier($identifier);
@@ -51,30 +52,51 @@ class CreateIndexQuery implements TokenizableStatementInterface
 		return K::QUERY_CREATE_INDEX;
 	}
 
-	public function setFromIndexStructure(IndexStructure $index)
+	/**
+	 *
+	 * @param TableStructure $table
+	 *        	Table
+	 * @param string|integer $identifier
+	 *        	Table constraint name or index
+	 * @throws \InvalidArgumentException
+	 * @return $this
+	 */
+	public function setFromTable(TableStructure $table, $identifier)
 	{
-		$this->table($index->getIndexTable());
-		$this->identifier($index);
+		$index = Container::firstValue(
+			Container::filter($table->getConstraints(),
+				function ($k, $v) use ($identifier) {
+					if (\is_integer($identifier) && $k == $identifier)
+						return true;
+					if ($v->getName() == $identifier)
+						return true;
+					return false;
+				}));
+
+		if (!($index instanceof IndexTableConstraintInterface))
+			throw new \InvalidArgumentException(
+				$identifier . ' index not found');
+
+		$columns = $index->getColumns();
 		$this->indexColumns = [];
-		foreach ($index->getIndexColumns() as $column)
-		{
-			$this->indexColumns[] = $column->getName();
-		}
-		$this->indexFlags = $index->getIndexFlags();
+
+		$this->identifier($index)
+			->table($table)
+			->columns(...$columns)
+			->flags($index->getIndexFlags());
+
+		return $this;
 	}
 
 	/**
 	 *
-	 * @param StructureElementIdentifier|IndexStructure|string $identifier
+	 * @param StructureElementIdentifier|string $identifier
 	 *        	Index identifier
 	 *
-	 * @return CreateIndexQuery
+	 * @return $this
 	 */
 	public function identifier($identifier)
 	{
-		if ($identifier instanceof IndexStructure)
-			$identifier = $identifier->getPath();
-
 		$this->indexIdentifier = StructureElementIdentifier::make(
 			$identifier);
 
@@ -86,7 +108,7 @@ class CreateIndexQuery implements TokenizableStatementInterface
 	 * @param TableReference|TableStructure|string $table
 	 *        	Table reference
 	 *
-	 * @return CreateIndexQuery
+	 * @return $this
 	 */
 	public function table($table)
 	{
@@ -104,53 +126,6 @@ class CreateIndexQuery implements TokenizableStatementInterface
 				TypeDescription::getName($table));
 
 		return $this;
-	}
-
-	/**
-	 *
-	 * @param array $args...
-	 *        	Column names
-	 * @return \NoreSources\SQL\Syntax\Statement\Structure\CreateIndexQuery
-	 */
-	public function columns()
-	{
-		$c = func_num_args();
-		for ($i = 0; $i < $c; $i++)
-		{
-			$column = func_get_arg($i);
-			if ($column instanceof ExpressionInterface)
-				$this->indexColumns[] = $column;
-			elseif (TypeDescription::hasStringRepresentation($column))
-				$this->indexColumns[] = TypeConversion::toString(
-					$column);
-		}
-
-		return $this;
-	}
-
-	/**
-	 *
-	 * @param integer $flags
-	 * @return \NoreSources\SQL\Syntax\Statement\CreateIndexQuery
-	 */
-	public function flags($flags)
-	{
-		$this->indexFlags = $flags;
-		return $this;
-	}
-
-	/**
-	 * WHERE constraints
-	 *
-	 * @param Evaluable $args...
-	 *        	List of Evaluable expressions
-	 *
-	 * @return CreateIndexQuery
-	 */
-	public function where()
-	{
-		return $this->addConstraints($this->whereConstraints,
-			func_get_args());
 	}
 
 	public function tokenize(TokenStream $stream,
@@ -180,7 +155,7 @@ class CreateIndexQuery implements TokenizableStatementInterface
 		 */
 
 		$stream->keyword('create');
-		if ($this->indexFlags & self::UNIQUE)
+		if ($this->getIndexFlags() & K::INDEX_UNIQUE)
 			$stream->space()->keyword('unique');
 		$stream->space()->keyword('index');
 
@@ -205,8 +180,6 @@ class CreateIndexQuery implements TokenizableStatementInterface
 				else // Last chance to find the element namespace
 				{
 					$structure = $context->getPivot();
-					if ($stream instanceof IndexStructure)
-						$structure = $structure->getParentElement();
 
 					if ($structure instanceof NamespaceStructure)
 						$stream->identifier(
@@ -237,7 +210,8 @@ class CreateIndexQuery implements TokenizableStatementInterface
 			->text('(');
 
 		$i = 0;
-		foreach ($this->indexColumns as $column)
+		$columns = $this->getColumns();
+		foreach ($columns as $column)
 		{
 			if ($i++)
 				$stream->text(',');
@@ -266,13 +240,7 @@ class CreateIndexQuery implements TokenizableStatementInterface
 
 	/**
 	 *
-	 * @var integer
-	 */
-	private $indexFlags;
-
-	/**
-	 *
-	 * @var string
+	 * @var StructureElementIdentifier
 	 */
 	private $indexIdentifier;
 
@@ -281,10 +249,4 @@ class CreateIndexQuery implements TokenizableStatementInterface
 	 * @var \NoreSources\SQL\Syntax\TableReference
 	 */
 	private $indexTable;
-
-	/**
-	 *
-	 * @var Evaluable[] $indexColumns;
-	 */
-	private $indexColumns;
 }

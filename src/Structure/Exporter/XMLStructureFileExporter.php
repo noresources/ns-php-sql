@@ -15,10 +15,9 @@ use NoreSources\SQL\DataTypeProviderInterface;
 use NoreSources\SQL\Structure\ColumnStructure;
 use NoreSources\SQL\Structure\DatasourceStructure;
 use NoreSources\SQL\Structure\ForeignKeyTableConstraint;
-use NoreSources\SQL\Structure\IndexStructure;
+use NoreSources\SQL\Structure\IndexTableConstraintInterface;
 use NoreSources\SQL\Structure\PrimaryKeyTableConstraint;
 use NoreSources\SQL\Structure\StructureElementContainerInterface;
-use NoreSources\SQL\Structure\StructureElementIdentifier;
 use NoreSources\SQL\Structure\StructureElementInterface;
 use NoreSources\SQL\Structure\StructureResolver;
 use NoreSources\SQL\Structure\TableStructure;
@@ -141,46 +140,12 @@ class XMLStructureFileExporter implements
 
 				$n = $context->dom->createElementNS($namespaceURI,
 					$nodeName);
-				$this->exportNode($child, $context, $n);
 				$node->appendChild($n);
+				$this->exportNode($child, $context, $n);
 			}
 
 		if ($structure instanceof TableStructure)
 			$this->exportTableNode($structure, $context, $node);
-		elseif ($structure instanceof IndexStructure)
-			$this->exportIndexNode($structure, $context, $node);
-	}
-
-	private function exportIndexNode(IndexStructure $structure,
-		XMLStructureFileExporterContext $context, \DOMElement $node)
-	{
-		$namespaceURI = self::getXmlNamespaceURI($this->schemaVersion);
-
-		$flags = $structure->getIndexFlags();
-		if ($flags & IndexStructure::UNIQUE)
-			$node->setAttribute('unique', 'yes');
-
-		$tableref = $context->dom->createElementNS($namespaceURI,
-			'tableref');
-		$ft = $context->resolver->findTable($structure->getIndexTable());
-		if ($ft->getParentElement() == $structure->getParentElement())
-			$tableref->setAttribute('name', $ft->getName());
-		else
-			$tableref->setAttribute('id',
-				$context->identifiers[$ft->getPath()]);
-
-		$columns = $structure->getIndexColumns();
-		foreach ($columns as $column)
-		{
-			$column = StructureElementIdentifier::make($column);
-
-			$columnNode = $context->dom->createElementNS($namespaceURI,
-				'column');
-			$columnNode->setAttribute('name', $column->getLocalName());
-			$tableref->appendChild($columnNode);
-		}
-
-		$node->appendChild($tableref);
 	}
 
 	private function exportTableNode(TableStructure $structure,
@@ -192,11 +157,42 @@ class XMLStructureFileExporter implements
 
 		foreach ($constraints as $index => $constraint)
 		{
+			$constraintParentNode = $node;
+
 			$constraintNode = null;
-			if ($constraint instanceof PrimaryKeyTableConstraint)
+			if ($constraint instanceof IndexTableConstraintInterface)
 			{
-				$constraintNode = $context->dom->createElementNS(
-					$namespaceURI, 'primarykey');
+				$constraintNode = null;
+				if ($constraint instanceof PrimaryKeyTableConstraint)
+				{
+					$constraintNode = $context->dom->createElementNS(
+						$namespaceURI, 'primarykey');
+				}
+				else
+				{
+					$constraintFlags = $constraint->getConstraintFlags();
+					if (($constraintFlags & K::CONSTRAINT_COLUMN_PARTIAL) ||
+						(($constraintFlags & K::CONSTRAINT_COLUMN_UNIQUE) !=
+						K::CONSTRAINT_COLUMN_UNIQUE))
+					{
+						$constraintNode = $context->dom->createElementNS(
+							$namespaceURI, 'index');
+						$constraintParentNode = $node->parentNode;
+						$t = $context->dom->createElementNS(
+							$namespaceURI, 'tableref');
+						$t->setAttribute('name', $structure->getName());
+						$constraintNode->appendChild($t);
+					}
+					else
+					{
+						$constraintNode = $context->dom->createElementNS(
+							$namespaceURI, 'unique');
+					}
+
+					if ($constraint->getIndexFlags() & K::INDEX_UNIQUE)
+						$constraintNode->setAttribute('unique', 'yes');
+				}
+
 				foreach ($constraint as $column)
 				{
 					$c = $context->dom->createElementNS($namespaceURI,
@@ -273,7 +269,7 @@ class XMLStructureFileExporter implements
 				$constraintNode->setAttribute('name', $n);
 			}
 
-			$node->appendChild($constraintNode);
+			$constraintParentNode->appendChild($constraintNode);
 		}
 	}
 

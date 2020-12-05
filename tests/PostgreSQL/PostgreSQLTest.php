@@ -9,12 +9,9 @@ use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLConnection;
 use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLConstants as K;
 use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLPreparedStatement;
 use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLTypeRegistry;
-use NoreSources\SQL\Structure\IndexStructure;
 use NoreSources\SQL\Structure\TableStructure;
 use NoreSources\SQL\Syntax\Statement\TokenizableStatementInterface;
-use NoreSources\SQL\Syntax\Statement\Structure\CreateIndexQuery;
 use NoreSources\SQL\Syntax\Statement\Structure\CreateTableQuery;
-use NoreSources\SQL\Syntax\Statement\Structure\DropIndexQuery;
 use NoreSources\SQL\Syntax\Statement\Structure\DropTableQuery;
 use NoreSources\Test\ConnectionHelper;
 use NoreSources\Test\DatasourceManager;
@@ -86,13 +83,6 @@ final class PostgreSQLTest extends \PHPUnit\Framework\TestCase
 				if ($s instanceof CreateTableQuery)
 					$s->table($elementStructure);
 			}
-			elseif ($elementStructure instanceof IndexStructure)
-			{
-				$s = $connection->getPlatform()->newStatement(
-					K::QUERY_CREATE_INDEX);
-				if ($s instanceof CreateIndexQuery)
-					$s->setFromIndexStructure($elementStructure);
-			}
 			else
 				continue;
 
@@ -112,8 +102,6 @@ final class PostgreSQLTest extends \PHPUnit\Framework\TestCase
 			$drop = null;
 			if ($elementStructure instanceof TableStructure)
 				$drop = new DropTableQuery($elementStructure);
-			elseif ($elementStructure instanceof IndexStructure)
-				$drop = new DropIndexQuery($elementStructure);
 			$data = ConnectionHelper::buildStatement($connection, $drop,
 				$elementStructure);
 			$sql = \SqlFormatter::format(\strval($data), false);

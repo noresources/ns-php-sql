@@ -7,19 +7,44 @@
  */
 namespace NoreSources\SQL\Structure;
 
+use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\Structure\Traits\ColumnListTrait;
+use NoreSources\SQL\Structure\Traits\ConstraintNameTrait;
+
 /**
  * Primary key table column constraint
  */
-class PrimaryKeyTableConstraint extends ColumnTableConstraint
+class PrimaryKeyTableConstraint implements
+	IndexTableConstraintInterface
 {
 
-	/*
-	 * @param array $columns Column names on which the key applies.
-	 * @param string $name Constraint name
+	use ConstraintNameTrait;
+	use ColumnListTrait;
+
+	public function getConstraintFlags()
+	{
+		return K::CONSTRAINT_COLUMN_PRIMARY_KEY;
+	}
+
+	public function getConstraintExpression()
+	{
+		return null;
+	}
+
+	/**
+	 *
+	 * {@inheritdoc}
+	 * @see \NoreSources\SQL\Structure\IndexDescriptionInterface::getIndexFlags()
 	 */
+	public function getIndexFlags()
+	{
+		return K::INDEX_UNIQUE;
+	}
+
 	public function __construct($columns = [], $name = null)
 	{
-		parent::__construct($columns, $name);
+		$this->setName($name);
+		$this->columnNameList = $columns;
 	}
 }
 

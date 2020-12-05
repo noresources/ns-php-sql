@@ -14,7 +14,6 @@ use NoreSources\SemanticVersion;
 use NoreSources\TypeDescription;
 use NoreSources\SQL\Structure\ColumnStructure;
 use NoreSources\SQL\Structure\DatasourceStructure;
-use NoreSources\SQL\Structure\IndexStructure;
 use NoreSources\SQL\Structure\NamespaceStructure;
 use NoreSources\SQL\Structure\StructureElementInterface;
 use NoreSources\SQL\Structure\StructureSerializationException;
@@ -68,8 +67,6 @@ trait XMLStructureFileTrait
 				return 'database';
 			return 'namespace';
 		}
-		elseif ($element == IndexStructure::class)
-			return 'index';
 		elseif ($element == TableStructure::class)
 			return 'table';
 		elseif ($element == ColumnStructure::class)
@@ -155,13 +152,14 @@ trait XMLStructureFileTrait
 
 		if ($list->length > 1)
 			throw new StructureSerializationException(
-				'Invalid number of ' . $localName .
-				' nodes. At most 1 expected');
+				'Invalid number of ' . $localName . ' nodes in ' .
+				$element->nodeName . '. At most 1 expected. Got ' .
+				$list->length);
 		if ($list->length == 0)
 		{
 			if ($required)
 				throw new StructureSerializationException(
-					$localName . ' not found');
+					$localName . ' not found in ' . $element->nodeName);
 
 			return null;
 		}

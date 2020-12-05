@@ -8,7 +8,6 @@
 namespace NoreSources\SQL\Syntax\Statement\Structure;
 
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\Structure\IndexStructure;
 use NoreSources\SQL\Structure\NamespaceStructure;
 use NoreSources\SQL\Structure\StructureElementIdentifier;
 use NoreSources\SQL\Syntax\TokenStream;
@@ -45,15 +44,12 @@ class DropIndexQuery implements TokenizableStatementInterface
 
 	/**
 	 *
-	 * @param string|IndexStructure|StructureElementIdentifier $identifier
+	 * @param string|StructureElementIdentifier $identifier
 	 *        	Index identifier
 	 * @return \NoreSources\SQL\Syntax\Statement\Structure\DropIndexQuery
 	 */
 	public function identifier($identifier)
 	{
-		if ($identifier instanceof IndexStructure)
-			$identifier = $identifier->getPath();
-
 		$this->indexIdentifier = StructureElementIdentifier::make(
 			$identifier);
 
@@ -100,8 +96,6 @@ class DropIndexQuery implements TokenizableStatementInterface
 			else // Last chance to find the element namespace
 			{
 				$structure = $context->getPivot();
-				if ($stream instanceof IndexStructure)
-					$structure = $structure->getParentElement();
 
 				if ($structure instanceof NamespaceStructure)
 					$stream->identifier(

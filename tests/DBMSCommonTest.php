@@ -217,7 +217,7 @@ final class DBMSCommonTest extends TestCase
 		$pk = new ColumnStructure('pk');
 		$tableWithPk->addConstraint(
 			new PrimaryKeyTableConstraint([
-				$pk
+				$pk->getName()
 			]));
 
 		$tests = [
@@ -338,8 +338,8 @@ final class DBMSCommonTest extends TestCase
 
 			$flags = $column->getConstraintFlags();
 			$this->assertEquals(
-				($primary ? K::COLUMN_CONSTRAINT_PRIMARY_KEY : 0),
-				($flags & K::COLUMN_CONSTRAINT_PRIMARY_KEY),
+				($primary ? K::CONSTRAINT_COLUMN_PRIMARY_KEY : 0),
+				($flags & K::CONSTRAINT_COLUMN_PRIMARY_KEY),
 				$dbmsName . ' ' . $label . ' is' .
 				($primary ? ' ' : ' not ') . 'part of a primary key');
 
@@ -1143,7 +1143,8 @@ final class DBMSCommonTest extends TestCase
 	public function testTransaction()
 	{
 		$settings = $this->connections->getAvailableConnectionNames();
-		if (\count ($settings) == 0) {
+		if (\count($settings) == 0)
+		{
 			$this->assertTrue(true, 'Skip');
 			return;
 		}

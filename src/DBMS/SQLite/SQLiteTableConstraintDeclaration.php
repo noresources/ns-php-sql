@@ -2,8 +2,9 @@
 namespace NoreSources\SQL\DBMS\SQLite;
 
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\Syntax\TableConstraintDeclaration;
+use NoreSources\SQL\Structure\ColumnDescriptionInterface;
 use NoreSources\SQL\Structure\PrimaryKeyTableConstraint;
+use NoreSources\SQL\Syntax\TableConstraintDeclaration;
 
 class SQLiteTableConstraintDeclaration extends TableConstraintDeclaration
 {
@@ -15,13 +16,17 @@ class SQLiteTableConstraintDeclaration extends TableConstraintDeclaration
 	 * and multi-column primary key with one auto increment column is translated to a UNIQUE
 	 * constraint.
 	 */
-	protected function getColumnTableConstraintNameKeyword()
+	protected function getIndexTableConstraintNameKeyword()
 	{
 		$constraint = $this->getConstraint();
+
 		if ($constraint instanceof PrimaryKeyTableConstraint)
 		{
+			$table = $this->getTable();
 			foreach ($constraint->getColumns() as $column)
 			{
+				if (!($column instanceof ColumnDescriptionInterface))
+					$column = $table->getColumn($column);
 				if ($column->has(K::COLUMN_FLAGS))
 				{
 					if ($column->get(K::COLUMN_FLAGS) &
@@ -31,6 +36,6 @@ class SQLiteTableConstraintDeclaration extends TableConstraintDeclaration
 			}
 		}
 
-		return parent::getColumnTableConstraintNameKeyword();
+		return parent::getIndexTableConstraintNameKeyword();
 	}
 }

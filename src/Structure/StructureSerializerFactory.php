@@ -12,6 +12,8 @@ use NoreSources\SingletonTrait;
 use NoreSources\MediaType\MediaType;
 use NoreSources\MediaType\MediaTypeFactory;
 use NoreSources\MediaType\MediaTypeInterface;
+use NoreSources\SQL\Structure\Exporter\StructureFileExporterInterface;
+use NoreSources\SQL\Structure\Exporter\XMLStructureFileExporter;
 use NoreSources\SQL\Structure\Importer\StructureFileImporterInterface;
 use NoreSources\SQL\Structure\Importer\XMLStructureFileImporter;
 
@@ -72,10 +74,6 @@ class StructureSerializerFactory
 		StructureElementInterface $structure, $filename,
 		$mediaType = null)
 	{
-		if (!isset($this))
-			return self::getInstance()->structureToFile($filename,
-				$filename);
-
 		if (\is_string($mediaType))
 			$mediaType = MediaTypeFactory::fromString($mediaType);
 

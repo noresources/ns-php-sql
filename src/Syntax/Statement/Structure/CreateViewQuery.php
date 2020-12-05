@@ -9,7 +9,6 @@ namespace NoreSources\SQL\Syntax\Statement\Structure;
 
 use NoreSources\Bitset;
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\Structure\IndexStructure;
 use NoreSources\SQL\Structure\NamespaceStructure;
 use NoreSources\SQL\Structure\StructureElementIdentifier;
 use NoreSources\SQL\Structure\ViewStructure;
@@ -39,7 +38,7 @@ class CreateViewQuery implements TokenizableStatementInterface
 
 	/**
 	 *
-	 * @param string|StructureElementIdentifier|IndexStructure $identifier
+	 * @param string|StructureElementIdentifier $identifier
 	 *        	View identifier
 	 */
 	public function __construct($identifier = null)
@@ -59,7 +58,7 @@ class CreateViewQuery implements TokenizableStatementInterface
 
 	/**
 	 *
-	 * @param string|StructureElementIdentifier|IndexStructure $identifier
+	 * @param string|StructureElementIdentifier $identifier
 	 *        	View identifier
 	 * @return \NoreSources\SQL\Syntax\Statement\Structure\DropViewQuery
 	 */

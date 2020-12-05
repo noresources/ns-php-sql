@@ -13,7 +13,7 @@ use NoreSources\Expression\ExpressionInterface;
 use NoreSources\SQL\Structure\ColumnStructure;
 use NoreSources\SQL\Structure\DatasourceStructure;
 use NoreSources\SQL\Structure\ForeignKeyTableConstraint;
-use NoreSources\SQL\Structure\IndexStructure;
+use NoreSources\SQL\Structure\IndexTableConstraint;
 use NoreSources\SQL\Structure\NamespaceStructure;
 use NoreSources\SQL\Structure\PrimaryKeyTableConstraint;
 use NoreSources\SQL\Structure\StructureElementInterface;
@@ -155,43 +155,17 @@ class XMLStructureFileImporter implements
 			$this->importTableNode($tableNode, $table, $context);
 		}
 
-		$indexNodeName = K::XML_NAMESPACE_PREFIX . ':' .
-			self::getXmlNodeName(IndexStructure::class,
-				$context->schemaVersion);
+		$indexNodeName = K::XML_NAMESPACE_PREFIX . ':' . 'index';
 		$indexNodes = $context->xpath->query($indexNodeName, $node);
 
 		foreach ($indexNodes as $indexNode)
 		{
-			$index = new IndexStructure(
-				$indexNode->getAttribute('name'), $structure);
-			$structure->appendElement($index);
-			$this->importIndexNode($indexNode, $index, $context);
+			$context->indexes->append(
+				[
+					'node' => $indexNode,
+					'parent' => $structure
+				]);
 		}
-	}
-
-	public function importIndexNode(\DOMNode $node,
-		IndexStructure $structure,
-		XMLStructureFileImporterContext $context)
-	{
-		if ($node->hasAttribute('id'))
-			$context->identifiedElements->offsetSet(
-				$node->getAttribute('id'), $structure);
-
-		$flags = 0;
-
-		if ($node->hasAttribute('unique') &&
-			$node->getAttribute('unique') == 'yes')
-		{
-			$flags |= IndexStructure::UNIQUE;
-		}
-
-		$structure->setIndexFlags($flags);
-
-		$context->indexes->append(
-			[
-				'structure' => $structure,
-				'node' => $node
-			]);
 	}
 
 	public function importTableNode(\DOMNode $node,
@@ -232,6 +206,29 @@ class XMLStructureFileImporter implements
 						'Invalid primary column "' . $name . '"',
 						$structure);
 				}
+				$constraint->append($structure->offsetGet($name));
+			}
+
+			$structure->addConstraint($constraint);
+		}
+
+		$uniqueNodes = $node->getElementsByTagNameNS(
+			$context->namespaceURI, 'unique');
+		foreach ($uniqueNodes as $uniqueNode)
+		{
+			$constraint = new IndexTableConstraint();
+			$constraint->setName($pkNode->getAttribute('name'));
+			$constraint->unique(true);
+
+			$columnNodes = $context->xpath->query($columnNodeName,
+				$uniqueNode);
+			foreach ($columnNodes as $columnNode)
+			{
+				$name = $columnNode->getAttribute('name');
+				if (!$structure->offsetExists($name))
+					throw new StructureException(
+						'Invalid index column "' . $name . '"',
+						$structure);
 				$constraint->append($structure->offsetGet($name));
 			}
 
@@ -488,35 +485,27 @@ class XMLStructureFileImporter implements
 		} // default node
 	}
 
-	private static function importPostprocess(
-		XMLStructureFileImporterContext $context)
+	private static function importPostprocessIndexes(
+		XMLStructureFileImporterContext $context, \DOMElement $indexNode,
+		StructureElementInterface $parent)
 	{
 		$resolver = new StructureResolver(null);
 
 		$columnNodeName = K::XML_NAMESPACE_PREFIX . ':' .
 			self::getXmlNodeName(ColumnStructure::class,
 				$context->schemaVersion);
+		$table = null;
 
-		foreach ($context->indexes as $entry)
+		if ($parent instanceof TableStructure)
 		{
-			/**
-			 *
-			 * @var IndexStructure $structure
-			 */
-			$structure = $entry['structure'];
-			$node = $entry['node'];
-			$pivot = $context->structureElement;
-			$parent = $structure->getParentElement();
-			if ($parent instanceof StructureElementInterface)
-				$pivot = $parent;
-			$resolver->setPivot($pivot);
-
-			$columnNodes = $context->xpath->query($columnNodeName, $node);
-
+			$table = $parent;
+		}
+		else
+		{
+			$resolver->setPivot($parent);
 			$referenceTableNode = self::getSingleElementByTagName(
-				$context->namespaceURI, $node, 'tableref', true);
+				$context->namespaceURI, $indexNode, 'tableref', true);
 
-			$table = null;
 			if ($referenceTableNode->hasAttribute('id'))
 			{
 				$id = $referenceTableNode->getAttribute('id');
@@ -531,16 +520,50 @@ class XMLStructureFileImporter implements
 				$name = $referenceTableNode->getAttribute('name');
 				$table = $resolver->findTable($name);
 			}
+		}
 
-			$structure->setIndexTable($table);
-			$resolver->setPivot($table);
+		$resolver->setPivot($table);
+		$columnNodes = $context->xpath->query($columnNodeName,
+			$indexNode);
+		$columns = [];
+		foreach ($columnNodes as $columnNode)
+		{
+			$column = $resolver->findColumn(
+				$columnNode->getAttribute('name'));
+			$columns[] = $column->getName();
+		}
 
-			foreach ($columnNodes as $columnNode)
-			{
-				$structure->addIndexColumn(
-					$resolver->findColumn(
-						$columnNode->getAttribute('name')));
-			}
+		$name = null;
+		if ($indexNode->hasAttribute('name'))
+			$name = $indexNode->getAttribute('name');
+
+		$index = new IndexTableConstraint($columns, $name);
+
+		if ($indexNode->hasAttribute('unique') &&
+			$indexNode->getAttribute('unique') == 'yes')
+			$index->unique(true);
+
+		/**
+		 *
+		 * @todo constraint expression
+		 */
+
+		$table->addConstraint($index);
+	}
+
+	private static function importPostprocess(
+		XMLStructureFileImporterContext $context)
+	{
+		$resolver = new StructureResolver(null);
+
+		$columnNodeName = K::XML_NAMESPACE_PREFIX . ':' .
+			self::getXmlNodeName(ColumnStructure::class,
+				$context->schemaVersion);
+
+		foreach ($context->indexes as $entry)
+		{
+			self::importPostprocessIndexes($context, $entry['node'],
+				$entry['parent']);
 		}
 
 		foreach ($context->foreignKeys as $entry)

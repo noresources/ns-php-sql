@@ -102,7 +102,7 @@ class TableStructure implements StructureElementContainerInterface,
 	 *        	the existing one.
 	 * @throws StructureException
 	 */
-	public function addConstraint(TableConstraint $constraint)
+	public function addConstraint(TableConstraintInterface $constraint)
 	{
 		if ($constraint instanceof PrimaryKeyTableConstraint)
 		{

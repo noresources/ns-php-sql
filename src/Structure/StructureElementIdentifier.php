@@ -11,6 +11,7 @@ use NoreSources\ArrayRepresentation;
 use NoreSources\Container;
 use NoreSources\StringRepresentation;
 use NoreSources\TypeConversion;
+use NoreSources\SQL\NameProviderInterface;
 
 /**
  * Structure element path or alias
@@ -37,6 +38,9 @@ class StructureElementIdentifier implements StringRepresentation,
 		if (Container::isTraversable($path))
 			return new StructureElementIdentifier(
 				Container::implodeValues($path, '.'));
+		if ($path instanceof NameProviderInterface)
+			return new StructureElementIdentifier($path->getName());
+
 		return new StructureElementIdentifier(
 			TypeConversion::toString($path));
 	}

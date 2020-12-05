@@ -7,6 +7,7 @@
  */
 namespace NoreSources\SQL\Structure;
 
+use NoreSources\Container;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Structure\Traits\ColumnDescriptionTrait;
 use NoreSources\SQL\Structure\Traits\StructureElementTrait;
@@ -21,6 +22,11 @@ class ColumnStructure implements StructureElementInterface,
 	use StructureElementTrait;
 	use ColumnDescriptionTrait;
 
+	/**
+	 *
+	 * @return number
+	 * @deprecated Move this to TableStructure
+	 */
 	public function getConstraintFlags()
 	{
 		/**
@@ -34,15 +40,14 @@ class ColumnStructure implements StructureElementInterface,
 
 		foreach ($table->getConstraints() as $constraint)
 		{
-			if ($constraint instanceof PrimaryKeyTableConstraint &&
-				($constraint->getColumns()->offsetExists(
-					$this->getName())))
-				$flags |= K::COLUMN_CONSTRAINT_PRIMARY_KEY;
+			if (!($constraint instanceof IndexTableConstraintInterface))
+				continue;
 
-			elseif ($constraint instanceof UniqueTableConstraint &&
-				($constraint->getColumns()->offsetExists(
-					$this->getName())))
-				$flags |= K::COLUMN_CONSTRAINT_UNIQUE;
+			if (!Container::valueExists($constraint->getColumns(),
+				$this->getName()))
+				continue;
+
+			$flags |= $constraint->getConstraintFlags();
 		}
 
 		return $flags;

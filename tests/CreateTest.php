@@ -2,7 +2,17 @@
 namespace NoreSources\SQL;
 
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\DBMS\Reference\ReferenceConnection;
 use NoreSources\SQL\DBMS\Reference\ReferencePlatform;
+use NoreSources\SQL\Structure\CheckTableConstraint;
+use NoreSources\SQL\Structure\ColumnStructure;
+use NoreSources\SQL\Structure\DatasourceStructure;
+use NoreSources\SQL\Structure\ForeignKeyTableConstraint;
+use NoreSources\SQL\Structure\IndexTableConstraint;
+use NoreSources\SQL\Structure\NamespaceStructure;
+use NoreSources\SQL\Structure\PrimaryKeyTableConstraint;
+use NoreSources\SQL\Structure\TableStructure;
+use NoreSources\SQL\Syntax\Data;
 use NoreSources\SQL\Syntax\Statement\StatementBuilder;
 use NoreSources\SQL\Syntax\Statement\Query\SelectQuery;
 use NoreSources\SQL\Syntax\Statement\Structure\CreateIndexQuery;
@@ -77,18 +87,116 @@ final class CreateTest extends \PHPUnit\Framework\TestCase
 	{
 		$structure = $this->datasources->get('Company');
 		$platform = new ReferencePlatform();
-		$indexStructure = $structure['ns_unittests']['index_employees_name'];
-		$this->assertInstanceOf(Structure\IndexStructure::class,
-			$indexStructure);
 
+		/**
+		 *
+		 * @var TableStructure $employees
+		 */
+		$employees = $structure['ns_unittests']['Employees'];
+		$this->assertInstanceOf(TableStructure::class, $employees);
+
+		$constraints = $employees->getConstraints();
+
+		$index = null;
+		foreach ($constraints as $c)
+		{
+			if ($c->getName() == 'index_employees_name')
+				$constraint = $c;
+		}
+
+		$this->assertInstanceOf(IndexTableConstraint::class, $constraint);
+
+		/**
+		 *
+		 * @todo
+		 */
 		$q = new CreateIndexQuery();
-		$q->setFromIndexStructure($indexStructure);
+		$q->setFromTable($employees, $constraint->getName());
 		$result = StatementBuilder::getInstance()->build($q, $platform,
-			$indexStructure->getParentElement());
+			$employees);
 
 		$sql = \SqlFormatter::format(strval($result), false);
 		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__,
 			null, 'sql');
+	}
+
+	public function testCreateTableConstraint()
+	{
+		$structure = new DatasourceStructure();
+		$metavariable = new NamespaceStructure('metavariables',
+			$structure);
+		$foo = new TableStructure('foo', $metavariable);
+		{
+			$id = new ColumnStructure('id');
+			$id->setColumnProperty(K::COLUMN_DATA_TYPE,
+				K::DATATYPE_INTEGER);
+			$id->setColumnProperty(K::COLUMN_FLAGS,
+				K::COLUMN_FLAG_AUTO_INCREMENT);
+			$foo->appendElement($id);
+
+			$angle = new ColumnStructure('angle');
+			$angle->setColumnProperty(K::COLUMN_DATA_TYPE,
+				K::DATATYPE_FLOAT);
+			$angle->setColumnProperty(K::COLUMN_DEFAULT_VALUE,
+				new Data(pi()));
+			$foo->appendElement($angle);
+
+			$foo->addConstraint(
+				new PrimaryKeyTableConstraint([
+					'id'
+				], 'pirmary_foo'));
+
+			$checkPi = new CheckTableConstraint('pi_boundary');
+			$checkPi->where([
+				'between' => [
+					'angle',
+					-pi(),
+					pi()
+				]
+			]);
+			$foo->addConstraint($checkPi);
+			$metavariable->appendElement($foo);
+		}
+
+		$bar = new TableStructure('bar', $metavariable);
+		{
+			$key = new ColumnStructure('key');
+			$valueId = new ColumnStructure('valueId');
+			$valueId->setColumnProperty(K::COLUMN_DATA_TYPE,
+				K::DATATYPE_INTEGER | K::DATATYPE_NULL);
+			$bar->appendElement($valueId);
+
+			$bar->addConstraint(
+				new PrimaryKeyTableConstraint([
+					'key'
+				]));
+
+			$bar->addConstraint(
+				$fk = new ForeignKeyTableConstraint($foo, 'fk'));
+			$fk->addColumn('valueId', 'id');
+			$metavariable->appendElement($bar);
+		}
+		$environment = new Environment(new ReferenceConnection(),
+			$structure);
+
+		/**
+		 *
+		 * @var CreateTableQuery $createTable
+		 */
+		$createTable = $environment->getPlatform()->newStatement(
+			K::QUERY_CREATE_TABLE);
+
+		foreach ([
+			$foo,
+			$bar
+		] as $table)
+		{
+			$createTable->table($table);
+			$data = $environment->prepareStatement($createTable);
+			$sql = \SqlFormatter::format(\strval($data), false);
+			$this->derivedFileManager->assertDerivedFile($sql,
+				__METHOD__, $table->getName(), 'sql');
+		}
 	}
 
 	public function testCreateTableCompanyTables()

@@ -11,10 +11,10 @@ namespace NoreSources\SQL\DBMS\SQLite;
 
 use NoreSources\Container;
 use NoreSources\SQL\DBMS\SQLite\SQLiteConstants as K;
-use NoreSources\SQL\Syntax\Statement\Structure\CreateTableQuery;
 use NoreSources\SQL\Structure\PrimaryKeyTableConstraint;
-use NoreSources\SQL\Structure\TableConstraint;
+use NoreSources\SQL\Structure\TableConstraintInterface;
 use NoreSources\SQL\Structure\TableStructure;
+use NoreSources\SQL\Syntax\Statement\Structure\CreateTableQuery;
 
 /**
  * CREATE TABLE query for SQLite dialect
@@ -39,21 +39,22 @@ class SQLiteCreateTableQuery extends CreateTableQuery
 	 * PRIMARY KEY with a AUTO INCREMENT column is declared at column declaration level.
 	 */
 	protected function acceptTableConstraint(
-		TableConstraint $constraint)
+		TableConstraintInterface $constraint)
 	{
 		if ($constraint instanceof PrimaryKeyTableConstraint)
 		{
-
+			$table = $this->getTable();
 			$columns = $constraint->getColumns();
-			foreach ($columns as $column)
+			foreach ($columns as $name)
 			{
+				$column = $table->getColumn($name);
 				$flags = $column->get(K::COLUMN_FLAGS);
 
 				if ($flags & K::COLUMN_FLAG_AUTO_INCREMENT)
-					return Container::count($columns) > 1;
+					return (Container::count($columns) > 1);
 			}
 		}
 
-		return true;
+		return parent::acceptTableConstraint($constraint);
 	}
 }
