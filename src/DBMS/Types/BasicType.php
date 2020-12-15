@@ -10,7 +10,7 @@
 namespace NoreSources\SQL\DBMS\Types;
 
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\DBMS\TypePropertyNotFoundException;
+use NoreSources\SQL\ItemNotFoundException;
 
 /**
  * Name-only DBMS type
@@ -69,7 +69,7 @@ class BasicType extends AbstractType
 		if ($id == self::TYPE_NAME)
 			return $this->typeName;
 
-		throw new TypePropertyNotFoundException($this, $id);
+		throw new ItemNotFoundException('Type property', $id);
 	}
 
 	private $typeName;

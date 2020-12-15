@@ -13,7 +13,6 @@ use NoreSources\SingletonTrait;
 use NoreSources\TypeConversion;
 use NoreSources\SQL\DBMS\DataUnserializerInterface;
 use NoreSources\SQL\DBMS\Traits\DefaultDataUnserializerTrait;
-use NoreSources\SQL\Structure\ColumnDescriptionInterface;
 
 class PostgreSQLDataUnserializer implements DataUnserializerInterface
 {
@@ -21,14 +20,12 @@ class PostgreSQLDataUnserializer implements DataUnserializerInterface
 
 	use SingletonTrait;
 
-	protected function unserializeBinaryColumnData(
-		ColumnDescriptionInterface $column, $data)
+	protected function unserializeBinaryColumnData($column, $data)
 	{
 		return \pg_unescape_bytea($data);
 	}
 
-	protected function unserializeBooleanColumnData(
-		ColumnDescriptionInterface $column, $data)
+	protected function unserializeBooleanColumnData($column, $data)
 	{
 		if (\is_string($data))
 			return ($data == 't');

@@ -31,7 +31,10 @@ class MySQLPlatform extends AbstractPlatform implements
 		ConnectionInterface $connection)
 	{
 		parent::__construct($parameters);
-		$this->initializeStatementFactory();
+		$this->initializeStatementFactory(
+			[
+				K::QUERY_DROP_INDEX => MySQLDropIndexQuery::class
+			]);
 		$this->setConnection($connection);
 		$this->setPlatformFeature(
 			[

@@ -27,11 +27,10 @@ class ColumnData extends Value implements
 	 *
 	 * @param mixed $value
 	 *        	ColumnData value
-	 * @param ColumnDescriptionInterface $target
+	 * @param mixed $target
 	 *        	serialization target
 	 */
-	public function __construct($value,
-		ColumnDescriptionInterface $target)
+	public function __construct($value, $target)
 	{
 		$this->setValue($value);
 		$this->setSerializationTarget($target);
@@ -44,7 +43,7 @@ class ColumnData extends Value implements
 
 	/**
 	 *
-	 * @return \Noresources\SQL\Structure\ColumnDescriptionInterface
+	 * @return mixed
 	 */
 	public function getSerializationTarget()
 	{
@@ -57,16 +56,14 @@ class ColumnData extends Value implements
 	 * @param ColumnDescriptionInterface|integer $target
 	 * @throws \InvalidArgumentException
 	 */
-	public function setSerializationTarget(
-		ColumnDescriptionInterface $target)
+	public function setSerializationTarget($target)
 	{
 		$this->serializationTarget = $target;
 	}
 
 	public function getDataType()
 	{
-		return $this->serializationTarget->get(
-			K::COLUMN_DATA_TYPE);
+		return $this->serializationTarget->get(K::COLUMN_DATA_TYPE);
 	}
 
 	public function tokenize(TokenStream $stream,

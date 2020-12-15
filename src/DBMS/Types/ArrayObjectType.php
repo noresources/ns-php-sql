@@ -10,7 +10,7 @@
 namespace NoreSources\SQL\DBMS\Types;
 
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\DBMS\TypePropertyNotFoundException;
+use NoreSources\SQL\ItemNotFoundException;
 
 /**
  * Reference implementation of TypeInterface
@@ -58,7 +58,7 @@ class ArrayObjectType extends AbstractType
 	public function get($id)
 	{
 		if (!$this->typeProperties->offsetExists($id))
-			throw new TypePropertyNotFoundException($this, $id);
+			throw new ItemNotFoundException('Type property', $id);
 
 		return $this->typeProperties->offsetGet($id);
 	}

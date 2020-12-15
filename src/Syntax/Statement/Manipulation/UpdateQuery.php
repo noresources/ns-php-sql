@@ -77,14 +77,14 @@ class UpdateQuery implements TokenizableStatementInterface, \ArrayAccess
 		$index = 0;
 		foreach ($this->columnValues as $columnName => $value)
 		{
-			if (!$tableStructure->offsetExists($columnName))
+			if (!$tableStructure->getColumns()->has($columnName))
 				throw new StatementException($this,
 					'Invalid column "' . $columnName . '"');
 
 			if ($index > 0)
 				$stream->text(',')->space();
 
-			$column = $tableStructure->offsetGet($columnName);
+			$column = $tableStructure->getColumns()->get($columnName);
 			/**
 			 *
 			 * @var ColumnStructure $column

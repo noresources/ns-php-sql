@@ -10,21 +10,25 @@
  */
 namespace NoreSources\SQL\Structure\Traits;
 
+use NoreSources\CaseInsensitiveKeyMapTrait;
+use NoreSources\SQL\NameProviderInterface;
 use NoreSources\SQL\Structure\StructureElementInterface;
 
 trait StructureElementContainerTrait
 {
 
+	use CaseInsensitiveKeyMapTrait;
+
 	public function getChildElements()
 	{
-		return $this->childElements->getArrayCopy();
+		return $this->map->getArrayCopy();
 	}
 
 	public function appendElement(StructureElementInterface $child)
 	{
 		$key = $child->getName();
 		$child->setParentElement($this);
-		$this->childElements->offsetSet($key, $child);
+		$this->map->offsetSet($key, $child);
 
 		return $child;
 	}
@@ -45,51 +49,14 @@ trait StructureElementContainerTrait
 		return $e;
 	}
 
-	public function count()
-	{
-		return $this->childElements->count();
-	}
-
-	/**
-	 *
-	 * @return \ArrayIterator
-	 */
-	public function getIterator()
-	{
-		return $this->childElements->getIterator();
-	}
-
-	/**
-	 *
-	 * @param
-	 *        	string Element name
-	 * @return StructureElement
-	 */
-	public function offsetGet($key)
-	{
-		if ($this->childElements->offsetExists($key))
-		{
-			return $this->childElements->offsetGet($key);
-		}
-
-		$key = strtolower($key);
-		if ($this->childElements->offsetExists($key))
-		{
-			return $this->childElements->offsetGet($key);
-		}
-
-		return null;
-	}
-
 	public function offsetUnset($key)
 	{
-		if ($key instanceof StructureElementInterface)
+		if ($key instanceof NameProviderInterface)
 			$key = $key->getName();
-		$key = \strtolower($key);
 		if ($this->offsetExists($key))
 		{
-			$e = $this->childElements[$key];
-			$this->childElements->offsetUnset($key);
+			$e = $this->map[$key];
+			$this->map->offsetUnset($key);
 
 			if ($e instanceof StructureElementInterface)
 				if ($e->getParentElement() == $this)
@@ -103,46 +70,31 @@ trait StructureElementContainerTrait
 			throw new \InvalidArgumentException(
 				'Invalid key argument. string expected');
 
-		$key = \strtolower($key);
-
 		if (!($value instanceof StructureElementInterface))
 			throw new \InvalidArgumentException(
 				'Invalid value argument. ' . StructureElement::class .
 				' expected.');
 
-		$k = \strtolower($value->getName());
-
-		if ($k != $key)
+		if (\strcasecmp($key, $value->getName()))
 			throw new \InvalidArgumentException(
 				'Key & value mismatch. Key must be the element name');
 
 		$value->setParentElement($this);
-		$this->childElements->offsetSet($key, $value);
-	}
-
-	public function offsetExists($a_key)
-	{
-		return $this->childElements->offsetExists($a_key);
+		$this->map->offsetSet($key, $value);
 	}
 
 	protected function cloneStructureElementContainer()
 	{
-		foreach ($this->childElements as $key => $value)
+		foreach ($this->map as $key => $value)
 		{
 			$e = clone $value;
 			$e->setParentElement($this);
-			$this->childElements->offsetSet($key, $e);
+			$this->map->offsetSet($key, $e);
 		}
 	}
 
 	protected function initializeStructureElementContainer()
 	{
-		$this->childElements = new \ArrayObject([]);
+		$this->map = new \ArrayObject([]);
 	}
-
-	/**
-	 *
-	 * @var \ArrayObject
-	 */
-	private $childElements;
 }

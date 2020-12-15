@@ -297,14 +297,14 @@ abstract class Recordset implements \Iterator, StatementResultInterface,
 
 			foreach ($this->internalRecord as $index => $value)
 			{
-				if (!$this->resultColumns->hasColumn($index))
+				if (!$this->resultColumns->has($index))
 				{
 					if ($this->flags & self::FETCH_INDEXED)
 						$this->record[$index] = $value;
 					continue;
 				}
 
-				$column = $this->resultColumns->getColumn($index);
+				$column = $this->resultColumns->get($index);
 
 				if ($this->flags & self::FETCH_UNSERIALIZE)
 				{

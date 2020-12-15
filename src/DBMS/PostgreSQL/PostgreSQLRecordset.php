@@ -34,7 +34,7 @@ class PostgreSQLRecordset extends Recordset implements
 		{
 			$column = null;
 			if ($i < $map->count())
-				$column = $map->getColumn($i);
+				$column = $map->get($i);
 			else
 				$column = new ArrayColumnDescription();
 
@@ -58,11 +58,6 @@ class PostgreSQLRecordset extends Recordset implements
 	public function __destruct()
 	{
 		\pg_free_result($this->resource);
-	}
-
-	public function getColumnCount()
-	{
-		return \pg_num_fields($this->resource);
 	}
 
 	public function count()

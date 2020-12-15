@@ -14,7 +14,9 @@ use NoreSources\TypeDescription;
 use NoreSources\SQL\DBMS\PlatformInterface;
 use NoreSources\SQL\Structure\DatasourceStructure;
 use NoreSources\SQL\Structure\StructureElementContainerInterface;
+use NoreSources\SQL\Structure\StructureElementInterface;
 use NoreSources\SQL\Structure\StructureException;
+use ArrayAccess;
 
 trait StructureElementTrait
 {
@@ -66,12 +68,12 @@ trait StructureElementTrait
 	{
 		$p = $this->getParentElement();
 		$this->parentElement = null;
-		if ($p instanceof StructureElementContainerInterface)
+		if ($p instanceof ArrayAccess)
 			$p->offsetUnset($this->getName());
 	}
 
 	public function setParentElement(
-		StructureElementContainerInterface $parent = null)
+		StructureElementInterface $parent = null)
 	{
 		$this->parentElement = $parent;
 	}

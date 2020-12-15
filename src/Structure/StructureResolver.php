@@ -93,16 +93,13 @@ class StructureResolver implements StructureResolverInterface
 		if (!($table instanceof TableStructure))
 			return null;
 
-		$column = $table->offsetGet($name);
-
-		if ($column instanceof ColumnStructure)
-		{
-			$key = ColumnStructure::class;
-			$this->cache[$key]->offsetSet($path->getPath(), $column);
-		}
-		else
+		if (!$table->getColumns()->has($name))
 			throw new StructureResolverException($path->getPath(),
 				'column', $this->getPivot());
+
+		$column = $table->getColumns()->get($name);
+		$key = ColumnStructure::class;
+		$this->cache[$key]->offsetSet($path->getPath(), $column);
 
 		return $column;
 	}
@@ -186,16 +183,12 @@ class StructureResolver implements StructureResolverInterface
 		return $this->aliases->offsetExists($identifier);
 	}
 
-	public function setTemporaryTable($name,
-		ColumnDescriptionMapInterface $columns)
+	public function setTemporaryTable($name, $columns)
 	{
 		$table = new TableStructure($name);
-		foreach ($columns->getColumnIterator() as $n => $c)
+		foreach ($columns as $i => $c)
 		{
-			/**
-			 *
-			 * @var ColumnDescriptionInterface $c
-			 */
+			$n = $c->getName();
 
 			$column = new ColumnStructure($n, $table);
 			foreach ($c as $key => $value)

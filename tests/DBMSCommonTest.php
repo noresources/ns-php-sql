@@ -1512,21 +1512,19 @@ final class DBMSCommonTest extends TestCase
 		$index = 0;
 		foreach ($expectedResultColumnKeys as $name => $_)
 		{
-			$this->assertTrue(
-				$result->getResultColumns()
-					->hasColumn($index),
+			$this->assertTrue($result->getResultColumns()
+				->has($index),
 				$dbmsName . ' column #' . $index . ' exists');
 
-			$this->assertTrue(
-				$result->getResultColumns()
-					->hasColumn($name),
+			$this->assertTrue($result->getResultColumns()
+				->has($name),
 				$dbmsName . ' column "' . $name . '" exists');
 
-			$byIndex = $result->getResultColumns()->getColumn($index);
+			$byIndex = $result->getResultColumns()->get($index);
 			$this->assertEquals($name, $byIndex->getName(),
 				$dbmsName . ' Recordset result column #' . $index);
 
-			$byName = $result->getResultColumns()->getColumn($name);
+			$byName = $result->getResultColumns()->get($name);
 			$this->assertEquals($name, $byName->getName(),
 				$dbmsName . ' Recordset result column "' . $name . '"');
 

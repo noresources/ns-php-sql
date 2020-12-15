@@ -52,7 +52,7 @@ class PDORecordset extends Recordset
 				$meta = $pdo->getColumnMeta($i);
 
 				if ($i < $map->count())
-					$column = $map->getColumn($i);
+					$column = $map->get($i);
 				else
 					$column = new ArrayColumnDescription();
 
@@ -77,11 +77,6 @@ class PDORecordset extends Recordset
 	public function __destruct()
 	{
 		$this->pdoStatement->closeCursor();
-	}
-
-	public function getColumnCount()
-	{
-		return $this->pdoStatement->columnCount();
 	}
 
 	protected function fetch($index)

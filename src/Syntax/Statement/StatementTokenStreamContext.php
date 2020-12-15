@@ -10,7 +10,6 @@ namespace NoreSources\SQL\Syntax\Statement;
 use NoreSources\Container;
 use NoreSources\Stack;
 use NoreSources\SQL\DBMS\PlatformInterface;
-use NoreSources\SQL\Structure\ColumnDescriptionMapInterface;
 use NoreSources\SQL\Structure\StructureElementInterface;
 use NoreSources\SQL\Structure\StructureResolver;
 use NoreSources\SQL\Structure\StructureResolverInterface;
@@ -210,8 +209,7 @@ class StatementTokenStreamContext implements
 		return $this->structureResolver->isAlias($identifier);
 	}
 
-	public function setTemporaryTable($name,
-		ColumnDescriptionMapInterface $columns)
+	public function setTemporaryTable($name, $columns)
 	{
 		$this->structureResolver->setTemporaryTable($name, $columns);
 	}

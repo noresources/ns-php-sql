@@ -200,13 +200,15 @@ class XMLStructureFileImporter implements
 			foreach ($columnNodes as $columnNode)
 			{
 				$name = $columnNode->getAttribute('name');
-				if (!$structure->offsetExists($name))
+				if (!$structure->getColumns()->has($name))
 				{
 					throw new StructureException(
 						'Invalid primary column "' . $name . '"',
 						$structure);
 				}
-				$constraint->append($structure->offsetGet($name));
+				$constraint->append(
+					$structure->getColumns()
+						->get($name));
 			}
 
 			$structure->addConstraint($constraint);
@@ -225,7 +227,7 @@ class XMLStructureFileImporter implements
 			foreach ($columnNodes as $columnNode)
 			{
 				$name = $columnNode->getAttribute('name');
-				if (!$structure->offsetExists($name))
+				if (!$structure->getColumns()->has($name))
 					throw new StructureException(
 						'Invalid index column "' . $name . '"',
 						$structure);
@@ -617,12 +619,13 @@ class XMLStructureFileImporter implements
 				$foreignColumnName = $foreignColumnNode->getAttribute(
 					'name');
 
-				if (!$structure->offsetExists($name))
+				if (!$structure->getColumns()->has($name))
 					throw new StructureException(
 						'Invalid foreign key column "' . $name . '"',
 						$structure);
 
-				if (!$foreignTable->offsetExists($foreignColumnName))
+				if (!$foreignTable->getColumns()->has(
+					$foreignColumnName))
 					throw new StructureException(
 						'Invalid foreign key column "' .
 						$foreignColumnName . '"', $foreignTable);

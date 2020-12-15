@@ -68,7 +68,7 @@ class PDOPreparedStatement implements PreparedStatementInterface
 
 					$column = null;
 					if ($i < $map->count())
-						$column = $map->getColumn($i);
+						$column = $map->get($i);
 					else
 					{
 						$column = new ArrayColumnDescription(

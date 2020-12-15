@@ -58,6 +58,11 @@ class ForeignKeyTableConstraint implements \IteratorAggregate,
 		return $this->columns->getIterator();
 	}
 
+	public function getColumns()
+	{
+		return $this->columns;
+	}
+
 	public function addColumn($columnName, $foreignColumnName)
 	{
 		$this->columns->offsetSet($columnName, $foreignColumnName);

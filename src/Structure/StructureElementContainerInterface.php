@@ -7,8 +7,10 @@
  */
 namespace NoreSources\SQL\Structure;
 
-interface StructureElementContainerInterface extends \IteratorAggregate,
-	\Countable, \ArrayAccess
+use NoreSources\SQL\AssetMapInterface;
+
+interface StructureElementContainerInterface extends AssetMapInterface,
+	\ArrayAccess
 {
 
 	/**

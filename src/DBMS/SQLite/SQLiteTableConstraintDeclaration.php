@@ -26,7 +26,7 @@ class SQLiteTableConstraintDeclaration extends TableConstraintDeclaration
 			foreach ($constraint->getColumns() as $column)
 			{
 				if (!($column instanceof ColumnDescriptionInterface))
-					$column = $table->getColumn($column);
+					$column = $table->getColumns()->get($column);
 				if ($column->has(K::COLUMN_FLAGS))
 				{
 					if ($column->get(K::COLUMN_FLAGS) &

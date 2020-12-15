@@ -23,6 +23,8 @@ class IndexTableConstraint implements IndexTableConstraintInterface
 	use ColumnListTrait;
 	use WhereConstraintTrait;
 
+	const UNIQUE = K::INDEX_UNIQUE;
+
 	public function getConstraintFlags()
 	{
 		$flags = K::CONSTRAINT_COLUMN_KEY;

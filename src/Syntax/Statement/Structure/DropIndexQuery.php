@@ -7,9 +7,11 @@
  */
 namespace NoreSources\SQL\Syntax\Statement\Structure;
 
+use NoreSources\Container;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Structure\NamespaceStructure;
 use NoreSources\SQL\Structure\StructureElementIdentifier;
+use NoreSources\SQL\Structure\TableStructure;
 use NoreSources\SQL\Syntax\TokenStream;
 use NoreSources\SQL\Syntax\TokenStreamContextInterface;
 use NoreSources\SQL\Syntax\Statement\TokenizableStatementInterface;
@@ -61,11 +63,6 @@ class DropIndexQuery implements TokenizableStatementInterface
 	{
 		$platform = $context->getPlatform();
 
-		$scoped = $platform->queryFeature(
-			[
-				K::FEATURE_INDEX,
-				K::FEATURE_SCOPED
-			], false);
 		$existsCondition = $platform->queryFeature(
 			[
 				K::FEATURE_DROP,
@@ -85,36 +82,58 @@ class DropIndexQuery implements TokenizableStatementInterface
 		}
 
 		$stream->space();
+		return $this->tokenizeIdentifier($stream, $context,
+			$this->indexIdentifier);
+	}
 
+	protected function tokenizeIdentifier(TokenStream $stream,
+		TokenStreamContextInterface $context,
+		StructureElementIdentifier $identifier)
+	{
+		$platform = $context->getPlatform();
+
+		$scoped = $platform->queryFeature(
+			[
+				K::FEATURE_INDEX,
+				K::FEATURE_SCOPED
+			], false);
 		if ($scoped)
+		{
+			$namespace = $this->getNamespaceName($context);
+			if ($namespace)
+				$stream->identifier(
+					$platform->quoteIdentifier($namespace))
+					->text('.');
+		}
+
+		return $stream->identifier(
+			$platform->quoteIdentifier($identifier->getLocalName()));
+	}
+
+	public function getNamespaceName(
+		TokenStreamContextInterface $context = null)
+	{
+		if (isset($this->indexIdentifier))
 		{
 			$parts = $this->indexIdentifier->getPathParts();
 			if (\count($parts) > 1)
-				$stream->identifier(
-					$context->getPlatform()
-						->quoteIdentifierPath($parts));
-			else // Last chance to find the element namespace
-			{
-				$structure = $context->getPivot();
-
-				if ($structure instanceof NamespaceStructure)
-					$stream->identifier(
-						$context->getPlatform()
-							->quoteIdentifierPath($structure))
-						->text('.');
-
-				$stream->identifier(
-					$context->getPlatform()
-						->quoteIdentifier($this->indexIdentifier->path));
-			}
+				return Container::firstValue($parts);
 		}
-		else
-			$stream->identifier(
-				$context->getPlatform()
-					->quoteIdentifier(
-					$this->indexIdentifier->getLocalName()));
 
-		return $stream;
+		if (!$context)
+			return null;
+
+		$structure = $context->getPivot();
+		if (!$structure)
+			return null;
+
+		if ($structure instanceof TableStructure)
+			$structure = $structure->getParentElement();
+
+		if ($structure instanceof NamespaceStructure)
+			return $structure->getName();
+
+		return null;
 	}
 
 	/**

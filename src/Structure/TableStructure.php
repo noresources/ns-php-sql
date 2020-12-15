@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright © 2020 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
@@ -7,151 +8,175 @@
  */
 namespace NoreSources\SQL\Structure;
 
-use NoreSources\SQL\Structure\Traits\StructureElementContainerTrait;
+use NoreSources\Container;
+use NoreSources\SQL\IndexedAssetMap;
+use NoreSources\SQL\KeyedAssetMap;
+use NoreSources\SQL\NameProviderInterface;
 use NoreSources\SQL\Structure\Traits\StructureElementTrait;
 
-/**
- * Table structure definition
- *
- * @todo table constraints (primary keys etc. & index)
- */
-class TableStructure implements StructureElementContainerInterface,
-	StructureElementInterface, ColumnDescriptionMapInterface
+class TableStructure implements StructureElementInterface,
+	StructureElementContainerInterface
 {
-
 	use StructureElementTrait;
-	use StructureElementContainerTrait;
 
 	/**
 	 *
 	 * @param string $name
 	 *        	Table name
-	 * @param NamespaceStructure $parent
-	 *        	Parent namespace
+	 * @param StructureElementInterface $parent
+	 *        	Container
 	 */
-	public function __construct($name,
-		StructureElementContainerInterface $parent = null)
+	public function __construct($name, $parent = null)
 	{
 		$this->initializeStructureElement($name, $parent);
-		$this->initializeStructureElementContainer();
-		$this->constraints = new \ArrayObject();
-	}
-
-	public function __clone()
-	{
-		$this->cloneStructureElement();
-		$this->cloneStructureElementContainer();
-
-		$c = new \ArrayObject();
-		foreach ($this->constraints as $key => $constraint)
-		{
-			$c->offsetSet($key, clone $constraint);
-		}
-	}
-
-	public function getColumnCount()
-	{
-		return $this->count();
-	}
-
-	public function hasColumn($name)
-	{
-		foreach ($this->getIterator() as $key => $value)
-		{
-			if (\strcasecmp($key, $name) == 0)
-				return true;
-		}
-
-		return false;
-	}
-
-	public function getColumn($name)
-	{
-		if ($this->offsetExists($name))
-			return $this->offsetGet($name);
-
-		foreach ($this->getIterator() as $key => $value)
-		{
-			if (\strcasecmp($key, $name) == 0)
-				return $value;
-		}
-
-		throw new ColumnNotFoundException($name);
-	}
-
-	public function getColumnIterator()
-	{
-		return $this->getIterator();
 	}
 
 	/**
 	 *
-	 * @return TableConstraint[]
+	 * @return \NoreSources\SQL\KeyedAssetMap
+	 */
+	public function getColumns()
+	{
+		if (!isset($this->columns))
+			$this->columns = new KeyedAssetMap();
+		return $this->columns;
+	}
+
+	/**
+	 *
+	 * @return \NoreSources\SQL\IndexedAssetMap
 	 */
 	public function getConstraints()
 	{
+		if (!isset($this->constraints))
+			$this->constraints = new IndexedAssetMap();
 		return $this->constraints;
 	}
 
+	public function getColumnConstraintFlags($column)
+	{
+		if (!isset($this->constraints))
+			return 0;
+
+		if ($column instanceof NameProviderInterface)
+			$column = $column->getName();
+
+		$flags = 0;
+		foreach ($this->constraints as $constraint)
+		{
+			if ($constraint instanceof IndexTableConstraintInterface)
+			{
+				if (Container::valueExists($constraint->getColumns(),
+					$column))
+					$flags |= $constraint->getConstraintFlags();
+			}
+			elseif ($constraint instanceof ForeignKeyTableConstraint)
+			{
+				if (Container::keyExists($constraint->getColumns(),
+					$column))
+					$flags |= $constraint->getConstraintFlags();
+			}
+		}
+
+		return $flags;
+	}
+
 	/**
-	 * Add table constraint
 	 *
-	 * @param TableConstraint $constraint
-	 *        	Constraint to add. If The constraint is the primary key constraint, it will
-	 *        	replace
-	 *        	the existing one.
-	 * @throws StructureException
+	 * @var KeyedAssetMap
+	 */
+	private $columns;
+
+	/**
+	 *
+	 * @var IndexedAssetMap
+	 */
+	private $constraints;
+
+	/**
+	 *
+	 * @param TableConstraintInterface $constraint
 	 */
 	public function addConstraint(TableConstraintInterface $constraint)
 	{
-		if ($constraint instanceof PrimaryKeyTableConstraint)
-		{
-			foreach ($this->constraints as $value)
-			{
-				if ($value instanceof PrimaryKeyTableConstraint)
-					throw new StructureException(
-						'Primary key already exists.', $this);
-			}
-		}
-
-		$this->constraints->append($constraint);
+		return $this->getConstraints()->append($constraint);
 	}
 
 	/**
-	 *
-	 * @param TableConstraint|integer $constraint
 	 */
-	public function removeConstraint($constraint)
+	public function offsetGet($offset)
 	{
-		if (\is_integer($constraint))
-		{
-			$this->constraints->offsetUnset($constraint);
-			return;
-		}
+		return $this->getColumns()->get($offset);
+	}
 
-		foreach ($this->constraints as $i => $c)
-		{
-			/**
-			 *
-			 * @var TableConstraint $c
-			 */
-			if (\is_string($constraint))
-			{
-				if ($constraint->getName() == $constraint)
-				{
-					$this->constraints->offsetUnset($i);
-					return;
-				}
-			}
-
-			if ($c === $constraint)
-				$this->constraints->offsetUnset($i);
-		}
+	public function getIterator()
+	{
+		return $this->getColumns()->getIterator();
 	}
 
 	/**
-	 *
-	 * @var \ArrayObject
 	 */
-	private $constraints;
+	public function offsetExists($offset)
+	{
+		return $this->getColumns()->has($offset);
+	}
+
+	/**
+	 */
+	public function get($id)
+	{
+		return $this->getColumns()->get($id);
+	}
+
+	/**
+	 */
+	public function offsetUnset($offset)
+	{
+		return $this->getColumns()->offsetUnset($offset);
+	}
+
+	/**
+	 */
+	public function getChildElements()
+	{
+		return $this->getColumns();
+	}
+
+	public function count()
+	{
+		return $this->getColumns()->count();
+	}
+
+	/**
+	 */
+	public function findDescendant($tree)
+	{
+		return $this->getColumns()->get($tree);
+	}
+
+	/**
+	 */
+	public function has($id)
+	{
+		return $this->getColumns()->has($id);
+	}
+
+	/**
+	 */
+	public function appendElement(StructureElementInterface $element)
+	{
+		$element->setParentElement($this);
+		return $this->getColumns()->offsetSet($element->getName(),
+			$element);
+	}
+
+	/**
+	 */
+	public function offsetSet($offset, $value)
+	{
+		$value->setParentElement($this);
+		return $this->getColumns()->offsetSet($offset, $value);
+	}
 }
+
+

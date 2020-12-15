@@ -7,7 +7,6 @@
  */
 namespace NoreSources\SQL\DBMS;
 
-use NoreSources\SQL\Structure\ColumnDescriptionInterface;
 use NoreSources\SQL\Structure\PrimaryKeyTableConstraint;
 use NoreSources\SQL\Structure\StructureElementIdentifier;
 use NoreSources\SQL\Structure\StructureProviderInterface;
@@ -71,7 +70,7 @@ interface StructureExplorerInterface extends StructureProviderInterface
 	 *        	Table
 	 * @param string $columnName
 	 *        	Column name
-	 * @return ColumnDescriptionInterface
+	 * @return array
 	 */
 	function getTableColumn($tableIdentifier, $columnName);
 

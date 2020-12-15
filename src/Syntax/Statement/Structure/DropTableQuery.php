@@ -69,6 +69,15 @@ class DropTableQuery implements TokenizableStatementInterface
 		return $this;
 	}
 
+	/**
+	 *
+	 * @return number
+	 */
+	public function getFlags()
+	{
+		return $this->dropFlags;
+	}
+
 	public function tokenize(TokenStream $stream,
 		TokenStreamContextInterface $context)
 	{

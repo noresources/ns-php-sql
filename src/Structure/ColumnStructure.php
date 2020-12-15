@@ -7,7 +7,6 @@
  */
 namespace NoreSources\SQL\Structure;
 
-use NoreSources\Container;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Structure\Traits\ColumnDescriptionTrait;
 use NoreSources\SQL\Structure\Traits\StructureElementTrait;
@@ -34,23 +33,10 @@ class ColumnStructure implements StructureElementInterface,
 		 * @var TableStructure
 		 */
 		$table = $this->getParentElement();
-		$flags = 0;
 		if (!($table instanceof TableStructure))
-			return $flags;
+			return 0;
 
-		foreach ($table->getConstraints() as $constraint)
-		{
-			if (!($constraint instanceof IndexTableConstraintInterface))
-				continue;
-
-			if (!Container::valueExists($constraint->getColumns(),
-				$this->getName()))
-				continue;
-
-			$flags |= $constraint->getConstraintFlags();
-		}
-
-		return $flags;
+		return $table->getColumnConstraintFlags($this->getName());
 	}
 
 	/**

@@ -3,11 +3,11 @@ namespace NoreSources\SQL;
 
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\Reference\ReferencePlatform;
+use NoreSources\SQL\Structure\NamespaceStructure;
 use NoreSources\SQL\Syntax\Statement\StatementBuilder;
 use NoreSources\SQL\Syntax\Statement\Structure\DropIndexQuery;
 use NoreSources\SQL\Syntax\Statement\Structure\DropTableQuery;
 use NoreSources\SQL\Syntax\Statement\Structure\DropViewQuery;
-use NoreSources\SQL\Structure\NamespaceStructure;
 use NoreSources\Test\DatasourceManager;
 use NoreSources\Test\DerivedFileManager;
 
@@ -92,7 +92,15 @@ final class DropTest extends \PHPUnit\Framework\TestCase
 			$tableStructure = $structure['ns_unittests'][$tableName];
 			$this->assertInstanceOf(Structure\TableStructure::class,
 				$tableStructure, 'Finding ' . $tableName);
+
+			/**
+			 *
+			 * @var DropTableQuery $d
+			 */
 			$q = new DropTableQuery($tableStructure);
+
+			$q->flags($q->getFlags() | DropTableQuery::CASCADE);
+
 			$result =  StatementBuilder::getInstance()($q, $platform, $tableName);
 			$sql = \SqlFormatter::format(strval($result), false);
 			$this->derivedFileManager->assertDerivedFile($sql,

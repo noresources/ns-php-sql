@@ -16,7 +16,6 @@ use NoreSources\TypeConversionException;
 use NoreSources\MediaType\MediaType;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DataTypeProviderInterface;
-use NoreSources\SQL\Structure\ColumnDescriptionInterface;
 
 /**
  * Implements DataUnserializerInterface
@@ -28,7 +27,7 @@ trait DefaultDataUnserializerTrait
 
 	/**
 	 *
-	 * @param ColumnDescriptionInterface $columnDescription
+	 * @param mixed $columnDescription
 	 * @param mixed $data
 	 *        	Data retrieved from DBMS storage
 	 * @return mixed Unserialized data
@@ -77,25 +76,23 @@ trait DefaultDataUnserializerTrait
 
 	/**
 	 *
-	 * @param ColumnDescriptionInterface $column
+	 * @param mixed $column
 	 * @param mixed $data
 	 * @return boolean
 	 */
-	protected function unserializeBooleanColumnData(
-		ColumnDescriptionInterface $column, $data)
+	protected function unserializeBooleanColumnData($column, $data)
 	{
 		return TypeConversion::toBoolean($data);
 	}
 
 	/**
 	 *
-	 * @param ColumnDescriptionInterface $column
+	 * @param mixed $column
 	 * @param mixed $data
 	 *        	Data from DBMS storage
 	 * @return mixed
 	 */
-	protected function unserializeBinaryColumnData(
-		ColumnDescriptionInterface $column, $data)
+	protected function unserializeBinaryColumnData($column, $data)
 	{
 		if (\is_resource($data) && \get_resource_type($data))
 			return \stream_get_contents($data);
@@ -104,14 +101,14 @@ trait DefaultDataUnserializerTrait
 
 	/**
 	 *
-	 * @param ColumnDescriptionInterface $column
+	 * @param mixed $column
 	 * @param MediaType $mediaType
 	 * @param mixed $data
 	 *        	Text data from DBMS storage
 	 * @return mixed
 	 */
-	protected function unserializeStructuredSyntaxColumnData(
-		ColumnDescriptionInterface $column, MediaType $mediaType, $data)
+	protected function unserializeStructuredSyntaxColumnData($column,
+		MediaType $mediaType, $data)
 	{
 		$syntax = $mediaType->getStructuredSyntax();
 		if ($syntax === null)

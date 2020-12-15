@@ -160,7 +160,8 @@ class CreateIndexQuery implements TokenizableStatementInterface,
 		$stream->space()->keyword('index');
 
 		if ($existsCondition)
-			$stream->keyword('if')
+			$stream->space()
+				->keyword('if')
 				->space()
 				->keyword('not')
 				->space()
@@ -169,45 +170,16 @@ class CreateIndexQuery implements TokenizableStatementInterface,
 		if ($this->indexIdentifier instanceof StructureElementIdentifier)
 		{
 			$stream->space();
-
-			if ($scoped)
-			{
-				$parts = $this->indexIdentifier->getPathParts();
-				if (\count($parts) > 1)
-					$stream->identifier(
-						$context->getPlatform()
-							->quoteIdentifierPath($parts));
-				else // Last chance to find the element namespace
-				{
-					$structure = $context->getPivot();
-
-					if ($structure instanceof NamespaceStructure)
-						$stream->identifier(
-							$context->getPlatform()
-								->quoteIdentifierPath($structure))
-							->text('.');
-
-					$stream->identifier(
-						$context->getPlatform()
-							->quoteIdentifier(
-							$this->indexIdentifier->getLocalName()));
-				}
-			}
-			else
-				$stream->identifier(
-					$context->getPlatform()
-						->quoteIdentifier(
-						$this->indexIdentifier->getLocalName()));
+			$this->tokenizeIndexIdentifier($stream, $context,
+				$this->indexIdentifier, $tableStructure);
 		}
 
 		$stream->space()
 			->keyword('on')
-			->space()
-			->identifier(
-			$context->getPlatform()
-				->quoteIdentifierPath($tableStructure))
-			->space()
-			->text('(');
+			->space();
+		$this->tokenizeTableIdentifier($stream, $context,
+			$tableStructure);
+		$stream->space()->text('(');
 
 		$i = 0;
 		$columns = $this->getColumns();
@@ -236,6 +208,75 @@ class CreateIndexQuery implements TokenizableStatementInterface,
 
 		$context->popResolverContext();
 		return $stream;
+	}
+
+	public function getNamespaceName(
+		TokenStreamContextInterface $context = null)
+	{
+		if (isset($this->indexIdentifier))
+		{
+			$parts = $this->indexIdentifier->getPathParts();
+			if (\count($parts) > 1)
+				return Container::firstValue($parts);
+		}
+
+		if (!$context)
+			return null;
+
+		$structure = $context->getPivot();
+		if (!$structure)
+			return null;
+
+		if ($structure instanceof TableStructure)
+			$structure = $structure->getParentElement();
+
+		if ($structure instanceof NamespaceStructure)
+			return $structure->getName();
+
+		return null;
+	}
+
+	protected function tokenizeIndexIdentifier(TokenStream $stream,
+		TokenStreamContextInterface $context,
+		StructureElementIdentifier $identifier)
+	{
+		$platform = $context->getPlatform();
+		$scoped = $platform->queryFeature(
+			[
+				K::FEATURE_INDEX,
+				K::FEATURE_SCOPED
+			], false);
+
+		if ($scoped)
+		{
+			$namespace = $this->getNamespaceName($context);
+			if ($namespace)
+				$stream->identifier(
+					$platform->quoteIdentifier($namespace))
+					->text('.');
+		}
+
+		return $stream->identifier(
+			$platform->quoteIdentifier($identifier->getLocalName()));
+	}
+
+	protected function tokenizeTableIdentifier(TokenStream $stream,
+		TokenStreamContextInterface $context,
+		TableStructure $tableStructure)
+	{
+		$platform = $context->getPlatform();
+		$scoped = $platform->queryFeature(
+			[
+				K::FEATURE_INDEX,
+				K::FEATURE_SCOPED
+			], false);
+
+		if ($scoped)
+			return $stream->identifier(
+				$platform->quoteIdentifier($tableStructure->getName()));
+
+		return $stream->identifier(
+			$platform->quoteIdentifierPath($tableStructure));
 	}
 
 	/**

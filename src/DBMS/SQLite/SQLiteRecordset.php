@@ -25,7 +25,7 @@ class SQLiteRecordset extends Recordset
 		{
 			$column = null;
 			if ($i < $map->count())
-				$column = $map->getColumn($i);
+				$column = $map->get($i);
 			else
 				$column = new ArrayColumnDescription();
 
@@ -46,11 +46,6 @@ class SQLiteRecordset extends Recordset
 	public function __destruct()
 	{
 		$this->result->finalize();
-	}
-
-	public function getColumnCount()
-	{
-		return $this->result->numColumns();
 	}
 
 	protected function fetch($index)

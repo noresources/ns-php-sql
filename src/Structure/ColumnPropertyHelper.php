@@ -11,6 +11,7 @@ use NoreSources\TypeConversion;
 use NoreSources\TypeDescription;
 use NoreSources\MediaType\MediaType;
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\ItemNotFoundException;
 use NoreSources\SQL\DBMS\DataUnserializerInterface;
 
 class ColumnPropertyHelper
@@ -79,7 +80,7 @@ class ColumnPropertyHelper
 		if (\array_key_exists($key, self::$defaultValues))
 			return self::$defaultValues[$key];
 
-		throw new ColumnPropertyNotFoundException($key);
+		throw new ItemNotFoundException('Column property', $key);
 	}
 
 	private static function initialize()

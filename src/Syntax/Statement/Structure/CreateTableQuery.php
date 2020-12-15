@@ -134,7 +134,7 @@ class CreateTableQuery implements TokenizableStatementInterface,
 			$structure = $context->getPivot();
 
 		if (!($structure instanceof TableStructure &&
-			($structure->count() > 0)))
+			($structure->getColumns()->count() > 0)))
 			throw new StatementException($this,
 				'Missing or invalid table structure');
 

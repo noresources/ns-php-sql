@@ -67,7 +67,7 @@ final class StructureSerializerTest extends \PHPUnit\Framework\TestCase
 		 *
 		 * @var ColumnStructure $gender
 		 */
-		$gender = $employees->getColumn('gender');
+		$gender = $employees->getColumns()->get('gender');
 
 		$this->assertTrue($gender->has(K::COLUMN_LENGTH),
 			'Gender column has length');

@@ -9,15 +9,13 @@
  */
 namespace NoreSources\SQL\DBMS;
 
-use NoreSources\SQL\Structure\ColumnDescriptionInterface;
-
 interface DataUnserializerInterface
 {
 
 	/**
 	 * Unserialize data from DBMS record column
 	 *
-	 * @param ColumnDescriptionInterface $columnDescription
+	 * @param mixed $columnDescription
 	 *        	Column properties
 	 * @param mixed $data
 	 *        	Data to unserialize

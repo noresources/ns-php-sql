@@ -68,10 +68,10 @@ interface StructureResolverInterface
 	/**
 	 *
 	 * @param string $name
-	 * @param ColumnDescriptionMapInterface $columns
+	 * @param
+	 *        	$columns
 	 */
-	function setTemporaryTable($name,
-		ColumnDescriptionMapInterface $columns);
+	function setTemporaryTable($name, $columns);
 
 	/**
 	 * Push a resolver context.

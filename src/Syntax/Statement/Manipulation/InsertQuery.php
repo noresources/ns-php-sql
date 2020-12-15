@@ -115,13 +115,13 @@ class InsertQuery implements TokenizableStatementInterface, \ArrayAccess
 
 		foreach ($this->columnValues as $columnName => $value)
 		{
-			if (!$tableStructure->offsetExists($columnName))
+			if (!$tableStructure->getColumns()->has($columnName))
 				throw new StatementException($this,
 					'Invalid column "' . $columnName . '"');
 
 			$columns[] = $context->getPlatform()->quoteIdentifier(
 				$columnName);
-			$column = $tableStructure->offsetGet($columnName);
+			$column = $tableStructure->getColumns()->get($columnName);
 			/**
 			 *
 			 * @var ColumnStructure $column

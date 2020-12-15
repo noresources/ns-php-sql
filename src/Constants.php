@@ -860,6 +860,18 @@ class Constants
 	const FEATURE_COLUMN_ENUM = Bitset::BIT_02;
 
 	/**
+	 * Constraint declaration flags
+	 */
+	const FEATURE_CONSTRAINT_DECLARATION_FLAGS = 'constraintdeclaration';
+
+	/**
+	 * Constraint declaration flag
+	 *
+	 * Force fully qualified REFERENCES
+	 */
+	const FEATURE_CONSTRAINT_REFERENCES_QUALIFIED = Bitset::BIT_01;
+
+	/**
 	 * Platform feature domain
 	 *
 	 * DROP statements

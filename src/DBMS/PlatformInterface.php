@@ -12,7 +12,6 @@ namespace NoreSources\SQL\DBMS;
 use NoreSources\SemanticVersion;
 use NoreSources\Expression\ExpressionInterface;
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\Structure\ColumnDescriptionInterface;
 use NoreSources\SQL\Structure\StructureElementInterface;
 use NoreSources\SQL\Syntax\FunctionCall;
 use NoreSources\SQL\Syntax\MetaFunctionCall;
@@ -45,7 +44,7 @@ interface PlatformInterface extends FeatureQueryInterface,
 
 	/**
 	 *
-	 * @param ColumnDescriptionInterface $columnDescription
+	 * @param mixed $columnDescription
 	 *        	Column description
 	 * @param number $constraintFlags
 	 *        	Column constraint flags

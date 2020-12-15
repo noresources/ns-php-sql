@@ -12,16 +12,15 @@ use NoreSources\CaseInsensitiveKeyMapTrait;
 use NoreSources\Container;
 use NoreSources\TypeConversion;
 use NoreSources\MediaType\MediaTypeInterface;
+use NoreSources\SQL\AssetMapInterface;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\Types\ArrayObjectType;
 use NoreSources\SQL\Syntax\Evaluator;
-use Psr\Container\ContainerInterface;
 
 /**
  * DBMS Type registry
  */
-class TypeRegistry implements \ArrayAccess, \Countable,
-	ContainerInterface, \IteratorAggregate
+class TypeRegistry implements \ArrayAccess, AssetMapInterface
 {
 
 	use CaseInsensitiveKeyMapTrait;

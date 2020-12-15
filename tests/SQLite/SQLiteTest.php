@@ -262,11 +262,10 @@ final class SQLiteTest extends \PHPUnit\Framework\TestCase
 			$index = 0;
 			foreach ($expectedResultColumnKeys as $name => $_)
 			{
-				$byIndex = $result->getResultColumns()->getColumn(
-					$index);
+				$byIndex = $result->getResultColumns()->get($index);
 				$this->assertEquals($name, $byIndex->getName(),
 					'Recordset result column #' . $index);
-				$byName = $result->getResultColumns()->getColumn($name);
+				$byName = $result->getResultColumns()->get($name);
 				$this->assertEquals($name, $byName->getName(),
 					'Recordset result column ' . $name);
 				$index++;
@@ -502,7 +501,9 @@ final class SQLiteTest extends \PHPUnit\Framework\TestCase
 		$this->assertInstanceOf(TableStructure::class, $tasks,
 			'Tasks table');
 
-		$this->assertTrue($tasks->hasColumn('id'), 'Tasks has id column');
+		$this->assertTrue(
+			Container::keyExists($tasks->getColumns(), 'id'),
+			'Tasks has id column');
 
 		$tasksPrimaryKey = Container::firstValue(
 			Container::filter($tasks->getConstraints(),
@@ -520,7 +521,7 @@ final class SQLiteTest extends \PHPUnit\Framework\TestCase
 
 		$this->assertCount(2, $foreignKeys, 'Tasks foreign key count');
 
-		$id = $tasks->getColumn('id');
+		$id = $tasks->getColumns()->get('id');
 
 		$this->assertInstanceOf(ColumnStructure::class, $id);
 

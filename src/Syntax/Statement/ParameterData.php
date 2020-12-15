@@ -9,13 +9,13 @@ namespace NoreSources\SQL\Syntax\Statement;
 
 use NoreSources\ArrayRepresentation;
 use NoreSources\Container;
-use Psr\Container\ContainerInterface;
+use NoreSources\SQL\AssetMapInterface;
+use NoreSources\SQL\ItemNotFoundException;
 
 /**
  * Internal class used to bind logical parameter key and DBMS parameter names
  */
-class ParameterData implements ContainerInterface, \IteratorAggregate,
-	\Countable, ArrayRepresentation
+class ParameterData implements AssetMapInterface, ArrayRepresentation
 {
 
 	public function __construct()
@@ -162,7 +162,7 @@ class ParameterData implements ContainerInterface, \IteratorAggregate,
 	public function get($keyOrIndex)
 	{
 		if (!$this->entries->offsetExists($keyOrIndex))
-			throw new ParameterNotFoundException($keyOrIndex);
+			throw new ItemNotFoundException('parameter', $keyOrIndex);
 
 		return $this->entries->offsetGet($keyOrIndex);
 	}

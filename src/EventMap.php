@@ -43,7 +43,7 @@ class EventMap implements ContainerInterface, \IteratorAggregate
 	{
 		if (!(isset($this->events) &&
 			Container::keyExists($this->events, $id)))
-			throw new EventNotFoundException($id);
+			throw new ItemNotFoundException('Event', $id);
 		return Container::keyValue($this->events, $id);
 	}
 

@@ -47,7 +47,7 @@ class SQLiteCreateTableQuery extends CreateTableQuery
 			$columns = $constraint->getColumns();
 			foreach ($columns as $name)
 			{
-				$column = $table->getColumn($name);
+				$column = $table->getColumns()->get($name);
 				$flags = $column->get(K::COLUMN_FLAGS);
 
 				if ($flags & K::COLUMN_FLAG_AUTO_INCREMENT)

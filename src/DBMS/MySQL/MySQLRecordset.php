@@ -45,7 +45,7 @@ class MySQLRecordset extends Recordset implements \Countable,
 			$column = null;
 			$created = false;
 			if ($i < $map->count())
-				$column = $map->getColumn($i);
+				$column = $map->get($i);
 			else
 			{
 				$created = true;
@@ -81,15 +81,6 @@ class MySQLRecordset extends Recordset implements \Countable,
 	public function count()
 	{
 		return $this->mysqlResult->num_rows;
-	}
-
-	/**
-	 *
-	 * @return integer
-	 */
-	public function getColumnCount()
-	{
-		return $this->mysqlResult->field_count;
 	}
 
 	public function reset()
