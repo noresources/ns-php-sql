@@ -1125,13 +1125,20 @@ class Record implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 				$autoIncrementColumn = $c;
 			}
 
-			if (ArrayUtil::keyExists($this->m_values, $n) &&
-				(\is_null($autoIncrementColumn) || ($autoIncrementColumn->getName() != $n)))
+			if (!ArrayUtil::keyExists($this->m_values, $n))
+				continue;
+
+			$columnValue = ArrayUtil::keyValue($this->m_values, $n);
+
+			if ($autoIncrementColumn && ($autoIncrementColumn->getName() != $n) &&
+				empty($columnValue))
 			{
-				$column = $this->m_table->getColumn($n);
-				$data = $column->importData(static::serializeValue($n, $this->m_values[$n]));
-				$i->addColumnValue($column, $data);
+				continue;
 			}
+
+			$column = $this->m_table->getColumn($n);
+			$data = $column->importData(static::serializeValue($n, $this->m_values[$n]));
+			$i->addColumnValue($column, $data);
 		}
 
 		$result = $i->execute();
