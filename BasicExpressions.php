@@ -369,6 +369,16 @@ class SQLAs extends \NoreSources\BinaryOperatorExpression
 		parent::__construct('AS', $a_leftExpression, $a_rightExpression);
 		$this->protect = false;
 	}
+	
+	public function expressionString($a_options = null)
+	{
+		if (($a_options & kExpressionElementDeclaration) == kExpressionElementAlias)
+		{
+			return $this->m_rightExpression->expressionString($a_options);
+		}
+		
+		return parent::expressionString($a_options);
+	}
 
 	/**
 	 *
