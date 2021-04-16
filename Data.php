@@ -430,14 +430,19 @@ class NumberData extends Data
 			return $this->m_datasource->getDatasourceString(Datasource::kStringKeywordNull);
 		}
 
-		if ($this->decimals > 0)
+		if (isset($this->decimals))
 		{
-			$data = floatval($data);
+			if ($this->decimals > 0)
+			{
+				$data = floatval($data);
+			}
+			else
+			{
+				$data = intval($data);
+			}
 		}
-		else
-		{
-			$data = intval($data);
-		}
+		elseif (!\is_numeric($data))
+			$data = \floatval($data);
 
 		if ($this->flags & self::kBoundaryMin)
 		{
@@ -654,7 +659,7 @@ class BinaryData extends Data
 		return $this->m_datasource->serializeBinaryData($data);
 	}
 
-	public function getValue ()
+	public function getValue()
 	{
 		return $this->m_value;
 	}
@@ -675,7 +680,7 @@ class DataList implements ns\IExpression
 	 * @param array $list
 	 * @param TableColumn $column
 	 */
-	public static function fromList ($list, TableColumn $column = null)
+	public static function fromList($list, TableColumn $column = null)
 	{
 		$o = new DataList();
 		if (!ns\ArrayUtil::isArray($list))
@@ -689,7 +694,8 @@ class DataList implements ns\IExpression
 			{
 				if (!(is_object($column) && ($column instanceof TableColumn)))
 				{
-					return ns\Reporter::fatalError(__CLASS__, __METHOD__ . ': TableColumn must be specified to import raw data');
+					return ns\Reporter::fatalError(__CLASS__,
+						__METHOD__ . ': TableColumn must be specified to import raw data');
 				}
 
 				$element = $column->importData($element);
@@ -701,26 +707,26 @@ class DataList implements ns\IExpression
 		return $o;
 	}
 
-	public function __construct ()
+	public function __construct()
 	{
 		$this->m_values;
 	}
 
-	public function addData ($data)
+	public function addData($data)
 	{
 		$this->m_values[] = $data;
 	}
 
-	public function expressionString ($options = null)
+	public function expressionString($options = null)
 	{
 		$s = ns\ArrayUtil::implode($this->m_values, ', ', array(
-				$this,
-				'glueData'
+			$this,
+			'glueData'
 		), $options);
 		return $s;
 	}
 
-	public static function glueData ($k, $v, $options)
+	public static function glueData($k, $v, $options)
 	{
 		return $v->expressionString($options);
 	}
