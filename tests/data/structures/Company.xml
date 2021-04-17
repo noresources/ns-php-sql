@@ -55,7 +55,7 @@
 				<sql:column name="manageeId" />
 			</sql:primarykey>
 
-			<sql:foreignkey>
+			<sql:foreignkey name="hierarchy_managerId_foreignkey">
 				<sql:column name="managerId" />
 				<sql:reference>
 					<sql:tableref id="nsut.tables.Employees" />

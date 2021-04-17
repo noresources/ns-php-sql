@@ -62,6 +62,8 @@ final class PostgreSQLTest extends \PHPUnit\Framework\TestCase
 		 * @var PostgreSQLConnection $connection
 		 */
 		$connection = self::createConnection();
+		$environment = new Environment($connection);
+
 		if ($connection === NULL)
 		{
 			$this->assertTrue(true, 'Not available');
@@ -80,8 +82,8 @@ final class PostgreSQLTest extends \PHPUnit\Framework\TestCase
 			{
 				$s = $connection->getPlatform()->newStatement(
 					K::QUERY_CREATE_TABLE);
-				if ($s instanceof CreateTableQuery)
-					$s->table($elementStructure);
+				$this->assertInstanceOf(CreateTableQuery::class, $s);
+				$s->table($elementStructure);
 			}
 			else
 				continue;
@@ -102,6 +104,8 @@ final class PostgreSQLTest extends \PHPUnit\Framework\TestCase
 			$drop = null;
 			if ($elementStructure instanceof TableStructure)
 				$drop = new DropTableQuery($elementStructure);
+
+			$drop->flags($drop->getFlags() | DropTableQuery::CASCADE);
 			$data = ConnectionHelper::buildStatement($connection, $drop,
 				$elementStructure);
 			$sql = \SqlFormatter::format(\strval($data), false);
@@ -130,15 +134,21 @@ final class PostgreSQLTest extends \PHPUnit\Framework\TestCase
 		if ($connection === NULL)
 			return;
 		$structure = $this->datasources->get('Company');
+
+		$environment = new Environment($connection, $structure);
+
 		$tableStructure = $structure['ns_unittests']['Employees'];
 		$this->assertInstanceOf(Structure\TableStructure::class,
+			$tableStructure);
+
+		$this->datasources->createTable($this, $connection,
 			$tableStructure);
 
 		/**
 		 *
 		 * @var \NoreSources\SQL\Syntax\Statement\Manipulation\InsertQuery $query
 		 */
-		$query = $connection->getPlatform()->newStatement(
+		$query = $environment->getPlatform()->newStatement(
 			K::QUERY_INSERT);
 		$query->table($tableStructure);
 		$query('gender', ':gender');

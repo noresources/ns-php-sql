@@ -1,2 +1,2 @@
 DROP 
-  TABLE IF EXISTS "ns_unittests"."Hierarchy"
+  TABLE IF EXISTS "ns_unittests"."Hierarchy" CASCADE

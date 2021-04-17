@@ -1,2 +1,2 @@
 DROP 
-  TABLE IF EXISTS "ns_unittests"."types"
+  TABLE IF EXISTS "ns_unittests"."types" CASCADE
