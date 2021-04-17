@@ -2,11 +2,12 @@
 namespace NoreSources\Test;
 
 use NoreSources\TypeDescription;
+use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\ConnectionInterface;
-use NoreSources\SQL\Syntax\Statement\Structure\CreateTableQuery;
 use NoreSources\SQL\Structure\DatasourceStructure;
 use NoreSources\SQL\Structure\StructureSerializerFactory;
 use NoreSources\SQL\Structure\TableStructure;
+use NoreSources\SQL\Syntax\Statement\Structure\CreateTableQuery;
 use PHPUnit\Framework\TestCase;
 
 class DatasourceManager extends \PHPUnit\Framework\TestCase
@@ -59,8 +60,9 @@ class DatasourceManager extends \PHPUnit\Framework\TestCase
 		 *
 		 * @var CreateTableQuery
 		 */
-		$q = $connection->getPlatform()->newStatement(K::QUERY_CREATE);
-		$q->table($structure);
+		$q = $connection->getPlatform()->newStatement(
+			K::QUERY_CREATE_TABLE);
+		$q->table($tableStructure);
 		$sql = ConnectionHelper::buildStatement($connection, $q);
 		return $connection->executeStatement($sql);
 	}
