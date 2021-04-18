@@ -66,7 +66,7 @@ class PostgreSQLPlatform extends AbstractPlatform implements
 				[
 					K::FEATURE_DROP,
 					K::FEATURE_CASCADE
-				], false);
+				], true);
 
 			$compatibility = '7.3.0';
 		}
