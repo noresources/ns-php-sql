@@ -154,11 +154,9 @@ class MySQLConnection implements ConnectionInterface,
 	{
 		$detectParameters = !($statement instanceof ParameterDataProviderInterface);
 		$stmt = $this->link->stmt_init();
-		$stmt->prepare(\strval($statement));
-		/**
-		 *
-		 * @todo error management
-		 */
+		$result = $stmt->prepare(\strval($statement));
+		if (!$result)
+			throw new ConnectionException($this, $stmt->error);
 
 		$prepared = new MySQLPreparedStatement($stmt, $statement);
 		if ($detectParameters)
