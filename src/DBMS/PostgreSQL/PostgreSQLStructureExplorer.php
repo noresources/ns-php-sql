@@ -12,6 +12,7 @@ use NoreSources\Container;
 use NoreSources\SQL\DBMS\AbstractStructureExplorer;
 use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\ConnectionProviderInterface;
+use NoreSources\SQL\DBMS\InformationSchemaStructureExplorerTrait;
 use NoreSources\SQL\DBMS\PlatformInterface;
 use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLConstants as K;
 use NoreSources\SQL\DBMS\Traits\ConnectionProviderTrait;
@@ -19,7 +20,6 @@ use NoreSources\SQL\Result\Recordset;
 use NoreSources\SQL\Structure\ArrayColumnDescription;
 use NoreSources\SQL\Structure\ForeignKeyTableConstraint;
 use NoreSources\SQL\Structure\IndexTableConstraint;
-use NoreSources\SQL\Structure\PrimaryKeyTableConstraint;
 use NoreSources\SQL\Structure\StructureElementIdentifier;
 use NoreSources\SQL\Syntax\Data;
 
@@ -27,6 +27,7 @@ class PostgreSQLStructureExplorer extends AbstractStructureExplorer implements
 	ConnectionProviderInterface
 {
 	use ConnectionProviderTrait;
+	use InformationSchemaStructureExplorerTrait;
 
 	public function __construct(ConnectionInterface $connection)
 	{
@@ -44,20 +45,8 @@ class PostgreSQLStructureExplorer extends AbstractStructureExplorer implements
 	{
 		$parentIdentifier = StructureElementIdentifier::make(
 			$parentIdentifier ? $parentIdentifier : 'public');
-
-		$platform = $this->getConnection()->getPlatform();
-
-		$sql = \sprintf(
-			"SELECT table_name FROM information_schema.tables" .
-			" WHERE  table_schema NOT LIKE 'pg\_%%'" .
-			" AND table_schema != 'information_schema'" .
-			" AND table_name != 'geometry_columns'" .
-			" AND table_name != 'spatial_ref_sys'" .
-			" AND table_type != 'VIEW' AND	table_schema = %s",
-			$platform->quoteStringValue($parentIdentifier));
-
-		$recordset = $this->getConnection()->executeStatement($sql);
-		return self::recordsetToList($recordset, 'table_name');
+		return $this->getInformationSchemaTableNames(
+			$this->getConnection(), $parentIdentifier);
 	}
 
 	public function getTableColumnNames($tableIdentifier)
@@ -88,90 +77,13 @@ class PostgreSQLStructureExplorer extends AbstractStructureExplorer implements
 		$namespace = $tableIdentifier->getParentIdentifier();
 		if (empty($namespace->getPath()))
 			$namespace = 'public';
-		$platform = $this->getConnection()->getPlatform();
 
-		$sql = sprintf(
-			'SELECT column_default, is_nullable,
-				data_type, character_maximum_length,
-				numeric_precision, numeric_scale
-				FROM information_schema.columns
-				WHERE table_schema=%s
-					AND table_name=%s
-					AND column_name=%s', $platform->quoteStringValue($namespace),
-			$platform->quoteStringValue($tableName),
-			$platform->quoteStringValue($columnName));
-		$recordset = $this->getConnection()->executeStatement($sql);
-
-		$recordset = $this->getConnection()->executeStatement($sql);
-		$recordset->setFlags(K::RECORDSET_FETCH_ASSOCIATIVE);
-		$info = $recordset->current();
-
-		$type = $platform->getTypeRegistry()->get($info['data_type']);
-		$dataType = $type->get(K::TYPE_DATA_TYPE);
-		$flags = 0;
-		if (\strcasecmp($info['is_nullable'], 'yes'))
-			$dataType |= K::DATATYPE_NULL;
-
-		if ($dataType & K::DATATYPE_STRING)
-		{
-			if (!empty($info['character_maximum_length']))
-			{
-				$properties[K::COLUMN_LENGTH] = \intval(
-					$info['character_maximum_length']);
-			}
-		}
-		elseif ($dataType & K::DATATYPE_NUMBER)
-		{
-			if (!empty($info['numeric_precision']))
-			{
-				$properties[K::COLUMN_PRECISION] = \intval(
-					$info['numeric_precision']);
-
-				if (!empty($info['numeric_scale']))
-				{
-					$scale = \intval($info['numeric_scale']);
-					if ($scale)
-						$properties[K::COLUMN_FRACTION_SCALE] = $scale;
-				}
-			}
-		}
-
-		$properties = [
-			K::COLUMN_NAME => $columnName
-		];
-
-		if (!empty($info['column_default']))
-		{
-			if (\preg_match('/nextval\(.*\)$/', $info['column_default']))
-			{
-				$flags |= K::COLUMN_FLAG_AUTO_INCREMENT;
-			}
-			else
-			{
-				$sql = 'SELECT ' . $info['column_default'] .
-					' AS "value"';
-				$recordset = $this->getConnection()->executeStatement(
-					$sql);
-
-				$recordset->getResultColumns()->offsetSet(0,
-					new ArrayColumnDescription(
-						[
-							K::COLUMN_NAME => 'value',
-							K::COLUMN_DATA_TYPE => $dataType
-						]));
-				$recordset->setFlags(
-					$recordset->getFlags() |
-					K::RECORDSET_FETCH_UBSERIALIZE);
-				$properties[K::COLUMN_DEFAULT_VALUE] = new Data(
-					self::recordsetToValue($recordset), $dataType);
-			}
-		}
-
-		$properties[K::COLUMN_DATA_TYPE] = $dataType;
-		if ($flags)
-			$properties[K::COLUMN_FLAGS] = $flags;
-
-		return new ArrayColumnDescription($properties);
+		return $this->getInformationSchemaTableColumn(
+			$this->getConnection(),
+			StructureElementIdentifier::make([
+				$namespace,
+				$tableName
+			]), $columnName);
 	}
 
 	public function getTablePrimaryKeyConstraint($tableIdentifier)
@@ -182,45 +94,13 @@ class PostgreSQLStructureExplorer extends AbstractStructureExplorer implements
 		$namespace = $tableIdentifier->getParentIdentifier();
 		if (empty($namespace->getPath()))
 			$namespace = 'public';
-		$platform = $this->getConnection()->getPlatform();
 
-		$sql = sprintf(
-			'SELECT
-			    tc.constraint_name as name,
-			    kcu.column_name as column
-			FROM
-			    information_schema.table_constraints AS tc
-			    INNER JOIN information_schema.key_column_usage AS kcu
-			      ON tc.constraint_name = kcu.constraint_name
-			      AND tc.table_schema = kcu.table_schema
-				WHERE tc.constraint_type=%s
-						AND tc.table_schema=%s
-						AND tc.table_name=%s', $platform->quoteStringValue('PRIMARY KEY'),
-			$platform->quoteStringValue($namespace),
-			$platform->quoteStringValue($tableName));
-
-		$recordset = $this->getConnection()->executeStatement($sql);
-		$recordset->setFlags(
-			K::RECORDSET_FETCH_ASSOCIATIVE |
-			K::RECORDSET_FETCH_UBSERIALIZE);
-
-		$primaryKey = null;
-
-		foreach ($recordset as $row)
-		{
-			$name = $row['name'];
-			$column = $row['column'];
-
-			if (!isset($primaryKey))
-			{
-				$primaryKey = new PrimaryKeyTableConstraint();
-				$primaryKey->setName($name);
-			}
-
-			$primaryKey->append($column);
-		}
-
-		return $primaryKey;
+		return $this->getInformationSchemaTablePrimaryKeyConstraint(
+			$this->getConnection(),
+			StructureElementIdentifier::make([
+				$namespace,
+				$tableName
+			]));
 	}
 
 	public function getTableForeignKeyConstraints($tableIdentifier)
@@ -276,25 +156,8 @@ class PostgreSQLStructureExplorer extends AbstractStructureExplorer implements
 				$fk->addColumn($column, $reference['column']);
 			}
 
-			$sql = sprintf(
-				"SELECT
-					update_rule as update,
-					delete_rule as delete
-				FROM information_schema.referential_constraints
-					WHERE constraint_schema=%s
-					AND constraint_name=%s", $platform->quoteStringValue($namespace),
-				$platform->quoteStringValue($name));
-
-			$rules = $this->getConnection()->executeStatement($sql);
-			if (($rules = $rules->current()))
-			{
-				if ($action = Container::keyValue($actionMap,
-					$rules['update']))
-					$fk->getEvents()->on(K::EVENT_UPDATE, $action);
-				if ($action = Container::keyValue($actionMap,
-					$rules['delete']))
-					$fk->getEvents()->on(K::EVENT_DELETE, $action);
-			}
+			$this->populateInformationSchemaForeignKeyActions($fk,
+				$this->getConnection(), $namespace);
 
 			$foreignKeys[] = $fk;
 		}
@@ -390,25 +253,47 @@ class PostgreSQLStructureExplorer extends AbstractStructureExplorer implements
 
 	public function getViewNames($parentIdentifier = null)
 	{
-		/**
-		 *
-		 * @var StructureElementIdentifier $parentIdentifier
-		 */
 		$namespace = StructureElementIdentifier::make($parentIdentifier);
 		if (empty($namespace->getPath()))
-			$namespace = 'public';
+			$namespace = StructureElementIdentifier::make('public');
 
-		$sql = sprintf(
-			'SELECT
-				table_name as name
-				FROM information_schema.views
-				WHERE table_schema=%s',
-			$this->getConnection()
-				->getPlatform()
-				->quoteStringValue($namespace));
+		return $this->getInformationSchemaViewNames(
+			$this->getConnection(), $namespace);
+	}
 
-		$recordset = $this->getConnection()->executeStatement($sql);
-		return self::recordsetToList($recordset);
+	public function processInformationSchemaColumnDefault(&$properties,
+		$columnValue)
+	{
+		if (\preg_match('/nextval\(.*\)$/', $columnValue))
+		{
+			$flags = Container::keyValue($properties, K::COLUMN_FLAGS, 0);
+			$flags |= K::COLUMN_FLAG_AUTO_INCREMENT;
+			$properties[K::COLUMN_FLAGS] = $flags;
+		}
+		else
+		{
+			$dataType = Container::keyValue($properties,
+				K::COLUMN_DATA_TYPE, K::DATATYPE_UNDEFINED);
+			$platform = $this->getConnection()->getPlatform();
+			$sql = sprintf('SELECT ' . $columnValue . ' AS %s',
+				$platform->quoteIdentifier('value'));
+			$recordset = $this->getConnection()->executeStatement($sql);
+			$recordset->getResultColumns()->offsetSet(0,
+				new ArrayColumnDescription(
+					[
+						K::COLUMN_NAME => 'value',
+						K::COLUMN_DATA_TYPE => $dataType
+					]));
+
+			$recordset->setFlags(
+				K::RECORDSET_FETCH_INDEXED |
+				K::RECORDSET_FETCH_UBSERIALIZE);
+
+			$record = $recordset->current();
+
+			$properties[K::COLUMN_DEFAULT_VALUE] = new Data($record[0],
+				$dataType);
+		}
 	}
 
 	protected function getCatalogClassTableId($namespace, $table)

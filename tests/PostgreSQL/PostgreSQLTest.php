@@ -211,7 +211,9 @@ final class PostgreSQLTest extends \PHPUnit\Framework\TestCase
 
 		$settings = require ($settingsFile);
 
-		return ConnectionHelper::createConnection($settings);
+		$this->connection = ConnectionHelper::createConnection(
+			$settings);
+		return $this->connection;
 	}
 
 	/**

@@ -29,6 +29,7 @@ use NoreSources\SQL\Result\Recordset;
 use NoreSources\SQL\Structure\ArrayColumnDescription;
 use NoreSources\SQL\Structure\ColumnDescriptionInterface;
 use NoreSources\SQL\Structure\ColumnStructure;
+use NoreSources\SQL\Structure\ForeignKeyTableConstraint;
 use NoreSources\SQL\Structure\IndexTableConstraint;
 use NoreSources\SQL\Structure\NamespaceStructure;
 use NoreSources\SQL\Structure\PrimaryKeyTableConstraint;
@@ -1755,8 +1756,15 @@ final class DBMSCommonTest extends TestCase
 		$this->assertCount(1, $employeesPrimaryKey->getColumns(),
 			'Employees primary key column count');
 
-		$this->assertEquals('pk_id', $employeesPrimaryKey->getName(),
-			$dbmsName . ' Employees primary key name');
+		/**
+		 *
+		 * @note MySQL primary key name is always PIRMARY
+		 */
+		if (false)
+		{
+			$this->assertEquals('pk_id', $employeesPrimaryKey->getName(),
+				$dbmsName . ' Employees primary key name');
+		}
 
 		$this->assertContains('id', $employeesPrimaryKey->getColumns(),
 			$dbmsName . ' Employees primary key column');
@@ -1774,9 +1782,17 @@ final class DBMSCommonTest extends TestCase
 		$this->assertCount(2, $hierarchyForeignKeys,
 			'Hierarchy foreign keys');
 
-		$this->assertEquals('hierarchy_managerId_foreignkey',
-			$hierarchyForeignKeys[0]->getName(),
-			'First foreign key name');
+		$hierarchy_managerId_foreignkey = null;
+		foreach ($hierarchyForeignKeys as $key)
+		{
+			if ($key->getName() == 'hierarchy_managerId_foreignkey')
+				$hierarchy_managerId_foreignkey = $key;
+		}
+
+		$this->assertInstanceOf(ForeignKeyTableConstraint::class,
+			$hierarchy_managerId_foreignkey,
+			$dbmsName .
+			' foreign key named hierarchy_managerId_foreignkey');
 
 		$this->assertEquals(K::FOREIGN_KEY_ACTION_CASCADE,
 			$hierarchyForeignKeys[1]->getEvents()
@@ -1837,7 +1853,7 @@ final class DBMSCommonTest extends TestCase
 		$this->assertTrue(
 			($typesIntFlags & K::COLUMN_FLAG_AUTO_INCREMENT) ==
 			K::COLUMN_FLAG_AUTO_INCREMENT,
-			$dbmsName . 'types.int is  Auto increament');
+			$dbmsName . ' types.int is  Auto increament');
 	}
 
 	public function testMediaTypes()

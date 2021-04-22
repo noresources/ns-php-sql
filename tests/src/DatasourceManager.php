@@ -44,7 +44,7 @@ class DatasourceManager extends \PHPUnit\Framework\TestCase
 
 	public static function createTable(TestCase $test,
 		ConnectionInterface $connection, TableStructure $tableStructure,
-		$stored = false)
+		$stored = false, $flags = 0)
 	{
 		if ($stored)
 		{
@@ -63,6 +63,7 @@ class DatasourceManager extends \PHPUnit\Framework\TestCase
 		$q = $connection->getPlatform()->newStatement(
 			K::QUERY_CREATE_TABLE);
 		$q->table($tableStructure);
+		$q->flags($flags);
 		$sql = ConnectionHelper::buildStatement($connection, $q);
 		return $connection->executeStatement($sql);
 	}

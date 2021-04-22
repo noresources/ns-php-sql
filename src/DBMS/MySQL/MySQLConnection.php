@@ -16,6 +16,7 @@ use NoreSources\SQL\DBMS\BinaryDataSerializerInterface;
 use NoreSources\SQL\DBMS\ConnectionException;
 use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\StringSerializerInterface;
+use NoreSources\SQL\DBMS\StructureExplorerProviderInterface;
 use NoreSources\SQL\DBMS\TransactionInterface;
 use NoreSources\SQL\DBMS\MySQL\MySQLConstants as K;
 use NoreSources\SQL\DBMS\Traits\TransactionStackTrait;
@@ -28,7 +29,7 @@ use NoreSources\SQL\Syntax\Statement\Statement;
 
 class MySQLConnection implements ConnectionInterface,
 	StringSerializerInterface, BinaryDataSerializerInterface,
-	TransactionInterface
+	TransactionInterface, StructureExplorerProviderInterface
 {
 
 	use TransactionStackTrait;
@@ -141,6 +142,18 @@ class MySQLConnection implements ConnectionInterface,
 		}
 
 		return $this->platform;
+	}
+
+	/**
+	 *
+	 * @return \NoreSources\SQL\DBMS\MySQL\MySQLStructureExplorer
+	 */
+	public function getStructureExplorer()
+	{
+		if (!isset($this->structureExplorer))
+			$this->structureExplorer = new MySQLStructureExplorer($this);
+
+		return $this->structureExplorer;
 	}
 
 	/**
@@ -352,4 +365,10 @@ class MySQLConnection implements ConnectionInterface,
 	 * @var integer
 	 */
 	private $mysqlFlags;
+
+	/**
+	 *
+	 * @var MySQLStructureExplorer
+	 */
+	private $structureExplorer;
 }
