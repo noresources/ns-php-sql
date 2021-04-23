@@ -9,7 +9,7 @@ namespace NoreSources\SQL\Syntax\Statement\Structure;
 
 use NoreSources\Bitset;
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\Structure\StructureElementIdentifier;
+use NoreSources\SQL\Structure\Identifier;
 use NoreSources\SQL\Structure\TableStructure;
 use NoreSources\SQL\Syntax\TokenStream;
 use NoreSources\SQL\Syntax\TokenStreamContextInterface;
@@ -42,7 +42,7 @@ class DropTableQuery implements TokenizableStatementInterface
 
 	/**
 	 *
-	 * @param StructureElementIdentifier|TableStructure|string $identifier
+	 * @param Identifier|TableStructure|string $identifier
 	 *        	Table identifier
 	 */
 	public function __construct($identifier = null)

@@ -8,7 +8,7 @@
  */
 namespace NoreSources\SQL\DBMS\MySQL;
 
-use NoreSources\SQL\Structure\StructureElementIdentifier;
+use NoreSources\SQL\Structure\Identifier;
 use NoreSources\SQL\Syntax\TokenStream;
 use NoreSources\SQL\Syntax\TokenStreamContextInterface;
 use NoreSources\SQL\Syntax\Statement\Structure\DropIndexQuery;
@@ -18,7 +18,7 @@ class MySQLDropIndexQuery extends DropIndexQuery
 
 	protected function tokenizeIdentifier(TokenStream $stream,
 		TokenStreamContextInterface $context,
-		StructureElementIdentifier $identifier)
+		Identifier $identifier)
 	{
 		$platform = $context->getPlatform();
 		return parent::tokenizeIdentifier($stream, $context, $identifier)->space()

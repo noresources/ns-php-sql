@@ -10,7 +10,7 @@ namespace NoreSources\SQL\Syntax\Statement\Structure;
 use NoreSources\Container;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Structure\NamespaceStructure;
-use NoreSources\SQL\Structure\StructureElementIdentifier;
+use NoreSources\SQL\Structure\Identifier;
 use NoreSources\SQL\Structure\TableStructure;
 use NoreSources\SQL\Syntax\TokenStream;
 use NoreSources\SQL\Syntax\TokenStreamContextInterface;
@@ -46,13 +46,13 @@ class DropIndexQuery implements TokenizableStatementInterface
 
 	/**
 	 *
-	 * @param string|StructureElementIdentifier $identifier
+	 * @param string|Identifier $identifier
 	 *        	Index identifier
 	 * @return \NoreSources\SQL\Syntax\Statement\Structure\DropIndexQuery
 	 */
 	public function identifier($identifier)
 	{
-		$this->indexIdentifier = StructureElementIdentifier::make(
+		$this->indexIdentifier = Identifier::make(
 			$identifier);
 
 		return $this;
@@ -88,7 +88,7 @@ class DropIndexQuery implements TokenizableStatementInterface
 
 	protected function tokenizeIdentifier(TokenStream $stream,
 		TokenStreamContextInterface $context,
-		StructureElementIdentifier $identifier)
+		Identifier $identifier)
 	{
 		$platform = $context->getPlatform();
 
@@ -139,7 +139,7 @@ class DropIndexQuery implements TokenizableStatementInterface
 	/**
 	 * Index name
 	 *
-	 * @var StructureElementIdentifier
+	 * @var Identifier
 	 */
 	private $indexIdentifier;
 }

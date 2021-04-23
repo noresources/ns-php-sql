@@ -10,13 +10,13 @@
 namespace NoreSources\SQL\Syntax;
 
 use NoreSources\Container;
-use NoreSources\SQL\Structure\StructureElementIdentifier;
+use NoreSources\SQL\Structure\Identifier;
 use NoreSources\SQL\Structure\TableStructure;
 
 /**
  * Table name reference
  */
-class Table extends StructureElementIdentifier implements
+class Table extends Identifier implements
 	TokenizableExpressionInterface
 {
 

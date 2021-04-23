@@ -13,7 +13,7 @@ use NoreSources\TypeDescription;
 use NoreSources\SQL\Structure\ColumnStructure;
 use NoreSources\SQL\Structure\DatasourceStructure;
 use NoreSources\SQL\Structure\NamespaceStructure;
-use NoreSources\SQL\Structure\StructureElementIdentifier;
+use NoreSources\SQL\Structure\Identifier;
 use NoreSources\SQL\Structure\StructureResolver;
 use NoreSources\SQL\Structure\TableStructure;
 
@@ -46,7 +46,7 @@ abstract class AbstractStructureExplorer implements
 				$table = new TableStructure($tableName, $namespace);
 				$namespace->appendElement($table);
 
-				$tableIdentifier = StructureElementIdentifier::make(
+				$tableIdentifier = Identifier::make(
 					$table);
 
 				$columns = $this->tryMethod('getTableColumnNames',

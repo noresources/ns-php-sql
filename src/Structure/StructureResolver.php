@@ -67,7 +67,7 @@ class StructureResolver implements StructureResolverInterface
 
 	public function findColumn($path)
 	{
-		$path = StructureElementIdentifier::make($path);
+		$path = Identifier::make($path);
 		$structureKey = ColumnStructure::class;
 		if (($cached = Container::keyValue($this->cache[$structureKey],
 			$path->getPath())))
@@ -106,7 +106,7 @@ class StructureResolver implements StructureResolverInterface
 
 	public function findTable($path)
 	{
-		$path = StructureElementIdentifier::make($path);
+		$path = Identifier::make($path);
 		$cached = null;
 
 		if (($cached = Container::keyValue(
@@ -146,7 +146,7 @@ class StructureResolver implements StructureResolverInterface
 
 	public function findNamespace($path)
 	{
-		$path = StructureElementIdentifier::make($path);
+		$path = Identifier::make($path);
 		if ($this->cache[NamespaceStructure::class]->offsetExists(
 			$path->getPath()))
 			return $this->cache[NamespaceStructure::class][$path->getPath()];

@@ -7,7 +7,7 @@ use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\MySQL\MySQLConnection;
 use NoreSources\SQL\DBMS\MySQL\MySQLStructureExplorer;
 use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLConstants as K;
-use NoreSources\SQL\Structure\StructureElementIdentifier;
+use NoreSources\SQL\Structure\Identifier;
 use NoreSources\SQL\Syntax\Statement\Structure\CreateTableQuery;
 use NoreSources\Test\ConnectionHelper;
 use NoreSources\Test\DatasourceManager;
@@ -72,7 +72,7 @@ final class MySQLTest extends \PHPUnit\Framework\TestCase
 		if (!Container::valueExists($namespaces, 'ns_unittests'))
 			return;
 
-		$employeesTableIdentifier = StructureElementIdentifier::make(
+		$employeesTableIdentifier = Identifier::make(
 			'ns_unittests.Employees');
 
 		$primaryKey = $explorer->getTablePrimaryKeyConstraint(

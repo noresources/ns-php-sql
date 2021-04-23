@@ -7,7 +7,7 @@ use NoreSources\SQL\Structure\CheckTableConstraint;
 use NoreSources\SQL\Structure\ForeignKeyTableConstraint;
 use NoreSources\SQL\Structure\IndexTableConstraintInterface;
 use NoreSources\SQL\Structure\PrimaryKeyTableConstraint;
-use NoreSources\SQL\Structure\StructureElementIdentifier;
+use NoreSources\SQL\Structure\Identifier;
 use NoreSources\SQL\Structure\TableConstraint;
 use NoreSources\SQL\Structure\TableConstraintInterface;
 use NoreSources\SQL\Structure\TableStructure;
@@ -119,7 +119,7 @@ class TableConstraintDeclaration implements
 		$i = 0;
 		foreach ($this->constraint->getColumns() as $column)
 		{
-			$column = StructureElementIdentifier::make($column);
+			$column = Identifier::make($column);
 			if ($i++ > 0)
 				$stream->text(',')->space();
 

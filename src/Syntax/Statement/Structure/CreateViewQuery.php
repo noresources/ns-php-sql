@@ -10,7 +10,7 @@ namespace NoreSources\SQL\Syntax\Statement\Structure;
 use NoreSources\Bitset;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Structure\NamespaceStructure;
-use NoreSources\SQL\Structure\StructureElementIdentifier;
+use NoreSources\SQL\Structure\Identifier;
 use NoreSources\SQL\Structure\ViewStructure;
 use NoreSources\SQL\Syntax\TokenStream;
 use NoreSources\SQL\Syntax\TokenStreamContextInterface;
@@ -38,7 +38,7 @@ class CreateViewQuery implements TokenizableStatementInterface
 
 	/**
 	 *
-	 * @param string|StructureElementIdentifier $identifier
+	 * @param string|Identifier $identifier
 	 *        	View identifier
 	 */
 	public function __construct($identifier = null)
@@ -58,7 +58,7 @@ class CreateViewQuery implements TokenizableStatementInterface
 
 	/**
 	 *
-	 * @param string|StructureElementIdentifier $identifier
+	 * @param string|Identifier $identifier
 	 *        	View identifier
 	 * @return \NoreSources\SQL\Syntax\Statement\Structure\DropViewQuery
 	 */
@@ -67,7 +67,7 @@ class CreateViewQuery implements TokenizableStatementInterface
 		if ($identifier instanceof ViewStructure)
 			$identifier = $identifier->getPath();
 
-		$this->viewIdentifier = StructureElementIdentifier::make(
+		$this->viewIdentifier = Identifier::make(
 			$identifier);
 
 		return $this;
@@ -181,7 +181,7 @@ class CreateViewQuery implements TokenizableStatementInterface
 	/**
 	 * View name
 	 *
-	 * @var StructureElementIdentifier
+	 * @var Identifier
 	 */
 	private $viewIdentifier;
 

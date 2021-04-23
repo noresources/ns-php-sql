@@ -20,7 +20,7 @@ use NoreSources\SQL\Result\Recordset;
 use NoreSources\SQL\Structure\ArrayColumnDescription;
 use NoreSources\SQL\Structure\ForeignKeyTableConstraint;
 use NoreSources\SQL\Structure\IndexTableConstraint;
-use NoreSources\SQL\Structure\StructureElementIdentifier;
+use NoreSources\SQL\Structure\Identifier;
 use NoreSources\SQL\Syntax\Data;
 
 class PostgreSQLStructureExplorer extends AbstractStructureExplorer implements
@@ -43,7 +43,7 @@ class PostgreSQLStructureExplorer extends AbstractStructureExplorer implements
 
 	public function getTableNames($parentIdentifier = null)
 	{
-		$parentIdentifier = StructureElementIdentifier::make(
+		$parentIdentifier = Identifier::make(
 			$parentIdentifier ? $parentIdentifier : 'public');
 		return $this->getInformationSchemaTableNames(
 			$this->getConnection(), $parentIdentifier);
@@ -51,7 +51,7 @@ class PostgreSQLStructureExplorer extends AbstractStructureExplorer implements
 
 	public function getTableColumnNames($tableIdentifier)
 	{
-		$tableIdentifier = StructureElementIdentifier::make(
+		$tableIdentifier = Identifier::make(
 			$tableIdentifier);
 		$tableName = $tableIdentifier->getLocalName();
 		$namespace = $tableIdentifier->getParentIdentifier();
@@ -71,7 +71,7 @@ class PostgreSQLStructureExplorer extends AbstractStructureExplorer implements
 
 	public function getTableColumn($tableIdentifier, $columnName)
 	{
-		$tableIdentifier = StructureElementIdentifier::make(
+		$tableIdentifier = Identifier::make(
 			$tableIdentifier);
 		$tableName = $tableIdentifier->getLocalName();
 		$namespace = $tableIdentifier->getParentIdentifier();
@@ -80,7 +80,7 @@ class PostgreSQLStructureExplorer extends AbstractStructureExplorer implements
 
 		return $this->getInformationSchemaTableColumn(
 			$this->getConnection(),
-			StructureElementIdentifier::make([
+			Identifier::make([
 				$namespace,
 				$tableName
 			]), $columnName);
@@ -88,7 +88,7 @@ class PostgreSQLStructureExplorer extends AbstractStructureExplorer implements
 
 	public function getTablePrimaryKeyConstraint($tableIdentifier)
 	{
-		$tableIdentifier = StructureElementIdentifier::make(
+		$tableIdentifier = Identifier::make(
 			$tableIdentifier);
 		$tableName = $tableIdentifier->getLocalName();
 		$namespace = $tableIdentifier->getParentIdentifier();
@@ -97,7 +97,7 @@ class PostgreSQLStructureExplorer extends AbstractStructureExplorer implements
 
 		return $this->getInformationSchemaTablePrimaryKeyConstraint(
 			$this->getConnection(),
-			StructureElementIdentifier::make([
+			Identifier::make([
 				$namespace,
 				$tableName
 			]));
@@ -105,7 +105,7 @@ class PostgreSQLStructureExplorer extends AbstractStructureExplorer implements
 
 	public function getTableForeignKeyConstraints($tableIdentifier)
 	{
-		$tableIdentifier = StructureElementIdentifier::make(
+		$tableIdentifier = Identifier::make(
 			$tableIdentifier);
 		$tableName = $tableIdentifier->getLocalName();
 		$namespace = $tableIdentifier->getParentIdentifier();
@@ -145,7 +145,7 @@ class PostgreSQLStructureExplorer extends AbstractStructureExplorer implements
 
 			$ref = Container::firstValue($columns);
 			$fk = new ForeignKeyTableConstraint(
-				StructureElementIdentifier::make(
+				Identifier::make(
 					[
 						$ref['namespace'],
 						$ref['table']
@@ -167,7 +167,7 @@ class PostgreSQLStructureExplorer extends AbstractStructureExplorer implements
 
 	public function getTableIndexNames($tableIdentifier)
 	{
-		$tableIdentifier = StructureElementIdentifier::make(
+		$tableIdentifier = Identifier::make(
 			$tableIdentifier);
 		$tableName = $tableIdentifier->getLocalName();
 		$namespace = $tableIdentifier->getParentIdentifier();
@@ -197,7 +197,7 @@ class PostgreSQLStructureExplorer extends AbstractStructureExplorer implements
 
 	public function getTableIndexes($tableIdentifier)
 	{
-		$tableIdentifier = StructureElementIdentifier::make(
+		$tableIdentifier = Identifier::make(
 			$tableIdentifier);
 		$tableName = $tableIdentifier->getLocalName();
 		$namespace = $tableIdentifier->getParentIdentifier();
@@ -253,9 +253,9 @@ class PostgreSQLStructureExplorer extends AbstractStructureExplorer implements
 
 	public function getViewNames($parentIdentifier = null)
 	{
-		$namespace = StructureElementIdentifier::make($parentIdentifier);
+		$namespace = Identifier::make($parentIdentifier);
 		if (empty($namespace->getPath()))
-			$namespace = StructureElementIdentifier::make('public');
+			$namespace = Identifier::make('public');
 
 		return $this->getInformationSchemaViewNames(
 			$this->getConnection(), $namespace);
@@ -325,10 +325,10 @@ class PostgreSQLStructureExplorer extends AbstractStructureExplorer implements
 		$catalogNamespaceTable = 'pg_catalog.pg_namespace')
 	{
 		$platform = $this->getConnection()->getPlatform();
-		$catalogClassTable = StructureElementIdentifier::make(
+		$catalogClassTable = Identifier::make(
 			$catalogClassTable);
 
-		$catalogNamespaceTable = StructureElementIdentifier::make(
+		$catalogNamespaceTable = Identifier::make(
 			$catalogNamespaceTable);
 
 		return sprintf(

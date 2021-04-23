@@ -8,7 +8,7 @@
 namespace NoreSources\SQL\DBMS;
 
 use NoreSources\SQL\Structure\PrimaryKeyTableConstraint;
-use NoreSources\SQL\Structure\StructureElementIdentifier;
+use NoreSources\SQL\Structure\Identifier;
 use NoreSources\SQL\Structure\StructureProviderInterface;
 
 interface StructureExplorerInterface extends StructureProviderInterface
@@ -22,14 +22,14 @@ interface StructureExplorerInterface extends StructureProviderInterface
 
 	/**
 	 *
-	 * @param StructureElementIdentifier $parentIdentifier
+	 * @param Identifier $parentIdentifier
 	 */
 	function getTableNames($parentIdentifier = null);
 
 	/**
 	 * Get table primary key constraint if any
 	 *
-	 * @param StructureElementIdentifier $tableIdentifier
+	 * @param Identifier $tableIdentifier
 	 *        	Table path
 	 * @return PrimaryKeyTableConstraint|NULL
 	 */
@@ -37,7 +37,7 @@ interface StructureExplorerInterface extends StructureProviderInterface
 
 	/**
 	 *
-	 * @param StructureElementIdentifier $tableIdentifier
+	 * @param Identifier $tableIdentifier
 	 *        	Table identifier
 	 * @return array<int, ForeignKeyTableConstraint> List of foreign key constraints
 	 */
@@ -45,28 +45,28 @@ interface StructureExplorerInterface extends StructureProviderInterface
 
 	/**
 	 *
-	 * @param StructureElementIdentifier $tableIdentifier
+	 * @param Identifier $tableIdentifier
 	 * @return string[]
 	 */
 	function getTableIndexNames($tableIdentifier);
 
 	/**
 	 *
-	 * @param StructureElementIdentifier $tableIdentifier
+	 * @param Identifier $tableIdentifier
 	 * @return IndexTableConstraintInterface[] List of table indexes (excluding primary key)
 	 */
 	function getTableIndexes($tableIdentifier);
 
 	/**
 	 *
-	 * @param StructureElementIdentifier $tableIdentifier
+	 * @param Identifier $tableIdentifier
 	 * @return array
 	 */
 	function getTableColumnNames($tableIdentifier);
 
 	/**
 	 *
-	 * @param StructureElementIdentifier $tableIdentifier
+	 * @param Identifier $tableIdentifier
 	 *        	Table
 	 * @param string $columnName
 	 *        	Column name
@@ -76,7 +76,7 @@ interface StructureExplorerInterface extends StructureProviderInterface
 
 	/**
 	 *
-	 * @param StructureElementIdentifier $parentIdentifier
+	 * @param Identifier $parentIdentifier
 	 */
 	function getViewNames($parentIdentifier = null);
 }

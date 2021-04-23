@@ -16,32 +16,32 @@ use NoreSources\SQL\NameProviderInterface;
 /**
  * Structure element path or alias
  */
-class StructureElementIdentifier implements StringRepresentation,
+class Identifier implements StringRepresentation,
 	ArrayRepresentation
 {
 
 	/**
-	 * Transform input to a StructureElementIdentifier
+	 * Transform input to a Identifier
 	 *
 	 * @param mixed $path
-	 * @return StructureElementIdentifier. If $path is already a StructureElementIdentifier, $path
+	 * @return Identifier. If $path is already a Identifier, $path
 	 *         is returned unchanged.
 	 */
 	public static function make($path)
 	{
 		if (empty($path))
-			return new StructureElementIdentifier('');
+			return new Identifier('');
 		if ($path instanceof StructureElementInterface)
-			return new StructureElementIdentifier($path->getPath());
-		if ($path instanceof StructureElementIdentifier)
+			return new Identifier($path->getPath());
+		if ($path instanceof Identifier)
 			return $path;
 		if (Container::isTraversable($path))
-			return new StructureElementIdentifier(
+			return new Identifier(
 				Container::implodeValues($path, '.'));
 		if ($path instanceof NameProviderInterface)
-			return new StructureElementIdentifier($path->getName());
+			return new Identifier($path->getName());
 
-		return new StructureElementIdentifier(
+		return new Identifier(
 			TypeConversion::toString($path));
 	}
 
@@ -98,7 +98,7 @@ class StructureElementIdentifier implements StringRepresentation,
 	/**
 	 * Get parent identifier
 	 *
-	 * @return StructureElementIdentifier|NULL Parent identifier if any, otherwise NULL.
+	 * @return Identifier|NULL Parent identifier if any, otherwise NULL.
 	 */
 	public function getParentIdentifier()
 	{
@@ -106,7 +106,7 @@ class StructureElementIdentifier implements StringRepresentation,
 		if (\count($a) == 0)
 			return null;
 		\array_pop($a);
-		return StructureElementIdentifier::make($a);
+		return Identifier::make($a);
 	}
 
 	/**

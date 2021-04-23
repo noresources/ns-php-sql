@@ -20,7 +20,7 @@ use NoreSources\SQL\Structure\ArrayColumnDescription;
 use NoreSources\SQL\Structure\ForeignKeyTableConstraint;
 use NoreSources\SQL\Structure\IndexTableConstraint;
 use NoreSources\SQL\Structure\PrimaryKeyTableConstraint;
-use NoreSources\SQL\Structure\StructureElementIdentifier;
+use NoreSources\SQL\Structure\Identifier;
 use NoreSources\SQL\Syntax\Data;
 
 class SQLiteStructureExplorer extends AbstractStructureExplorer implements
@@ -42,7 +42,7 @@ class SQLiteStructureExplorer extends AbstractStructureExplorer implements
 
 	public function getTableNames($parentIdentifier = null)
 	{
-		$parentIdentifier = StructureElementIdentifier::make(
+		$parentIdentifier = Identifier::make(
 			$parentIdentifier);
 		$master = clone $parentIdentifier;
 		$master->append('sqlite_master');
@@ -136,9 +136,9 @@ class SQLiteStructureExplorer extends AbstractStructureExplorer implements
 	{
 		/**
 		 *
-		 * @var StructureElementIdentifier $tableIdentifier
+		 * @var Identifier $tableIdentifier
 		 */
-		$tableIdentifier = StructureElementIdentifier::make(
+		$tableIdentifier = Identifier::make(
 			$tableIdentifier);
 
 		$indexes = [];
@@ -152,7 +152,7 @@ class SQLiteStructureExplorer extends AbstractStructureExplorer implements
 			$parts = $tableIdentifier->getPathParts();
 			array_pop($parts);
 			array_push($parts, $name);
-			$indexIdentifier = StructureElementIdentifier::make($parts);
+			$indexIdentifier = Identifier::make($parts);
 
 			$columns = $this->scopedAssetPragmaList('index_info',
 				$indexIdentifier);
@@ -299,7 +299,7 @@ class SQLiteStructureExplorer extends AbstractStructureExplorer implements
 
 	public function getViewNames($parentIdentifier = null)
 	{
-		$parentIdentifier = StructureElementIdentifier::make(
+		$parentIdentifier = Identifier::make(
 			$parentIdentifier);
 		$master = clone $parentIdentifier;
 		$master->append('sqlite_master');
@@ -316,7 +316,7 @@ class SQLiteStructureExplorer extends AbstractStructureExplorer implements
 
 	public function tableHasAutoIncrementColumn($tableIdentifier)
 	{
-		$tableIdentifier = StructureElementIdentifier::make(
+		$tableIdentifier = Identifier::make(
 			$tableIdentifier);
 		$tableName = $tableIdentifier->getLocalName();
 
@@ -399,13 +399,13 @@ class SQLiteStructureExplorer extends AbstractStructureExplorer implements
 
 	/**
 	 *
-	 * @param StructureElementIdentifier $tableIdentifier
+	 * @param Identifier $tableIdentifier
 	 */
 	public function getTableSQL($tableIdentifier)
 	{
-		$tableIdentifier = StructureElementIdentifier::make(
+		$tableIdentifier = Identifier::make(
 			$tableIdentifier);
-		$namespace = StructureElementIdentifier::make(
+		$namespace = Identifier::make(
 			$tableIdentifier->getParentIdentifier());
 
 		$master = clone $namespace;
@@ -429,7 +429,7 @@ class SQLiteStructureExplorer extends AbstractStructureExplorer implements
 	 */
 	protected function scopedAssetPragma($pragmaName, $assetIdentifier)
 	{
-		$assetIdentifier = StructureElementIdentifier::make(
+		$assetIdentifier = Identifier::make(
 			$assetIdentifier);
 		$namespace = $assetIdentifier->getParentIdentifier();
 

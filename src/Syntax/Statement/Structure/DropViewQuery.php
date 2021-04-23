@@ -9,7 +9,7 @@ namespace NoreSources\SQL\Syntax\Statement\Structure;
 
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Structure\NamespaceStructure;
-use NoreSources\SQL\Structure\StructureElementIdentifier;
+use NoreSources\SQL\Structure\Identifier;
 use NoreSources\SQL\Structure\ViewStructure;
 use NoreSources\SQL\Syntax\TokenStream;
 use NoreSources\SQL\Syntax\TokenStreamContextInterface;
@@ -45,7 +45,7 @@ class DropViewQuery implements TokenizableStatementInterface
 
 	/**
 	 *
-	 * @param string|ViewStructure|StructureElementIdentifier $identifier
+	 * @param string|ViewStructure|Identifier $identifier
 	 *        	View identifier
 	 * @return \NoreSources\SQL\Syntax\Statement\Structure\DropViewQuery
 	 */
@@ -54,7 +54,7 @@ class DropViewQuery implements TokenizableStatementInterface
 		if ($identifier instanceof ViewStructure)
 			$identifier = $identifier->getPath();
 
-		$this->viewIdentifier = StructureElementIdentifier::make(
+		$this->viewIdentifier = Identifier::make(
 			$identifier);
 
 		return $this;
@@ -127,7 +127,7 @@ class DropViewQuery implements TokenizableStatementInterface
 	/**
 	 * View name
 	 *
-	 * @var StructureElementIdentifier
+	 * @var Identifier
 	 */
 	private $viewIdentifier;
 }

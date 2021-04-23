@@ -19,7 +19,7 @@ use NoreSources\Expression\ExpressionInterface;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DataTypeProviderInterface;
 use NoreSources\SQL\MediaTypeUtility;
-use NoreSources\SQL\Structure\StructureElementIdentifier;
+use NoreSources\SQL\Structure\Identifier;
 use NoreSources\SQL\Syntax\Evaluator;
 use NoreSources\SQL\Syntax\FunctionCall;
 use NoreSources\SQL\Syntax\MetaFunctionCall;
@@ -179,7 +179,7 @@ abstract class AbstractPlatform implements PlatformInterface
 
 	public function quoteIdentifierPath($path)
 	{
-		$path = StructureElementIdentifier::make($path);
+		$path = Identifier::make($path);
 
 		return Container::implodeValues($path->getPathParts(), '.',
 			function ($name) {

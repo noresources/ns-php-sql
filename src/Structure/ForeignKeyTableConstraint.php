@@ -28,7 +28,7 @@ class ForeignKeyTableConstraint implements \IteratorAggregate,
 	public function __construct($foreignTable, $name = '')
 	{
 		$this->setName($name);
-		$this->foreignTable = StructureElementIdentifier::make(
+		$this->foreignTable = Identifier::make(
 			$foreignTable);
 		$this->columns = new \ArrayObject();
 	}
@@ -46,7 +46,7 @@ class ForeignKeyTableConstraint implements \IteratorAggregate,
 
 	/**
 	 *
-	 * @return StructureElementIdentifier
+	 * @return Identifier
 	 */
 	public function getForeignTable()
 	{
@@ -70,7 +70,7 @@ class ForeignKeyTableConstraint implements \IteratorAggregate,
 
 	/**
 	 *
-	 * @var StructureElementIdentifier
+	 * @var Identifier
 	 */
 	private $foreignTable;
 

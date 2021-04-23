@@ -28,7 +28,7 @@ interface StructureResolverInterface
 
 	/**
 	 *
-	 * @param StructureElementIdentifier $path
+	 * @param Identifier $path
 	 * @throws StructureResolverException
 	 * @return ColumnStructure
 	 */
@@ -37,7 +37,7 @@ interface StructureResolverInterface
 	/**
 	 * Get Table, View or any other "row" container
 	 *
-	 * @param StructureElementIdentifier $path
+	 * @param Identifier $path
 	 * @throws StructureResolverException
 	 * @return TableStructure
 	 */
@@ -45,7 +45,7 @@ interface StructureResolverInterface
 
 	/**
 	 *
-	 * @param StructureElementIdentifier $path
+	 * @param Identifier $path
 	 * @throws StructureResolverException
 	 * @return NamespaceStructure
 	 */

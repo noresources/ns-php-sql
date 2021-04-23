@@ -19,7 +19,7 @@ use NoreSources\SQL\Result\Recordset;
 use NoreSources\SQL\Structure\ForeignKeyTableConstraint;
 use NoreSources\SQL\Structure\IndexTableConstraint;
 use NoreSources\SQL\Structure\PrimaryKeyTableConstraint;
-use NoreSources\SQL\Structure\StructureElementIdentifier;
+use NoreSources\SQL\Structure\Identifier;
 
 class MySQLStructureExplorer extends AbstractStructureExplorer implements
 	ConnectionProviderInterface
@@ -41,10 +41,10 @@ class MySQLStructureExplorer extends AbstractStructureExplorer implements
 
 	public function getTableNames($parentIdentifier = null)
 	{
-		$parentIdentifier = StructureElementIdentifier::make(
+		$parentIdentifier = Identifier::make(
 			$parentIdentifier);
 		if (empty($parentIdentifier->getPath()))
-			$parentIdentifier = StructureElementIdentifier::make(
+			$parentIdentifier = Identifier::make(
 				$this->getCurrentNAmespace());
 
 		if (empty($parentIdentifier->getPath()))
@@ -57,7 +57,7 @@ class MySQLStructureExplorer extends AbstractStructureExplorer implements
 
 	public function getTableColumnNames($tableIdentifier)
 	{
-		$tableIdentifier = StructureElementIdentifier::make(
+		$tableIdentifier = Identifier::make(
 			$tableIdentifier);
 		$tableName = $tableIdentifier->getLocalName();
 		$namespace = $tableIdentifier->getParentIdentifier();
@@ -70,7 +70,7 @@ class MySQLStructureExplorer extends AbstractStructureExplorer implements
 
 		return $this->getInformationSchemaTableColumnNames(
 			$this->getConnection(),
-			StructureElementIdentifier::make([
+			Identifier::make([
 				$namespace,
 				$tableName
 			]));
@@ -78,7 +78,7 @@ class MySQLStructureExplorer extends AbstractStructureExplorer implements
 
 	public function getTableColumn($tableIdentifier, $columnName)
 	{
-		$tableIdentifier = StructureElementIdentifier::make(
+		$tableIdentifier = Identifier::make(
 			$tableIdentifier);
 		$tableName = $tableIdentifier->getLocalName();
 		$namespace = $tableIdentifier->getParentIdentifier();
@@ -91,7 +91,7 @@ class MySQLStructureExplorer extends AbstractStructureExplorer implements
 
 		return $this->getInformationSchemaTableColumn(
 			$this->getConnection(),
-			StructureElementIdentifier::make([
+			Identifier::make([
 				$namespace,
 				$tableName
 			]), $columnName, [
@@ -101,7 +101,7 @@ class MySQLStructureExplorer extends AbstractStructureExplorer implements
 
 	public function getTablePrimaryKeyConstraint($tableIdentifier)
 	{
-		$tableIdentifier = StructureElementIdentifier::make(
+		$tableIdentifier = Identifier::make(
 			$tableIdentifier);
 		$platform = $this->getConnection()->getPlatform();
 		$recordset = $this->getConnection()->executeStatement(
@@ -126,7 +126,7 @@ class MySQLStructureExplorer extends AbstractStructureExplorer implements
 
 	public function getTableForeignKeyConstraints($tableIdentifier)
 	{
-		$tableIdentifier = StructureElementIdentifier::make(
+		$tableIdentifier = Identifier::make(
 			$tableIdentifier);
 		$tableName = $tableIdentifier->getLocalName();
 		$namespace = $tableIdentifier->getParentIdentifier();
@@ -171,7 +171,7 @@ class MySQLStructureExplorer extends AbstractStructureExplorer implements
 
 			if (!Container::keyExists($keyed, $name))
 			{
-				$referenceTable = StructureElementIdentifier::make(
+				$referenceTable = Identifier::make(
 					[
 						$row['reference_namespace'],
 						$row['reference_table']
@@ -192,7 +192,7 @@ class MySQLStructureExplorer extends AbstractStructureExplorer implements
 
 	public function getTableIndexes($tableIdentifier)
 	{
-		$tableIdentifier = StructureElementIdentifier::make(
+		$tableIdentifier = Identifier::make(
 			$tableIdentifier);
 		$platform = $this->getConnection()->getPlatform();
 		$recordset = $this->getConnection()->executeStatement(
@@ -250,7 +250,7 @@ class MySQLStructureExplorer extends AbstractStructureExplorer implements
 
 	public function getViewNames($parentIdentifier = null)
 	{
-		$parentIdentifier = StructureElementIdentifier::make(
+		$parentIdentifier = Identifier::make(
 			$parentIdentifier);
 		$namespace = null;
 

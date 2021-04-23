@@ -13,7 +13,7 @@ use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Structure\ArrayColumnDescription;
 use NoreSources\SQL\Structure\ForeignKeyTableConstraint;
 use NoreSources\SQL\Structure\PrimaryKeyTableConstraint;
-use NoreSources\SQL\Structure\StructureElementIdentifier;
+use NoreSources\SQL\Structure\Identifier;
 use NoreSources\SQL\Syntax\Data;
 
 /**
@@ -24,7 +24,7 @@ trait InformationSchemaStructureExplorerTrait
 
 	public function getInformationSchemaTableNames(
 		ConnectionInterface $connection,
-		StructureElementIdentifier $namespace)
+		Identifier $namespace)
 	{
 		$platform = $connection->getPlatform();
 
@@ -42,7 +42,7 @@ trait InformationSchemaStructureExplorerTrait
 
 	public function getInformationSchemaTableColumnNames(
 		ConnectionInterface $connection,
-		StructureElementIdentifier $qualifiedTableIdentifier)
+		Identifier $qualifiedTableIdentifier)
 	{
 		$tableName = $qualifiedTableIdentifier->getLocalName();
 		$namespace = $qualifiedTableIdentifier->getParentIdentifier();
@@ -63,7 +63,7 @@ trait InformationSchemaStructureExplorerTrait
 
 	public function getInformationSchemaTableColumn(
 		ConnectionInterface $connection,
-		StructureElementIdentifier $qualifiedTableIdentifier,
+		Identifier $qualifiedTableIdentifier,
 		$columnName, $extraColumns = array())
 	{
 		$tableName = $qualifiedTableIdentifier->getLocalName();
@@ -180,7 +180,7 @@ trait InformationSchemaStructureExplorerTrait
 
 	public function getInformationSchemaTablePrimaryKeyConstraint(
 		ConnectionInterface $connection,
-		StructureElementIdentifier $qualifiedTableIdentifier)
+		Identifier $qualifiedTableIdentifier)
 	{
 		$tableName = $qualifiedTableIdentifier->getLocalName();
 		$namespace = $qualifiedTableIdentifier->getParentIdentifier();
@@ -227,7 +227,7 @@ trait InformationSchemaStructureExplorerTrait
 
 	public function getInformationSchemaViewNames(
 		ConnectionInterface $connection,
-		StructureElementIdentifier $parentIdentifier = null)
+		Identifier $parentIdentifier = null)
 	{
 		$namespace = $parentIdentifier->getPath();
 		$platform = $connection->getPlatform();
@@ -246,7 +246,7 @@ trait InformationSchemaStructureExplorerTrait
 	public function populateInformationSchemaForeignKeyActions(
 		ForeignKeyTableConstraint &$foreignKey,
 		ConnectionInterface $connection,
-		StructureElementIdentifier $namespace, $actionMap = null)
+		Identifier $namespace, $actionMap = null)
 	{
 		if ($actionMap === null)
 			$actionMap = [

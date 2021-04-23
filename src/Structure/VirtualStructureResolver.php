@@ -31,7 +31,7 @@ class VirtualStructureResolver extends StructureResolver implements
 
 	public function findColumn($path)
 	{
-		$path = StructureElementIdentifier::make($path);
+		$path = Identifier::make($path);
 		try
 		{
 			return parent::findColumn($path);
@@ -77,7 +77,7 @@ class VirtualStructureResolver extends StructureResolver implements
 
 	public function findTable($path)
 	{
-		$path = StructureElementIdentifier::make($path);
+		$path = Identifier::make($path);
 		try
 		{
 			return parent::findTable($path);
@@ -103,7 +103,7 @@ class VirtualStructureResolver extends StructureResolver implements
 
 	public function findNamespace($path)
 	{
-		$path = StructureElementIdentifier::make($path);
+		$path = Identifier::make($path);
 		try
 		{
 			return parent::findNamespace($path);

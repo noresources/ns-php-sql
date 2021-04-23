@@ -15,7 +15,7 @@ use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Structure\IndexDescriptionInterface;
 use NoreSources\SQL\Structure\IndexTableConstraintInterface;
 use NoreSources\SQL\Structure\NamespaceStructure;
-use NoreSources\SQL\Structure\StructureElementIdentifier;
+use NoreSources\SQL\Structure\Identifier;
 use NoreSources\SQL\Structure\TableStructure;
 use NoreSources\SQL\Structure\Traits\IndexDescriptionTrait;
 use NoreSources\SQL\Syntax\TableReference;
@@ -36,7 +36,7 @@ class CreateIndexQuery implements TokenizableStatementInterface,
 
 	/**
 	 *
-	 * @param StructureElementIdentifier $identifier
+	 * @param Identifier $identifier
 	 */
 	public function __construct($identifier = null)
 	{
@@ -90,14 +90,14 @@ class CreateIndexQuery implements TokenizableStatementInterface,
 
 	/**
 	 *
-	 * @param StructureElementIdentifier|string $identifier
+	 * @param Identifier|string $identifier
 	 *        	Index identifier
 	 *
 	 * @return $this
 	 */
 	public function identifier($identifier)
 	{
-		$this->indexIdentifier = StructureElementIdentifier::make(
+		$this->indexIdentifier = Identifier::make(
 			$identifier);
 
 		return $this;
@@ -167,7 +167,7 @@ class CreateIndexQuery implements TokenizableStatementInterface,
 				->space()
 				->keyword('exists');
 
-		if ($this->indexIdentifier instanceof StructureElementIdentifier)
+		if ($this->indexIdentifier instanceof Identifier)
 		{
 			$stream->space();
 			$this->tokenizeIndexIdentifier($stream, $context,
@@ -238,7 +238,7 @@ class CreateIndexQuery implements TokenizableStatementInterface,
 
 	protected function tokenizeIndexIdentifier(TokenStream $stream,
 		TokenStreamContextInterface $context,
-		StructureElementIdentifier $identifier)
+		Identifier $identifier)
 	{
 		$platform = $context->getPlatform();
 		$scoped = $platform->queryFeature(
@@ -281,7 +281,7 @@ class CreateIndexQuery implements TokenizableStatementInterface,
 
 	/**
 	 *
-	 * @var StructureElementIdentifier
+	 * @var Identifier
 	 */
 	private $indexIdentifier;
 

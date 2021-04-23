@@ -11,12 +11,12 @@ namespace NoreSources\SQL\Syntax;
 
 use NoreSources\Container;
 use NoreSources\SQL\Structure\ColumnStructure;
-use NoreSources\SQL\Structure\StructureElementIdentifier;
+use NoreSources\SQL\Structure\Identifier;
 
 /**
  * Table column reference
  */
-class Column extends StructureElementIdentifier implements
+class Column extends Identifier implements
 	TokenizableExpressionInterface
 {
 

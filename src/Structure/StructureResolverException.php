@@ -18,7 +18,7 @@ class StructureResolverException extends \Exception
 		$message = '"' . $path . '"' .
 			(\strlen($elementType) ? ' ' . $elementType : '') .
 			' not found';
-		if ($pivot instanceof StructureElementIdentifier)
+		if ($pivot instanceof Identifier)
 			$message .= ' in ' . $pivot->getPath() . ' context';
 		parent::__construct($message);
 	}

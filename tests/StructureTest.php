@@ -5,7 +5,7 @@ use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Structure\ColumnStructure;
 use NoreSources\SQL\Structure\DatasourceStructure;
 use NoreSources\SQL\Structure\NamespaceStructure;
-use NoreSources\SQL\Structure\StructureElementIdentifier;
+use NoreSources\SQL\Structure\Identifier;
 use NoreSources\SQL\Structure\TableStructure;
 
 final class StructureTest extends \PHPUnit\Framework\TestCase
@@ -32,15 +32,15 @@ final class StructureTest extends \PHPUnit\Framework\TestCase
 			'table',
 			'column'
 		];
-		$alreadyOk = new StructureElementIdentifier($asString);
+		$alreadyOk = new Identifier($asString);
 
 		foreach ([
-			'from string' => StructureElementIdentifier::make($asString),
-			'from array' => StructureElementIdentifier::make($asArray),
+			'from string' => Identifier::make($asString),
+			'from array' => Identifier::make($asArray),
 			'already ok' => $alreadyOk
 		] as $label => $test)
 		{
-			$this->assertInstanceOf(StructureElementIdentifier::class,
+			$this->assertInstanceOf(Identifier::class,
 				$test, $label);
 			$this->assertEquals($asString, $test->getPath(), $label);
 			$this->assertEquals($asArray, $test->getPathParts(), $label);

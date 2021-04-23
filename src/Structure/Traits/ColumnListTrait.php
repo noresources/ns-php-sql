@@ -9,7 +9,7 @@
 namespace NoreSources\SQL\Structure\Traits;
 
 use NoreSources\Container;
-use NoreSources\SQL\Structure\StructureElementIdentifier;
+use NoreSources\SQL\Structure\Identifier;
 
 trait ColumnListTrait
 {
@@ -25,7 +25,7 @@ trait ColumnListTrait
 
 	public function append($name)
 	{
-		$name = StructureElementIdentifier::make($name);
+		$name = Identifier::make($name);
 		$name = $name->getLocalName();
 		if (Container::valueExists($this->columnNameList, $name))
 			return $this;
