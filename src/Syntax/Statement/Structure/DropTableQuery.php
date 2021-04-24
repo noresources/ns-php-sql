@@ -7,13 +7,13 @@
  */
 namespace NoreSources\SQL\Syntax\Statement\Structure;
 
-use NoreSources\Bitset;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Structure\Identifier;
 use NoreSources\SQL\Structure\TableStructure;
 use NoreSources\SQL\Syntax\TokenStream;
 use NoreSources\SQL\Syntax\TokenStreamContextInterface;
 use NoreSources\SQL\Syntax\Statement\TokenizableStatementInterface;
+use NoreSources\SQL\Syntax\Statement\Structure\Traits\DropFlagsTrait;
 use NoreSources\SQL\Syntax\Statement\Traits\StatementTableTrait;
 use Psr\Log\LoggerInterface;
 
@@ -32,13 +32,15 @@ use Psr\Log\LoggerInterface;
 class DropTableQuery implements TokenizableStatementInterface
 {
 	use StatementTableTrait;
+	use DropFlagsTrait;
 
 	/**
 	 * Force to drop table and all elements related to it.
 	 *
 	 * @var integer
+	 * @deprecated Use K::DROP_CASCADE
 	 */
-	const CASCADE = Bitset::BIT_01;
+	const CASCADE = K::DROP_CASCADE;
 
 	/**
 	 *
@@ -47,7 +49,6 @@ class DropTableQuery implements TokenizableStatementInterface
 	 */
 	public function __construct($identifier = null)
 	{
-		$this->dropFlags = 0;
 		if ($identifier != null)
 			$this->table($identifier);
 	}
@@ -62,46 +63,43 @@ class DropTableQuery implements TokenizableStatementInterface
 	 *
 	 * @param integer $flags
 	 * @return \NoreSources\SQL\Syntax\Statement\Structure\DropTableQuery
+	 *
+	 * @deprecated Use dropFlags()
 	 */
 	public function flags($flags)
 	{
-		$this->dropFlags = $flags;
-		return $this;
+		return $this->dropFlags($flags);
 	}
 
 	/**
 	 *
 	 * @return number
+	 * @deprecated return getDropFlags()
 	 */
 	public function getFlags()
 	{
-		return $this->dropFlags;
+		return $this->getDropFlags();
 	}
 
 	public function tokenize(TokenStream $stream,
 		TokenStreamContextInterface $context)
 	{
 		$platform = $context->getPlatform();
-
-		$cascade = ($this->dropFlags & self::CASCADE) &&
-			$platform->queryFeature(
-				[
-					K::FEATURE_DROP,
-					K::FEATURE_CASCADE
-				], false);
-
-		$existsCondition = $platform->queryFeature(
+		$platformDropFlags = $platform->queryFeature(
 			[
 				K::FEATURE_DROP,
 				K::FEATURE_TABLE,
-				K::FEATURE_EXISTS_CONDITION
-			], false);
+				K::FEATURE_DROP_FLAGS
+			], 0);
+
+		$cascade = ($this->getDropFlags() & K::DROP_CASCADE) &&
+			($platformDropFlags & K::FEATURE_DROP_CASCADE);
 
 		$stream->keyword('drop')
 			->space()
 			->keyword('table');
 
-		if ($existsCondition)
+		if (($platformDropFlags & K::FEATURE_DROP_EXISTS_CONDITION))
 		{
 			$stream->space()
 				->keyword('if')
@@ -115,7 +113,7 @@ class DropTableQuery implements TokenizableStatementInterface
 				$this->getTable()
 					->getPathParts()));
 
-		if ($this->dropFlags & self::CASCADE)
+		if ($this->getDropFlags() & K::DROP_CASCADE)
 		{
 			if ($cascade)
 				$stream->space()->keyword('cascade');
@@ -125,11 +123,4 @@ class DropTableQuery implements TokenizableStatementInterface
 
 		return $stream;
 	}
-
-	/**
-	 * DROP TABLE options
-	 *
-	 * @var integer
-	 */
-	private $dropFlags;
 }

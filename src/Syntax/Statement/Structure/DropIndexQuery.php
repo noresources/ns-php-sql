@@ -7,14 +7,13 @@
  */
 namespace NoreSources\SQL\Syntax\Statement\Structure;
 
-use NoreSources\Container;
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\Structure\NamespaceStructure;
 use NoreSources\SQL\Structure\Identifier;
-use NoreSources\SQL\Structure\TableStructure;
 use NoreSources\SQL\Syntax\TokenStream;
 use NoreSources\SQL\Syntax\TokenStreamContextInterface;
 use NoreSources\SQL\Syntax\Statement\TokenizableStatementInterface;
+use NoreSources\SQL\Syntax\Statement\Structure\Traits\DropFlagsTrait;
+use NoreSources\SQL\Syntax\Statement\Traits\IdenitifierTokenizationTrait;
 
 /**
  * DROP INDEX statement
@@ -31,6 +30,9 @@ use NoreSources\SQL\Syntax\Statement\TokenizableStatementInterface;
  */
 class DropIndexQuery implements TokenizableStatementInterface
 {
+
+	use DropFlagsTrait;
+	use IdenitifierTokenizationTrait;
 
 	public function __construct($identifier = null)
 	{
@@ -52,8 +54,7 @@ class DropIndexQuery implements TokenizableStatementInterface
 	 */
 	public function identifier($identifier)
 	{
-		$this->indexIdentifier = Identifier::make(
-			$identifier);
+		$this->indexIdentifier = Identifier::make($identifier);
 
 		return $this;
 	}
@@ -63,17 +64,17 @@ class DropIndexQuery implements TokenizableStatementInterface
 	{
 		$platform = $context->getPlatform();
 
-		$existsCondition = $platform->queryFeature(
+		$platformDropFlags = $platform->queryFeature(
 			[
 				K::FEATURE_DROP,
 				K::FEATURE_INDEX,
-				K::FEATURE_EXISTS_CONDITION
-			], false);
+				K::FEATURE_DROP_FLAGS
+			], 0);
 
 		$stream->keyword('drop')
 			->space()
 			->keyword('index');
-		if ($existsCondition)
+		if (($platformDropFlags & K::FEATURE_DROP_EXISTS_CONDITION))
 		{
 			$stream->space()
 				->keyword('if')
@@ -83,57 +84,7 @@ class DropIndexQuery implements TokenizableStatementInterface
 
 		$stream->space();
 		return $this->tokenizeIdentifier($stream, $context,
-			$this->indexIdentifier);
-	}
-
-	protected function tokenizeIdentifier(TokenStream $stream,
-		TokenStreamContextInterface $context,
-		Identifier $identifier)
-	{
-		$platform = $context->getPlatform();
-
-		$scoped = $platform->queryFeature(
-			[
-				K::FEATURE_INDEX,
-				K::FEATURE_SCOPED
-			], false);
-		if ($scoped)
-		{
-			$namespace = $this->getNamespaceName($context);
-			if ($namespace)
-				$stream->identifier(
-					$platform->quoteIdentifier($namespace))
-					->text('.');
-		}
-
-		return $stream->identifier(
-			$platform->quoteIdentifier($identifier->getLocalName()));
-	}
-
-	public function getNamespaceName(
-		TokenStreamContextInterface $context = null)
-	{
-		if (isset($this->indexIdentifier))
-		{
-			$parts = $this->indexIdentifier->getPathParts();
-			if (\count($parts) > 1)
-				return Container::firstValue($parts);
-		}
-
-		if (!$context)
-			return null;
-
-		$structure = $context->getPivot();
-		if (!$structure)
-			return null;
-
-		if ($structure instanceof TableStructure)
-			$structure = $structure->getParentElement();
-
-		if ($structure instanceof NamespaceStructure)
-			return $structure->getName();
-
-		return null;
+			$this->indexIdentifier, true);
 	}
 
 	/**

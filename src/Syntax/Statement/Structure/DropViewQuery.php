@@ -8,12 +8,13 @@
 namespace NoreSources\SQL\Syntax\Statement\Structure;
 
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\Structure\NamespaceStructure;
 use NoreSources\SQL\Structure\Identifier;
+use NoreSources\SQL\Structure\NamespaceStructure;
 use NoreSources\SQL\Structure\ViewStructure;
 use NoreSources\SQL\Syntax\TokenStream;
 use NoreSources\SQL\Syntax\TokenStreamContextInterface;
 use NoreSources\SQL\Syntax\Statement\TokenizableStatementInterface;
+use NoreSources\SQL\Syntax\Statement\Structure\Traits\DropFlagsTrait;
 
 /**
  * DROP VIEW statement
@@ -30,6 +31,8 @@ use NoreSources\SQL\Syntax\Statement\TokenizableStatementInterface;
  */
 class DropViewQuery implements TokenizableStatementInterface
 {
+
+	use DropFlagsTrait;
 
 	public function __construct($identifier = null)
 	{
@@ -54,8 +57,7 @@ class DropViewQuery implements TokenizableStatementInterface
 		if ($identifier instanceof ViewStructure)
 			$identifier = $identifier->getPath();
 
-		$this->viewIdentifier = Identifier::make(
-			$identifier);
+		$this->viewIdentifier = Identifier::make($identifier);
 
 		return $this;
 	}
@@ -65,22 +67,17 @@ class DropViewQuery implements TokenizableStatementInterface
 	{
 		$platform = $context->getPlatform();
 
-		$hasExistsCondition = $platform->queryFeature(
+		$platformDropFlags = $platform->queryFeature(
 			[
 				K::FEATURE_DROP,
 				K::FEATURE_VIEW,
-				K::FEATURE_EXISTS_CONDITION
-			], false);
-		$scopedStructure = $platform->queryFeature(
-			[
-				K::FEATURE_VIEW,
-				K::FEATURE_SCOPED
-			], false);
+				K::FEATURE_DROP_FLAGS
+			], 0);
 
 		$stream->keyword('drop')
 			->space()
 			->keyword('view');
-		if ($hasExistsCondition)
+		if (($platformDropFlags & K::FEATURE_DROP_EXISTS_CONDITION))
 		{
 			$stream->space()
 				->keyword('if')
@@ -90,36 +87,28 @@ class DropViewQuery implements TokenizableStatementInterface
 
 		$stream->space();
 
-		if ($scopedStructure)
+		$parts = $this->viewIdentifier->getPathParts();
+		if (\count($parts) > 1)
+			$stream->identifier(
+				$context->getPlatform()
+					->quoteIdentifierPath($this->viewIdentifier));
+		else // Last chance to find the element namespace
 		{
-			$parts = $this->viewIdentifier->getPathParts();
-			if (\count($parts) > 1)
+			$structure = $context->getPivot();
+			if ($stream instanceof ViewStructure)
+				$structure = $structure->getParentElement();
+
+			if ($structure instanceof NamespaceStructure)
 				$stream->identifier(
 					$context->getPlatform()
-						->quoteIdentifierPath($this->viewIdentifier));
-			else // Last chance to find the element namespace
-			{
-				$structure = $context->getPivot();
-				if ($stream instanceof ViewStructure)
-					$structure = $structure->getParentElement();
+						->quoteIdentifierPath($structure))
+					->text('.');
 
-				if ($structure instanceof NamespaceStructure)
-					$stream->identifier(
-						$context->getPlatform()
-							->quoteIdentifierPath($structure))
-						->text('.');
-
-				$stream->identifier(
-					$context->getPlatform()
-						->quoteIdentifier(
-						$this->viewIdentifier->getLocalName()));
-			}
-		}
-		else
 			$stream->identifier(
 				$context->getPlatform()
 					->quoteIdentifier(
 					$this->viewIdentifier->getLocalName()));
+		}
 
 		return $stream;
 	}

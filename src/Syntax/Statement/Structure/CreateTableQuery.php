@@ -7,7 +7,6 @@
  */
 namespace NoreSources\SQL\Syntax\Statement\Structure;
 
-use NoreSources\Bitset;
 use NoreSources\TypeDescription;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\TypeInterface;
@@ -21,6 +20,7 @@ use NoreSources\SQL\Syntax\TokenStream;
 use NoreSources\SQL\Syntax\TokenStreamContextInterface;
 use NoreSources\SQL\Syntax\Statement\StatementException;
 use NoreSources\SQL\Syntax\Statement\TokenizableStatementInterface;
+use NoreSources\SQL\Syntax\Statement\Structure\Traits\CreateFlagsTrait;
 
 /**
  * CREATE TABLE statement
@@ -38,9 +38,19 @@ class CreateTableQuery implements TokenizableStatementInterface,
 	StructureProviderInterface
 {
 
-	const REPLACE = Bitset::BIT_01;
+	/**
+	 *
+	 * @deprecated use K::CREATE_REPLACE
+	 */
+	const REPLACE = K::CREATE_REPLACE;
 
-	const TEMPORARY = Bitset::BIT_02;
+	/**
+	 *
+	 * @deprecated use K::CREATE_TEMPORARY
+	 */
+	const TEMPORARY = K::CREATE_TEMPORARY;
+
+	use CreateFlagsTrait;
 
 	/**
 	 *
@@ -51,8 +61,6 @@ class CreateTableQuery implements TokenizableStatementInterface,
 	{
 		if ($structure instanceof TableStructure)
 			$this->table($structure);
-
-		$this->createFlags = 0;
 	}
 
 	public function getStatementType()
@@ -87,20 +95,24 @@ class CreateTableQuery implements TokenizableStatementInterface,
 	}
 
 	/**
-	 * Set modifiers
 	 *
+	 * @deprecated Use createFlags()
 	 * @param integer $flags
 	 * @return \NoreSources\SQL\Syntax\Statement\Structure\CreateTableQuery
 	 */
 	public function flags($flags)
 	{
-		$this->createFlags = $flags;
-		return $this;
+		return $this->createFlags($flags);
 	}
 
+	/**
+	 *
+	 * @deprecated Use getCreateFlags()
+	 * @return unknown
+	 */
 	public function getFlags()
 	{
-		return $this->createFlags;
+		return $this->getCreateFlags();
 	}
 
 	public function tokenize(TokenStream $stream,
@@ -108,26 +120,19 @@ class CreateTableQuery implements TokenizableStatementInterface,
 	{
 		$platform = $context->getPlatform();
 
-		$existsCondition = $platform->queryFeature(
+		$platformCreateFlags = $platform->queryFeature(
 			[
 				K::FEATURE_CREATE,
 				K::FEATURE_TABLE,
-				K::FEATURE_EXISTS_CONDITION
-			], false);
+				K::FEATURE_CREATE_FLAGS
+			], 0);
 
-		$replaceSupport = $platform->queryFeature(
+		$platformCreateFlags = $platform->queryFeature(
 			[
 				K::FEATURE_CREATE,
 				K::FEATURE_TABLE,
-				K::FEATURE_REPLACE
-			], false);
-
-		$temporarySupport = $platform->queryFeature(
-			[
-				K::FEATURE_CREATE,
-				K::FEATURE_TABLE,
-				K::FEATURE_TEMPORARY
-			], false);
+				K::FEATURE_CREATE_FLAGS
+			], 0);
 
 		$structure = $this->structure;
 		if (!($structure instanceof TableStructure))
@@ -141,17 +146,24 @@ class CreateTableQuery implements TokenizableStatementInterface,
 		$context->pushResolverContext($structure);
 
 		$stream->keyword('create');
-		if (($this->createFlags & self::REPLACE) && $replaceSupport)
+		if (($this->getCreateFlags() & K::CREATE_REPLACE) &&
+			($platformCreateFlags & K::FEATURE_CREATE_REPLACE))
 			$stream->space()
 				->keyword('or')
 				->space()
 				->keyword('replace');
-		if (($this->createFlags & self::TEMPORARY) && $temporarySupport)
+		if (($this->getCreateFlags() & K::CREATE_TEMPORARY) &&
+			($platformCreateFlags & K::FEATURE_CREATE_TEMPORARY))
 			$stream->space()->keyword(K::KEYWORD_TEMPORARY);
 		$stream->space()->keyword('table');
 
-		if ($existsCondition)
-			$stream->space()->keyword('if not exists');
+		if (($platformCreateFlags & K::FEATURE_CREATE_EXISTS_CONDITION))
+			$stream->space()
+				->keyword('if')
+				->space()
+				->keyword('not')
+				->space()
+				->keyword('exists');
 
 		$stream->space()
 			->identifier(
@@ -234,10 +246,4 @@ class CreateTableQuery implements TokenizableStatementInterface,
 	 * @var TableStructure
 	 */
 	private $structure;
-
-	/**
-	 *
-	 * @var integer
-	 */
-	private $createFlags;
 }

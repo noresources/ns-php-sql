@@ -8,17 +8,19 @@
 namespace NoreSources\SQL\Syntax\Statement\Structure;
 
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\Structure\NamespaceStructure;
 use NoreSources\SQL\Structure\Identifier;
+use NoreSources\SQL\Structure\NamespaceStructure;
 use NoreSources\SQL\Syntax\TokenStream;
 use NoreSources\SQL\Syntax\TokenStreamContextInterface;
 use NoreSources\SQL\Syntax\Statement\TokenizableStatementInterface;
+use NoreSources\SQL\Syntax\Statement\Structure\Traits\CreateFlagsTrait;
 
 /**
  * CREATE DATABASE / SCHEMA
  */
 class CreateNamespaceQuery implements TokenizableStatementInterface
 {
+	use CreateFlagsTrait;
 
 	/**
 	 *
@@ -47,8 +49,7 @@ class CreateNamespaceQuery implements TokenizableStatementInterface
 		if ($identifier instanceof NamespaceStructure)
 			$identifier = $identifier->getPath();
 
-		$this->namespaceIdentifier = Identifier::make(
-			$identifier);
+		$this->namespaceIdentifier = Identifier::make($identifier);
 
 		return $this;
 	}
@@ -62,17 +63,17 @@ class CreateNamespaceQuery implements TokenizableStatementInterface
 		TokenStreamContextInterface $context)
 	{
 		$platform = $context->getPlatform();
-		$existsCondition = $platform->queryFeature(
+		$platformCreateFlags = $platform->queryFeature(
 			[
 				K::FEATURE_CREATE,
 				K::FEATURE_NAMESPACE,
-				K::FEATURE_EXISTS_CONDITION
-			], false);
+				K::FEATURE_CREATE_EXISTS_CONDITION
+			], 0);
 
 		$stream->keyword('create')
 			->space()
 			->keyword(K::KEYWORD_NAMESPACE);
-		if ($existsCondition)
+		if (($platformCreateFlags & K::FEATURE_CREATE_EXISTS_CONDITION))
 			$stream->space()->keyword('if not exists');
 		$stream->space()->identifier(
 			$context->getPlatform()

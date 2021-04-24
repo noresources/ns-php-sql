@@ -17,6 +17,7 @@ use NoreSources\SQL\Syntax\Statement\Structure\CreateIndexQuery;
 use NoreSources\SQL\Syntax\Statement\Structure\CreateNamespaceQuery;
 use NoreSources\SQL\Syntax\Statement\Structure\CreateTableQuery;
 use NoreSources\SQL\Syntax\Statement\Structure\DropIndexQuery;
+use NoreSources\SQL\Syntax\Statement\Structure\DropNamespaceQuery;
 use NoreSources\SQL\Syntax\Statement\Structure\DropTableQuery;
 
 /**
@@ -58,6 +59,7 @@ trait ClassMapStatementFactoryTrait
 				K::QUERY_INSERT => InsertQuery::class,
 				K::QUERY_UPDATE => UpdateQuery::class,
 				K::QUERY_DELETE => DeleteQuery::class,
+				K::QUERY_DROP_NAMESPACE => DropNamespaceQuery::class,
 				K::QUERY_DROP_TABLE => DropTableQuery::class,
 				K::QUERY_DROP_INDEX => DropIndexQuery::class
 			]);

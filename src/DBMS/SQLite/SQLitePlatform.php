@@ -38,7 +38,9 @@ class SQLitePlatform extends AbstractPlatform
 		$this->initializeStatementFactory(
 			[
 				K::QUERY_CREATE_TABLE => SQLiteCreateTableQuery::class,
-				K::QUERY_CREATE_NAMESPACE => SQLiteCreateNamespaceQuery::class
+				K::QUERY_CREATE_NAMESPACE => SQLiteCreateNamespaceQuery::class,
+				K::QUERY_CREATE_INDEX => SQLiteCreateIndexQuery::class,
+				K::QUERY_DROP_NAMESPACE => SQLiteDropNamespaceQuery::class
 			]);
 
 		$this->setPlatformFeature(K::FEATURE_NAMED_PARAMETERS, true);
@@ -56,21 +58,10 @@ class SQLitePlatform extends AbstractPlatform
 		$this->setPlatformFeature(
 			[
 				K::FEATURE_CREATE,
-				K::FEATURE_TEMPORARY
-			], true);
-		$this->setPlatformFeature(
-			[
-				K::FEATURE_CREATE,
-				K::FEATURE_EXISTS_CONDITION
-			], true);
-		$this->setPlatformFeature(
-			[
-				K::FEATURE_SELECT,
-				K::FEATURE_EXTENDED_RESULTCOLUMN_RESOLUTION
-			], true);
-		$this->setPlatformFeature([
-			K::FEATURE_SCOPED
-		], true);
+				K::FEATURE_CREATE_FLAGS
+			],
+			(K::FEATURE_CREATE_TEMPORARY |
+			K::FEATURE_CREATE_EXISTS_CONDITION));
 	}
 
 	public function getColumnType($columnDescription,

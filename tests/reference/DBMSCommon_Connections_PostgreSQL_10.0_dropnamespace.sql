@@ -1,0 +1,2 @@
+DROP 
+  SCHEMA IF EXISTS "ns_unittests" CASCADE

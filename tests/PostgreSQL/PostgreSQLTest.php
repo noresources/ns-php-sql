@@ -105,7 +105,7 @@ final class PostgreSQLTest extends \PHPUnit\Framework\TestCase
 			if ($elementStructure instanceof TableStructure)
 				$drop = new DropTableQuery($elementStructure);
 
-			$drop->flags($drop->getFlags() | DropTableQuery::CASCADE);
+			$drop->flags($drop->getFlags() | K::DROP_CASCADE);
 			$data = ConnectionHelper::buildStatement($connection, $drop,
 				$elementStructure);
 			$sql = \SqlFormatter::format(\strval($data), false);

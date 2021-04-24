@@ -6,6 +6,7 @@ use NoreSources\SQL\DBMS\Reference\ReferencePlatform;
 use NoreSources\SQL\Structure\NamespaceStructure;
 use NoreSources\SQL\Syntax\Statement\StatementBuilder;
 use NoreSources\SQL\Syntax\Statement\Structure\DropIndexQuery;
+use NoreSources\SQL\Syntax\Statement\Structure\DropNamespaceQuery;
 use NoreSources\SQL\Syntax\Statement\Structure\DropTableQuery;
 use NoreSources\SQL\Syntax\Statement\Structure\DropViewQuery;
 use NoreSources\Test\DatasourceManager;
@@ -51,16 +52,7 @@ final class DropTest extends \PHPUnit\Framework\TestCase
 
 	public function testDropView()
 	{
-		$platform = new ReferencePlatform([],
-			[
-				'scoped' => [
-					[
-						K::FEATURE_VIEW,
-						K::FEATURE_SCOPED
-					],
-					true
-				]
-			]);
+		$platform = new ReferencePlatform([], []);
 
 		$view = new DropViewQuery();
 		$view->identifier('Males');
@@ -75,6 +67,30 @@ final class DropTest extends \PHPUnit\Framework\TestCase
 		$sql = \SqlFormatter::format(strval($result), false);
 		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__,
 			'structure', 'sql');
+	}
+
+	public function testDropNamespaceQuery()
+	{
+		$structure = $this->datasources->get('Company');
+		$environment = new Environment($structure);
+
+		$platform = new ReferencePlatform([], []);
+
+		/**
+		 *
+		 * @var DropNamespaceQuery
+		 */
+		$q = $platform->newStatement(K::QUERY_DROP_NAMESPACE);
+		$data = $environment->prepareStatement($q);
+		$sql = \SqlFormatter::format(strval($data), false);
+		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__,
+			'using-structure', 'sql');
+
+		$q->identifier('ns');
+		$data = $environment->prepareStatement($q);
+		$sql = \SqlFormatter::format(strval($data), false);
+		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__,
+			'using-identifier', 'sql');
 	}
 
 	public function testDropTableCompanyTables()
@@ -99,7 +115,7 @@ final class DropTest extends \PHPUnit\Framework\TestCase
 			 */
 			$q = new DropTableQuery($tableStructure);
 
-			$q->flags($q->getFlags() | DropTableQuery::CASCADE);
+			$q->dropFlags($q->getDropFlags() | K::DROP_CASCADE);
 
 			$result =  StatementBuilder::getInstance()($q, $platform, $tableName);
 			$sql = \SqlFormatter::format(strval($result), false);

@@ -644,6 +644,47 @@ class Constants
 	 */
 	const SELECT_QUERY_DISTINCT = Bitset::BIT_01;
 
+	/**
+	 * CREATE query flags
+	 *
+	 * Create element only if not already exists.
+	 *
+	 * Require FEATURE_EXISTS_CONDITION support
+	 *
+	 * @var integer
+	 */
+	const CREATE_EXISTS_CONDITION = Bitset::BIT_01;
+
+	/**
+	 * CREATE query flags
+	 *
+	 * @var integer
+	 */
+	const CREATE_REPLACE = Bitset::BIT_02;
+
+	/**
+	 * CREATE query flags.
+	 *
+	 * Create a temporary element.
+	 *
+	 * @var integer
+	 */
+	const CREATE_TEMPORARY = Bitset::BIT_03;
+
+	/**
+	 * DROP query flags
+	 *
+	 * Drop only if element exists
+	 */
+	const DROP_EXISTS_CONDITION = Bitset::BIT_01;
+
+	/**
+	 * DROP query flags
+	 *
+	 * Drop element and all depending elements
+	 */
+	const DROP_CASCADE = Bitset::BIT_02;
+
 	// Recordset flags
 
 	/**
@@ -808,29 +849,33 @@ class Constants
 	/**
 	 * Platform feature support.
 	 *
-	 * OR REPLACE support in CREATE statements.
+	 * Standard creation option support flags
 	 *
 	 * @var string
 	 */
+	const FEATURE_CREATE_FLAGS = 'createflags';
+
+	/**
+	 * Platform feature support.
+	 *
+	 * OR REPLACE support in CREATE statements.
+	 *
+	 * @var string
+	 * @deprecated Use FEATURE_CREATE_REPLACE
+	 *
+	 */
 	const FEATURE_REPLACE = 'replace';
+
+	const FEATURE_CREATE_REPLACE = self::CREATE_REPLACE;
 
 	/**
 	 * Platform feature support.
 	 *
 	 * TEMPORARY structure creation support
-	 *
-	 * @var string
 	 */
-	const FEATURE_TEMPORARY = 'temporary';
+	const FEATURE_CREATE_TEMPORARY = self::CREATE_TEMPORARY;
 
-	/**
-	 * Platform feature
-	 *
-	 * Support for creating VIEW, INDEX etc. in a given namespace.
-	 *
-	 * @var string
-	 */
-	const FEATURE_SCOPED = 'scoped';
+	const FEATURE_CREATE_EXISTS_CONDITION = self::CREATE_EXISTS_CONDITION;
 
 	/**
 	 * Platform feature support.
@@ -881,6 +926,11 @@ class Constants
 	const FEATURE_DROP = 'drop';
 
 	/**
+	 * Platform feature domain.
+	 */
+	const FEATURE_DROP_FLAGS = 'dropflags';
+
+	/**
 	 * Platform feature domain
 	 *
 	 * CASCADE in DROP statements
@@ -892,11 +942,20 @@ class Constants
 	/**
 	 * Platform feature support
 	 *
-	 * IF (NOT) EXISTS in CREATE and DROP statements
+	 * CASCADE modifier support for DROP statement
+	 */
+	const FEATURE_DROP_CASCADE = self::DROP_CASCADE;
+
+	/**
+	 * Platform feature support
 	 *
-	 * @var string
+	 * IF EXISTS modifier support in DROP statements
+	 *
+	 * @deprecated Use FEATURE_DROP_EXISTS_CONDITION flag
 	 */
 	const FEATURE_EXISTS_CONDITION = 'exists';
+
+	const FEATURE_DROP_EXISTS_CONDITION = self::DROP_EXISTS_CONDITION;
 
 	/**
 	 * Platform feature domain.

@@ -35,6 +35,7 @@ use NoreSources\SQL\Structure\NamespaceStructure;
 use NoreSources\SQL\Structure\PrimaryKeyTableConstraint;
 use NoreSources\SQL\Structure\StructureElementInterface;
 use NoreSources\SQL\Structure\TableStructure;
+use NoreSources\SQL\Structure\VirtualStructureResolver;
 use NoreSources\SQL\Syntax\CastFunction;
 use NoreSources\SQL\Syntax\ColumnDeclaration;
 use NoreSources\SQL\Syntax\Data;
@@ -53,6 +54,7 @@ use NoreSources\SQL\Syntax\Statement\Structure\CreateIndexQuery;
 use NoreSources\SQL\Syntax\Statement\Structure\CreateNamespaceQuery;
 use NoreSources\SQL\Syntax\Statement\Structure\CreateTableQuery;
 use NoreSources\SQL\Syntax\Statement\Structure\DropIndexQuery;
+use NoreSources\SQL\Syntax\Statement\Structure\DropNamespaceQuery;
 use NoreSources\SQL\Syntax\Statement\Structure\DropTableQuery;
 use NoreSources\Test\ConnectionHelper;
 use NoreSources\Test\DatasourceManager;
@@ -176,6 +178,47 @@ final class DBMSCommonTest extends TestCase
 				{
 					$this->logKeyValue($name,
 						$connection->getPDOAttribute($attribute), 1);
+				}
+			}
+
+			/**
+			 *
+			 * @var DropNamespaceQuery
+			 */
+			$drop = $platform->newStatement(K::QUERY_DROP_NAMESPACE);
+			$this->assertInstanceOf(DropNamespaceQuery::class, $drop,
+				$dbmsName . ' has DROP NAMESPACE');
+
+			$drop->identifier('ns_unittests');
+			$drop->dropFlags(
+				$drop->getDropFlags() | K::DROP_EXISTS_CONDITION |
+				K::DROP_CASCADE);
+			$e = new Environment($connection);
+			$builder = StatementBuilder::getInstance();
+			$resolver = new VirtualStructureResolver();
+			$data = $builder($drop, $connection->getPlatform(),
+				$resolver);
+			$sql = \SqlFormatter::format(\strval($data), false);
+			$this->derivedFileManager->assertDerivedFile($sql,
+				__METHOD__, $dbmsName . '_dropnamespace', 'sql');
+			try
+			{
+				$e->executeStatement($data);
+			}
+			catch (ConnectionException $e)
+			{
+				$platformDropFlags = $platform->queryFeature(
+					[
+						K::FEATURE_DROP,
+						K::FEATURE_NAMESPACE,
+						K::FEATURE_DROP_FLAGS
+					], 0);
+				if ($platformDropFlags & K::FEATURE_DROP_EXISTS_CONDITION)
+				{
+					$this->assertTrue(false,
+						$dbmsName .
+						' should accepts DROP NAMESPACE IF EXISTS.' .
+						PHP_EOL . $e->getMessage());
 				}
 			}
 		}
@@ -1988,13 +2031,6 @@ final class DBMSCommonTest extends TestCase
 		$parent = $tableStructure->getParentElement();
 		if ($parent instanceof NamespaceStructure)
 		{
-			$nsExistanceCondition = $platform->queryFeature(
-				[
-					K::FEATURE_CREATE,
-					K::FEATURE_NAMESPACE,
-					K::FEATURE_EXISTS_CONDITION
-				], false);
-
 			/**
 			 *
 			 * @var CreateNamespaceQuery
@@ -2008,6 +2044,8 @@ final class DBMSCommonTest extends TestCase
 					throw new \Exception(
 						'not CREATE NAMESPACE query available');
 				$createNamespace->identifier($parent->getName());
+				$createNamespace->createFlags(
+					K::FEATURE_CREATE_EXISTS_CONDITION);
 
 				$data = ConnectionHelper::buildStatement($connection,
 					$createNamespace, $parent);
@@ -2034,6 +2072,7 @@ final class DBMSCommonTest extends TestCase
 			$dropIndex = $platform->newStatement(K::QUERY_DROP_INDEX);
 			if ($dropIndex instanceof DropIndexQuery)
 			{
+				$dropIndex->dropFlags(K::DROP_EXISTS_CONDITION);
 				$dropIndex->identifier($constraint->getName());
 				$data = ConnectionHelper::buildStatement($connection,
 					$dropIndex, $tableStructure);
@@ -2054,18 +2093,20 @@ final class DBMSCommonTest extends TestCase
 			}
 		}
 
-		$tableExistanceCondition = $platform->queryFeature(
+		$platformDropFlags = $platform->queryFeature(
 			[
 				K::FEATURE_DROP,
-				K::FEATURE_EXISTS_CONDITION
-			], false);
+				K::FEATURE_TABLE,
+				K::FEATURE_DROP_FLAGS
+			], 0);
 
 		try // PostgreSQL < 8.2 does not support DROP IF EXISTS and may fail
 		{
 			$drop = $connection->getPlatform()->newStatement(
 				K::QUERY_DROP_TABLE);
 			if ($drop instanceof DropTableQuery)
-				$drop->flags(DropTableQuery::CASCADE)->table(
+				$drop->dropFlags(
+					K::DROP_CASCADE | K::DROP_EXISTS_CONDITION)->table(
 					$tableStructure);
 			$data = ConnectionHelper::buildStatement($connection, $drop,
 				$tableStructure);
@@ -2073,7 +2114,7 @@ final class DBMSCommonTest extends TestCase
 		}
 		catch (ConnectionException $e)
 		{
-			if ($tableExistanceCondition)
+			if (($platformDropFlags & K::FEATURE_DROP_EXISTS_CONDITION))
 				throw $e;
 		}
 

@@ -12,10 +12,9 @@ use NoreSources\TypeConversion;
 use NoreSources\TypeDescription;
 use NoreSources\Expression\ExpressionInterface;
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\Structure\Identifier;
 use NoreSources\SQL\Structure\IndexDescriptionInterface;
 use NoreSources\SQL\Structure\IndexTableConstraintInterface;
-use NoreSources\SQL\Structure\NamespaceStructure;
-use NoreSources\SQL\Structure\Identifier;
 use NoreSources\SQL\Structure\TableStructure;
 use NoreSources\SQL\Structure\Traits\IndexDescriptionTrait;
 use NoreSources\SQL\Syntax\TableReference;
@@ -23,6 +22,8 @@ use NoreSources\SQL\Syntax\TokenStream;
 use NoreSources\SQL\Syntax\TokenStreamContextInterface;
 use NoreSources\SQL\Syntax\Statement\StatementException;
 use NoreSources\SQL\Syntax\Statement\TokenizableStatementInterface;
+use NoreSources\SQL\Syntax\Statement\Structure\Traits\CreateFlagsTrait;
+use NoreSources\SQL\Syntax\Statement\Traits\IdenitifierTokenizationTrait;
 
 /**
  * CREATE INDEX statement
@@ -33,6 +34,8 @@ class CreateIndexQuery implements TokenizableStatementInterface,
 	IndexDescriptionInterface
 {
 	use IndexDescriptionTrait;
+	use CreateFlagsTrait;
+	use IdenitifierTokenizationTrait;
 
 	/**
 	 *
@@ -97,8 +100,7 @@ class CreateIndexQuery implements TokenizableStatementInterface,
 	 */
 	public function identifier($identifier)
 	{
-		$this->indexIdentifier = Identifier::make(
-			$identifier);
+		$this->indexIdentifier = Identifier::make($identifier);
 
 		return $this;
 	}
@@ -128,22 +130,35 @@ class CreateIndexQuery implements TokenizableStatementInterface,
 		return $this;
 	}
 
+	/**
+	 *
+	 * @return \NoreSources\SQL\Structure\Identifier
+	 */
+	public function getIdentifier()
+	{
+		return $this->indexIdentifier;
+	}
+
+	/**
+	 *
+	 * @return \NoreSources\SQL\Syntax\TableReference
+	 */
+	public function getTable()
+	{
+		return $this->indexTable;
+	}
+
 	public function tokenize(TokenStream $stream,
 		TokenStreamContextInterface $context)
 	{
 		$platform = $context->getPlatform();
-		$scoped = $platform->queryFeature(
-			[
-				K::FEATURE_INDEX,
-				K::FEATURE_SCOPED
-			], false);
 
-		$existsCondition = $platform->queryFeature(
+		$platformCreateFlags = $platform->queryFeature(
 			[
 				K::FEATURE_CREATE,
 				K::FEATURE_INDEX,
-				K::FEATURE_EXISTS_CONDITION
-			], false);
+				K::FEATURE_CREATE_FLAGS
+			], 0);
 
 		$tableStructure = $context->findTable(
 			\strval($this->indexTable));
@@ -159,7 +174,7 @@ class CreateIndexQuery implements TokenizableStatementInterface,
 			$stream->space()->keyword('unique');
 		$stream->space()->keyword('index');
 
-		if ($existsCondition)
+		if (($platformCreateFlags & K::FEATURE_CREATE_EXISTS_CONDITION))
 			$stream->space()
 				->keyword('if')
 				->space()
@@ -167,18 +182,16 @@ class CreateIndexQuery implements TokenizableStatementInterface,
 				->space()
 				->keyword('exists');
 
-		if ($this->indexIdentifier instanceof Identifier)
+		if (isset($this->indexIdentifier))
 		{
 			$stream->space();
-			$this->tokenizeIndexIdentifier($stream, $context,
-				$this->indexIdentifier, $tableStructure);
+			$this->tokenizeIndexIdentifier($stream, $context);
 		}
 
 		$stream->space()
 			->keyword('on')
 			->space();
-		$this->tokenizeTableIdentifier($stream, $context,
-			$tableStructure);
+		$this->tokznizeIndexTable($stream, $context);
 		$stream->space()->text('(');
 
 		$i = 0;
@@ -210,73 +223,22 @@ class CreateIndexQuery implements TokenizableStatementInterface,
 		return $stream;
 	}
 
-	public function getNamespaceName(
-		TokenStreamContextInterface $context = null)
-	{
-		if (isset($this->indexIdentifier))
-		{
-			$parts = $this->indexIdentifier->getPathParts();
-			if (\count($parts) > 1)
-				return Container::firstValue($parts);
-		}
-
-		if (!$context)
-			return null;
-
-		$structure = $context->getPivot();
-		if (!$structure)
-			return null;
-
-		if ($structure instanceof TableStructure)
-			$structure = $structure->getParentElement();
-
-		if ($structure instanceof NamespaceStructure)
-			return $structure->getName();
-
-		return null;
-	}
-
-	protected function tokenizeIndexIdentifier(TokenStream $stream,
-		TokenStreamContextInterface $context,
-		Identifier $identifier)
+	public function tokenizeIndexIdentifier(TokenStream $stream,
+		TokenStreamContextInterface $context)
 	{
 		$platform = $context->getPlatform();
-		$scoped = $platform->queryFeature(
-			[
-				K::FEATURE_INDEX,
-				K::FEATURE_SCOPED
-			], false);
-
-		if ($scoped)
-		{
-			$namespace = $this->getNamespaceName($context);
-			if ($namespace)
-				$stream->identifier(
-					$platform->quoteIdentifier($namespace))
-					->text('.');
-		}
-
 		return $stream->identifier(
-			$platform->quoteIdentifier($identifier->getLocalName()));
+			$platform->quoteIdentifier(
+				$this->getIdentifier()
+					->getLocalName()));
 	}
 
-	protected function tokenizeTableIdentifier(TokenStream $stream,
-		TokenStreamContextInterface $context,
-		TableStructure $tableStructure)
+	public function tokznizeIndexTable(TokenStream $stream,
+		TokenStreamContextInterface $context)
 	{
-		$platform = $context->getPlatform();
-		$scoped = $platform->queryFeature(
-			[
-				K::FEATURE_INDEX,
-				K::FEATURE_SCOPED
-			], false);
-
-		if ($scoped)
-			return $stream->identifier(
-				$platform->quoteIdentifier($tableStructure->getName()));
-
-		return $stream->identifier(
-			$platform->quoteIdentifierPath($tableStructure));
+		$identifier = Identifier::make($this->indexTable->getPath());
+		return $this->tokenizeIdentifier($stream, $context, $identifier,
+			true);
 	}
 
 	/**

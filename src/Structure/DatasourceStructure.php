@@ -7,6 +7,7 @@
  */
 namespace NoreSources\SQL\Structure;
 
+use NoreSources\Container;
 use NoreSources\TypeDescription;
 use NoreSources\SQL\Structure\Traits\StructureElementContainerTrait;
 use NoreSources\SQL\Structure\Traits\StructureElementTrait;
@@ -31,6 +32,14 @@ class DatasourceStructure implements StructureElementInterface,
 		$name = (\is_string($name) && \strlen($name)) ? $name : TypeDescription::getLocalName(
 			static::class);
 		$this->initializeStructureElementContainer();
+	}
+
+	public function getNamespaces()
+	{
+		return Container::filter($this,
+			function ($k, $v) {
+				return ($v instanceof NamespaceStructure);
+			});
 	}
 }
 

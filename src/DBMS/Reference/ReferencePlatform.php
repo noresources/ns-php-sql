@@ -2,6 +2,7 @@
 namespace NoreSources\SQL\DBMS\Reference;
 
 use NoreSources\Container;
+use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\AbstractPlatform;
 use NoreSources\SQL\DBMS\TypeRegistry;
 use NoreSources\SQL\Syntax\Statement\ParameterData;
@@ -62,6 +63,17 @@ class ReferencePlatform extends AbstractPlatform
 	public function getParameter($name, ParameterData $parameters = null)
 	{
 		return ('$' . preg_replace('/[^a-zA-Z0-9_]/', '_', $name));
+	}
+
+	public function getKeyword($keyword)
+	{
+		switch ($keyword)
+		{
+			case K::KEYWORD_NAMESPACE:
+				return 'NAMESPACE';
+		}
+
+		return parent::getKeyword($keyword);
 	}
 
 	public function setReferencePlatformVersion($kind, $version)

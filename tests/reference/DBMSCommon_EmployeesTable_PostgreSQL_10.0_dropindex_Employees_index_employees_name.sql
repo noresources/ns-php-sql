@@ -1,2 +1,2 @@
 DROP 
-  INDEX IF EXISTS "index_employees_name"
+  INDEX IF EXISTS "ns_unittests"."index_employees_name"

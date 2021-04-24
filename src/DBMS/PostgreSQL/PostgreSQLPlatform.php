@@ -38,22 +38,25 @@ class PostgreSQLPlatform extends AbstractPlatform implements
 		$this->initializeStatementFactory();
 		$this->setConnection($connection);
 
+		$platformCreateTableFlags = 0;
+		$platformCreateViewFlags = 0;
+		$platformCreateNamespaceFlags = 0;
+
+		$platformDropFlags = 0;
+
 		$this->setPlatformFeature(
 			[
 				K::FEATURE_INSERT,
 				K::FEATURE_DEFAULT
 			], true);
+
 		$this->setPlatformFeature(
 			[
 				K::FEATURE_INSERT,
 				K::FEATURE_DEFAULTVALUES
 			], true);
-		$this->setPlatformFeature(
-			[
-				K::FEATURE_CREATE,
-				K::FEATURE_TABLE,
-				K::FEATURE_TEMPORARY
-			], true);
+
+		$platformCreateTableFlags |= K::FEATURE_CREATE_TEMPORARY;
 
 		$this->setPlatformFeature(
 			[
@@ -68,11 +71,7 @@ class PostgreSQLPlatform extends AbstractPlatform implements
 		if (SemanticVersion::compareVersions($serverVersion, '7.3.0') >=
 			0)
 		{
-			$this->setPlatformFeature(
-				[
-					K::FEATURE_DROP,
-					K::FEATURE_CASCADE
-				], true);
+			$platformDropFlags |= K::FEATURE_DROP_CASCADE;
 
 			$compatibility = '7.3.0';
 		}
@@ -80,12 +79,7 @@ class PostgreSQLPlatform extends AbstractPlatform implements
 		if (SemanticVersion::compareVersions($serverVersion, '8.1.0') >=
 			0)
 		{
-			$this->setPlatformFeature(
-				[
-					K::FEATURE_CREATE,
-					K::FEATURE_VIEW,
-					K::FEATURE_TEMPORARY
-				], true);
+			$platformCreateViewFlags |= K::FEATURE_CREATE_TEMPORARY;
 
 			$compatibility = '8.1.0';
 		}
@@ -93,24 +87,14 @@ class PostgreSQLPlatform extends AbstractPlatform implements
 		if (SemanticVersion::compareVersions($serverVersion, '8.2.0') >=
 			0)
 		{
-			$this->setPlatformFeature(
-				[
-					K::FEATURE_DROP,
-					K::FEATURE_EXISTS_CONDITION
-				], true);
-
+			$platformDropFlags |= K::FEATURE_DROP_EXISTS_CONDITION;
 			$compatibility = '8.2.0';
 		}
 
 		if (SemanticVersion::compareVersions($serverVersion, '9.1.0') >=
 			0)
 		{
-			$this->setPlatformFeature(
-				[
-					K::FEATURE_CREATE,
-					K::FEATURE_TABLE,
-					K::FEATURE_EXISTS_CONDITION
-				], true);
+			$platformCreateTableFlags |= K::FEATURE_CREATE_EXISTS_CONDITION;
 
 			$compatibility = '9.1.0';
 		}
@@ -118,13 +102,7 @@ class PostgreSQLPlatform extends AbstractPlatform implements
 		if (SemanticVersion::compareVersions($serverVersion, '9.3.0') >=
 			0)
 		{
-			$this->setPlatformFeature(
-				[
-					K::FEATURE_CREATE,
-					K::FEATURE_NAMESPACE,
-					K::FEATURE_EXISTS_CONDITION
-				], true);
-
+			$platformCreateNamespaceFlags |= K::FEATURE_CREATE_EXISTS_CONDITION;
 			$compatibility = '9.3.0';
 		}
 
@@ -133,6 +111,33 @@ class PostgreSQLPlatform extends AbstractPlatform implements
 		{
 			$compatibility = '10.0.0';
 		}
+
+		$this->setPlatformFeature(
+			[
+				K::FEATURE_CREATE,
+				K::FEATURE_NAMESPACE,
+				K::FEATURE_CREATE_FLAGS
+			], $platformCreateNamespaceFlags);
+
+		$this->setPlatformFeature(
+			[
+				K::FEATURE_CREATE,
+				K::FEATURE_TABLE,
+				K::FEATURE_CREATE_FLAGS
+			], $platformCreateTableFlags);
+
+		$this->setPlatformFeature(
+			[
+				K::FEATURE_CREATE,
+				K::FEATURE_VIEW,
+				K::FEATURE_CREATE_FLAGS
+			], $platformCreateViewFlags);
+
+		$this->setPlatformFeature(
+			[
+				K::FEATURE_DROP,
+				K::FEATURE_DROP_FLAGS
+			], $platformDropFlags);
 
 		$compatibility = ($compatibility instanceof SemanticVersion) ? $compatibility : new SemanticVersion(
 			$compatibility);

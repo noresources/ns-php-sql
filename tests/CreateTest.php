@@ -60,9 +60,9 @@ final class CreateTest extends \PHPUnit\Framework\TestCase
 				[
 					[
 						K::FEATURE_CREATE,
-						K::FEATURE_TEMPORARY
+						K::FEATURE_CREATE_FLAGS
 					],
-					true
+					K::FEATURE_CREATE_TEMPORARY
 				]
 			]);
 
@@ -208,9 +208,9 @@ final class CreateTest extends \PHPUnit\Framework\TestCase
 					[
 						K::FEATURE_CREATE,
 						K::FEATURE_TABLE,
-						K::FEATURE_REPLACE
+						K::FEATURE_CREATE_FLAGS
 					],
-					true
+					K::FEATURE_CREATE_REPLACE
 				]
 			]);
 

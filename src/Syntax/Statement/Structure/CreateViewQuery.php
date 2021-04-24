@@ -7,15 +7,15 @@
  */
 namespace NoreSources\SQL\Syntax\Statement\Structure;
 
-use NoreSources\Bitset;
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\Structure\NamespaceStructure;
 use NoreSources\SQL\Structure\Identifier;
+use NoreSources\SQL\Structure\NamespaceStructure;
 use NoreSources\SQL\Structure\ViewStructure;
 use NoreSources\SQL\Syntax\TokenStream;
 use NoreSources\SQL\Syntax\TokenStreamContextInterface;
 use NoreSources\SQL\Syntax\Statement\TokenizableStatementInterface;
 use NoreSources\SQL\Syntax\Statement\Query\SelectQuery;
+use NoreSources\SQL\Syntax\Statement\Structure\Traits\CreateFlagsTrait;
 
 /**
  * CREATE VIEW statement
@@ -34,7 +34,13 @@ use NoreSources\SQL\Syntax\Statement\Query\SelectQuery;
 class CreateViewQuery implements TokenizableStatementInterface
 {
 
-	const TEMPORARY = Bitset::BIT_01;
+	use CreateFlagsTrait;
+
+	/**
+	 *
+	 * @deprecated Use use K::CREATE_TEMPORARY
+	 */
+	const TEMPORARY = K::CREATE_TEMPORARY;
 
 	/**
 	 *
@@ -43,7 +49,6 @@ class CreateViewQuery implements TokenizableStatementInterface
 	 */
 	public function __construct($identifier = null)
 	{
-		$this->viewFlags = 0;
 		$this->viewIdentifier = null;
 		$this->selectQuery = null;
 
@@ -67,21 +72,20 @@ class CreateViewQuery implements TokenizableStatementInterface
 		if ($identifier instanceof ViewStructure)
 			$identifier = $identifier->getPath();
 
-		$this->viewIdentifier = Identifier::make(
-			$identifier);
+		$this->viewIdentifier = Identifier::make($identifier);
 
 		return $this;
 	}
 
 	/**
 	 *
+	 * @deprecated Use createFlags()
 	 * @param integer $flags
 	 * @return \NoreSources\SQL\Syntax\Statement\Structure\CreateViewQuery
 	 */
 	public function flags($flags)
 	{
-		$this->viewFlags = $flags;
-		return $this;
+		return $this->createFlags($flags);
 	}
 
 	/**
@@ -99,31 +103,28 @@ class CreateViewQuery implements TokenizableStatementInterface
 		TokenStreamContextInterface $context)
 	{
 		$platform = $context->getPlatform();
-		$scoped = $platform->queryFeature(
-			[
-				K::FEATURE_VIEW,
-				K::FEATURE_SCOPED
-			], false);
-		$existsCondition = $platform->queryFeature(
+		$platformCreateFlags = $platform->queryFeature(
 			[
 				K::FEATURE_CREATE,
 				K::FEATURE_VIEW,
-				K::FEATURE_EXISTS_CONDITION
-			], false);
+				K::FEATURE_CREATE_FLAGS
+			], 0);
 
 		$stream->keyword('create');
 
-		if ($this->viewFlags & self::TEMPORARY &&
-			$platform->queryFeature(
-				[
-					K::FEATURE_CREATE,
-					K::FEATURE_VIEW,
-					K::FEATURE_TEMPORARY
-				], false))
+		$platformCreateFlags = $platform->queryFeature(
+			[
+				K::FEATURE_CREATE,
+				K::FEATURE_VIEW,
+				K::FEATURE_CREATE_FLAGS
+			], 0);
+
+		if ($this->getCreateFlags() & K::CREATE_TEMPORARY &&
+			($platformCreateFlags & K::FEATURE_CREATE_TEMPORARY))
 			$stream->space()->keyword('temporary');
 
 		$stream->space()->keyword('view');
-		if ($existsCondition)
+		if (($platformCreateFlags & K::FEATURE_CREATE_EXISTS_CONDITION))
 		{
 			$stream->space()
 				->keyword('if')
@@ -135,36 +136,30 @@ class CreateViewQuery implements TokenizableStatementInterface
 
 		$stream->space();
 
-		if ($scoped)
+		$parts = $this->viewIdentifier->getPathParts();
+		if (\count($parts) > 1)
 		{
-			$parts = $this->viewIdentifier->getPathParts();
-			if (\count($parts) > 1)
-			{
-				$stream->identifier(
-					$context->getPlatform()
-						->quoteIdentifierPath($parts));
-			}
-			else // Last chance to find the element namespace
-			{
-				$structure = $context->getPivot();
-				if ($stream instanceof ViewStructure)
-					$structure = $structure->getParentElement();
-
-				if ($structure instanceof NamespaceStructure)
-					$stream->identifier(
-						$context->getPlatform()
-							->quoteIdentifierPath($structure))
-						->text('.');
-
-				$stream->identifier(
-					$context->getPlatform()
-						->quoteIdentifier(
-						$this->viewIdentifier->getLocalName()));
-			}
-		}
-		else
 			$stream->identifier(
-				$platform->quoteIdentifier($this->viewIdentifier));
+				$context->getPlatform()
+					->quoteIdentifierPath($parts));
+		}
+		else // Last chance to find the element namespace
+		{
+			$structure = $context->getPivot();
+			if ($stream instanceof ViewStructure)
+				$structure = $structure->getParentElement();
+
+			if ($structure instanceof NamespaceStructure)
+				$stream->identifier(
+					$context->getPlatform()
+						->quoteIdentifierPath($structure))
+					->text('.');
+
+			$stream->identifier(
+				$context->getPlatform()
+					->quoteIdentifier(
+					$this->viewIdentifier->getLocalName()));
+		}
 
 		return $stream->space()
 			->keyword('as')
