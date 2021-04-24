@@ -321,7 +321,7 @@ class SelectQuery implements TokenizableStatementInterface
 
 		$hasExtendedAlias = $platform->queryFeature(
 			[
-				K::FEATURE_SCOPED,
+				K::FEATURE_SELECT,
 				K::FEATURE_EXTENDED_RESULTCOLUMN_RESOLUTION
 			], false);
 

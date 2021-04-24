@@ -67,7 +67,7 @@ class Environment implements ConnectionProviderInterface,
 	 *
 	 * @return StatementResultInterface|boolean
 	 */
-	public function executeStatement($statement, $parameters = null)
+	public function executeStatement($statement, $parameters = array())
 	{
 		if ($statement instanceof TokenizableExpressionInterface)
 			$statement = $this->prepareStatement($statement,
