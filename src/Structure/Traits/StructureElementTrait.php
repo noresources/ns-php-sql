@@ -13,6 +13,7 @@ namespace NoreSources\SQL\Structure\Traits;
 use NoreSources\TypeDescription;
 use NoreSources\SQL\DBMS\PlatformInterface;
 use NoreSources\SQL\Structure\DatasourceStructure;
+use NoreSources\SQL\Structure\Identifier;
 use NoreSources\SQL\Structure\StructureElementContainerInterface;
 use NoreSources\SQL\Structure\StructureElementInterface;
 use NoreSources\SQL\Structure\StructureException;
@@ -24,6 +25,20 @@ trait StructureElementTrait
 	public function getName()
 	{
 		return $this->elementName;
+	}
+
+	public function getIdentifier()
+	{
+		$a = [
+			$this->getName()
+		];
+		while (($p = $this->getParentElement()) &&
+			!($p instanceof DatasourceStructure))
+		{
+			array_unshift($a, $p->getName());
+		}
+
+		return Identifier::make($a);
 	}
 
 	public function getPath(PlatformInterface $platform = null)

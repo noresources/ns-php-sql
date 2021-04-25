@@ -27,6 +27,12 @@ interface StructureElementInterface extends NameProviderInterface
 	function getPath(PlatformInterface $platform = null);
 
 	/**
+	 *
+	 * @return Identifier
+	 */
+	function getIdentifier();
+
+	/**
 	 * Get ancestor
 	 *
 	 * @param number $depth
