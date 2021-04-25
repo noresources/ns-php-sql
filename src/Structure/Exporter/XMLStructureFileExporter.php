@@ -78,14 +78,11 @@ class XMLStructureFileExporter implements
 		self::traverseStructure($structure,
 			function (StructureElementInterface $structure) use (
 			$context) {
-				$path = $structure->getPath();
-				if (\strlen($path))
-				{
-					$id = \call_user_func($this->identifierGenerator,
-						$structure);
+				$path = \strval($structure->getIdentifier());
+				$id = \call_user_func($this->identifierGenerator,
+					$structure);
 
-					$context->identifiers[$path] = $id;
-				}
+				$context->identifiers[$path] = $id;
 			});
 
 		$this->exportNode($structure, $context,
@@ -107,7 +104,7 @@ class XMLStructureFileExporter implements
 	public static function defaultIdentifierGenerator(
 		StructureElementInterface $element)
 	{
-		return \base64_encode($element->getPath());
+		return \base64_encode($element->getIdentifier());
 	}
 
 	private function exportNode(StructureElementInterface $structure,
@@ -115,7 +112,7 @@ class XMLStructureFileExporter implements
 	{
 		$context->resolver->setPivot($structure);
 
-		$path = $structure->getPath();
+		$path = \strval($structure->getIdentifier());
 		$namespaceURI = self::getXmlNamespaceURI($this->schemaVersion);
 		$versionNumber = $this->schemaVersion->getIntegerValue();
 		if ($structure instanceof DatasourceStructure)
@@ -215,7 +212,7 @@ class XMLStructureFileExporter implements
 				$ft = $context->resolver->findTable(\strval($ft));
 
 				$reft->setAttribute('id',
-					$context->identifiers[$ft->getPath()]);
+					$context->identifiers[\strval($ft->getIdentifier())]);
 				$ref->appendChild($reft);
 
 				foreach ($constraint as $column => $reference)
@@ -267,7 +264,7 @@ class XMLStructureFileExporter implements
 			elseif ($versionNumber < 20000)
 			{
 				$n = \preg_replace('/[^a-zA-Z0-9]/', '',
-					$structure->getPath()) . $index;
+					\strval($structure->getIdentifier())) . $index;
 				if (\strlen($n) > 64)
 					$n = \substr($n, strlen($n) - 64);
 				$constraintNode->setAttribute('name', $n);

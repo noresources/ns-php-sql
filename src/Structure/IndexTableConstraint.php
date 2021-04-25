@@ -10,7 +10,7 @@ namespace NoreSources\SQL\Structure;
 use NoreSources\Container;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Structure\Traits\ColumnListTrait;
-use NoreSources\SQL\Structure\Traits\ConstraintNameTrait;
+use NoreSources\SQL\Structure\Traits\StructureElementTrait;
 use NoreSources\SQL\Syntax\Statement\Traits\WhereConstraintTrait;
 
 /**
@@ -19,7 +19,7 @@ use NoreSources\SQL\Syntax\Statement\Traits\WhereConstraintTrait;
 class IndexTableConstraint implements IndexTableConstraintInterface
 {
 
-	use ConstraintNameTrait;
+	use StructureElementTrait;
 	use ColumnListTrait;
 	use WhereConstraintTrait;
 
@@ -63,7 +63,7 @@ class IndexTableConstraint implements IndexTableConstraintInterface
 	 */
 	public function __construct($columns = array(), $name = null)
 	{
-		$this->setName($name);
+		$this->initializeStructureElement($name);
 		$this->columnNameList = $columns;
 		$this->constraintName = $name;
 		$this->indexFlags = 0;

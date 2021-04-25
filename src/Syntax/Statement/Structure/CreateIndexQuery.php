@@ -117,7 +117,8 @@ class CreateIndexQuery implements TokenizableStatementInterface,
 		if ($table instanceof TableReference)
 			$this->indexTable = $table;
 		elseif ($table instanceof TableStructure)
-			$this->indexTable = new TableReference($table->getPath());
+			$this->indexTable = new TableReference(
+				$table->getIdentifier());
 		elseif (TypeDescription::hasStringRepresentation($table))
 			$this->indexTable = new TableReference(
 				TypeConversion::toString($table));
@@ -236,7 +237,7 @@ class CreateIndexQuery implements TokenizableStatementInterface,
 	public function tokznizeIndexTable(TokenStream $stream,
 		TokenStreamContextInterface $context)
 	{
-		$identifier = Identifier::make($this->indexTable->getPath());
+		$identifier = Identifier::make($this->indexTable);
 		return $this->tokenizeIdentifier($stream, $context, $identifier,
 			true);
 	}

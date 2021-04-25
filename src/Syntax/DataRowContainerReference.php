@@ -13,9 +13,9 @@ namespace NoreSources\SQL\Syntax;
 
 use NoreSources\TypeConversion;
 use NoreSources\TypeDescription;
-use NoreSources\SQL\Syntax\Statement\Query\SelectQuery;
 use NoreSources\SQL\Structure\TableStructure;
 use NoreSources\SQL\Structure\ViewStructure;
+use NoreSources\SQL\Syntax\Statement\Query\SelectQuery;
 
 class DataRowContainerReference implements
 	TokenizableExpressionInterface
@@ -37,7 +37,7 @@ class DataRowContainerReference implements
 	{
 		if ($reference instanceof TableStructure ||
 			$reference instanceof ViewStructure)
-			$reference = new Table($reference->getPath());
+			$reference = new Table($reference->getIdentifier());
 		elseif ($reference instanceof SelectQuery)
 		{
 			if ($alias == null)

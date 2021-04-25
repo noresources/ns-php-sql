@@ -8,7 +8,7 @@
 namespace NoreSources\SQL\Structure;
 
 use NoreSources\SQL\EventMap;
-use NoreSources\SQL\Structure\Traits\ConstraintNameTrait;
+use NoreSources\SQL\Structure\Traits\StructureElementTrait;
 
 /**
  *
@@ -18,7 +18,7 @@ class ForeignKeyTableConstraint implements \IteratorAggregate,
 	TableConstraintInterface
 {
 
-	use ConstraintNameTrait;
+	use StructureElementTrait;
 
 	public function getConstraintFlags()
 	{
@@ -27,9 +27,8 @@ class ForeignKeyTableConstraint implements \IteratorAggregate,
 
 	public function __construct($foreignTable, $name = '')
 	{
-		$this->setName($name);
-		$this->foreignTable = Identifier::make(
-			$foreignTable);
+		$this->initializeStructureElement($name);
+		$this->foreignTable = Identifier::make($foreignTable);
 		$this->columns = new \ArrayObject();
 	}
 

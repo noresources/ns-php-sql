@@ -92,7 +92,8 @@ class DropNamespaceQuery implements TokenizableStatementInterface
 			$pivot = $context->getPivot();
 
 			if ($pivot instanceof DatasourceStructure &&
-				($namespaces = $pivot->getNamespaces()) &&
+				($namespaces = $pivot->getChildElements(
+					NamespaceStructure::class)) &&
 				\count($namespaces) == 1)
 			{
 				$pivot = Container::firstValue($namespaces);

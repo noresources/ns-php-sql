@@ -16,8 +16,7 @@ use NoreSources\SQL\NameProviderInterface;
 /**
  * Structure element path or alias
  */
-class Identifier implements StringRepresentation,
-	ArrayRepresentation
+class Identifier implements StringRepresentation, ArrayRepresentation
 {
 
 	/**
@@ -32,17 +31,26 @@ class Identifier implements StringRepresentation,
 		if (empty($path))
 			return new Identifier('');
 		if ($path instanceof StructureElementInterface)
-			return new Identifier($path->getPath());
+			return $path->getIdentifier();
 		if ($path instanceof Identifier)
 			return $path;
 		if (Container::isTraversable($path))
-			return new Identifier(
-				Container::implodeValues($path, '.'));
+			return new Identifier(Container::implodeValues($path, '.'));
 		if ($path instanceof NameProviderInterface)
 			return new Identifier($path->getName());
 
-		return new Identifier(
-			TypeConversion::toString($path));
+		return new Identifier(TypeConversion::toString($path));
+	}
+
+	public static function generate($length = 32)
+	{
+		$id = '';
+		do
+		{
+			$id .= \uniqid('', true);
+		}
+		while (\strlen($id) < $length + 2);
+		return \substr(\strrev(\base64_encode($id)), 2, $length);
 	}
 
 	/**
@@ -52,7 +60,7 @@ class Identifier implements StringRepresentation,
 	 */
 	public function __construct($path)
 	{
-		$this->path = $path;
+		$this->path = \strval($path);
 	}
 
 	public function __toString()

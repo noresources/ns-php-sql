@@ -118,7 +118,7 @@ final class SQLiteTest extends \PHPUnit\Framework\TestCase
 		$this->assertTrue($this->createDatabase(), 'Create SQLite file');
 
 		$this->assertTrue($this->createTable($tableStructure),
-			'Create table ' . $tableStructure->getPath());
+			'Create table ' . \strval($tableStructure->getIdentifier()));
 
 		// Default values
 		$statement = new InsertQuery($tableStructure);
@@ -168,7 +168,7 @@ final class SQLiteTest extends \PHPUnit\Framework\TestCase
 		$this->assertTrue($this->createDatabase(), 'Create SQLite file');
 
 		$this->assertTrue($this->createTable($tableStructure),
-			'Create table ' . $tableStructure->getPath());
+			'Create table ' . \strval($tableStructure->getIdentifier()));
 
 		$statement = new InsertQuery($tableStructure);
 		$statement['gender'] = 'M';
@@ -567,7 +567,7 @@ final class SQLiteTest extends \PHPUnit\Framework\TestCase
 
 	private function createTable(TableStructure $tableStructure)
 	{
-		$path = $tableStructure->getPath();
+		$path = \strval($tableStructure->getIdentifier());
 		if ($this->createdTables->offsetExists($path))
 			return true;
 

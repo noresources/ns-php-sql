@@ -15,9 +15,11 @@ interface StructureElementContainerInterface extends AssetMapInterface,
 
 	/**
 	 *
-	 * @return array
+	 * @param string $typeFilter
+	 *        	Return only child elements of the given class typename
+	 * @return array<StructureElementInterface>
 	 */
-	function getChildElements();
+	function getChildElements($typeFilter = null);
 
 	/**
 	 *

@@ -8,6 +8,7 @@
 namespace NoreSources\SQL\Syntax\Statement\Traits;
 
 use NoreSources\TypeDescription;
+use NoreSources\SQL\Structure\Identifier;
 use NoreSources\SQL\Structure\TableStructure;
 use NoreSources\SQL\Syntax\TableReference;
 
@@ -26,12 +27,13 @@ trait StatementTableTrait
 	public function table($table, $alias = null)
 	{
 		if ($table instanceof TableStructure)
-			$table = $table->getPath();
+			$table = $table->getIdentifier();
 
-		if (!\is_string($table))
+		if (!(\is_string($table) || $table instanceof Identifier))
 			throw new \InvalidArgumentException(
-				'Invalid type for $table argument. ' .
-				TableStructure::class . ' or string expected. Got ' .
+				'Invalid type for $table argument. ' . Identifier::class .
+				', ' . TableStructure::class .
+				' or string expected. Got ' .
 				TypeDescription::getName($table));
 
 		$this->statementTable = new TableReference($table, $alias);

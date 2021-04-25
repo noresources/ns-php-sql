@@ -10,13 +10,10 @@
  */
 namespace NoreSources\SQL\Structure\Traits;
 
-use NoreSources\TypeDescription;
-use NoreSources\SQL\DBMS\PlatformInterface;
 use NoreSources\SQL\Structure\DatasourceStructure;
 use NoreSources\SQL\Structure\Identifier;
 use NoreSources\SQL\Structure\StructureElementContainerInterface;
 use NoreSources\SQL\Structure\StructureElementInterface;
-use NoreSources\SQL\Structure\StructureException;
 use ArrayAccess;
 
 trait StructureElementTrait
@@ -29,31 +26,19 @@ trait StructureElementTrait
 
 	public function getIdentifier()
 	{
+		if (empty($this->elementName))
+			return Identifier::make(null);
 		$a = [
 			$this->getName()
 		];
-		while (($p = $this->getParentElement()) &&
+		$p = $this;
+		while (($p = $p->getParentElement()) &&
 			!($p instanceof DatasourceStructure))
 		{
 			array_unshift($a, $p->getName());
 		}
 
 		return Identifier::make($a);
-	}
-
-	public function getPath(PlatformInterface $platform = null)
-	{
-		$s = ($platform instanceof PlatformInterface) ? $platform->quoteIdentifier(
-			$this->getName()) : $this->getName();
-		$p = $this->getParentElement();
-		while ($p && !($p instanceof DatasourceStructure))
-		{
-			$s = (($platform instanceof PlatformInterface) ? $platform->quoteIdentifier(
-				$p->getName()) : $p->getName()) . '.' . $s;
-			$p = $p->getParentElement();
-		}
-
-		return $s;
 	}
 
 	public function getParentElement($depth = 1)
@@ -93,13 +78,25 @@ trait StructureElementTrait
 		$this->parentElement = $parent;
 	}
 
+	public function setName($name)
+	{
+		$p = $this->getParentElement();
+		if ($p instanceof StructureElementContainerInterface)
+			$this->detachElement();
+		$this->elementName = $name;
+		if ($p instanceof StructureElementContainerInterface)
+			$p->appendElement($this);
+	}
+
+	public function getElementKey()
+	{
+		return (empty($this->elementName) ? $this->elementKey : $this->elementName);
+	}
+
 	protected function initializeStructureElement($name,
 		StructureElementContainerInterface $parent = null)
 	{
-		if (!(is_string($name) && strlen($name)))
-			throw new StructureException(
-				'Invalid element name (' .
-				TypeDescription::getName($name) . ')');
+		$this->elementKey = Identifier::generate();
 		$this->elementName = $name;
 		$this->parentElement = $parent;
 	}
@@ -118,4 +115,10 @@ trait StructureElementTrait
 	 * @var StructureElement
 	 */
 	protected $parentElement;
+
+	/**
+	 *
+	 * @var string
+	 */
+	private $elementKey;
 }

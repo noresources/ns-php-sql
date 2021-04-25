@@ -46,7 +46,8 @@ class StructureResolverContext
 
 		$key = get_class($pivot);
 		$this->cache[$key]->offsetSet($pivot->getName(), $pivot);
-		$this->cache[$key]->offsetSet($pivot->getPath(), $pivot);
+		$this->cache[$key]->offsetSet(\strval($pivot->getIdentifier()),
+			$pivot);
 		$p = $pivot->getParentElement();
 		while ($p instanceof StructureElementInterface)
 		{

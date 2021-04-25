@@ -137,7 +137,7 @@ class TableStructure implements StructureElementInterface,
 
 	/**
 	 */
-	public function getChildElements()
+	public function getChildElements($typeFilter = null)
 	{
 		return $this->getColumns();
 	}

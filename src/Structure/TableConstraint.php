@@ -7,6 +7,8 @@
  */
 namespace NoreSources\SQL\Structure;
 
+use NoreSources\SQL\Structure\Traits\StructureElementTrait;
+
 /**
  *
  * @see https://www.sqlite.org/syntax/foreign-key-clause.html
@@ -16,18 +18,7 @@ namespace NoreSources\SQL\Structure;
 abstract class TableConstraint implements TableConstraintInterface
 {
 
-	public function setName($name)
-	{
-		if (\is_string($name))
-			$this->constraintName = $name;
-		else
-			$this->constraintName = null;
-	}
-
-	public function getName()
-	{
-		return $this->constraintName;
-	}
+	use StructureElementTrait;
 
 	/**
 	 *
@@ -36,13 +27,7 @@ abstract class TableConstraint implements TableConstraintInterface
 	 */
 	protected function __construct($name = null)
 	{
-		$this->constraintName = $name;
+		$this->initializeStructureElement($name);
 	}
-
-	/**
-	 *
-	 * @var string
-	 */
-	private $constraintName;
 }
 

@@ -9,7 +9,7 @@ namespace NoreSources\SQL\Structure;
 
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Structure\Traits\ColumnListTrait;
-use NoreSources\SQL\Structure\Traits\ConstraintNameTrait;
+use NoreSources\SQL\Structure\Traits\StructureElementTrait;
 
 /**
  * Primary key table column constraint
@@ -18,7 +18,7 @@ class PrimaryKeyTableConstraint implements
 	IndexTableConstraintInterface
 {
 
-	use ConstraintNameTrait;
+	use StructureElementTrait;
 	use ColumnListTrait;
 
 	public function getConstraintFlags()
@@ -43,7 +43,7 @@ class PrimaryKeyTableConstraint implements
 
 	public function __construct($columns = [], $name = null)
 	{
-		$this->setName($name);
+		$this->initializeStructureElement($name);
 		$this->columnNameList = $columns;
 	}
 }

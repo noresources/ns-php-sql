@@ -11,6 +11,7 @@
 namespace NoreSources\SQL\Structure\Traits;
 
 use NoreSources\CaseInsensitiveKeyMapTrait;
+use NoreSources\Container;
 use NoreSources\SQL\NameProviderInterface;
 use NoreSources\SQL\Structure\StructureElementInterface;
 
@@ -19,14 +20,19 @@ trait StructureElementContainerTrait
 
 	use CaseInsensitiveKeyMapTrait;
 
-	public function getChildElements()
+	public function getChildElements($typeFilter = null)
 	{
+		if ($typeFilter)
+			return Container::filter($this->map,
+				function ($n, $e) use ($typeFilter) {
+					return (is_a($e, $typeFilter));
+				});
 		return $this->map->getArrayCopy();
 	}
 
 	public function appendElement(StructureElementInterface $child)
 	{
-		$key = $child->getName();
+		$key = $child->getElementKey();
 		$child->setParentElement($this);
 		$this->map->offsetSet($key, $child);
 
@@ -52,7 +58,7 @@ trait StructureElementContainerTrait
 	public function offsetUnset($key)
 	{
 		if ($key instanceof NameProviderInterface)
-			$key = $key->getName();
+			$key = $key->getElementKey();
 		if ($this->offsetExists($key))
 		{
 			$e = $this->map[$key];
@@ -75,7 +81,7 @@ trait StructureElementContainerTrait
 				'Invalid value argument. ' . StructureElement::class .
 				' expected.');
 
-		if (\strcasecmp($key, $value->getName()))
+		if (\strcasecmp($key, $value->getElementKey()))
 			throw new \InvalidArgumentException(
 				'Key & value mismatch. Key must be the element name');
 

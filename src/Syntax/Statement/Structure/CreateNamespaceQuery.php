@@ -9,7 +9,6 @@ namespace NoreSources\SQL\Syntax\Statement\Structure;
 
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Structure\Identifier;
-use NoreSources\SQL\Structure\NamespaceStructure;
 use NoreSources\SQL\Syntax\TokenStream;
 use NoreSources\SQL\Syntax\TokenStreamContextInterface;
 use NoreSources\SQL\Syntax\Statement\TokenizableStatementInterface;
@@ -46,11 +45,7 @@ class CreateNamespaceQuery implements TokenizableStatementInterface
 	 */
 	public function identifier($identifier)
 	{
-		if ($identifier instanceof NamespaceStructure)
-			$identifier = $identifier->getPath();
-
 		$this->namespaceIdentifier = Identifier::make($identifier);
-
 		return $this;
 	}
 

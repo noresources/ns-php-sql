@@ -8,12 +8,10 @@
  */
 namespace NoreSources\SQL\Structure;
 
-use NoreSources\SQL\NameProviderInterface;
-
 /**
  * Table constraint interface
  */
-interface TableConstraintInterface extends NameProviderInterface
+interface TableConstraintInterface extends StructureElementInterface
 {
 
 	/**

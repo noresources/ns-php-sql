@@ -8,12 +8,12 @@
  */
 namespace NoreSources\SQL\Structure;
 
-use NoreSources\SQL\Structure\Traits\ConstraintNameTrait;
+use NoreSources\SQL\Structure\Traits\StructureElementTrait;
 use NoreSources\SQL\Syntax\Statement\Traits\WhereConstraintTrait;
 
 class CheckTableConstraint implements TableConstraintInterface
 {
-	use ConstraintNameTrait;
+	use StructureElementTrait;
 	use WhereConstraintTrait;
 
 	public function getConstraintFlags()
@@ -28,6 +28,6 @@ class CheckTableConstraint implements TableConstraintInterface
 
 	public function __construct($name = null)
 	{
-		$this->setName($name);
+		$this->initializeStructureElement($name);
 	}
 }

@@ -3,15 +3,15 @@ namespace NoreSources\SQL;
 
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\Reference\ReferenceConnection;
-use NoreSources\SQL\Syntax\TokenStream;
-use NoreSources\SQL\Syntax\Statement\StatementBuilder;
-use NoreSources\SQL\Syntax\Statement\StatementTokenStreamContext;
 use NoreSources\SQL\Structure\ColumnStructure;
 use NoreSources\SQL\Structure\DatasourceStructure;
 use NoreSources\SQL\Structure\NamespaceStructure;
 use NoreSources\SQL\Structure\StructureResolverInterface;
 use NoreSources\SQL\Structure\TableStructure;
 use NoreSources\SQL\Structure\VirtualStructureResolver;
+use NoreSources\SQL\Syntax\TokenStream;
+use NoreSources\SQL\Syntax\Statement\StatementBuilder;
+use NoreSources\SQL\Syntax\Statement\StatementTokenStreamContext;
 use NoreSources\Test\DerivedFileManager;
 
 final class VirtualStructureTest extends \PHPUnit\Framework\TestCase
@@ -50,7 +50,8 @@ final class VirtualStructureTest extends \PHPUnit\Framework\TestCase
 		$table = $vsr->findTable('ns.t');
 		$this->assertInstanceOf(TableStructure::class, $table,
 			'Table class');
-		$this->assertEquals('ns.t', $table->getPath(), 'Table path');
+		$this->assertEquals('ns.t', $table->getIdentifier(),
+			'Table path');
 		$this->assertEquals($table->getParentElement(), $ns,
 			'Table parent');
 
@@ -109,12 +110,13 @@ final class VirtualStructureTest extends \PHPUnit\Framework\TestCase
 		$vsr = new VirtualStructureResolver();
 		$ns = $vsr->findNamespace('ns');
 		$table = $vsr->findTable('t');
-		$this->assertEquals('ns.t', $table->getPath(), 'Table path');
+		$this->assertEquals('ns.t', $table->getIdentifier(),
+			'Table path');
 
 		$c = $vsr->findColumn('c');
-		$this->assertEquals('ns.t.c', $c->getPath());
+		$this->assertEquals('ns.t.c', $c->getIdentifier());
 		$c2 = $vsr->findColumn('t.c2');
-		$this->assertEquals('ns.t.c2', $c2->getPath());
+		$this->assertEquals('ns.t.c2', $c2->getIdentifier());
 	}
 
 	public function testStatementBuilding()

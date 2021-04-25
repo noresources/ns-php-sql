@@ -8,7 +8,7 @@
 namespace NoreSources\SQL\Structure;
 
 use NoreSources\SQL\NameProviderInterface;
-use NoreSources\SQL\DBMS\PlatformInterface;
+use phpDocumentor\Reflection\Element;
 
 interface StructureElementInterface extends NameProviderInterface
 {
@@ -18,13 +18,6 @@ interface StructureElementInterface extends NameProviderInterface
 	 * @return string
 	 */
 	function getName();
-
-	/**
-	 *
-	 * @param PlatformInterface $platform
-	 * @return string
-	 */
-	function getPath(PlatformInterface $platform = null);
 
 	/**
 	 *
@@ -50,4 +43,13 @@ interface StructureElementInterface extends NameProviderInterface
 	 * Detach element from its parent
 	 */
 	function detachElement();
+
+	/**
+	 * This method MUST return the same string as getName() when the
+	 * element has a name.
+	 *
+	 * @return Element name if any. Otherwase a unique opaque identifier
+	 *
+	 */
+	function getElementKey();
 }
