@@ -4,13 +4,13 @@ namespace NoreSources\SQL;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\Reference\ReferenceConnection;
 use NoreSources\SQL\DBMS\Reference\ReferencePlatform;
+use NoreSources\SQL\Structure\NamespaceStructure;
 use NoreSources\SQL\Syntax\Column;
 use NoreSources\SQL\Syntax\Data;
 use NoreSources\SQL\Syntax\MemberOf;
 use NoreSources\SQL\Syntax\Statement\StatementBuilder;
 use NoreSources\SQL\Syntax\Statement\StatementTokenStreamContext;
 use NoreSources\SQL\Syntax\Statement\Query\SelectQuery;
-use NoreSources\SQL\Structure\NamespaceStructure;
 use NoreSources\Test\DatasourceManager;
 use NoreSources\Test\DerivedFileManager;
 

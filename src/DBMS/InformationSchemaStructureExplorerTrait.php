@@ -10,11 +10,13 @@ namespace NoreSources\SQL\DBMS;
 
 use NoreSources\Container;
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\Environment;
 use NoreSources\SQL\Structure\ArrayColumnDescription;
 use NoreSources\SQL\Structure\ForeignKeyTableConstraint;
-use NoreSources\SQL\Structure\PrimaryKeyTableConstraint;
 use NoreSources\SQL\Structure\Identifier;
+use NoreSources\SQL\Structure\PrimaryKeyTableConstraint;
 use NoreSources\SQL\Syntax\Data;
+use NoreSources\SQL\Syntax\Statement\Query\SelectQuery;
 
 /**
  * StructureExplorer implementation that use the ANSI information_schema
@@ -23,20 +25,27 @@ trait InformationSchemaStructureExplorerTrait
 {
 
 	public function getInformationSchemaTableNames(
-		ConnectionInterface $connection,
-		Identifier $namespace)
+		ConnectionInterface $connection, Identifier $namespace)
 	{
 		$platform = $connection->getPlatform();
+		/**
+		 *
+		 * @var SelectQuery $query
+		 */
+		$query = $platform->newStatement(K::QUERY_SELECT);
+		$query->columns('table_name')
+			->from('information_schema.tables')
+			->where([
+			'table_schema' => new Data($namespace)
+		], [
+			'<>' => [
+				'table_type',
+				new Data('VIEW')
+			]
+		]);
 
-		$sql = \sprintf(
-			'SELECT table_name
-			FROM information_schema.tables
-			WHERE
-				table_type != %s
-				AND table_schema = %s', $platform->quoteStringValue('VIEW'),
-			$platform->quoteStringValue($namespace));
-
-		$recordset = $connection->executeStatement($sql);
+		$env = new Environment($connection);
+		$recordset = $env->executeStatement($query);
 		return self::recordsetToList($recordset, 'table_name');
 	}
 
@@ -48,23 +57,28 @@ trait InformationSchemaStructureExplorerTrait
 		$namespace = $qualifiedTableIdentifier->getParentIdentifier();
 		$platform = $connection->getPlatform();
 
-		$sql = sprintf(
-			'SELECT column_name
-			FROM information_schema.columns
-			WHERE table_schema=%s
-				AND table_name=%s
-			ORDER BY ordinal_position
-', $platform->quoteStringValue($namespace),
-			$platform->quoteStringValue($tableName));
+		/**
+		 *
+		 * @var SelectQuery $query
+		 */
+		$query = $platform->newStatement(K::QUERY_SELECT);
 
-		return self::recordsetToList(
-			$connection->executeStatement($sql), 0);
+		$query->columns('column_name')
+			->from('information_schema.columns')
+			->where([
+			'table_schema' => new Data($namespace)
+		], [
+			'table_name' => new Data($tableName)
+		])
+			->orderBy('ordinal_position');
+		$env = new Environment($connection);
+		return self::recordsetToList($env->executeStatement($query), 0);
 	}
 
 	public function getInformationSchemaTableColumn(
 		ConnectionInterface $connection,
-		Identifier $qualifiedTableIdentifier,
-		$columnName, $extraColumns = array())
+		Identifier $qualifiedTableIdentifier, $columnName,
+		$extraColumns = array())
 	{
 		$tableName = $qualifiedTableIdentifier->getLocalName();
 		$namespace = $qualifiedTableIdentifier->getParentIdentifier();
@@ -80,26 +94,35 @@ trait InformationSchemaStructureExplorerTrait
 				'numeric_scale'
 			], $extraColumns);
 
-		$informationSchemaColumnsString = Container::implode(
-			$informationSchemaColumns, ', ',
-			function ($name, $alias) use ($platform) {
-				if (\is_integer($name))
-					return $platform->quoteIdentifier($alias);
-				return $platform->quoteIdentifier($name) . ' AS ' .
-				$platform->quoteIdentifier($alias);
-			});
+		$columns = [];
+		foreach ($informationSchemaColumns as $c => $a)
+		{
+			if (\is_integer($c))
+				$columns[] = $a;
+			else
+				$columns[] = [
+					$c => $a
+				];
+		}
 
-		$sql = sprintf(
-			'SELECT %s
-			FROM information_schema.columns
-			WHERE table_schema=%s
-				AND table_name=%s
-				AND column_name=%s', $informationSchemaColumnsString,
-			$platform->quoteStringValue($namespace),
-			$platform->quoteStringValue($tableName),
-			$platform->quoteStringValue($columnName));
+		/**
+		 *
+		 * @var SelectQuery $query
+		 */
+		$query = $platform->newStatement(K::QUERY_SELECT);
 
-		$recordset = $connection->executeStatement($sql);
+		$query->columns(...$columns)
+			->from('information_schema.columns')
+			->where([
+			'table_schema' => new Data($namespace)
+		], [
+			'table_name' => new Data($tableName)
+		], [
+			'column_name' => new Data($columnName)
+		]);
+		$env = new Environment($connection);
+
+		$recordset = $env->executeStatement($query);
 		$recordset->setFlags(K::RECORDSET_FETCH_ASSOCIATIVE);
 		$info = $recordset->current();
 		$properties = [];
@@ -186,22 +209,36 @@ trait InformationSchemaStructureExplorerTrait
 		$namespace = $qualifiedTableIdentifier->getParentIdentifier();
 		$platform = $connection->getPlatform();
 
-		$sql = sprintf(
-			'SELECT
-			    tc.constraint_name as name,
-			    kcu.column_name as column
-			FROM
-			    information_schema.table_constraints AS tc
-			    INNER JOIN information_schema.key_column_usage AS kcu
-			      ON tc.constraint_name = kcu.constraint_name
-			      AND tc.table_schema = kcu.table_schema
-				WHERE tc.constraint_type=%s
-						AND tc.table_schema=%s
-						AND tc.table_name=%s', $platform->quoteStringValue('PRIMARY KEY'),
-			$platform->quoteStringValue($namespace),
-			$platform->quoteStringValue($tableName));
+		/**
+		 *
+		 * @var SelectQuery $query
+		 */
+		$query = $platform->newStatement(K::QUERY_SELECT);
+		$query->columns([
+			'tc.constraint_name' => 'name'
+		], [
+			'kcu.column_name' => 'column'
+		])
+			->from('information_schema.table_constraints', 'tc')
+			->join(K::JOIN_INNER,
+			[
+				'information_schema.key_column_usage' => 'kcu'
+			], [
+				'tc.constraint_name' => 'kcu.constraint_name'
+			], [
+				'tc.table_schema' => 'kcu.table_schema'
+			])
+			->where([
+			'tc.constraint_type' => new Data('PRIMARY KEY')
+		], [
+			'tc.table_schema' => new Data($namespace)
+		], [
+			'tc.table_name' => new Data($tableName)
+		]);
 
-		$recordset = $connection->executeStatement($sql);
+		$env = new Environment($connection);
+		$recordset = $env->executeStatement($query);
+
 		$recordset->setFlags(
 			K::RECORDSET_FETCH_ASSOCIATIVE |
 			K::RECORDSET_FETCH_UBSERIALIZE);
@@ -232,21 +269,27 @@ trait InformationSchemaStructureExplorerTrait
 		$namespace = $parentIdentifier->getPath();
 		$platform = $connection->getPlatform();
 
-		$sql = sprintf(
-			'SELECT
-					table_name
-				FROM information_schema.views
-				WHERE table_schema=%s
-', $platform->quoteStringValue($namespace));
+		/**
+		 *
+		 * @var SelectQuery $query
+		 */
+		$query = $platform->newStatement(K::QUERY_SELECT);
 
-		return self::recordsetToList(
-			$connection->executeStatement($sql), 0);
+		$query->columns('table_name')
+			->from('information_schema.views')
+			->where([
+			'table_schema' => new Data($namespace)
+		]);
+
+		$env = new Environment($connection);
+		$recordset = $env->executeStatement($query);
+		return self::recordsetToList($recordset, 0);
 	}
 
 	public function populateInformationSchemaForeignKeyActions(
 		ForeignKeyTableConstraint &$foreignKey,
-		ConnectionInterface $connection,
-		Identifier $namespace, $actionMap = null)
+		ConnectionInterface $connection, Identifier $namespace,
+		$actionMap = null)
 	{
 		if ($actionMap === null)
 			$actionMap = [
@@ -256,16 +299,23 @@ trait InformationSchemaStructureExplorerTrait
 				'SET NULL' => K::FOREIGN_KEY_ACTION_SET_NULL
 			];
 		$platform = $connection->getPlatform();
-		$sql = sprintf(
-			"SELECT
-					update_rule,
-					delete_rule
-				FROM information_schema.referential_constraints
-					WHERE constraint_schema=%s
-					AND constraint_name=%s", $platform->quoteStringValue($namespace),
-			$platform->quoteStringValue($foreignKey->getName()));
 
-		$rules = $connection->executeStatement($sql);
+		/**
+		 *
+		 * @var SelectQuery $query
+		 */
+		$query = $platform->newStatement(K::QUERY_SELECT);
+		$query->columns('update_rule', 'delete_rule')
+			->from('information_schema.referential_constraints')
+			->where([
+			'constraint_schema' => new Data($namespace)
+		], [
+			'constraint_name' => new Data($foreignKey->getName())
+		]);
+
+		$env = new Environment($connection);
+		$rules = $env->executeStatement($query);
+
 		if (($rules = $rules->current()))
 		{
 			if ($action = Container::keyValue($actionMap,

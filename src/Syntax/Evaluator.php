@@ -348,25 +348,28 @@ class Evaluator
 	 */
 	private function evaluatePolishNotationElement($key, $operands)
 	{
-		$key = \trim($key);
+		$key = strtolower(\trim($key));
 		$toggleState = true;
 		$length = \strlen($key);
+		$shortKey = $key;
 		if (\strpos($key, 'not ') === 0)
 		{
 			$toggleState = false;
-			$key = \ltrim(\substr($key, 3));
+			$shortKey = \ltrim(\substr($key, 3));
 		}
 		elseif (\strpos($key, '!') === 0)
 		{
 			$toggleState = false;
-			$key = \substr($key, 1);
+			$shortKey = \substr($key, 1);
 		}
+
+		$shortKeyLength = \strlen($shortKey);
 
 		/*
 		 *  Automatically fix missing  [] around polish operation operands
 		 */
-		if (\count($operands) == 1 && Container::isAssociative(
-			$operands))
+		if (\count($operands) == 1 &&
+			Container::isAssociative($operands))
 			$operands = [
 				$operands
 			];
@@ -377,24 +380,44 @@ class Evaluator
 			}, $operands);
 
 		// Function
-		if (\strpos($key, '()') === ($length - 2))
+		if (\strpos($shortKey, '()') === ($shortKeyLength - 2))
 		{
-			if (\strpos($key, '@') === 0)
-				return new MetaFunctionCall(
-					substr($key, 1, $length - 3), $operands);
+			$f = null;
+			if (\strpos($shortKey, '@') === 0)
+				$f = new MetaFunctionCall(
+					substr($shortKey, 1, $shortKeyLength - 3), $operands);
 
-			return new FunctionCall(substr($key, 0, $length - 2),
-				$operands);
+			$f = new FunctionCall(
+				substr($shortKey, 0, $shortKeyLength - 2), $operands);
+
+			if (!$toggleState)
+				return new UnaryOperation(UnaryOperation::LOGICAL_NOT,
+					$f);
+			return $f;
 		}
 
 		$c = \count($operands);
 		$o = false;
 
 		if (Container::keyExists($this->operators, $c))
+		{
 			$o = Container::keyValue($this->operators[$c], $key, false);
+			if ($o)
+				$toggleState = true;
+			else
+				$o = Container::keyValue($this->operators[$c], $shortKey,
+					false);
+		}
 
 		if (!($o instanceof PolishNotationOperation))
+		{
 			$o = Container::keyValue($this->operators['*'], $key, false);
+			if ($o)
+				$toggleState = true;
+			else
+				$o = Container::keyValue($this->operators['*'],
+					$shortKey, false);
+		}
 
 		if (!($o instanceof PolishNotationOperation))
 			throw new EvaluatorException(

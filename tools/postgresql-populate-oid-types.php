@@ -27,6 +27,29 @@ WHERE (t.typrelid = 0 OR (SELECT c.relkind = 'c' FROM pg_catalog.pg_class c WHER
 ORDER BY 2
 EOF;
 
+$typeFlags = [
+	K::TYPE_FLAG_FRACTION_SCALE => 'K::TYPE_FLAG_FRACTION_SCALE',
+	K::TYPE_FLAG_LENGTH => 'K::TYPE_FLAG_LENGTH',
+	K::TYPE_FLAG_MANDATORY_LENGTH => 'K::TYPE_FLAG_MANDATORY_LENGTH',
+	K::TYPE_FLAG_SIGNNESS => 'K::TYPE_FLAG_SIGNNESS'
+];
+
+$dataTypes = [
+	K::DATATYPE_BINARY => 'K::DATATYPE_BINARY',
+	K::DATATYPE_BOOLEAN => 'K::DATATYPE_BOOLEAN',
+	K::DATATYPE_DATE => 'K::DATATYPE_DATE',
+	K::DATATYPE_DATETIME => 'K::DATATYPE_DATETIME',
+	K::DATATYPE_FLOAT => 'K::DATATYPE_FLOAT',
+	K::DATATYPE_INTEGER => 'K::DATATYPE_INTEGER',
+	K::DATATYPE_NULL => 'K::DATATYPE_NULL',
+	K::DATATYPE_NUMBER => 'K::DATATYPE_NUMBER',
+	K::DATATYPE_STRING => 'K::DATATYPE_STRING',
+	K::DATATYPE_TIME => 'K::DATATYPE_TIME',
+	K::DATATYPE_TIMESTAMP => 'K::DATATYPE_TIMESTAMP',
+	K::DATATYPE_TIMEZONE => 'K::DATATYPE_TIMEZONE',
+	K::DATATYPE_UNDEFINED => 'K::DATATYPE_UNDEFINED'
+];
+
 $typePropertiesMap = [
 	// Range tool limited
 	// 'abstime' => [
@@ -40,7 +63,7 @@ $typePropertiesMap = [
 	],
 	'bit varying' => [
 		K::TYPE_DATA_TYPE => K::DATATYPE_STRING,
-		K::TYPE_FLAGS => K::TYPE_FLAGS_DEFAULT | K::TYPE_FLAG_LENGTH,
+		K::TYPE_FLAGS => K::TYPE_FLAG_LENGTH,
 		K::TYPE_MEDIA_TYPE => '	K::MEDIA_TYPE_BIT_STRING'
 	],
 	// Require a strict glyph count property / auto pad
@@ -56,7 +79,7 @@ $typePropertiesMap = [
 	// 'character'
 	'character varying' => [
 		K::TYPE_DATA_TYPE => K::DATATYPE_STRING,
-		K::TYPE_FLAGS => K::TYPE_FLAGS_DEFAULT | K::TYPE_FLAG_LENGTH
+		K::TYPE_FLAGS => K::TYPE_FLAG_LENGTH
 	],
 	// 'cstring' => [
 	// K::TYPE_DATA_TYPE => K::DATATYPE_STRING
@@ -86,8 +109,7 @@ $typePropertiesMap = [
 	// ],
 	'numeric' => [
 		K::TYPE_DATA_TYPE => K::DATATYPE_NUMBER,
-		K::TYPE_FLAGS => K::TYPE_FLAGS_DEFAULT |
-		K::TYPE_FLAG_FRACTION_SCALE
+		K::TYPE_FLAGS => K::TYPE_FLAG_FRACTION_SCALE
 	],
 
 	// 'oid' => [
@@ -168,7 +190,8 @@ $file = file_get_contents($filename);
 
 $typePropertiesMapContent = Container::implode($typePropertiesMap,
 	',' . PHP_EOL,
-	function ($name, $properties) use ($typeNameOidMap, $oidDescriptions) {
+	function ($name, $properties) use ($typeNameOidMap, $oidDescriptions,
+	$typeFlags, $dataTypes) {
 		$cleanName = \str_replace('"', '', $name);
 		if (!\array_key_exists($name, $typeNameOidMap))
 			throw new \InvalidArgumentException(
@@ -181,7 +204,40 @@ $typePropertiesMapContent = Container::implode($typePropertiesMap,
 		$s .= "'" . K::TYPE_NAME . "' => '" . $cleanName . "'," . PHP_EOL;
 		foreach ($properties as $k => $v)
 		{
-			$s .= "'" . $k . "' => " . $v . ', ' . PHP_EOL;
+			if ($k == K::TYPE_DATA_TYPE)
+			{
+				$k = 'K::TYPE_DATA_TYPE';
+				if (Container::keyExists($dataTypes, $v))
+					$v = Container::keyValue($dataTypes, $v, $v);
+				else
+				{
+					$a = [];
+					foreach ($dataTypes as $flag => $constant)
+					{
+						if (($v & $flag) == $flag)
+							$a[] = $constant;
+					}
+
+					$v = '(' . \implode(' | ', $a) . ')';
+				}
+			}
+			elseif ($k == K::TYPE_FLAGS)
+			{
+				$k = 'K::TYPE_FLAGS';
+				$a = [];
+				foreach ($typeFlags as $flag => $constant)
+				{
+					if (($v & $flag) == $flag)
+						$a[] = $constant;
+				}
+				if (\count($a) == 0)
+					continue;
+
+				$v = '(' . \implode(' | ', $a) . ')';
+			}
+			else
+				$k = "'" . $k . "'";
+			$s .= $k . " => " . $v . ', ' . PHP_EOL;
 		}
 		$s .= '])';
 		return $s;
