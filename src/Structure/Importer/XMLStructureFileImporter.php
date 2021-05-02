@@ -13,7 +13,7 @@ use NoreSources\Expression\ExpressionInterface;
 use NoreSources\SQL\Structure\ColumnStructure;
 use NoreSources\SQL\Structure\DatasourceStructure;
 use NoreSources\SQL\Structure\ForeignKeyTableConstraint;
-use NoreSources\SQL\Structure\IndexTableConstraint;
+use NoreSources\SQL\Structure\IndexStructure;
 use NoreSources\SQL\Structure\NamespaceStructure;
 use NoreSources\SQL\Structure\PrimaryKeyTableConstraint;
 use NoreSources\SQL\Structure\StructureElementInterface;
@@ -21,6 +21,7 @@ use NoreSources\SQL\Structure\StructureException;
 use NoreSources\SQL\Structure\StructureResolver;
 use NoreSources\SQL\Structure\StructureSerializationException;
 use NoreSources\SQL\Structure\TableStructure;
+use NoreSources\SQL\Structure\UniqueTableConstraint;
 use NoreSources\SQL\Structure\XMLStructureFileConstants as K;
 use NoreSources\SQL\Structure\Traits\XMLStructureFileTrait;
 use NoreSources\SQL\Syntax\Data;
@@ -218,9 +219,8 @@ class XMLStructureFileImporter implements
 			$context->namespaceURI, 'unique');
 		foreach ($uniqueNodes as $uniqueNode)
 		{
-			$constraint = new IndexTableConstraint();
+			$constraint = new UniqueTableConstraint();
 			$constraint->setName($pkNode->getAttribute('name'));
-			$constraint->unique(true);
 
 			$columnNodes = $context->xpath->query($columnNodeName,
 				$uniqueNode);
@@ -487,7 +487,7 @@ class XMLStructureFileImporter implements
 		} // default node
 	}
 
-	private static function importPostprocessIndexes(
+	private static function importPostprocessIndex(
 		XMLStructureFileImporterContext $context, \DOMElement $indexNode,
 		StructureElementInterface $parent)
 	{
@@ -539,18 +539,20 @@ class XMLStructureFileImporter implements
 		if ($indexNode->hasAttribute('name'))
 			$name = $indexNode->getAttribute('name');
 
-		$index = new IndexTableConstraint($columns, $name);
+		$index = new IndexStructure($name, $table);
+		foreach ($columns as $column)
+			$index->columns($column);
 
 		if ($indexNode->hasAttribute('unique') &&
 			$indexNode->getAttribute('unique') == 'yes')
-			$index->unique(true);
+			$index->flags($index->getIndexFlags() | K::INDEX_UNIQUE);
 
 		/**
 		 *
-		 * @todo constraint expression
+		 * @todo Index constraint expression
 		 */
 
-		$table->addConstraint($index);
+		$table->appendElement($index);
 	}
 
 	private static function importPostprocess(
@@ -564,7 +566,7 @@ class XMLStructureFileImporter implements
 
 		foreach ($context->indexes as $entry)
 		{
-			self::importPostprocessIndexes($context, $entry['node'],
+			self::importPostprocessIndex($context, $entry['node'],
 				$entry['parent']);
 		}
 

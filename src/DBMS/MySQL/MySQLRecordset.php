@@ -17,7 +17,7 @@ use NoreSources\SQL\Structure\ArrayColumnDescription;
 
 /**
  *
- * @todo Seekable
+ * @todo Seekable MySQL recordset
  *
  */
 class MySQLRecordset extends Recordset implements \Countable,

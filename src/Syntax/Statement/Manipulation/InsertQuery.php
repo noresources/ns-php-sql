@@ -137,7 +137,7 @@ class InsertQuery implements TokenizableStatementInterface, \ArrayAccess
 
 		if ($c == 0)
 		{
-			foreach ($tableStructure as $name => $column)
+			foreach ($tableStructure->getColumns() as $name => $column)
 			{
 				/**
 				 *

@@ -14,10 +14,15 @@ use NoreSources\SemanticVersion;
 use NoreSources\TypeDescription;
 use NoreSources\SQL\Structure\ColumnStructure;
 use NoreSources\SQL\Structure\DatasourceStructure;
+use NoreSources\SQL\Structure\ForeignKeyTableConstraint;
+use NoreSources\SQL\Structure\IndexStructure;
 use NoreSources\SQL\Structure\NamespaceStructure;
+use NoreSources\SQL\Structure\PrimaryKeyTableConstraint;
 use NoreSources\SQL\Structure\StructureElementInterface;
 use NoreSources\SQL\Structure\StructureSerializationException;
 use NoreSources\SQL\Structure\TableStructure;
+use NoreSources\SQL\Structure\UniqueTableConstraint;
+use NoreSources\SQL\Structure\ViewStructure;
 use NoreSources\SQL\Structure\XMLStructureFileConstants as K;
 
 /**
@@ -59,18 +64,24 @@ trait XMLStructureFileTrait
 		if ($element instanceof StructureElementInterface)
 			$element = get_class($element);
 
-		if ($element == DatasourceStructure::class)
-			return 'datasource';
-		elseif ($element == NamespaceStructure::class)
-		{
-			if ($schemaVersion->getIntegerValue() < 20000)
-				return 'database';
-			return 'namespace';
-		}
-		elseif ($element == TableStructure::class)
-			return 'table';
-		elseif ($element == ColumnStructure::class)
-			return 'column';
+		$map = [
+			DatasourceStructure::class => 'datasource',
+			NamespaceStructure::class => 'namespace',
+			TableStructure::class => 'table',
+			ViewStructure::class => 'view',
+			IndexStructure::class => 'index',
+			ColumnStructure::class => 'column',
+			PrimaryKeyTableConstraint::class => 'primarykey',
+			ForeignKeyTableConstraint::class => 'foreignkey',
+			UniqueTableConstraint::class => 'unique'
+		];
+
+		if ($schemaVersion->getIntegerValue() < 20000)
+			$map[NamespaceStructure::class] = 'database';
+
+		$name = Container::keyValue($map, $element);
+		if ($name)
+			return $name;
 
 		throw new \InvalidArgumentException(
 			TypeDescription::getName($element) . ' is not a ' .

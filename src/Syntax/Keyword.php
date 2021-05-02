@@ -9,10 +9,14 @@
  */
 namespace NoreSources\SQL\Syntax;
 
+use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\DataTypeProviderInterface;
+
 /**
  * SQL language keyword which may have different translation in DBMS dialect
  */
-class Keyword implements TokenizableExpressionInterface
+class Keyword implements TokenizableExpressionInterface,
+	DataTypeProviderInterface
 {
 
 	/**
@@ -32,9 +36,34 @@ class Keyword implements TokenizableExpressionInterface
 		$this->keyword = $keyword;
 	}
 
+	/**
+	 *
+	 * @return number Keyword constant value
+	 */
+	public function getKeyword()
+	{
+		return $this->keyword;
+	}
+
 	public function tokenize(TokenStream $stream,
 		TokenStreamContextInterface $context)
 	{
 		return $stream->keyword($this->keyword);
+	}
+
+	public function getDataType()
+	{
+		switch ($this->keyword)
+		{
+			case K::KEYWORD_TRUE:
+			case K::KEYWORD_FALSE:
+				return K::DATATYPE_BOOLEAN;
+			case K::KEYWORD_NULL:
+				return K::DATATYPE_NULL;
+			case K::KEYWORD_CURRENT_TIMESTAMP:
+				return K::DATATYPE_TIMESTAMP;
+		}
+
+		return K::DATATYPE_UNDEFINED;
 	}
 }

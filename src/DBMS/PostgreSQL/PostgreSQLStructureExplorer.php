@@ -19,7 +19,6 @@ use NoreSources\SQL\DBMS\Traits\ConnectionProviderTrait;
 use NoreSources\SQL\Result\Recordset;
 use NoreSources\SQL\Structure\ArrayColumnDescription;
 use NoreSources\SQL\Structure\ForeignKeyTableConstraint;
-use NoreSources\SQL\Structure\IndexTableConstraint;
 use NoreSources\SQL\Structure\Identifier;
 use NoreSources\SQL\Syntax\Data;
 
@@ -51,8 +50,7 @@ class PostgreSQLStructureExplorer extends AbstractStructureExplorer implements
 
 	public function getTableColumnNames($tableIdentifier)
 	{
-		$tableIdentifier = Identifier::make(
-			$tableIdentifier);
+		$tableIdentifier = Identifier::make($tableIdentifier);
 		$tableName = $tableIdentifier->getLocalName();
 		$namespace = $tableIdentifier->getParentIdentifier();
 		if (empty($namespace->getPath()))
@@ -71,8 +69,7 @@ class PostgreSQLStructureExplorer extends AbstractStructureExplorer implements
 
 	public function getTableColumn($tableIdentifier, $columnName)
 	{
-		$tableIdentifier = Identifier::make(
-			$tableIdentifier);
+		$tableIdentifier = Identifier::make($tableIdentifier);
 		$tableName = $tableIdentifier->getLocalName();
 		$namespace = $tableIdentifier->getParentIdentifier();
 		if (empty($namespace->getPath()))
@@ -88,25 +85,24 @@ class PostgreSQLStructureExplorer extends AbstractStructureExplorer implements
 
 	public function getTablePrimaryKeyConstraint($tableIdentifier)
 	{
-		$tableIdentifier = Identifier::make(
-			$tableIdentifier);
+		$tableIdentifier = Identifier::make($tableIdentifier);
 		$tableName = $tableIdentifier->getLocalName();
 		$namespace = $tableIdentifier->getParentIdentifier();
 		if (empty($namespace->getPath()))
 			$namespace = 'public';
 
-		return $this->getInformationSchemaTablePrimaryKeyConstraint(
-			$this->getConnection(),
-			Identifier::make([
-				$namespace,
-				$tableName
-			]));
+		return Container::firstValue(
+			$this->getInformationSchemaTableKeyConstraints(
+				$this->getConnection(),
+				Identifier::make([
+					$namespace,
+					$tableName
+				]), 'PRIMARY KEY'));
 	}
 
 	public function getTableForeignKeyConstraints($tableIdentifier)
 	{
-		$tableIdentifier = Identifier::make(
-			$tableIdentifier);
+		$tableIdentifier = Identifier::make($tableIdentifier);
 		$tableName = $tableIdentifier->getLocalName();
 		$namespace = $tableIdentifier->getParentIdentifier();
 		if (empty($namespace->getPath()))
@@ -145,11 +141,10 @@ class PostgreSQLStructureExplorer extends AbstractStructureExplorer implements
 
 			$ref = Container::firstValue($columns);
 			$fk = new ForeignKeyTableConstraint(
-				Identifier::make(
-					[
-						$ref['namespace'],
-						$ref['table']
-					]));
+				Identifier::make([
+					$ref['namespace'],
+					$ref['table']
+				]));
 			$fk->setName($name);
 			foreach ($columns as $column => $reference)
 			{
@@ -167,8 +162,7 @@ class PostgreSQLStructureExplorer extends AbstractStructureExplorer implements
 
 	public function getTableIndexNames($tableIdentifier)
 	{
-		$tableIdentifier = Identifier::make(
-			$tableIdentifier);
+		$tableIdentifier = Identifier::make($tableIdentifier);
 		$tableName = $tableIdentifier->getLocalName();
 		$namespace = $tableIdentifier->getParentIdentifier();
 		if (empty($namespace->getPath()))
@@ -195,60 +189,20 @@ class PostgreSQLStructureExplorer extends AbstractStructureExplorer implements
 			$this->getConnection()->executeStatement($sql));
 	}
 
-	public function getTableIndexes($tableIdentifier)
+	public function getTableUniqueConstraints($tableIdentifier)
 	{
-		$tableIdentifier = Identifier::make(
-			$tableIdentifier);
+		$tableIdentifier = Identifier::make($tableIdentifier);
 		$tableName = $tableIdentifier->getLocalName();
 		$namespace = $tableIdentifier->getParentIdentifier();
 		if (empty($namespace->getPath()))
 			$namespace = 'public';
 
-		$tableOID = $this->getCatalogClassTableId($namespace, $tableName);
-
-		$sql = sprintf(
-			'SELECT
-				c.oid,
-				c.relname as name,
-				i.indisunique as unique
-			FROM
-				pg_catalog.pg_index i
-				INNER JOIN pg_catalog.pg_class c
-					ON i.indexrelid = c.oid
-			WHERE i.indrelid=%d
-				AND NOT (i.indisprimary)
-				AND i.indisvalid
-', $tableOID);
-
-		$recordset = $this->getConnection()->executeStatement($sql);
-		$recordset->setFlags(
-			K::RECORDSET_FETCH_ASSOCIATIVE |
-			K::RECORDSET_FETCH_UBSERIALIZE);
-
-		$indexes = [];
-		foreach ($recordset as $row)
-		{
-			$index = new IndexTableConstraint();
-			$index->setName($row['name']);
-			$index->unique($row['unique'] == 't');
-
-			$sql = sprintf(
-				'SELECT attname as name
-					FROM pg_catalog.pg_attribute
-					WHERE attrelid=%d
-					', \intval($row['oid']));
-
-			$r = $this->getConnection()->executeStatement($sql);
-			foreach ($r as $crow)
-			{
-				$name = $crow['name'];
-				$index->append($name);
-			}
-
-			$indexes[] = $index;
-		}
-
-		return $indexes;
+		return $this->getInformationSchemaTableKeyConstraints(
+			$this->getConnection(),
+			Identifier::make([
+				$namespace,
+				$tableName
+			]), 'UNIQUE');
 	}
 
 	public function getViewNames($parentIdentifier = null)
@@ -325,8 +279,7 @@ class PostgreSQLStructureExplorer extends AbstractStructureExplorer implements
 		$catalogNamespaceTable = 'pg_catalog.pg_namespace')
 	{
 		$platform = $this->getConnection()->getPlatform();
-		$catalogClassTable = Identifier::make(
-			$catalogClassTable);
+		$catalogClassTable = Identifier::make($catalogClassTable);
 
 		$catalogNamespaceTable = Identifier::make(
 			$catalogNamespaceTable);

@@ -1076,11 +1076,17 @@ class Constants
 	 */
 	public static function dataTypeName($dataType)
 	{
+		if (($dataType & self::DATATYPE_NULL) &&
+			(($dataType & self::DATATYPE_NULL) != self::DATATYPE_NULL))
+			$dataType &= ~self::DATATYPE_NULL;
+
+		$dataType &= ~self::DATATYPE_NULL;
 		static $names = [
 			self::DATATYPE_BINARY => 'binary',
 			self::DATATYPE_BOOLEAN => 'boolean',
 			self::DATATYPE_DATE => 'date',
 			self::DATATYPE_TIME => 'time',
+			(self::DATATYPE_TIME | self::DATATYPE_TIMEZONE) => 'time+tz',
 			self::DATATYPE_DATETIME => 'datetime',
 			self::DATATYPE_TIMESTAMP => 'timestamp',
 			self::DATATYPE_FLOAT => 'float',

@@ -7,8 +7,8 @@
  */
 namespace NoreSources\SQL\DBMS;
 
-use NoreSources\SQL\Structure\PrimaryKeyTableConstraint;
 use NoreSources\SQL\Structure\Identifier;
+use NoreSources\SQL\Structure\PrimaryKeyTableConstraint;
 use NoreSources\SQL\Structure\StructureProviderInterface;
 
 interface StructureExplorerInterface extends StructureProviderInterface
@@ -46,14 +46,22 @@ interface StructureExplorerInterface extends StructureProviderInterface
 	/**
 	 *
 	 * @param Identifier $tableIdentifier
-	 * @return string[]
+	 *        	Table identifier
+	 * @return array<int, UniqueTableConstraint> List of UNIQUE constraints
+	 */
+	function getTableUniqueConstraints($tableIdentifier);
+
+	/**
+	 *
+	 * @param Identifier $tableIdentifier
+	 * @return string[] Names of all table indexes which are not table column constraints
 	 */
 	function getTableIndexNames($tableIdentifier);
 
 	/**
 	 *
 	 * @param Identifier $tableIdentifier
-	 * @return IndexTableConstraintInterface[] List of table indexes (excluding primary key)
+	 * @return IndexStructure[] List of table indexes (excluding table column constraints)
 	 */
 	function getTableIndexes($tableIdentifier);
 

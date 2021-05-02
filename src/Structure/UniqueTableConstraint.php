@@ -14,22 +14,19 @@ use NoreSources\SQL\Structure\Traits\StructureElementTrait;
 use NoreSources\SQL\Syntax\Statement\Traits\WhereConstraintTrait;
 
 /**
- * Unique and/or partial index
+ * UNIQUE key column constraints
  */
-class IndexTableConstraint implements IndexTableConstraintInterface
+class UniqueTableConstraint implements KeyTableConstraintInterface
 {
 
 	use StructureElementTrait;
 	use ColumnListTrait;
 	use WhereConstraintTrait;
 
-	const UNIQUE = K::INDEX_UNIQUE;
-
 	public function getConstraintFlags()
 	{
-		$flags = K::CONSTRAINT_COLUMN_KEY;
-		if ($this->getIndexFlags() & K::INDEX_UNIQUE)
-			$flags |= K::CONSTRAINT_COLUMN_UNIQUE;
+		$flags = K::CONSTRAINT_COLUMN_KEY | K::CONSTRAINT_COLUMN_UNIQUE;
+
 		if (isset($this->whereConstraints) &&
 			Container::count($this->whereConstraints))
 			$flags |= K::CONSTRAINT_COLUMN_PARTIAL;
@@ -38,20 +35,12 @@ class IndexTableConstraint implements IndexTableConstraintInterface
 
 	public function getIndexFlags()
 	{
-		return $this->indexFlags;
+		return K::INDEX_UNIQUE;
 	}
 
 	public function getConstraintExpression()
 	{
 		return $this->whereConstraints;
-	}
-
-	public function unique($value)
-	{
-		$this->indexFlags &= ~K::INDEX_UNIQUE;
-		if ($value)
-			$this->indexFlags |= K::INDEX_UNIQUE;
-		return $this;
 	}
 
 	/**
@@ -66,13 +55,6 @@ class IndexTableConstraint implements IndexTableConstraintInterface
 		$this->initializeStructureElement($name);
 		$this->columnNameList = $columns;
 		$this->constraintName = $name;
-		$this->indexFlags = 0;
 	}
-
-	/**
-	 *
-	 * @var integer
-	 */
-	private $indexFlags;
 }
 

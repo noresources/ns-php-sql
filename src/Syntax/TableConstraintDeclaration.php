@@ -5,7 +5,7 @@ use NoreSources\Container;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Structure\CheckTableConstraint;
 use NoreSources\SQL\Structure\ForeignKeyTableConstraint;
-use NoreSources\SQL\Structure\IndexTableConstraintInterface;
+use NoreSources\SQL\Structure\KeyTableConstraintInterface;
 use NoreSources\SQL\Structure\PrimaryKeyTableConstraint;
 use NoreSources\SQL\Structure\Identifier;
 use NoreSources\SQL\Structure\TableConstraint;
@@ -68,8 +68,8 @@ class TableConstraintDeclaration implements
 
 		$c = $stream->count();
 
-		if ($this->constraint instanceof IndexTableConstraintInterface)
-			$this->tokenizeIndexTableConstraint($stream, $context);
+		if ($this->constraint instanceof KeyTableConstraintInterface)
+			$this->tokenizeKeyTableConstraint($stream, $context);
 		elseif ($this->constraint instanceof ForeignKeyTableConstraint)
 			$this->tokenizeForeignKey($stream, $context);
 		elseif ($this->constraint instanceof CheckTableConstraint)
@@ -110,10 +110,10 @@ class TableConstraintDeclaration implements
 	 * @param TokenStreamContextInterface $context
 	 * @return TableConstraint
 	 */
-	public function tokenizeIndexTableConstraint(TokenStream $stream,
+	public function tokenizeKeyTableConstraint(TokenStream $stream,
 		TokenStreamContextInterface $context)
 	{
-		$stream->keyword($this->getIndexTableConstraintNameKeyword());
+		$stream->keyword($this->getKeyTableConstraintNameKeyword());
 
 		$stream->space()->text('(');
 		$i = 0;
@@ -222,7 +222,7 @@ class TableConstraintDeclaration implements
 		return $stream;
 	}
 
-	protected function getIndexTableConstraintNameKeyword()
+	protected function getKeyTableConstraintNameKeyword()
 	{
 		if ($this->constraint instanceof PrimaryKeyTableConstraint)
 			return 'primary key';

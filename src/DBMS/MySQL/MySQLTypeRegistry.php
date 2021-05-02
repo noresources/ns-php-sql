@@ -193,11 +193,6 @@ class MySQLTypeRegistry extends TypeRegistry
 					K::TYPE_DATA_TYPE => K::DATATYPE_INTEGER,
 					K::TYPE_MAX_LENGTH => 2
 				],
-				/**
-				 *
-				 * @todo JSON
-				 * @see https://mariadb.com/kb/en/json-data-type/
-				 */
 				'json' => [
 					K::TYPE_DATA_TYPE => K::DATATYPE_STRING,
 					K::TYPE_MEDIA_TYPE => 'application/json'
@@ -373,11 +368,6 @@ class MySQLTypeRegistry extends TypeRegistry
 				'timestamp' => [
 					K::TYPE_DATA_TYPE => K::DATATYPE_TIMESTAMP
 				]
-			/**
-			 *
-			 * @todo JSON
-			 * @see https://mariadb.com/kb/en/json-data-type/
-			 */
 			]);
 
 		$alias = [

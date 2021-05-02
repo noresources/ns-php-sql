@@ -16,7 +16,7 @@ class SQLiteTableConstraintDeclaration extends TableConstraintDeclaration
 	 * and multi-column primary key with one auto increment column is translated to a UNIQUE
 	 * constraint.
 	 */
-	protected function getIndexTableConstraintNameKeyword()
+	protected function getKeyTableConstraintNameKeyword()
 	{
 		$constraint = $this->getConstraint();
 
@@ -36,6 +36,6 @@ class SQLiteTableConstraintDeclaration extends TableConstraintDeclaration
 			}
 		}
 
-		return parent::getIndexTableConstraintNameKeyword();
+		return parent::getKeyTableConstraintNameKeyword();
 	}
 }

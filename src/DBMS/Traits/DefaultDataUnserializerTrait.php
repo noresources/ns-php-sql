@@ -122,7 +122,7 @@ trait DefaultDataUnserializerTrait
 
 		/**
 		 *
-		 * @todo wait support in StructuredText
+		 * @todo Wait XML support in ns-php-core StructuredText
 		 */
 		if ($syntax == 'xml' && \class_exists('\DOMDocument'))
 		{

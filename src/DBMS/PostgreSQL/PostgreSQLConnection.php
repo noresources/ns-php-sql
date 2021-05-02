@@ -257,7 +257,7 @@ class PostgreSQLConnection implements ConnectionInterface,
 			case PGSQL_COPY_OUT:
 				/**
 				 *
-				 * @todo
+				 * @todo Query result for COPY statements
 				 */
 				return true;
 			break;

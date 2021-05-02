@@ -10,7 +10,7 @@ namespace NoreSources\SQL\Syntax\Statement\Structure;
 use NoreSources\TypeDescription;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\TypeInterface;
-use NoreSources\SQL\Structure\IndexTableConstraintInterface;
+use NoreSources\SQL\Structure\KeyTableConstraintInterface;
 use NoreSources\SQL\Structure\StructureProviderInterface;
 use NoreSources\SQL\Structure\TableConstraintInterface;
 use NoreSources\SQL\Structure\TableStructure;
@@ -174,19 +174,31 @@ class CreateTableQuery implements TokenizableStatementInterface,
 		// Columns
 
 		$c = 0;
-		foreach ($this->structure as $column)
+		foreach ($this->structure->getColumns() as $column)
 		{
 			if ($c++ > 0)
 				$stream->text(',')->space();
 
-			$type = $platform->getColumnType($column,
-				$column->getConstraintFlags());
+			$constraintFlags = $this->structure->getColumnConstraintFlags(
+				$column->getName());
+
+			$type = $platform->getColumnType($column, $constraintFlags);
 
 			if (!($type instanceof TypeInterface))
+			{
+				$dataType = K::DATATYPE_UNDEFINED;
+				if ($column->has(K::COLUMN_DATA_TYPE))
+				{
+					$dataType = $column->get(K::COLUMN_DATA_TYPE);
+				}
+				$dataType = K::dataTypeName($dataType);
+
 				throw new StatementException($this,
 					'Unable to find a ' .
 					TypeDescription::getLocalName($platform) .
-					' type for column "' . $column->getName() . '"');
+					' type for column "' . $column->getName() . '" (' .
+					$dataType . ')');
+			}
 
 			$declaration = $platform->newExpression(
 				ColumnDeclaration::class, $column, $type);
@@ -221,7 +233,7 @@ class CreateTableQuery implements TokenizableStatementInterface,
 	protected function acceptTableConstraint(
 		TableConstraintInterface $constraint)
 	{
-		if ($constraint instanceof IndexTableConstraintInterface)
+		if ($constraint instanceof KeyTableConstraintInterface)
 		{
 			return (($constraint->getIndexFlags() & K::INDEX_UNIQUE) ==
 				K::INDEX_UNIQUE);

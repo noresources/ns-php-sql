@@ -39,7 +39,7 @@ class TypeRegistry implements \ArrayAccess, AssetMapInterface
 
 			$scores[$typeKey] = 0;
 
-			$typeFlags = self::PROPERTY_FLAGS_DEFAULT;
+			$typeFlags = 0;
 			if ($type->has(K::TYPE_FLAGS))
 				$typeFlags = $type->get(K::TYPE_FLAGS);
 
@@ -338,13 +338,6 @@ class TypeRegistry implements \ArrayAccess, AssetMapInterface
 	{
 		$this->map->offsetSet($alias, $this->get($target));
 	}
-
-	/**
-	 *
-	 * @deprecated
-	 * @var unknown
-	 */
-	const PROPERTY_FLAGS_DEFAULT = 0;
 
 	const SCORE_MULTIPLIER_DATA_TYPE = 100;
 

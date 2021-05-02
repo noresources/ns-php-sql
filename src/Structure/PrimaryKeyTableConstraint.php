@@ -15,7 +15,7 @@ use NoreSources\SQL\Structure\Traits\StructureElementTrait;
  * Primary key table column constraint
  */
 class PrimaryKeyTableConstraint implements
-	IndexTableConstraintInterface
+	KeyTableConstraintInterface
 {
 
 	use StructureElementTrait;

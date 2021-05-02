@@ -467,7 +467,7 @@ class SelectQuery implements TokenizableStatementInterface
 			if ($targetStructure instanceof StructureElementContainerInterface)
 			{
 				$columnIndex = 0;
-				foreach ($targetStructure as $name => $column)
+				foreach ($targetStructure->getColumns() as $name => $column)
 				{
 					$context->setResultColumn($columnIndex, $column);
 					$columnIndex++;

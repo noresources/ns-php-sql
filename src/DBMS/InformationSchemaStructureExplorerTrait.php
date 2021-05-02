@@ -14,7 +14,9 @@ use NoreSources\SQL\Environment;
 use NoreSources\SQL\Structure\ArrayColumnDescription;
 use NoreSources\SQL\Structure\ForeignKeyTableConstraint;
 use NoreSources\SQL\Structure\Identifier;
+use NoreSources\SQL\Structure\KeyTableConstraintInterface;
 use NoreSources\SQL\Structure\PrimaryKeyTableConstraint;
+use NoreSources\SQL\Structure\UniqueTableConstraint;
 use NoreSources\SQL\Syntax\Data;
 use NoreSources\SQL\Syntax\Statement\Query\SelectQuery;
 
@@ -201,9 +203,18 @@ trait InformationSchemaStructureExplorerTrait
 			$dataType);
 	}
 
-	public function getInformationSchemaTablePrimaryKeyConstraint(
+	/**
+	 *
+	 * @param ConnectionInterface $connection
+	 * @param Identifier $qualifiedTableIdentifier
+	 * @param string $type
+	 *        	UNIQUE or PRIMARY KEY
+	 * @return \NoreSources\SQL\Structure\KeyTableConstraintInterface[]
+	 */
+	public function getInformationSchemaTableKeyConstraints(
 		ConnectionInterface $connection,
-		Identifier $qualifiedTableIdentifier)
+		Identifier $qualifiedTableIdentifier, $type = null,
+		$asRecordset = false)
 	{
 		$tableName = $qualifiedTableIdentifier->getLocalName();
 		$namespace = $qualifiedTableIdentifier->getParentIdentifier();
@@ -217,6 +228,8 @@ trait InformationSchemaStructureExplorerTrait
 		$query->columns([
 			'tc.constraint_name' => 'name'
 		], [
+			'tc.constraint_type' => 'type'
+		], [
 			'kcu.column_name' => 'column'
 		])
 			->from('information_schema.table_constraints', 'tc')
@@ -229,37 +242,68 @@ trait InformationSchemaStructureExplorerTrait
 				'tc.table_schema' => 'kcu.table_schema'
 			])
 			->where([
-			'tc.constraint_type' => new Data('PRIMARY KEY')
-		], [
 			'tc.table_schema' => new Data($namespace)
 		], [
 			'tc.table_name' => new Data($tableName)
-		]);
+		])
+			->orderBy('name')
+			->orderBy('kcu.ordinal_position');
+
+		if (isset($type))
+		{
+			$query->where([
+				'tc.constraint_type' => new Data($type)
+			]);
+		}
+		else
+			$query->where(
+				[
+					'in' => [
+						'tc.constraint_type',
+						[
+							new Data('UNIQUE'),
+							new Data('PRIMARY KEY')
+						]
+					]
+				]);
 
 		$env = new Environment($connection);
 		$recordset = $env->executeStatement($query);
+
+		if ($asRecordset)
+			return $recordset;
 
 		$recordset->setFlags(
 			K::RECORDSET_FETCH_ASSOCIATIVE |
 			K::RECORDSET_FETCH_UBSERIALIZE);
 
-		$primaryKey = null;
+		/**
+		 *
+		 * @var KeyTableConstraintInterface
+		 */
+		$key = null;
+		$keys = [];
 
 		foreach ($recordset as $row)
 		{
 			$name = $row['name'];
 			$column = $row['column'];
 
-			if (!isset($primaryKey))
+			if (!isset($key) || ($key->getName() != $name))
 			{
-				$primaryKey = new PrimaryKeyTableConstraint();
-				$primaryKey->setName($name);
+				$type = $row['type'];
+				if ($type == 'PRIMARY KEY')
+					$key = new PrimaryKeyTableConstraint();
+				else
+					$key = new UniqueTableConstraint();
+				$key->setName($name);
+				$keys[] = $key;
 			}
 
-			$primaryKey->append($column);
+			$key->append($column);
 		}
 
-		return $primaryKey;
+		return $keys;
 	}
 
 	public function getInformationSchemaViewNames(

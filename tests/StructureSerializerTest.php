@@ -11,7 +11,7 @@ use NoreSources\Container;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Structure\ColumnStructure;
 use NoreSources\SQL\Structure\DatasourceStructure;
-use NoreSources\SQL\Structure\IndexTableConstraint;
+use NoreSources\SQL\Structure\IndexStructure;
 use NoreSources\SQL\Structure\StructureElementInterface;
 use NoreSources\SQL\Structure\StructureSerializerFactory;
 use NoreSources\SQL\Structure\TableStructure;
@@ -49,20 +49,21 @@ final class StructureSerializerTest extends \PHPUnit\Framework\TestCase
 		$this->assertInstanceOf(TableStructure::class, $employees);
 
 		$constraints = $employees->getConstraints();
-		$indexConstraint = null;
+		$indexes = $employees->getChildElements(IndexStructure::class);
 
-		$this->assertCount(2, $constraints,
+		$this->assertCount(1, $constraints,
 			'Employees table constraints');
 
-		foreach ($constraints as $constraint)
+		$this->assertCount(1, $indexes);
+
+		foreach ($indexes as $index)
 		{
-			if ($constraint->getName() == 'index_employees_name')
-				$indexConstraint = $constraint;
+			if ($index->getName() == 'index_employees_name')
+				$nameIndex = $index;
 		}
 
-		$this->assertInstanceOf(IndexTableConstraint::class,
-			$indexConstraint, 'index_employees_name');
-
+		$this->assertInstanceOf(IndexStructure::class, $nameIndex,
+			'index_employees_name');
 		/**
 		 *
 		 * @var ColumnStructure $gender

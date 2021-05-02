@@ -21,12 +21,16 @@ abstract class AbstractType implements TypeInterface
 
 	public function acceptDefaultValue($withDataType = 0)
 	{
+		$acceptedDataType = 0;
 		if ($this->has(K::TYPE_DEFAULT_DATA_TYPE))
-			return (($this->get(K::TYPE_DEFAULT_DATA_TYPE) &
-				$withDataType) == $withDataType);
-		if ($this->has(K::TYPE_DATA_TYPE))
-			return ((($this->get(K::TYPE_DATA_TYPE) | K::DATATYPE_NULL) &
-				$withDataType) == $withDataType);
+			$acceptedDataType = $this->get(K::TYPE_DEFAULT_DATA_TYPE);
+		elseif ($this->has(K::TYPE_DATA_TYPE))
+			$acceptedDataType = K::DATATYPE_NULL |
+				$this->get(K::TYPE_DATA_TYPE);
+
+		if (($acceptedDataType & $withDataType) != 0)
+			return true;
+
 		return ($withDataType & K::DATATYPE_NULL) == K::DATATYPE_NULL;
 	}
 

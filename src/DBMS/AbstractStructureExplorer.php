@@ -12,8 +12,8 @@ use NoreSources\Container;
 use NoreSources\TypeDescription;
 use NoreSources\SQL\Structure\ColumnStructure;
 use NoreSources\SQL\Structure\DatasourceStructure;
-use NoreSources\SQL\Structure\NamespaceStructure;
 use NoreSources\SQL\Structure\Identifier;
+use NoreSources\SQL\Structure\NamespaceStructure;
 use NoreSources\SQL\Structure\StructureResolver;
 use NoreSources\SQL\Structure\TableStructure;
 
@@ -46,8 +46,7 @@ abstract class AbstractStructureExplorer implements
 				$table = new TableStructure($tableName, $namespace);
 				$namespace->appendElement($table);
 
-				$tableIdentifier = Identifier::make(
-					$table);
+				$tableIdentifier = Identifier::make($table);
 
 				$columns = $this->tryMethod('getTableColumnNames',
 					[
@@ -129,6 +128,11 @@ abstract class AbstractStructureExplorer implements
 	}
 
 	public function getTableForeignKeyConstraints($tableIdentifier)
+	{
+		$this->notImplemented(__METHOD__);
+	}
+
+	public function getTableUniqueConstraints($tableIdentifier)
 	{
 		$this->notImplemented(__METHOD__);
 	}

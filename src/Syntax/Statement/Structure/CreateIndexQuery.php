@@ -14,7 +14,7 @@ use NoreSources\Expression\ExpressionInterface;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Structure\Identifier;
 use NoreSources\SQL\Structure\IndexDescriptionInterface;
-use NoreSources\SQL\Structure\IndexTableConstraintInterface;
+use NoreSources\SQL\Structure\KeyTableConstraintInterface;
 use NoreSources\SQL\Structure\TableStructure;
 use NoreSources\SQL\Structure\Traits\IndexDescriptionTrait;
 use NoreSources\SQL\Syntax\TableReference;
@@ -76,7 +76,7 @@ class CreateIndexQuery implements TokenizableStatementInterface,
 					return false;
 				}));
 
-		if (!($index instanceof IndexTableConstraintInterface))
+		if (!($index instanceof KeyTableConstraintInterface))
 			throw new \InvalidArgumentException(
 				$identifier . ' index not found');
 

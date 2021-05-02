@@ -9,6 +9,7 @@ namespace NoreSources\SQL\Structure;
 
 use NoreSources\Container;
 use NoreSources\SingletonTrait;
+use NoreSources\TypeDescription;
 use NoreSources\MediaType\MediaType;
 use NoreSources\MediaType\MediaTypeFactory;
 use NoreSources\MediaType\MediaTypeInterface;
@@ -52,7 +53,9 @@ class StructureSerializerFactory
 		if (!\is_subclass_of($importer,
 			StructureFileImporterInterface::class, true))
 			throw new StructureSerializationException(
-				'No ' . StructureFileImporterInterface::class .
+				'No ' .
+				TypeDescription::getLocalName(
+					StructureFileImporterInterface::class) .
 				' found for file "' . $filename . '" (' .
 				\strval($mediaType) . ')');
 
@@ -90,7 +93,9 @@ class StructureSerializerFactory
 		if (!\is_subclass_of($exporter,
 			StructureFileExporterInterface::class, true))
 			throw new StructureSerializationException(
-				'No ' . StructureFileExporterInterface::class .
+				'No ' .
+				TypeDescription::getLocalName(
+					StructureFileExporterInterface::class) .
 				' found for file ' . $filename . '(' .
 				\strval($mediaType) . ')');
 

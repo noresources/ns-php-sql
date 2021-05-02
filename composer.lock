@@ -227,12 +227,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/noresources/ns-php-mediatype.git",
-                "reference": "b60c3759fc6fa6bc4df8b10e1a7bfae52207c406"
+                "reference": "f4f4ff05809b7772cf53daafd91ef06c4f727f74"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/noresources/ns-php-mediatype/zipball/b60c3759fc6fa6bc4df8b10e1a7bfae52207c406",
-                "reference": "b60c3759fc6fa6bc4df8b10e1a7bfae52207c406",
+                "url": "https://api.github.com/repos/noresources/ns-php-mediatype/zipball/f4f4ff05809b7772cf53daafd91ef06c4f727f74",
+                "reference": "f4f4ff05809b7772cf53daafd91ef06c4f727f74",
                 "shasum": ""
             },
             "require": {
@@ -266,16 +266,16 @@
                     "role": "lead"
                 }
             ],
-            "description": "Media Type",
+            "description": "Media Type parsing and manipulation library",
             "keywords": [
                 "mime",
                 "utility"
             ],
             "support": {
                 "issues": "https://github.com/noresources/ns-php-mediatype/issues",
-                "source": "https://github.com/noresources/ns-php-mediatype/tree/v1.2.0"
+                "source": "https://github.com/noresources/ns-php-mediatype/tree/v1.2.1"
             },
-            "time": "2020-10-08T22:37:34+00:00"
+            "time": "2021-05-04T19:01:28+00:00"
         },
         {
             "name": "psr/container",
@@ -331,12 +331,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-fig/log.git",
-                "reference": "a18c1e692e02b84abbafe4856c3cd7cc6903908c"
+                "reference": "d49695b909c3b7628b6289db5479a1c204601f11"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-fig/log/zipball/a18c1e692e02b84abbafe4856c3cd7cc6903908c",
-                "reference": "a18c1e692e02b84abbafe4856c3cd7cc6903908c",
+                "url": "https://api.github.com/repos/php-fig/log/zipball/d49695b909c3b7628b6289db5479a1c204601f11",
+                "reference": "d49695b909c3b7628b6289db5479a1c204601f11",
                 "shasum": ""
             },
             "require": {
@@ -372,9 +372,9 @@
                 "psr-3"
             ],
             "support": {
-                "source": "https://github.com/php-fig/log/tree/master"
+                "source": "https://github.com/php-fig/log/tree/1.1.4"
             },
-            "time": "2021-03-02T15:02:34+00:00"
+            "time": "2021-05-03T11:20:27+00:00"
         }
     ],
     "packages-dev": [
@@ -570,12 +570,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/noresources/ns-xml.git",
-                "reference": "54140f15b057f616c76deac3b6e197c14cc0c48c"
+                "reference": "8f2ec87e4bec82de6dda2ec3196e80a7cd221bb8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/noresources/ns-xml/zipball/54140f15b057f616c76deac3b6e197c14cc0c48c",
-                "reference": "54140f15b057f616c76deac3b6e197c14cc0c48c",
+                "url": "https://api.github.com/repos/noresources/ns-xml/zipball/8f2ec87e4bec82de6dda2ec3196e80a7cd221bb8",
+                "reference": "8f2ec87e4bec82de6dda2ec3196e80a7cd221bb8",
                 "shasum": ""
             },
             "require": {
@@ -623,9 +623,9 @@
             "homepage": "https://ns-xml.nore.fr",
             "support": {
                 "issues": "https://github.com/noresources/ns-xml/issues",
-                "source": "https://github.com/noresources/ns-xml/tree/argos"
+                "source": "https://github.com/noresources/ns-xml/tree/master"
             },
-            "time": "2020-12-08T21:25:31+00:00"
+            "time": "2021-04-30T19:57:26+00:00"
         },
         {
             "name": "phar-io/manifest",
