@@ -60,6 +60,17 @@ class SQLiteConnection implements ConnectionInterface,
 	const NAMESPACE_NAME_DEFAULT = 'main';
 
 	/**
+	 *
+	 * @param array $settings
+	 *        	Connection parameters
+	 * @return boolean TRUE if the sqlite extension is available
+	 */
+	public static function acceptConnection($settings = array())
+	{
+		return \class_exists('\SQLite3');
+	}
+
+	/**
 	 * Connect to DBMS
 	 *
 	 * @param \ArrayAccess $parameters

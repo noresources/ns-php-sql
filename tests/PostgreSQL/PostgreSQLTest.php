@@ -33,6 +33,8 @@ final class PostgreSQLTest extends \PHPUnit\Framework\TestCase
 
 	public function testTypes()
 	{
+		if (!$this->prerequisites())
+			return;
 		/**
 		 *
 		 * @var TypeRegistry $types
@@ -55,6 +57,8 @@ final class PostgreSQLTest extends \PHPUnit\Framework\TestCase
 
 	public function testBuilder()
 	{
+		if (!$this->prerequisites())
+			return;
 		$structure = $this->datasources->get('Company');
 
 		/**
@@ -117,6 +121,8 @@ final class PostgreSQLTest extends \PHPUnit\Framework\TestCase
 
 	public function testTypeMapping()
 	{
+		if (!$this->prerequisites())
+			return;
 		$structure = $this->datasources->get('types');
 
 		$tests = [
@@ -128,6 +134,8 @@ final class PostgreSQLTest extends \PHPUnit\Framework\TestCase
 
 	public function testParameters()
 	{
+		if (!$this->prerequisites())
+			return;
 		$this->assertEquals(true, true);
 
 		$connection = self::createConnection();
@@ -162,6 +170,8 @@ final class PostgreSQLTest extends \PHPUnit\Framework\TestCase
 
 	public function testExplorer()
 	{
+		if (!$this->prerequisites())
+			return;
 		$this->assertTrue(true);
 
 		$connection = self::createConnection();
@@ -184,6 +194,8 @@ final class PostgreSQLTest extends \PHPUnit\Framework\TestCase
 
 	public function testInvalidConnection()
 	{
+		if (!$this->prerequisites())
+			return;
 		$this->expectException(\RuntimeException::class);
 		$env = new Environment(
 			[
@@ -193,6 +205,17 @@ final class PostgreSQLTest extends \PHPUnit\Framework\TestCase
 				K::CONNECTION_USER => 'Xul',
 				K::CONNECTION_PASSWORD => 'keymaster.and.cerberus'
 			]);
+	}
+
+	private function prerequisites()
+	{
+		if (!PostgreSQLConnection::acceptConnection())
+		{
+			$this->assertFalse(false);
+			return false;
+		}
+
+		return true;
 	}
 
 	/**

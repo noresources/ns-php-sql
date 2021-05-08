@@ -54,6 +54,8 @@ final class SQLiteTest extends \PHPUnit\Framework\TestCase
 
 	public function testStringStatement()
 	{
+		if (!$this->prerequisites())
+			return;
 		$environment = new Environment(
 			[
 				K::CONNECTION_TYPE => SQLiteConnection::class,
@@ -110,6 +112,8 @@ final class SQLiteTest extends \PHPUnit\Framework\TestCase
 
 	public function testUnserialize()
 	{
+		if (!$this->prerequisites())
+			return;
 		$structure = $this->datasources->get('types');
 		$tableStructure = $structure['ns_unittests']['types'];
 		$this->assertInstanceOf(Structure\TableStructure::class,
@@ -160,6 +164,8 @@ final class SQLiteTest extends \PHPUnit\Framework\TestCase
 
 	public function testParametersEmployees()
 	{
+		if (!$this->prerequisites())
+			return;
 		$structure = $this->datasources->get('Company');
 		$tableStructure = $structure['ns_unittests']['Employees'];
 		$this->assertInstanceOf(Structure\TableStructure::class,
@@ -336,6 +342,9 @@ final class SQLiteTest extends \PHPUnit\Framework\TestCase
 
 	public function testRawPragmas()
 	{
+		if (!$this->prerequisites())
+			return;
+
 		$this->assertTrue($this->createDatabase());
 
 		$result = $this->connection->executeStatement(
@@ -347,6 +356,8 @@ final class SQLiteTest extends \PHPUnit\Framework\TestCase
 
 	public function testTimestampFormat()
 	{
+		if (!$this->prerequisites())
+			return;
 		$platform = new SQLitePlatform();
 
 		StatementBuilder::getInstance(); // IDO workaround
@@ -393,6 +404,8 @@ final class SQLiteTest extends \PHPUnit\Framework\TestCase
 
 	public function testStructureExplorer()
 	{
+		if (!$this->prerequisites())
+			return;
 		$environment = new Environment(
 			[
 				K::CONNECTION_TYPE => SQLiteConnection::class,
@@ -495,8 +508,8 @@ final class SQLiteTest extends \PHPUnit\Framework\TestCase
 						$c->getName() == 'index_employees_name');
 					}));
 
-			$this->assertInstanceOf(
-				KeyTableConstraintInterface::class, $index);
+			$this->assertInstanceOf(KeyTableConstraintInterface::class,
+				$index);
 		}
 
 		/**
@@ -554,6 +567,17 @@ final class SQLiteTest extends \PHPUnit\Framework\TestCase
 		$this->assertInstanceOf(Data::class, $dflt);
 		$this->assertInstanceOf(\DateTimeInterface::class,
 			$dflt->GetValue());
+	}
+
+	private function prerequisites()
+	{
+		if (!SQLiteConnection::acceptConnection())
+		{
+			$this->assertFalse(false);
+			return false;
+		}
+
+		return true;
 	}
 
 	private function getRowValue(StatementData $query, $column,

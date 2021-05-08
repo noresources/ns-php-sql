@@ -48,6 +48,24 @@ class DefaultConnectionFactory implements ConnectionFactoryInterface
 					true))
 			{
 				$cls = new \ReflectionClass($className);
+
+				/**
+				 *
+				 * @var \ReflectionMethod $acceptConnection
+				 */
+
+				if ($cls->hasMethod('acceptConnection') &&
+					($acceptConnection = $cls->getMethod(
+						'acceptConnection')) &&
+					$acceptConnection->isStatic())
+				{
+					$args = [];
+					if (\count($acceptConnection->getParameters()))
+						$args[] = $settings;
+					if (!$acceptConnection->invokeArgs($cls, $args))
+						continue;
+				}
+
 				return $cls->newInstance($settings);
 			}
 		}

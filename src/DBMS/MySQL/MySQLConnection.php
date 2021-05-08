@@ -36,6 +36,17 @@ class MySQLConnection implements ConnectionInterface,
 
 	const STATE_CONNECTED = 0x01;
 
+	/**
+	 *
+	 * @param array $parameters
+	 *        	Connection parameters
+	 * @return boolean TRUE if the mysqli extension is available
+	 */
+	public static function acceptConnection($parameters = array())
+	{
+		return \class_exists('\mysqli');
+	}
+
 	public function __construct($parameters)
 	{
 		$this->setTransactionBlockFactory(

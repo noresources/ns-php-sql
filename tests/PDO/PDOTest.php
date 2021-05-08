@@ -50,6 +50,8 @@ final class PDOTest extends \PHPUnit\Framework\TestCase
 
 		foreach ($tests as $expected => $array)
 		{
+			if (!PDOConnection::acceptConnection($array))
+				return;
 			$actual = PDOConnection::buildDSN($array);
 			$this->assertEquals($expected, $actual);
 		}
@@ -57,6 +59,11 @@ final class PDOTest extends \PHPUnit\Framework\TestCase
 
 	public function testBase()
 	{
+		if (!PDOConnection::acceptConnection())
+		{
+			$this->assertFalse(false);
+			return;
+		}
 		$drivers = \PDO::getAvailableDrivers();
 		$localMethodName = preg_replace(',.*::test(.*),', '\1',
 			__METHOD__);
@@ -75,6 +82,14 @@ final class PDOTest extends \PHPUnit\Framework\TestCase
 	private function subtestSQLiteBase()
 	{
 		global $sqliteConnectionParameters;
+
+		if (!PDOConnection::acceptConnection(
+			$sqliteConnectionParameters))
+		{
+			$this->assertFalse(false);
+			return;
+		}
+
 		$connection = new PDOConnection($sqliteConnectionParameters);
 
 		$recordset = $connection->executeStatement(
@@ -111,6 +126,12 @@ final class PDOTest extends \PHPUnit\Framework\TestCase
 				':memory:'
 			]
 		];
+
+		if (!PDOConnection::acceptConnection($settings))
+		{
+			$this->assertFalse(false);
+			return;
+		}
 
 		$structure = $this->datasources->get('Company');
 

@@ -73,6 +73,40 @@ class PDOConnection implements ConnectionInterface, TransactionInterface,
 	/**
 	 *
 	 * @param array $parameters
+	 *        	Connection parameters
+	 * @return boolean TRUE if the PDO extension is available and
+	 *         (if provided) the requested driver is available
+	 */
+	public static function acceptConnection($parameters = array())
+	{
+		if (!\class_exists('\PDO'))
+			return false;
+
+		if ($parameters === null)
+			return true;
+
+		$dsn = Container::keyValue($parameters, K::CONNECTION_SOURCE,
+			null);
+
+		if ($dsn === null)
+			return true;
+
+		if (Container::isArray($dsn))
+			$dsn = self::buildDSN($dsn);
+		if (!\is_string($dsn))
+			return false;
+
+		$driver = Container::firstValue(explode(':', $dsn));
+		$drivers = \PDO::getAvailableDrivers();
+
+		return \in_array($driver, $drivers);
+
+		return true;
+	}
+
+	/**
+	 *
+	 * @param array $parameters
 	 *        	Parameters array. Supported parameters are
 	 *        	<ul>
 	 *        	<li>CONNECTION_SOURCE</li>

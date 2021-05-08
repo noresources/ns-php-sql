@@ -24,6 +24,8 @@ final class MySQLTest extends \PHPUnit\Framework\TestCase
 
 	public function testInvalidConnection()
 	{
+		if (!$this->prerequisites())
+			return;
 		$this->expectException(\RuntimeException::class);
 		$env = new Environment(
 			[
@@ -37,6 +39,8 @@ final class MySQLTest extends \PHPUnit\Framework\TestCase
 
 	public function testExplorer()
 	{
+		if (!$this->prerequisites())
+			return;
 		$connection = $this->getConnection();
 		if (!($connection instanceof ConnectionInterface))
 		{
@@ -82,6 +86,17 @@ final class MySQLTest extends \PHPUnit\Framework\TestCase
 			$employeesTableIdentifier);
 
 		$c = $explorer->getTableColumnNames($employeesTableIdentifier);
+	}
+
+	private function prerequisites()
+	{
+		if (!MySQLConnection::acceptConnection())
+		{
+			$this->assertFalse(false);
+			return false;
+		}
+
+		return true;
 	}
 
 	protected function getConnection()

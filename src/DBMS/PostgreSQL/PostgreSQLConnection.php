@@ -37,6 +37,17 @@ class PostgreSQLConnection implements ConnectionInterface,
 	use TransactionStackTrait;
 	use PlatformProviderTrait;
 
+	/**
+	 *
+	 * @param array $parameters
+	 *        	Connection parameters
+	 * @return boolean TRUE if pgsql extension is available
+	 */
+	public static function acceptConnection($parameters = array())
+	{
+		return \function_exists('\pg_connect');
+	}
+
 	public function __construct($parameters)
 	{
 		$this->setTransactionBlockFactory(
