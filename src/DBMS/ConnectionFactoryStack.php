@@ -1,13 +1,11 @@
 <?php
-use NoreSources\Container;
-use NoreSources\Stack;
-use NoreSources\SQL\DBMS\ConnectionException;
-use NoreSources\SQL\DBMS\ConnectionFactoryInterface;
-use NoreSources\SQL\DBMS\ConnectionInterface;
-
 /**
  * Copyright © 2012 - 2021 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
+ */
+/**
+ *
+ * @package SQL
  */
 namespace NoreSources\SQL\DBMS;
 

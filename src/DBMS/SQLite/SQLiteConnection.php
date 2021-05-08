@@ -220,7 +220,9 @@ class SQLiteConnection implements ConnectionInterface,
 		if ($member == 'sqliteConnection')
 			return $this->connection;
 
-		return parent::__get($key);
+		throw new \InvalidArgumentException(
+			$member . ' is not a member of ' .
+			TypeDescription::getName($this));
 	}
 
 	public function isConnected()
