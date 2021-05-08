@@ -1,52 +1,57 @@
 {
-	"name": "noresources/ns-php-sql",
-	"description": "SQL-related class library for PHP",
-	"type": "library",
-	"license": "MIT",
+	"name": "noresources/ns-php-sql", 
+	"description": "SQL-related class library for PHP", 
+	"type": "library", 
+	"license": "MIT", 
 	"authors": [
-		{
-			"name": "Renaud Guillard",
-			"email": "dev@nore.fr",
+			{
+			"name": "Renaud Guillard", 
+			"email": "dev@nore.fr", 
 			"role": "lead"
-		}
-	],
+			}
+	], 
 	"support": {
 		"issues": "https://github.com/noresources/ns-php-sql/issues"
-	},
+	}, 
 	"autoload": {
 		"psr-4": {
-			"NoreSources\\SQL\\": "src/",
+			"NoreSources\\SQL\\": "src/", 
 			"NoreSources\\Test\\": "tests/src/"
 		}
-	},
+	}, 
 	"scripts": {
 		"tests": "@php  ./vendor/bin/phpunit --bootstrap vendor/autoload.php tests"
-	},
-	"prefer-stable": false,
-	"minimum-stability": "dev",
+	}, 
+	"prefer-stable": false, 
+	"minimum-stability": "dev", 
 	"require": {
-		"php": ">= 5.6",
-		"ferno/loco": "dev-main",
-		"noresources/ns-php-core": "~2.2",
-		"noresources/ns-php-expression": "~1.1",
-		"noresources/ns-php-mediatype": "~1.0",
+		"php": ">= 5.6", 
+		"ferno/loco": "dev-main", 
+		"noresources/ns-php-core": "~2.2", 
+		"noresources/ns-php-expression": "~1.1", 
+		"noresources/ns-php-mediatype": "~1.0", 
 		"psr/container": "^1.0"
-	},
+	}, 
 	"suggest": {
-		"ext-sqlite": "*",
-		"ext-pdo": "*",
-		"ext-pgsql": "*",
+		"ext-sqlite": "*", 
+		"ext-pdo": "*", 
+		"ext-pgsql": "*", 
 		"ext-mysql": "*"
-	},
+	}, 
 	"require-dev": {
-		"phpunit/phpunit": "< 7.0",
-		"jdorn/sql-formatter": "^1.3@dev",
+		"phpunit/phpunit": "< 7.0", 
+		"jdorn/sql-formatter": "^1.3@dev", 
 		"noresources/ns-xml": "^1.1@dev"
-	},
+	}, 
 	"extra": {
 		"branch-alias": {
-			"dev-1.1.x": "1.1.x-dev",
+			"dev-1.1.x": "1.1.x-dev", 
 			"dev-master": "2.0.x-dev"
+		}
+	}, 
+	"config": {
+		"platform": {
+			"php": "5.6.40"
 		}
 	}
 }
