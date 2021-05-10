@@ -427,7 +427,8 @@ class SQLiteConnection implements ConnectionInterface,
 				@$this->connection->lastInsertRowID());
 		}
 		elseif ($statementType == K::QUERY_SELECT ||
-			($result instanceof \SQLite3Result && $result->numColumns()))
+			($result instanceof \SQLite3Result &&
+			($result->numColumns() || ($result->columnType(0) !== false))))
 		{
 			return new SQLiteRecordset($result, $statement);
 		}
