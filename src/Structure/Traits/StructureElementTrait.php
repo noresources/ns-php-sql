@@ -10,8 +10,8 @@
  */
 namespace NoreSources\SQL\Structure\Traits;
 
-use NoreSources\SQL\Structure\DatasourceStructure;
 use NoreSources\SQL\Structure\Identifier;
+use NoreSources\SQL\Structure\Structure;
 use NoreSources\SQL\Structure\StructureElementContainerInterface;
 use NoreSources\SQL\Structure\StructureElementInterface;
 use ArrayAccess;
@@ -26,19 +26,7 @@ trait StructureElementTrait
 
 	public function getIdentifier()
 	{
-		if (empty($this->elementName))
-			return Identifier::make(null);
-		$a = [
-			$this->getName()
-		];
-		$p = $this;
-		while (($p = $p->getParentElement()) &&
-			!($p instanceof DatasourceStructure))
-		{
-			array_unshift($a, $p->getName());
-		}
-
-		return Identifier::make($a);
+		return Structure::makeIdentifier($this);
 	}
 
 	public function getParentElement($depth = 1)
@@ -51,17 +39,6 @@ trait StructureElementTrait
 		}
 
 		return $p;
-	}
-
-	public function getRootElement()
-	{
-		$res = $this;
-		while ($res->getParentElement())
-		{
-			$res = $res->getParentElement();
-		}
-
-		return $res;
 	}
 
 	public function detachElement()

@@ -34,12 +34,6 @@ interface StructureElementInterface extends NameProviderInterface
 	function getParentElement();
 
 	/**
-	 *
-	 * @return StructureElement
-	 */
-	function getRootElement();
-
-	/**
 	 * Detach element from its parent
 	 */
 	function detachElement();

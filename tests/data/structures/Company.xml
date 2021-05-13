@@ -1,43 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <sql:datasource xmlns:sql="http://xsd.nore.fr/sql/2.0" xmlns:xi="http://www.w3.org/2001/XInclude">
 	<sql:namespace name="ns_unittests">
-		<sql:table name="Employees" id="nsut.tables.Employees">
-			<sql:comment>Company employees</sql:comment>
-			<sql:column name="id">
-				<sql:datatype nullable="no">
-					<sql:numeric />
-				</sql:datatype>
-			</sql:column>
-			<sql:column name="name">
-				<sql:datatype>
-					<sql:string />
-				</sql:datatype>
-			</sql:column>
-			<sql:column name="gender">
-				<sql:datatype>
-					<sql:string length="1">
-						<sql:enumeration>
-							<sql:value>M</sql:value>
-							<sql:value>F</sql:value>
-						</sql:enumeration>
-					</sql:string>
-				</sql:datatype>
-			</sql:column>
-			<sql:column name="salary">
-				<sql:datatype>
-					<sql:numeric length="7" scale="2" />
-				</sql:datatype>
-			</sql:column>
-			<sql:primarykey name="pk_id">
-				<sql:column name="id" />
-			</sql:primarykey>
-		</sql:table>
-
-		<sql:index name="index_employees_name">
-			<sql:tableref name="Employees" />
-			<sql:column name="name" />
-		</sql:index>
-
+		
 		<sql:table name="Hierarchy">
 			<sql:column name="managerId">
 				<sql:datatype nullable="no">
@@ -78,6 +42,43 @@
 				</sql:actions>
 			</sql:foreignkey>
 		</sql:table>
+		
+		<sql:table name="Employees" id="nsut.tables.Employees">
+			<sql:comment>Company employees</sql:comment>
+			<sql:column name="id">
+				<sql:datatype nullable="no">
+					<sql:numeric />
+				</sql:datatype>
+			</sql:column>
+			<sql:column name="name">
+				<sql:datatype>
+					<sql:string />
+				</sql:datatype>
+			</sql:column>
+			<sql:column name="gender">
+				<sql:datatype>
+					<sql:string length="1">
+						<sql:enumeration>
+							<sql:value>M</sql:value>
+							<sql:value>F</sql:value>
+						</sql:enumeration>
+					</sql:string>
+				</sql:datatype>
+			</sql:column>
+			<sql:column name="salary">
+				<sql:datatype>
+					<sql:numeric length="7" scale="2" />
+				</sql:datatype>
+			</sql:column>
+			<sql:primarykey name="pk_id">
+				<sql:column name="id" />
+			</sql:primarykey>
+		</sql:table>
+
+		<sql:index name="index_employees_name">
+			<sql:tableref name="Employees" />
+			<sql:column name="name" />
+		</sql:index>
 
 		<sql:table name="Tasks">
 			<sql:column name="id">

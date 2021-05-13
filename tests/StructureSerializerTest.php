@@ -12,6 +12,8 @@ use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Structure\ColumnStructure;
 use NoreSources\SQL\Structure\DatasourceStructure;
 use NoreSources\SQL\Structure\IndexStructure;
+use NoreSources\SQL\Structure\NamespaceStructure;
+use NoreSources\SQL\Structure\Structure;
 use NoreSources\SQL\Structure\StructureElementInterface;
 use NoreSources\SQL\Structure\StructureSerializerFactory;
 use NoreSources\SQL\Structure\TableStructure;
@@ -83,6 +85,30 @@ final class StructureSerializerTest extends \PHPUnit\Framework\TestCase
 			__METHOD__, 'Company', 'xml');
 
 		$serializer->structureToFile($structure, $derivedFilePath);
+
+		/**
+		 *
+		 * @var NamespaceStructure $ns
+		 */
+		$ns = $structure['ns_unittests'];
+		$this->assertInstanceOf(NamespaceStructure::class, $ns);
+
+		$children = $ns->getChildElements();
+		$unsortedKeys = Container::keys($children);
+		uasort($children, [
+			Structure::class,
+			'dependencyCompare'
+		]);
+		$expectedKeys = [
+			'Employees',
+			'Hierarchy',
+			'Tasks',
+			'types'
+		];
+		$sortedKeys = \array_keys($children);
+
+		$this->assertEquals($expectedKeys, $sortedKeys,
+			'Elements reordering by dependency');
 	}
 
 	public function testBinarySerialize()

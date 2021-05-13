@@ -93,6 +93,7 @@ class TableStructure implements StructureElementInterface,
 	/**
 	 *
 	 * @param TableConstraintInterface $constraint
+	 * @deprecated Use appendElement()
 	 */
 	public function addConstraint(TableConstraintInterface $constraint)
 	{
