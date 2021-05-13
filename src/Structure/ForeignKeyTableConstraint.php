@@ -25,11 +25,14 @@ class ForeignKeyTableConstraint implements \IteratorAggregate,
 		return 0;
 	}
 
-	public function __construct($foreignTable, $name = '')
+	public function __construct($foreignTable, $columnMapping = array(),
+		$name = null)
 	{
 		$this->initializeStructureElement($name);
 		$this->foreignTable = Identifier::make($foreignTable);
 		$this->columns = new \ArrayObject();
+		foreach ($columnMapping as $c => $ref)
+			$this->addColumn($c, $ref);
 	}
 
 	/**

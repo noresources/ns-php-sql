@@ -115,7 +115,7 @@ class SQLiteStructureExplorer extends AbstractStructureExplorer implements
 			$id = \intval($row['id']);
 			if (!Container::keyExists($foreignKeys, $id))
 				$foreignKeys[$id] = new ForeignKeyTableConstraint(
-					$row['table'], Container::keyValue($names, $id));
+					$row['table'], [], Container::keyValue($names, $id));
 
 			if ($row['seq'] == 0)
 			{

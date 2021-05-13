@@ -8,7 +8,6 @@ use NoreSources\SQL\Structure\CheckTableConstraint;
 use NoreSources\SQL\Structure\ColumnStructure;
 use NoreSources\SQL\Structure\DatasourceStructure;
 use NoreSources\SQL\Structure\ForeignKeyTableConstraint;
-use NoreSources\SQL\Structure\IndexTableConstraint;
 use NoreSources\SQL\Structure\NamespaceStructure;
 use NoreSources\SQL\Structure\PrimaryKeyTableConstraint;
 use NoreSources\SQL\Structure\TableStructure;
@@ -180,7 +179,7 @@ final class CreateTest extends \PHPUnit\Framework\TestCase
 				]));
 
 			$bar->addConstraint(
-				$fk = new ForeignKeyTableConstraint($foo, 'fk'));
+				$fk = new ForeignKeyTableConstraint($foo, [], 'fk'));
 			$fk->addColumn('valueId', 'id');
 			$metavariable->appendElement($bar);
 		}
