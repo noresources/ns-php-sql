@@ -14,7 +14,7 @@ use NoreSources\Expression\ExpressionInterface;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Structure\Identifier;
 use NoreSources\SQL\Structure\IndexDescriptionInterface;
-use NoreSources\SQL\Structure\KeyTableConstraintInterface;
+use NoreSources\SQL\Structure\IndexStructure;
 use NoreSources\SQL\Structure\TableStructure;
 use NoreSources\SQL\Structure\Traits\IndexDescriptionTrait;
 use NoreSources\SQL\Syntax\TableReference;
@@ -60,14 +60,15 @@ class CreateIndexQuery implements TokenizableStatementInterface,
 	 * @param TableStructure $table
 	 *        	Table
 	 * @param string|integer $identifier
-	 *        	Table constraint name or index
+	 *        	Index name
 	 * @throws \InvalidArgumentException
 	 * @return $this
 	 */
 	public function setFromTable(TableStructure $table, $identifier)
 	{
 		$index = Container::firstValue(
-			Container::filter($table->getConstraints(),
+			Container::filter(
+				$table->getChildElements(IndexStructure::class),
 				function ($k, $v) use ($identifier) {
 					if (\is_integer($identifier) && $k == $identifier)
 						return true;
@@ -76,7 +77,7 @@ class CreateIndexQuery implements TokenizableStatementInterface,
 					return false;
 				}));
 
-		if (!($index instanceof KeyTableConstraintInterface))
+		if (!($index instanceof IndexStructure))
 			throw new \InvalidArgumentException(
 				$identifier . ' index not found');
 

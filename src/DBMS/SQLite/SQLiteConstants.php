@@ -13,9 +13,6 @@ use NoreSources\SQL\Constants;
 
 /**
  * SQLite specific constants
- *
- * @author renaud
- *
  */
 class SQLiteConstants extends Constants
 {
