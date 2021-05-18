@@ -111,21 +111,21 @@ class PostgreSQLPlatform extends AbstractPlatform implements
 		$this->setPlatformFeature(
 			[
 				K::FEATURE_CREATE,
-				K::FEATURE_NAMESPACE,
+				K::FEATURE_ELEMENT_NAMESPACE,
 				K::FEATURE_CREATE_FLAGS
 			], $platformCreateNamespaceFlags);
 
 		$this->setPlatformFeature(
 			[
 				K::FEATURE_CREATE,
-				K::FEATURE_TABLE,
+				K::FEATURE_ELEMENT_TABLE,
 				K::FEATURE_CREATE_FLAGS
 			], $platformCreateTableFlags);
 
 		$this->setPlatformFeature(
 			[
 				K::FEATURE_CREATE,
-				K::FEATURE_VIEW,
+				K::FEATURE_ELEMENT_VIEW,
 				K::FEATURE_CREATE_FLAGS
 			], $platformCreateViewFlags);
 

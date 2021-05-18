@@ -106,7 +106,7 @@ class CreateViewQuery implements TokenizableStatementInterface
 		$platformCreateFlags = $platform->queryFeature(
 			[
 				K::FEATURE_CREATE,
-				K::FEATURE_VIEW,
+				K::FEATURE_ELEMENT_VIEW,
 				K::FEATURE_CREATE_FLAGS
 			], 0);
 
@@ -115,7 +115,7 @@ class CreateViewQuery implements TokenizableStatementInterface
 		$platformCreateFlags = $platform->queryFeature(
 			[
 				K::FEATURE_CREATE,
-				K::FEATURE_VIEW,
+				K::FEATURE_ELEMENT_VIEW,
 				K::FEATURE_CREATE_FLAGS
 			], 0);
 

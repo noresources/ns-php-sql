@@ -88,7 +88,7 @@ class DropTableQuery implements TokenizableStatementInterface
 		$platformDropFlags = $platform->queryFeature(
 			[
 				K::FEATURE_DROP,
-				K::FEATURE_TABLE,
+				K::FEATURE_ELEMENT_TABLE,
 				K::FEATURE_DROP_FLAGS
 			], 0);
 

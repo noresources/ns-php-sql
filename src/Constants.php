@@ -595,6 +595,14 @@ class Constants
 
 	const TOKEN_COMMENT = 6;
 
+	const STATEMENT_RESULT_NONE = 0;
+
+	const STATEMENT_RESULT_RECORDSET = Bitset::BIT_01;
+
+	const STATEMENT_RESULT_INSERTION = Bitset::BIT_02;
+
+	const STATEMENT_RESULT_ROWMODIFICATION = Bitset::BIT_03;
+
 	// Query types
 
 	/**
@@ -701,7 +709,7 @@ class Constants
 
 	// SELECT query flags
 	/**
-	 * SELECT qurey flags.
+	 * SELECT query flags.
 	 *
 	 * Only report distinct rows
 	 *
@@ -857,7 +865,7 @@ class Constants
 	 *
 	 * @var string
 	 */
-	const FEATURE_NAMESPACE = 'namespace';
+	const FEATURE_ELEMENT_NAMESPACE = 'namespace';
 
 	/**
 	 * Platform feature doman.
@@ -866,7 +874,25 @@ class Constants
 	 *
 	 * @var string
 	 */
-	const FEATURE_TABLE = 'table';
+	const FEATURE_ELEMENT_TABLE = 'table';
+
+	/**
+	 * Platform feature doman.
+	 *
+	 * Table constraint structures.
+	 *
+	 * @var string
+	 */
+	const FEATURE_ELEMENT_TABLE_CONSTRAINT = 'tableconstraint';
+
+	/**
+	 * Platform feature doman.
+	 *
+	 * Column structures.
+	 *
+	 * @var string
+	 */
+	const FEATURE_ELEMENT_COLUMN = 'column';
 
 	/**
 	 * Platform feature doman.
@@ -875,7 +901,7 @@ class Constants
 	 *
 	 * @var string
 	 */
-	const FEATURE_VIEW = 'view';
+	const FEATURE_ELEMENT_VIEW = 'view';
 
 	/**
 	 * Platform feature doman.
@@ -884,7 +910,7 @@ class Constants
 	 *
 	 * @var string
 	 */
-	const FEATURE_INDEX = 'index';
+	const FEATURE_ELEMENT_INDEX = 'index';
 
 	/**
 	 * Platform feature doman.
@@ -893,7 +919,7 @@ class Constants
 	 *
 	 * @var string
 	 */
-	const FEATURE_TRIGGER = 'trigger';
+	const FEATURE_ELEMENT_TRIGGER = 'trigger';
 
 	/**
 	 * Platform feature doman.
@@ -902,7 +928,7 @@ class Constants
 	 *
 	 * @var string
 	 */
-	const FEATURE_FUNCTION = 'function';
+	const FEATURE_ELEMENT_FUNCTION = 'function';
 
 	/**
 	 * Platform feature domain
@@ -926,11 +952,8 @@ class Constants
 	 * OR REPLACE support in CREATE statements.
 	 *
 	 * @var string
-	 * @deprecated Use FEATURE_CREATE_REPLACE
 	 *
 	 */
-	const FEATURE_REPLACE = 'replace';
-
 	const FEATURE_CREATE_REPLACE = self::CREATE_REPLACE;
 
 	/**
@@ -1015,11 +1038,7 @@ class Constants
 	 * Platform feature support
 	 *
 	 * IF EXISTS modifier support in DROP statements
-	 *
-	 * @deprecated Use FEATURE_DROP_EXISTS_CONDITION flag
 	 */
-	const FEATURE_EXISTS_CONDITION = 'exists';
-
 	const FEATURE_DROP_EXISTS_CONDITION = self::DROP_EXISTS_CONDITION;
 
 	/**

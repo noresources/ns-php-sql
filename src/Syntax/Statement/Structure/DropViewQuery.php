@@ -70,7 +70,7 @@ class DropViewQuery implements TokenizableStatementInterface
 		$platformDropFlags = $platform->queryFeature(
 			[
 				K::FEATURE_DROP,
-				K::FEATURE_VIEW,
+				K::FEATURE_ELEMENT_VIEW,
 				K::FEATURE_DROP_FLAGS
 			], 0);
 

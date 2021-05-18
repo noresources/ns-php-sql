@@ -76,7 +76,7 @@ class ColumnDeclaration implements TokenizableExpressionInterface
 		$columnDeclaration = $platform->queryFeature(
 			[
 				K::FEATURE_CREATE,
-				K::FEATURE_TABLE,
+				K::FEATURE_ELEMENT_TABLE,
 				K::FEATURE_COLUMN_DECLARATION_FLAGS
 			], 0);
 
@@ -112,7 +112,7 @@ class ColumnDeclaration implements TokenizableExpressionInterface
 		$columnDeclaration = $platform->queryFeature(
 			[
 				K::FEATURE_CREATE,
-				K::FEATURE_TABLE,
+				K::FEATURE_ELEMENT_TABLE,
 				K::FEATURE_COLUMN_DECLARATION_FLAGS
 			], 0);
 

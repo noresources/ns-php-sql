@@ -50,14 +50,14 @@ class MySQLPlatform extends AbstractPlatform implements
 		$this->setPlatformFeature(
 			[
 				K::FEATURE_CREATE,
-				K::FEATURE_TABLE,
+				K::FEATURE_ELEMENT_TABLE,
 				K::FEATURE_CREATE_FLAGS
 			], (K::FEATURE_CREATE_TEMPORARY | K::FEATURE_CREATE_REPLACE));
 
 		$this->setPlatformFeature(
 			[
 				K::FEATURE_CREATE,
-				K::FEATURE_TABLE,
+				K::FEATURE_ELEMENT_TABLE,
 				K::FEATURE_COLUMN_DECLARATION_FLAGS
 			],
 			(K::FEATURE_COLUMN_ENUM |

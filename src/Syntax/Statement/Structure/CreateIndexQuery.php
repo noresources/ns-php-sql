@@ -158,7 +158,7 @@ class CreateIndexQuery implements TokenizableStatementInterface,
 		$platformCreateFlags = $platform->queryFeature(
 			[
 				K::FEATURE_CREATE,
-				K::FEATURE_INDEX,
+				K::FEATURE_ELEMENT_INDEX,
 				K::FEATURE_CREATE_FLAGS
 			], 0);
 

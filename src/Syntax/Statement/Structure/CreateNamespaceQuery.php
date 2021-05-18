@@ -61,7 +61,7 @@ class CreateNamespaceQuery implements TokenizableStatementInterface
 		$platformCreateFlags = $platform->queryFeature(
 			[
 				K::FEATURE_CREATE,
-				K::FEATURE_NAMESPACE,
+				K::FEATURE_ELEMENT_NAMESPACE,
 				K::FEATURE_CREATE_EXISTS_CONDITION
 			], 0);
 

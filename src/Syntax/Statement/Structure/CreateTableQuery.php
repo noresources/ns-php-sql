@@ -123,14 +123,14 @@ class CreateTableQuery implements TokenizableStatementInterface,
 		$platformCreateFlags = $platform->queryFeature(
 			[
 				K::FEATURE_CREATE,
-				K::FEATURE_TABLE,
+				K::FEATURE_ELEMENT_TABLE,
 				K::FEATURE_CREATE_FLAGS
 			], 0);
 
 		$platformCreateFlags = $platform->queryFeature(
 			[
 				K::FEATURE_CREATE,
-				K::FEATURE_TABLE,
+				K::FEATURE_ELEMENT_TABLE,
 				K::FEATURE_CREATE_FLAGS
 			], 0);
 

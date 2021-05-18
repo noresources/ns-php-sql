@@ -50,7 +50,7 @@ class DropNamespaceQuery implements TokenizableStatementInterface
 		$platformDropFlags = $platform->queryFeature(
 			[
 				K::FEATURE_DROP,
-				K::FEATURE_NAMESPACE,
+				K::FEATURE_ELEMENT_NAMESPACE,
 				K::FEATURE_DROP_FLAGS
 			], 0);
 		$cascade = ($this->getDropFlags() & K::DROP_CASCADE) &&

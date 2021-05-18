@@ -214,7 +214,7 @@ final class CreateTest extends \PHPUnit\Framework\TestCase
 				'or replace' => [
 					[
 						K::FEATURE_CREATE,
-						K::FEATURE_TABLE,
+						K::FEATURE_ELEMENT_TABLE,
 						K::FEATURE_CREATE_FLAGS
 					],
 					K::FEATURE_CREATE_REPLACE

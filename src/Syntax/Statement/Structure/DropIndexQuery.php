@@ -67,7 +67,7 @@ class DropIndexQuery implements TokenizableStatementInterface
 		$platformDropFlags = $platform->queryFeature(
 			[
 				K::FEATURE_DROP,
-				K::FEATURE_INDEX,
+				K::FEATURE_ELEMENT_INDEX,
 				K::FEATURE_DROP_FLAGS
 			], 0);
 
