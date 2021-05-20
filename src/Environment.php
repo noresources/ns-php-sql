@@ -152,6 +152,13 @@ class Environment implements ConnectionProviderInterface,
 			], func_get_args());
 	}
 
+	public function hasStatement($statementType)
+	{
+		return $this->getConnection()
+			->getPlatform()
+			->hasStatement($statementType);
+	}
+
 	/**
 	 *
 	 * {@inheritdoc}

@@ -206,7 +206,7 @@ final class SelectTest extends \PHPUnit\Framework\TestCase
 		 *
 		 * @var SelectQuery $select
 		 */
-		$select = $factory->newStatement(K::QUERY_SELECT);
+		$select = $factory->newStatement(SelectQuery::class);
 
 		$this->assertInstanceOf(SelectQuery::class, $select);
 
@@ -279,7 +279,7 @@ final class SelectTest extends \PHPUnit\Framework\TestCase
 		 * @var \NoreSources\SQL\Syntax\Statement\Query\SelectQuery $innerSelect
 		 */
 		$innerSelect = $connection->getPlatform()->newStatement(
-			K::QUERY_SELECT);
+			SelectQuery::class);
 		$innerSelect->from($employeesStructure);
 		$innerSelect->columns('id', 'name')->where([
 			'gender' => ':g'
@@ -296,7 +296,7 @@ final class SelectTest extends \PHPUnit\Framework\TestCase
 		 * @var SelectQuery $innerJoinSelect
 		 */
 		$innerJoinSelect = $connection->getPlatform()->newStatement(
-			K::QUERY_SELECT);
+			SelectQuery::class);
 		$innerJoinSelect->from('Hierarchy');
 
 		/**
@@ -304,7 +304,7 @@ final class SelectTest extends \PHPUnit\Framework\TestCase
 		 * @var \NoreSources\SQL\Syntax\Statement\Query\SelectQuery $outerSelect
 		 */
 		$outerSelect = $connection->getPlatform()->newStatement(
-			K::QUERY_SELECT);
+			SelectQuery::class);
 		$outerSelect->from($innerSelect, 'e')
 			->columns('id', 'e.name', 'H.manageeId')
 			->join(K::JOIN_INNER, [

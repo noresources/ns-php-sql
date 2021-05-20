@@ -15,9 +15,18 @@ interface StatementFactoryInterface
 
 	/**
 	 *
-	 * @param integer $statementType
-	 *        	Statement type
+	 * @param string $statementType
+	 *        	Statement base class name
+	 * @throws StatementNotAvailableException
 	 * @return Statement
 	 */
 	function newStatement($statementType);
+
+	/**
+	 *
+	 * @param string $statementType
+	 *        	Statement base class name
+	 * @return boolean
+	 */
+	function hasStatement($statementType);
 }

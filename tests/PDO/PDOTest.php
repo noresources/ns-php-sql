@@ -8,6 +8,7 @@ use NoreSources\SQL\DBMS\PDO\PDOConstants as K;
 use NoreSources\SQL\DBMS\PDO\PDOPreparedStatement;
 use NoreSources\SQL\DBMS\PDO\PDORecordset;
 use NoreSources\SQL\Result\RowModificationStatementResultInterface;
+use NoreSources\SQL\Syntax\Statement\Manipulation\InsertQuery;
 use NoreSources\SQL\Syntax\Statement\Manipulation\UpdateQuery;
 use NoreSources\SQL\Syntax\Statement\Query\SelectQuery;
 use NoreSources\SQL\Syntax\Statement\Structure\CreateTableQuery;
@@ -159,7 +160,7 @@ final class PDOTest extends \PHPUnit\Framework\TestCase
 		 * @var \NoreSources\SQL\Syntax\Statement\Manipulation\InsertQuery $insert
 		 */
 		$insert = $connection->getPlatform()->newStatement(
-			K::QUERY_INSERT);
+			InsertQuery::class);
 		$insert->table($detachedTable);
 		$insert('name', ':name');
 		$insert('gender', ':gender');

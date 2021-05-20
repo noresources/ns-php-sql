@@ -30,6 +30,8 @@ use NoreSources\SQL\Syntax\Statement\StatementBuilder;
 use NoreSources\SQL\Syntax\Statement\StatementDataInterface;
 use NoreSources\SQL\Syntax\Statement\StatementTokenStreamContext;
 use NoreSources\SQL\Syntax\Statement\TokenizableStatementInterface;
+use NoreSources\SQL\Syntax\Statement\Structure\CreateNamespaceQuery;
+use NoreSources\SQL\Syntax\Statement\Structure\CreateTableQuery;
 
 /**
  * Helper method for creation of Connection, statement and prepared statement
@@ -128,7 +130,7 @@ class ConnectionHelper
 			 * @var \NoreSources\SQL\Syntax\Statement\Structure\CreateNamespaceQuery $q
 			 */
 			$q = $connection->getPlatform()->newStatement(
-				K::QUERY_CREATE_NAMESPACE, $structure);
+				CreateNamespaceQuery::class, $structure);
 
 			$q->identifier($structure);
 			$statement = self::buildStatement($connection, $q,
@@ -150,7 +152,7 @@ class ConnectionHelper
 		elseif ($structure instanceof TableStructure)
 		{
 			$q = $connection->getPlatform()->newStatement(
-				K::QUERY_CREATE_TABLE, $structure);
+				CreateTableQuery::class, $structure);
 			$statement = self::buildStatement($connection, $q,
 				$structure);
 			return $connection->executeStatement($statement);

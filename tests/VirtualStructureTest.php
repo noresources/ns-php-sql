@@ -1,7 +1,6 @@
 <?php
 namespace NoreSources\SQL;
 
-use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\Reference\ReferenceConnection;
 use NoreSources\SQL\Structure\ColumnStructure;
 use NoreSources\SQL\Structure\DatasourceStructure;
@@ -12,6 +11,7 @@ use NoreSources\SQL\Structure\VirtualStructureResolver;
 use NoreSources\SQL\Syntax\TokenStream;
 use NoreSources\SQL\Syntax\Statement\StatementBuilder;
 use NoreSources\SQL\Syntax\Statement\StatementTokenStreamContext;
+use NoreSources\SQL\Syntax\Statement\Query\SelectQuery;
 use NoreSources\Test\DerivedFileManager;
 
 final class VirtualStructureTest extends \PHPUnit\Framework\TestCase
@@ -132,7 +132,7 @@ final class VirtualStructureTest extends \PHPUnit\Framework\TestCase
 		 *
 		 * @var \NoreSources\SQL\Syntax\Statement\Query\SelectQuery $select
 		 */
-		$select = $platform->newStatement(K::QUERY_SELECT);
+		$select = $platform->newStatement(SelectQuery::class);
 
 		$epoch = new \DateTime('@0');
 		$shift = clone $epoch;

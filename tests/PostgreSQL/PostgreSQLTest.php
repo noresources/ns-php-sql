@@ -11,6 +11,7 @@ use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLPreparedStatement;
 use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLTypeRegistry;
 use NoreSources\SQL\Structure\TableStructure;
 use NoreSources\SQL\Syntax\Statement\TokenizableStatementInterface;
+use NoreSources\SQL\Syntax\Statement\Manipulation\InsertQuery;
 use NoreSources\SQL\Syntax\Statement\Structure\CreateTableQuery;
 use NoreSources\SQL\Syntax\Statement\Structure\DropTableQuery;
 use NoreSources\Test\ConnectionHelper;
@@ -85,7 +86,7 @@ final class PostgreSQLTest extends \PHPUnit\Framework\TestCase
 			if ($elementStructure instanceof TableStructure)
 			{
 				$s = $connection->getPlatform()->newStatement(
-					K::QUERY_CREATE_TABLE);
+					CreateTableQuery::class);
 				$this->assertInstanceOf(CreateTableQuery::class, $s);
 				$s->table($elementStructure);
 			}
@@ -157,7 +158,7 @@ final class PostgreSQLTest extends \PHPUnit\Framework\TestCase
 		 * @var \NoreSources\SQL\Syntax\Statement\Manipulation\InsertQuery $query
 		 */
 		$query = $environment->getPlatform()->newStatement(
-			K::QUERY_INSERT);
+			InsertQuery::class);
 		$query->table($tableStructure);
 		$query('gender', ':gender');
 

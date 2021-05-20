@@ -15,6 +15,7 @@ use NoreSources\SQL\DBMS\Types\ArrayObjectType;
 use NoreSources\SQL\Syntax\FunctionCall;
 use NoreSources\SQL\Syntax\MetaFunctionCall;
 use NoreSources\SQL\Syntax\Statement\ParameterData;
+use NoreSources\SQL\Syntax\Statement\Structure\DropIndexQuery;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
 
@@ -33,7 +34,8 @@ class MySQLPlatform extends AbstractPlatform implements
 		parent::__construct($parameters);
 		$this->initializeStatementFactory(
 			[
-				K::QUERY_DROP_INDEX => MySQLDropIndexQuery::class
+				K::QUERY_DROP_INDEX => MySQLDropIndexQuery::class,
+				DropIndexQuery::class => MySQLDropIndexQuery::class
 			]);
 		$this->setConnection($connection);
 		$this->setPlatformFeature(

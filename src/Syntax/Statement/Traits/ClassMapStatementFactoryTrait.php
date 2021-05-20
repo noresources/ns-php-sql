@@ -7,8 +7,10 @@
  */
 namespace NoreSources\SQL\Syntax\Statement\Traits;
 
+use NoreSources\Container;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Syntax\Statement\Statement;
+use NoreSources\SQL\Syntax\Statement\StatementNotAvailableException;
 use NoreSources\SQL\Syntax\Statement\Manipulation\DeleteQuery;
 use NoreSources\SQL\Syntax\Statement\Manipulation\InsertQuery;
 use NoreSources\SQL\Syntax\Statement\Manipulation\UpdateQuery;
@@ -35,9 +37,9 @@ trait ClassMapStatementFactoryTrait
 	 */
 	public function newStatement($statementType)
 	{
-		if (!$this->statementClassMap->offsetExists($statementType))
-			throw new \InvalidArgumentException(
-				'Unsupported statement type ' . $statementType);
+		if (!Container::keyExists($this->statementClassMap,
+			$statementType))
+			throw new StatementNotAvailableException($statementType);
 
 		$args = func_get_args();
 		array_shift($args);
@@ -47,32 +49,49 @@ trait ClassMapStatementFactoryTrait
 		return $cls->newInstanceArgs($args);
 	}
 
+	/**
+	 *
+	 * @param string $statementType
+	 *        	Statement base class
+	 * @return boolean
+	 */
+	public function hasStatement($statementType)
+	{
+		return Container::keyExists($this->statementClassMap,
+			$statementType);
+	}
+
 	protected function initializeStatementFactory($classMap = array())
 	{
-		$this->statementClassMap = new \ArrayObject(
+		$this->statementClassMap = \array_merge(
 			[
 				// K::QUERY_CREATE_INDEX => null,
 				K::QUERY_CREATE_TABLE => CreateTableQuery::class,
+				CreateTableQuery::class => CreateTableQuery::class,
 				K::QUERY_CREATE_INDEX => CreateIndexQuery::class,
+				CreateIndexQuery::class => CreateIndexQuery::class,
 				K::QUERY_CREATE_NAMESPACE => CreateNamespaceQuery::class,
+				CreateNamespaceQuery::class => CreateNamespaceQuery::class,
 				K::QUERY_SELECT => SelectQuery::class,
+				SelectQuery::class => SelectQuery::class,
 				K::QUERY_INSERT => InsertQuery::class,
+				InsertQuery::class => InsertQuery::class,
 				K::QUERY_UPDATE => UpdateQuery::class,
+				UpdateQuery::class => UpdateQuery::class,
 				K::QUERY_DELETE => DeleteQuery::class,
+				DeleteQuery::class => DeleteQuery::class,
 				K::QUERY_DROP_NAMESPACE => DropNamespaceQuery::class,
+				DropNamespaceQuery::class => DropNamespaceQuery::class,
 				K::QUERY_DROP_TABLE => DropTableQuery::class,
-				K::QUERY_DROP_INDEX => DropIndexQuery::class
-			]);
-
-		foreach ($classMap as $type => $cls)
-		{
-			$this->statementClassMap->offsetSet($type, $cls);
-		}
+				DropTableQuery::class => DropTableQuery::class,
+				K::QUERY_DROP_INDEX => DropIndexQuery::class,
+				DropIndexQuery::class => DropIndexQuery::class
+			], $classMap);
 	}
 
 	/**
 	 *
-	 * @var \ArrayObject
+	 * @var array
 	 */
 	private $statementClassMap;
 }

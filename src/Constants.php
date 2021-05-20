@@ -596,41 +596,106 @@ class Constants
 	const TOKEN_COMMENT = 6;
 
 	// Query types
+
+	/**
+	 *
+	 * @deprecated
+	 */
 	const QUERY_SELECT = Bitset::BIT_01;
 
+	/**
+	 *
+	 * @deprecated
+	 */
 	const QUERY_INSERT = Bitset::BIT_02;
 
+	/**
+	 *
+	 * @deprecated
+	 */
 	const QUERY_UPDATE = Bitset::BIT_03;
 
+	/**
+	 *
+	 * @deprecated
+	 */
 	const QUERY_DELETE = Bitset::BIT_04;
 
+	/**
+	 *
+	 * @deprecated
+	 */
 	const QUERY_FAMILY_ROWMODIFICATION = self::QUERY_UPDATE +
 		self::QUERY_DELETE;
 
+	/**
+	 *
+	 * @deprecated
+	 */
 	const QUERY_CREATE_TABLE = Bitset::BIT_05;
 
+	/**
+	 *
+	 * @deprecated
+	 */
 	const QUERY_CREATE_INDEX = Bitset::BIT_06;
 
+	/**
+	 *
+	 * @deprecated
+	 */
 	const QUERY_CREATE_NAMESPACE = Bitset::BIT_07;
 
+	/**
+	 *
+	 * @deprecated
+	 */
 	const QUERY_CREATE_VIEW = Bitset::BIT_08;
 
+	/**
+	 *
+	 * @deprecated
+	 */
 	const QUERY_FAMILY_CREATE = self::QUERY_CREATE_INDEX +
 		self::QUERY_CREATE_NAMESPACE + self::QUERY_CREATE_TABLE +
 		self::QUERY_CREATE_VIEW;
 
+	/**
+	 *
+	 * @deprecated
+	 */
 	const QUERY_DROP_TABLE = Bitset::BIT_09;
 
+	/**
+	 *
+	 * @deprecated
+	 */
 	const QUERY_DROP_INDEX = Bitset::BIT_10;
 
+	/**
+	 *
+	 * @deprecated
+	 */
 	const QUERY_DROP_NAMESPACE = Bitset::BIT_11;
 
+	/**
+	 *
+	 * @deprecated
+	 */
 	const QUERY_DROP_VIEW = Bitset::BIT_12;
 
+	/**
+	 *
+	 * @deprecated
+	 */
 	const QUERY_FAMILY_DROP = self::QUERY_DROP_INDEX +
 		self::QUERY_DROP_NAMESPACE + self::QUERY_DROP_TABLE +
 		self::QUERY_DROP_VIEW;
 
+	/**
+	 *
+	 * @deprecated
+	 */
 	const QUERY_FAMILY_STRUCTURE = self::QUERY_FAMILY_CREATE +
 		self::QUERY_FAMILY_DROP;
 

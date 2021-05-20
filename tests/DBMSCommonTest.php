@@ -185,7 +185,7 @@ final class DBMSCommonTest extends TestCase
 			 *
 			 * @var DropNamespaceQuery
 			 */
-			$drop = $platform->newStatement(K::QUERY_DROP_NAMESPACE);
+			$drop = $platform->newStatement(DropNamespaceQuery::class);
 			$this->assertInstanceOf(DropNamespaceQuery::class, $drop,
 				$dbmsName . ' has DROP NAMESPACE');
 
@@ -506,7 +506,7 @@ final class DBMSCommonTest extends TestCase
 			 * @var \NoreSources\SQL\Syntax\Statement\Manipulation\InsertQuery $q
 			 */
 			$q = $connection->getPlatform()->newStatement(
-				K::QUERY_INSERT);
+				InsertQuery::class);
 			$q->table($tableStructure);
 			foreach ($columns as $columnName => $specs)
 			{
@@ -698,7 +698,7 @@ final class DBMSCommonTest extends TestCase
 			}
 
 			$select = $connection->getPlatform()->newStatement(
-				K::QUERY_SELECT);
+				SelectQuery::class);
 
 			$select->columns(
 				[
@@ -781,7 +781,7 @@ final class DBMSCommonTest extends TestCase
 		 *
 		 * @var SelectQuery $subSelect
 		 */
-		$subSelect = $platform->newStatement(K::QUERY_SELECT);
+		$subSelect = $platform->newStatement(SelectQuery::class);
 
 		$subSelect->columns([
 			'id' => 'classId'
@@ -802,7 +802,7 @@ final class DBMSCommonTest extends TestCase
 		 *
 		 * @var SelectQuery $mainSelect
 		 */
-		$mainSelect = $platform->newStatement(K::QUERY_SELECT);
+		$mainSelect = $platform->newStatement(SelectQuery::class);
 
 		$mainSelect->columns([
 			'classId' => 'c'
@@ -880,7 +880,7 @@ final class DBMSCommonTest extends TestCase
 		 *
 		 * @var SelectQuery
 		 */
-		$select = $platform->newStatement(K::QUERY_SELECT);
+		$select = $platform->newStatement(SelectQuery::class);
 		$select->columns(':one', ':two', ':one');
 		$prepared = ConnectionHelper::prepareStatement($connection,
 			$select);
@@ -991,14 +991,15 @@ final class DBMSCommonTest extends TestCase
 		 *
 		 * @var \NoreSources\SQL\Syntax\Statement\Manipulation\InsertQuery $i
 		 */
-		$i = $connection->getPlatform()->newStatement(K::QUERY_INSERT);
+		$i = $connection->getPlatform()->newStatement(
+			InsertQuery::class);
 		$i->table($tableStructure);
 		$i('int', ':even');
 		$i('large_int', ':odd');
 		$i('small_int', ':even');
 
-		$select = $platform->newStatement(K::QUERY_SELECT,
-			$tableStructure);
+		$select = $platform->newStatement(SelectQuery::class);
+		$select->from($tableStructure);
 		$select = ConnectionHelper::buildStatement($connection, $select,
 			$tableStructure);
 
@@ -1079,7 +1080,7 @@ final class DBMSCommonTest extends TestCase
 				]);
 		}
 
-		$insert = $platform->newStatement(K::QUERY_INSERT);
+		$insert = $platform->newStatement(InsertQuery::class);
 		$insert->into($tableStructure);
 		$insert('binary', ':bin');
 		$insert = ConnectionHelper::prepareStatement($connection,
@@ -1243,7 +1244,7 @@ final class DBMSCommonTest extends TestCase
 		 * @var UpdateQuery $update
 		 */
 		$update = $connection->getPlatform()->newStatement(
-			K::QUERY_UPDATE);
+			UpdateQuery::class);
 		$update->table($tableStructure);
 		$update('text', ':text');
 		$update->where([
@@ -1447,7 +1448,7 @@ final class DBMSCommonTest extends TestCase
 		 * @var SelectQuery $basicSelectQuery
 		 */
 		$basicSelectQuery = $connection->getPlatform()->newStatement(
-			K::QUERY_SELECT);
+			SelectQuery::class);
 
 		$basicSelectQuery->from($tableStructure);
 
@@ -1468,7 +1469,7 @@ final class DBMSCommonTest extends TestCase
 		 * @var SelectQuery $selectColumnQuery
 		 */
 		$selectColumnQuery = $connection->getPlatform()->newStatement(
-			K::QUERY_SELECT);
+			SelectQuery::class);
 		$selectColumnQuery->from($tableStructure);
 		$selectColumnQuery->columns('name', 'gender', 'salary')->orderBy(
 			'id');
@@ -1502,7 +1503,7 @@ final class DBMSCommonTest extends TestCase
 			 * @var InsertQuery $q
 			 */
 			$q = $connection->getPlatform()->newStatement(
-				K::QUERY_INSERT);
+				InsertQuery::class);
 			$q->into($tableStructure);
 			foreach ($row as $name => $value)
 				$q->setColumnData($name, new Data($value));
@@ -2046,7 +2047,7 @@ final class DBMSCommonTest extends TestCase
 			 * @var CreateNamespaceQuery
 			 */
 			$createNamespace = $factory->newStatement(
-				K::QUERY_CREATE_NAMESPACE);
+				CreateNamespaceQuery::class);
 
 			try
 			{
@@ -2079,7 +2080,7 @@ final class DBMSCommonTest extends TestCase
 
 			$name = ($constraint->getName() ? $constraint->getName() : $id);
 
-			$dropIndex = $platform->newStatement(K::QUERY_DROP_INDEX);
+			$dropIndex = $platform->newStatement(DropIndexQuery::class);
 			if ($dropIndex instanceof DropIndexQuery)
 			{
 				$dropIndex->dropFlags(K::DROP_EXISTS_CONDITION);
@@ -2113,7 +2114,7 @@ final class DBMSCommonTest extends TestCase
 		try // PostgreSQL < 8.2 does not support DROP IF EXISTS and may fail
 		{
 			$drop = $connection->getPlatform()->newStatement(
-				K::QUERY_DROP_TABLE);
+				DropTableQuery::class);
 			if ($drop instanceof DropTableQuery)
 				$drop->dropFlags(
 					K::DROP_CASCADE | K::DROP_EXISTS_CONDITION)->table(
@@ -2132,7 +2133,7 @@ final class DBMSCommonTest extends TestCase
 		 *
 		 * @var CreateTableQuery $createTable
 		 */
-		$createTable = $factory->newStatement(K::QUERY_CREATE_TABLE,
+		$createTable = $factory->newStatement(CreateTableQuery::class,
 			$tableStructure);
 
 		$this->assertInstanceOf(CreateTableQuery::class, $createTable,
@@ -2187,7 +2188,7 @@ final class DBMSCommonTest extends TestCase
 				$name = ($constraint->getName() ? $constraint->getName() : $id);
 
 				$createIndex = $platform->newStatement(
-					K::QUERY_CREATE_INDEX);
+					CreateIndexQuery::class);
 				if ($createIndex instanceof CreateIndexQuery)
 				{
 					$createIndex->setFromTable($tableStructure,

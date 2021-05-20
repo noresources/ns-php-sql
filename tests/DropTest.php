@@ -41,7 +41,7 @@ final class DropTest extends \PHPUnit\Framework\TestCase
 		$structuredEnvironment = new Environment($structure);
 		$indexStructure = $structure['ns_unittests']['index_employees_name'];
 		$structured = $structuredEnvironment->newStatement(
-			K::QUERY_DROP_INDEX);
+			DropIndexQuery::class);
 		$structured->identifier('structureless');
 
 		$result = $structuredEnvironment->prepareStatement($structured);
@@ -80,7 +80,7 @@ final class DropTest extends \PHPUnit\Framework\TestCase
 		 *
 		 * @var DropNamespaceQuery
 		 */
-		$q = $platform->newStatement(K::QUERY_DROP_NAMESPACE);
+		$q = $platform->newStatement(DropNamespaceQuery::class);
 		$data = $environment->prepareStatement($q);
 		$sql = \SqlFormatter::format(strval($data), false);
 		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__,

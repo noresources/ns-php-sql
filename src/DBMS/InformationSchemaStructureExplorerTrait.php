@@ -34,7 +34,7 @@ trait InformationSchemaStructureExplorerTrait
 		 *
 		 * @var SelectQuery $query
 		 */
-		$query = $platform->newStatement(K::QUERY_SELECT);
+		$query = $platform->newStatement(SelectQuery::class);
 		$query->columns('table_name')
 			->from('information_schema.tables')
 			->where([
@@ -63,7 +63,7 @@ trait InformationSchemaStructureExplorerTrait
 		 *
 		 * @var SelectQuery $query
 		 */
-		$query = $platform->newStatement(K::QUERY_SELECT);
+		$query = $platform->newStatement(SelectQuery::class);
 
 		$query->columns('column_name')
 			->from('information_schema.columns')
@@ -111,7 +111,7 @@ trait InformationSchemaStructureExplorerTrait
 		 *
 		 * @var SelectQuery $query
 		 */
-		$query = $platform->newStatement(K::QUERY_SELECT);
+		$query = $platform->newStatement(SelectQuery::class);
 
 		$query->columns(...$columns)
 			->from('information_schema.columns')
@@ -224,7 +224,7 @@ trait InformationSchemaStructureExplorerTrait
 		 *
 		 * @var SelectQuery $query
 		 */
-		$query = $platform->newStatement(K::QUERY_SELECT);
+		$query = $platform->newStatement(SelectQuery::class);
 		$query->columns([
 			'tc.constraint_name' => 'name'
 		], [
@@ -317,7 +317,7 @@ trait InformationSchemaStructureExplorerTrait
 		 *
 		 * @var SelectQuery $query
 		 */
-		$query = $platform->newStatement(K::QUERY_SELECT);
+		$query = $platform->newStatement(SelectQuery::class);
 
 		$query->columns('table_name')
 			->from('information_schema.views')
@@ -348,7 +348,7 @@ trait InformationSchemaStructureExplorerTrait
 		 *
 		 * @var SelectQuery $query
 		 */
-		$query = $platform->newStatement(K::QUERY_SELECT);
+		$query = $platform->newStatement(SelectQuery::class);
 		$query->columns('update_rule', 'delete_rule')
 			->from('information_schema.referential_constraints')
 			->where([

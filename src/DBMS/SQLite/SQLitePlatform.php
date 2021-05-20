@@ -22,6 +22,10 @@ use NoreSources\SQL\Syntax\FunctionCall;
 use NoreSources\SQL\Syntax\MetaFunctionCall;
 use NoreSources\SQL\Syntax\TableConstraintDeclaration;
 use NoreSources\SQL\Syntax\Statement\ParameterData;
+use NoreSources\SQL\Syntax\Statement\Structure\CreateIndexQuery;
+use NoreSources\SQL\Syntax\Statement\Structure\CreateNamespaceQuery;
+use NoreSources\SQL\Syntax\Statement\Structure\CreateTableQuery;
+use NoreSources\SQL\Syntax\Statement\Structure\DropNamespaceQuery;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
 
@@ -38,9 +42,13 @@ class SQLitePlatform extends AbstractPlatform
 		$this->initializeStatementFactory(
 			[
 				K::QUERY_CREATE_TABLE => SQLiteCreateTableQuery::class,
+				CreateTableQuery::class => SQLiteCreateTableQuery::class,
 				K::QUERY_CREATE_NAMESPACE => SQLiteCreateNamespaceQuery::class,
+				CreateNamespaceQuery::class => SQLiteCreateNamespaceQuery::class,
 				K::QUERY_CREATE_INDEX => SQLiteCreateIndexQuery::class,
-				K::QUERY_DROP_NAMESPACE => SQLiteDropNamespaceQuery::class
+				CreateIndexQuery::class => SQLiteCreateIndexQuery::class,
+				K::QUERY_DROP_NAMESPACE => SQLiteDropNamespaceQuery::class,
+				DropNamespaceQuery::class => SQLiteDropNamespaceQuery::class
 			]);
 
 		$this->setPlatformFeature(K::FEATURE_NAMED_PARAMETERS, true);

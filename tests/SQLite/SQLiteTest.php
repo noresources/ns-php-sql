@@ -34,6 +34,7 @@ use NoreSources\SQL\Syntax\Statement\StatementBuilder;
 use NoreSources\SQL\Syntax\Statement\StatementData;
 use NoreSources\SQL\Syntax\Statement\Manipulation\InsertQuery;
 use NoreSources\SQL\Syntax\Statement\Query\SelectQuery;
+use NoreSources\SQL\Syntax\Statement\Structure\CreateTableQuery;
 use NoreSources\Test\ConnectionHelper;
 use NoreSources\Test\DatasourceManager;
 use NoreSources\Test\DerivedFileManager;
@@ -602,7 +603,7 @@ final class SQLiteTest extends \PHPUnit\Framework\TestCase
 			return true;
 
 		$factory = $this->connection->getPlatform();
-		$q = $factory->newStatement(K::QUERY_CREATE_TABLE,
+		$q = $factory->newStatement(CreateTableQuery::class,
 			$tableStructure);
 		$prepared = ConnectionHelper::prepareStatement(
 			$this->connection, $q);

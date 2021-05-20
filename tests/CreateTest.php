@@ -191,7 +191,7 @@ final class CreateTest extends \PHPUnit\Framework\TestCase
 		 * @var CreateTableQuery $createTable
 		 */
 		$createTable = $environment->getPlatform()->newStatement(
-			K::QUERY_CREATE_TABLE);
+			CreateTableQuery::class);
 
 		foreach ([
 			$foo,

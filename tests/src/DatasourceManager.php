@@ -5,8 +5,10 @@ use NoreSources\TypeDescription;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\Structure\DatasourceStructure;
+use NoreSources\SQL\Structure\NamespaceStructure;
 use NoreSources\SQL\Structure\StructureSerializerFactory;
 use NoreSources\SQL\Structure\TableStructure;
+use NoreSources\SQL\Syntax\Statement\Structure\CreateNamespaceQuery;
 use NoreSources\SQL\Syntax\Statement\Structure\CreateTableQuery;
 use PHPUnit\Framework\TestCase;
 
@@ -56,12 +58,32 @@ class DatasourceManager extends \PHPUnit\Framework\TestCase
 				return true;
 		}
 
-		/**
-		 *
-		 * @var CreateTableQuery
-		 */
-		$q = $connection->getPlatform()->newStatement(
-			K::QUERY_CREATE_TABLE);
+		$platform = $connection->getPlatform();
+
+		$ns = $tableStructure->getParentElement();
+
+		if ($platform->hasStatement(CreateNamespaceQuery::class) &&
+			$ns instanceof NamespaceStructure)
+		{
+			/** @var CreateNamespaceQuery $cns */
+			$cns = $platform->newStatement(CreateNamespaceQuery::class);
+
+			$flags = $cns->getCreateFlags();
+			$flags |= K::FEATURE_CREATE_EXISTS_CONDITION;
+			$cns->identifier($ns->getName())
+				->createFlags($flags);
+			try
+			{
+				$sql = ConnectionHelper::buildStatement($connection,
+					$cns);
+				$connection->executeStatement($sql);
+			}
+			catch (\Exception $e)
+			{}
+		}
+
+		/**  @var CreateTableQuery */
+		$q = $platform->newStatement(CreateTableQuery::class);
 		$q->table($tableStructure);
 		$q->flags($flags);
 		$sql = ConnectionHelper::buildStatement($connection, $q);
