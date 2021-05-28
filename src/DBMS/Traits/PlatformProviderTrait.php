@@ -17,7 +17,16 @@ trait PlatformProviderTrait
 
 	/**
 	 *
+	 * @param PlatformInterface $platform
+	 */
+	protected function setPlatform(PlatformInterface $platform)
+	{
+		$this->platform = $platform;
+	}
+
+	/**
+	 *
 	 * @var PlatformInterface
 	 */
-	protected $platform;
+	private $platform;
 }
