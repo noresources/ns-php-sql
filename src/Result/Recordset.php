@@ -10,6 +10,7 @@
 namespace NoreSources\SQL\Result;
 
 use NoreSources\ArrayRepresentation;
+use NoreSources\Container;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\DataUnserializerInterface;
 use NoreSources\SQL\DBMS\DefaultDataUnserializer;
@@ -26,6 +27,29 @@ abstract class Recordset implements \Iterator, StatementResultInterface,
 {
 
 	use ResultColumnProviderTrait;
+
+	/**
+	 * Retrieve the given column of the current record of the recordset
+	 *
+	 * @param Recordset $recordset
+	 * @param integer|string $column
+	 *        	Column index or name
+	 * @return mixed Column value
+	 */
+	public static function columnValue(Recordset $recordset, $column = 0)
+	{
+		$previousFlags = $recordset->getFlags();
+		$flags = self::FETCH_UNSERIALIZE;
+		if (\is_integer($column))
+			$flags |= self::FETCH_INDEXED;
+		else
+			$flags = self::FETCH_ASSOCIATIVE;
+
+		$recordset->setFlags($flags);
+		$value = Container::keyValue($recordset->current(), $column);
+		$recordset->setFlags($previousFlags);
+		return $value;
+	}
 
 	/**
 	 * Fetch record row to an associative array
