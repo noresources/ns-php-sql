@@ -22,11 +22,21 @@ use Psr\Log\LoggerAwareInterface;
 /**
  * DBMS feature support informations, SQL dialect translation
  */
-interface PlatformInterface extends FeatureQueryInterface,
-	LoggerAwareInterface, DataSerializerInterface,
-	StringSerializerInterface, BinaryDataSerializerInterface,
-	IdentifierSerializerInterface, StatementFactoryInterface
+interface PlatformInterface extends LoggerAwareInterface,
+	DataSerializerInterface, StringSerializerInterface,
+	BinaryDataSerializerInterface, IdentifierSerializerInterface,
+	StatementFactoryInterface
 {
+
+	/**
+	 * Query feature support
+	 *
+	 * @param mixed $query
+	 * @param mixed $dflt
+	 *        	Default value if $query is not found. If NULL, let the Platform choose the most
+	 *        	meaningful default value
+	 */
+	function queryFeature($query, $dflt = null);
 
 	/**
 	 *
