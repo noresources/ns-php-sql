@@ -17,6 +17,8 @@ use NoreSources\SQL\DBMS\ConnectionException;
 use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\StringSerializerInterface;
 use NoreSources\SQL\DBMS\TransactionInterface;
+use NoreSources\SQL\DBMS\Configuration\ConfiguratorProviderInterface;
+use NoreSources\SQL\DBMS\Configuration\ConfiguratorProviderTrait;
 use NoreSources\SQL\DBMS\Explorer\StructureExplorerProviderInterface;
 use NoreSources\SQL\DBMS\MySQL\MySQLConstants as K;
 use NoreSources\SQL\DBMS\Traits\TransactionStackTrait;
@@ -29,10 +31,12 @@ use NoreSources\SQL\Syntax\Statement\Statement;
 
 class MySQLConnection implements ConnectionInterface,
 	StringSerializerInterface, BinaryDataSerializerInterface,
-	TransactionInterface, StructureExplorerProviderInterface
+	TransactionInterface, StructureExplorerProviderInterface,
+	ConfiguratorProviderInterface
 {
 
 	use TransactionStackTrait;
+	use ConfiguratorProviderTrait;
 
 	const STATE_CONNECTED = 0x01;
 

@@ -4,6 +4,7 @@ namespace NoreSources\SQL\DBMS\PDO;
 use NoreSources\CascadedValueTree;
 use NoreSources\TypeConversion;
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\ConnectionProviderInterface;
 use NoreSources\SQL\DBMS\IdentifierSerializerInterface;
 use NoreSources\SQL\DBMS\PlatformInterface;
@@ -108,6 +109,11 @@ class PDOPlatform implements PlatformInterface,
 	{
 		return $this->pdoFeatures->query($query,
 			$this->basePlatform->queryFeature($query, $dflt));
+	}
+
+	public function newConfigurator(ConnectionInterface $connection)
+	{
+		return $this->basePlatform->newConfigurator($connection);
 	}
 
 	public function newExpression($baseClassname, ...$arguments)

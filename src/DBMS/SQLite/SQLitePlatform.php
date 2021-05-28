@@ -14,6 +14,7 @@ use NoreSources\Expression\Value;
 use NoreSources\MediaType\MediaType;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\AbstractPlatform;
+use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\TimestampFormatTranslationMap;
 use NoreSources\SQL\DBMS\TypeRegistry;
 use NoreSources\SQL\DBMS\Types\ArrayObjectType;
@@ -190,6 +191,11 @@ class SQLitePlatform extends AbstractPlatform
 
 		return Container::keyValue(self::$timestampFormatTranslations,
 			$formatToken, null);
+	}
+
+	public function newConfigurator(ConnectionInterface $connection)
+	{
+		return new SQLiteConfigurator($this, $connection);
 	}
 
 	public function newExpression($baseClassname, ...$arguments)

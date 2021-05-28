@@ -1154,6 +1154,23 @@ class Constants
 	const FEATURE_EVENT_ACTIONS = 'eventactions';
 
 	/**
+	 * Runtime configuration setting
+	 *
+	 * Toggle key constraints.
+	 * Expect boolean value.
+	 */
+	const CONFIGURATION_KEY_CONSTRAINTS = 'keyconstraints';
+
+	/**
+	 * Runtime configuration setting
+	 *
+	 * Statement submission timeout.
+	 *
+	 * Expect milliseconds (integer)
+	 */
+	const CONFIGURATION_SUBMIT_TIMEOUT = 'submit.timeout';
+
+	/**
 	 * Hexadecimal string media type
 	 *
 	 * @var string

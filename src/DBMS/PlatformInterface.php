@@ -12,6 +12,7 @@ namespace NoreSources\SQL\DBMS;
 use NoreSources\SemanticVersion;
 use NoreSources\Expression\ExpressionInterface;
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\DBMS\Configuration\ConfiguratorInterface;
 use NoreSources\SQL\Structure\StructureElementInterface;
 use NoreSources\SQL\Syntax\FunctionCall;
 use NoreSources\SQL\Syntax\MetaFunctionCall;
@@ -37,6 +38,15 @@ interface PlatformInterface extends LoggerAwareInterface,
 	 *        	meaningful default value
 	 */
 	function queryFeature($query, $dflt = null);
+
+	/**
+	 * Create a runtime connection configurator object
+	 *
+	 * @param ConnectionInterface $connection
+	 *        	A DBMS connection compatible with the platform
+	 * @return ConfiguratorInterface
+	 */
+	function newConfigurator(ConnectionInterface $connection);
 
 	/**
 	 *

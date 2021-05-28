@@ -344,6 +344,11 @@ abstract class AbstractPlatform implements PlatformInterface
 			($dflt === null) ? true : $dflt);
 	}
 
+	public function newConfigurator(ConnectionInterface $connection)
+	{
+		throw new \Exception('Not implemented');
+	}
+
 	protected function __construct($parameters)
 	{
 		if (!Container::isArray($parameters))

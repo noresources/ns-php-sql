@@ -15,6 +15,8 @@ use NoreSources\Http\ParameterMapProviderInterface;
 use NoreSources\SQL\DataTypeProviderInterface;
 use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\TransactionInterface;
+use NoreSources\SQL\DBMS\Configuration\ConfiguratorProviderInterface;
+use NoreSources\SQL\DBMS\Configuration\ConfiguratorProviderTrait;
 use NoreSources\SQL\DBMS\Explorer\StructureExplorerProviderInterface;
 use NoreSources\SQL\DBMS\SQLite\SQLiteConstants as K;
 use NoreSources\SQL\DBMS\Traits\PlatformProviderTrait;
@@ -30,10 +32,16 @@ use NoreSources\SQL\Syntax\Statement\Statement;
  * SQLite connection
  */
 class SQLiteConnection implements ConnectionInterface,
-	TransactionInterface, StructureExplorerProviderInterface
+	TransactionInterface, StructureExplorerProviderInterface,
+	ConfiguratorProviderInterface
 {
 	use TransactionStackTrait;
 	use PlatformProviderTrait;
+	use ConfiguratorProviderTrait;
+
+	const CONFIGURATION_FOREIGN_KEY_CONSTRAINTS_DEFAULT = 1;
+
+	const CONFIGURATION_SUBMIT_TIMEOUT_DEFAULT = 5000;
 
 	/**
 	 * Special in-memory database name
@@ -121,8 +129,8 @@ class SQLiteConnection implements ConnectionInterface,
 		$pragmas = Container::keyValue($parameters,
 			K::CONNECTION_SQLITE_PRAGMAS,
 			[
-				'foreign_keys' => 1,
-				'busy_timeout' => 5000
+				'foreign_keys' => self::CONFIGURATION_FOREIGN_KEY_CONSTRAINTS_DEFAULT,
+				'busy_timeout' => self::CONFIGURATION_SUBMIT_TIMEOUT_DEFAULT
 			]);
 
 		$defaultNamespaceName = self::NAMESPACE_NAME_DEFAULT;

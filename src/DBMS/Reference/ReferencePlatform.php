@@ -27,6 +27,11 @@ class ReferencePlatform extends AbstractPlatform
 			$this->setPlatformFeature($feature[0], $feature[1]);
 	}
 
+	public function newConfigurator($connection)
+	{
+		return new ReferenceConfigurator($this, $connection);
+	}
+
 	public function quoteStringValue($value)
 	{
 		return "'" . \str_replace("'", "''", $value) . "'";

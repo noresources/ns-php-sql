@@ -141,6 +141,11 @@ class PostgreSQLPlatform extends AbstractPlatform implements
 			$compatibility);
 	}
 
+	public function newConfigurator(ConnectionInterface $connection)
+	{
+		return new PostgreSQLConfigurator($this, $connection);
+	}
+
 	public function quoteBinaryData($value)
 	{
 		if (\is_int($value))

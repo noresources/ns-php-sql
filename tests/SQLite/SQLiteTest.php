@@ -11,6 +11,8 @@ use NoreSources\Container;
 use NoreSources\DateTime;
 use NoreSources\TypeDescription;
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\DBMS\Configuration\ConfiguratorInterface;
+use NoreSources\SQL\DBMS\Configuration\ConfiguratorProviderInterface;
 use NoreSources\SQL\DBMS\Explorer\StructureExplorerInterface;
 use NoreSources\SQL\DBMS\SQLite\SQLiteConnection;
 use NoreSources\SQL\DBMS\SQLite\SQLiteConstants;
@@ -339,6 +341,41 @@ final class SQLiteTest extends \PHPUnit\Framework\TestCase
 					'Number of row of ' . $testName);
 			}
 		}
+	}
+
+	public function testConfigurator()
+	{
+		if (!$this->prerequisites())
+			return;
+
+		$this->assertTrue($this->createDatabase());
+
+		$this->assertInstanceOf(ConfiguratorProviderInterface::class,
+			$this->connection);
+
+		/**
+		 *
+		 * @var ConfiguratorInterface $configurator
+		 */
+		$configurator = $this->connection->getConfigurator();
+
+		$this->assertInstanceOf(ConfiguratorInterface::class,
+			$configurator);
+
+		$expected = (SQLiteConnection::CONFIGURATION_FOREIGN_KEY_CONSTRAINTS_DEFAULT !=
+			0);
+		$this->assertEquals($expected,
+			$configurator->get(K::CONFIGURATION_KEY_CONSTRAINTS),
+			'Key constraint default value');
+
+		$configurator[K::CONFIGURATION_KEY_CONSTRAINTS] = false;
+		$this->assertEquals(false,
+			$configurator->get(K::CONFIGURATION_KEY_CONSTRAINTS),
+			'Key constraint default value');
+		$configurator[K::CONFIGURATION_KEY_CONSTRAINTS] = 'non-false';
+		$this->assertEquals(true,
+			$configurator->get(K::CONFIGURATION_KEY_CONSTRAINTS),
+			'Key constraint default value');
 	}
 
 	public function testRawPragmas()

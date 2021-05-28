@@ -64,6 +64,11 @@ class MySQLPlatform extends AbstractPlatform implements
 			K::FEATURE_COLUMN_KEY_MANDATORY_LENGTH));
 	}
 
+	public function newConfigurator(ConnectionInterface $connection)
+	{
+		return new MySQLConfigurator($this, $connection);
+	}
+
 	public function quoteIdentifier($identifier)
 	{
 		return '`' . \str_replace('`', '``', $identifier) . '`';

@@ -56,12 +56,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/noresources/ns-php-core.git",
-                "reference": "28e769dfc64029ab01d384b938132944b7a69b14"
+                "reference": "4404bc7b4f72d2c438d52f907be1d57985355adf"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/noresources/ns-php-core/zipball/28e769dfc64029ab01d384b938132944b7a69b14",
-                "reference": "28e769dfc64029ab01d384b938132944b7a69b14",
+                "url": "https://api.github.com/repos/noresources/ns-php-core/zipball/4404bc7b4f72d2c438d52f907be1d57985355adf",
+                "reference": "4404bc7b4f72d2c438d52f907be1d57985355adf",
                 "shasum": ""
             },
             "require": {
@@ -83,7 +83,9 @@
                     "dev-1.0.x": "1.0.x-dev",
                     "dev-1.1.x": "1.1.x-dev",
                     "dev-2.0.x": "2.0.x-dev",
-                    "dev-master": "2.2.x-dev"
+                    "dev-2.1.x": "2.1.x-dev",
+                    "dev-2.2.x": "2.2.x-dev",
+                    "dev-master": "2.3.x-dev"
                 }
             },
             "autoload": {
@@ -109,9 +111,9 @@
             ],
             "support": {
                 "issues": "https://github.com/noresources/ns-php-core/issues",
-                "source": "https://github.com/noresources/ns-php-core/tree/v2.2.6"
+                "source": "https://github.com/noresources/ns-php-core/tree/master"
             },
-            "time": "2021-05-07T18:51:47+00:00"
+            "time": "2021-06-06T14:50:27+00:00"
         },
         {
             "name": "noresources/ns-php-expression",
@@ -119,16 +121,16 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/noresources/ns-php-expression.git",
-                "reference": "b4812ee0300b7501eecd267c2723f7dd2ad94df1"
+                "reference": "3193c9f6739b1e964ef24895821719f4722e1ea6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/noresources/ns-php-expression/zipball/b4812ee0300b7501eecd267c2723f7dd2ad94df1",
-                "reference": "b4812ee0300b7501eecd267c2723f7dd2ad94df1",
+                "url": "https://api.github.com/repos/noresources/ns-php-expression/zipball/3193c9f6739b1e964ef24895821719f4722e1ea6",
+                "reference": "3193c9f6739b1e964ef24895821719f4722e1ea6",
                 "shasum": ""
             },
             "require": {
-                "noresources/ns-php-core": "~2.2",
+                "noresources/ns-php-core": "~2.3",
                 "php": ">= 5.5"
             },
             "require-dev": {
@@ -160,9 +162,9 @@
             "description": "General purpose expression system",
             "support": {
                 "issues": "https://github.com/noresources/ns-php-expression/issues",
-                "source": "https://github.com/noresources/ns-php-expression/tree/master"
+                "source": "https://github.com/noresources/ns-php-expression/tree/v1.1.1"
             },
-            "time": "2021-05-10T17:53:09+00:00"
+            "time": "2021-06-06T14:53:32+00:00"
         },
         {
             "name": "noresources/ns-php-http-core",
@@ -170,16 +172,16 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/noresources/ns-php-http-core.git",
-                "reference": "565412d3f555dcb4d4b7ae449de533901cd040ba"
+                "reference": "c1d974f367a0da58dbe74253a5aae39f9b63c64c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/noresources/ns-php-http-core/zipball/565412d3f555dcb4d4b7ae449de533901cd040ba",
-                "reference": "565412d3f555dcb4d4b7ae449de533901cd040ba",
+                "url": "https://api.github.com/repos/noresources/ns-php-http-core/zipball/c1d974f367a0da58dbe74253a5aae39f9b63c64c",
+                "reference": "c1d974f367a0da58dbe74253a5aae39f9b63c64c",
                 "shasum": ""
             },
             "require": {
-                "noresources/ns-php-core": "~2.2",
+                "noresources/ns-php-core": "~2.3",
                 "php": ">=5.6"
             },
             "require-dev": {
@@ -216,9 +218,9 @@
             ],
             "support": {
                 "issues": "https://github.com/noresources/ns-php-http-core/issues",
-                "source": "https://github.com/noresources/ns-php-http-core/tree/v1.0.2"
+                "source": "https://github.com/noresources/ns-php-http-core/tree/v1.0.3"
             },
-            "time": "2021-05-07T19:02:56+00:00"
+            "time": "2021-06-06T15:05:24+00:00"
         },
         {
             "name": "noresources/ns-php-mediatype",
@@ -226,12 +228,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/noresources/ns-php-mediatype.git",
-                "reference": "1bbe25a84c7192ffb60a6f2195bb3793233fa334"
+                "reference": "5fd716b6a148c5f801ad326de2af847c9606b0f9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/noresources/ns-php-mediatype/zipball/1bbe25a84c7192ffb60a6f2195bb3793233fa334",
-                "reference": "1bbe25a84c7192ffb60a6f2195bb3793233fa334",
+                "url": "https://api.github.com/repos/noresources/ns-php-mediatype/zipball/5fd716b6a148c5f801ad326de2af847c9606b0f9",
+                "reference": "5fd716b6a148c5f801ad326de2af847c9606b0f9",
                 "shasum": ""
             },
             "require": {
@@ -272,9 +274,9 @@
             ],
             "support": {
                 "issues": "https://github.com/noresources/ns-php-mediatype/issues",
-                "source": "https://github.com/noresources/ns-php-mediatype/tree/v1.2.2"
+                "source": "https://github.com/noresources/ns-php-mediatype/tree/v1.2.3"
             },
-            "time": "2021-05-08T01:05:53+00:00"
+            "time": "2021-06-06T15:17:38+00:00"
         },
         {
             "name": "psr/container",
@@ -1768,6 +1770,7 @@
                 "issues": "https://github.com/sebastianbergmann/resource-operations/issues",
                 "source": "https://github.com/sebastianbergmann/resource-operations/tree/master"
             },
+            "abandoned": true,
             "time": "2015-07-28T20:34:47+00:00"
         },
         {

@@ -18,6 +18,8 @@ use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\IdentifierSerializerInterface;
 use NoreSources\SQL\DBMS\StringSerializerInterface;
 use NoreSources\SQL\DBMS\TransactionInterface;
+use NoreSources\SQL\DBMS\Configuration\ConfiguratorProviderInterface;
+use NoreSources\SQL\DBMS\Configuration\ConfiguratorProviderTrait;
 use NoreSources\SQL\DBMS\Explorer\StructureExplorerProviderInterface;
 use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLConstants as K;
 use NoreSources\SQL\DBMS\Traits\PlatformProviderTrait;
@@ -30,11 +32,13 @@ use NoreSources\SQL\Syntax\Statement\Statement;
 
 class PostgreSQLConnection implements ConnectionInterface,
 	TransactionInterface, StringSerializerInterface,
-	IdentifierSerializerInterface, StructureExplorerProviderInterface
+	IdentifierSerializerInterface, StructureExplorerProviderInterface,
+	ConfiguratorProviderInterface
 {
 
 	use TransactionStackTrait;
 	use PlatformProviderTrait;
+	use ConfiguratorProviderTrait;
 
 	/**
 	 *
@@ -241,6 +245,7 @@ class PostgreSQLConnection implements ConnectionInterface,
 			throw new \RuntimeException(__METHOD__ . ' Not implemented');
 
 		$status = \pg_result_status($result);
+
 		switch ($status)
 		{
 			case PGSQL_TUPLES_OK:
