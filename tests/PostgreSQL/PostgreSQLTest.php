@@ -88,6 +88,7 @@ final class PostgreSQLTest extends \PHPUnit\Framework\TestCase
 				$s = $connection->getPlatform()->newStatement(
 					CreateTableQuery::class);
 				$this->assertInstanceOf(CreateTableQuery::class, $s);
+				$s->createFlags(K::CREATE_EXISTS_CONDITION);
 				$s->table($elementStructure);
 			}
 			else

@@ -15,6 +15,7 @@ use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Structure\Identifier;
 use NoreSources\SQL\Structure\IndexDescriptionInterface;
 use NoreSources\SQL\Structure\IndexStructure;
+use NoreSources\SQL\Structure\StructureElementInterface;
 use NoreSources\SQL\Structure\TableStructure;
 use NoreSources\SQL\Structure\Traits\IndexDescriptionTrait;
 use NoreSources\SQL\Syntax\TableReference;
@@ -23,6 +24,7 @@ use NoreSources\SQL\Syntax\TokenStreamContextInterface;
 use NoreSources\SQL\Syntax\Statement\StatementException;
 use NoreSources\SQL\Syntax\Statement\TokenizableStatementInterface;
 use NoreSources\SQL\Syntax\Statement\Structure\Traits\CreateFlagsTrait;
+use NoreSources\SQL\Syntax\Statement\Structure\Traits\IdentifierPropertyTrait;
 use NoreSources\SQL\Syntax\Statement\Traits\IdenitifierTokenizationTrait;
 
 /**
@@ -31,11 +33,12 @@ use NoreSources\SQL\Syntax\Statement\Traits\IdenitifierTokenizationTrait;
  * @see https://www.sqlite.org/lang_createindex.html
  */
 class CreateIndexQuery implements TokenizableStatementInterface,
-	IndexDescriptionInterface
+	IndexDescriptionInterface, StructureOperationQueryInterface
 {
 	use IndexDescriptionTrait;
 	use CreateFlagsTrait;
 	use IdenitifierTokenizationTrait;
+	use IdentifierPropertyTrait;
 
 	/**
 	 *
@@ -63,6 +66,8 @@ class CreateIndexQuery implements TokenizableStatementInterface,
 	 *        	Index name
 	 * @throws \InvalidArgumentException
 	 * @return $this
+	 * @deprecated Use forStructure
+	 *
 	 */
 	public function setFromTable(TableStructure $table, $identifier)
 	{
@@ -81,7 +86,44 @@ class CreateIndexQuery implements TokenizableStatementInterface,
 			throw new \InvalidArgumentException(
 				$identifier . ' index not found');
 
+		$this->forStructure($index);
+		return $this;
+	}
+
+	public function identifier($identifier)
+	{
+		/**
+		 *
+		 * @note By desing IndexStructure are generally child of TableStructure
+		 * but they must be declared in Namespace
+		 */
+		if ($identifier instanceof IndexStructure)
+		{
+			$index = $identifier;
+			$ns = $index->getParentElement();
+			if ($ns instanceof TableStructure)
+				$ns = $ns->getParentElement();
+
+			/** @var Identifier $identifier */
+			$identifier = Identifier::make($ns);
+			$identifier->append($index->getName());
+		}
+
+		$this->structureIdentifier = Identifier::make($identifier);
+		return $this;
+	}
+
+	public function forStructure(StructureElementInterface $index)
+	{
+		if (!($index instanceof IndexStructure))
+			throw new \InvalidArgumentException(
+				IndexStructure::class . ' expected, got ' .
+				TypeDescription::getName($index));
+
+		/** @var IndexStructure $index */
+
 		$columns = $index->getColumns();
+		$table = $index->getParentElement();
 		$this->indexColumns = [];
 
 		$this->identifier($index)
@@ -89,21 +131,9 @@ class CreateIndexQuery implements TokenizableStatementInterface,
 			->columns(...$columns)
 			->flags($index->getIndexFlags());
 
-		return $this;
-	}
-
-	/**
-	 *
-	 * @param Identifier|string $identifier
-	 *        	Index identifier
-	 *
-	 * @return $this
-	 */
-	public function identifier($identifier)
-	{
-		$this->indexIdentifier = Identifier::make($identifier);
-
-		return $this;
+		$this->whereConstraints = $index->getConstraintExpression();
+		if (isset($this->whereConstraints))
+			$this->whereConstraints = clone $this->whereConstraints;
 	}
 
 	/**
@@ -130,15 +160,6 @@ class CreateIndexQuery implements TokenizableStatementInterface,
 				TypeDescription::getName($table));
 
 		return $this;
-	}
-
-	/**
-	 *
-	 * @return \NoreSources\SQL\Structure\Identifier
-	 */
-	public function getIdentifier()
-	{
-		return $this->indexIdentifier;
 	}
 
 	/**
@@ -176,7 +197,8 @@ class CreateIndexQuery implements TokenizableStatementInterface,
 			$stream->space()->keyword('unique');
 		$stream->space()->keyword('index');
 
-		if (($platformCreateFlags & K::FEATURE_CREATE_EXISTS_CONDITION))
+		if (($this->getCreateFlags() & K::CREATE_EXISTS_CONDITION) &&
+			($platformCreateFlags & K::FEATURE_CREATE_EXISTS_CONDITION))
 			$stream->space()
 				->keyword('if')
 				->space()
@@ -184,7 +206,8 @@ class CreateIndexQuery implements TokenizableStatementInterface,
 				->space()
 				->keyword('exists');
 
-		if (isset($this->indexIdentifier))
+		$identifier = $this->getIdentifier();
+		if (isset($identifier))
 		{
 			$stream->space();
 			$this->tokenizeIndexIdentifier($stream, $context);
@@ -243,12 +266,6 @@ class CreateIndexQuery implements TokenizableStatementInterface,
 		return $this->tokenizeIdentifier($stream, $context, $identifier,
 			true);
 	}
-
-	/**
-	 *
-	 * @var Identifier
-	 */
-	private $indexIdentifier;
 
 	/**
 	 *

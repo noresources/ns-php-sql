@@ -8,18 +8,25 @@
 namespace NoreSources\SQL\Syntax\Statement\Structure;
 
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\Structure\Identifier;
+use NoreSources\SQL\Structure\NamespaceStructure;
 use NoreSources\SQL\Syntax\TokenStream;
 use NoreSources\SQL\Syntax\TokenStreamContextInterface;
 use NoreSources\SQL\Syntax\Statement\TokenizableStatementInterface;
 use NoreSources\SQL\Syntax\Statement\Structure\Traits\CreateFlagsTrait;
+use NoreSources\SQL\Syntax\Statement\Structure\Traits\ForIdentifierTrait;
+use NoreSources\SQL\Syntax\Statement\Structure\Traits\IdentifierPropertyTrait;
+use NoreSources\SQL\Syntax\Statement\Structure\Traits\IdentifierSelectionTrait;
 
 /**
  * CREATE DATABASE / SCHEMA
  */
-class CreateNamespaceQuery implements TokenizableStatementInterface
+class CreateNamespaceQuery implements TokenizableStatementInterface,
+	StructureOperationQueryInterface
 {
 	use CreateFlagsTrait;
+	use IdentifierPropertyTrait;
+	use ForIdentifierTrait;
+	use IdentifierSelectionTrait;
 
 	/**
 	 *
@@ -37,27 +44,14 @@ class CreateNamespaceQuery implements TokenizableStatementInterface
 		return K::QUERY_CREATE_NAMESPACE;
 	}
 
-	/**
-	 *
-	 * @param string $identifier
-	 *        	Namespace identifier
-	 * @return \NoreSources\SQL\Syntax\Statement\Structure\DropViewQuery
-	 */
-	public function identifier($identifier)
-	{
-		$this->namespaceIdentifier = Identifier::make($identifier);
-		return $this;
-	}
-
-	public function getNamespaceIdentifier()
-	{
-		return $this->namespaceIdentifier;
-	}
-
 	function tokenize(TokenStream $stream,
 		TokenStreamContextInterface $context)
 	{
 		$platform = $context->getPlatform();
+
+		$identifier = $this->selectIdentifier($context,
+			NamespaceStructure::class, $this->getIdentifier(), false);
+
 		$platformCreateFlags = $platform->queryFeature(
 			[
 				K::FEATURE_CREATE,
@@ -68,19 +62,13 @@ class CreateNamespaceQuery implements TokenizableStatementInterface
 		$stream->keyword('create')
 			->space()
 			->keyword(K::KEYWORD_NAMESPACE);
-		if (($platformCreateFlags & K::FEATURE_CREATE_EXISTS_CONDITION))
+		if (($this->getCreateFlags() & K::CREATE_EXISTS_CONDITION) &&
+			($platformCreateFlags & K::FEATURE_CREATE_EXISTS_CONDITION))
 			$stream->space()->keyword('if not exists');
 		$stream->space()->identifier(
 			$context->getPlatform()
-				->quoteIdentifierPath($this->namespaceIdentifier));
+				->quoteIdentifierPath($identifier));
 
 		return $stream;
 	}
-
-	/**
-	 * Namespace identifier
-	 *
-	 * @var Identifier
-	 */
-	private $namespaceIdentifier;
 }

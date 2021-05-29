@@ -9,8 +9,10 @@
 namespace NoreSources\SQL\DBMS\MySQL;
 
 use NoreSources\SQL\Structure\Identifier;
+use NoreSources\SQL\Structure\IndexStructure;
 use NoreSources\SQL\Syntax\TokenStream;
 use NoreSources\SQL\Syntax\TokenStreamContextInterface;
+use NoreSources\SQL\Syntax\Statement\StatementException;
 use NoreSources\SQL\Syntax\Statement\Structure\DropIndexQuery;
 
 class MySQLDropIndexQuery extends DropIndexQuery
@@ -20,11 +22,21 @@ class MySQLDropIndexQuery extends DropIndexQuery
 		TokenStreamContextInterface $context)
 	{
 		$platform = $context->getPlatform();
+		$identifier = $this->getIdentifier();
+		if (!isset($identifier) || empty(\strval($identifier)))
+		{
+			$pivot = $context->getPivot();
+			if (!($pivot instanceof IndexStructure))
+				throw new StatementException($this,
+					'Not properly configured');
+		}
+
 		return parent::tokenize($stream, $context)->space()
 			->keyword('on')
 			->space()
 			->identifier(
-			$platform->quoteIdentifierPath($context->getPivot()));
+			$platform->quoteIdentifierPath(
+				$identifier->getParentIdentifier()));
 	}
 
 	protected function tokenizeIdentifier(TokenStream $stream,

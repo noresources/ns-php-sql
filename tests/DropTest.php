@@ -4,6 +4,7 @@ namespace NoreSources\SQL;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\Reference\ReferencePlatform;
 use NoreSources\SQL\Structure\NamespaceStructure;
+use NoreSources\SQL\Structure\ViewStructure;
 use NoreSources\SQL\Syntax\Statement\StatementBuilder;
 use NoreSources\SQL\Syntax\Statement\Structure\DropIndexQuery;
 use NoreSources\SQL\Syntax\Statement\Structure\DropNamespaceQuery;
@@ -54,19 +55,40 @@ final class DropTest extends \PHPUnit\Framework\TestCase
 	{
 		$platform = new ReferencePlatform([], []);
 
-		$view = new DropViewQuery();
-		$view->identifier('Males');
-		$result =  StatementBuilder::getInstance()($view, $platform);
+		$query = new DropViewQuery();
+		$query->identifier('Males');
+		$result =  StatementBuilder::getInstance()($query, $platform);
 		$sql = \SqlFormatter::format(strval($result), false);
 		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__,
 			'structureless', 'sql');
 
 		$structure = $this->datasources->get('Company')['ns_unittests'];
 		$this->assertInstanceOf(NamespaceStructure::class, $structure);
-		$result =  StatementBuilder::getInstance()($view, $platform, $structure);
+
+		/** @var NamespaceStructure $structure */
+		$structure->appendElement(new ViewStructure('Males'));
+
+		$view = new ViewStructure('Males');
+		$this->assertEquals('Males', $view->getName(),
+			'Temporary view structure name');
+
+		// Trick
+		$structure->appendElement($view);
+		$this->assertEquals($structure, $view->getParentElement(),
+			'Temporary view parent');
+
+		$this->assertEquals('ns_unittests.Males',
+			\strval($view->getIdentifier()), 'Temporary view identifier');
+
+		$result =  StatementBuilder::getInstance()($query, $platform, $view);
 		$sql = \SqlFormatter::format(strval($result), false);
 		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__,
 			'structure', 'sql');
+
+		$result =  StatementBuilder::getInstance()($query, $platform, $structure);
+		$sql = \SqlFormatter::format(strval($result), false);
+		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__,
+			'parentstructure', 'sql');
 	}
 
 	public function testDropNamespaceQuery()

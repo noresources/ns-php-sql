@@ -11,6 +11,7 @@ use NoreSources\TypeDescription;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\TypeInterface;
 use NoreSources\SQL\Structure\KeyTableConstraintInterface;
+use NoreSources\SQL\Structure\StructureElementInterface;
 use NoreSources\SQL\Structure\StructureProviderInterface;
 use NoreSources\SQL\Structure\TableConstraintInterface;
 use NoreSources\SQL\Structure\TableStructure;
@@ -35,7 +36,7 @@ use NoreSources\SQL\Syntax\Statement\Structure\Traits\CreateFlagsTrait;
  * </dl>
  */
 class CreateTableQuery implements TokenizableStatementInterface,
-	StructureProviderInterface
+	StructureProviderInterface, StructureOperationQueryInterface
 {
 
 	/**
@@ -71,6 +72,12 @@ class CreateTableQuery implements TokenizableStatementInterface,
 	public function getStructure()
 	{
 		return $this->structure;
+	}
+
+	public function forStructure(
+		StructureElementInterface $tableStructure)
+	{
+		return $this->table($tableStructure);
 	}
 
 	/**
@@ -157,7 +164,8 @@ class CreateTableQuery implements TokenizableStatementInterface,
 			$stream->space()->keyword(K::KEYWORD_TEMPORARY);
 		$stream->space()->keyword('table');
 
-		if (($platformCreateFlags & K::FEATURE_CREATE_EXISTS_CONDITION))
+		if (($this->getCreateFlags() & K::CREATE_EXISTS_CONDITION) &&
+			($platformCreateFlags & K::FEATURE_CREATE_EXISTS_CONDITION))
 			$stream->space()
 				->keyword('if')
 				->space()

@@ -9,13 +9,15 @@ namespace NoreSources\SQL\Syntax\Statement\Structure;
 
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Structure\Identifier;
-use NoreSources\SQL\Structure\NamespaceStructure;
 use NoreSources\SQL\Structure\ViewStructure;
 use NoreSources\SQL\Syntax\TokenStream;
 use NoreSources\SQL\Syntax\TokenStreamContextInterface;
 use NoreSources\SQL\Syntax\Statement\TokenizableStatementInterface;
 use NoreSources\SQL\Syntax\Statement\Query\SelectQuery;
 use NoreSources\SQL\Syntax\Statement\Structure\Traits\CreateFlagsTrait;
+use NoreSources\SQL\Syntax\Statement\Structure\Traits\ForIdentifierTrait;
+use NoreSources\SQL\Syntax\Statement\Structure\Traits\IdentifierPropertyTrait;
+use NoreSources\SQL\Syntax\Statement\Structure\Traits\IdentifierSelectionTrait;
 
 /**
  * CREATE VIEW statement
@@ -31,10 +33,14 @@ use NoreSources\SQL\Syntax\Statement\Structure\Traits\CreateFlagsTrait;
  * <dd>https://www.postgresql.org/docs/9.2/sql-createview.html</dd>
  * </dl>
  */
-class CreateViewQuery implements TokenizableStatementInterface
+class CreateViewQuery implements TokenizableStatementInterface,
+	StructureOperationQueryInterface
 {
 
 	use CreateFlagsTrait;
+	use IdentifierPropertyTrait;
+	use ForIdentifierTrait;
+	use IdentifierSelectionTrait;
 
 	/**
 	 *
@@ -49,7 +55,6 @@ class CreateViewQuery implements TokenizableStatementInterface
 	 */
 	public function __construct($identifier = null)
 	{
-		$this->viewIdentifier = null;
 		$this->selectQuery = null;
 
 		if ($identifier !== null)
@@ -59,22 +64,6 @@ class CreateViewQuery implements TokenizableStatementInterface
 	public function getStatementType()
 	{
 		return K::QUERY_CREATE_VIEW;
-	}
-
-	/**
-	 *
-	 * @param string|Identifier $identifier
-	 *        	View identifier
-	 * @return \NoreSources\SQL\Syntax\Statement\Structure\DropViewQuery
-	 */
-	public function identifier($identifier)
-	{
-		if ($identifier instanceof ViewStructure)
-			$identifier = $identifier->getPath();
-
-		$this->viewIdentifier = Identifier::make($identifier);
-
-		return $this;
 	}
 
 	/**
@@ -124,7 +113,8 @@ class CreateViewQuery implements TokenizableStatementInterface
 			$stream->space()->keyword('temporary');
 
 		$stream->space()->keyword('view');
-		if (($platformCreateFlags & K::FEATURE_CREATE_EXISTS_CONDITION))
+		if (($this->getCreateFlags() & K::CREATE_EXISTS_CONDITION) &&
+			($platformCreateFlags & K::FEATURE_CREATE_EXISTS_CONDITION))
 		{
 			$stream->space()
 				->keyword('if')
@@ -134,34 +124,12 @@ class CreateViewQuery implements TokenizableStatementInterface
 				->keyword('exists');
 		}
 
-		$stream->space();
-
-		$parts = $this->viewIdentifier->getPathParts();
-		if (\count($parts) > 1)
-		{
-			$stream->identifier(
-				$context->getPlatform()
-					->quoteIdentifierPath($parts));
-		}
-		else // Last chance to find the element namespace
-		{
-			$structure = $context->getPivot();
-			if ($stream instanceof ViewStructure)
-				$structure = $structure->getParentElement();
-
-			if ($structure instanceof NamespaceStructure)
-				$stream->identifier(
-					$context->getPlatform()
-						->quoteIdentifierPath($structure))
-					->text('.');
-
-			$stream->identifier(
-				$context->getPlatform()
-					->quoteIdentifier(
-					$this->viewIdentifier->getLocalName()));
-		}
+		$identifier = $this->selectIdentifier($context,
+			ViewStructure::class, $this->getIdentifier(), true);
 
 		return $stream->space()
+			->identifier($platform->quoteIdentifierPath($identifier))
+			->space()
 			->keyword('as')
 			->space()
 			->expression($this->selectQuery, $context);

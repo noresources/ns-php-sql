@@ -147,6 +147,7 @@ final class PDOTest extends \PHPUnit\Framework\TestCase
 		$connection = new PDOConnection($settings);
 
 		$create = new CreateTableQuery($detachedTable);
+		$create->createFlags(K::CREATE_EXISTS_CONDITION);
 		$sql = ConnectionHelper::buildStatement($connection, $create);
 		$sql = \strval($sql);
 

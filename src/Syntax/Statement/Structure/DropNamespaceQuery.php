@@ -8,39 +8,37 @@
  */
 namespace NoreSources\SQL\Syntax\Statement\Structure;
 
-use NoreSources\Container;
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\Structure\DatasourceStructure;
-use NoreSources\SQL\Structure\Identifier;
 use NoreSources\SQL\Structure\NamespaceStructure;
 use NoreSources\SQL\Syntax\TokenStream;
 use NoreSources\SQL\Syntax\TokenStreamContextInterface;
-use NoreSources\SQL\Syntax\Statement\StatementException;
 use NoreSources\SQL\Syntax\Statement\TokenizableStatementInterface;
 use NoreSources\SQL\Syntax\Statement\Structure\Traits\DropFlagsTrait;
+use NoreSources\SQL\Syntax\Statement\Structure\Traits\ForIdentifierTrait;
+use NoreSources\SQL\Syntax\Statement\Structure\Traits\IdentifierPropertyTrait;
+use NoreSources\SQL\Syntax\Statement\Structure\Traits\IdentifierSelectionTrait;
 use NoreSources\SQL\Syntax\Statement\Traits\IdenitifierTokenizationTrait;
 use Psr\Log\LoggerInterface;
 
-class DropNamespaceQuery implements TokenizableStatementInterface
+class DropNamespaceQuery implements TokenizableStatementInterface,
+	StructureOperationQueryInterface
 {
 	use DropFlagsTrait;
 	use IdenitifierTokenizationTrait;
+	use IdentifierPropertyTrait;
+	use ForIdentifierTrait;
+	use IdentifierSelectionTrait;
 
 	public function __construct($identifier = null)
 	{
 		if ($identifier)
 			$this->identifier($identifier);
+		$this->dropFlags(K::DROP_EXISTS_CONDITION);
 	}
 
 	public function getStatementType()
 	{
 		return K::QUERY_DROP_NAMESPACE;
-	}
-
-	public function identifier($identifier)
-	{
-		$this->namespaceIdentifier = Identifier::make($identifier);
-		return $this;
 	}
 
 	public function tokenize(TokenStream $stream,
@@ -61,7 +59,8 @@ class DropNamespaceQuery implements TokenizableStatementInterface
 			->keyword(K::KEYWORD_NAMESPACE)
 			->space();
 
-		if (($platformDropFlags & K::DROP_EXISTS_CONDITION))
+		if (($this->getDropFlags() & K::DROP_EXISTS_CONDITION) &&
+			($platformDropFlags & K::DROP_EXISTS_CONDITION))
 		{
 			$stream->keyword('if')
 				->space()
@@ -86,38 +85,10 @@ class DropNamespaceQuery implements TokenizableStatementInterface
 		TokenStreamContextInterface $context)
 	{
 		$platform = $context->getPlatform();
-		$identifier = $this->namespaceIdentifier;
-		if (!isset($identifier))
-		{
-			$pivot = $context->getPivot();
-
-			if ($pivot instanceof DatasourceStructure &&
-				($namespaces = $pivot->getChildElements(
-					NamespaceStructure::class)) &&
-				\count($namespaces) == 1)
-			{
-				$pivot = Container::firstValue($namespaces);
-			}
-			else
-				while ($pivot && !($pivot instanceof NamespaceStructure))
-				{
-					$pivot = $pivot->getParentElement();
-				}
-
-			if (!($pivot instanceof NamespaceStructure))
-				throw new StatementException($this, 'Identifier not set');
-
-			$identifier = Identifier::make($pivot);
-		}
+		$identifier = $this->selectIdentifier($context,
+			NamespaceStructure::class, $this->getIdentifier(), false);
 
 		return $stream->identifier(
 			$platform->quoteIdentifier($identifier->getLocalName()));
 	}
-
-	/**
-	 * Namespace name
-	 *
-	 * @var Identifier
-	 */
-	private $namespaceIdentifier;
 }

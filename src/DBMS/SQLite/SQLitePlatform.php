@@ -68,6 +68,20 @@ class SQLitePlatform extends AbstractPlatform
 			],
 			(K::FEATURE_CREATE_TEMPORARY |
 			K::FEATURE_CREATE_EXISTS_CONDITION));
+
+		foreach ([
+			K::FEATURE_ELEMENT_TABLE,
+			K::FEATURE_ELEMENT_VIEW,
+			K::FEATURE_ELEMENT_INDEX
+		] as $type)
+		{
+			$this->setPlatformFeature(
+				[
+					K::FEATURE_DROP,
+					$type,
+					K::FEATURE_DROP_FLAGS
+				], (K::FEATURE_DROP_EXISTS_CONDITION));
+		}
 	}
 
 	public function getColumnType($columnDescription,

@@ -7,18 +7,15 @@
  */
 namespace NoreSources\SQL\Structure;
 
-use NoreSources\SQL\Structure\Traits\StructureElementContainerTrait;
 use NoreSources\SQL\Structure\Traits\StructureElementTrait;
 
 /**
  * View structure definition
  */
-class ViewStructure implements StructureElementContainerInterface,
-	StructureElementInterface
+class ViewStructure implements StructureElementInterface
 {
 
 	use StructureElementTrait;
-	use StructureElementContainerTrait;
 
 	/**
 	 *
@@ -30,12 +27,10 @@ class ViewStructure implements StructureElementContainerInterface,
 		StructureElementContainerInterface $parent = null)
 	{
 		$this->initializeStructureElement($name, $parent);
-		$this->initializeStructureElementContainer();
 	}
 
 	public function __clone()
 	{
 		$this->cloneStructureElement();
-		$this->cloneStructureElementContainer();
 	}
 }

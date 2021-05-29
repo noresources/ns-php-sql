@@ -14,7 +14,9 @@ use NoreSources\SQL\Syntax\TokenStream;
 use NoreSources\SQL\Syntax\TokenStreamContextInterface;
 use NoreSources\SQL\Syntax\Statement\TokenizableStatementInterface;
 use NoreSources\SQL\Syntax\Statement\Structure\Traits\DropFlagsTrait;
-use NoreSources\SQL\Syntax\Statement\Traits\StatementTableTrait;
+use NoreSources\SQL\Syntax\Statement\Structure\Traits\ForIdentifierTrait;
+use NoreSources\SQL\Syntax\Statement\Structure\Traits\IdentifierPropertyTrait;
+use NoreSources\SQL\Syntax\Statement\Structure\Traits\IdentifierSelectionTrait;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -29,10 +31,13 @@ use Psr\Log\LoggerInterface;
  * <dd>https://mariadb.com/kb/en/drop-table/</dd>
  * </dl>
  */
-class DropTableQuery implements TokenizableStatementInterface
+class DropTableQuery implements TokenizableStatementInterface,
+	StructureOperationQueryInterface
 {
-	use StatementTableTrait;
 	use DropFlagsTrait;
+	use IdentifierPropertyTrait;
+	use ForIdentifierTrait;
+	use IdentifierSelectionTrait;
 
 	/**
 	 * Force to drop table and all elements related to it.
@@ -50,7 +55,8 @@ class DropTableQuery implements TokenizableStatementInterface
 	public function __construct($identifier = null)
 	{
 		if ($identifier != null)
-			$this->table($identifier);
+			$this->identifier($identifier);
+		$this->dropFlags(K::DROP_EXISTS_CONDITION);
 	}
 
 	public function getStatementType()
@@ -85,6 +91,10 @@ class DropTableQuery implements TokenizableStatementInterface
 		TokenStreamContextInterface $context)
 	{
 		$platform = $context->getPlatform();
+
+		$identifier = $this->selectIdentifier($context,
+			TableStructure::class, $this->getIdentifier(), true);
+
 		$platformDropFlags = $platform->queryFeature(
 			[
 				K::FEATURE_DROP,
@@ -99,7 +109,8 @@ class DropTableQuery implements TokenizableStatementInterface
 			->space()
 			->keyword('table');
 
-		if (($platformDropFlags & K::FEATURE_DROP_EXISTS_CONDITION))
+		if (($this->getDropFlags() & K::DROP_EXISTS_CONDITION) &&
+			($platformDropFlags & K::FEATURE_DROP_EXISTS_CONDITION))
 		{
 			$stream->space()
 				->keyword('if')
@@ -108,10 +119,7 @@ class DropTableQuery implements TokenizableStatementInterface
 		}
 
 		$stream->space()->identifier(
-			$context->getPlatform()
-				->quoteIdentifierPath(
-				$this->getTable()
-					->getPathParts()));
+			$platform->quoteIdentifierPath($identifier));
 
 		if ($this->getDropFlags() & K::DROP_CASCADE)
 		{

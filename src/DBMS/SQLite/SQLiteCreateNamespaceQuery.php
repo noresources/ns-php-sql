@@ -13,6 +13,7 @@ namespace NoreSources\SQL\DBMS\SQLite;
 
 use NoreSources\Container;
 use NoreSources\SQL\DBMS\SQLite\SQLiteConstants as K;
+use NoreSources\SQL\Structure\NamespaceStructure;
 use NoreSources\SQL\Syntax\Data;
 use NoreSources\SQL\Syntax\TokenStream;
 use NoreSources\SQL\Syntax\TokenStreamContextInterface;
@@ -33,13 +34,14 @@ class SQLiteCreateNamespaceQuery extends CreateNamespaceQuery
 		TokenStreamContextInterface $context)
 	{
 		$platform = $context->getPlatform();
+		$identifier = $this->selectIdentifier($context,
+			NamespaceStructure::class, $this->getIdentifier(), false);
 
 		$factory = $platform->getStructureFilenameFactory();
 		$structure = $context->findNamespace(
-			$this->getNamespaceIdentifier()
-				->getLocalName());
+			$identifier->getLocalName());
 
-		$path = $this->getNamespaceIdentifier() . '.sqlite';
+		$path = $identifier . '.sqlite';
 		if (!\is_callable($factory) &&
 			(Container::isTraversable($factory) ||
 			Container::isArray($factory)))
@@ -58,8 +60,6 @@ class SQLiteCreateNamespaceQuery extends CreateNamespaceQuery
 			->space()
 			->keyword('as')
 			->identifier(
-			$platform->quoteIdentifier(
-				$this->getNamespaceIdentifier()
-					->getLocalName()));
+			$platform->quoteIdentifier($identifier->getLocalName()));
 	}
 }

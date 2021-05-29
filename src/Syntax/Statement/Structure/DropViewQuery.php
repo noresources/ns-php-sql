@@ -8,13 +8,14 @@
 namespace NoreSources\SQL\Syntax\Statement\Structure;
 
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\Structure\Identifier;
-use NoreSources\SQL\Structure\NamespaceStructure;
 use NoreSources\SQL\Structure\ViewStructure;
 use NoreSources\SQL\Syntax\TokenStream;
 use NoreSources\SQL\Syntax\TokenStreamContextInterface;
 use NoreSources\SQL\Syntax\Statement\TokenizableStatementInterface;
 use NoreSources\SQL\Syntax\Statement\Structure\Traits\DropFlagsTrait;
+use NoreSources\SQL\Syntax\Statement\Structure\Traits\ForIdentifierTrait;
+use NoreSources\SQL\Syntax\Statement\Structure\Traits\IdentifierPropertyTrait;
+use NoreSources\SQL\Syntax\Statement\Structure\Traits\IdentifierSelectionTrait;
 
 /**
  * DROP VIEW statement
@@ -29,16 +30,20 @@ use NoreSources\SQL\Syntax\Statement\Structure\Traits\DropFlagsTrait;
  * <dd></dd>
  * </dl>
  */
-class DropViewQuery implements TokenizableStatementInterface
+class DropViewQuery implements TokenizableStatementInterface,
+	StructureOperationQueryInterface
 {
 
 	use DropFlagsTrait;
+	use IdentifierPropertyTrait;
+	use ForIdentifierTrait;
+	use IdentifierSelectionTrait;
 
 	public function __construct($identifier = null)
 	{
-		$this->viewIdentifier = null;
 		if ($identifier != null)
 			$this->identifier($identifier);
+		$this->dropFlags(K::DROP_EXISTS_CONDITION);
 	}
 
 	public function getStatementType()
@@ -46,25 +51,12 @@ class DropViewQuery implements TokenizableStatementInterface
 		return K::QUERY_DROP_VIEW;
 	}
 
-	/**
-	 *
-	 * @param string|ViewStructure|Identifier $identifier
-	 *        	View identifier
-	 * @return \NoreSources\SQL\Syntax\Statement\Structure\DropViewQuery
-	 */
-	public function identifier($identifier)
-	{
-		if ($identifier instanceof ViewStructure)
-			$identifier = $identifier->getPath();
-
-		$this->viewIdentifier = Identifier::make($identifier);
-
-		return $this;
-	}
-
 	public function tokenize(TokenStream $stream,
 		TokenStreamContextInterface $context)
 	{
+		$identifier = $this->selectIdentifier($context,
+			ViewStructure::class, $this->getIdentifier(), true);
+
 		$platform = $context->getPlatform();
 
 		$platformDropFlags = $platform->queryFeature(
@@ -77,7 +69,8 @@ class DropViewQuery implements TokenizableStatementInterface
 		$stream->keyword('drop')
 			->space()
 			->keyword('view');
-		if (($platformDropFlags & K::FEATURE_DROP_EXISTS_CONDITION))
+		if (($this->getDropFlags() & K::DROP_EXISTS_CONDITION) &&
+			($platformDropFlags & K::FEATURE_DROP_EXISTS_CONDITION))
 		{
 			$stream->space()
 				->keyword('if')
@@ -85,38 +78,7 @@ class DropViewQuery implements TokenizableStatementInterface
 				->keyword('exists');
 		}
 
-		$stream->space();
-
-		$parts = $this->viewIdentifier->getPathParts();
-		if (\count($parts) > 1)
-			$stream->identifier(
-				$context->getPlatform()
-					->quoteIdentifierPath($this->viewIdentifier));
-		else // Last chance to find the element namespace
-		{
-			$structure = $context->getPivot();
-			if ($stream instanceof ViewStructure)
-				$structure = $structure->getParentElement();
-
-			if ($structure instanceof NamespaceStructure)
-				$stream->identifier(
-					$context->getPlatform()
-						->quoteIdentifierPath($structure))
-					->text('.');
-
-			$stream->identifier(
-				$context->getPlatform()
-					->quoteIdentifier(
-					$this->viewIdentifier->getLocalName()));
-		}
-
-		return $stream;
+		return $stream->space()->identifier(
+			$platform->quoteIdentifierPath($identifier));
 	}
-
-	/**
-	 * View name
-	 *
-	 * @var Identifier
-	 */
-	private $viewIdentifier;
 }

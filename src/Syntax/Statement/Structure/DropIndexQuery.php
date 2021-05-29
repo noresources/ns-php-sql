@@ -7,12 +7,17 @@
  */
 namespace NoreSources\SQL\Syntax\Statement\Structure;
 
+use NoreSources\Container;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Structure\Identifier;
+use NoreSources\SQL\Structure\IndexStructure;
 use NoreSources\SQL\Syntax\TokenStream;
 use NoreSources\SQL\Syntax\TokenStreamContextInterface;
 use NoreSources\SQL\Syntax\Statement\TokenizableStatementInterface;
 use NoreSources\SQL\Syntax\Statement\Structure\Traits\DropFlagsTrait;
+use NoreSources\SQL\Syntax\Statement\Structure\Traits\ForIdentifierTrait;
+use NoreSources\SQL\Syntax\Statement\Structure\Traits\IdentifierPropertyTrait;
+use NoreSources\SQL\Syntax\Statement\Structure\Traits\IdentifierSelectionTrait;
 use NoreSources\SQL\Syntax\Statement\Traits\IdenitifierTokenizationTrait;
 
 /**
@@ -28,17 +33,21 @@ use NoreSources\SQL\Syntax\Statement\Traits\IdenitifierTokenizationTrait;
  * <dd></dd>
  * </dl>
  */
-class DropIndexQuery implements TokenizableStatementInterface
+class DropIndexQuery implements TokenizableStatementInterface,
+	StructureOperationQueryInterface
 {
 
 	use DropFlagsTrait;
 	use IdenitifierTokenizationTrait;
+	use IdentifierPropertyTrait;
+	use ForIdentifierTrait;
+	use IdentifierSelectionTrait;
 
 	public function __construct($identifier = null)
 	{
-		$this->indexIdentifier = null;
 		if ($identifier != null)
 			$this->identifier($identifier);
+		$this->dropFlags(K::DROP_EXISTS_CONDITION);
 	}
 
 	public function getStatementType()
@@ -46,22 +55,12 @@ class DropIndexQuery implements TokenizableStatementInterface
 		return K::QUERY_DROP_INDEX;
 	}
 
-	/**
-	 *
-	 * @param string|Identifier $identifier
-	 *        	Index identifier
-	 * @return \NoreSources\SQL\Syntax\Statement\Structure\DropIndexQuery
-	 */
-	public function identifier($identifier)
-	{
-		$this->indexIdentifier = Identifier::make($identifier);
-
-		return $this;
-	}
-
 	public function tokenize(TokenStream $stream,
 		TokenStreamContextInterface $context)
 	{
+		$identifier = $this->selectIdentifier($context,
+			IndexStructure::class, $this->getIdentifier(), true);
+
 		$platform = $context->getPlatform();
 
 		$platformDropFlags = $platform->queryFeature(
@@ -74,7 +73,8 @@ class DropIndexQuery implements TokenizableStatementInterface
 		$stream->keyword('drop')
 			->space()
 			->keyword('index');
-		if (($platformDropFlags & K::FEATURE_DROP_EXISTS_CONDITION))
+		if (($this->getDropFlags() & K::DROP_EXISTS_CONDITION) &&
+			($platformDropFlags & K::FEATURE_DROP_EXISTS_CONDITION))
 		{
 			$stream->space()
 				->keyword('if')
@@ -83,14 +83,27 @@ class DropIndexQuery implements TokenizableStatementInterface
 		}
 
 		$stream->space();
-		return $this->tokenizeIdentifier($stream, $context,
-			$this->indexIdentifier, true);
+		return $this->tokenizeIdentifier($stream, $context, $identifier,
+			true);
 	}
 
-	/**
-	 * Index name
-	 *
-	 * @var Identifier
-	 */
-	private $indexIdentifier;
+	protected function tokenizeIdentifier(TokenStream $stream,
+		TokenStreamContextInterface $context, Identifier $identifier,
+		$qualified = true)
+	{
+		$parts = $this->getIdentifier()->getPathParts();
+		if (Container::count($parts) == 3)
+		{
+			$ns = \array_shift($parts);
+			$name = \array_pop($parts);
+			$identifier = Identifier::make([
+				$ns,
+				$name
+			]);
+		}
+
+		$platform = $context->getPlatform();
+		return $stream->identifier(
+			$platform->quoteIdentifierPath($identifier));
+	}
 }

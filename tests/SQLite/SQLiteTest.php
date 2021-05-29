@@ -605,6 +605,7 @@ final class SQLiteTest extends \PHPUnit\Framework\TestCase
 		$factory = $this->connection->getPlatform();
 		$q = $factory->newStatement(CreateTableQuery::class,
 			$tableStructure);
+		$q->createFlags(K::CREATE_EXISTS_CONDITION);
 		$prepared = ConnectionHelper::prepareStatement(
 			$this->connection, $q);
 
