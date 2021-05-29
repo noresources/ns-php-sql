@@ -12,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/qntm/loco.git",
-                "reference": "d46e588e46830f47cc457fcf045a02ddb285c529"
+                "reference": "215782422cee673ecebf55df5fd84d0743240244"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/qntm/loco/zipball/d46e588e46830f47cc457fcf045a02ddb285c529",
-                "reference": "d46e588e46830f47cc457fcf045a02ddb285c529",
+                "url": "https://api.github.com/repos/qntm/loco/zipball/215782422cee673ecebf55df5fd84d0743240244",
+                "reference": "215782422cee673ecebf55df5fd84d0743240244",
                 "shasum": ""
             },
             "require": {
@@ -48,7 +48,7 @@
                 "issues": "https://github.com/qntm/loco/issues",
                 "source": "https://github.com/qntm/loco/tree/main"
             },
-            "time": "2019-11-25T00:00:57+00:00"
+            "time": "2021-05-17T19:17:51+00:00"
         },
         {
             "name": "noresources/ns-php-core",
@@ -119,12 +119,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/noresources/ns-php-expression.git",
-                "reference": "73d6c9bbbbb9f713736a1ce88ddf672d992c217e"
+                "reference": "b4812ee0300b7501eecd267c2723f7dd2ad94df1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/noresources/ns-php-expression/zipball/73d6c9bbbbb9f713736a1ce88ddf672d992c217e",
-                "reference": "73d6c9bbbbb9f713736a1ce88ddf672d992c217e",
+                "url": "https://api.github.com/repos/noresources/ns-php-expression/zipball/b4812ee0300b7501eecd267c2723f7dd2ad94df1",
+                "reference": "b4812ee0300b7501eecd267c2723f7dd2ad94df1",
                 "shasum": ""
             },
             "require": {
@@ -132,7 +132,7 @@
                 "php": ">= 5.5"
             },
             "require-dev": {
-                "phpunit/phpunit": "^7.0"
+                "phpunit/phpunit": "< 7.0"
             },
             "default-branch": true,
             "type": "library",
@@ -160,9 +160,9 @@
             "description": "General purpose expression system",
             "support": {
                 "issues": "https://github.com/noresources/ns-php-expression/issues",
-                "source": "https://github.com/noresources/ns-php-expression/tree/v1.1.0"
+                "source": "https://github.com/noresources/ns-php-expression/tree/master"
             },
-            "time": "2020-11-15T14:43:04+00:00"
+            "time": "2021-05-10T17:53:09+00:00"
         },
         {
             "name": "noresources/ns-php-http-core",
