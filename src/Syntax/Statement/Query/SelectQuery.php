@@ -45,7 +45,6 @@ class SelectQuery implements TokenizableStatementInterface
 	{
 		$this->selectQueryFlags = 0;
 
-		$this->whereConstraints = null;
 		$this->havingConstraints = null;
 		$this->limitClause = [
 			'count' => 0,
@@ -186,7 +185,7 @@ class SelectQuery implements TokenizableStatementInterface
 	 */
 	public function where()
 	{
-		if (!($this->whereConstraints instanceof \ArrayObject))
+		if (!isset($this->whereConstraints))
 			$this->whereConstraints = new \ArrayObject();
 		return $this->addConstraints($this->whereConstraints,
 			func_get_args());
@@ -386,7 +385,8 @@ class SelectQuery implements TokenizableStatementInterface
 
 		$where = new TokenStream();
 
-		if ($this->whereConstraints && $this->whereConstraints->count())
+		if (isset($this->whereConstraints) &&
+			Container::count($this->whereConstraints))
 		{
 			$where->space()
 				->keyword('where')

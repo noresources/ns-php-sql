@@ -7,6 +7,7 @@
  */
 namespace NoreSources\SQL\Syntax\Statement\Manipulation;
 
+use NoreSources\Container;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Structure\TableStructure;
 use NoreSources\SQL\Syntax\TokenStream;
@@ -54,8 +55,8 @@ class DeleteQuery implements TokenizableStatementInterface
 			->space()
 			->expression($this->getTable(), $context);
 
-		if ($this->whereConstraints instanceof \ArrayObject &&
-			$this->whereConstraints->count())
+		if (isset($this->whereConstraints) &&
+			Container::count($this->whereConstraints))
 		{
 			$stream->space()
 				->keyword('where')

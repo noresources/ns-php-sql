@@ -7,6 +7,7 @@
  */
 namespace NoreSources\SQL\Syntax\Statement\Manipulation;
 
+use NoreSources\Container;
 use NoreSources\Expression\ExpressionInterface;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Structure\ColumnStructure;
@@ -105,7 +106,8 @@ class UpdateQuery implements TokenizableStatementInterface, \ArrayAccess
 			$index++;
 		}
 
-		if ($this->whereConstraints->count())
+		if (isset($this->whereConstraints) &&
+			Container::count($this->whereConstraints))
 		{
 			$stream->space()
 				->keyword('where')

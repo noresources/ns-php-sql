@@ -10,6 +10,7 @@ namespace NoreSources\SQL\Syntax\Statement;
 use NoreSources\Container;
 use NoreSources\Stack;
 use NoreSources\SQL\DBMS\PlatformInterface;
+use NoreSources\SQL\DBMS\PlatformProviderInterface;
 use NoreSources\SQL\Structure\StructureElementInterface;
 use NoreSources\SQL\Structure\StructureResolver;
 use NoreSources\SQL\Structure\StructureResolverInterface;
@@ -82,6 +83,9 @@ class StatementTokenStreamContext implements
 				$this->platform = $value;
 			elseif ($value instanceof StructureResolverInterface)
 				$this->setStructureResolver($value);
+			elseif ($value instanceof PlatformProviderInterface &&
+				!isset($this->platform))
+				$this->platform = $value->getPlatform();
 		}
 
 		if (!isset($this->platform))

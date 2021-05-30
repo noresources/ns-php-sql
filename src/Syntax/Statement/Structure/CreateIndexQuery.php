@@ -213,7 +213,8 @@ class CreateIndexQuery implements TokenizableStatementInterface,
 
 		$stream->text(')');
 
-		if ($this->whereConstraints->count())
+		if (isset($this->whereConstraints) &&
+			Container::count($this->whereConstraints))
 		{
 			$stream->space()
 				->keyword('where')
