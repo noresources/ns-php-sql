@@ -26,7 +26,6 @@ class MySQLTransactionBlock implements TransactionBlockInterface,
 	public function __construct(MySQLConnection $connection, $name)
 	{
 		$this->setConnection($connection);
-
 		$this->initializeTransactionBlock($name);
 	}
 
@@ -83,14 +82,14 @@ class MySQLTransactionBlock implements TransactionBlockInterface,
 
 	private function executeCommand($sql, $exceptionMessage)
 	{
-		/**
-		 *
-		 * @var \mysqli $mysqli
-		 */
+		/**  @var \mysqli $mysqli */
 		$mysqli = $this->connection->getServerLink();
 		$result = $mysqli->query($sql);
+
 		if ($result === false)
-			throw new TransactionBlockException($exceptionMessage,
+			throw new TransactionBlockException(
+				$exceptionMessage . PHP_EOL . $mysqli->errno . ': ' .
+				$mysqli->error,
 				TransactionBlockException::EXECUTION_ERROR);
 		if ($result instanceof \mysqli_result)
 			$result->free();

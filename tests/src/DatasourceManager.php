@@ -21,9 +21,9 @@ class DatasourceManager extends \PHPUnit\Framework\TestCase
 		$this->basePath = __DIR__ . '/..';
 	}
 
-	public function get($name)
+	public function get($name, $reload = false)
 	{
-		if ($this->datasources->offsetExists($name))
+		if (!$reload && $this->datasources->offsetExists($name))
 			return $this->datasources[$name];
 
 		$filename = realpath(

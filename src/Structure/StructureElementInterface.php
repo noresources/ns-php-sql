@@ -29,7 +29,7 @@ interface StructureElementInterface extends NameProviderInterface
 	 * Get ancestor
 	 *
 	 * @param number $depth
-	 * @return StructureElementContainerInterface
+	 * @return StructureElementInterface|StructureElementContainerInterface
 	 */
 	function getParentElement();
 

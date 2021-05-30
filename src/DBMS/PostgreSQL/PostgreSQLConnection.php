@@ -20,7 +20,6 @@ use NoreSources\SQL\DBMS\StringSerializerInterface;
 use NoreSources\SQL\DBMS\StructureExplorerProviderInterface;
 use NoreSources\SQL\DBMS\TransactionInterface;
 use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLConstants as K;
-use NoreSources\SQL\DBMS\SQLite\SQLiteStructureExplorer;
 use NoreSources\SQL\DBMS\Traits\PlatformProviderTrait;
 use NoreSources\SQL\DBMS\Traits\TransactionStackTrait;
 use NoreSources\SQL\Result\DefaultInsertionStatementResult;
@@ -147,7 +146,7 @@ class PostgreSQLConnection implements ConnectionInterface,
 
 	/**
 	 *
-	 * @return \NoreSources\SQL\DBMS\SQLite\SQLiteStructureExplorer
+	 * @return PostgreSQLStructureExplorer
 	 */
 	public function getStructureExplorer()
 	{
@@ -211,7 +210,7 @@ class PostgreSQLConnection implements ConnectionInterface,
 		if (!($statement instanceof PostgreSQLPreparedStatement ||
 			TypeDescription::hasStringRepresentation($statement)))
 			throw new ConnectionException($this,
-				'Invalide statement type. string or ' .
+				'Invalid statement type. string or ' .
 				PostgreSQLPreparedStatement::class . ' expected. Got ' .
 				TypeDescription::getName($statement));
 
@@ -420,7 +419,7 @@ class PostgreSQLConnection implements ConnectionInterface,
 
 	/**
 	 *
-	 * @var SQLiteStructureExplorer
+	 * @var PostgreSQLStructureExplorer
 	 */
 	private $structureExplorer;
 }

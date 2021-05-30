@@ -33,8 +33,6 @@ use NoreSources\SQL\Syntax\Statement\TokenizableStatementInterface;
 
 /**
  * Helper method for creation of Connection, statement and prepared statement
- *
- * @deprecated use Environment class
  */
 class ConnectionHelper
 {
@@ -42,9 +40,11 @@ class ConnectionHelper
 	public static function sqliteDatabaseFilenameFactory(
 		NamespaceStructure $namespace)
 	{
-		return Path::cleanup(
+		$basePath = realpath(__DIR__ . '/../..');
+		$filePath = Path::cleanup(
 			__DIR__ . '/../derived/SQLite/' . $namespace->getName() .
 			'.sqlite');
+		return Path::getRelative($basePath, $filePath);
 	}
 
 	/**
