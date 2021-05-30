@@ -1059,20 +1059,36 @@ class Constants
 	/**
 	 * Platform feature support
 	 *
+	 * INSERT query supported flags
+	 *
+	 * @var string
+	 */
+	const FEATURE_INSERT_FLAGS = 'insertflags';
+
+	/**
+	 * Platform feature support
+	 *
 	 * Support for DEFAULT VALUES in lieu of VALUES in INSERT statements.
 	 *
 	 * @var string
 	 */
-	const FEATURE_DEFAULTVALUES = 'defaultvalues';
+	const FEATURE_INSERT_FLAG_DEFAULTVALUES = Bitset::BIT_01;
 
 	/**
 	 * Platform feature support.
 	 *
 	 * DEFAULT keyword in VALUES() instructions of INSERT statements.
+	 */
+	const FEATURE_INSERT_FLAG_DEFAULT = Bitset::BIT_02;
+
+	/**
+	 * Platform feature support.
+	 *
+	 * INSERT INTO () SELECT support
 	 *
 	 * @var string
 	 */
-	const FEATURE_DEFAULT = 'default';
+	const FEATURE_INSERT_FLAG_SELECT = Bitset::BIT_03;
 
 	/**
 	 * Platform feature support.

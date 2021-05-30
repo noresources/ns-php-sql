@@ -56,13 +56,11 @@ class SQLitePlatform extends AbstractPlatform
 		$this->setPlatformFeature(
 			[
 				K::FEATURE_INSERT,
-				K::FEATURE_DEFAULT
-			], false);
-		$this->setPlatformFeature(
-			[
-				K::FEATURE_INSERT,
-				K::FEATURE_DEFAULTVALUES
-			], true);
+				K::FEATURE_INSERT_FLAGS
+			],
+			(K::FEATURE_INSERT_FLAG_SELECT |
+			K::FEATURE_INSERT_FLAG_DEFAULTVALUES));
+
 		$this->setPlatformFeature(
 			[
 				K::FEATURE_CREATE,

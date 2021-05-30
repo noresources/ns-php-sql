@@ -11,6 +11,7 @@ use NoreSources\SQL\Syntax\Statement\StatementBuilder;
 use NoreSources\SQL\Syntax\Statement\StatementTokenStreamContext;
 use NoreSources\SQL\Syntax\Statement\StatementTypeProviderInterface;
 use NoreSources\SQL\Syntax\Statement\Manipulation\InsertQuery;
+use NoreSources\SQL\Syntax\Statement\Query\SelectQuery;
 use NoreSources\Test\DatasourceManager;
 use NoreSources\Test\DerivedFileManager;
 
@@ -39,7 +40,14 @@ final class InsertTest extends \PHPUnit\Framework\TestCase
 				[
 					[
 						K::FEATURE_INSERT,
-						K::FEATURE_DEFAULTVALUES
+						K::FEATURE_INSERT_FLAGS
+					],
+					K::FEATURE_INSERT_FLAG_DEFAULTVALUES
+				],
+				[
+					[
+						K::FEATURE_INSERT_FLAGS,
+						K::FEATURE_INSERT_FLAG_DEFAULTVALUES
 					],
 					true
 				]
@@ -48,9 +56,9 @@ final class InsertTest extends \PHPUnit\Framework\TestCase
 				[
 					[
 						K::FEATURE_INSERT,
-						K::FEATURE_DEFAULT
+						K::FEATURE_INSERT_FLAGS
 					],
-					true
+					(K::FEATURE_INSERT_FLAG_DEFAULT)
 				]
 			]
 		);
@@ -147,6 +155,53 @@ final class InsertTest extends \PHPUnit\Framework\TestCase
 			$this->derivedFileManager->assertDerivedFile(
 				strval($result), __METHOD__, $key, 'sql');
 		}
+	}
+
+	public function testInsertSelect()
+	{
+		$structure = $this->datasources->get('Company');
+		$tableStructure = $structure['ns_unittests']['Employees'];
+		$this->assertInstanceOf(TableStructure::class, $tableStructure);
+		$platform = new ReferencePlatform([],
+			[
+				[
+					[
+						K::FEATURE_INSERT,
+						K::FEATURE_INSERT_FLAGS
+					],
+					(K::FEATURE_INSERT_FLAG_SELECT)
+				]
+			]);
+		$builder = StatementBuilder::getInstance(); // IDO workaround
+
+		/**
+		 *
+		 * @var InsertQuery $insert
+		 */
+		$insert = $platform->newStatement(InsertQuery::class);
+		/**
+		 *
+		 * @var SelectQuery $select
+		 */
+		$select = $platform->newStatement(SelectQuery::class);
+		$select->columns([
+			'name' => 'N'
+		], [
+			'salary' => 'S'
+		])
+			->from($tableStructure)
+			->where([
+			'gender' => new Data('F')
+		]);
+
+		$insert->columns('name', 'salary')->into($tableStructure);
+		$insert->select($select);
+
+		$data = $builder($insert, $platform, $structure);
+		$sql = \SqlFormatter::format(\strval($data), false);
+
+		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__,
+			'', 'sql');
 	}
 
 	/**

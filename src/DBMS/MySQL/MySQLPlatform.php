@@ -38,11 +38,14 @@ class MySQLPlatform extends AbstractPlatform implements
 				DropIndexQuery::class => MySQLDropIndexQuery::class
 			]);
 		$this->setConnection($connection);
+
 		$this->setPlatformFeature(
 			[
 				K::FEATURE_INSERT,
-				K::FEATURE_DEFAULT
-			], true);
+				K::FEATURE_INSERT_FLAGS
+			],
+			(K::FEATURE_INSERT_FLAG_SELECT |
+			K::FEATURE_INSERT_FLAG_DEFAULT));
 
 		$this->setPlatformFeature(
 			[
