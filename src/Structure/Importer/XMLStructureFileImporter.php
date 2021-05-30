@@ -212,7 +212,7 @@ class XMLStructureFileImporter implements
 						->get($name));
 			}
 
-			$structure->addConstraint($constraint);
+			$structure->appendElement($constraint);
 		}
 
 		$uniqueNodes = $node->getElementsByTagNameNS(
@@ -234,7 +234,7 @@ class XMLStructureFileImporter implements
 				$constraint->append($structure->offsetGet($name));
 			}
 
-			$structure->addConstraint($constraint);
+			$structure->appendElement($constraint);
 		}
 
 		$fkNodes = $node->getElementsByTagNameNS($context->namespaceURI,
@@ -671,7 +671,7 @@ class XMLStructureFileImporter implements
 				}
 			}
 
-			$structure->addConstraint($fk);
+			$structure->appendElement($fk);
 		}
 	}
 }

@@ -9,10 +9,11 @@
 namespace NoreSources\SQL\DBMS\SQLite;
 
 use NoreSources\Container;
-use NoreSources\SQL\DBMS\AbstractStructureExplorer;
 use NoreSources\SQL\DBMS\ConnectionException;
 use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\ConnectionProviderInterface;
+use NoreSources\SQL\DBMS\Explorer\AbstractStructureExplorer;
+use NoreSources\SQL\DBMS\Explorer\StructureExplorerException;
 use NoreSources\SQL\DBMS\SQLite\SQLiteConstants as K;
 use NoreSources\SQL\DBMS\Traits\ConnectionProviderTrait;
 use NoreSources\SQL\Result\Recordset;
@@ -36,7 +37,7 @@ class SQLiteStructureExplorer extends AbstractStructureExplorer implements
 	public function getNamespaceNames()
 	{
 		$recordset = $this->getConnection()->executeStatement(
-			'pragma database_list');
+			'PRAGMA database_list');
 		return self::recordsetToList($recordset);
 	}
 
@@ -225,7 +226,7 @@ class SQLiteStructureExplorer extends AbstractStructureExplorer implements
 			});
 
 		if (!\count($info))
-			throw new \InvalidArgumentException(
+			throw new StructureExplorerException(
 				$columnName . ' not found');
 
 		$platform = $this->getConnection()->getPlatform();

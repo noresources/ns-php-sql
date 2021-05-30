@@ -9,11 +9,11 @@
 namespace NoreSources\SQL\DBMS\PostgreSQL;
 
 use NoreSources\Container;
-use NoreSources\SQL\DBMS\AbstractStructureExplorer;
 use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\ConnectionProviderInterface;
-use NoreSources\SQL\DBMS\InformationSchemaStructureExplorerTrait;
 use NoreSources\SQL\DBMS\PlatformInterface;
+use NoreSources\SQL\DBMS\Explorer\AbstractStructureExplorer;
+use NoreSources\SQL\DBMS\Explorer\InformationSchemaStructureExplorerTrait;
 use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLConstants as K;
 use NoreSources\SQL\DBMS\Traits\ConnectionProviderTrait;
 use NoreSources\SQL\Result\Recordset;

@@ -6,7 +6,7 @@
  *
  * @package SQL
  */
-namespace NoreSources\SQL\DBMS;
+namespace NoreSources\SQL\DBMS\Explorer;
 
 interface StructureExplorerProviderInterface
 {

@@ -18,12 +18,16 @@ use NoreSources\SQL\DBMS\ConnectionException;
 use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\StringSerializerInterface;
 use NoreSources\SQL\DBMS\TransactionInterface;
+use NoreSources\SQL\DBMS\Explorer\StructureExplorerProviderInterface;
 use NoreSources\SQL\DBMS\MySQL\MySQLPlatform;
+use NoreSources\SQL\DBMS\MySQL\MySQLStructureExplorer;
 use NoreSources\SQL\DBMS\PDO\PDOConstants as K;
 use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLPlatform;
+use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLStructureExplorer;
 use NoreSources\SQL\DBMS\Reference\ReferencePlatform;
 use NoreSources\SQL\DBMS\Reference\ReferenceTransactionBlock;
 use NoreSources\SQL\DBMS\SQLite\SQLitePlatform;
+use NoreSources\SQL\DBMS\SQLite\SQLiteStructureExplorer;
 use NoreSources\SQL\DBMS\Traits\PlatformProviderTrait;
 use NoreSources\SQL\DBMS\Traits\TransactionStackTrait;
 use NoreSources\SQL\Result\DefaultInsertionStatementResult;
@@ -38,7 +42,8 @@ use PDO;
  * PDO connection
  */
 class PDOConnection implements ConnectionInterface, TransactionInterface,
-	StringSerializerInterface, BinaryDataSerializerInterface
+	StringSerializerInterface, BinaryDataSerializerInterface,
+	StructureExplorerProviderInterface
 {
 	use TransactionStackTrait;
 	use PlatformProviderTrait;
@@ -237,6 +242,30 @@ class PDOConnection implements ConnectionInterface, TransactionInterface,
 		{}
 
 		return $c . \str_replace($c, $c . $c, $identifier) . $c;
+	}
+
+	public function getStructureExplorer()
+	{
+		if (!isset($this->structureExplorer))
+		{
+			$className = Container::keyValue(
+				[
+					self::DRIVER_POSTGRESQL => PostgreSQLStructureExplorer::class,
+					self::DRIVER_SQLITE => SQLiteStructureExplorer::class,
+					self::DRIVER_MYSQL => MySQLStructureExplorer::class
+				], $this->driverName, null);
+
+			if (!$className)
+				throw new ConnectionException(
+					'No structure explorer for ' . $this->driverName);
+
+			$cls = new \ReflectionClass($className);
+			$this->structureExplorer = $cls->newInstanceArgs([
+				$this
+			]);
+		}
+
+		return $this->structureExplorer;
 	}
 
 	public function getPlatform()
@@ -570,4 +599,10 @@ class PDOConnection implements ConnectionInterface, TransactionInterface,
 	 * @var array
 	 */
 	private $platformParameters;
+
+	/**
+	 *
+	 * @var SQLiteStructureExplorer
+	 */
+	private $structureExplorer;
 }

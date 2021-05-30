@@ -6,11 +6,12 @@
  *
  * @package SQL
  */
-namespace NoreSources\SQL\DBMS;
+namespace NoreSources\SQL\DBMS\Explorer;
 
 use NoreSources\Container;
+use NoreSources\KeyNotFoundException;
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\Environment;
+use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\Structure\ArrayColumnDescription;
 use NoreSources\SQL\Structure\ForeignKeyTableConstraint;
 use NoreSources\SQL\Structure\Identifier;
@@ -18,6 +19,7 @@ use NoreSources\SQL\Structure\KeyTableConstraintInterface;
 use NoreSources\SQL\Structure\PrimaryKeyTableConstraint;
 use NoreSources\SQL\Structure\UniqueTableConstraint;
 use NoreSources\SQL\Syntax\Data;
+use NoreSources\SQL\Syntax\Statement\StatementBuilder;
 use NoreSources\SQL\Syntax\Statement\Query\SelectQuery;
 
 /**
@@ -46,8 +48,9 @@ trait InformationSchemaStructureExplorerTrait
 			]
 		]);
 
-		$env = new Environment($connection);
-		$recordset = $env->executeStatement($query);
+		$query = StatementBuilder::getInstance()->build($query,
+			$platform);
+		$recordset = $connection->executeStatement($query);
 		return self::recordsetToList($recordset, 'table_name');
 	}
 
@@ -73,8 +76,12 @@ trait InformationSchemaStructureExplorerTrait
 			'table_name' => new Data($tableName)
 		])
 			->orderBy('ordinal_position');
-		$env = new Environment($connection);
-		return self::recordsetToList($env->executeStatement($query), 0);
+
+		$query = StatementBuilder::getInstance()->build($query,
+			$platform);
+
+		return self::recordsetToList(
+			$connection->executeStatement($query), 0);
 	}
 
 	public function getInformationSchemaTableColumn(
@@ -122,15 +129,29 @@ trait InformationSchemaStructureExplorerTrait
 		], [
 			'column_name' => new Data($columnName)
 		]);
-		$env = new Environment($connection);
 
-		$recordset = $env->executeStatement($query);
+		$query = StatementBuilder::getInstance()->build($query,
+			$platform);
+
+		$recordset = $connection->executeStatement($query);
 		$recordset->setFlags(K::RECORDSET_FETCH_ASSOCIATIVE);
 		$info = $recordset->current();
 		$properties = [];
 
-		$type = $platform->getTypeRegistry()->get($info['data_type']);
-		$dataType = $type->get(K::TYPE_DATA_TYPE);
+		$dataType = 0;
+		try
+		{
+			$type = $platform->getTypeRegistry()->get(
+				$info['data_type']);
+			$dataType = $type->get(K::TYPE_DATA_TYPE);
+		}
+		catch (KeyNotFoundException $e)
+		{
+		/**
+		 *
+		 * @todo warning
+		 */
+		}
 		$flags = 0;
 		if (\strcasecmp($info['is_nullable'], 'yes'))
 			$dataType |= K::DATATYPE_NULL;
@@ -267,8 +288,9 @@ trait InformationSchemaStructureExplorerTrait
 					]
 				]);
 
-		$env = new Environment($connection);
-		$recordset = $env->executeStatement($query);
+		$query = StatementBuilder::getInstance()->build($query,
+			$platform);
+		$recordset = $connection->executeStatement($query);
 
 		if ($asRecordset)
 			return $recordset;
@@ -277,16 +299,15 @@ trait InformationSchemaStructureExplorerTrait
 			K::RECORDSET_FETCH_ASSOCIATIVE |
 			K::RECORDSET_FETCH_UBSERIALIZE);
 
-		/**
-		 *
-		 * @var KeyTableConstraintInterface
-		 */
+		/**  @var KeyTableConstraintInterface */
+
 		$key = null;
 		$keys = [];
 
 		foreach ($recordset as $row)
 		{
 			$name = $row['name'];
+
 			$column = $row['column'];
 
 			if (!isset($key) || ($key->getName() != $name))
@@ -325,8 +346,9 @@ trait InformationSchemaStructureExplorerTrait
 			'table_schema' => new Data($namespace)
 		]);
 
-		$env = new Environment($connection);
-		$recordset = $env->executeStatement($query);
+		$query = StatementBuilder::getInstance()->build($query,
+			$platform);
+		$recordset = $connection->executeStatement($query);
 		return self::recordsetToList($recordset, 0);
 	}
 
@@ -357,8 +379,9 @@ trait InformationSchemaStructureExplorerTrait
 			'constraint_name' => new Data($foreignKey->getName())
 		]);
 
-		$env = new Environment($connection);
-		$rules = $env->executeStatement($query);
+		$query = StatementBuilder::getInstance()->build($query,
+			$platform);
+		$rules = $connection->executeStatement($query);
 
 		if (($rules = $rules->current()))
 		{

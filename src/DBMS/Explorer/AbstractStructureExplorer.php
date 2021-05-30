@@ -6,10 +6,12 @@
  *
  * @package SQL
  */
-namespace NoreSources\SQL\DBMS;
+namespace NoreSources\SQL\DBMS\Explorer;
 
 use NoreSources\Container;
 use NoreSources\TypeDescription;
+use NoreSources\SQL\DBMS\ConnectionProviderInterface;
+use NoreSources\SQL\DBMS\PDO\PDOPlatform;
 use NoreSources\SQL\Structure\ColumnStructure;
 use NoreSources\SQL\Structure\DatasourceStructure;
 use NoreSources\SQL\Structure\Identifier;
@@ -45,13 +47,13 @@ abstract class AbstractStructureExplorer implements
 			{
 				$table = new TableStructure($tableName, $namespace);
 				$namespace->appendElement($table);
-
 				$tableIdentifier = Identifier::make($table);
 
 				$columns = $this->tryMethod('getTableColumnNames',
 					[
 						$tableIdentifier
 					], []);
+
 				foreach ($columns as $columnName)
 				{
 					$columnDescription = $this->tryMethod(
@@ -73,7 +75,7 @@ abstract class AbstractStructureExplorer implements
 					], null);
 
 				if ($primaryKey)
-					$table->addConstraint($primaryKey);
+					$table->appendElement($primaryKey);
 
 				$foreignKeys = $this->tryMethod(
 					'getTableForeignKeyConstraints',
@@ -82,14 +84,14 @@ abstract class AbstractStructureExplorer implements
 					], []);
 
 				foreach ($foreignKeys as $constraint)
-					$table->addConstraint($constraint);
+					$table->appendElement($constraint);
 
 				$indexes = $this->tryMethod('getTableIndexes',
 					[
 						$tableIdentifier
 					], []);
 				foreach ($indexes as $index)
-					$table->addConstraint($index);
+					$table->appendElement($index);
 			}
 
 			if ($namespace instanceof NamespaceStructure)
@@ -175,9 +177,29 @@ abstract class AbstractStructureExplorer implements
 				$name
 			], $args);
 		}
+		catch (StructureExplorerException $e)
+		{}
 		catch (\Exception $e)
 		{
-			var_dump(\strval($e->getMessage()));
+			$a = [];
+			if ($this instanceof ConnectionProviderInterface)
+			{
+				$c = $this->getConnection();
+				$p = $c->getPlatform();
+				if ($p instanceof PDOPlatform)
+				{
+					$a[] = 'PDO';
+					$p = $p->getBasePlatform();
+				}
+				$a[] = \preg_replace('/Platform$/', '',
+					TypeDescription::getLocalName($p));
+			}
+
+			$a[] = \preg_replace('/^.*::/', '', $name);
+			$a[] = \preg_replace('/Exception$/', '',
+				TypeDescription::getLocalName($e));
+			$a[] = $e->getMessage();
+			throw new \Exception(\implode(' > ', $a));
 		}
 
 		return $dflt;
@@ -185,9 +207,8 @@ abstract class AbstractStructureExplorer implements
 
 	private function notImplemented($method)
 	{
-		$cls = TypeDescription::getLocalName($this->getConnection());
 		$method = \preg_replace('/.*::(.*)/', '$1', $method);
-		throw new \RuntimeException(
-			$method . '() not implemented for ' . $cls);
+		throw new StructureExplorerMethodNotImplementedException($this,
+			$method);
 	}
 }

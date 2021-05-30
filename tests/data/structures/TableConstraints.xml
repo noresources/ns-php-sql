@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sql:datasource xmlns:sql="http://xsd.nore.fr/sql/2.0" xmlns:xi="http://www.w3.org/2001/XInclude">
+	<sql:namespace name="ns_unittests">
+		<sql:table name="ConstraintNames" id="nsut.tables.ConstraintNames">
+			<sql:column name="id">
+				<sql:datatype nullable="no">
+					<sql:numeric autoincrement="yes" />
+				</sql:datatype>
+			</sql:column>
+			<sql:column name="name">
+				<sql:datatype>
+					<sql:string length="15" />
+				</sql:datatype>
+			</sql:column>
+
+			<sql:primarykey>
+				<sql:column name="id" />
+			</sql:primarykey>
+		</sql:table>
+
+		<sql:table name="ConstraintTypes" id="nsut.tables.ConstraintTypes">
+			<sql:column name="id">
+				<sql:datatype nullable="no">
+					<sql:numeric autoincrement="yes" />
+				</sql:datatype>
+			</sql:column>
+			<sql:column name="name">
+				<sql:datatype>
+					<sql:string length="15" />
+				</sql:datatype>
+			</sql:column>
+
+			<sql:primarykey name="constraintTypePrimaryKey">
+				<sql:column name="id" />
+			</sql:primarykey>
+		</sql:table>
+
+		<sql:table name="Constraints" id="nsut.tables.Constraints">
+			<sql:column name="id">
+				<sql:datatype nullable="no">
+					<sql:numeric autoincrement="yes" />
+				</sql:datatype>
+			</sql:column>
+
+			<sql:column name="nameId">
+				<sql:datatype nullable="yes">
+					<sql:numeric />
+				</sql:datatype>
+			</sql:column>
+
+			<sql:column name="typeId">
+				<sql:datatype nullable="yes">
+					<sql:numeric />
+				</sql:datatype>
+			</sql:column>
+
+			<sql:primarykey>
+				<sql:column name="id"/>
+				<sql:column name="nameId" />
+				<sql:column name="typeId" />
+			</sql:primarykey>
+
+			<sql:foreignkey>
+				<sql:column name="nameId" />
+				<sql:reference>
+					<sql:column name="ConstraintNames" />
+					<sql:column name="id" />
+				</sql:reference>
+				<sql:actions>
+					<sql:ondelete action="cascade" />
+					<sql:onupdate action="cascade" />
+				</sql:actions>
+			</sql:foreignkey>
+
+			<sql:foreignkey>
+				<sql:column name="typeId" />
+				<sql:reference>
+					<sql:column name="ConstraintTypes" />
+					<sql:column name="id" />
+				</sql:reference>
+				<sql:actions>
+					<sql:ondelete action="cascade" />
+					<sql:onupdate action="cascade" />
+				</sql:actions>
+			</sql:foreignkey>
+
+			<sql:unique>
+				<sql:column name="id" />
+			</sql:unique>
+		</sql:table>
+
+	</sql:namespace>
+</sql:datasource>

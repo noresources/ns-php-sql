@@ -9,10 +9,11 @@
 namespace NoreSources\SQL\DBMS\MySQL;
 
 use NoreSources\Container;
-use NoreSources\SQL\DBMS\AbstractStructureExplorer;
 use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\ConnectionProviderInterface;
-use NoreSources\SQL\DBMS\InformationSchemaStructureExplorerTrait;
+use NoreSources\SQL\DBMS\Explorer\AbstractStructureExplorer;
+use NoreSources\SQL\DBMS\Explorer\InformationSchemaStructureExplorerTrait;
+use NoreSources\SQL\DBMS\Explorer\StructureExplorerException;
 use NoreSources\SQL\DBMS\MySQL\MySQLConstants as K;
 use NoreSources\SQL\DBMS\Traits\ConnectionProviderTrait;
 use NoreSources\SQL\Result\Recordset;
@@ -34,20 +35,25 @@ class MySQLStructureExplorer extends AbstractStructureExplorer implements
 
 	public function getNamespaceNames()
 	{
-		return self::recordsetToList(
-			$this->getConnection()->executeStatement('SHOW DATABASES'),
-			0);
+		static $excludes = [
+			'information_schema'
+		];
+
+		return Container::filter(
+			self::recordsetToList(
+				$this->getConnection()->executeStatement(
+					'SHOW DATABASES'), 0),
+			function ($i, $n) use ($excludes) {
+				return !\in_array($n, $excludes);
+			});
 	}
 
 	public function getTableNames($parentIdentifier = null)
 	{
 		$parentIdentifier = Identifier::make($parentIdentifier);
-		if (empty($parentIdentifier->getPath()))
-			$parentIdentifier = Identifier::make(
-				$this->getCurrentNAmespace());
 
 		if (empty($parentIdentifier->getPath()))
-			throw new \InvalidArgumentException(
+			throw new StructureExplorerException(
 				'Table namespace is mandatory');
 
 		return $this->getInformationSchemaTableNames(
@@ -60,10 +66,7 @@ class MySQLStructureExplorer extends AbstractStructureExplorer implements
 		$tableName = $tableIdentifier->getLocalName();
 		$namespace = $tableIdentifier->getParentIdentifier();
 		if (empty($namespace->getPath()))
-			$namespace = $this->getCurrentNAmespace();
-
-		if ($namespace === null)
-			throw new \InvalidArgumentException(
+			throw new StructureExplorerException(
 				'Table namespace is mandatory');
 
 		return $this->getInformationSchemaTableColumnNames(
@@ -80,18 +83,12 @@ class MySQLStructureExplorer extends AbstractStructureExplorer implements
 		$tableName = $tableIdentifier->getLocalName();
 		$namespace = $tableIdentifier->getParentIdentifier();
 		if (empty($namespace->getPath()))
-			$namespace = $this->getCurrentNAmespace();
-
-		if ($namespace === null)
-			throw new \InvalidArgumentException(
+			throw new StructureExplorerException(
 				'Table namespace is mandatory');
 
 		return $this->getInformationSchemaTableColumn(
-			$this->getConnection(),
-			Identifier::make([
-				$namespace,
-				$tableName
-			]), $columnName, [
+			$this->getConnection(), $tableIdentifier, $columnName,
+			[
 				'extra'
 			]);
 	}
@@ -114,10 +111,10 @@ class MySQLStructureExplorer extends AbstractStructureExplorer implements
 
 		if (\count($columns))
 		{
-			$pk = new PrimaryKeyTableConstraint($columns);
+			return new PrimaryKeyTableConstraint($columns);
 		}
 
-		return $pk;
+		return null;
 	}
 
 	public function getTableUniqueConstraints($tableIdentifier)
@@ -142,10 +139,7 @@ class MySQLStructureExplorer extends AbstractStructureExplorer implements
 		$tableName = $tableIdentifier->getLocalName();
 		$namespace = $tableIdentifier->getParentIdentifier();
 		if (empty($namespace->getPath()))
-			$namespace = $this->getCurrentNAmespace();
-
-		if ($namespace === null)
-			throw new \InvalidArgumentException(
+			throw new StructureExplorerException(
 				'Table namespace is mandatory');
 
 		$platform = $this->getConnection()->getPlatform();
@@ -203,14 +197,32 @@ class MySQLStructureExplorer extends AbstractStructureExplorer implements
 
 	public function getTableIndexes($tableIdentifier)
 	{
+		/** @var Identifier $tableIdentifier */
 		$tableIdentifier = Identifier::make($tableIdentifier);
 
 		$platform = $this->getConnection()->getPlatform();
+
+		$columnNames = $this->getInformationSchemaTableColumnNames(
+			$this->getConnection(),
+			Identifier::make(
+				[
+					$tableIdentifier->getParentIdentifier(),
+					$tableIdentifier->getLocalName()
+				]));
+
+		$columnListSQL = Container::implodeValues($columnNames, ', ',
+			[
+				$platform,
+				'quoteStringValue'
+			]);
+
 		$sql = sprintf(
 			"SHOW KEYS
 			FROM %s
 			WHERE Key_name <> 'PRIMARY'
-			AND Non_unique=1", $platform->quoteIdentifierPath($tableIdentifier));
+			AND Non_unique=1
+			AND Key_name NOT IN (%s)
+", $platform->quoteIdentifierPath($tableIdentifier), $columnListSQL);
 		$recordset = $this->getConnection()->executeStatement($sql);
 
 		$recordset->setFlags(K::RECORDSET_FETCH_ASSOCIATIVE);
@@ -252,7 +264,7 @@ class MySQLStructureExplorer extends AbstractStructureExplorer implements
 	 *
 	 * @return mixed|array|unknown[]|\Iterator[]|mixed[]|NULL[]|array[]|\ArrayAccess[]|\Psr\Container\ContainerInterface[]|\Traversable[]
 	 */
-	protected function getCurrentNAmespace()
+	protected function getCurrentNamespace()
 	{
 		return self::recordsetToValue(
 			$this->getConnection()->executeStatement(
@@ -262,12 +274,11 @@ class MySQLStructureExplorer extends AbstractStructureExplorer implements
 	public function getViewNames($parentIdentifier = null)
 	{
 		$parentIdentifier = Identifier::make($parentIdentifier);
-		$namespace = null;
 
 		if (empty($parentIdentifier->getPath()))
-			$namespace = $this->getCurrentNAmespace();
-		else
-			$namespace = $parentIdentifier->getPath();
+			throw new StructureExplorerException(
+				'Table namespace is mandatory');
+		$namespace = $parentIdentifier->getPath();
 
 		$platform = $this->getConnection()->getPlatform();
 
@@ -276,7 +287,7 @@ class MySQLStructureExplorer extends AbstractStructureExplorer implements
 					table_name
 				FROM information_schema.views
 				WHERE table_schema=%s
-', $platform->quoteStringValue($namespace));
+', $platform->quoteStringValue($parentIdentifier));
 
 		return self::recordsetToList(
 			$this->getConnection()->executeStatement($sql), 0);

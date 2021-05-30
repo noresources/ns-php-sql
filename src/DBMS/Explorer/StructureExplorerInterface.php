@@ -5,7 +5,7 @@
  *
  * @package SQL
  */
-namespace NoreSources\SQL\DBMS;
+namespace NoreSources\SQL\DBMS\Explorer;
 
 use NoreSources\SQL\Structure\Identifier;
 use NoreSources\SQL\Structure\PrimaryKeyTableConstraint;

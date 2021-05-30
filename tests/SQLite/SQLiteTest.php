@@ -11,7 +11,7 @@ use NoreSources\Container;
 use NoreSources\DateTime;
 use NoreSources\TypeDescription;
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\DBMS\StructureExplorerInterface;
+use NoreSources\SQL\DBMS\Explorer\StructureExplorerInterface;
 use NoreSources\SQL\DBMS\SQLite\SQLiteConnection;
 use NoreSources\SQL\DBMS\SQLite\SQLiteConstants;
 use NoreSources\SQL\DBMS\SQLite\SQLitePlatform;
