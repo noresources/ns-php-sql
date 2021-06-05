@@ -2,11 +2,12 @@
 namespace NoreSources\SQL\DBMS\PDO;
 
 use NoreSources\CascadedValueTree;
+use NoreSources\TypeConversion;
 use NoreSources\SQL\Constants as K;
-use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\ConnectionProviderInterface;
 use NoreSources\SQL\DBMS\IdentifierSerializerInterface;
 use NoreSources\SQL\DBMS\PlatformInterface;
+use NoreSources\SQL\DBMS\Traits\ConnectionProviderTrait;
 use NoreSources\SQL\Syntax\MetaFunctionCall;
 use NoreSources\SQL\Syntax\Statement\ParameterData;
 use Psr\Log\LoggerInterface;
@@ -16,11 +17,13 @@ class PDOPlatform implements PlatformInterface,
 
 {
 
-	public function __construct(ConnectionInterface $connection,
+	use ConnectionProviderTrait;
+
+	public function __construct(PDOConnection $connection,
 		PlatformInterface $basePlatform)
 	{
+		$this->setConnection($connection);
 		$this->basePlatform = $basePlatform;
-
 		$this->pdoFeatures = new CascadedValueTree();
 	}
 
@@ -33,19 +36,20 @@ class PDOPlatform implements PlatformInterface,
 			], func_get_args());
 	}
 
-	public function getConnection()
+	public function hasStatement($statementType)
 	{
-		return $this->basePlatform->getConnection();
+		return $this->basePlatform->hasStatement($statementType);
 	}
 
 	public function quoteStringValue($value)
 	{
-		$this->connection->quoteStringValue($value);
+		return $this->connection->quoteStringValue(
+			TypeConversion::toString($value));
 	}
 
 	public function quoteBinaryData($value)
 	{
-		$this->connection->quoteBinaryData($value);
+		return $this->connection->quoteBinaryData($value);
 	}
 
 	public function quoteIdentifier($identifier)
@@ -163,21 +167,9 @@ class PDOPlatform implements PlatformInterface,
 		return $this->basePlatform;
 	}
 
-	/**
-	 *
-	 * @var PDOConnection
-	 */
-	private $connection;
-
-	/**
-	 *
-	 * @var PlatformInterface
-	 */
+	/**  @var PlatformInterface */
 	private $basePlatform;
 
-	/**
-	 *
-	 * @var CascadedValueTree
-	 */
+	/** @var CascadedValueTree */
 	private $pdoFeatures;
 }

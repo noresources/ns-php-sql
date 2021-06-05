@@ -33,13 +33,13 @@ class PDORecordset extends Recordset
 
 		try
 		{
-			if ($this->pdoStatement->getAttribute(\PDO::ATTR_CURSOR) ==
+			if (@$this->pdoStatement->getAttribute(\PDO::ATTR_CURSOR) ==
 				\PDO::CURSOR_SCROLL)
 			{
 				$this->pdoFlags |= self::PDO_SCROLLABLE;
 			}
 		}
-		catch (\Exception $e)
+		catch (\PDOException $e)
 		{
 			$this->pdoFlags &= ~self::PDO_SCROLLABLE;
 		}
@@ -66,12 +66,18 @@ class PDORecordset extends Recordset
 				}
 
 				if (!$column->has(K::COLUMN_NAME))
-					$column->setColumnProperty(K::COLUMN_DATA_TYPE,
+					$column->setColumnProperty(K::COLUMN_NAME,
 						Container::keyValue($meta, 'name', 'column' . $i));
+
+				if ($i >= $map->count())
+					$map->setColumn($i, $column);
 			}
 		}
-		catch (\Exception $e)
+		catch (\PDOException $e)
 		{}
+
+		if ($this->getResultColumns()->count() == 0)
+			throw new \Exception('Unable to get column informations');
 	}
 
 	public function __destruct()
