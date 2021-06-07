@@ -1,12 +1,9 @@
 <?php
 namespace NoreSources\SQL;
 
-use NoreSources\Container;
 use NoreSources\DateTime;
 use NoreSources\SemanticVersion;
-use NoreSources\SingletonTrait;
-use NoreSources\TypeConversion;
-use NoreSources\TypeDescription;
+use NoreSources\Container\Container;
 use NoreSources\MediaType\MediaType;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\ConnectionException;
@@ -17,7 +14,10 @@ use NoreSources\SQL\DBMS\TransactionBlockException;
 use NoreSources\SQL\DBMS\TransactionBlockInterface;
 use NoreSources\SQL\DBMS\TransactionInterface;
 use NoreSources\SQL\DBMS\TypeInterface;
+use NoreSources\SQL\DBMS\Configuration\ConfiguratorInterface;
+use NoreSources\SQL\DBMS\Configuration\ConfiguratorProviderInterface;
 use NoreSources\SQL\DBMS\Explorer\StructureExplorerProviderInterface;
+use NoreSources\SQL\DBMS\Manager\StructureManager;
 use NoreSources\SQL\DBMS\MySQL\MySQLPlatform;
 use NoreSources\SQL\DBMS\PDO\PDOConnection;
 use NoreSources\SQL\DBMS\PDO\PDOPlatform;
@@ -30,8 +30,11 @@ use NoreSources\SQL\Structure\ArrayColumnDescription;
 use NoreSources\SQL\Structure\ColumnDescriptionInterface;
 use NoreSources\SQL\Structure\ColumnStructure;
 use NoreSources\SQL\Structure\ForeignKeyTableConstraint;
+use NoreSources\SQL\Structure\Identifier;
+use NoreSources\SQL\Structure\IndexStructure;
 use NoreSources\SQL\Structure\NamespaceStructure;
 use NoreSources\SQL\Structure\PrimaryKeyTableConstraint;
+use NoreSources\SQL\Structure\StructureElementContainerInterface;
 use NoreSources\SQL\Structure\StructureElementInterface;
 use NoreSources\SQL\Structure\TableStructure;
 use NoreSources\SQL\Structure\VirtualStructureResolver;
@@ -59,45 +62,11 @@ use NoreSources\Test\ConnectionHelper;
 use NoreSources\Test\DatasourceManager;
 use NoreSources\Test\DerivedFileManager;
 use NoreSources\Test\Generator;
+use NoreSources\Test\SqlFormatter;
 use NoreSources\Test\TestConnection;
+use NoreSources\Type\TypeConversion;
+use NoreSources\Type\TypeDescription;
 use PHPUnit\Framework\TestCase;
-use Psr\Log\LoggerInterface;
-use Psr\Log\LoggerTrait;
-
-class DBMSTestSilentLogger implements LoggerInterface, \Countable
-{
-	use LoggerTrait;
-	use SingletonTrait;
-
-	public function __construct()
-	{
-		$this->logs = [];
-	}
-
-	public function count()
-	{
-		return \count($this->logs);
-	}
-
-	public function clear()
-	{
-		$this->logs = [];
-	}
-
-	public function log($level, $message, array $context = array())
-	{
-		$this->logs[] = [
-			$level,
-			$message
-		];
-	}
-
-	/**
-	 *
-	 * @var array
-	 */
-	public $logs;
-}
 
 final class DBMSCommonTest extends TestCase
 {
@@ -180,10 +149,7 @@ final class DBMSCommonTest extends TestCase
 				}
 			}
 
-			/**
-			 *
-			 * @var DropNamespaceQuery
-			 */
+			/** @var DropNamespaceQuery */
 			$drop = $platform->newStatement(DropNamespaceQuery::class);
 			$this->assertInstanceOf(DropNamespaceQuery::class, $drop,
 				$dbmsName . ' has DROP NAMESPACE');
@@ -209,7 +175,7 @@ final class DBMSCommonTest extends TestCase
 				$platformDropFlags = $platform->queryFeature(
 					[
 						K::FEATURE_DROP,
-						K::FEATURE_NAMESPACE,
+						K::FEATURE_ELEMENT_NAMESPACE,
 						K::FEATURE_DROP_FLAGS
 					], 0);
 				if ($platformDropFlags & K::FEATURE_DROP_EXISTS_CONDITION)
@@ -362,10 +328,7 @@ final class DBMSCommonTest extends TestCase
 
 			if ($primary)
 			{
-				/**
-				 *
-				 * @var PrimaryKeyTableConstraint $pkc
-				 */
+				/** @var PrimaryKeyTableConstraint $pkc */
 				$pkc = null;
 				foreach ($table->getConstraints() as $c)
 				{
@@ -500,10 +463,7 @@ final class DBMSCommonTest extends TestCase
 
 		foreach ($rows as $label => $columns)
 		{
-			/**
-			 *
-			 * @var \NoreSources\SQL\Syntax\Statement\Manipulation\InsertQuery $q
-			 */
+			/** @var \NoreSources\SQL\Syntax\Statement\Manipulation\InsertQuery $q */
 			$q = $connection->getPlatform()->newStatement(
 				InsertQuery::class);
 			$q->table($tableStructure);
@@ -776,10 +736,7 @@ final class DBMSCommonTest extends TestCase
 	{
 		$platform = $connection->getPlatform();
 
-		/**
-		 *
-		 * @var SelectQuery $subSelect
-		 */
+		/**  @var SelectQuery $subSelect */
 		$subSelect = $platform->newStatement(SelectQuery::class);
 
 		$subSelect->columns([
@@ -797,10 +754,7 @@ final class DBMSCommonTest extends TestCase
 		$this->derivedFileManager->assertDerivedFile($subSQL, $method,
 			$dbmsName . '_subquery', 'sql');
 
-		/**
-		 *
-		 * @var SelectQuery $mainSelect
-		 */
+		/**  @var SelectQuery $mainSelect */
 		$mainSelect = $platform->newStatement(SelectQuery::class);
 
 		$mainSelect->columns([
@@ -875,10 +829,7 @@ final class DBMSCommonTest extends TestCase
 		$hasNamedParameters = $platform->queryFeature(
 			K::FEATURE_NAMED_PARAMETERS, false);
 
-		/**
-		 *
-		 * @var SelectQuery
-		 */
+		/** @var SelectQuery */
 		$select = $platform->newStatement(SelectQuery::class);
 		$select->columns(':one', ':two', ':one');
 		$prepared = ConnectionHelper::prepareStatement($connection,
@@ -986,10 +937,7 @@ final class DBMSCommonTest extends TestCase
 		$hasNamedParameters = $platform->queryFeature(
 			K::FEATURE_NAMED_PARAMETERS, false);
 
-		/**
-		 *
-		 * @var \NoreSources\SQL\Syntax\Statement\Manipulation\InsertQuery $i
-		 */
+		/** @var \NoreSources\SQL\Syntax\Statement\Manipulation\InsertQuery $i */
 		$i = $connection->getPlatform()->newStatement(
 			InsertQuery::class);
 		$i->table($tableStructure);
@@ -1238,10 +1186,7 @@ final class DBMSCommonTest extends TestCase
 		$insert = ConnectionHelper::prepareStatement($connection,
 			$insert, $tableStructure);
 
-		/**
-		 *
-		 * @var UpdateQuery $update
-		 */
+		/** @var UpdateQuery $update */
 		$update = $connection->getPlatform()->newStatement(
 			UpdateQuery::class);
 		$update->table($tableStructure);
@@ -1443,8 +1388,7 @@ final class DBMSCommonTest extends TestCase
 		// Test result column count when no column are specified (select * from ...)
 
 		/**
-		 *
-		 * @var SelectQuery $basicSelectQuery
+		 * * @var SelectQuery $basicSelectQuery
 		 */
 		$basicSelectQuery = $connection->getPlatform()->newStatement(
 			SelectQuery::class);
@@ -1463,10 +1407,7 @@ final class DBMSCommonTest extends TestCase
 			$dbmsName .
 			' Prepared statement result columns count (auto-detected)');
 
-		/**
-		 *
-		 * @var SelectQuery $selectColumnQuery
-		 */
+		/** @var SelectQuery $selectColumnQuery */
 		$selectColumnQuery = $connection->getPlatform()->newStatement(
 			SelectQuery::class);
 		$selectColumnQuery->from($tableStructure);
@@ -1497,10 +1438,7 @@ final class DBMSCommonTest extends TestCase
 
 		foreach ($lastTwo as $row)
 		{
-			/**
-			 *
-			 * @var InsertQuery $q
-			 */
+			/** @var InsertQuery $q */
 			$q = $connection->getPlatform()->newStatement(
 				InsertQuery::class);
 			$q->into($tableStructure);
@@ -1771,6 +1709,7 @@ final class DBMSCommonTest extends TestCase
 		$tableStructure = $structure[$nsName]['types'];
 		$this->recreateTable($connection, $tableStructure, $method);
 
+		$platform = $connection->getPlatform();
 		$explorer = $connection->getStructureExplorer();
 
 		$namespaces = $explorer->getNamespaceNames();
@@ -1814,14 +1753,35 @@ final class DBMSCommonTest extends TestCase
 
 		// Indexes ----------------------
 
-		if (false)
-		{
-			$employeesIndexNames = $explorer->getTableIndexNames(
-				'ns_unittests.Employees');
+		$employeesIndexNames = $explorer->getTableIndexNames(
+			'ns_unittests.Employees');
 
-			$this->assertCount(\count($employeesIndexNames),
-				$employeesIndexes, $dbmsName . ' Number of indexes');
-		}
+		$this->assertCount(1, $employeesIndexNames,
+			$dbmsName . ' Number of indexes on Employees table');
+
+		$employeesIndexes = $explorer->getTableIndexes(
+			'ns_unittests.Employees');
+
+		$employeesNameIndex = Container::firstValue(
+			Container::filter($employeesIndexes,
+				function ($k, $v) {
+					return $v->getName() == 'index_employees_name';
+				}));
+
+		$this->assertInstanceOf(IndexStructure::class,
+			$employeesNameIndex,
+			$dbmsName . ' index_employees_name exists');
+
+		$this->assertCount(1, $employeesNameIndex->getColumns(),
+			$dbmsName . ' Index column count');
+
+		/**  @var IndexStructure $employeesNameIndex */
+		$this->assertEquals(0,
+			$employeesNameIndex->getIndexFlags() & K::INDEX_UNIQUE,
+			$dbmsName . ' Index is not unique');
+
+		$this->assertContains('name', $employeesNameIndex->getColumns(),
+			$dbmsName . ' Index column name columns');
 
 		// Foreign key ----------------------
 
@@ -1847,46 +1807,9 @@ final class DBMSCommonTest extends TestCase
 			$hierarchyForeignKeys[1]->getEvents()
 				->get(K::EVENT_UPDATE), 'Foreign key ON UPDATE action');
 
-		/**
-		 *
-		 * @todo look for indexes instread of constraints
-		 */
-		if (false)
-		{
-			$employeesIndexes = $explorer->getTableIndexes(
-				'ns_unittests.Employees');
-
-			$employeesNAmeIndex = Container::firstValue(
-				Container::filter($employeesIndexes,
-					function ($k, $v) {
-						return $v->getName() == 'index_employees_name';
-					}));
-
-			$this->assertInstanceOf(IndexTableConstraint::class,
-				$employeesNAmeIndex);
-
-			$this->assertCount(1, $employeesNAmeIndex->getColumns(),
-				$dbmsName . ' Index column count');
-
-			/**
-			 *
-			 * @var IndexTableConstraint $employeesNAmeIndex
-			 */
-
-			$this->assertEquals(0,
-				$employeesNAmeIndex->getIndexFlags() & K::INDEX_UNIQUE,
-				$dbmsName . ' Index is not unique');
-
-			$this->assertContains('name',
-				$employeesNAmeIndex->getColumns(),
-				$dbmsName . ' Index column name');
-		}
 		// Columns ----------------------
 
-		/**
-		 *
-		 * @var ColumnDescriptionInterface $typesTimestamp
-		 */
+		/** @var ColumnDescriptionInterface $typesTimestamp */
 		$typesTimestamp = $explorer->getTableColumn(
 			'ns_unittests.types', 'timestamp');
 
@@ -1907,6 +1830,163 @@ final class DBMSCommonTest extends TestCase
 			($typesIntFlags & K::COLUMN_FLAG_AUTO_INCREMENT) ==
 			K::COLUMN_FLAG_AUTO_INCREMENT,
 			$dbmsName . ' types.int is  Auto increament');
+	}
+
+	public function testConfigurator()
+	{
+		$this->runConnectionTest(__METHOD__);
+	}
+
+	private function dbmsConfigurator(ConnectionInterface $connection,
+		$dbmsName, $method)
+	{
+		if (!($connection instanceof ConfiguratorProviderInterface))
+		{
+			$this->assertFalse(
+				($connection instanceof ConfiguratorProviderInterface),
+				$dbmsName . ' is not configurable at all');
+		}
+
+		$configurator = $connection->getConfigurator();
+		$this->assertInstanceOf(ConfiguratorInterface::class,
+			$configurator, $dbmsName . ' Configurator class');
+
+		$tests = [
+			K::CONFIGURATION_KEY_CONSTRAINTS => [
+				'disabled' => false,
+				'enabled' => true
+			],
+			K::CONFIGURATION_SUBMIT_TIMEOUT => [
+				'3s value' => 3000
+			]
+		];
+
+		foreach ($tests as $key => $values)
+		{
+			if (!$configurator->has($key))
+				continue;
+
+			$current = $configurator->get($key);
+
+			foreach ($values as $label => $value)
+			{
+				$configurator[$key] = $value;
+				$this->assertEquals($value, $configurator->get($key),
+					$dbmsName . ' ' . $key . ' ' . $label);
+			}
+		}
+	}
+
+	public function testManager()
+	{
+		$this->runConnectionTest(__METHOD__);
+		$this->structures->get('Company', true);
+		$this->structures->get('Company.v2', true);
+	}
+
+	private function dbmsManager(ConnectionInterface $connection,
+		$dbmsName, $method)
+	{
+		$this->assertTrue(true);
+
+		if ($connection instanceof PDOConnection)
+			return;
+
+		$manager = new StructureManager($connection);
+		$ref = $manager->getStructure();
+
+		/*
+		 * Drop everything in the namespace first
+		 */
+		$this->dbmsManagerDropCascade($connection, $dbmsName, $method,
+			true);
+
+		/*
+		 * Re-create the whole namespace
+		 */
+		$this->dbmsManagerCreate($connection, $dbmsName, $method);
+
+		/*
+		 * Report statements to required to drop everything again
+		 */
+		$this->dbmsManagerDropCascade($connection, $dbmsName, $method,
+			false);
+	}
+
+	private function dbmsManagerCreate(ConnectionInterface $connection,
+		$dbmsName, $method)
+	{
+		$manager = new StructureManager($connection);
+		$referenceStructure = $this->structures->get('Company', true);
+		$targetStructure = $this->structures->get('Company.v2');
+
+		$statements = $manager->getCreationStatements(
+			$referenceStructure);
+
+		$sql = '';
+		foreach ($statements as $statement)
+			$sql .= SqlFormatter::format($statement) . ';' . PHP_EOL;
+
+		$this->derivedFileManager->assertDerivedFile($sql, $method,
+			$dbmsName . '_create', 'sql');
+	}
+
+	private function dbmsManagerDropCascade(
+		ConnectionInterface $connection, $dbmsName, $method,
+		$execute = true)
+	{
+		$manager = new StructureManager($connection);
+		$referenceStructure = $this->structures->get('Company', true);
+
+		$identifier = Identifier::make([
+			'ns_unittests'
+		]);
+
+		if ($execute)
+		{
+			return $manager->dropChildren($identifier);
+		}
+
+		$parts = $identifier->getPathParts();
+		$targetClass = new \ReflectionClass(
+			\get_class($referenceStructure));
+		$targetStructure = $targetClass->newInstance(
+			$referenceStructure->getName());
+		while (Container::count($parts))
+		{
+			$name = \array_shift($parts);
+			$this->assertInstanceOf(
+				StructureElementContainerInterface::class,
+				$referenceStructure);
+			$this->assertTrue($referenceStructure->has($name));
+			$referenceStructure = $referenceStructure[$name];
+			$targetClass = new \ReflectionClass(
+				\get_class($referenceStructure));
+			$t = $targetClass->newInstance(
+				$referenceStructure->getName());
+			$targetStructure->appendElement($t);
+			$targetStructure = $t;
+		}
+
+		$verbose = false;
+
+		$operations = $manager->getModificationOperations(
+			$referenceStructure, $targetStructure);
+
+		if ($verbose)
+			var_dump(Container::implodeValues($operations, PHP_EOL));
+
+		$statements = $manager->getModificationStatements($operations);
+
+		$sql = '';
+		foreach ($statements as $statement)
+			$sql .= SqlFormatter::format($statement) . ';' . PHP_EOL;
+
+		$this->derivedFileManager->assertDerivedFile($sql, $method,
+			$dbmsName . '_drop', 'sql');
+
+		if ($verbose)
+			var_dump($sql);
 	}
 
 	public function testMediaTypes()
@@ -2036,67 +2116,67 @@ final class DBMSCommonTest extends TestCase
 		$save = ($save == !($connection instanceof PDOConnection));
 
 		$platform = $connection->getPlatform();
+
+		$namespace = $tableStructure->getParentElement();
+
+		$env = new Environment($connection,
+			($namespace ? $namespace : $tableStructure));
+
 		$factory = $connection->getPlatform();
 
 		$parent = $tableStructure->getParentElement();
-		if ($parent instanceof NamespaceStructure)
+		if ($parent instanceof NamespaceStructure &&
+			$platform->hasStatement(CreateNamespaceQuery::class))
 		{
-			/**
-			 *
-			 * @var CreateNamespaceQuery
-			 */
-			$createNamespace = $factory->newStatement(
+			/** @var CreateNamespaceQuery */
+			$createNamespace = $platform->newStatement(
 				CreateNamespaceQuery::class);
 
 			try
 			{
-				if (!($createNamespace instanceof CreateNamespaceQuery))
-					throw new \Exception(
-						'not CREATE NAMESPACE query available');
 				$createNamespace->identifier($parent->getName());
 				$createNamespace->createFlags(
 					K::FEATURE_CREATE_EXISTS_CONDITION);
-
-				$data = ConnectionHelper::buildStatement($connection,
-					$createNamespace, $parent);
-				$connection->executeStatement($data);
+				$env->executeStatement($createNamespace);
 			}
 			catch (ConnectionException $e)
 			{}
 		}
 
 		// Drop indexes
-		$constraunts = $tableStructure->getConstraints();
-		foreach ($constraunts as $id => $constraint)
+		$indexes = $tableStructure->getChildElements(
+			IndexStructure::class);
+		if ($platform->hasStatement(DropIndexQuery::class))
 		{
-			if (!($constraint instanceof IndexTableConstraint))
-				continue;
-
-			/**
-			 *
-			 * @var IndexTableConstraint $constraint
-			 */
-
-			$name = ($constraint->getName() ? $constraint->getName() : $id);
-
-			$dropIndex = $platform->newStatement(DropIndexQuery::class);
-			if ($dropIndex instanceof DropIndexQuery)
+			foreach ($indexes as $id => $index)
 			{
-				$dropIndex->dropFlags(K::DROP_EXISTS_CONDITION);
-				$dropIndex->identifier($constraint->getName());
-				$data = ConnectionHelper::buildStatement($connection,
-					$dropIndex, $tableStructure);
-				$sql = \SqlFormatter::format(strval($data), false) .
-					PHP_EOL;
+				/** @var IndexStructure $index */
+
+				$name = $index->getElementKey();
+
+				$dropIndex = $platform->newStatement(
+					DropIndexQuery::class);
+				$dropIndex->forStructure($index);
+				try
+				{
+					$dropIndex = $env->prepareStatement($dropIndex);
+				}
+				catch (\Exception $e)
+				{
+					$sql = StatementBuilder::getInstance()->build(
+						$dropIndex, $platform, $tableStructure);
+					var_dump(\strval($sql));
+					throw $e;
+				}
 				if ($save)
-					$this->derivedFileManager->assertDerivedFile($sql,
-						$method,
+					$this->derivedFileManager->assertDerivedFile(
+						SqlFormatter::format($dropIndex), $method,
 						$dbmsName . '_dropindex_' .
 						$tableStructure->getName() . "_" . $name, 'sql');
 
 				try
 				{
-					$connection->executeStatement($data);
+					$env->executeStatement($dropIndex);
 				}
 				catch (ConnectionException $e)
 				{}
@@ -2106,21 +2186,18 @@ final class DBMSCommonTest extends TestCase
 		$platformDropFlags = $platform->queryFeature(
 			[
 				K::FEATURE_DROP,
-				K::FEATURE_TABLE,
+				K::FEATURE_ELEMENT_TABLE,
 				K::FEATURE_DROP_FLAGS
 			], 0);
 
 		try // PostgreSQL < 8.2 does not support DROP IF EXISTS and may fail
 		{
-			$drop = $connection->getPlatform()->newStatement(
-				DropTableQuery::class);
+			$drop = $platform->newStatement(DropTableQuery::class);
 			if ($drop instanceof DropTableQuery)
 				$drop->dropFlags(
-					K::DROP_CASCADE | K::DROP_EXISTS_CONDITION)->table(
+					K::DROP_CASCADE | K::DROP_EXISTS_CONDITION)->forStructure(
 					$tableStructure);
-			$data = ConnectionHelper::buildStatement($connection, $drop,
-				$tableStructure);
-			$connection->executeStatement($data);
+			$env->executeStatement($drop);
 		}
 		catch (ConnectionException $e)
 		{
@@ -2128,11 +2205,8 @@ final class DBMSCommonTest extends TestCase
 				throw $e;
 		}
 
-		/**
-		 *
-		 * @var CreateTableQuery $createTable
-		 */
-		$createTable = $factory->newStatement(CreateTableQuery::class,
+		/** @var CreateTableQuery $createTable */
+		$createTable = $platform->newStatement(CreateTableQuery::class,
 			$tableStructure);
 
 		$this->assertInstanceOf(CreateTableQuery::class, $createTable,
@@ -2141,11 +2215,11 @@ final class DBMSCommonTest extends TestCase
 			$createTable->getStructure(),
 			$dbmsName . ' CrateTableQuery table reference');
 
-		$createTable->flags(
-			$createTable->getFlags() | CreateTableQuery::REPLACE);
+		$createTable->createFlags(
+			$createTable->getCreateFlags() | CreateTableQuery::REPLACE |
+			K::CREATE_EXISTS_CONDITION);
 		$result = false;
-		$data = ConnectionHelper::buildStatement($connection,
-			$createTable, $tableStructure);
+		$data = $env->prepareStatement($createTable);
 		$sql = \SqlFormatter::format(strval($data), false);
 		if ($save)
 			$this->derivedFileManager->assertDerivedFile($sql, $method,
@@ -2154,11 +2228,11 @@ final class DBMSCommonTest extends TestCase
 
 		try
 		{
-			$result = $connection->executeStatement($data);
+			$result = $env->executeStatement($data);
 		}
 		catch (\Exception $e)
 		{
-			$this->assertEquals(true, $result,
+			$this->assertTrue($result,
 				'Create table ' . $tableStructure->getName() . ' on ' .
 				TypeDescription::getLocalName($connection) . PHP_EOL .
 				\strval($data) . ': ' . $e->getMessage());
@@ -2168,48 +2242,33 @@ final class DBMSCommonTest extends TestCase
 			'Create table ' . $tableStructure->getName() . ' on ' .
 			TypeDescription::getLocalName($connection));
 
-		/**
-		 *
-		 * @todo Find IndexStructure instead
-		 */
-		if (false)
+		if ($platform->hasStatement(CreateIndexQuery::class))
 		{
-			$constraunts = $tableStructure->getConstraints();
-			foreach ($constraunts as $id => $constraint)
+			foreach ($indexes as $index)
 			{
-				if (!($constraint instanceof IndexTableConstraint))
-					continue;
-				/**
-				 *
-				 * @var IndexTableConstraint $constraint
-				 */
+				/** @var IndexStructure $index */
+				/** @var CreateIndexQuery $ci */
 
-				$name = ($constraint->getName() ? $constraint->getName() : $id);
+				$name = $index->getElementKey();
 
-				$createIndex = $platform->newStatement(
-					CreateIndexQuery::class);
-				if ($createIndex instanceof CreateIndexQuery)
-				{
-					$createIndex->setFromTable($tableStructure,
-						$constraint->getName());
-					$data = ConnectionHelper::buildStatement(
-						$connection, $createIndex, $tableStructure);
-					$sql = \SqlFormatter::format(strval($data), false) .
-						PHP_EOL;
-					if ($save)
-						$this->derivedFileManager->assertDerivedFile(
-							$sql, $method,
-							$dbmsName . '_createindex_' .
-							$tableStructure->getName() . '_' . $name,
-							'sql');
-				}
+				$ci = $platform->newStatement(CreateIndexQuery::class);
+				$ci->forStructure($index);
+				$ci->createFlags(K::CREATE_REPLACE);
+				$ci = $env->prepareStatement($ci);
+				if ($save)
+					$this->derivedFileManager->assertDerivedFile($sql,
+						$method,
+						$dbmsName . '_create_' .
+						$tableStructure->getName() . '_' . $name, 'sql');
 
 				try
 				{
-					$connection->executeStatement($data);
+					$env->executeStatement($ci);
 				}
-				catch (ConnectionException $e)
-				{}
+				catch (\Exception $e)
+				{
+					var_dump($e->getMessage());
+				}
 			}
 		}
 
@@ -2249,21 +2308,12 @@ final class DBMSCommonTest extends TestCase
 		return $dbmsName;
 	}
 
-	/**
-	 *
-	 * @var DatasourceManager
-	 */
+	/** @var DatasourceManager */
 	private $structures;
 
-	/**
-	 *
-	 * @var TestConnection
-	 */
+	/** @var TestConnection */
 	private $connections;
 
-	/**
-	 *
-	 * @var DerivedFileManager
-	 */
+	/** @var DerivedFileManager */
 	private $derivedFileManager;
 }

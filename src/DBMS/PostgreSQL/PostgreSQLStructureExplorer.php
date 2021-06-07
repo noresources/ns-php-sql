@@ -44,8 +44,20 @@ class PostgreSQLStructureExplorer extends AbstractStructureExplorer implements
 	{
 		$parentIdentifier = Identifier::make(
 			$parentIdentifier ? $parentIdentifier : 'public');
-		return $this->getInformationSchemaTableNames(
-			$this->getConnection(), $parentIdentifier);
+		$platform = $this->getConnection()->getPlatform();
+
+		$sql = sprintf(
+			'SELECT c.relname
+			FROM pg_namespace n
+			INNER JOIN pg_class c
+				ON n.oid=c.relnamespace
+			WHERE
+				n.nspname=%s
+				AND c.relkind=%s
+		', $platform->quoteStringValue(\strval($parentIdentifier)),
+			$platform->quoteStringValue('r'));
+		$recordset = $this->getConnection()->executeStatement($sql);
+		return self::recordsetToList($recordset);
 	}
 
 	public function getTableColumnNames($tableIdentifier)
@@ -63,7 +75,6 @@ class PostgreSQLStructureExplorer extends AbstractStructureExplorer implements
 			$platform->quoteStringValue($tableName),
 			$platform->quoteStringValue($namespace));
 		$recordset = $this->getConnection()->executeStatement($sql);
-
 		return self::recordsetToList($recordset);
 	}
 
@@ -215,8 +226,21 @@ class PostgreSQLStructureExplorer extends AbstractStructureExplorer implements
 			$this->getConnection(), $namespace);
 	}
 
-	public function processInformationSchemaColumnDefault(&$properties,
-		$columnValue)
+	protected function getTableParts($identifier)
+	{
+		/** @var Identifier $identifier */
+		$identifier = Identifier::make($identifier);
+		$parts = $identifier->getPathParts();
+		if (Container::count($parts) == 1)
+			array_unshift($parts, 'public');
+		if (Container::count($parts) != 2)
+			throw new \InvalidArgumentException(
+				'Invalid table identifier');
+		return $parts;
+	}
+
+	protected function processInformationSchemaColumnDefault(
+		&$properties, $columnValue)
 	{
 		if (\preg_match('/nextval\(.*\)$/', $columnValue))
 		{

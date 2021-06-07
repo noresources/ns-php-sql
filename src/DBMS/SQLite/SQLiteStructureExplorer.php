@@ -20,6 +20,7 @@ use NoreSources\SQL\Result\Recordset;
 use NoreSources\SQL\Structure\ArrayColumnDescription;
 use NoreSources\SQL\Structure\ForeignKeyTableConstraint;
 use NoreSources\SQL\Structure\Identifier;
+use NoreSources\SQL\Structure\IndexStructure;
 use NoreSources\SQL\Structure\PrimaryKeyTableConstraint;
 use NoreSources\SQL\Structure\UniqueTableConstraint;
 use NoreSources\SQL\Syntax\Data;
@@ -200,7 +201,26 @@ class SQLiteStructureExplorer extends AbstractStructureExplorer implements
 	 */
 	public function getTableIndexes($tableIdentifier)
 	{
-		return [];
+		/** @var Identifier $tableIdentifier */
+		$tableIdentifier = Identifier::make($tableIdentifier);
+		$names = $this->getTableIndexNames($tableIdentifier);
+		$namespace = Identifier::make(
+			$tableIdentifier->getParentIdentifier());
+
+		$indexes = [];
+		foreach ($names as $name)
+		{
+			$identifier = clone $namespace;
+			$identifier->append($name);
+
+			$index = new IndexStructure($name);
+			$columns = $this->scopedAssetPragmaList('index_info',
+				$identifier);
+			$index->columns(...$columns);
+			$indexes[] = $index;
+		}
+
+		return $indexes;
 	}
 
 	public function getTableColumnNames($tableIdentifier)
