@@ -34,10 +34,10 @@ class Identifier implements StringRepresentation, ArrayRepresentation
 			return $path->getIdentifier();
 		if ($path instanceof Identifier)
 			return $path;
-		if (Container::isTraversable($path))
-			return new Identifier(Container::implodeValues($path, '.'));
 		if ($path instanceof NameProviderInterface)
 			return new Identifier($path->getName());
+		if (Container::isTraversable($path))
+			return new Identifier(Container::implodeValues($path, '.'));
 
 		return new Identifier(TypeConversion::toString($path));
 	}
@@ -66,6 +66,16 @@ class Identifier implements StringRepresentation, ArrayRepresentation
 	public function __toString()
 	{
 		return $this->getPath();
+	}
+
+	/**
+	 * Indicates if the Identifier is valid
+	 *
+	 * @return boolean TRUE if the identifier path is a string of at least 1 character
+	 */
+	public function isValid()
+	{
+		return isset($this->path) && (\strlen($this->path) > 0);
 	}
 
 	/**
