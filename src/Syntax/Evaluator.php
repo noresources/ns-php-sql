@@ -227,6 +227,8 @@ class Evaluator
 				return $evaluable;
 			elseif ($evaluable instanceof \DateTimeInterface)
 				return new Data($evaluable, K::DATATYPE_TIMESTAMP);
+			elseif (Container::isArray($evaluable))
+				return $this->evaluateArray($evaluable);
 		}
 		elseif (\is_null($evaluable))
 			return new Data($evaluable, K::DATATYPE_NULL);
@@ -251,33 +253,7 @@ class Evaluator
 		}
 		elseif (\is_array($evaluable))
 		{
-			if (Container::isAssociative($evaluable))
-			{
-				// Polish notation or "column => value"
-				if (\count($evaluable) == 1)
-				{
-					// column = value
-					list ($a, $b) = Container::first($evaluable);
-					if (!\is_array($b))
-					{
-						return new BinaryOperation(
-							BinaryOperation::EQUAL, $this->evaluate($a),
-							$this->evaluate($b));
-					}
-
-					return $this->evaluatePolishNotationElement($a, $b);
-				}
-
-				throw new EvaluatorException('Unsupported syntax');
-			}
-			else
-			{
-				return new ExpressionList(
-					Container::map($evaluable,
-						function ($k, $v) {
-							return $this->evaluateEvaluable($v);
-						}));
-			}
+			return $this->evaluateArray($evaluable);
 		}
 
 		throw new EvaluatorException(
@@ -339,6 +315,36 @@ class Evaluator
 			], $c);
 	}
 
+	private function evaluateArray($evaluable)
+	{
+		if (Container::isAssociative($evaluable))
+		{
+			// Polish notation or "column => value"
+			if (\count($evaluable) == 1)
+			{
+				// column = value
+				list ($a, $b) = Container::first($evaluable);
+				if (!\is_array($b))
+				{
+					return new BinaryOperation(BinaryOperation::EQUAL,
+						$this->evaluate($a), $this->evaluate($b));
+				}
+
+				return $this->evaluatePolishNotationElement($a, $b);
+			}
+
+			throw new EvaluatorException('Unsupported syntax');
+		}
+		else
+		{
+			return new ExpressionList(
+				Container::map($evaluable,
+					function ($k, $v) {
+						return $this->evaluateEvaluable($v);
+					}));
+		}
+	}
+
 	/**
 	 * Evaluate a polish notation form expression
 	 *
@@ -368,8 +374,8 @@ class Evaluator
 		/*
 		 *  Automatically fix missing  [] around polish operation operands
 		 */
-		if (\count($operands) == 1 &&
-			Container::isAssociative($operands))
+		if (\count($operands) == 1 && Container::isAssociative(
+			$operands))
 			$operands = [
 				$operands
 			];
