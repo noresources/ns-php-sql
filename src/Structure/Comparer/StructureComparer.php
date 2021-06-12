@@ -129,7 +129,7 @@ class StructureComparer
 			{
 
 				$differences[] = new StructureDifference(
-					StructureDifference::CREATED, $entry);
+					StructureDifference::CREATED, null, $entry);
 				$differenceLimit--;
 				if ($differenceLimit == 0)
 					return $differences;
@@ -180,7 +180,7 @@ class StructureComparer
 			foreach ($children as $child)
 			{
 				$differences[] = new StructureDifference(
-					StructureDifference::CREATED, $child);
+					StructureDifference::CREATED, null, $child);
 				$differenceLimit--;
 				if ($differenceLimit == 0)
 					return $differences;
