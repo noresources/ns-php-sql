@@ -6,6 +6,7 @@ use NoreSources\SQL\Structure\ColumnStructure;
 use NoreSources\SQL\Structure\DatasourceStructure;
 use NoreSources\SQL\Structure\ForeignKeyTableConstraint;
 use NoreSources\SQL\Structure\Identifier;
+use NoreSources\SQL\Structure\IndexStructure;
 use NoreSources\SQL\Structure\NamespaceStructure;
 use NoreSources\SQL\Structure\PrimaryKeyTableConstraint;
 use NoreSources\SQL\Structure\Structure;
@@ -37,6 +38,7 @@ final class StructureTest extends \PHPUnit\Framework\TestCase
 		$ns->appendElement($table);
 		$table->appendElement($col_a = new ColumnStructure('a'));
 		$table->appendElement($col_b = new ColumnStructure('b'));
+		$table->appendElement($col_c = new ColumnStructure('c'));
 		$table->appendElement(
 			$pk = new PrimaryKeyTableConstraint([
 				'a'
@@ -45,6 +47,15 @@ final class StructureTest extends \PHPUnit\Framework\TestCase
 			$u = new UniqueTableConstraint([
 				'b'
 			], 'u'));
+
+		$table->appendElement($index = new IndexStructure('index'));
+		$index->columns('c');
+
+		$this->assertTrue(Structure::dependsOn($index, $table),
+			'Index depends on parent table');
+		$this->assertTrue(Structure::hasData($table), 'Table has data');
+		$this->assertFalse(Structure::hasData($index),
+			'Index does not have data');
 
 		$otherTable = new TableStructure('other');
 		$otherTable->appendElement($c = new ColumnStructure('c'));

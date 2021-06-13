@@ -8,11 +8,48 @@
  */
 namespace NoreSources\SQL\Structure;
 
+use NoreSources\Container;
+use NoreSources\TypeDescription;
+
 /**
  * Structure-related helper methods
  */
 class Structure
 {
+
+	/**
+	 * Indicates if the given structure lement may contains persistent data
+	 *
+	 * @param StructureElementInterface|string $elementOrElementClassname
+	 * @return boolean
+	 */
+	public static function hasData($elementOrElementClassname)
+	{
+		$classname = $elementOrElementClassname;
+		if (!\is_string($elementOrElementClassname))
+			$classname = TypeDescription::getName(
+				$elementOrElementClassname);
+		return \in_array($classname,
+			[
+				ColumnStructure::class,
+				TableStructure::class,
+				NamespaceStructure::class
+			]);
+	}
+
+	/**
+	 *
+	 * @param StructureElementInterface $a
+	 * @param StructureElementInterface $b
+	 * @return boolean
+	 */
+	public static function conflictsWith(StructureElementInterface $a,
+		StructureElementInterface $b)
+	{
+		$sa = \strval($a->getIdentifier());
+		$sb = \strval($b->getIdentifier());
+		return \strcmp($sa, $sb) == 0;
+	}
 
 	/**
 	 * Get the root StructureElementContainerInterface of the givven element
@@ -27,6 +64,22 @@ class Structure
 			$parent = $parent->getParentElement();
 
 		return $parent;
+	}
+
+	/**
+	 *
+	 * @param StructureElementInterface $element
+	 * @return array<StructureElementInterface> Siblings of $element
+	 */
+	public static function getSiblingElements(
+		StructureElementInterface $element)
+	{
+		$parent = $element->getParentElement();
+		$children = $parent->getChildElements();
+		return Container::filter($children,
+			function ($k, $e) use ($element) {
+				return $e != $element;
+			});
 	}
 
 	/**
