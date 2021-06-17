@@ -24,6 +24,7 @@ use NoreSources\SQL\Structure\IndexStructure;
 use NoreSources\SQL\Structure\PrimaryKeyTableConstraint;
 use NoreSources\SQL\Structure\UniqueTableConstraint;
 use NoreSources\SQL\Syntax\Data;
+use NoreSources\SQL\Syntax\Keyword;
 
 class SQLiteStructureExplorer extends AbstractStructureExplorer implements
 	ConnectionProviderInterface
@@ -309,9 +310,22 @@ class SQLiteStructureExplorer extends AbstractStructureExplorer implements
 
 		if (!empty($defaultValue))
 		{
-			if ($defaultValue == $platform->getKeyword(K::KEYWORD_NULL))
-				$defaultValue = null;
-			else
+			$isKeyword = false;
+
+			static $keywords = [
+				K::KEYWORD_NULL,
+				K::KEYWORD_CURRENT_TIMESTAMP
+			];
+			foreach ($keywords as $k)
+			{
+				if ($defaultValue != $platform->getKeyword($k))
+					continue;
+				$isKeyword = true;
+				$properties[K::COLUMN_DEFAULT_VALUE] = new Keyword($k);
+				break;
+			}
+
+			if (!$isKeyword)
 			{
 				try
 				{
@@ -334,10 +348,10 @@ class SQLiteStructureExplorer extends AbstractStructureExplorer implements
 				}
 				catch (\Exception $e)
 				{}
-			}
 
-			$properties[K::COLUMN_DEFAULT_VALUE] = new Data(
-				$defaultValue, $dataType);
+				$properties[K::COLUMN_DEFAULT_VALUE] = new Data(
+					$defaultValue, $dataType);
+			}
 		}
 
 		return new ArrayColumnDescription($properties);

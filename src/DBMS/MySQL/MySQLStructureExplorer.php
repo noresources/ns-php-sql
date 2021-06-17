@@ -21,6 +21,8 @@ use NoreSources\SQL\Structure\ForeignKeyTableConstraint;
 use NoreSources\SQL\Structure\Identifier;
 use NoreSources\SQL\Structure\IndexStructure;
 use NoreSources\SQL\Structure\PrimaryKeyTableConstraint;
+use NoreSources\SQL\Syntax\Data;
+use NoreSources\SQL\Syntax\Keyword;
 
 class MySQLStructureExplorer extends AbstractStructureExplorer implements
 	ConnectionProviderInterface
@@ -291,6 +293,53 @@ class MySQLStructureExplorer extends AbstractStructureExplorer implements
 
 		return self::recordsetToList(
 			$this->getConnection()->executeStatement($sql), 0);
+	}
+
+	protected function processInformationSchemaColumnDefault(
+		&$properties, $columnValue)
+	{
+		$platform = $this->getConnection()->getPlatform();
+		static $keywords = [
+			K::KEYWORD_CURRENT_TIMESTAMP
+		];
+		foreach ($keywords as $keyword)
+		{
+			if ($columnValue == $platform->getKeyword($keyword))
+			{
+				$properties[K::COLUMN_DEFAULT_VALUE] = new Keyword(
+					$keyword);
+				return;
+			}
+		}
+
+		$values = [
+			K::KEYWORD_NULL => [
+				null,
+				K::DATATYPE_NULL
+			],
+			K::KEYWORD_FALSE => [
+				false,
+				K::DATATYPE_BOOLEAN
+			],
+			K::KEYWORD_TRUE => [
+				true,
+				K::DATATYPE_BOOLEAN
+			]
+		];
+		foreach ($values as $k => $p)
+		{
+			if ($columnValue == $platform->getKeyword($k))
+			{
+				$properties[K::COLUMN_DEFAULT_VALUE] = new Data($p[0],
+					$p[1]);
+				return;
+			}
+		}
+
+		$dataType = Container::keyValue($properties, K::COLUMN_DATA_TYPE,
+			K::DATATYPE_UNDEFINED);
+		$properties[K::COLUMN_DEFAULT_VALUE] = new Data($columnValue,
+			$dataType);
 	}
 
 	protected static function recordsetToList(Recordset $recordset,

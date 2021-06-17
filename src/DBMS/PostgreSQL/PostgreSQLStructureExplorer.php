@@ -21,6 +21,7 @@ use NoreSources\SQL\Structure\ArrayColumnDescription;
 use NoreSources\SQL\Structure\ForeignKeyTableConstraint;
 use NoreSources\SQL\Structure\Identifier;
 use NoreSources\SQL\Syntax\Data;
+use NoreSources\SQL\Syntax\Keyword;
 
 class PostgreSQLStructureExplorer extends AbstractStructureExplorer implements
 	ConnectionProviderInterface
@@ -242,6 +243,21 @@ class PostgreSQLStructureExplorer extends AbstractStructureExplorer implements
 	protected function processInformationSchemaColumnDefault(
 		&$properties, $columnValue)
 	{
+		$platform = $this->getConnection()->getPlatform();
+		static $keywords = [
+			K::KEYWORD_CURRENT_TIMESTAMP,
+			K::KEYWORD_FALSE,
+			K::KEYWORD_NULL,
+			K::KEYWORD_TRUE
+		];
+		foreach ($keywords as $k)
+		{
+			if ($columnValue != $platform->getKeyword($k))
+				continue;
+			$properties[K::COLUMN_DEFAULT_VALUE] = new Keyword($k);
+			return;
+		}
+
 		if (\preg_match('/nextval\(.*\)$/', $columnValue))
 		{
 			$flags = Container::keyValue($properties, K::COLUMN_FLAGS, 0);
@@ -252,7 +268,6 @@ class PostgreSQLStructureExplorer extends AbstractStructureExplorer implements
 		{
 			$dataType = Container::keyValue($properties,
 				K::COLUMN_DATA_TYPE, K::DATATYPE_UNDEFINED);
-			$platform = $this->getConnection()->getPlatform();
 			$sql = sprintf('SELECT ' . $columnValue . ' AS %s',
 				$platform->quoteIdentifier('value'));
 			$recordset = $this->getConnection()->executeStatement($sql);
