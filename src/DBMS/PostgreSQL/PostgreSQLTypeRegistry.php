@@ -23,130 +23,134 @@ class PostgreSQLTypeRegistry extends TypeRegistry
 			[ /* --<typeProperties>-- */
 				'boolean' => new ArrayObjectType(
 					[
-						'typename' => 'boolean',
+						K::TYPE_NAME => 'boolean',
 						K::TYPE_DATA_TYPE => K::DATATYPE_BOOLEAN,
-						'typesize' => 8
+						K::TYPE_SIZE => 8
 					]),
 				'bigint' => new ArrayObjectType(
 					[
-						'typename' => 'bigint',
+						K::TYPE_NAME => 'bigint',
 						K::TYPE_DATA_TYPE => K::DATATYPE_INTEGER,
-						'typesize' => 64
+						K::TYPE_SIZE => 64
 					]),
 				'bit varying' => new ArrayObjectType(
 					[
-						'typename' => 'bit varying',
+						K::TYPE_NAME => 'bit varying',
 						K::TYPE_DATA_TYPE => K::DATATYPE_STRING,
 						K::TYPE_FLAGS => (K::TYPE_FLAG_LENGTH),
-						'mediatype' => K::MEDIA_TYPE_BIT_STRING
+						K::TYPE_MEDIA_TYPE => K::MEDIA_TYPE_BIT_STRING
 					]),
 				'bytea' => new ArrayObjectType(
 					[
-						'typename' => 'bytea',
+						K::TYPE_NAME => 'bytea',
 						K::TYPE_DATA_TYPE => K::DATATYPE_BINARY
 					]),
 				'char' => new ArrayObjectType(
 					[
-						'typename' => 'char',
+						K::TYPE_NAME => 'char',
 						K::TYPE_DATA_TYPE => K::DATATYPE_STRING,
-						'maxlength' => 1,
-						'typesize' => 8
+						K::TYPE_MAX_LENGTH => 10485760,
+						K::TYPE_FLAGS => (K::TYPE_FLAG_LENGTH),
+						K::TYPE_PADDING_DIRECTION => K::TYPE_PADDING_DIRECTION_RIGHT,
+						K::TYPE_PADDING_GLYPH => ' ',
+						K::TYPE_SIZE => 8
 					]),
 				'character varying' => new ArrayObjectType(
 					[
-						'typename' => 'character varying',
+						K::TYPE_NAME => 'character varying',
 						K::TYPE_DATA_TYPE => K::DATATYPE_STRING,
-						K::TYPE_FLAGS => (K::TYPE_FLAG_LENGTH)
+						K::TYPE_FLAGS => (K::TYPE_FLAG_LENGTH),
+						K::TYPE_MAX_LENGTH => 10485760
 					]),
 				'date' => new ArrayObjectType(
 					[
-						'typename' => 'date',
+						K::TYPE_NAME => 'date',
 						K::TYPE_DATA_TYPE => K::DATATYPE_DATE,
-						'typesize' => 32,
-						'typedefaultdatatype' => 112
+						K::TYPE_SIZE => 32,
+						K::TYPE_DEFAULT_DATA_TYPE => 112
 					]),
 				'double precision' => new ArrayObjectType(
 					[
-						'typename' => 'double precision',
+						K::TYPE_NAME => 'double precision',
 						K::TYPE_DATA_TYPE => K::DATATYPE_FLOAT,
-						'typesize' => 64
+						K::TYPE_SIZE => 64
 					]),
 				'integer' => new ArrayObjectType(
 					[
-						'typename' => 'integer',
+						K::TYPE_NAME => 'integer',
 						K::TYPE_DATA_TYPE => K::DATATYPE_INTEGER,
-						'typesize' => 32
+						K::TYPE_SIZE => 32
 					]),
 				'json' => new ArrayObjectType(
 					[
-						'typename' => 'json',
+						K::TYPE_NAME => 'json',
 						K::TYPE_DATA_TYPE => K::DATATYPE_STRING,
-						'mediatype' => 'application/json'
+						K::TYPE_MEDIA_TYPE => 'application/json'
 					]),
 				'jsonb' => new ArrayObjectType(
 					[
-						'typename' => 'jsonb',
+						K::TYPE_NAME => 'jsonb',
 						K::TYPE_DATA_TYPE => K::DATATYPE_BINARY,
-						'mediatype' => 'application/json'
+						K::TYPE_MEDIA_TYPE => 'application/json'
 					]),
 				'numeric' => new ArrayObjectType(
 					[
-						'typename' => 'numeric',
+						K::TYPE_NAME => 'numeric',
 						K::TYPE_DATA_TYPE => K::DATATYPE_NUMBER,
-						K::TYPE_FLAGS => (K::TYPE_FLAG_FRACTION_SCALE |
-						K::TYPE_FLAG_LENGTH)
+						K::TYPE_FLAGS => (K::TYPE_FLAG_LENGTH |
+						K::TYPE_FLAG_FRACTION_SCALE)
 					]),
 				'real' => new ArrayObjectType(
 					[
-						'typename' => 'real',
+						K::TYPE_NAME => 'real',
 						K::TYPE_DATA_TYPE => K::DATATYPE_FLOAT,
-						'typesize' => 32
+						K::TYPE_SIZE => 32
 					]),
 				'smallint' => new ArrayObjectType(
 					[
-						'typename' => 'smallint',
+						K::TYPE_NAME => 'smallint',
 						K::TYPE_DATA_TYPE => K::DATATYPE_INTEGER,
-						'typesize' => 16
+						K::TYPE_SIZE => 16
 					]),
 				'text' => new ArrayObjectType(
 					[
-						'typename' => 'text',
+						K::TYPE_NAME => 'text',
 						K::TYPE_DATA_TYPE => K::DATATYPE_STRING
 					]),
 				'time without time zone' => new ArrayObjectType(
 					[
-						'typename' => 'time without time zone',
+						K::TYPE_NAME => 'time without time zone',
 						K::TYPE_DATA_TYPE => K::DATATYPE_TIME,
-						'typesize' => 64,
-						'typedefaultdatatype' => 112
+						K::TYPE_SIZE => 64,
+						K::TYPE_DEFAULT_DATA_TYPE => 112
 					]),
 				'timestamp without time zone' => new ArrayObjectType(
 					[
-						'typename' => 'timestamp without time zone',
+						K::TYPE_NAME => 'timestamp without time zone',
 						K::TYPE_DATA_TYPE => K::DATATYPE_DATETIME,
-						'typesize' => 64,
-						'typedefaultdatatype' => 112
+						K::TYPE_SIZE => 64,
+						K::TYPE_DEFAULT_DATA_TYPE => 112
 					]),
 				'timestamp with time zone' => new ArrayObjectType(
 					[
-						'typename' => 'timestamp with time zone',
+						K::TYPE_NAME => 'timestamp with time zone',
 						K::TYPE_DATA_TYPE => K::DATATYPE_TIMESTAMP,
-						'typesize' => 64,
-						'typedefaultdatatype' => 112
+						K::TYPE_SIZE => 64,
+						K::TYPE_DEFAULT_DATA_TYPE => 112
 					]),
 				'time with time zone' => new ArrayObjectType(
 					[
-						'typename' => 'time with time zone',
-						K::TYPE_DATA_TYPE => (K::DATATYPE_TIME |
-						K::DATATYPE_TIMEZONE | K::DATATYPE_UNDEFINED),
-						'typesize' => 96,
-						'typedefaultdatatype' => 112
+						K::TYPE_NAME => 'time with time zone',
+						K::TYPE_DATA_TYPE => (K::DATATYPE_UNDEFINED |
+						K::DATATYPE_TIME | K::DATATYPE_TIMEZONE),
+						K::TYPE_SIZE => 96,
+						K::TYPE_DEFAULT_DATA_TYPE => 112
 					]),
 				'xml' => new ArrayObjectType(
 					[
-						'typename' => 'xml',
+						K::TYPE_NAME => 'xml',
 						K::TYPE_DATA_TYPE => K::DATATYPE_STRING,
-						'mediatype' => 'text/xml'
+						K::TYPE_MEDIA_TYPE => 'text/xml'
 					])
 				/* --</typeProperties>-- */
 			]);
