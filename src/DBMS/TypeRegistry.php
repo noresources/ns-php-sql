@@ -96,6 +96,7 @@ class TypeRegistry implements \ArrayAccess, AssetMapInterface
 			if (Container::keyExists($columnDescription,
 				K::COLUMN_LENGTH))
 			{
+
 				$length = TypeConversion::toInteger(
 					Container::keyValue($columnDescription,
 						K::COLUMN_LENGTH));
@@ -182,6 +183,8 @@ class TypeRegistry implements \ArrayAccess, AssetMapInterface
 			{
 				if ($type->has(K::TYPE_PADDING_DIRECTION))
 					$paddingScore--;
+				if ($type->has(K::TYPE_PADDING_GLYPH))
+					$paddingScore--;
 			}
 
 			$scores[$typeKey] += $paddingScore *
@@ -236,29 +239,60 @@ class TypeRegistry implements \ArrayAccess, AssetMapInterface
 			});
 
 		$types = $this->map;
-		uksort($filtered,
+		Container::uksort($filtered,
 			function ($ka, $kb) use ($scores, $columnDescription) {
 				$a = $scores[$ka];
 				$b = $scores[$kb];
 				$v = ($b - $a);
 
+				if ($v != 0)
+					return $v;
+
 				$ta = $this->get($ka);
 				$tb = $this->get($kb);
 
-				if ($v != 0)
-					return $v;
+				$length = 0;
+				if (Container::keyExists($columnDescription,
+					K::COLUMN_LENGTH))
+				{
+					$length = Container::keyValue($columnDescription,
+						K::COLUMN_LENGTH);
+				}
+
+				if ($length > 1)
+				{
+					// Type accepting length first
+					$taf = Container::keyValue($ta, K::TYPE_FLAGS, 0);
+					$tbf = Container::keyValue($tb, K::TYPE_FLAGS, 0);
+					if ($taf & K::TYPE_FLAG_LENGTH)
+					{
+						if (!($tbf & K::TYPE_FLAG_LENGTH))
+							return -1;
+					}
+					elseif ($tbf & K::TYPE_FLAG_LENGTH)
+						return 1;
+				}
 
 				// Smallest first
 				$v = self::compareTypeLength($ta, $tb);
 
-				if (!Container::keyExists($columnDescription,
-					K::COLUMN_LENGTH))
+				if ($length == 0) // no length specification
 				{
 					// Larger first
 					$v = -$v;
 				}
 
-				return $v;
+				if ($v)
+					return $v;
+
+				// name comparison for consistency.
+				// Not really mandatory
+
+				$v = \strlen($kb) - \strlen($ka);
+				if ($v)
+					return $v;
+
+				return \strcmp($ka, $kb);
 			});
 
 		return new TypeRegistry($filtered, [], true);

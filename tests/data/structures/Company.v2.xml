@@ -170,6 +170,9 @@
 			</sql:column>
 			<sql:column name="name" />
 			<sql:column name="productManagerId">
+				<sql:datatype>
+					<sql:numeric/>
+				</sql:datatype>
 			</sql:column>
 
 			<sql:primarykey>

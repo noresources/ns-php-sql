@@ -53,6 +53,21 @@ final class StructureComparerTest extends \PHPUnit\Framework\TestCase
 		}
 		$this->derivedFileManager->assertDerivedFile($s, __METHOD__, '',
 			'dump');
+
+		$hierarchy = $v2['ns_unittests']['Hierarchy'];
+		$products = $v2['ns_unittests']['Products'];
+
+		// TEST off-topic
+		{
+			$cp = new StructureOperation(StructureOperation::CREATE,
+				null, $products);
+			$dh = new StructureOperation(StructureOperation::DROP,
+				$hierarchy);
+			$this->assertEquals(0, $cp->compare($dh),
+				'Create Products does not depend on Drop Hierarchy');
+			$this->assertEquals(0, $dh->compare($cp),
+				'Drop Hierarchy does not depend on Create Products');
+		}
 	}
 
 	public function testConstraints()
