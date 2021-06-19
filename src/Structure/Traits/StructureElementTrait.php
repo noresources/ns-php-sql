@@ -46,7 +46,7 @@ trait StructureElementTrait
 		$p = $this->getParentElement();
 		$this->parentElement = null;
 		if ($p instanceof ArrayAccess)
-			$p->offsetUnset($this->getName());
+			$p->offsetUnset($this->getElementKey());
 	}
 
 	public function setParentElement(

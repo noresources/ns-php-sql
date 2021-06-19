@@ -12,6 +12,7 @@ namespace NoreSources\SQL\Structure\Traits;
 
 use NoreSources\CaseInsensitiveKeyMapTrait;
 use NoreSources\Container;
+use NoreSources\KeyNotFoundException;
 use NoreSources\SQL\NameProviderInterface;
 use NoreSources\SQL\Structure\StructureElementInterface;
 
@@ -57,17 +58,21 @@ trait StructureElementContainerTrait
 
 	public function offsetUnset($key)
 	{
-		if ($key instanceof NameProviderInterface)
+		if ($key instanceof StructureElementInterface)
 			$key = $key->getElementKey();
-		if ($this->offsetExists($key))
-		{
-			$e = $this->map[$key];
-			$this->map->offsetUnset($key);
+		elseif ($key instanceof NameProviderInterface)
+			$key = $key->getName();
 
-			if ($e instanceof StructureElementInterface)
-				if ($e->getParentElement() == $this)
-					$e->detachElement();
-		}
+		if (!$this->offsetExists($key))
+			throw new KeyNotFoundException($key);
+
+		$e = $this->offsetGet($key);
+
+		if ($e instanceof StructureElementInterface &&
+			($e->getParentElement() == $this))
+			$e->detachElement();
+		else
+			$this->map->offsetUnset($key);
 	}
 
 	public function offsetSet($key, $value)
@@ -91,12 +96,10 @@ trait StructureElementContainerTrait
 
 	protected function cloneStructureElementContainer()
 	{
-		foreach ($this->map as $key => $value)
-		{
-			$e = clone $value;
-			$e->setParentElement($this);
-			$this->map->offsetSet($key, $e);
-		}
+		$map = $this->map;
+		$this->initializeCaseInsensitiveKeyMapTrait();
+		foreach ($map as $key => $value)
+			$this->appendElement(clone $value);
 	}
 
 	protected function initializeStructureElementContainer()
