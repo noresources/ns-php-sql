@@ -4,6 +4,7 @@ namespace NoreSources\SQL\DBMS\Reference;
 use NoreSources\Container;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\AbstractPlatform;
+use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\TypeRegistry;
 use NoreSources\SQL\Syntax\Statement\ParameterData;
 use Psr\Log\LoggerAwareTrait;
@@ -27,7 +28,7 @@ class ReferencePlatform extends AbstractPlatform
 			$this->setPlatformFeature($feature[0], $feature[1]);
 	}
 
-	public function newConfigurator($connection)
+	public function newConfigurator(ConnectionInterface $connection)
 	{
 		return new ReferenceConfigurator($this, $connection);
 	}
