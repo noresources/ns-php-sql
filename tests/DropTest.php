@@ -27,9 +27,11 @@ final class DropTest extends \PHPUnit\Framework\TestCase
 	public function testDropIndex()
 	{
 		$structurelessEnvironment = new Environment();
+
 		$platform = $structurelessEnvironment->getPlatform();
 
-		$structureless = new DropIndexQuery();
+		/** @var DropIndexQuery $structureless */
+		$structureless = $platform->newStatement(DropIndexQuery::class);
 		$structureless->identifier('structureless');
 
 		$result = $structurelessEnvironment->prepareStatement(
@@ -40,7 +42,8 @@ final class DropTest extends \PHPUnit\Framework\TestCase
 
 		$structure = $this->datasources->get('Company');
 		$structuredEnvironment = new Environment($structure);
-		$indexStructure = $structure['ns_unittests']['index_employees_name'];
+
+		$indexStructure = $structure['ns_unittests']['Employees']['index_employees_name'];
 		$structured = $structuredEnvironment->newStatement(
 			DropIndexQuery::class);
 		$structured->identifier('structureless');

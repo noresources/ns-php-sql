@@ -128,11 +128,6 @@ class Environment implements ConnectionProviderInterface,
 		return $this->connection;
 	}
 
-	/**
-	 *
-	 * {@inheritdoc}
-	 * @see \NoreSources\SQL\DBMS\PlatformProviderInterface::getPlatform()
-	 */
 	public function getPlatform()
 	{
 		return $this->connection->getPlatform();

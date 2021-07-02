@@ -300,7 +300,8 @@ class SQLiteStructureExplorer extends AbstractStructureExplorer implements
 				[
 					K::TYPE_NAME => $typename,
 					K::TYPE_DATA_TYPE => SQLite3TypeRegistry::getInstance()->getDataTypeFromTypename(
-						$typename)
+						$typename),
+					K::TYPE_FLAGS => K::TYPE_FLAG_LENGTH
 				]);
 		}
 
@@ -325,15 +326,28 @@ class SQLiteStructureExplorer extends AbstractStructureExplorer implements
 			$isKeyword = false;
 
 			static $keywords = [
-				K::KEYWORD_NULL,
-				K::KEYWORD_CURRENT_TIMESTAMP
+				K::KEYWORD_NULL => [
+					Data::class,
+					[
+						null,
+						K::DATATYPE_NULL
+					]
+				],
+				K::KEYWORD_CURRENT_TIMESTAMP => [
+					Keyword::class,
+					[
+						K::KEYWORD_CURRENT_TIMESTAMP
+					]
+				]
 			];
-			foreach ($keywords as $k)
+			foreach ($keywords as $k => $c)
 			{
 				if ($defaultValue != $platform->getKeyword($k))
 					continue;
 				$isKeyword = true;
-				$properties[K::COLUMN_DEFAULT_VALUE] = new Keyword($k);
+				$cls = new \ReflectionClass($c[0]);
+				$value = $cls->newInstanceArgs($c[1]);
+				$properties[K::COLUMN_DEFAULT_VALUE] = $value;
 				break;
 			}
 
@@ -349,7 +363,8 @@ class SQLiteStructureExplorer extends AbstractStructureExplorer implements
 						new ArrayColumnDescription(
 							[
 								K::COLUMN_NAME => 'value',
-								K::COLUMN_DATA_TYPE => $dataType
+								K::COLUMN_DATA_TYPE => $dataType &
+								~K::DATATYPE_NULL
 							]));
 
 					$recordset->setFlags(
@@ -362,7 +377,7 @@ class SQLiteStructureExplorer extends AbstractStructureExplorer implements
 				{}
 
 				$properties[K::COLUMN_DEFAULT_VALUE] = new Data(
-					$defaultValue, $dataType);
+					$defaultValue, $dataType & ~K::DATATYPE_NULL);
 			}
 		}
 
