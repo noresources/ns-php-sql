@@ -87,7 +87,11 @@ class StructureResolver implements StructureResolverInterface
 		{
 			$namespace = $this->findNamespace($x[0]);
 			if ($namespace)
-				$table = $namespace->offsetGet($x[1]);
+			{
+				$tableName = $k[1];
+				if ($namespace->has($tableName))
+					$table = $namespace->get($x[1]);
+			}
 		}
 
 		if (!($table instanceof TableStructure))
@@ -128,8 +132,12 @@ class StructureResolver implements StructureResolverInterface
 		elseif ($c == 2)
 			$namespace = $this->findNamespace($x[0]);
 
-		$table = ($namespace instanceof NamespaceStructure) ? $namespace->offsetGet(
-			$name) : null;
+		$table = null;
+		if ($namespace instanceof NamespaceStructure &&
+			$namespace->has($name))
+		{
+			$table = $namespace->get($name);
+		}
 
 		if (($table instanceof TableStructure) ||
 			($table instanceof ViewStructure))
@@ -156,8 +164,10 @@ class StructureResolver implements StructureResolverInterface
 			!($datasource instanceof DatasourceStructure))
 			$datasource = $datasource->getParentElement();
 
-		$namespace = ($datasource instanceof DatasourceStructure) ? $datasource->offsetGet(
-			$path->getPath()) : null;
+		$namespace = null;
+		if ($datasource instanceof DatasourceStructure &&
+			$datasource->has($path->getPath()))
+			$namespace = $datasource->get($path->getPath());
 
 		if ($namespace instanceof NamespaceStructure)
 		{
