@@ -10,7 +10,7 @@ final class TokenStremTest extends \PHPUnit\Framework\TestCase
 	{
 		$stream = new TokenStream();
 		$stream->text('hello')->text('world');
-		$stream->insertAt(' ', TokenStream::SPACE, 1);
+		$stream->streamAt((new TokenStream())->space(), 1);
 
 		$this->assertEquals(
 			self::toJson(
@@ -20,7 +20,6 @@ final class TokenStremTest extends \PHPUnit\Framework\TestCase
 						TokenStream::INDEX_TYPE => TokenStream::TEXT
 					],
 					[
-						TokenStream::INDEX_TOKEN => ' ',
 						TokenStream::INDEX_TYPE => TokenStream::SPACE
 					],
 					[
