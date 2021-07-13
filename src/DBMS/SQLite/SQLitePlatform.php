@@ -11,10 +11,13 @@ use NoreSources\Container;
 use NoreSources\DateTime;
 use NoreSources\Text;
 use NoreSources\Expression\Value;
-use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\AbstractPlatform;
 use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\TimestampFormatTranslationMap;
+use NoreSources\SQL\DBMS\Filesystem\ClosureStructureFilenameFactory;
+use NoreSources\SQL\DBMS\Filesystem\StructureFilenameFactoryInterface;
+use NoreSources\SQL\DBMS\Filesystem\StructureFilenameFactoryProviderInterface;
+use NoreSources\SQL\DBMS\SQLite\SQLiteConstants as K;
 use NoreSources\SQL\Syntax\ColumnDeclaration;
 use NoreSources\SQL\Syntax\FunctionCall;
 use NoreSources\SQL\Syntax\MetaFunctionCall;
@@ -27,7 +30,8 @@ use NoreSources\SQL\Syntax\Statement\Structure\DropNamespaceQuery;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
 
-class SQLitePlatform extends AbstractPlatform
+class SQLitePlatform extends AbstractPlatform implements
+	StructureFilenameFactoryProviderInterface
 {
 	use LoggerAwareTrait;
 
@@ -36,6 +40,14 @@ class SQLitePlatform extends AbstractPlatform
 	public function __construct($parameters = array())
 	{
 		parent::__construct($parameters);
+
+		if (($f = Container::keyValue($parameters,
+			self::STRUCTURE_FILENAME_FACTORY)))
+		{
+			if (!($f instanceof StructureFilenameFactoryInterface))
+				$f = new ClosureStructureFilenameFactory($f);
+			$this->filenameFactory = $f;
+		}
 
 		$this->initializeStatementFactory(
 			[
@@ -46,7 +58,8 @@ class SQLitePlatform extends AbstractPlatform
 				K::QUERY_CREATE_INDEX => SQLiteCreateIndexQuery::class,
 				CreateIndexQuery::class => SQLiteCreateIndexQuery::class,
 				K::QUERY_DROP_NAMESPACE => SQLiteDropNamespaceQuery::class,
-				DropNamespaceQuery::class => SQLiteDropNamespaceQuery::class
+				DropNamespaceQuery::class => SQLiteDropNamespaceQuery::class,
+				// RenameColumnQuery::class => RenameColumnQuery::class
 			]);
 
 		$this->setPlatformFeature(K::FEATURE_NAMED_PARAMETERS, true);
@@ -208,6 +221,11 @@ class SQLitePlatform extends AbstractPlatform
 		return parent::newExpression($baseClassname, ...$arguments);
 	}
 
+	public function getStructureFilenameFactory()
+	{
+		return $this->filenameFactory;
+	}
+
 	public function translateFunction(MetaFunctionCall $metaFunction)
 	{
 		if ($metaFunction->getFunctionName() ==
@@ -311,4 +329,10 @@ class SQLitePlatform extends AbstractPlatform
 	 * @var TimestampFormatTranslationMap
 	 */
 	private static $timestampFormatTranslations;
+
+	/**
+	 *
+	 * @var StructureFilenameFactoryInterface
+	 */
+	private $filenameFactory;
 }

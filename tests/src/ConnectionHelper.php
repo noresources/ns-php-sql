@@ -20,6 +20,7 @@ use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\DefaultConnectionFactory;
 use NoreSources\SQL\DBMS\PreparedStatementInterface;
 use NoreSources\SQL\Structure\DatasourceStructure;
+use NoreSources\SQL\Structure\Identifier;
 use NoreSources\SQL\Structure\NamespaceStructure;
 use NoreSources\SQL\Structure\StructureElementInterface;
 use NoreSources\SQL\Structure\StructureProviderInterface;
@@ -39,12 +40,14 @@ use NoreSources\SQL\Syntax\Statement\Structure\CreateTableQuery;
 class ConnectionHelper
 {
 
-	public static function sqliteDatabaseFilenameFactory(
-		NamespaceStructure $namespace)
+	public static function sqliteDatabaseFilenameFactory($identifier,
+		$type)
 	{
+		/** @var Identifier $identifier */
+		$identifier = Identifier::make($identifier);
 		$basePath = realpath(__DIR__ . '/../..');
 		$filePath = Path::cleanup(
-			__DIR__ . '/../derived/SQLite/' . $namespace->getName() .
+			__DIR__ . '/../derived/SQLite/' . $identifier->getLocalName() .
 			'.sqlite');
 		return Path::getRelative($basePath, $filePath);
 	}

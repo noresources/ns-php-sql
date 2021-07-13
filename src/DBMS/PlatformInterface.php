@@ -57,13 +57,6 @@ interface PlatformInterface extends LoggerAwareInterface,
 
 	/**
 	 *
-	 * @return callable A function taking a StructureElementInterface as parameter and returning an
-	 *         absolute file path.
-	 */
-	function getStructureFilenameFactory();
-
-	/**
-	 *
 	 * @param mixed $columnDescription
 	 *        	Column description
 	 * @param number $constraintFlags

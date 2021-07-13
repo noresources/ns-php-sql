@@ -8,13 +8,15 @@ use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\ConnectionProviderInterface;
 use NoreSources\SQL\DBMS\IdentifierSerializerInterface;
 use NoreSources\SQL\DBMS\PlatformInterface;
+use NoreSources\SQL\DBMS\Filesystem\StructureFilenameFactoryProviderInterface;
 use NoreSources\SQL\DBMS\Traits\ConnectionProviderTrait;
 use NoreSources\SQL\Syntax\MetaFunctionCall;
 use NoreSources\SQL\Syntax\Statement\ParameterData;
 use Psr\Log\LoggerInterface;
 
 class PDOPlatform implements PlatformInterface,
-	ConnectionProviderInterface
+	ConnectionProviderInterface,
+	StructureFilenameFactoryProviderInterface
 
 {
 
@@ -35,6 +37,13 @@ class PDOPlatform implements PlatformInterface,
 				$this->basePlatform,
 				'newStatement'
 			], func_get_args());
+	}
+
+	public function getStructureFilenameFactory()
+	{
+		if ($this->basePlatform instanceof StructureFilenameFactoryProviderInterface)
+			return $this->basePlatform->getStructureFilenameFactory();
+		return null;
 	}
 
 	public function hasStatement($statementType)
@@ -147,11 +156,6 @@ class PDOPlatform implements PlatformInterface,
 	public function getPlatformVersion($kind = self::VERSION_CURRENT)
 	{
 		return $this->basePlatform->getPlatformVersion($kind);
-	}
-
-	public function getStructureFilenameFactory()
-	{
-		return $this->basePlatform->getStructureFilenameFactory();
 	}
 
 	public function getTimestampTypeStringFormat($type = 0)

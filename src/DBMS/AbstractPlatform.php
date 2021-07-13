@@ -2,8 +2,6 @@
 /**
  * Copyright © 2012 - 2021 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
- */
-/**
  *
  * @package SQL
  */
@@ -208,11 +206,6 @@ abstract class AbstractPlatform implements PlatformInterface
 		return Container::keyValue($this->versions, $kind, false);
 	}
 
-	public function getStructureFilenameFactory()
-	{
-		return $this->structureFilenameFactory;
-	}
-
 	public function getKeyword($keyword)
 	{
 		switch ($keyword)
@@ -356,9 +349,6 @@ abstract class AbstractPlatform implements PlatformInterface
 				self::VERSION_CURRENT => $parameters
 			];
 
-		$this->structureFilenameFactory = Container::keyValue(
-			$parameters, self::STRUCTURE_FILENAME_FACTORY);
-
 		$version = new SemanticVersion(
 			Container::keyValue($parameters, self::VERSION_CURRENT,
 				static::DEFAULT_VERSION));
@@ -403,12 +393,6 @@ abstract class AbstractPlatform implements PlatformInterface
 	 * @var SemanticVersion[]
 	 */
 	private $versions;
-
-	/**
-	 *
-	 * @var callable
-	 */
-	private $structureFilenameFactory;
 
 	/**
 	 *

@@ -11,7 +11,9 @@
 //
 namespace NoreSources\SQL\DBMS\SQLite;
 
-use NoreSources\Container;
+use NoreSources\TypeDescription;
+use NoreSources\SQL\DBMS\Filesystem\StructureFilenameFactoryInterface;
+use NoreSources\SQL\DBMS\Filesystem\StructureFilenameFactoryProviderInterface;
 use NoreSources\SQL\DBMS\SQLite\SQLiteConstants as K;
 use NoreSources\SQL\Structure\NamespaceStructure;
 use NoreSources\SQL\Syntax\Data;
@@ -42,13 +44,15 @@ class SQLiteCreateNamespaceQuery extends CreateNamespaceQuery
 			$identifier->getLocalName());
 
 		$path = $identifier . '.sqlite';
-		if (!\is_callable($factory) &&
-			(Container::isTraversable($factory) ||
-			Container::isArray($factory)))
-			$factory = Container::createArray($factory);
 
-		if (\is_callable($factory))
-			$path = $factory($structure);
+		if ($platform instanceof StructureFilenameFactoryProviderInterface)
+		{
+			$factory = $platform->getStructureFilenameFactory();
+			if ($factory instanceof StructureFilenameFactoryInterface)
+				$path = $factory->buildStructureFilename(
+					$structure->getIdentifier(),
+					TypeDescription::getName($structure));
+		}
 
 		$path = new Data($path, K::DATATYPE_STRING);
 
