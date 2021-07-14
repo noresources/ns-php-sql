@@ -205,12 +205,22 @@ class Structure
 			return true;
 
 		$resolver = new StructureResolver();
+		$pa = $a->getParentElement();
+
+		if (($a instanceof IndexDescriptionInterface) &&
+			$pa instanceof TableStructure &&
+			$b instanceof ColumnStructure &&
+			$b->getParentElement() === $pa)
+		{
+			return Container::valueExists($a->getColumns(),
+				$b->getName());
+		}
 
 		if ($a instanceof ColumnStructure &&
-			(($t = $a->getParentElement()) instanceof TableStructure))
+			$pa instanceof TableStructure)
 		{
 			$resolver->setPivot($a);
-			$fks = $t->getChildElements(
+			$fks = $pa->getChildElements(
 				ForeignKeyTableConstraint::class);
 			foreach ($fks as $fk)
 			{
