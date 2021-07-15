@@ -69,46 +69,30 @@ class SQLite3TypeRegistry extends TypeRegistry
 				'blob' => new ArrayObjectType(
 					[
 						K::TYPE_NAME => 'BLOB',
-<<<<<<< HEAD
 						K::TYPE_DATA_TYPE => K::DATATYPE_BINARY,
 						K::TYPE_FLAGS => (K::TYPE_FLAG_LENGTH)
-=======
-						K::TYPE_DATA_TYPE => K::DATATYPE_BINARY
->>>>>>> a63db3fe... SQLite type registry improved
 					]),
 				'integer' => new ArrayObjectType(
 					[
 						K::TYPE_NAME => 'INTEGER',
 						K::TYPE_DATA_TYPE => K::DATATYPE_INTEGER |
-<<<<<<< HEAD
 						K::DATATYPE_BOOLEAN,
 						K::TYPE_FLAGS => K::TYPE_FLAG_LENGTH
-=======
-						K::DATATYPE_BOOLEAN
->>>>>>> a63db3fe... SQLite type registry improved
 					]),
 				'real' => new ArrayObjectType(
 					[
 						K::TYPE_NAME => 'REAL',
 						K::TYPE_DATA_TYPE => K::DATATYPE_FLOAT,
-<<<<<<< HEAD
 						K::TYPE_FLAGS => K::TYPE_FLAG_FRACTION_SCALE |
 						K::TYPE_FLAG_LENGTH
-=======
-						K::TYPE_FLAGS => K::TYPE_FLAG_FRACTION_SCALE
->>>>>>> a63db3fe... SQLite type registry improved
 					]),
 
 				'text' => new ArrayObjectType(
 					[
 						K::TYPE_NAME => 'TEXT',
 						K::TYPE_DATA_TYPE => K::DATATYPE_TIMESTAMP |
-<<<<<<< HEAD
 						K::DATATYPE_STRING,
 						K::TYPE_FLAGS => K::TYPE_FLAG_LENGTH
-=======
-						K::DATATYPE_STRING
->>>>>>> a63db3fe... SQLite type registry improved
 					]),
 				// Extensions
 				'boolean' => new ArrayObjectType(
