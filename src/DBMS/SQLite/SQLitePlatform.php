@@ -7,17 +7,17 @@
  */
 namespace NoreSources\SQL\DBMS\SQLite;
 
-use NoreSources\Container;
 use NoreSources\DateTime;
 use NoreSources\Text;
+use NoreSources\Container\Container;
 use NoreSources\Expression\Value;
+use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\AbstractPlatform;
 use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\TimestampFormatTranslationMap;
 use NoreSources\SQL\DBMS\Filesystem\ClosureStructureFilenameFactory;
 use NoreSources\SQL\DBMS\Filesystem\StructureFilenameFactoryInterface;
 use NoreSources\SQL\DBMS\Filesystem\StructureFilenameFactoryProviderInterface;
-use NoreSources\SQL\DBMS\SQLite\SQLiteConstants as K;
 use NoreSources\SQL\Syntax\ColumnDeclaration;
 use NoreSources\SQL\Syntax\FunctionCall;
 use NoreSources\SQL\Syntax\MetaFunctionCall;
@@ -29,6 +29,7 @@ use NoreSources\SQL\Syntax\Statement\Structure\CreateTableQuery;
 use NoreSources\SQL\Syntax\Statement\Structure\DropNamespaceQuery;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
+use SQLite3TypeRegistry;
 
 class SQLitePlatform extends AbstractPlatform implements
 	StructureFilenameFactoryProviderInterface
@@ -58,7 +59,7 @@ class SQLitePlatform extends AbstractPlatform implements
 				K::QUERY_CREATE_INDEX => SQLiteCreateIndexQuery::class,
 				CreateIndexQuery::class => SQLiteCreateIndexQuery::class,
 				K::QUERY_DROP_NAMESPACE => SQLiteDropNamespaceQuery::class,
-				DropNamespaceQuery::class => SQLiteDropNamespaceQuery::class,
+				DropNamespaceQuery::class => SQLiteDropNamespaceQuery::class
 				// RenameColumnQuery::class => RenameColumnQuery::class
 			]);
 

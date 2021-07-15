@@ -8,7 +8,7 @@
  */
 namespace NoreSources\SQL\DBMS\SQLite;
 
-use NoreSources\Container;
+use NoreSources\Container\Container;
 use NoreSources\SQL\DBMS\ConnectionException;
 use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\ConnectionProviderInterface;
@@ -25,6 +25,7 @@ use NoreSources\SQL\Structure\PrimaryKeyTableConstraint;
 use NoreSources\SQL\Structure\UniqueTableConstraint;
 use NoreSources\SQL\Syntax\Data;
 use NoreSources\SQL\Syntax\Keyword;
+use SQLite3TypeRegistry;
 
 class SQLiteStructureExplorer extends AbstractStructureExplorer implements
 	ConnectionProviderInterface
