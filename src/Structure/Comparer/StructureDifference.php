@@ -21,6 +21,26 @@ class StructureDifference
 
 	const ALTERED = 'altered';
 
+	public $hint;
+
+	public function __toString()
+	{
+		$s = $this->getType() . ':' .
+			TypeDescription::getLocalName($this->getReference());
+		if (\strval($this->hint))
+			$s .= '[' . $this->hint . ']';
+
+		if (isset($this->reference))
+			$s .= '<' . \strval($this->reference->getIdentifier());
+		else
+			$s .= '<?';
+		if (isset($this->target))
+			$s .= '>' . \strval($this->target->getIdentifier());
+		else
+			$s .= '>?';
+		return $s;
+	}
+
 	public function getType()
 	{
 		return $this->differenceType;
@@ -57,11 +77,12 @@ class StructureDifference
 
 	public function __construct($type,
 		StructureElementInterface $reference = null,
-		StructureElementInterface $target = null)
+		StructureElementInterface $target = null, $hint = '')
 	{
 		$this->differenceType = $type;
 		$this->reference = $reference;
 		$this->target = $target;
+		$this->hint = $hint;
 	}
 
 	const FILTER_TYPE = 'type';

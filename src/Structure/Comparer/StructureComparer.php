@@ -299,7 +299,7 @@ class StructureComparer
 				continue;
 
 			if (!$b->has($key))
-				return self::singleAlteredDifference($a, $b);
+				return self::singleAlteredDifference($a, $b, '-' . $key);
 			$pb = $b->get($key);
 
 			if ($key == K::COLUMN_DATA_TYPE)
@@ -315,12 +315,12 @@ class StructureComparer
 			{
 				$c = $pa->compare($pb);
 				if ($c != 0)
-					return self::singleAlteredDifference($a, $b);
+					return self::singleAlteredDifference($a, $b, $key);
 				continue;
 			}
 
 			if ($pa != $pb)
-				return self::singleAlteredDifference($a, $b);
+				return self::singleAlteredDifference($a, $b, $key);
 		}
 
 		return [];
@@ -551,10 +551,11 @@ class StructureComparer
 		return true;
 	}
 
-	protected static function singleAlteredDifference($a, $b)
+	protected static function singleAlteredDifference($a, $b, $hint = '')
 	{
 		return [
-			new StructureDifference(StructureDifference::ALTERED, $a, $b)
+			new StructureDifference(StructureDifference::ALTERED, $a, $b,
+				$hint)
 		];
 	}
 
