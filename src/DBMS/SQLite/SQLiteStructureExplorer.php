@@ -290,7 +290,19 @@ class SQLiteStructureExplorer extends AbstractStructureExplorer implements
 				$flags |= K::COLUMN_FLAG_AUTO_INCREMENT;
 		}
 
-		$type = $platform->getTypeRegistry()->get($typename);
+		$registry = $platform->getTypeRegistry();
+		$type = null;
+		if ($registry->has($typename))
+			$type = $platform->getTypeRegistry()->get($typename);
+		else
+		{
+			$type = new \ArrayObject(
+				[
+					K::TYPE_NAME => $typename,
+					K::TYPE_DATA_TYPE => SQLite3TypeRegistry::getInstance()->getDataTypeFromTypename(
+						$typename)
+				]);
+		}
 
 		$dataType |= $type->get(K::TYPE_DATA_TYPE);
 

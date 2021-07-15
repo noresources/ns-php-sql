@@ -11,13 +11,10 @@ use NoreSources\Container;
 use NoreSources\DateTime;
 use NoreSources\Text;
 use NoreSources\Expression\Value;
-use NoreSources\MediaType\MediaType;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\AbstractPlatform;
 use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\TimestampFormatTranslationMap;
-use NoreSources\SQL\DBMS\TypeRegistry;
-use NoreSources\SQL\DBMS\Types\ArrayObjectType;
 use NoreSources\SQL\Syntax\ColumnDeclaration;
 use NoreSources\SQL\Syntax\FunctionCall;
 use NoreSources\SQL\Syntax\MetaFunctionCall;
@@ -240,47 +237,7 @@ class SQLitePlatform extends AbstractPlatform
 
 	public function getTypeRegistry()
 	{
-		if (!isset(self::$typeRegistry))
-		{
-			self::$typeRegistry = new TypeRegistry(
-				[
-					'blob' => new ArrayObjectType(
-						[
-							K::TYPE_NAME => 'BLOB',
-							K::TYPE_DATA_TYPE => K::DATATYPE_BINARY
-						]),
-					'integer' => new ArrayObjectType(
-						[
-							K::TYPE_NAME => 'INTEGER',
-							K::TYPE_DATA_TYPE => K::DATATYPE_INTEGER |
-							K::DATATYPE_BOOLEAN
-						]),
-					'real' => new ArrayObjectType(
-						[
-							K::TYPE_NAME => 'REAL',
-							K::TYPE_DATA_TYPE => K::DATATYPE_FLOAT,
-							K::TYPE_FLAGS => K::TYPE_FLAG_FRACTION_SCALE
-						]),
-
-					'text' => new ArrayObjectType(
-						[
-							K::TYPE_NAME => 'TEXT',
-							K::TYPE_DATA_TYPE => K::DATATYPE_TIMESTAMP |
-							K::DATATYPE_STRING
-						]),
-					'json' => new ArrayObjectType(
-						[
-							K::TYPE_NAME => 'JSON',
-							K::TYPE_DATA_TYPE => K::DATATYPE_STRING,
-							K::TYPE_MEDIA_TYPE => MediaType::fromString(
-								'application/json')
-						])
-				], [
-					'numeric' => 'real'
-				]);
-		}
-
-		return self::$typeRegistry;
+		return SQLite3TypeRegistry::getInstance();
 	}
 
 	private function translateTimestampFormatFunction(
@@ -354,10 +311,4 @@ class SQLitePlatform extends AbstractPlatform
 	 * @var TimestampFormatTranslationMap
 	 */
 	private static $timestampFormatTranslations;
-
-	/**
-	 *
-	 * @var TypeRegistry
-	 */
-	private static $typeRegistry;
 }

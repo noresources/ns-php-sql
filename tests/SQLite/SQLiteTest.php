@@ -14,6 +14,7 @@ use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\Configuration\ConfiguratorInterface;
 use NoreSources\SQL\DBMS\Configuration\ConfiguratorProviderInterface;
 use NoreSources\SQL\DBMS\Explorer\StructureExplorerInterface;
+use NoreSources\SQL\DBMS\SQLite\SQLite3TypeRegistry;
 use NoreSources\SQL\DBMS\SQLite\SQLiteConnection;
 use NoreSources\SQL\DBMS\SQLite\SQLiteConstants;
 use NoreSources\SQL\DBMS\SQLite\SQLitePlatform;
@@ -53,6 +54,45 @@ final class SQLiteTest extends \PHPUnit\Framework\TestCase
 			__DIR__ . '/..');
 		$this->datasources = new DatasourceManager();
 		$this->createdTables = new \ArrayObject();
+	}
+
+	public function testTypeAffinity()
+	{
+		$tests = [
+			'rule 1' => [
+				'typename' => 'someint',
+				'expected' => (K::DATATYPE_INTEGER)
+			],
+			'rule 2' => [
+				'typename' => 'aTextType',
+				'expected' => (K::DATATYPE_STRING)
+			],
+			'extension' => [
+				'typename' => 'timestamp with tz',
+				'expected' => (K::DATATYPE_TIMESTAMP)
+			],
+			'rule 5' => [
+				'typename' => 'nothingiseverything',
+				'expected' => (K::DATATYPE_NUMBER | K::DATATYPE_BINARY |
+				K::DATATYPE_STRING)
+			],
+			'first matching rule' => [
+				'typename' => 'thetimestamptextintegral',
+				'expected' => (K::DATATYPE_TIMESTAMP)
+			]
+		];
+
+		$registry = SQLite3TypeRegistry::getInstance();
+
+		foreach ($tests as $label => $test)
+		{
+			$typename = $test['typename'];
+			$expected = $test['expected'];
+			$this->assertEquals($expected,
+				$registry->getDataTypeFromTypename($typename),
+				$label . ' type ' . $typename . ' is ' .
+				K::dataTypeName($expected) . '(' . $expected . ')');
+		}
 	}
 
 	public function testStringStatement()

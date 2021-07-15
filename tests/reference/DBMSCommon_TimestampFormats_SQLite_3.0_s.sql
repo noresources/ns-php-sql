@@ -1,1 +1,1 @@
-SELECT STRFTIME('%S', CAST(:timestamp as TEXT)) AS "format", 'Seconds [0-56] [s]'
+SELECT STRFTIME('%S', CAST(:timestamp as TIMESTAMPTEXT)) AS "format", 'Seconds [0-56] [s]'
