@@ -9,6 +9,7 @@ namespace NoreSources\SQL\Syntax\Statement\Structure;
 
 use NoreSources\TypeDescription;
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\DataTypeDescription;
 use NoreSources\SQL\DBMS\TypeInterface;
 use NoreSources\SQL\Structure\KeyTableConstraintInterface;
 use NoreSources\SQL\Structure\StructureElementInterface;
@@ -199,7 +200,8 @@ class CreateTableQuery implements TokenizableStatementInterface,
 				{
 					$dataType = $column->get(K::COLUMN_DATA_TYPE);
 				}
-				$dataType = K::dataTypeName($dataType);
+				$dataType = DataTypeDescription::getInstance()->getNames(
+					$dataType)[0];
 
 				throw new StatementException($this,
 					'Unable to find a ' .

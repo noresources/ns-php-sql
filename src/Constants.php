@@ -1185,7 +1185,16 @@ class Constants
 	const MEDIA_TYPE_BIT_STRING = 'text/x.binary';
 
 	/**
+	 * Value returned by the compare() method of ComparableInterface implementation
+	 * when there is no valid comparison method.
 	 *
+	 * @var number
+	 */
+	const NOT_COMPARABLE = 0xBaadD1ff;
+
+	/**
+	 *
+	 * @deprecated Use DataTypeDescription
 	 * @param integer $dataType
 	 *        	Data type identifier
 	 *

@@ -1,11 +1,16 @@
 <?php
 namespace NoreSources\SQL\Syntax;
 
+use NoreSources\ComparableInterface;
 use NoreSources\Expression\Value;
+use NoreSources\SQL\Constants;
+use NoreSources\SQL\DataTypeDescription;
 use NoreSources\SQL\DataTypeProviderInterface;
+use NoreSources\Type\TypeConversion;
+use NoreSources\Type\TypeDescription;
 
 class Data extends Value implements TokenizableExpressionInterface,
-	DataTypeProviderInterface
+	DataTypeProviderInterface, ComparableInterface
 {
 
 	/**
@@ -19,6 +24,45 @@ class Data extends Value implements TokenizableExpressionInterface,
 	{
 		$this->setValue($value);
 		$this->setDataType($dataType);
+	}
+
+	public function __toString()
+	{
+		$v = $this->getValue();
+		if (TypeDescription::hasStringRepresentation($v))
+			return TypeConversion::toString($v);
+		return TypeDescription::getLocalName($v);
+	}
+
+	public function compare($b)
+	{
+		if ($b instanceof DataTypeProviderInterface)
+		{
+			$ta = $this->getDataType();
+			$tb = $b->getDataType();
+
+			if (($ta == Constants::DATATYPE_NULL) && ($ta == $tb))
+				return 0;
+
+			if ($ta != $tb)
+			{
+				$flags = DataTypeDescription::getInstance()->compareAffinity(
+					$ta, $tb);
+				if (!($flags & DataTypeDescription::AFFINITY_MATCH_ONE))
+					return ($ta - $tb);
+			}
+		}
+
+		if ($b instanceof Value)
+			$b = $b->getValue();
+
+		$a = $this->getValue();
+
+		if (TypeDescription::hasStringRepresentation($a) &&
+			TypeDescription::hasStringRepresentation($b))
+			return \strcmp(TypeConversion::toString($a),
+				TypeConversion::toString($b));
+		return -100;
 	}
 
 	/**

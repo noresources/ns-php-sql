@@ -9,14 +9,16 @@
  */
 namespace NoreSources\SQL\Syntax;
 
+use NoreSources\ComparableInterface;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DataTypeProviderInterface;
+use NoreSources\SQL\DBMS\Reference\ReferencePlatform;
 
 /**
  * SQL language keyword which may have different translation in DBMS dialect
  */
 class Keyword implements TokenizableExpressionInterface,
-	DataTypeProviderInterface
+	DataTypeProviderInterface, ComparableInterface
 {
 
 	/**
@@ -36,6 +38,12 @@ class Keyword implements TokenizableExpressionInterface,
 		$this->keyword = $keyword;
 	}
 
+	public function __toString()
+	{
+		$p = new ReferencePlatform();
+		return $p->getKeyword($this->getKeyword());
+	}
+
 	/**
 	 *
 	 * @return number Keyword constant value
@@ -49,6 +57,21 @@ class Keyword implements TokenizableExpressionInterface,
 		TokenStreamContextInterface $context)
 	{
 		return $stream->keyword($this->keyword);
+	}
+
+	public function compare($b)
+	{
+		if ($b instanceof Keyword)
+			return $this->keyword - $b->getKeyword();
+
+		if ($this->keyword == K::KEYWORD_TRUE && \is_bool($b) && $b)
+			return 0;
+		if ($this->keyword == K::KEYWORD_FALSE && \is_bool($b) && !$b)
+			return 0;
+		if ($this->keyword == K::KEYWORD_NULL && \is_null($b))
+			return 0;
+
+		return K::NOT_COMPARABLE;
 	}
 
 	public function getDataType()

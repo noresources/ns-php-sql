@@ -91,7 +91,9 @@ final class SQLiteTest extends \PHPUnit\Framework\TestCase
 			$this->assertEquals($expected,
 				$registry->getDataTypeFromTypename($typename),
 				$label . ' type ' . $typename . ' is ' .
-				K::dataTypeName($expected) . '(' . $expected . ')');
+				\implode(':',
+					DataTypeDescription::getInstance()->getNames(
+						$expected)) . '(' . $expected . ')');
 		}
 	}
 

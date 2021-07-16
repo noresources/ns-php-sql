@@ -12,9 +12,11 @@ use NoreSources\Bitset;
 use NoreSources\ComparableInterface;
 use NoreSources\Container;
 use NoreSources\SingletonTrait;
+use NoreSources\TypeConversion;
 use NoreSources\TypeDescription;
 use NoreSources\Expression\ExpressionInterface;
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\DataTypeDescription;
 use NoreSources\SQL\DBMS\Reference\ReferencePlatform;
 use NoreSources\SQL\Structure\CheckTableConstraint;
 use NoreSources\SQL\Structure\ColumnStructure;
@@ -295,9 +297,18 @@ class StructureComparer
 		{
 			if ($key == K::COLUMN_NAME)
 				continue;
+
 			if (!$b->has($key))
 				return self::singleAlteredDifference($a, $b);
 			$pb = $b->get($key);
+
+			if ($key == K::COLUMN_DATA_TYPE)
+			{
+				$c = $this->compareDataType($pa, $pb);
+				if ($c != 0)
+					return self::singleAlteredDifference($a, $b, $key);
+				continue;
+			}
 
 			if ($pa instanceof ComparableInterface &&
 				$pb instanceof ComparableInterface)
@@ -313,6 +324,32 @@ class StructureComparer
 		}
 
 		return [];
+	}
+
+	public function compareDataType($a, $b)
+	{
+		$description = DataTypeDescription::getInstance();
+		$va = $description->getAffinities($a);
+		$vb = $description->getAffinities($b);
+
+		if (Container::valueExists($va, K::DATATYPE_NULL))
+		{
+			if (!Container::valueExists($vb, K::DATATYPE_NULL))
+				return 1;
+		}
+		else
+			if (Container::valueExists($vb, K::DATATYPE_NULL))
+				return -1;
+
+		$va = \array_diff($va, [
+			K::DATATYPE_NULL
+		]);
+		$vb = \array_diff($vb, [
+			K::DATATYPE_NULL
+		]);
+		$intersection = \array_intersect($va, $vb);
+
+		return \count($intersection) ? 0 : (\count($va) - \count($vb));
 	}
 
 	public function compareUniqueTableConstraint(
@@ -466,7 +503,8 @@ class StructureComparer
 				$platform = new ReferencePlatform();
 				$sa = $builder($evaluator($ae), $platform);
 				$sb = $builder($evaluator($be), $platform);
-				return \strcmp(\strval($sa), \strval($sb));
+				return \strcmp(TypeConversion::toString($sa),
+					TypeConversion::toString($sb));
 			}
 
 			return 1;
