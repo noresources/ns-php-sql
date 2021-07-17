@@ -106,6 +106,7 @@ final class DropTest extends \PHPUnit\Framework\TestCase
 		 * @var DropNamespaceQuery
 		 */
 		$q = $platform->newStatement(DropNamespaceQuery::class);
+		$q->identifier('ns_unittests');
 		$data = $environment->prepareStatement($q);
 		$sql = \SqlFormatter::format(strval($data), false);
 		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__,

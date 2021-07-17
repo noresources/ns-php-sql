@@ -112,6 +112,19 @@ class Constants
 	 */
 	const DATATYPE_BINARY = Bitset::BIT_09;
 
+	// Structure names
+	const STRUCTURE_NAMESPACE = 'namespace';
+
+	const STRUCTURE_TABLE = 'table';
+
+	const STRUCTURE_VIEW = 'view';
+
+	const STRUCTURE_FUNCTION = 'function';
+
+	const STRUCTURE_TRIGGER = 'trigger';
+
+	const STRUCTURE_INDEX = 'index';
+
 	// DBMS connection settings
 
 	/**
@@ -208,7 +221,7 @@ class Constants
 	 *
 	 * @var string
 	 */
-	const COLUMN_FLAGS = 'volumnflags';
+	const COLUMN_FLAGS = 'columnflags';
 
 	/**
 	 * Column is auto incremented.
@@ -865,7 +878,7 @@ class Constants
 	 *
 	 * @var string
 	 */
-	const FEATURE_ELEMENT_NAMESPACE = 'namespace';
+	const FEATURE_ELEMENT_NAMESPACE = self::STRUCTURE_NAMESPACE;
 
 	/**
 	 * Platform feature doman.
@@ -874,7 +887,7 @@ class Constants
 	 *
 	 * @var string
 	 */
-	const FEATURE_ELEMENT_TABLE = 'table';
+	const FEATURE_ELEMENT_TABLE = self::STRUCTURE_TABLE;
 
 	/**
 	 * Platform feature doman.
@@ -901,7 +914,7 @@ class Constants
 	 *
 	 * @var string
 	 */
-	const FEATURE_ELEMENT_VIEW = 'view';
+	const FEATURE_ELEMENT_VIEW = self::STRUCTURE_VIEW;
 
 	/**
 	 * Platform feature doman.
@@ -910,7 +923,7 @@ class Constants
 	 *
 	 * @var string
 	 */
-	const FEATURE_ELEMENT_INDEX = 'index';
+	const FEATURE_ELEMENT_INDEX = self::STRUCTURE_INDEX;
 
 	/**
 	 * Platform feature doman.
@@ -919,7 +932,7 @@ class Constants
 	 *
 	 * @var string
 	 */
-	const FEATURE_ELEMENT_TRIGGER = 'trigger';
+	const FEATURE_ELEMENT_TRIGGER = self::STRUCTURE_TRIGGER;
 
 	/**
 	 * Platform feature doman.
@@ -928,7 +941,7 @@ class Constants
 	 *
 	 * @var string
 	 */
-	const FEATURE_ELEMENT_FUNCTION = 'function';
+	const FEATURE_ELEMENT_FUNCTION = self::STRUCTURE_FUNCTION;
 
 	/**
 	 * Platform feature domain

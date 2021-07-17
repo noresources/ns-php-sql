@@ -7,6 +7,7 @@
  */
 namespace NoreSources\SQL\Structure;
 
+use NoreSources\ComparableInterface;
 use NoreSources\Container\Container;
 use NoreSources\SQL\NameProviderInterface;
 use NoreSources\Type\ArrayRepresentation;
@@ -16,7 +17,8 @@ use NoreSources\Type\TypeConversion;
 /**
  * Structure element path or alias
  */
-class Identifier implements StringRepresentation, ArrayRepresentation
+class Identifier implements StringRepresentation, ArrayRepresentation,
+	ComparableInterface
 {
 
 	/**
@@ -140,6 +142,12 @@ class Identifier implements StringRepresentation, ArrayRepresentation
 		$this->path .= $name;
 
 		return $this;
+	}
+
+	public function compare($value)
+	{
+		$value = self::make($value);
+		return \strcmp(\strval($this), \strval($value));
 	}
 
 	/**

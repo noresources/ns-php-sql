@@ -253,7 +253,7 @@ class StatementTokenStreamContext implements
 
 	/**
 	 *
-	 * @var \Noresources\Stack Stack of \ArrayObject
+	 * @var Stack Stack of \ArrayObject
 	 */
 	private $statementElements;
 

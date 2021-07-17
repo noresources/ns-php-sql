@@ -12,6 +12,7 @@ use NoreSources\Container\Container;
 use NoreSources\Container\KeyNotFoundException;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\ConnectionInterface;
+use NoreSources\SQL\DBMS\TypeInterface;
 use NoreSources\SQL\Structure\ArrayColumnDescription;
 use NoreSources\SQL\Structure\ForeignKeyTableConstraint;
 use NoreSources\SQL\Structure\Identifier;
@@ -139,21 +140,26 @@ trait InformationSchemaStructureExplorerTrait
 		$properties = [];
 
 		$dataType = 0;
+		$dbmsType = null;
 		try
 		{
-			$type = $platform->getTypeRegistry()->get(
+			$dbmsType = $platform->getTypeRegistry()->get(
 				$info['data_type']);
-			$dataType = $type->get(K::TYPE_DATA_TYPE);
+			$dataType = $dbmsType->get(K::TYPE_DATA_TYPE);
 		}
 		catch (KeyNotFoundException $e)
 		{
+			if (false)
+				trigger_error(
+					'Type ' . $info["data_type"] .
+					' not found in type registry', E_WARNING);
 		/**
 		 *
 		 * @todo warning
 		 */
 		}
 		$flags = 0;
-		if (\strcasecmp($info['is_nullable'], 'yes'))
+		if (\strcasecmp($info['is_nullable'], 'yes') == 0)
 			$dataType |= K::DATATYPE_NULL;
 
 		if ($dataType & K::DATATYPE_STRING)
@@ -164,26 +170,25 @@ trait InformationSchemaStructureExplorerTrait
 					$info['character_maximum_length']);
 			}
 		}
-		elseif ($dataType & K::DATATYPE_NUMBER)
-		{
-			if (!empty($info['numeric_precision']))
-			{
-				$properties[K::COLUMN_PRECISION] = \intval(
-					$info['numeric_precision']);
 
-				if (!empty($info['numeric_scale']))
-				{
-					$scale = \intval($info['numeric_scale']);
-					if ($scale)
-						$properties[K::COLUMN_FRACTION_SCALE] = $scale;
-				}
-			}
+		if ($dataType & K::DATATYPE_NUMBER)
+		{
+			$precision = 0;
+			$scale = 0;
+			if (!empty($info['numeric_precision']))
+				$precision = \intval($info['numeric_precision']);
+
+			if (!empty($info['numeric_scale']))
+				$scale = \intval($info['numeric_scale']);
+
+			if ($precision)
+				$properties[K::COLUMN_PRECISION] = $precision;
+			if ($scale)
+				$properties[K::COLUMN_FRACTION_SCALE] = $scale;
 		}
 
-		$properties = [
-			K::COLUMN_NAME => $columnName,
-			K::COLUMN_DATA_TYPE => $dataType
-		];
+		$properties[K::COLUMN_NAME] = $columnName;
+		$properties[K::COLUMN_DATA_TYPE] = $dataType;
 
 		if ($flags)
 			$properties[K::COLUMN_FLAGS] = $flags;
@@ -196,6 +201,32 @@ trait InformationSchemaStructureExplorerTrait
 
 		$this->processInformationSchemaColumnInformations($properties,
 			$info);
+
+		// Cleanup some properties
+		if ($dbmsType instanceof TypeInterface)
+		{
+			$typeFlags = Container::keyValue($dbmsType, K::TYPE_FLAGS);
+			if (($typeFlags & K::TYPE_FLAG_FRACTION_SCALE) !=
+				K::TYPE_FLAG_FRACTION_SCALE)
+				Container::removeKey($properties,
+					K::COLUMN_FRACTION_SCALE);
+
+			if (($typeFlags & K::TYPE_FLAG_LENGTH) != K::TYPE_FLAG_LENGTH)
+				Container::removeKey($properties, K::COLUMN_LENGTH);
+
+			/**
+			 * When the type require a length and when column length
+			 * is the max type length.
+			 * We can consider the column does
+			 * not really define a length
+			 */
+			if (($typeFlags & K::TYPE_FLAG_MANDATORY_LENGTH) ==
+				K::TYPE_FLAG_MANDATORY_LENGTH &&
+				Container::keyExists($dbmsType, K::TYPE_MAX_LENGTH) &&
+				Container::keyValue($properties, K::COLUMN_LENGTH, 0) ==
+				Container::keyValue($dbmsType, K::TYPE_MAX_LENGTH))
+				Container::removeKey($properties, K::COLUMN_LENGTH);
+		}
 
 		return new ArrayColumnDescription($properties);
 	}

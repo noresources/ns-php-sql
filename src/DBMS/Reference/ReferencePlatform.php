@@ -28,6 +28,11 @@ class ReferencePlatform extends AbstractPlatform
 			$this->setPlatformFeature($feature[0], $feature[1]);
 	}
 
+	public function setStatementFactory($classMap = array())
+	{
+		$this->initializeStatementFactory($classMap);
+	}
+
 	public function newConfigurator(ConnectionInterface $connection)
 	{
 		return new ReferenceConfigurator($this, $connection);

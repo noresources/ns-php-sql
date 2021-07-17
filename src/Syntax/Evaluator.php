@@ -115,8 +115,8 @@ class Evaluator
 	/**
 	 * Evalute expression description
 	 *
-	 * @param string|mixed $string
-	 * @return mixed
+	 * @param Evaluable $string
+	 * @return ExpressionInterface
 	 */
 	public function __invoke($evaluable)
 	{
@@ -157,6 +157,7 @@ class Evaluator
 	 *        	enizableExpressionInterface
 	 *
 	 * @throws \BadMethodCallException
+	 * @return ExpressionInterface
 	 */
 	public static function __callStatic($name, $args)
 	{
@@ -216,6 +217,7 @@ class Evaluator
 	/**
 	 *
 	 * @param string|array $evaluable
+	 * @return ExpressionInterface
 	 */
 	public function evaluateEvaluable($evaluable)
 	{
@@ -232,9 +234,9 @@ class Evaluator
 			return new Data($evaluable, K::DATATYPE_NULL);
 		elseif (\is_bool($evaluable))
 			return new Data($evaluable, K::DATATYPE_BOOLEAN);
-		elseif (is_int($evaluable))
+		elseif (\is_int($evaluable))
 			return new Data($evaluable, K::DATATYPE_INTEGER);
-		elseif (is_float($evaluable))
+		elseif (\is_float($evaluable))
 			return new Data($evaluable, K::DATATYPE_FLOAT);
 		elseif (\is_numeric($evaluable))
 		{
@@ -245,7 +247,7 @@ class Evaluator
 			else
 				return new Data($f, K::DATATYPE_FLOAT);
 		}
-		elseif (is_string($evaluable))
+		elseif (\is_string($evaluable))
 		{
 			return $this->evaluateString($evaluable);
 		}
@@ -313,6 +315,12 @@ class Evaluator
 			], $c);
 	}
 
+	/**
+	 *
+	 * @param array $evaluable
+	 * @throws EvaluatorException
+	 * @return ExpressionInterface
+	 */
 	private function evaluateArray($evaluable)
 	{
 		if (Container::isAssociative($evaluable))
@@ -349,6 +357,7 @@ class Evaluator
 	 * @param string $key
 	 *        	Lower case operator or function name
 	 * @param array $operands
+	 * @return ExpressionInterface
 	 */
 	private function evaluatePolishNotationElement($key, $operands)
 	{
@@ -372,8 +381,8 @@ class Evaluator
 		/*
 		 *  Automatically fix missing  [] around polish operation operands
 		 */
-		if (\count($operands) == 1 && Container::isAssociative(
-			$operands))
+		if (\count($operands) == 1 &&
+			Container::isAssociative($operands))
 			$operands = [
 				$operands
 			];
@@ -446,7 +455,8 @@ class Evaluator
 	/**
 	 *
 	 * @param string $string
-	 * @return mixed
+	 *        	Text to evaluate
+	 * @return ExpressionInterface
 	 */
 	private function evaluateString($string)
 	{

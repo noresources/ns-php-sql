@@ -230,6 +230,12 @@ class XMLStructureFileExporter implements
 
 		$reft = $context->dom->createElementNS($namespaceURI, 'tableref');
 		$ft = $constraint->getForeignTable();
+
+		$pivot = $constraint->getParentElement();
+		if ($pivot->getParentElement())
+			$pivot = $pivot->getParentElement();
+		$context->resolver->setPivot($pivot);
+
 		$ft = $context->resolver->findTable(\strval($ft));
 		$ftid = $this->defaultIdentifierGenerator($ft);
 		$reft->setAttribute('id', $context->identifiers[$ftid]);

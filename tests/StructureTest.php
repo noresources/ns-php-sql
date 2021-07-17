@@ -141,5 +141,19 @@ final class StructureTest extends \PHPUnit\Framework\TestCase
 			$this->assertEquals($asString, $test->getPath(), $label);
 			$this->assertEquals($asArray, $test->getPathParts(), $label);
 		}
+
+		$a = Identifier::make('foo.bar');
+		$b = Identifier::make([
+			'foo',
+			'bar'
+		]);
+		$c = Identifier::make([
+			'foo',
+			'baz'
+		]);
+
+		$this->assertEquals(0, $a->compare($b), 'a == b');
+		$this->assertEquals(0, $b->compare($a), 'b == a');
+		$this->assertNotEquals(0, $a->compare($c), 'a != c');
 	}
 }

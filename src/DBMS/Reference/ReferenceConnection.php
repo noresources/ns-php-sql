@@ -10,6 +10,7 @@
 namespace NoreSources\SQL\DBMS\Reference;
 
 use NoreSources\SQL\DBMS\ConnectionInterface;
+use NoreSources\SQL\DBMS\PlatformInterface;
 use NoreSources\SQL\DBMS\TransactionInterface;
 use NoreSources\SQL\DBMS\Configuration\ConfiguratorProviderInterface;
 use NoreSources\SQL\DBMS\Configuration\ConfiguratorProviderTrait;
@@ -41,6 +42,11 @@ class ReferenceConnection implements ConnectionInterface,
 	public function __destruct()
 	{
 		$this->endTransactions(false);
+	}
+
+	public function setPlatform(PlatformInterface $platform)
+	{
+		$this->platform = $platform;
 	}
 
 	public function isConnected()

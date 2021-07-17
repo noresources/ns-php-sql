@@ -6,7 +6,6 @@
  *
  * @package SQL
  */
-
 namespace NoreSources\SQL\DBMS\Explorer;
 
 class StructureExplorer

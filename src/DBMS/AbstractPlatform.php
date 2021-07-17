@@ -282,19 +282,18 @@ abstract class AbstractPlatform implements PlatformInterface
 
 	public function getTimestampTypeStringFormat($dataType = 0)
 	{
-		switch ($dataType)
+		$format = [];
+		if (($dataType & K::DATATYPE_DATE) == K::DATATYPE_DATE)
+			$format[] = 'Y-m-d';
+		if ($dataType & (K::DATATYPE_TIME | K::DATATYPE_TIMEZONE))
 		{
-			case K::DATATYPE_DATE:
-				return 'Y-m-d';
-			case K::DATATYPE_TIME:
-				return 'H:i:s';
-			case K::DATATYPE_TIMEZONE:
-				return 'H:i:sO';
-			case K::DATATYPE_DATETIME:
-				return 'Y-m-d\TH:i:s';
+			if ($dataType & K::DATATYPE_TIMEZONE)
+				$format[] = 'H:i:sO';
+			else
+				$format[] = 'H:i:s';
 		}
 
-		return \DateTime::ISO8601;
+		return \implode('\T', $format);
 	}
 
 	public function getTimestampFormatTokenTranslation($formatToken)
