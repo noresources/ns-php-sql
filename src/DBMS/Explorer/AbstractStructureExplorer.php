@@ -9,6 +9,7 @@
 namespace NoreSources\SQL\DBMS\Explorer;
 
 use NoreSources\Container\Container;
+use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\ConnectionProviderInterface;
 use NoreSources\SQL\DBMS\PDO\PDOPlatform;
 use NoreSources\SQL\Structure\ColumnStructure;
@@ -110,6 +111,10 @@ abstract class AbstractStructureExplorer implements
 				$namespace
 			], []);
 		}
+
+		if ($this instanceof ConnectionProviderInterface)
+			$datasource->getMetadata()->offsetSet(
+				K::STRUCTURE_METADATA_CONNECTION, $this->getConnection());
 
 		return $datasource;
 	}

@@ -8,13 +8,11 @@ use NoreSources\SQL\Structure\DatasourceStructure;
 use NoreSources\SQL\Structure\PrimaryKeyTableConstraint;
 use NoreSources\SQL\Structure\TableStructure;
 use NoreSources\SQL\Structure\Comparer\StructureComparer;
-use NoreSources\SQL\Structure\Comparer\StructureDifference;
 use NoreSources\SQL\Syntax\Evaluator;
 use NoreSources\SQL\Syntax\TokenizableExpressionInterface;
 use NoreSources\SQL\Syntax\Statement\StatementBuilder;
 use NoreSources\Test\DatasourceManager;
 use NoreSources\Test\DerivedFileManager;
-use NoreSources\Type\TypeDescription;
 
 final class StructureComparerTest extends \PHPUnit\Framework\TestCase
 {
@@ -37,33 +35,9 @@ final class StructureComparerTest extends \PHPUnit\Framework\TestCase
 
 		$comparer = new StructureComparer();
 		$differences = $comparer->compare($v1, $v2);
-		$s = '';
-		foreach ($differences as $diff)
-		{
-			/**  @var StructureDifference $diff */
-			$r = $diff->getReference();
-			$t = $diff->getTarget();
-
-			$s .= $diff->getType();
-			if ($r)
-			{
-				$s .= ' ' . TypeDescription::getLocalName($r) . ' ' .
-					$r->getName();
-				if ($t)
-				{
-					$s .= ' -> ' . $t->getName();
-				}
-			}
-			elseif ($t)
-			{
-				$s .= ' ' . TypeDescription::getLocalName($t) . ' ' .
-					$t->getName();
-			}
-
-			$s .= PHP_EOL;
-		}
+		$s = \implode(PHP_EOL, $differences);
 		$this->derivedFileManager->assertDerivedFile($s, __METHOD__, '',
-			'dump');
+			'differences');
 
 		$hierarchy = $v2['ns_unittests']['Hierarchy'];
 		$products = $v2['ns_unittests']['Products'];

@@ -8,27 +8,63 @@
  */
 namespace NoreSources\SQL\Structure\Comparer;
 
+use NoreSources\Container\Container;
 use NoreSources\SQL\Structure\StructureElementInterface;
+use NoreSources\Type\TypeDescription;
 
 class StructureDifference
 {
 
+	/**
+	 * Difference type.
+	 *
+	 * Element was renamed
+	 */
 	const RENAMED = 'renamed';
 
+	/**
+	 * Difference type.
+	 *
+	 * Element was created.
+	 */
 	const CREATED = 'created';
 
+	/**
+	 * Difference type.
+	 *
+	 * Element was removed.
+	 */
 	const DROPPED = 'dropped';
 
+	/**
+	 * Difference type.
+	 *
+	 * Element was modified.
+	 */
 	const ALTERED = 'altered';
 
+	/**
+	 * A short hint about the difference nature
+	 *
+	 * @var string
+	 */
 	public $hint;
 
 	public function __toString()
 	{
 		$s = $this->getType() . ':' .
-			TypeDescription::getLocalName($this->getReference());
-		if (\strval($this->hint))
+			TypeDescription::getLocalName($this->getStructure());
+		if (\strlen($this->hint))
 			$s .= '[' . $this->hint . ']';
+		elseif (!empty($this->extras))
+		{
+			$list = Container::map($this->extras,
+				function ($i, $e) {
+					return $e[DifferenceExtra::KEY_TYPE];
+				});
+			$list = \array_unique($list);
+			$s .= '[' . \implode(',', $list) . ']';
+		}
 
 		if (isset($this->reference))
 			$s .= '<' . \strval($this->reference->getIdentifier());
@@ -73,6 +109,24 @@ class StructureDifference
 		if (isset($this->reference))
 			return $this->reference;
 		return $this->target;
+	}
+
+	/**
+	 *
+	 * @return DifferenceExtra[]
+	 */
+	public function getExtras()
+	{
+		if (isset($this->extras))
+			return $this->extras;
+		return [];
+	}
+
+	public function appendExtra(DifferenceExtra $extra)
+	{
+		if (!isset($this->extras))
+			$this->extras = [];
+		$this->extras[] = $extra;
 	}
 
 	public function __construct($type,
@@ -137,4 +191,11 @@ class StructureDifference
 	 * @var StructureElementInterface
 	 */
 	private $target;
+
+	/**
+	 * Extran informations (optional)
+	 *
+	 * @var DifferenceExtra[]
+	 */
+	private $extras;
 }

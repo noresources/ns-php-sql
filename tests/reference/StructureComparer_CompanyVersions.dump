@@ -1,9 +1,0 @@
-created TableStructure Products
-dropped TableStructure types
-renamed ColumnStructure name -> fullName
-created ColumnStructure age
-altered ColumnStructure gender -> gender
-renamed PrimaryKeyTableConstraint pk_id -> 
-altered IndexStructure index_employees_name -> index_employees_name
-dropped ColumnStructure priority
-altered ColumnStructure name -> name

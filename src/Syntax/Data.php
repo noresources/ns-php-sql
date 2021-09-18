@@ -12,7 +12,9 @@ use NoreSources\Expression\Value;
 use NoreSources\SQL\Constants;
 use NoreSources\SQL\DataTypeDescription;
 use NoreSources\SQL\DataTypeProviderInterface;
+use NoreSources\Type\TypeComparison;
 use NoreSources\Type\TypeConversion;
+use NoreSources\Type\TypeConversionException;
 use NoreSources\Type\TypeDescription;
 
 class Data extends Value implements TokenizableExpressionInterface,
@@ -35,7 +37,7 @@ class Data extends Value implements TokenizableExpressionInterface,
 	public function __toString()
 	{
 		$v = $this->getValue();
-		if (TypeDescription::hasStringRepresentation($v))
+		if (TypeDescription::hasStringRepresentation($v, false))
 			return TypeConversion::toString($v);
 		return TypeDescription::getLocalName($v);
 	}
@@ -64,11 +66,30 @@ class Data extends Value implements TokenizableExpressionInterface,
 
 		$a = $this->getValue();
 
-		if (TypeDescription::hasStringRepresentation($a) &&
-			TypeDescription::hasStringRepresentation($b))
-			return \strcmp(TypeConversion::toString($a),
-				TypeConversion::toString($b));
-		return -100;
+		try
+		{
+			return TypeComparison::compare($a, $b);
+		}
+		catch (TypeConversionException $e)
+		{}
+
+		try
+		{
+			return TypeConversion::toFloat($a) -
+				TypeConversion::toFloat($b);
+		}
+		catch (TypeConversionException $e)
+		{}
+
+		try
+		{
+			return TypeConversion::toInteger($a) -
+				TypeConversion::toInteger($b);
+		}
+		catch (TypeConversionException $e)
+		{}
+
+		return ($a == $b) ? 0 : -1;
 	}
 
 	/**

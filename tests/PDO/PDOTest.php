@@ -14,6 +14,7 @@ use NoreSources\SQL\Syntax\Statement\Structure\CreateTableQuery;
 use NoreSources\Test\ConnectionHelper;
 use NoreSources\Test\DatasourceManager;
 use NoreSources\Test\DerivedFileManager;
+use NoreSources\Test\SqlFormatter;
 use NoreSources\Type\TypeDescription;
 
 // Globals
@@ -152,7 +153,7 @@ final class PDOTest extends \PHPUnit\Framework\TestCase
 		$sql = \strval($sql);
 
 		$this->derivedFileManager->assertDerivedFile(
-			\SqlFormatter::format($sql, false), __METHOD__, 'create',
+			SqlFormatter::format($sql, false), __METHOD__, 'create',
 			'sql');
 		$connection->executeStatement($sql);
 
@@ -218,7 +219,7 @@ final class PDOTest extends \PHPUnit\Framework\TestCase
 			$preparedSelect);
 		$sql = strval($preparedSelect);
 		$this->derivedFileManager->assertDerivedFile(
-			\SqlFormatter::format($sql, false), __METHOD__, 'select',
+			SqlFormatter::format($sql, false), __METHOD__, 'select',
 			'sql');
 
 		$result = $connection->executeStatement($preparedSelect);
@@ -248,7 +249,7 @@ final class PDOTest extends \PHPUnit\Framework\TestCase
 		$this->assertInstanceOf(PDOPreparedStatement::class, $prepared);
 		$sql = strval($prepared);
 		$this->derivedFileManager->assertDerivedFile(
-			\SqlFormatter::format($sql, false), __METHOD__, 'update',
+			SqlFormatter::format($sql, false), __METHOD__, 'update',
 			'sql');
 
 		$result = $connection->executeStatement($prepared);

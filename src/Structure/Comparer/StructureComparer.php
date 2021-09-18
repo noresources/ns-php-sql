@@ -9,22 +9,24 @@
 namespace NoreSources\SQL\Structure\Comparer;
 
 use NoreSources\Bitset;
-use NoreSources\ComparableInterface;
+use NoreSources\ComparisonException;
 use NoreSources\SingletonTrait;
 use NoreSources\Container\Container;
-use NoreSources\Expression\ExpressionInterface;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DataTypeDescription;
 use NoreSources\SQL\DBMS\Reference\ReferencePlatform;
 use NoreSources\SQL\Structure\CheckTableConstraint;
 use NoreSources\SQL\Structure\ColumnStructure;
+use NoreSources\SQL\Structure\DatasourceStructure;
 use NoreSources\SQL\Structure\ForeignKeyTableConstraint;
 use NoreSources\SQL\Structure\IndexStructure;
 use NoreSources\SQL\Structure\KeyTableConstraintInterface;
 use NoreSources\SQL\Structure\NamespaceStructure;
 use NoreSources\SQL\Structure\PrimaryKeyTableConstraint;
+use NoreSources\SQL\Structure\Structure;
 use NoreSources\SQL\Structure\StructureElementContainerInterface;
 use NoreSources\SQL\Structure\StructureElementInterface;
+use NoreSources\SQL\Structure\StructureResolver;
 use NoreSources\SQL\Structure\TableConstraintInterface;
 use NoreSources\SQL\Structure\TableStructure;
 use NoreSources\SQL\Structure\UniqueTableConstraint;
@@ -32,6 +34,7 @@ use NoreSources\SQL\Structure\ViewStructure;
 use NoreSources\SQL\Syntax\Evaluable;
 use NoreSources\SQL\Syntax\Evaluator;
 use NoreSources\SQL\Syntax\Statement\StatementBuilder;
+use NoreSources\Type\TypeComparison;
 use NoreSources\Type\TypeConversion;
 use NoreSources\Type\TypeDescription;
 
@@ -58,8 +61,29 @@ class StructureComparer
 		$this->comparerFlags = $flags;
 	}
 
+	/**
+	 * Invoke the compare() method
+	 *
+	 * @return StructureDifference[]
+	 */
+	public function __invoke()
+	{
+		return \call_user_func_array([
+			$this,
+			'compare'
+		], func_get_args());
+	}
+
+	/**
+	 * Compare two structure elements
+	 *
+	 * @param StructureElementInterface $reference
+	 * @param StructureElementInterface $target
+	 * @throws StructureComparerException
+	 * @return StructureDifference[]
+	 */
 	public function compare(StructureElementInterface $reference,
-		StructureElementInterface $target, $differenceLimit = -1)
+		StructureElementInterface $target)
 	{
 		$referenceClass = TypeDescription::getName($reference);
 		$targetClass = TypeDescription::getName($target);
@@ -74,32 +98,27 @@ class StructureComparer
 		$method = 'compare' . TypeDescription::getLocalName($reference);
 		if (\method_exists($this, $method))
 		{
-			$b = \call_user_func([
+			$d = \call_user_func([
 				$this,
 				$method
 			], $reference, $target);
-			if (!\is_array($b))
+			if (!\is_array($d))
 				throw new \RuntimeException($method);
-			$differences = \array_merge($differences, $b);
+			if (\count($d))
+				$differences = \array_merge($differences, $d);
 		}
-
-		$differenceCount = Container::count($differences);
-
-		if ($differenceLimit > 0 && $differenceCount >= $differenceLimit)
-			return $differences;
 
 		if ($reference instanceof StructureElementContainerInterface)
 			return \array_merge($differences,
 				$this->compareStructureElementContainers($reference,
-					$target, $differenceLimit - $differenceCount));
+					$target));
 
 		return $differences;
 	}
 
 	public function compareStructureElementContainers(
 		StructureElementContainerInterface $reference,
-		StructureElementContainerInterface $target,
-		$differenceLimit = -1)
+		StructureElementContainerInterface $target)
 	{
 		$differences = [];
 		$referenceTypeChildren = self::perElementTypeMap($reference);
@@ -121,10 +140,6 @@ class StructureComparer
 			{
 				$differences[] = new StructureDifference(
 					StructureDifference::RENAMED, $entry[0], $entry[1]);
-
-				$differenceLimit--;
-				if ($differenceLimit == 0)
-					return $differences;
 			}
 
 			foreach ($result[self::PAIRING_CREATED] as $k => $entry)
@@ -132,9 +147,6 @@ class StructureComparer
 
 				$differences[] = new StructureDifference(
 					StructureDifference::CREATED, null, $entry);
-				$differenceLimit--;
-				if ($differenceLimit == 0)
-					return $differences;
 			}
 
 			foreach ($result[self::PAIRING_DROPPED] as $k => $entry)
@@ -152,23 +164,13 @@ class StructureComparer
 				{
 					$differences[] = new StructureDifference(
 						StructureDifference::DROPPED, $drop);
-					$differenceLimit--;
-					if ($differenceLimit == 0)
-						return $differences;
 				}
 			}
 
 			foreach ($result[self::PAIRING_MATCH] as $entry)
 			{
-				$d = $this->compare($entry[0], $entry[1],
-					$differenceLimit);
-
-				$differenceCount = Container::count($d);
+				$d = $this->compare($entry[0], $entry[1]);
 				$differences = \array_merge($differences, $d);
-				if ($differenceLimit > 0 &&
-					$differenceCount >= $differenceLimit)
-					return $differences;
-				$differenceLimit -= $differenceCount;
 			}
 		}
 
@@ -183,9 +185,6 @@ class StructureComparer
 			{
 				$differences[] = new StructureDifference(
 					StructureDifference::CREATED, null, $child);
-				$differenceLimit--;
-				if ($differenceLimit == 0)
-					return $differences;
 			}
 		}
 
@@ -291,39 +290,98 @@ class StructureComparer
 	}
 
 	public function compareColumnStructure(ColumnStructure $a,
-		ColumnStructure $b, $limit = -1)
+		ColumnStructure $b)
 	{
+		$d = null;
+
+		$strict = $this->canStrictCompare($a, $b);
+
+		// Length and scale
+		$scaleWithoutLengthMismatch = false;
+		if (!$strict &&
+			($da = Container::keyValue($a, K::COLUMN_DATA_TYPE)) &&
+			($db = Container::keyValue($b, K::COLUMN_DATA_TYPE)) &&
+			($da & K::DATATYPE_FLOAT) && ($db & K::DATATYPE_FLOAT) &&
+			($sa = Container::keyValue($a, K::COLUMN_FRACTION_SCALE)) &&
+			($sb = Container::keyValue($b, K::COLUMN_FRACTION_SCALE)) &&
+			($sa == $sb))
+		{
+			$scaleWithoutLengthMismatch = $a->has(K::COLUMN_LENGTH) !=
+				$b->has(K::COLUMN_LENGTH);
+		}
+
 		foreach ($a as $key => $pa)
 		{
 			if ($key == K::COLUMN_NAME)
 				continue;
+			elseif ($scaleWithoutLengthMismatch &&
+				($key == K::COLUMN_LENGTH ||
+				$key == K::COLUMN_FRACTION_SCALE))
+				continue;
+
+			// default
 
 			if (!$b->has($key))
-				return self::singleAlteredDifference($a, $b, '-' . $key);
+			{
+				$d = self::alterDifference($d, $a, $b,
+					[
+						DifferenceExtra::KEY_TYPE => $key,
+						DifferenceExtra::KEY_PREVIOUS => $pa
+					]);
+				continue;
+			}
 			$pb = $b->get($key);
 
 			if ($key == K::COLUMN_DATA_TYPE)
 			{
 				$c = $this->compareDataType($pa, $pb);
 				if ($c != 0)
-					return self::singleAlteredDifference($a, $b, $key);
+				{
+					$d = self::alterDifference($d, $a, $b,
+						[
+							DifferenceExtra::KEY_TYPE => $key,
+							DifferenceExtra::KEY_PREVIOUS => $pa,
+							DifferenceExtra::KEY_NEW => $pb
+						]);
+				}
 				continue;
 			}
 
-			if ($pa instanceof ComparableInterface &&
-				$pb instanceof ComparableInterface)
+			$pd = 0;
+			try
 			{
-				$c = $pa->compare($pb);
-				if ($c != 0)
-					return self::singleAlteredDifference($a, $b, $key);
-				continue;
+				$pd = TypeComparison::compare($pa, $pb);
+			}
+			catch (ComparisonException $e)
+			{
+				$pd = ($pa != $pb) ? -1 : 0;
 			}
 
-			if ($pa != $pb)
-				return self::singleAlteredDifference($a, $b, $key);
+			if ($pd != 0)
+			{
+				$d = self::alterDifference($d, $a, $b,
+					[
+						DifferenceExtra::KEY_TYPE => $key,
+						DifferenceExtra::KEY_PREVIOUS => $pa,
+						DifferenceExtra::KEY_NEW => $pb
+					]);
+			}
 		}
 
-		return [];
+		foreach ($b as $key => $pb)
+		{
+			if ($a->has($key))
+				continue;
+			$d = self::alterDifference($d, $a, $b,
+				[
+					DifferenceExtra::KEY_TYPE => $key,
+					DifferenceExtra::KEY_NEW => $pb
+				]);
+		}
+
+		return $d ? [
+			$d
+		] : [];
 	}
 
 	public function compareDataType($a, $b)
@@ -353,137 +411,209 @@ class StructureComparer
 	}
 
 	public function compareUniqueTableConstraint(
-		UniqueTableConstraint $a, UniqueTableConstraint $b, $limit = -1)
+		UniqueTableConstraint $a, UniqueTableConstraint $b)
 	{
-		$d = $this->compareTableConstraintInterface($a, $b, $limit);
-		if (Container::count($d))
-			return $d;
+		$d = null;
+		$d = $this->populateTableConstraintInterfaceDifferences($a, $b,
+			$d);
+
+		$d = self::populateColumnNameListDifferences($a,
+			$a->getParentElement(), $a->getColumns(), $b,
+			$b->getParentElement(), $b->getColumns(), $d);
 
 		if (self::compareExpressions($a->getConstraintExpression(),
 			$b->getConstraintExpression()) != 0)
-			return self::singleAlteredDifference($a, $b);
+			$d = self::alterDifference($d, $a, $b,
+				[
+					DifferenceExtra::KEY_TYPE => DifferenceExtra::TYPE_EXPRESSION,
+					DifferenceExtra::KEY_PREVIOUS => $a->getConstraintExpression(),
+					DifferenceExtra::KEY_NEW => $b->getConstraintExpression()
+				]);
 
-		return [];
+		return $d ? [
+			$d
+		] : [];
 	}
 
 	public function compareCheckTableConstraint(CheckTableConstraint $a,
-		CheckTableConstraint $b, $limit = -1)
+		CheckTableConstraint $b)
 	{
-		$d = $this->compareTableConstraintInterface($a, $b, $limit);
-		if (Container::count($d))
-			return $d;
+		$d = null;
+		$d = $this->populateTableConstraintInterfaceDifferences($a, $b,
+			$d);
 
 		if (self::compareExpressions($a->getConstraintExpression(),
 			$b->getConstraintExpression()) != 0)
-			return self::singleAlteredDifference($a, $b);
+			$d = self::alterDifference($d, $a, $b,
+				[
+					DifferenceExtra::KEY_TYPE => DifferenceExtra::TYPE_EXPRESSION,
+					DifferenceExtra::KEY_PREVIOUS => $a->getConstraintExpression(),
+					DifferenceExtra::KEY_NEW => $b->getConstraintExpression()
+				]);
 
-		return [];
+		return $d ? [
+			$d
+		] : [];
 	}
 
 	public function compareForeignKeyTableConstraint(
-		ForeignKeyTableConstraint $a, ForeignKeyTableConstraint $b,
-		$limit = -1)
+		ForeignKeyTableConstraint $a, ForeignKeyTableConstraint $b)
 	{
-		$d = $this->compareTableConstraintInterface($a, $b, $limit);
-		if (Container::count($d))
-			return $d;
+		$d = null;
+		$d = $this->populateTableConstraintInterfaceDifferences($a, $b,
+			$d);
 
-		if ($a->getForeignTable() != $b->getForeignTable())
-			return self::singleAlteredDifference($a, $b);
+		$resolver = new StructureResolver();
+		$resolver->setPivot($a->getParentElement());
+		$fta = $resolver->findTable($a->getForeignTable());
+		$ftb = $resolver->findTable($b->getForeignTable());
 
-		$ac = $a->getColumns();
-		$bc = $b->getColumns();
-
-		if (Container::count($ac) != Container::count($bc))
-			return self::singleAlteredDifference($a, $b);
-
-		foreach ($ac as $r => $t)
+		$fc = $fta->getIdentifier()->compare($ftb->getIdentifier());
+		if ($fc != 0)
 		{
-			$bt = Container::keyValue($bc, $r, false);
-			if ($bt != $t)
-				return self::singleAlteredDifference($a, $b);
+			$d = self::alterDifference($d, $a, $a,
+				[
+					DifferenceExtra::KEY_TYPE => DifferenceExtra::TYPE_FOREIGN_TABLE,
+					DifferenceExtra::KEY_PREVIOUS => $fta,
+					DifferenceExtra::KEY_NEW => $ftb
+				]);
 		}
 
-		return [];
+		$ca = $a->getColumns();
+		$cb = $b->getColumns();
+
+		$d = self::populateColumnNameListDifferences($a,
+			$a->getParentElement(), Container::keys($ca), $b,
+			$b->getParentElement(), Container::keys($cb), $d);
+
+		$d = self::populateColumnNameListDifferences($a,
+			$a->getParentElement(), Container::values($ca), $b,
+			$b->getParentElement(), Container::values($cb), $d,
+			DifferenceExtra::TYPE_FOREIGN_COLUMN);
+		return $d ? [
+			$d
+		] : [];
 	}
 
 	public function compareIndexStructure(IndexStructure $a,
-		IndexStructure $b, $limit = -1)
+		IndexStructure $b)
 	{
+		$d = null;
 		if ($a->getIndexFlags() != $b->getIndexFlags())
-			return self::singleAlteredDifference($a, $b);
+			$d = self::alterDifference($d, $a, $b,
+				[
+					DifferenceExtra::KEY_TYPE => DifferenceExtra::TYPE_FLAGS,
+					DifferenceExtra::KEY_PREVIOUS => $a->getIndexFlags(),
+					DifferenceExtra::KEY_NEW => $b->getIndexFlags()
+				]);
 
-		$ac = $a->getColumns();
-		$bc = $b->getColumns();
-
-		if (Container::count($ac) != Container::count($bc))
-			return self::singleAlteredDifference($a, $b);
-
-		foreach ($ac as $name)
-		{
-			if (!Container::valueExists($bc, $name))
-				return self::singleAlteredDifference($a, $b);
-		}
+		$d = self::populateColumnNameListDifferences($a,
+			$a->getParentElement(), $a->getColumns(), $b,
+			$b->getParentElement(), $b->getColumns(), $d);
 
 		if (self::compareExpressions($a->getConstraintExpression(),
 			$b->getConstraintExpression()) != 0)
-			return self::singleAlteredDifference($a, $b);
-		return [];
+			$d = self::alterDifference($d, $a, $b,
+				[
+					DifferenceExtra::KEY_TYPE => DifferenceExtra::TYPE_EXPRESSION,
+					DifferenceExtra::KEY_PREVIOUS => $a->getConstraintExpression(),
+					DifferenceExtra::KEY_NEW => $b->getConstraintExpression()
+				]);
+		return ($d) ? [
+			$d
+		] : [];
 	}
 
 	public function comparePrimaryKeyTableConstraint(
-		PrimaryKeyTableConstraint $a, PrimaryKeyTableConstraint $b,
-		$limit = -1)
+		PrimaryKeyTableConstraint $a, PrimaryKeyTableConstraint $b)
 	{
-		return $this->compareKeyTableConstraintInterface($a, $b, $limit);
+		return $this->compareKeyTableConstraintInterface($a, $b);
 	}
 
 	public function compareKeyTableConstraintInterface(
-		KeyTableConstraintInterface $a, KeyTableConstraintInterface $b,
-		$limit = -1)
+		KeyTableConstraintInterface $a, KeyTableConstraintInterface $b)
 	{
-		$d = $this->compareTableConstraintInterface($a, $b, $limit);
-		if (Container::count($d))
-			return $d;
+		$d = null;
+		$d = $this->populateTableConstraintInterfaceDifferences($a, $b,
+			$d);
 
-		$ac = $a->getColumns();
-		$bc = $b->getColumns();
+		$d = self::populateColumnNameListDifferences($a,
+			$a->getParentElement(), $a->getColumns(), $b,
+			$b->getParentElement(), $b->getColumns(), $d);
 
-		if (Container::count($ac) != Container::count($bc))
-			return self::singleAlteredDifference($a, $b);
+		if (self::compareExpressions($a->getConstraintExpression(),
+			$b->getConstraintExpression()) != 0)
+			$d = self::alterDifference($d, $a, $b,
+				[
+					DifferenceExtra::KEY_TYPE => DifferenceExtra::TYPE_EXPRESSION,
+					DifferenceExtra::KEY_PREVIOUS => $a->getConstraintExpression(),
+					DifferenceExtra::KEY_NEW => $b->getConstraintExpression()
+				]);
 
-		foreach ($ac as $name)
-		{
-			if (!Container::valueExists($bc, $name))
-				return self::singleAlteredDifference($a, $b);
-		}
-
-		if (!self::isSameExpression($a->getConstraintExpression(),
-			$b->getConstraintExpression()))
-			return self::singleAlteredDifference($a, $b);
-
-		if ($a->getConstraintExpression())
-		{
-			if (!$b->getConstraintExpression())
-				return self::singleAlteredDifference($a, $b);
-		/**
-		 *
-		 * @todo Compare expression
-		 */
-		}
-		elseif ($b->getConstraintExpression())
-			return self::singleAlteredDifference($a, $b);
-
-		return [];
+		return $d ? [
+			$d
+		] : [];
 	}
 
-	public function compareTableConstraintInterface(
+	public function populateTableConstraintInterfaceDifferences(
 		TableConstraintInterface $a, TableConstraintInterface $b,
-		$limit = -1)
+		StructureDifference &$existing = null)
 	{
 		if ($a->getConstraintFlags() != $b->getConstraintFlags())
-			return self::singleAlteredDifference($a, $b);
-		return [];
+			$existing = self::alterDifference($d, $a, $b,
+				[
+					DifferenceExtra::KEY_TYPE => DifferenceExtra::TYPE_FLAGS,
+					DifferenceExtra::KEY_PREVIOUS => $a->getConstraintFlags(),
+					DifferenceExtra::KEY_NEW => $b->getConstraintFlags()
+				]);
+		return $existing;
+	}
+
+	/**
+	 *
+	 * @param StructureDifference $existing
+	 *        	Main StructureDifference
+	 * @param StructureElementInterface $a
+	 *        	Reference
+	 * @param TableStructure $ta
+	 *        	Reference table
+	 * @param unknown $ca
+	 *        	Reference table column name list
+	 * @param StructureElementInterface $b
+	 *        	Target
+	 * @param TableStructure $tb
+	 *        	Target table
+	 * @param unknown $cb
+	 *        	Target table column name list
+	 * @return \NoreSources\SQL\Structure\Comparer\StructureDifference A reference to $existing
+	 */
+	protected function populateColumnNameListDifferences(
+		StructureElementInterface $a, TableStructure $ta, $ca,
+		StructureElementInterface $b, TableStructure $tb, $cb,
+		StructureDifference &$existing = null,
+		$type = DifferenceExtra::TYPE_COLUMN)
+	{
+		foreach ($ca as $c)
+		{
+			if (!Container::valueExists($cb, $c))
+				$existing = self::alterDifference($existing, $a, $b,
+					[
+						DifferenceExtra::KEY_TYPE => $type,
+						DifferenceExtra::KEY_PREVIOUS => $ta[$c]
+					]);
+		}
+
+		foreach ($cb as $c)
+		{
+			if (!Container::valueExists($ca, $c))
+				$existing = self::alterDifference($existing, $a, $b,
+					[
+						DifferenceExtra::KEY_TYPE => $type,
+						DifferenceExtra::KEY_NEW => $tb[$c]
+					]);
+		}
+
+		return $existing;
 	}
 
 	/**
@@ -533,30 +663,52 @@ class StructureComparer
 		return $perTypes;
 	}
 
-	/**
-	 *
-	 * @param ExpressionInterface $a
-	 * @param ExpressionInterface $b
-	 * @return boolean
-	 */
-	protected static function isSameExpression($a, $b)
+	protected static function canStrictCompare(
+		StructureElementInterface $a, StructureElementInterface $b)
 	{
-		if ($a)
+		$ra = Structure::getRootElement($a);
+		$rb = Structure::getRootElement($b);
+
+		$ca = null;
+		if ($ra instanceof DatasourceStructure &&
+			$ra->getMetadata()->has(K::STRUCTURE_METADATA_CONNECTION))
 		{
-			if (!$b)
-				return false;
+			$ca = $ra->getMetadata()->get(
+				K::STRUCTURE_METADATA_CONNECTION);
 		}
-		elseif ($b)
+		$cb = null;
+		if ($rb instanceof DatasourceStructure &&
+			$rb->getMetadata()->has(K::STRUCTURE_METADATA_CONNECTION))
+		{
+			$cb = $rb->getMetadata()->get(
+				K::STRUCTURE_METADATA_CONNECTION);
+		}
+
+		if ($ca)
+		{
+			if ($cb)
+				return $ca === $cb;
 			return false;
+		}
+		elseif ($cb)
+			return false;
+
 		return true;
 	}
 
-	protected static function singleAlteredDifference($a, $b, $hint = '')
+	protected static function alterDifference(
+		StructureDifference $existing = null,
+		StructureElementInterface $a = null,
+		StructureElementInterface $b = null, $extra = null)
 	{
-		return [
-			new StructureDifference(StructureDifference::ALTERED, $a, $b,
-				$hint)
-		];
+		if (!isset($existing))
+			$existing = new StructureDifference(
+				StructureDifference::ALTERED, $a, $b);
+		if (\is_array($extra))
+			$extra = new DifferenceExtra($extra);
+		if ($extra instanceof DifferenceExtra)
+			$existing->appendExtra($extra);
+		return $existing;
 	}
 
 	protected static function getDroppableChildren(

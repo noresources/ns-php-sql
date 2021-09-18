@@ -125,6 +125,28 @@ class Constants
 
 	const STRUCTURE_INDEX = 'index';
 
+	// Structure metadata
+
+	/**
+	 * Structure metadata.
+	 *
+	 * Reference to the DBMS connection
+	 * where the structure is defined.
+	 *
+	 * @var string
+	 */
+	const STRUCTURE_METADATA_CONNECTION = 'connection';
+
+	/**
+	 * Structure metadata.
+	 *
+	 * PHP class name, ReflectionClass or instance that is
+	 * represented by the structure.
+	 *
+	 * @var string
+	 */
+	const STRUCTURE_METADATA_CLASS = 'class';
+
 	// DBMS connection settings
 
 	/**

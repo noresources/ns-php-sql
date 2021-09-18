@@ -32,5 +32,30 @@ class DatasourceStructure implements StructureElementInterface,
 			static::class);
 		$this->initializeStructureElementContainer();
 	}
+
+	public function __clone()
+	{
+		$this->cloneStructureElement();
+		$this->cloneStructureElementContainer();
+		if (isset($this->metadata))
+			$this->metadata = clone $this->metadata;
+	}
+
+	/**
+	 *
+	 * @return StructureMetadata
+	 */
+	public function getMetadata()
+	{
+		if (!isset($this->metadata))
+			$this->metadata = new StructureMetadata();
+		return $this->metadata;
+	}
+
+	/**
+	 *
+	 * @var StructureMetadata
+	 */
+	private $metadata;
 }
 
