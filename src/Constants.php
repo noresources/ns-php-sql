@@ -1213,6 +1213,15 @@ class Constants
 	const CONFIGURATION_SUBMIT_TIMEOUT = 'submit.timeout';
 
 	/**
+	 * Runtime configuration setting
+	 *
+	 * DBMS timezone
+	 *
+	 * @var string
+	 */
+	const CONFIGURATION_TIMEZONE = 'timezone';
+
+	/**
 	 * Hexadecimal string media type
 	 *
 	 * @var string

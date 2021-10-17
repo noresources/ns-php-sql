@@ -39,6 +39,11 @@ class PostgreSQLConfigurator implements ConfiguratorInterface
 			$value = $this->show('session_replication_role');
 			return ($value != 'replica');
 		}
+		elseif ($key == K::CONFIGURATION_TIMEZONE)
+		{
+			$value = $this->show('timezone');
+			return $value;
+		}
 		throw new ConfigurationNotAvailableException(
 			$this->getPlatform(), $key);
 	}
@@ -46,7 +51,8 @@ class PostgreSQLConfigurator implements ConfiguratorInterface
 	public function offsetExists($key)
 	{
 		static $supported = [
-			K::CONFIGURATION_KEY_CONSTRAINTS
+			K::CONFIGURATION_KEY_CONSTRAINTS,
+			K::CONFIGURATION_TIMEZONE
 		];
 		return Container::valueExists($supported, $key);
 	}
@@ -65,6 +71,11 @@ class PostgreSQLConfigurator implements ConfiguratorInterface
 		{
 			$value = ($value ? 'origin' : 'replica');
 			$this->set('session_replication_role', $value);
+			return;
+		}
+		elseif ($key == K::CONFIGURATION_TIMEZONE)
+		{
+			$this->set($value);
 			return;
 		}
 

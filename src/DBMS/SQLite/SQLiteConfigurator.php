@@ -9,7 +9,6 @@
 namespace NoreSources\SQL\DBMS\SQLite;
 
 use NoreSources\Container\ArrayAccessContainerInterfaceTrait;
-use NoreSources\Container\Container;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\PlatformInterface;
@@ -35,7 +34,9 @@ class SQLiteConfigurator implements ConfiguratorInterface
 
 	public function offsetGet($key)
 	{
-		if ($key == K::CONFIGURATION_KEY_CONSTRAINTS)
+		if ($key == K::CONFIGURATION_TIMEZONE)
+			return 'UTC';
+		elseif ($key == K::CONFIGURATION_KEY_CONSTRAINTS)
 		{
 			$fk = TypeConversion::toInteger(
 				$this->getPragma('foreign_keys'));
@@ -55,11 +56,14 @@ class SQLiteConfigurator implements ConfiguratorInterface
 
 	public function offsetExists($key)
 	{
-		static $supported = [
-			K::CONFIGURATION_KEY_CONSTRAINTS,
-			K::CONFIGURATION_SUBMIT_TIMEOUT
-		];
-		return Container::valueExists($supported, $key);
+		switch ($key)
+		{
+			case K::CONFIGURATION_KEY_CONSTRAINTS:
+			case K::CONFIGURATION_SUBMIT_TIMEOUT:
+			case K::CONFIGURATION_TIMEZONE:
+				return true;
+		}
+		return false;
 	}
 
 	public function offsetUnset($key)

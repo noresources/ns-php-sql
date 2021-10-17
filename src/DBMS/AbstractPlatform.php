@@ -71,7 +71,8 @@ abstract class AbstractPlatform implements PlatformInterface
 
 				if ($value instanceof \DateTimeInterface)
 				{
-					if (($dataType & K::DATATYPE_TIMEZONE == 0) &&
+
+					if ((($dataType & K::DATATYPE_TIMEZONE) == 0) &&
 						($this instanceof ConnectionProviderInterface) &&
 						($connection = $this->getConnection()) &&
 						($configurator = $this->newConfigurator(
