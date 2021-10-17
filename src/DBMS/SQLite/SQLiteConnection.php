@@ -262,7 +262,7 @@ class SQLiteConnection implements ConnectionInterface,
 				[
 					K::PLATFORM_VERSION_CURRENT => $version['versionString']
 				]);
-			$this->platform = new SQLitePlatform($parameters);
+			$this->platform = new SQLitePlatform($parameters, $this);
 		}
 
 		return $this->platform;

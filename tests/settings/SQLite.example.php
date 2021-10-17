@@ -3,7 +3,7 @@ use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\SQLite\SQLiteConnection;
 
 /**
- * ConnectionInterface settings for PostgreSQL
+ * ConnectionInterface settings for SQLite
  */
 
 return [

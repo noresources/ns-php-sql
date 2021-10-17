@@ -77,11 +77,25 @@ class SQLite3TypeRegistry extends TypeRegistry
 						K::TYPE_NAME => 'INTEGER',
 						K::TYPE_DATA_TYPE => K::DATATYPE_INTEGER |
 						K::DATATYPE_BOOLEAN,
-						K::TYPE_FLAGS => K::TYPE_FLAG_LENGTH
+						K::TYPE_FLAGS => (K::TYPE_FLAG_LENGTH |
+						K::TYPE_FLAG_SIGNNESS)
 					]),
 				'real' => new ArrayObjectType(
 					[
 						K::TYPE_NAME => 'REAL',
+						/**
+						 * Arbitraty value to force a decent indicative value
+						 * for columns with a scele specification and no length specification.
+						 *
+						 * Use +/- the precision of a flaot in PHP
+						 *
+						 * @see https://www.php.net/manual/en/language.types.float.php The size of a
+						 *      float is platform-dependent, although a maximum of
+						 *      approximately 1.8e308 with a precision of roughly 14 decimal digits
+						 *      is a
+						 *      common value (the 64 bit IEEE format).
+						 */
+						K::TYPE_MAX_LENGTH => 16,
 						K::TYPE_DATA_TYPE => K::DATATYPE_FLOAT,
 						K::TYPE_FLAGS => K::TYPE_FLAG_FRACTION_SCALE |
 						K::TYPE_FLAG_LENGTH
@@ -110,6 +124,21 @@ class SQLite3TypeRegistry extends TypeRegistry
 					[
 						K::TYPE_NAME => 'TIMESTAMPTEXT',
 						K::TYPE_DATA_TYPE => K::DATATYPE_TIMESTAMP
+					]),
+				'datetimetext' => new ArrayObjectType(
+					[
+						K::TYPE_NAME => 'DATETIMETEXT',
+						K::TYPE_DATA_TYPE => K::DATATYPE_DATETIME
+					]),
+				'datetext' => new ArrayObjectType(
+					[
+						K::TYPE_NAME => 'DATETEXT',
+						K::TYPE_DATA_TYPE => K::DATATYPE_DATE
+					]),
+				'timetext' => new ArrayObjectType(
+					[
+						K::TYPE_NAME => 'TIMETEXT',
+						K::TYPE_DATA_TYPE => K::DATATYPE_TIME
 					]),
 				// Media types specific
 				'json' => new ArrayObjectType(

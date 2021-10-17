@@ -64,9 +64,6 @@ class ColumnDeclaration implements TokenizableExpressionInterface
 		TokenStreamContextInterface $context)
 	{
 		$platform = $context->getPlatform();
-		$logger = null;
-		if ($platform instanceof LoggerInterface)
-			$logger = $platform;
 		if (!isset($this->columnStructure))
 			throw new \RuntimeException(
 				ColumnStructure::class . ' not set');
@@ -97,7 +94,24 @@ class ColumnDeclaration implements TokenizableExpressionInterface
 	public function tokenizeType(TokenStream $stream,
 		TokenStreamContextInterface $context)
 	{
+		$platform = $context->getPlatform();
 		$typeName = $this->dbmsType->getTypeName();
+		$typeFlags = Container::keyValue($this->dbmsType, K::TYPE_FLAGS,
+			0);
+		$columnFlags = $this->columnStructure->get(K::COLUMN_FLAGS);
+		$columnDeclaration = $platform->queryFeature(
+			[
+				K::FEATURE_CREATE,
+				K::FEATURE_ELEMENT_TABLE,
+				K::FEATURE_COLUMN_DECLARATION_FLAGS
+			], 0);
+
+		if (($typeFlags & K::TYPE_FLAG_SIGNNESS) &&
+			($columnFlags & K::COLUMN_FLAG_UNSIGNED) &&
+			($columnDeclaration & K::FEATURE_COLUMN_SIGNNESS_TYPE_PREFIX))
+		{
+			$stream->keyword('unsigned')->space();
+		}
 
 		$stream->identifier($typeName);
 
@@ -148,7 +162,7 @@ class ColumnDeclaration implements TokenizableExpressionInterface
 			foreach ($values as $value)
 			{
 				if ($i++ > 0)
-					$stream->text(', ');
+					$stream->text(',')->space();
 				$stream->expression($value, $context);
 			}
 			$stream->text(')');
@@ -175,8 +189,8 @@ class ColumnDeclaration implements TokenizableExpressionInterface
 				$length = $this->dbmsType->getTypeMaxLength();
 				if (\is_infinite($length))
 				{
-					if ($logger instanceof LoggerInterface)
-						$logger->warning(
+					if ($platform instanceof LoggerInterface)
+						$platform->warning(
 							'Specifying scale without precision on a type with undefined max length may produce unexpected values');
 					$length = $scale * 2;
 				}
@@ -231,6 +245,13 @@ class ColumnDeclaration implements TokenizableExpressionInterface
 		TokenStreamContextInterface $context)
 	{
 		$platform = $context->getPlatform();
+		$columnDeclaration = $platform->queryFeature(
+			[
+				K::FEATURE_CREATE,
+				K::FEATURE_ELEMENT_TABLE,
+				K::FEATURE_COLUMN_DECLARATION_FLAGS
+			], 0);
+
 		$typeFlags = Container::keyValue($this->dbmsType, K::TYPE_FLAGS,
 			0);
 		$columnFlags = $this->columnStructure->get(K::COLUMN_FLAGS);
@@ -246,7 +267,9 @@ class ColumnDeclaration implements TokenizableExpressionInterface
 		}
 
 		if (($typeFlags & K::TYPE_FLAG_SIGNNESS) &&
-			($columnFlags & K::COLUMN_FLAG_UNSIGNED))
+			($columnFlags & K::COLUMN_FLAG_UNSIGNED) &&
+			(($columnDeclaration & K::FEATURE_COLUMN_SIGNNESS_TYPE_PREFIX) ==
+			0))
 		{
 			if ($stream->count())
 				$stream->space();

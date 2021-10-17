@@ -20,6 +20,7 @@ use NoreSources\SQL\Result\Recordset;
 use NoreSources\SQL\Structure\ArrayColumnDescription;
 use NoreSources\SQL\Structure\ForeignKeyTableConstraint;
 use NoreSources\SQL\Structure\Identifier;
+use NoreSources\SQL\Structure\IndexStructure;
 use NoreSources\SQL\Syntax\Data;
 use NoreSources\SQL\Syntax\Keyword;
 
@@ -49,8 +50,8 @@ class PostgreSQLStructureExplorer extends AbstractStructureExplorer implements
 
 		$sql = sprintf(
 			'SELECT c.relname
-			FROM pg_namespace n
-			INNER JOIN pg_class c
+			FROM pg_catalog.pg_namespace n
+			INNER JOIN pg_catalog.pg_class c
 				ON n.oid=c.relnamespace
 			WHERE
 				n.nspname=%s
@@ -174,31 +175,69 @@ class PostgreSQLStructureExplorer extends AbstractStructureExplorer implements
 
 	public function getTableIndexNames($tableIdentifier)
 	{
-		$tableIdentifier = Identifier::make($tableIdentifier);
-		$tableName = $tableIdentifier->getLocalName();
-		$namespace = $tableIdentifier->getParentIdentifier();
-		if (empty($namespace->getPath()))
-			$namespace = 'public';
+		$tableOID = $this->getTableOID($tableIdentifier);
+		list ($namespace, $table) = $this->getTableIdentifierParts(
+			$tableIdentifier);
 		$platform = $this->getConnection()->getPlatform();
-
-		$namespace = $platform->quoteStringValue($namespace);
-		$tableName = $platform->quoteStringValue($tableName);
 
 		$sql = sprintf(
 			'SELECT
-				i.indexname as name
-			FROM
-				pg_catalog.pg_indexes i
-			WHERE i.schemaname=%s
-				AND i.tablename=%s
-				AND i.indexname NOT IN (SELECT constraint_name
-						FROM information_schema.table_constraints
-						WHERE constraint_schema=%s
-							AND table_name=%s)', $namespace, $tableName, $namespace,
-			$tableName);
+				c.relname as name
+			FROM pg_catalog.pg_index i
+				INNER JOIN pg_catalog.pg_class as c
+				ON i.indexrelid=c.oid
+			WHERE
+				i.indrelid=%d
+				AND i.indisunique=%s
+', $tableOID, $platform->quoteStringValue('f'));
+		$recordset = $this->getConnection()->executeStatement($sql);
+		return self::recordsetToList($recordset);
+	}
 
-		return self::recordsetToList(
-			$this->getConnection()->executeStatement($sql));
+	public function getTableIndexes($tableIdentifier)
+	{
+		$tableOID = $this->getTableOID($tableIdentifier);
+		list ($namespace, $table) = $this->getTableIdentifierParts(
+			$tableIdentifier);
+		$platform = $this->getConnection()->getPlatform();
+
+		$sql = sprintf(
+			'SELECT
+				c.oid as oid,
+				c.relname as name
+			FROM pg_catalog.pg_index i
+				INNER JOIN pg_catalog.pg_class as c
+				ON i.indexrelid=c.oid
+			WHERE
+				i.indrelid=%d
+				AND i.indisunique=%s
+', $tableOID, $platform->quoteStringValue('f'));
+
+		$list = $this->getConnection()
+			->executeStatement($sql)
+			->getArrayCopy();
+		$indexes = [];
+		foreach ($list as $row)
+		{
+			$index = new IndexStructure($row['name']);
+			$oid = \intval($row['oid']);
+			$sql = sprintf(
+				'SELECT
+			    a.attname as column
+			FROM
+			    pg_attribute a
+			WHERE
+				a.attrelid=%d
+			ORDER BY
+			    a.attnum', $oid);
+
+			$recordset = $this->getConnection()->executeStatement($sql);
+			$names = self::recordsetToList($recordset);
+			$index->columns(...$names);
+			$indexes[] = $index;
+		}
+
+		return $indexes;
 	}
 
 	public function getTableUniqueConstraints($tableIdentifier)
@@ -227,7 +266,29 @@ class PostgreSQLStructureExplorer extends AbstractStructureExplorer implements
 			$this->getConnection(), $namespace);
 	}
 
-	protected function getTableParts($identifier)
+	protected function getTableOID($identifier)
+	{
+		list ($namespace, $table) = $this->getTableIdentifierParts(
+			$identifier);
+		$platform = $this->getConnection()->getPlatform();
+
+		$sql = sprintf(
+			'SELECT c.oid
+			FROM pg_catalog.pg_namespace n
+			INNER JOIN pg_catalog.pg_class c
+				ON n.oid=c.relnamespace
+			WHERE
+				n.nspname=%s
+				AND c.relkind=%s
+				AND c.relname=%s
+		', $platform->quoteStringValue($namespace),
+			$platform->quoteStringValue('r'),
+			$platform->quoteStringValue($table));
+		$recordset = $this->getConnection()->executeStatement($sql);
+		return self::recordsetToValue($recordset);
+	}
+
+	protected function getTableIdentifierParts($identifier)
 	{
 		/** @var Identifier $identifier */
 		$identifier = Identifier::make($identifier);
@@ -250,6 +311,7 @@ class PostgreSQLStructureExplorer extends AbstractStructureExplorer implements
 			K::KEYWORD_NULL,
 			K::KEYWORD_TRUE
 		];
+
 		foreach ($keywords as $k)
 		{
 			if ($columnValue != $platform->getKeyword($k))
@@ -283,9 +345,17 @@ class PostgreSQLStructureExplorer extends AbstractStructureExplorer implements
 				K::RECORDSET_FETCH_UBSERIALIZE);
 
 			$record = $recordset->current();
+			$defaultValue = $record[0];
 
-			$properties[K::COLUMN_DEFAULT_VALUE] = new Data($record[0],
-				$dataType);
+			if (empty($defaultValue) &&
+				(($dataType & K::DATATYPE_STRING) != K::DATATYPE_STRING) &&
+				(($dataType & K::DATATYPE_NULL) == K::DATATYPE_NULL))
+			{
+				$defaultValue = null;
+			}
+
+			$properties[K::COLUMN_DEFAULT_VALUE] = new Data(
+				$defaultValue, $dataType);
 		}
 	}
 

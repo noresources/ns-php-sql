@@ -1,0 +1,12 @@
+backup:TableStructure:Employees->Employees_backup
+backup:TableStructure:Tasks->Tasks_backup
+backup:TableStructure:types->types_backup
+drop:IndexStructure:fk_creator
+drop:IndexStructure:index_employees_name
+drop:TableStructure:Tasks
+drop:TableStructure:Employees
+drop:TableStructure:types
+restore:TableStructure:Employees_backup->Employees
+restore:TableStructure:Tasks_backup->Tasks
+restore:TableStructure:types_backup->types
+create:IndexStructure:->index_employees_name

@@ -1022,10 +1022,17 @@ class Constants
 	 * Column declaration flags
 	 *
 	 * ENUM () support in column declaration.
-	 *
-	 * @var string
 	 */
 	const FEATURE_COLUMN_ENUM = Bitset::BIT_02;
+
+	/**
+	 * Column declaration flags
+	 *
+	 * By default, the column signess is an attribute added
+	 * after column type declaration. This flag indicates the
+	 * signness must be written before the type name
+	 */
+	const FEATURE_COLUMN_SIGNNESS_TYPE_PREFIX = Bitset::BIT_03;
 
 	/**
 	 * Constraint declaration flags

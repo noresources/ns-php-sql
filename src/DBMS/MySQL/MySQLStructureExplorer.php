@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Copyright © 2021 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
@@ -91,7 +90,8 @@ class MySQLStructureExplorer extends AbstractStructureExplorer implements
 		return $this->getInformationSchemaTableColumn(
 			$this->getConnection(), $tableIdentifier, $columnName,
 			[
-				'extra'
+				'extra',
+				'column_type'
 			]);
 	}
 
@@ -258,6 +258,41 @@ class MySQLStructureExplorer extends AbstractStructureExplorer implements
 			$flags |= K::COLUMN_FLAG_AUTO_INCREMENT;
 		}
 
+		$typeDeclaration = $info['column_type'];
+
+		/**
+		 * MySQL information_schema.columns numeric_precision
+		 * returns the MySQL type max length instead of column length
+		 * instead of column length.
+		 */
+		$length = Container::keyValue($properties, K::COLUMN_LENGTH, INF);
+		Container::removeKey($properties, K::COLUMN_LENGTH);
+
+		if (\preg_match(
+			chr(1) . self::COLUMN_TYPE_DECLARATION_PATTERN . chr(1) . 'i',
+			$typeDeclaration, $m))
+		{
+			if (($precision = \intval(
+				Container::keyValue($m, 'precision', 0))) > 0)
+			{
+				$properties[K::COLUMN_LENGTH] = \intval($precision);
+			}
+
+			if (($scale = \intval(Container::keyValue($m, 'scale', 0))) >
+				0)
+			{
+				$properties[K::COLUMN_FRACTION_SCALE] = $scale;
+			}
+
+			if (($modifiers = Container::keyValue($m, 'modifiers')))
+			{
+				if (\preg_match('/(^|\s)unsigned(\s|$)/i', $modifiers))
+				{
+					$flags |= K::COLUMN_FLAG_UNSIGNED;
+				}
+			}
+		}
+
 		if ($flags)
 			$properties[K::COLUMN_FLAGS] = $flags;
 	}
@@ -357,4 +392,8 @@ class MySQLStructureExplorer extends AbstractStructureExplorer implements
 		$list = self::recordsetToList($recordset, $columnName);
 		return Container::firstValue($list);
 	}
+
+	const COLUMN_TYPE_DECLARATION_PATTERN = '(?<name>[a-z][a-z0-9_]*)' .
+		'(?:\((?<precision>[1-9][0-9]*)(?:\s*,\s*(?<scale>[0-9]+))?\))?' .
+		'(?:\s+(?<modifiers>.*))?';
 }

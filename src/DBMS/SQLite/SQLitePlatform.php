@@ -10,14 +10,15 @@ namespace NoreSources\SQL\DBMS\SQLite;
 use NoreSources\DateTime;
 use NoreSources\Container\Container;
 use NoreSources\Expression\Value;
-use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\AbstractPlatform;
 use NoreSources\SQL\DBMS\ConnectionInterface;
+use NoreSources\SQL\DBMS\ConnectionProviderInterface;
 use NoreSources\SQL\DBMS\TimestampFormatTranslationMap;
 use NoreSources\SQL\DBMS\Filesystem\ClosureStructureFilenameFactory;
 use NoreSources\SQL\DBMS\Filesystem\StructureFilenameFactoryInterface;
 use NoreSources\SQL\DBMS\Filesystem\StructureFilenameFactoryProviderInterface;
-use NoreSources\SQL\Syntax\ColumnDeclaration;
+use NoreSources\SQL\DBMS\SQLite\SQLiteConstants as K;
+use NoreSources\SQL\DBMS\Traits\ConnectionProviderTrait;
 use NoreSources\SQL\Syntax\FunctionCall;
 use NoreSources\SQL\Syntax\MetaFunctionCall;
 use NoreSources\SQL\Syntax\TableConstraintDeclaration;
@@ -31,15 +32,19 @@ use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
 
 class SQLitePlatform extends AbstractPlatform implements
-	StructureFilenameFactoryProviderInterface
+	StructureFilenameFactoryProviderInterface,
+	ConnectionProviderInterface
 {
 	use LoggerAwareTrait;
+	use ConnectionProviderTrait;
 
 	const DEFAULT_VERSION = '3.0.0';
 
-	public function __construct($parameters = array())
+	public function __construct($parameters,
+		ConnectionInterface $connection)
 	{
 		parent::__construct($parameters);
+		$this->setConnection($connection);
 
 		if (($f = Container::keyValue($parameters,
 			self::STRUCTURE_FILENAME_FACTORY)))
@@ -79,6 +84,13 @@ class SQLitePlatform extends AbstractPlatform implements
 			],
 			(K::FEATURE_CREATE_TEMPORARY |
 			K::FEATURE_CREATE_EXISTS_CONDITION));
+
+		$this->setPlatformFeature(
+			[
+				K::FEATURE_CREATE,
+				K::FEATURE_ELEMENT_TABLE,
+				K::FEATURE_COLUMN_DECLARATION_FLAGS
+			], (K::FEATURE_COLUMN_SIGNNESS_TYPE_PREFIX));
 
 		foreach ([
 			K::FEATURE_ELEMENT_TABLE,
@@ -212,8 +224,6 @@ class SQLitePlatform extends AbstractPlatform implements
 	{
 		switch ($baseClassname)
 		{
-			case ColumnDeclaration::class:
-				return new SQLiteColumnDeclaration(...$arguments);
 			case TableConstraintDeclaration::class:
 				return new SQLiteTableConstraintDeclaration(
 					...$arguments);

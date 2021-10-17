@@ -16,6 +16,7 @@ use NoreSources\SQL\DBMS\Explorer\AbstractStructureExplorer;
 use NoreSources\SQL\DBMS\Explorer\StructureExplorerException;
 use NoreSources\SQL\DBMS\SQLite\SQLiteConstants as K;
 use NoreSources\SQL\DBMS\Traits\ConnectionProviderTrait;
+use NoreSources\SQL\DBMS\Types\ArrayObjectType;
 use NoreSources\SQL\Result\Recordset;
 use NoreSources\SQL\Structure\ArrayColumnDescription;
 use NoreSources\SQL\Structure\ForeignKeyTableConstraint;
@@ -277,6 +278,14 @@ class SQLiteStructureExplorer extends AbstractStructureExplorer implements
 			$scale = \intval(Container::keyValue($m, 3, 0));
 		}
 
+		if (\preg_match('/((?:un)?signed)\s*(.*)/i', $typename, $m))
+		{
+			$typename = Container::keyValue($m, 2, $typename);
+			$sign = Container::keyValue($m, 1, '');
+			if (\strcasecmp($sign, 'unsigned') == 0)
+				$flags |= K::COLUMN_FLAG_UNSIGNED;
+		}
+
 		/*
 		 * Auto icrement column is assumed if
 		 * * type is "integer"
@@ -297,7 +306,7 @@ class SQLiteStructureExplorer extends AbstractStructureExplorer implements
 			$type = $platform->getTypeRegistry()->get($typename);
 		else
 		{
-			$type = new \ArrayObject(
+			$type = new ArrayObjectType(
 				[
 					K::TYPE_NAME => $typename,
 					K::TYPE_DATA_TYPE => SQLite3TypeRegistry::getInstance()->getDataTypeFromTypename(

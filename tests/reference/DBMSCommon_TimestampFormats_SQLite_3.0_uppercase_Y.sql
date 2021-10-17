@@ -1,1 +1,1 @@
-SELECT STRFTIME('%Y', CAST(:timestamp as TIMESTAMPTEXT)) AS "format", 'Year [Y]'
+SELECT STRFTIME('%Y', CAST(:timestamp as DATETIMETEXT)) AS "format", 'Year [Y]'

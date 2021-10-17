@@ -71,6 +71,20 @@ abstract class AbstractPlatform implements PlatformInterface
 
 				if ($value instanceof \DateTimeInterface)
 				{
+					if (($dataType & K::DATATYPE_TIMEZONE == 0) &&
+						($this instanceof ConnectionProviderInterface) &&
+						($connection = $this->getConnection()) &&
+						($configurator = $this->newConfigurator(
+							$connection)) &&
+						$configurator->has(K::CONFIGURATION_TIMEZONE))
+					{
+						$value = clone $value;
+						$value->setTimezone(
+							new \DateTimeZone(
+								$configurator->get(
+									K::CONFIGURATION_TIMEZONE)));
+					}
+
 					return $value->format(
 						$this->getTimestampTypeStringFormat($dataType));
 				}
@@ -79,7 +93,7 @@ abstract class AbstractPlatform implements PlatformInterface
 		return TypeConversion::toString($value);
 	}
 
-	function serializeData($data, $dataType)
+	public function serializeData($data, $dataType)
 	{
 		if ($dataType == K::DATATYPE_NULL)
 			return $this->getKeyword(K::KEYWORD_NULL);

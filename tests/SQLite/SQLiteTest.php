@@ -13,6 +13,7 @@ use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\Configuration\ConfiguratorInterface;
 use NoreSources\SQL\DBMS\Configuration\ConfiguratorProviderInterface;
 use NoreSources\SQL\DBMS\Explorer\StructureExplorerInterface;
+use NoreSources\SQL\DBMS\Reference\ReferenceConnection;
 use NoreSources\SQL\DBMS\SQLite\SQLite3TypeRegistry;
 use NoreSources\SQL\DBMS\SQLite\SQLiteConnection;
 use NoreSources\SQL\DBMS\SQLite\SQLiteConstants;
@@ -436,9 +437,10 @@ final class SQLiteTest extends \PHPUnit\Framework\TestCase
 
 	public function testTimestampFormat()
 	{
+		$connection = new ReferenceConnection();
 		if (!$this->prerequisites())
 			return;
-		$platform = new SQLitePlatform();
+		$platform = new SQLitePlatform([], $connection);
 
 		StatementBuilder::getInstance(); // IDO workaround
 		$dateTimeFormat = DateTime::getFormatTokenDescriptions();
