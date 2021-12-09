@@ -60,8 +60,9 @@ class MySQLTypeRegistry extends TypeRegistry
 					K::TYPE_FLAG_SIGNNESS)
 				],
 				'decimal' => [
-					K::TYPE_DATA_TYPE => K::DATATYPE_FLOAT,
+					K::TYPE_DATA_TYPE => K::DATATYPE_NUMBER,
 					K::TYPE_MAX_LENGTH => 30,
+					K::TYPE_DEFAULT_SCALE => 0,
 					K::TYPE_FLAGS => (K::TYPE_FLAG_LENGTH |
 					K::TYPE_FLAG_FRACTION_SCALE | K::TYPE_FLAG_SIGNNESS)
 				],

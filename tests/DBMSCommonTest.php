@@ -430,6 +430,9 @@ final class DBMSCommonTest extends TestCase
 					'expected' => null
 				],
 				'float' => [
+					'expected' => 1.23456
+				],
+				'fixed_precision' => [
 					'expected' => 1.23
 				]
 			/**
@@ -463,6 +466,10 @@ final class DBMSCommonTest extends TestCase
 					'expected' => 127
 				],
 				'float' => [
+					'insert' => 4.56,
+					'expected' => 4.56
+				],
+				'fixed_precision' => [
 					'insert' => 4.56,
 					'expected' => 4.56
 				]

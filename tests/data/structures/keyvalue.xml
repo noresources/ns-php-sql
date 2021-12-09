@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<sql:datasource xmlns:sql="http://xsd.nore.fr/sql/2.0">
+<sql:datasource xmlns:sql="http://xsd.nore.fr/sql/2.1">
 	<sql:namespace name="ns_unittests">
 		<sql:table name="keyvalue">
 			<sql:column name="id">
 				<sql:datatype>
-					<sql:numeric/>
+					<sql:integer/>
 				</sql:datatype>
 			</sql:column>
 			<sql:column name="text" />

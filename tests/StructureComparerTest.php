@@ -13,8 +13,9 @@ use NoreSources\SQL\Syntax\TokenizableExpressionInterface;
 use NoreSources\SQL\Syntax\Statement\StatementBuilder;
 use NoreSources\Test\DatasourceManager;
 use NoreSources\Test\DerivedFileManager;
+use PHPUnit\Framework\TestCase;
 
-final class StructureComparerTest extends \PHPUnit\Framework\TestCase
+final class StructureComparerTest extends TestCase
 {
 
 	public function __construct($name = null, array $data = [],

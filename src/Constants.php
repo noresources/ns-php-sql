@@ -479,6 +479,18 @@ class Constants
 	const TYPE_DEFAULT_LENGTH = 'defaultlength';
 
 	/**
+	 * Column scale if the scale is unspecified.
+	 *
+	 * Some DBMS numeric types requires an explicit scale to store and represents decimals.
+	 *
+	 * For example, MySQL DECIMAL (without precision and scale) is equivalent to DECIMAL(max, 0)
+	 * where "max" is the max length of DECIMAL type.
+	 *
+	 * @var string
+	 */
+	const TYPE_DEFAULT_SCALE = 'defaultscale';
+
+	/**
 	 * Media Type
 	 *
 	 * Property value is expected to be a MediaTypeInterface or a Media Type compatible string

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<sql:datasource xmlns:sql="http://xsd.nore.fr/sql/2.0">
+<sql:datasource xmlns:sql="http://xsd.nore.fr/sql/2.1">
 	<sql:namespace name="ns_unittests">
 		<sql:table name="types">
 			<sql:column name="base"></sql:column>
@@ -22,13 +22,13 @@
 			</sql:column>
 			<sql:column name="int">
 				<sql:datatype>
-					<sql:numeric autoincrement="yes" />
+					<sql:integer autoincrement="yes" />
 				</sql:datatype>
 			</sql:column>
 			<sql:column name="large_int">
 				<sql:comment>A large int with size spec.</sql:comment>
 				<sql:datatype>
-					<sql:numeric length="12"  />
+					<sql:integer length="12"  />
 				</sql:datatype>
 				<sql:default>
 					<sql:number>123456789012</sql:number>
@@ -37,10 +37,18 @@
 			<sql:column name="small_int">
 				<sql:comment>A quite small int with size spec.</sql:comment>
 				<sql:datatype>
-					<sql:numeric length="3" signed="no"  />
+					<sql:integer length="3" signed="no"  />
 				</sql:datatype>
 			</sql:column>
 			<sql:column name="float">
+				<sql:datatype>
+					<sql:numeric  />
+				</sql:datatype>
+				<sql:default>
+					<sql:number>1.23456</sql:number>
+				</sql:default>
+			</sql:column>
+			<sql:column name="fixed_precision">
 				<sql:datatype>
 					<sql:numeric scale="2" />
 				</sql:datatype>

@@ -2,8 +2,9 @@
 namespace NoreSources\SQL;
 
 use NoreSources\SQL\Syntax\TokenStream;
+use PHPUnit\Framework\TestCase;
 
-final class TokenStreamTest extends \PHPUnit\Framework\TestCase
+final class TokenStreamTest extends TestCase
 {
 
 	public function testInsertAt()

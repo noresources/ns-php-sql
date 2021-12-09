@@ -14,8 +14,9 @@ use NoreSources\Test\DatasourceManager;
 use NoreSources\Test\DatasourceManagerTrait;
 use NoreSources\Test\DerivedFileManager;
 use NoreSources\Test\SqlFormatter;
+use PHPUnit\Framework\TestCase;
 
-final class DropTest extends \PHPUnit\Framework\TestCase
+final class DropTest extends TestCase
 {
 	use DatasourceManagerTrait;
 

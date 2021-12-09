@@ -130,7 +130,12 @@ $typePropertiesMap = [
 	// ],
 	'numeric' => [
 		K::TYPE_DATA_TYPE => K::DATATYPE_NUMBER,
-		K::TYPE_FLAGS => K::TYPE_FLAG_FRACTION_SCALE
+		K::TYPE_FLAGS => K::TYPE_FLAG_FRACTION_SCALE,
+		/**
+		 *
+		 * @see https://www.postgresql.org/docs/13/datatype-numeric.html#DATATYPE-NUMERIC-DECIMAL
+		 */
+		K::TYPE_MAX_LENGTH => 1000
 	],
 
 	// 'oid' => [

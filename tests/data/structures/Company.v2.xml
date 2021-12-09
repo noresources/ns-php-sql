@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<sql:datasource xmlns:sql="http://xsd.nore.fr/sql/2.0" xmlns:xi="http://www.w3.org/2001/XInclude">
+<sql:datasource xmlns:sql="http://xsd.nore.fr/sql/2.1" xmlns:xi="http://www.w3.org/2001/XInclude">
 	<sql:namespace name="ns_unittests">
 		<sql:table name="Employees" id="nsut.tables.Employees">
 			<sql:comment>Company employees</sql:comment>
 			<sql:column name="id">
 				<sql:datatype nullable="no">
-					<sql:numeric />
+					<sql:integer />
 				</sql:datatype>
 			</sql:column>
 			<sql:column name="fullName">
@@ -15,7 +15,7 @@
 			</sql:column>
 			<sql:column name="age">
 				<sql:datatype>
-					<sql:numeric min="18" max="65" />
+					<sql:integer min="18" max="65" />
 				</sql:datatype>
 			</sql:column>
 			<sql:column name="gender">
@@ -50,7 +50,7 @@
 			</sql:column>
 			<sql:column name="manageeId">
 				<sql:datatype nullable="no">
-					<sql:numeric />
+					<sql:integer />
 				</sql:datatype>
 			</sql:column>
 
@@ -86,7 +86,7 @@
 		<sql:table name="Tasks">
 			<sql:column name="id">
 				<sql:datatype>
-					<sql:numeric autoincrement="yes" />
+					<sql:integer autoincrement="yes" />
 				</sql:datatype>
 			</sql:column>
 			<sql:column name="name">
@@ -105,7 +105,7 @@
 			</sql:column>
 			<sql:column name="category">
 				<sql:datatype>
-					<sql:numeric />
+					<sql:integer />
 				</sql:datatype>
 			</sql:column>
 			<sql:column name="creator">
@@ -162,9 +162,6 @@
 			</sql:column>
 			<sql:column name="name" />
 			<sql:column name="productManagerId">
-				<sql:datatype>
-					<sql:numeric />
-				</sql:datatype>
 			</sql:column>
 
 			<sql:primarykey>

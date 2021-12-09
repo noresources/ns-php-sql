@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<sql:datasource xmlns:sql="http://xsd.nore.fr/sql/2.0" xmlns:xi="http://www.w3.org/2001/XInclude">
+<sql:datasource xmlns:sql="http://xsd.nore.fr/sql/2.1" xmlns:xi="http://www.w3.org/2001/XInclude">
 	<sql:namespace name="ns_unittests">
 
 		<sql:table name="Hierarchy">
 			<sql:column name="managerId">
 				<sql:datatype nullable="no">
+					<sql:integer />
 				</sql:datatype>
 			</sql:column>
 			<sql:column name="manageeId">
@@ -45,7 +46,7 @@
 			<sql:comment>Company employees</sql:comment>
 			<sql:column name="id">
 				<sql:datatype nullable="no">
-					<sql:numeric />
+					<sql:integer />
 				</sql:datatype>
 			</sql:column>
 			<sql:column name="name">
@@ -81,7 +82,7 @@
 		<sql:table name="Tasks">
 			<sql:column name="id">
 				<sql:datatype>
-					<sql:numeric autoincrement="yes" />
+					<sql:integer autoincrement="yes" />
 				</sql:datatype>
 			</sql:column>
 			<sql:column name="name">
@@ -100,12 +101,12 @@
 			</sql:column>
 			<sql:column name="priority">
 				<sql:datatype>
-					<sql:numeric />
+					<sql:integer />
 				</sql:datatype>
 			</sql:column>
 			<sql:column name="category">
 				<sql:datatype>
-					<sql:numeric />
+					<sql:integer />
 				</sql:datatype>
 			</sql:column>
 			<sql:column name="creator">
@@ -151,7 +152,7 @@
 			</sql:foreignkey>
 		</sql:table>
 
-		<xi:include href="./types.xml" xpointer="xmlns(sql=http://xsd.nore.fr/sql/2.0) xpointer(//sql:table)" />
+		<xi:include href="./types.xml" xpointer="xmlns(sql=http://xsd.nore.fr/sql/2.1) xpointer(//sql:table)" />
 
 	</sql:namespace>
 </sql:datasource>

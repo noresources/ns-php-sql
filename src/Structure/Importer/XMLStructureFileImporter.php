@@ -342,9 +342,10 @@ class XMLStructureFileImporter implements
 		}
 		elseif ($dataType & K::DATATYPE_NUMBER)
 		{
+			// 2.1
 			$scaleAttribute = ($context->schemaVersion->getIntegerValue() <
 				20000) ? 'decimals' : 'scale';
-			$dataType = K::DATATYPE_INTEGER;
+
 			if ($typeNode->hasAttribute('signed'))
 			{
 				$flg = $structure->get(K::COLUMN_FLAGS);
@@ -356,6 +357,7 @@ class XMLStructureFileImporter implements
 					$structure->setColumnProperty(K::COLUMN_FLAGS,
 						$flg | K::COLUMN_FLAG_UNSIGNED);
 			}
+
 			if ($typeNode->hasAttribute('autoincrement'))
 			{
 				$flg = $structure->get(K::COLUMN_FLAGS);
@@ -367,12 +369,17 @@ class XMLStructureFileImporter implements
 			{
 				$count = intval(
 					$typeNode->getAttribute($scaleAttribute));
-				$structure->setColumnProperty(K::COLUMN_FRACTION_SCALE,
-					$count);
 				if ($count > 0)
 				{
+					$structure->setColumnProperty(
+						K::COLUMN_FRACTION_SCALE, $count);
 					$dataType = K::DATATYPE_FLOAT;
 				}
+			}
+			elseif ($context->schemaVersion->getIntegerValue() < 20100)
+			{
+				// < 2.1 consider numeric without scale as integers
+				$dataType = K::DATATYPE_INTEGER;
 			}
 		}
 		elseif ($dataType == K::DATATYPE_STRING &&

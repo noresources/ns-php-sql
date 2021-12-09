@@ -10,8 +10,9 @@ use NoreSources\Test\ConnectionHelper;
 use NoreSources\Test\DatasourceManager;
 use NoreSources\Test\DerivedFileManager;
 use NoreSources\Test\SqlFormatter;
+use PHPUnit\Framework\TestCase;
 
-final class UpdateTest extends \PHPUnit\Framework\TestCase
+final class UpdateTest extends TestCase
 {
 
 	public function __construct($name = null, array $data = [],
@@ -51,6 +52,10 @@ final class UpdateTest extends \PHPUnit\Framework\TestCase
 					987.789,
 					false
 				],
+				'fixed_precision' => [
+					987.789,
+					false
+				],
 				'timestamp' => [
 					0,
 					false
@@ -62,6 +67,10 @@ final class UpdateTest extends \PHPUnit\Framework\TestCase
 					false
 				],
 				'float' => [
+					'987.789',
+					false
+				],
+				'fixed_precision' => [
 					'987.789',
 					false
 				],
@@ -80,6 +89,10 @@ final class UpdateTest extends \PHPUnit\Framework\TestCase
 					false
 				],
 				'float' => [
+					new \DateTime('2017-12-07 08:10:13.256+0700'),
+					false
+				],
+				'fixed_precision' => [
 					new \DateTime('2017-12-07 08:10:13.256+0700'),
 					false
 				]

@@ -130,25 +130,34 @@ class TypeRegistry implements \ArrayAccess, AssetMapInterface
 						continue;
 					}
 				} // length
+			} // length
 
+			// Fraction scale
+
+			if ($targetDataType & K::DATATYPE_FLOAT)
+			{
 				if (Container::keyExists($columnDescription,
-					K::COLUMN_FRACTION_SCALE))
-				{
-					$scale = TypeConversion::toInteger(
+					K::COLUMN_FRACTION_SCALE) &&
+					($scale = TypeConversion::toInteger(
 						Container::keyValue($columnDescription,
-							K::COLUMN_FRACTION_SCALE));
-
-					if ($scale > 0)
+							K::COLUMN_FRACTION_SCALE))) && ($scale > 0))
+				{
+					if (($typeFlags & K::TYPE_FLAG_FRACTION_SCALE) == 0)
 					{
-						if (($typeFlags & K::TYPE_FLAG_FRACTION_SCALE) ==
-							0)
-						{
-							$scores[$typeKey] = -1000;
-							continue;
-						}
+						$scores[$typeKey] = -1000;
+						continue;
 					}
 				}
-			} // length
+				else
+				{
+					if ($type->has(K::TYPE_DEFAULT_SCALE) &&
+						($type->get(K::TYPE_DEFAULT_SCALE) == 0))
+					{
+						$scores[$typeKey] = -1000;
+						continue;
+					}
+				}
+			}
 
 			$paddingScore = 0;
 			if (Container::keyExists($columnDescription,

@@ -20,8 +20,9 @@ use NoreSources\SQL\Syntax\Statement\Structure\CreateViewQuery;
 use NoreSources\Test\DatasourceManager;
 use NoreSources\Test\DerivedFileManager;
 use NoreSources\Test\SqlFormatter;
+use PHPUnit\Framework\TestCase;
 
-final class CreateTest extends \PHPUnit\Framework\TestCase
+final class CreateTest extends TestCase
 {
 
 	public function __construct($name = null, array $data = [],

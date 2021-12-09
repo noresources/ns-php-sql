@@ -6,8 +6,9 @@ use NoreSources\SQL\Syntax\Statement\StatementBuilder;
 use NoreSources\SQL\Syntax\Statement\Manipulation\DeleteQuery;
 use NoreSources\Test\DatasourceManager;
 use NoreSources\Test\DerivedFileManager;
+use PHPUnit\Framework\TestCase;
 
-final class DeleteTest extends \PHPUnit\Framework\TestCase
+final class DeleteTest extends TestCase
 {
 
 	public function __construct($name = null, array $data = [],

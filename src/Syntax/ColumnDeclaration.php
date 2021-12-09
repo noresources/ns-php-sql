@@ -194,6 +194,8 @@ class ColumnDeclaration implements TokenizableExpressionInterface
 							'Specifying scale without precision on a type with undefined max length may produce unexpected values');
 					$length = $scale * 2;
 				}
+				else
+					$length -= $scale;
 			}
 			elseif ($mandatoryLength)
 			{

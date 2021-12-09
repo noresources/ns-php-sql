@@ -18,8 +18,9 @@ use NoreSources\SQL\Structure\StructureElementInterface;
 use NoreSources\SQL\Structure\StructureSerializerFactory;
 use NoreSources\SQL\Structure\TableStructure;
 use NoreSources\Test\DerivedFileManager;
+use PHPUnit\Framework\TestCase;
 
-final class StructureSerializerTest extends \PHPUnit\Framework\TestCase
+final class StructureSerializerTest extends TestCase
 {
 
 	public function __construct($name = null, array $data = [],

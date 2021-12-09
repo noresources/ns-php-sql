@@ -3,8 +3,9 @@ namespace NoreSources\SQL;
 
 use NoreSources\Container\Container;
 use NoreSources\SQL\Constants as K;
+use PHPUnit\Framework\TestCase;
 
-final class DataTypeDescriptionTest extends \PHPUnit\Framework\TestCase
+final class DataTypeDescriptionTest extends TestCase
 {
 
 	public function testAfinity()

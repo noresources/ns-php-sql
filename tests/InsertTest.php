@@ -15,8 +15,9 @@ use NoreSources\SQL\Syntax\Statement\Query\SelectQuery;
 use NoreSources\Test\DatasourceManager;
 use NoreSources\Test\DerivedFileManager;
 use NoreSources\Test\SqlFormatter;
+use PHPUnit\Framework\TestCase;
 
-final class InsertTest extends \PHPUnit\Framework\TestCase
+final class InsertTest extends TestCase
 {
 
 	public function __construct($name = null, array $data = [],

@@ -189,7 +189,7 @@ trait XMLStructureFileTrait
 			K::DATATYPE_TIME => 'timestamp',
 			K::DATATYPE_NUMBER => 'numeric',
 			K::DATATYPE_FLOAT => 'numeric',
-			K::DATATYPE_INTEGER => 'numeric',
+			K::DATATYPE_INTEGER => 'integer',
 			K::DATATYPE_NULL => 'null',
 			K::DATATYPE_STRING => 'string',
 			K::DATATYPE_UNDEFINED => 'string'

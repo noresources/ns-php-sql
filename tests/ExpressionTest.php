@@ -10,8 +10,9 @@ use NoreSources\SQL\DBMS\Reference\ReferencePlatform;
 use NoreSources\SQL\Structure\VirtualStructureResolver;
 use NoreSources\SQL\Syntax\Statement\StatementBuilder;
 use NoreSources\Test\DatasourceManager;
+use PHPUnit\Framework\TestCase;
 
-final class ExpressionTest extends \PHPUnit\Framework\TestCase
+final class ExpressionTest extends TestCase
 {
 
 	public function __construct($name = null, array $data = [],

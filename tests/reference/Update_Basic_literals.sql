@@ -5,4 +5,5 @@ SET
   [binary] = '456', 
   [boolean] = FALSE, 
   [float] = 987.789, 
+  [fixed_precision] = 987.789, 
   [timestamp] = '1970-01-01T00:00:00'

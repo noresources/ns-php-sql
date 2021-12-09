@@ -5,7 +5,8 @@ CREATE TABLE IF NOT EXISTS "ns_unittests"."types" (
   "int" serial, 
   "large_int" bigint NULL DEFAULT 123456789012, 
   "small_int" smallint NULL, 
-  "float" double precision NULL DEFAULT 1.23, 
+  "float" numeric NULL DEFAULT 1.23456, 
+  "fixed_precision" numeric(4, 2) NULL DEFAULT 1.23, 
   "timestamp" timestamp without time zone NULL DEFAULT '2010-11-12T13:14:15', 
   "timestamp_tz" timestamp with time zone NULL DEFAULT '2010-11-12T13:14:15+0100', 
   CONSTRAINT "pk_types" PRIMARY KEY ("int")

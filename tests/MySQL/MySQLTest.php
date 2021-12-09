@@ -12,8 +12,9 @@ use NoreSources\SQL\Structure\Identifier;
 use NoreSources\SQL\Syntax\Statement\Structure\CreateTableQuery;
 use NoreSources\Test\ConnectionHelper;
 use NoreSources\Test\DatasourceManager;
+use PHPUnit\Framework\TestCase;
 
-final class MySQLTest extends \PHPUnit\Framework\TestCase
+final class MySQLTest extends TestCase
 {
 
 	public function testMySQLiType()

@@ -14,8 +14,9 @@ use NoreSources\SQL\Syntax\Statement\StatementTokenStreamContext;
 use NoreSources\SQL\Syntax\Statement\Query\SelectQuery;
 use NoreSources\Test\DerivedFileManager;
 use NoreSources\Test\SqlFormatter;
+use PHPUnit\Framework\TestCase;
 
-final class VirtualStructureTest extends \PHPUnit\Framework\TestCase
+final class VirtualStructureTest extends TestCase
 {
 
 	public function __construct($name = null, array $data = [],

@@ -43,8 +43,9 @@ use NoreSources\Test\DatasourceManager;
 use NoreSources\Test\DerivedFileManager;
 use NoreSources\Test\SqlFormatter;
 use NoreSources\Type\TypeDescription;
+use PHPUnit\Framework\TestCase;
 
-final class SQLiteTest extends \PHPUnit\Framework\TestCase
+final class SQLiteTest extends TestCase
 {
 
 	public function __construct($name = null, array $data = [],

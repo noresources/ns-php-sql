@@ -12,8 +12,9 @@ use NoreSources\SQL\Structure\PrimaryKeyTableConstraint;
 use NoreSources\SQL\Structure\Structure;
 use NoreSources\SQL\Structure\TableStructure;
 use NoreSources\SQL\Structure\UniqueTableConstraint;
+use PHPUnit\Framework\TestCase;
 
-final class StructureTest extends \PHPUnit\Framework\TestCase
+final class StructureTest extends TestCase
 {
 
 	public function testNameProperty()
