@@ -145,7 +145,7 @@ final class CreateTest extends TestCase
 
 			$angle = new ColumnStructure('angle');
 			$angle->setColumnProperty(K::COLUMN_DATA_TYPE,
-				K::DATATYPE_FLOAT);
+				K::DATATYPE_REAL);
 			$angle->setColumnProperty(K::COLUMN_DEFAULT_VALUE,
 				new Data(pi()));
 			$foo->appendElement($angle);

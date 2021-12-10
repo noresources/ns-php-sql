@@ -373,7 +373,7 @@ class XMLStructureFileImporter implements
 				{
 					$structure->setColumnProperty(
 						K::COLUMN_FRACTION_SCALE, $count);
-					$dataType = K::DATATYPE_FLOAT;
+					$dataType = K::DATATYPE_REAL;
 				}
 			}
 			elseif ($context->schemaVersion->getIntegerValue() < 20100)
@@ -463,7 +463,7 @@ class XMLStructureFileImporter implements
 					case 'number':
 						$ivalue = intval($value);
 						$value = floatval($value);
-						$defaultValueType = K::DATATYPE_FLOAT;
+						$defaultValueType = K::DATATYPE_REAL;
 						if ($ivalue == $value)
 						{
 							$defaultValueType = K::DATATYPE_INTEGER;

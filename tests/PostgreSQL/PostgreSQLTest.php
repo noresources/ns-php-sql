@@ -135,7 +135,7 @@ final class PostgreSQLTest extends TestCase
 			'float with precision scale' => [
 				'expected' => 'numeric',
 				'column' => [
-					K::COLUMN_DATA_TYPE => K::DATATYPE_FLOAT,
+					K::COLUMN_DATA_TYPE => K::DATATYPE_REAL,
 					K::COLUMN_FRACTION_SCALE => 2
 				]
 			]

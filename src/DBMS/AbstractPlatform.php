@@ -52,7 +52,7 @@ abstract class AbstractPlatform implements PlatformInterface
 				return TypeCOnversion::toString($value);
 			case K::DATATYPE_INTEGER:
 				return TypeConversion::toInteger($value);
-			case K::DATATYPE_FLOAT:
+			case K::DATATYPE_REAL:
 			case K::DATATYPE_NUMBER:
 				return TypeConversion::toFloat($value);
 			case K::DATATYPE_DATE:
@@ -110,7 +110,7 @@ abstract class AbstractPlatform implements PlatformInterface
 					TypeConversion::toBoolean($data) ? K::KEYWORD_TRUE : K::KEYWORD_FALSE);
 			case K::DATATYPE_INTEGER:
 				return TypeConversion::toInteger($data);
-			case K::DATATYPE_FLOAT:
+			case K::DATATYPE_REAL:
 			case K::DATATYPE_NUMBER:
 				return TypeCOnversion::toFloat($data);
 		}

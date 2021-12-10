@@ -49,16 +49,16 @@ class Constants
 	 *
 	 * @var integer
 	 */
-	const DATATYPE_FLOAT = Bitset::BIT_04;
+	const DATATYPE_REAL = Bitset::BIT_04;
 
 	/**
 	 * Integer or float number.
 	 * This constant value is a combination of
 	 *
-	 * @c DATATYPE_INTEGER and @c DATATYPE_FLOAT
+	 * @c DATATYPE_INTEGER and @c DATATYPE_REAL
 	 * @var integer
 	 */
-	const DATATYPE_NUMBER = self::DATATYPE_INTEGER | self::DATATYPE_FLOAT;
+	const DATATYPE_NUMBER = self::DATATYPE_INTEGER | self::DATATYPE_REAL;
 
 	/**
 	 * Date part of a timestamp type
@@ -1285,7 +1285,7 @@ class Constants
 			(self::DATATYPE_TIME | self::DATATYPE_TIMEZONE) => 'time+tz',
 			self::DATATYPE_DATETIME => 'datetime',
 			self::DATATYPE_TIMESTAMP => 'timestamp',
-			self::DATATYPE_FLOAT => 'float',
+			self::DATATYPE_REAL => 'float',
 			self::DATATYPE_INTEGER => 'integer',
 			self::DATATYPE_NULL => 'null',
 			self::DATATYPE_NUMBER => 'number',

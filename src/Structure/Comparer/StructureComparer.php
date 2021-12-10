@@ -301,7 +301,7 @@ class StructureComparer
 		if (!$strict &&
 			($da = Container::keyValue($a, K::COLUMN_DATA_TYPE)) &&
 			($db = Container::keyValue($b, K::COLUMN_DATA_TYPE)) &&
-			($da & K::DATATYPE_FLOAT) && ($db & K::DATATYPE_FLOAT) &&
+			($da & K::DATATYPE_REAL) && ($db & K::DATATYPE_REAL) &&
 			($sa = Container::keyValue($a, K::COLUMN_FRACTION_SCALE)) &&
 			($sb = Container::keyValue($b, K::COLUMN_FRACTION_SCALE)) &&
 			($sa == $sb))

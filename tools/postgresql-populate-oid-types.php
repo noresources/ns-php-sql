@@ -109,7 +109,7 @@ $typePropertiesMap = [
 		K::TYPE_DATA_TYPE => K::DATATYPE_DATE
 	],
 	'double precision' => [
-		K::TYPE_DATA_TYPE => K::DATATYPE_FLOAT
+		K::TYPE_DATA_TYPE => K::DATATYPE_REAL
 	],
 
 	// This is an alias of int4
@@ -142,7 +142,7 @@ $typePropertiesMap = [
 	// K::TYPE_DATA_TYPE => K::DATATYPE_INTEGER
 	// ],
 	'real' => [
-		K::TYPE_DATA_TYPE => K::DATATYPE_FLOAT
+		K::TYPE_DATA_TYPE => K::DATATYPE_REAL
 	],
 	// Too specific
 	// 'reltime' => [

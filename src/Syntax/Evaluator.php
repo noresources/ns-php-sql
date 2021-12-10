@@ -193,7 +193,7 @@ class Evaluator
 				$expression))
 				return K::DATATYPE_STRING;
 			elseif ($expression instanceof FloatRepresentation)
-				return K::DATATYPE_FLOAT;
+				return K::DATATYPE_REAL;
 			elseif ($expression instanceof IntegerRepresentation)
 				return K::DATATYPE_INTEGER;
 			elseif ($expression instanceof BooleanRepresentation)
@@ -203,7 +203,7 @@ class Evaluator
 		if (\is_integer($expression))
 			return K::DATATYPE_INTEGER;
 		elseif (\is_float($expression))
-			return K::DATATYPE_FLOAT;
+			return K::DATATYPE_REAL;
 		elseif (\is_bool($expression))
 			return K::DATATYPE_BOOLEAN;
 		elseif (\is_null($expression))
@@ -238,7 +238,7 @@ class Evaluator
 		elseif (\is_int($evaluable))
 			return new Data($evaluable, K::DATATYPE_INTEGER);
 		elseif (\is_float($evaluable))
-			return new Data($evaluable, K::DATATYPE_FLOAT);
+			return new Data($evaluable, K::DATATYPE_REAL);
 		elseif (\is_numeric($evaluable))
 		{
 			$i = \intval($evaluable);
@@ -246,7 +246,7 @@ class Evaluator
 			if ($i == $f)
 				return new Data($i, K::DATATYPE_INTEGER);
 			else
-				return new Data($f, K::DATATYPE_FLOAT);
+				return new Data($f, K::DATATYPE_REAL);
 		}
 		elseif (\is_string($evaluable))
 		{
@@ -1003,7 +1003,7 @@ class Evaluator
 				if ($i == $v)
 					return new Data($i, K::DATATYPE_INTEGER);
 				else
-					return new Data($f, K::DATATYPE_FLOAT);
+					return new Data($f, K::DATATYPE_REAL);
 			});
 
 		$unaryOperators = [];

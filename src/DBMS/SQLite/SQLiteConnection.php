@@ -454,7 +454,7 @@ class SQLiteConnection implements ConnectionInterface,
 		{
 			case K::DATATYPE_BINARY:
 				return \SQLITE3_BLOB;
-			case K::DATATYPE_FLOAT:
+			case K::DATATYPE_REAL:
 				return \SQLITE3_FLOAT;
 			case K::DATATYPE_NULL:
 				return \SQLITE3_NULL;
@@ -472,7 +472,7 @@ class SQLiteConnection implements ConnectionInterface,
 			case \SQLITE3_BLOB:
 				return K::DATATYPE_BINARY;
 			case \SQLITE3_FLOAT:
-				return K::DATATYPE_FLOAT;
+				return K::DATATYPE_REAL;
 			case \SQLITE3_INTEGER:
 				return K::DATATYPE_INTEGER;
 			case \SQLITE3_NULL:

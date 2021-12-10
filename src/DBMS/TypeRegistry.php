@@ -134,7 +134,7 @@ class TypeRegistry implements \ArrayAccess, AssetMapInterface
 
 			// Fraction scale
 
-			if ($targetDataType & K::DATATYPE_FLOAT)
+			if ($targetDataType & K::DATATYPE_REAL)
 			{
 				if (Container::keyExists($columnDescription,
 					K::COLUMN_FRACTION_SCALE) &&

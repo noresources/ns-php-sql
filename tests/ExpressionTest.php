@@ -104,11 +104,11 @@ final class ExpressionTest extends TestCase
 			],
 			'float string' => [
 				'456.789',
-				K::DATATYPE_FLOAT
+				K::DATATYPE_REAL
 			],
 			'float' => [
 				456.789,
-				K::DATATYPE_FLOAT
+				K::DATATYPE_REAL
 			],
 			'timestamp' => [
 				'#2012-12-24T16:30:58+01:00#',

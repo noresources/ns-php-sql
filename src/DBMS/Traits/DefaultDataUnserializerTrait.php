@@ -56,7 +56,7 @@ trait DefaultDataUnserializerTrait
 				$data);
 		elseif ($dataType & K::DATATYPE_NUMBER)
 		{
-			if ($dataType & K::DATATYPE_FLOAT)
+			if ($dataType & K::DATATYPE_REAL)
 				$data = TypeConversion::toFloat($data);
 			else
 				$data = TypeConversion::toInteger($data);

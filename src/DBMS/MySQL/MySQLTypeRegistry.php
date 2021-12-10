@@ -68,13 +68,13 @@ class MySQLTypeRegistry extends TypeRegistry
 				],
 				'float' => [
 					K::TYPE_SIZE => 32, // not sure about that
-					K::TYPE_DATA_TYPE => K::DATATYPE_FLOAT,
+					K::TYPE_DATA_TYPE => K::DATATYPE_REAL,
 					K::TYPE_FLAGS => (K::TYPE_FLAG_LENGTH |
 					K::TYPE_FLAG_FRACTION_SCALE | K::TYPE_FLAG_SIGNNESS)
 				],
 				'double' => [
 					K::TYPE_SIZE => 64, // not sure about that
-					K::TYPE_DATA_TYPE => K::DATATYPE_FLOAT,
+					K::TYPE_DATA_TYPE => K::DATATYPE_REAL,
 					K::TYPE_FLAGS => (K::TYPE_FLAG_LENGTH |
 					K::TYPE_FLAG_FRACTION_SCALE | K::TYPE_FLAG_SIGNNESS)
 				],
@@ -300,20 +300,20 @@ class MySQLTypeRegistry extends TypeRegistry
 					K::TYPE_FLAG_SIGNNESS)
 				],
 				'decimal' => [
-					K::TYPE_DATA_TYPE => K::DATATYPE_FLOAT,
+					K::TYPE_DATA_TYPE => K::DATATYPE_REAL,
 					K::TYPE_MAX_LENGTH => 30,
 					K::TYPE_FLAGS => (K::TYPE_FLAG_LENGTH |
 					K::TYPE_FLAG_FRACTION_SCALE | K::TYPE_FLAG_SIGNNESS)
 				],
 				'float' => [
 					K::TYPE_SIZE => 32, // not sure about that
-					K::TYPE_DATA_TYPE => K::DATATYPE_FLOAT,
+					K::TYPE_DATA_TYPE => K::DATATYPE_REAL,
 					K::TYPE_FLAGS => (K::TYPE_FLAG_LENGTH |
 					K::TYPE_FLAG_FRACTION_SCALE | K::TYPE_FLAG_SIGNNESS)
 				],
 				'double' => [
 					K::TYPE_SIZE => 64, // not sure about that
-					K::TYPE_DATA_TYPE => K::DATATYPE_FLOAT,
+					K::TYPE_DATA_TYPE => K::DATATYPE_REAL,
 					K::TYPE_FLAGS => (K::TYPE_FLAG_LENGTH |
 					K::TYPE_FLAG_FRACTION_SCALE | K::TYPE_FLAG_SIGNNESS)
 				],

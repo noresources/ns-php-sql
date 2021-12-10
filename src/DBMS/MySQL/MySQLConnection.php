@@ -305,7 +305,7 @@ class MySQLConnection implements ConnectionInterface,
 			case MYSQLI_TYPE_NEWDECIMAL:
 			case MYSQLI_TYPE_FLOAT:
 			case MYSQLI_TYPE_DOUBLE:
-				return K::DATATYPE_FLOAT;
+				return K::DATATYPE_REAL;
 
 			case MYSQLI_TYPE_BIT:
 				return K::DATATYPE_BOOLE;
@@ -357,7 +357,7 @@ class MySQLConnection implements ConnectionInterface,
 	{
 		if (($dataType & K::DATATYPE_NUMBER) == K::DATATYPE_INTEGER)
 			return 'i';
-		elseif (($dataType & K::DATATYPE_FLOAT) == K::DATATYPE_FLOAT)
+		elseif (($dataType & K::DATATYPE_REAL) == K::DATATYPE_REAL)
 			return 'd';
 		elseif (($dataType & K::DATATYPE_BINARY) == K::DATATYPE_BINARY)
 			return 'b';

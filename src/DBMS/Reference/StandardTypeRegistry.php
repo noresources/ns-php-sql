@@ -79,7 +79,7 @@ class StandardTypeRegistry extends TypeRegistry
 				'real' => new ArrayObjectType(
 					[
 						K::TYPE_NAME => 'REAL',
-						K::TYPE_DATA_TYPE => K::DATATYPE_FLOAT
+						K::TYPE_DATA_TYPE => K::DATATYPE_REAL
 					]),
 				'date' => new ArrayObjectType(
 					[

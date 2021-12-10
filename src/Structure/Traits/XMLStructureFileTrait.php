@@ -139,7 +139,7 @@ trait XMLStructureFileTrait
 				if ($schemaVersion->getIntegerValue() >= 20000)
 					return 'timestamp';
 				return 'datetime';
-			case K::DATATYPE_FLOAT:
+			case K::DATATYPE_REAL:
 			case K::DATATYPE_INTEGER:
 			case K::DATATYPE_NUMBER:
 				return 'number';
@@ -188,7 +188,7 @@ trait XMLStructureFileTrait
 			K::DATATYPE_DATETIME => 'timestamp',
 			K::DATATYPE_TIME => 'timestamp',
 			K::DATATYPE_NUMBER => 'numeric',
-			K::DATATYPE_FLOAT => 'numeric',
+			K::DATATYPE_REAL => 'numeric',
 			K::DATATYPE_INTEGER => 'integer',
 			K::DATATYPE_NULL => 'null',
 			K::DATATYPE_STRING => 'string',

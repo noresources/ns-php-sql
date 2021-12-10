@@ -96,7 +96,7 @@ class SQLite3TypeRegistry extends TypeRegistry
 						 *      common value (the 64 bit IEEE format).
 						 */
 						K::TYPE_MAX_LENGTH => 16,
-						K::TYPE_DATA_TYPE => K::DATATYPE_FLOAT,
+						K::TYPE_DATA_TYPE => K::DATATYPE_REAL,
 						K::TYPE_FLAGS => K::TYPE_FLAG_FRACTION_SCALE |
 						K::TYPE_FLAG_LENGTH
 					]),

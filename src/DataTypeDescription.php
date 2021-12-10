@@ -175,7 +175,7 @@ class DataTypeDescription
 					[
 
 						Constants::DATATYPE_NUMBER,
-						Constants::DATATYPE_FLOAT,
+						Constants::DATATYPE_REAL,
 						'float'
 					],
 					[

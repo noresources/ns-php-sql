@@ -72,7 +72,7 @@ class PostgreSQLTypeRegistry extends TypeRegistry
 				'double precision' => new ArrayObjectType(
 					[
 						K::TYPE_NAME => 'double precision',
-						K::TYPE_DATA_TYPE => K::DATATYPE_FLOAT,
+						K::TYPE_DATA_TYPE => K::DATATYPE_REAL,
 						K::TYPE_SIZE => 64
 					]),
 				'integer' => new ArrayObjectType(
@@ -103,7 +103,7 @@ class PostgreSQLTypeRegistry extends TypeRegistry
 				'real' => new ArrayObjectType(
 					[
 						K::TYPE_NAME => 'real',
-						K::TYPE_DATA_TYPE => K::DATATYPE_FLOAT,
+						K::TYPE_DATA_TYPE => K::DATATYPE_REAL,
 						K::TYPE_SIZE => 32
 					]),
 				'smallint' => new ArrayObjectType(
