@@ -3,7 +3,7 @@ namespace NoreSources\SQL;
 
 use NoreSources\SQL\Syntax\TokenStream;
 
-final class TokenStremTest extends \PHPUnit\Framework\TestCase
+final class TokenStreamTest extends \PHPUnit\Framework\TestCase
 {
 
 	public function testInsertAt()

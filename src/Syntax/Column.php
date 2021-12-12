@@ -9,7 +9,7 @@
  */
 namespace NoreSources\SQL\Syntax;
 
-use NoreSources\Container;
+use NoreSources\Container\Container;
 use NoreSources\SQL\Structure\ColumnStructure;
 use NoreSources\SQL\Structure\Identifier;
 

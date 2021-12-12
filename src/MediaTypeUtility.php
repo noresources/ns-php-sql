@@ -7,10 +7,10 @@
  */
 namespace NoreSources\SQL;
 
-use NoreSources\IntegerRepresentation;
-use NoreSources\TypeConversion;
 use NoreSources\MediaType\MediaTypeInterface;
 use NoreSources\SQL\Constants as K;
+use NoreSources\Type\IntegerRepresentation;
+use NoreSources\Type\TypeConversion;
 
 class MediaTypeUtility
 {

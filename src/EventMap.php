@@ -8,7 +8,7 @@
  */
 namespace NoreSources\SQL;
 
-use NoreSources\Container;
+use NoreSources\Container\Container;
 use Psr\Container\ContainerInterface;
 
 class EventMap implements ContainerInterface, \IteratorAggregate

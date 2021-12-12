@@ -8,8 +8,8 @@
  */
 namespace NoreSources\SQL\DBMS\PostgreSQL;
 
-use NoreSources\ArrayAccessContainerInterfaceTrait;
-use NoreSources\Container;
+use NoreSources\Container\ArrayAccessContainerInterfaceTrait;
+use NoreSources\Container\Container;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\PlatformInterface;

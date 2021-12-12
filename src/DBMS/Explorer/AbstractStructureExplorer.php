@@ -8,8 +8,7 @@
  */
 namespace NoreSources\SQL\DBMS\Explorer;
 
-use NoreSources\Container;
-use NoreSources\TypeDescription;
+use NoreSources\Container\Container;
 use NoreSources\SQL\DBMS\ConnectionProviderInterface;
 use NoreSources\SQL\DBMS\PDO\PDOPlatform;
 use NoreSources\SQL\Structure\ColumnStructure;
@@ -18,6 +17,7 @@ use NoreSources\SQL\Structure\Identifier;
 use NoreSources\SQL\Structure\NamespaceStructure;
 use NoreSources\SQL\Structure\StructureResolver;
 use NoreSources\SQL\Structure\TableStructure;
+use NoreSources\Type\TypeDescription;
 
 abstract class AbstractStructureExplorer implements
 	StructureExplorerInterface

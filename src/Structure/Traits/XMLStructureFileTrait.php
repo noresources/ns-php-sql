@@ -9,9 +9,8 @@
  */
 namespace NoreSources\SQL\Structure\Traits;
 
-use NoreSources\Container;
 use NoreSources\SemanticVersion;
-use NoreSources\TypeDescription;
+use NoreSources\Container\Container;
 use NoreSources\SQL\Structure\ColumnStructure;
 use NoreSources\SQL\Structure\DatasourceStructure;
 use NoreSources\SQL\Structure\ForeignKeyTableConstraint;
@@ -24,6 +23,7 @@ use NoreSources\SQL\Structure\TableStructure;
 use NoreSources\SQL\Structure\UniqueTableConstraint;
 use NoreSources\SQL\Structure\ViewStructure;
 use NoreSources\SQL\Structure\XMLStructureFileConstants as K;
+use NoreSources\Type\TypeDescription;
 
 /**
  * Common code to XML structure file importer and exporter

@@ -8,13 +8,13 @@
  */
 namespace NoreSources\SQL\Syntax\Statement\Traits;
 
-use NoreSources\Container;
-use NoreSources\TypeConversion;
-use NoreSources\TypeDescription;
+use NoreSources\Container\Container;
 use NoreSources\SQL\Syntax\Statement\ParameterDataProviderInterface;
 use NoreSources\SQL\Syntax\Statement\ResultColumnProviderInterface;
 use NoreSources\SQL\Syntax\Statement\StatementDataInterface;
 use NoreSources\SQL\Syntax\Statement\StatementTypeProviderInterface;
+use NoreSources\Type\TypeConversion;
+use NoreSources\Type\TypeDescription;
 
 trait StatementSerializationTrait
 {

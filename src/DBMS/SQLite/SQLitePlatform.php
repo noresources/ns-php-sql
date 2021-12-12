@@ -8,7 +8,6 @@
 namespace NoreSources\SQL\DBMS\SQLite;
 
 use NoreSources\DateTime;
-use NoreSources\Text;
 use NoreSources\Container\Container;
 use NoreSources\Expression\Value;
 use NoreSources\SQL\Constants as K;
@@ -27,9 +26,9 @@ use NoreSources\SQL\Syntax\Statement\Structure\CreateIndexQuery;
 use NoreSources\SQL\Syntax\Statement\Structure\CreateNamespaceQuery;
 use NoreSources\SQL\Syntax\Statement\Structure\CreateTableQuery;
 use NoreSources\SQL\Syntax\Statement\Structure\DropNamespaceQuery;
+use NoreSources\Text\Text;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
-use SQLite3TypeRegistry;
 
 class SQLitePlatform extends AbstractPlatform implements
 	StructureFilenameFactoryProviderInterface

@@ -1,7 +1,13 @@
 <?php
+/**
+ * Copyright © 2020 - 2021 by Renaud Guillard (dev@nore.fr)
+ * Distributed under the terms of the MIT License, see LICENSE
+ *
+ * @package SQL
+ */
 namespace NoreSources\SQL\Syntax;
 
-use NoreSources\Container;
+use NoreSources\Container\Container;
 use NoreSources\Expression\ExpressionInterface;
 use NoreSources\Expression\Set;
 use NoreSources\Expression\Value;

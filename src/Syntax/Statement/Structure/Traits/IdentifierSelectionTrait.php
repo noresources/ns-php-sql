@@ -8,12 +8,12 @@
  */
 namespace NoreSources\SQL\Syntax\Statement\Structure\Traits;
 
-use NoreSources\Container;
-use NoreSources\TypeDescription;
+use NoreSources\Container\Container;
 use NoreSources\SQL\Structure\Identifier;
 use NoreSources\SQL\Structure\StructureElementContainerInterface;
 use NoreSources\SQL\Structure\StructureElementInterface;
 use NoreSources\SQL\Syntax\TokenStreamContextInterface;
+use NoreSources\Type\TypeDescription;
 
 trait IdentifierSelectionTrait
 {

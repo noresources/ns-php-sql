@@ -2,7 +2,6 @@
 namespace NoreSources\SQL;
 
 // Uses
-use NoreSources\TypeDescription;
 use NoreSources\SQL\DBMS\PDO\PDOConnection;
 use NoreSources\SQL\DBMS\PDO\PDOConstants as K;
 use NoreSources\SQL\DBMS\PDO\PDOPreparedStatement;
@@ -15,6 +14,7 @@ use NoreSources\SQL\Syntax\Statement\Structure\CreateTableQuery;
 use NoreSources\Test\ConnectionHelper;
 use NoreSources\Test\DatasourceManager;
 use NoreSources\Test\DerivedFileManager;
+use NoreSources\Type\TypeDescription;
 
 // Globals
 $sqliteConnectionParameters = [

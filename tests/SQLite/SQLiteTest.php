@@ -13,8 +13,10 @@ use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\Configuration\ConfiguratorInterface;
 use NoreSources\SQL\DBMS\Configuration\ConfiguratorProviderInterface;
 use NoreSources\SQL\DBMS\Explorer\StructureExplorerInterface;
+use NoreSources\SQL\DBMS\SQLite\SQLite3TypeRegistry;
 use NoreSources\SQL\DBMS\SQLite\SQLiteConnection;
 use NoreSources\SQL\DBMS\SQLite\SQLiteConstants;
+use NoreSources\SQL\DBMS\SQLite\SQLitePlatform;
 use NoreSources\SQL\DBMS\SQLite\SQLitePreparedStatement;
 use NoreSources\SQL\DBMS\SQLite\SQLiteRecordset;
 use NoreSources\SQL\Result\InsertionStatementResultInterface;
@@ -39,7 +41,6 @@ use NoreSources\Test\ConnectionHelper;
 use NoreSources\Test\DatasourceManager;
 use NoreSources\Test\DerivedFileManager;
 use NoreSources\Type\TypeDescription;
-use SQLite3TypeRegistry;
 
 final class SQLiteTest extends \PHPUnit\Framework\TestCase
 {
@@ -90,7 +91,9 @@ final class SQLiteTest extends \PHPUnit\Framework\TestCase
 			$this->assertEquals($expected,
 				$registry->getDataTypeFromTypename($typename),
 				$label . ' type ' . $typename . ' is ' .
-				K::dataTypeName($expected) . '(' . $expected . ')');
+				\implode(':',
+					DataTypeDescription::getInstance()->getNames(
+						$expected)) . '(' . $expected . ')');
 		}
 	}
 

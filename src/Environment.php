@@ -1,8 +1,7 @@
 <?php
 namespace NoreSources\SQL;
 
-use NoreSources\Container;
-use NoreSources\TypeDescription;
+use NoreSources\Container\Container;
 use NoreSources\SQL\DBMS\ConnectionFactoryStack;
 use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\ConnectionProviderInterface;
@@ -21,6 +20,7 @@ use NoreSources\SQL\Syntax\Statement\StatementBuilder;
 use NoreSources\SQL\Syntax\Statement\StatementDataInterface;
 use NoreSources\SQL\Syntax\Statement\StatementFactoryInterface;
 use NoreSources\SQL\Syntax\Statement\TokenizableStatementInterface;
+use NoreSources\Type\TypeDescription;
 
 /**
  * SQL environment container

@@ -2,7 +2,6 @@
 namespace NoreSources\SQL\Syntax;
 
 use NoreSources\SingletonTrait;
-use NoreSources\TypeDescription;
 use NoreSources\Expression\BinaryOperation;
 use NoreSources\Expression\ExpressionInterface;
 use NoreSources\Expression\Identifier;
@@ -13,6 +12,7 @@ use NoreSources\Expression\Value;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DataTypeProviderInterface;
 use NoreSources\SQL\Structure\ArrayColumnDescription;
+use NoreSources\Type\TypeDescription;
 
 /**
  * Expression tokenizer

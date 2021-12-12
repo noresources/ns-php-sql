@@ -7,9 +7,7 @@
  */
 namespace NoreSources\SQL\Syntax\Statement\Structure;
 
-use NoreSources\Container;
-use NoreSources\TypeConversion;
-use NoreSources\TypeDescription;
+use NoreSources\Container\Container;
 use NoreSources\Expression\ExpressionInterface;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Structure\Identifier;
@@ -26,6 +24,8 @@ use NoreSources\SQL\Syntax\Statement\TokenizableStatementInterface;
 use NoreSources\SQL\Syntax\Statement\Structure\Traits\CreateFlagsTrait;
 use NoreSources\SQL\Syntax\Statement\Structure\Traits\IdentifierPropertyTrait;
 use NoreSources\SQL\Syntax\Statement\Traits\IdenitifierTokenizationTrait;
+use NoreSources\Type\TypeConversion;
+use NoreSources\Type\TypeDescription;
 
 /**
  * CREATE INDEX statement

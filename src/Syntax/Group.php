@@ -9,7 +9,7 @@
  */
 namespace NoreSources\SQL\Syntax;
 
-use NoreSources\Container;
+use NoreSources\Container\Container;
 use NoreSources\Expression\ExpressionInterface;
 use NoreSources\SQL\DataTypeProviderInterface;
 

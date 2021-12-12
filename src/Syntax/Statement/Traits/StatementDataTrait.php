@@ -7,8 +7,8 @@
  */
 namespace NoreSources\SQL\Syntax\Statement\Traits;
 
-use NoreSources\TypeConversion;
-use NoreSources\TypeDescription;
+use NoreSources\Type\TypeConversion;
+use NoreSources\Type\TypeDescription;
 
 /**
  * Reference implementation of StatementDataInterface

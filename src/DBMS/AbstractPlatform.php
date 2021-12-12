@@ -7,12 +7,10 @@
  */
 namespace NoreSources\SQL\DBMS;
 
-use NoreSources\CascadedValueTree;
-use NoreSources\Container;
 use NoreSources\DateTime;
 use NoreSources\SemanticVersion;
-use NoreSources\TypeConversion;
-use NoreSources\TypeDescription;
+use NoreSources\Container\CascadedValueTree;
+use NoreSources\Container\Container;
 use NoreSources\Expression\ExpressionInterface;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DataTypeProviderInterface;
@@ -22,6 +20,8 @@ use NoreSources\SQL\Syntax\Evaluator;
 use NoreSources\SQL\Syntax\FunctionCall;
 use NoreSources\SQL\Syntax\MetaFunctionCall;
 use NoreSources\SQL\Syntax\Statement\Traits\ClassMapStatementFactoryTrait;
+use NoreSources\Type\TypeConversion;
+use NoreSources\Type\TypeDescription;
 
 /**
  * Reference PlatformInterface implementation

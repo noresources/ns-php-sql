@@ -9,14 +9,14 @@
  */
 namespace NoreSources\SQL\Result;
 
-use NoreSources\ArrayRepresentation;
-use NoreSources\Container;
+use NoreSources\Container\Container;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\DataUnserializerInterface;
 use NoreSources\SQL\DBMS\DefaultDataUnserializer;
 use NoreSources\SQL\Syntax\Statement\ResultColumnMap;
 use NoreSources\SQL\Syntax\Statement\ResultColumnProviderInterface;
 use NoreSources\SQL\Syntax\Statement\Traits\ResultColumnProviderTrait;
+use NoreSources\Type\ArrayRepresentation;
 
 /**
  * Recordset query result

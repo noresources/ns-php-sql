@@ -11,11 +11,11 @@
 //
 namespace NoreSources\SQL\Syntax;
 
-use NoreSources\TypeConversion;
-use NoreSources\TypeDescription;
 use NoreSources\SQL\Structure\TableStructure;
 use NoreSources\SQL\Structure\ViewStructure;
 use NoreSources\SQL\Syntax\Statement\Query\SelectQuery;
+use NoreSources\Type\TypeConversion;
+use NoreSources\Type\TypeDescription;
 
 class DataRowContainerReference implements
 	TokenizableExpressionInterface

@@ -9,9 +9,9 @@
  */
 namespace NoreSources\SQL\Structure\Traits;
 
-use NoreSources\TypeDescription;
 use NoreSources\SQL\Structure\StructureElementInterface;
 use NoreSources\SQL\Structure\StructureSerializerFactory;
+use NoreSources\Type\TypeDescription;
 
 /**
  * Implements StructureProviderInterface

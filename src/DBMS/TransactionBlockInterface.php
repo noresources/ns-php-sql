@@ -9,13 +9,14 @@
  */
 namespace NoreSources\SQL\DBMS;
 
-use NoreSources\ChainElementInterface;
+use NoreSources\Container\ChainElementInterface;
 use NoreSources\SQL\Constants as K;
 
 /**
  * Transaction block.
  *
- * A TransactionBlockInterface may represents either a transaction block or a transaction save point (nested transaction block)..
+ * A TransactionBlockInterface may represents either a transaction block or a transaction save point
+ * (nested transaction block)..
  */
 interface TransactionBlockInterface extends ChainElementInterface
 {

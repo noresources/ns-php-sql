@@ -9,7 +9,7 @@
  */
 namespace NoreSources\SQL\DBMS\PDO;
 
-use NoreSources\Container;
+use NoreSources\Container\Container;
 use NoreSources\SQL\DBMS\MySQL\MySQLConstants as K;
 use NoreSources\SQL\Result\Recordset;
 use NoreSources\SQL\Result\RecordsetException;

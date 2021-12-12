@@ -7,7 +7,6 @@
  */
 namespace NoreSources\SQL\Syntax\Statement\Structure;
 
-use NoreSources\TypeDescription;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DataTypeDescription;
 use NoreSources\SQL\DBMS\TypeInterface;
@@ -23,6 +22,7 @@ use NoreSources\SQL\Syntax\TokenStreamContextInterface;
 use NoreSources\SQL\Syntax\Statement\StatementException;
 use NoreSources\SQL\Syntax\Statement\TokenizableStatementInterface;
 use NoreSources\SQL\Syntax\Statement\Structure\Traits\CreateFlagsTrait;
+use NoreSources\Type\TypeDescription;
 
 /**
  * CREATE TABLE statement

@@ -1,9 +1,9 @@
 <?php
 namespace NoreSources\SQL\DBMS\PostgreSQL;
 
-use NoreSources\Container;
 use NoreSources\DateTime;
 use NoreSources\SemanticVersion;
+use NoreSources\Container\Container;
 use NoreSources\Expression\Value;
 use NoreSources\SQL\DBMS\AbstractPlatform;
 use NoreSources\SQL\DBMS\ConnectionInterface;

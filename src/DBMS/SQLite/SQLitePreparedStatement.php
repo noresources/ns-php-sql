@@ -9,13 +9,13 @@
  */
 namespace NoreSources\SQL\DBMS\SQLite;
 
-use NoreSources\TypeConversion;
-use NoreSources\TypeDescription;
 use NoreSources\SQL\DBMS\PreparedStatementInterface;
 use NoreSources\SQL\Syntax\Statement\StatementTokenStreamContext;
 use NoreSources\SQL\Syntax\Statement\Traits\StatementInputDataTrait;
 use NoreSources\SQL\Syntax\Statement\Traits\StatementOutputDataTrait;
 use NoreSources\SQL\Syntax\Statement\Traits\StatementSerializationTrait;
+use NoreSources\Type\TypeConversion;
+use NoreSources\Type\TypeDescription;
 
 /**
  * SQLite3 implementation of NoreSources\SQL\SQLitePreparedStatement

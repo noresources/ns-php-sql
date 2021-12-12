@@ -8,7 +8,7 @@
  */
 namespace NoreSources\SQL\Syntax\Statement;
 
-use NoreSources\TypeDescription;
+use NoreSources\Type\TypeDescription;
 use Psr\Container\NotFoundExceptionInterface;
 
 class StatementNotAvailableException extends \Exception implements

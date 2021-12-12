@@ -7,7 +7,7 @@
  */
 namespace NoreSources\SQL\Structure;
 
-use NoreSources\Container;
+use NoreSources\Container\Container;
 
 class VirtualStructureResolver extends StructureResolver implements
 	StructureProviderInterface

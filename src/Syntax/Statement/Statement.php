@@ -7,10 +7,10 @@
  */
 namespace NoreSources\SQL\Syntax\Statement;
 
-use NoreSources\Container;
-use NoreSources\TypeConversion;
-use NoreSources\TypeDescription;
+use NoreSources\Container\Container;
 use NoreSources\SQL\Constants as K;
+use NoreSources\Type\TypeConversion;
+use NoreSources\Type\TypeDescription;
 
 /**
  * SQL statement

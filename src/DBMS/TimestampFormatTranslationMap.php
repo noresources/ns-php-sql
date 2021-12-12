@@ -2,7 +2,7 @@
 namespace NoreSources\SQL\DBMS;
 
 use NoreSources\DateTime;
-use NoreSources\TypeDescription;
+use NoreSources\Type\TypeDescription;
 
 /**
  * A special container dedicated to store PHP timestamp format token translation.

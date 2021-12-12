@@ -7,10 +7,10 @@
  */
 namespace NoreSources\SQL\Syntax\Statement;
 
-use NoreSources\ArrayRepresentation;
-use NoreSources\Container;
+use NoreSources\Container\Container;
 use NoreSources\SQL\AssetMapInterface;
 use NoreSources\SQL\ItemNotFoundException;
+use NoreSources\Type\ArrayRepresentation;
 
 /**
  * Internal class used to bind logical parameter key and DBMS parameter names

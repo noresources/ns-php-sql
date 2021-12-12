@@ -8,7 +8,7 @@
  */
 namespace NoreSources\SQL\DBMS\Filesystem;
 
-use NoreSources\Container;
+use NoreSources\Container\Container;
 
 class ClosureStructureFilenameFactory implements
 	StructureFilenameFactoryInterface

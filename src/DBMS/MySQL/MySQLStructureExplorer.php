@@ -8,7 +8,7 @@
  */
 namespace NoreSources\SQL\DBMS\MySQL;
 
-use NoreSources\Container;
+use NoreSources\Container\Container;
 use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\ConnectionProviderInterface;
 use NoreSources\SQL\DBMS\Explorer\AbstractStructureExplorer;

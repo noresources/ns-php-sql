@@ -7,8 +7,8 @@
  */
 namespace NoreSources\SQL\Structure;
 
-use NoreSources\Container;
-use NoreSources\Stack;
+use NoreSources\Container\Container;
+use NoreSources\Container\Stack;
 
 /**
  * Reference implementation of StructureResolverInterface

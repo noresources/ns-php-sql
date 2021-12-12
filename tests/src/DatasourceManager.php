@@ -1,7 +1,6 @@
 <?php
 namespace NoreSources\Test;
 
-use NoreSources\TypeDescription;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\Structure\DatasourceStructure;
@@ -10,6 +9,7 @@ use NoreSources\SQL\Structure\StructureSerializerFactory;
 use NoreSources\SQL\Structure\TableStructure;
 use NoreSources\SQL\Syntax\Statement\Structure\CreateNamespaceQuery;
 use NoreSources\SQL\Syntax\Statement\Structure\CreateTableQuery;
+use NoreSources\Type\TypeDescription;
 use PHPUnit\Framework\TestCase;
 
 class DatasourceManager extends \PHPUnit\Framework\TestCase

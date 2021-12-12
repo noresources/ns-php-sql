@@ -8,14 +8,15 @@
 namespace NoreSources\SQL\DBMS;
 
 use NoreSources\Bitset;
-use NoreSources\CaseInsensitiveKeyMapTrait;
-use NoreSources\Container;
-use NoreSources\TypeConversion;
+use NoreSources\Container\ArrayAccessContainerInterfaceTrait;
+use NoreSources\Container\CaseInsensitiveKeyMapTrait;
+use NoreSources\Container\Container;
 use NoreSources\MediaType\MediaTypeInterface;
 use NoreSources\SQL\AssetMapInterface;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\Types\ArrayObjectType;
 use NoreSources\SQL\Syntax\Evaluator;
+use NoreSources\Type\TypeConversion;
 
 /**
  * DBMS Type registry
@@ -24,6 +25,7 @@ class TypeRegistry implements \ArrayAccess, AssetMapInterface
 {
 
 	use CaseInsensitiveKeyMapTrait;
+	use ArrayAccessContainerInterfaceTrait;
 
 	public function matchDescription($columnDescription)
 	{
@@ -233,12 +235,12 @@ class TypeRegistry implements \ArrayAccess, AssetMapInterface
 				self::SCORE_MULTIPLIER_MEDIA_TYPE;
 		} // foreach
 
-		$filtered = Container::filter($this->map,
+		$filtered = Container::filter($this,
 			function ($typeKey, $type) use ($scores) {
 				return $scores[$typeKey] >= 0;
 			});
 
-		$types = $this->map;
+		$types = $this;
 		Container::uksort($filtered,
 			function ($ka, $kb) use ($scores, $columnDescription) {
 				$a = $scores[$ka];
@@ -305,7 +307,7 @@ class TypeRegistry implements \ArrayAccess, AssetMapInterface
 	 */
 	public function filter($callable)
 	{
-		$subset = Container::filter($this->map, $callable);
+		$subset = Container::filter($this, $callable);
 		return new TypeRegistry($subset, [], true);
 	}
 
@@ -370,7 +372,7 @@ class TypeRegistry implements \ArrayAccess, AssetMapInterface
 
 	protected function setAlias($alias, $target)
 	{
-		$this->map->offsetSet($alias, $this->get($target));
+		$this->offsetSet($alias, $this->get($target));
 	}
 
 	const SCORE_MULTIPLIER_DATA_TYPE = 100;

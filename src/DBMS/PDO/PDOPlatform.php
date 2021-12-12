@@ -1,8 +1,7 @@
 <?php
 namespace NoreSources\SQL\DBMS\PDO;
 
-use NoreSources\CascadedValueTree;
-use NoreSources\TypeConversion;
+use NoreSources\Container\CascadedValueTree;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\ConnectionProviderInterface;
@@ -12,6 +11,7 @@ use NoreSources\SQL\DBMS\Filesystem\StructureFilenameFactoryProviderInterface;
 use NoreSources\SQL\DBMS\Traits\ConnectionProviderTrait;
 use NoreSources\SQL\Syntax\MetaFunctionCall;
 use NoreSources\SQL\Syntax\Statement\ParameterData;
+use NoreSources\Type\TypeConversion;
 use Psr\Log\LoggerInterface;
 
 class PDOPlatform implements PlatformInterface,

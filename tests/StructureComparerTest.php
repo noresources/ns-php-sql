@@ -1,7 +1,6 @@
 <?php
 namespace NoreSources\SQL;
 
-use NoreSources\TypeDescription;
 use NoreSources\SQL\DBMS\Reference\ReferencePlatform;
 use NoreSources\SQL\Structure\CheckTableConstraint;
 use NoreSources\SQL\Structure\ColumnStructure;
@@ -15,6 +14,7 @@ use NoreSources\SQL\Syntax\TokenizableExpressionInterface;
 use NoreSources\SQL\Syntax\Statement\StatementBuilder;
 use NoreSources\Test\DatasourceManager;
 use NoreSources\Test\DerivedFileManager;
+use NoreSources\Type\TypeDescription;
 
 final class StructureComparerTest extends \PHPUnit\Framework\TestCase
 {
@@ -120,6 +120,8 @@ final class StructureComparerTest extends \PHPUnit\Framework\TestCase
 			$this->assertCount(1, $diffs,
 				'Detect one alteration of CHECK constraint');
 		}
+		else
+			$this->assertTrue(true);
 	}
 
 	/**

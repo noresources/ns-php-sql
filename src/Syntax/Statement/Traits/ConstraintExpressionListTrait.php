@@ -7,7 +7,7 @@
  */
 namespace NoreSources\SQL\Syntax\Statement\Traits;
 
-use NoreSources\Container;
+use NoreSources\Container\Container;
 use NoreSources\Expression\ExpressionInterface;
 use NoreSources\SQL\Syntax\BinaryOperation;
 use NoreSources\SQL\Syntax\Evaluator;

@@ -9,9 +9,8 @@
  */
 namespace NoreSources\SQL\DBMS\PostgreSQL;
 
-use NoreSources\Container;
 use NoreSources\SemanticVersion;
-use NoreSources\TypeDescription;
+use NoreSources\Container\Container;
 use NoreSources\Expression\Value;
 use NoreSources\SQL\DBMS\ConnectionException;
 use NoreSources\SQL\DBMS\ConnectionInterface;
@@ -29,6 +28,7 @@ use NoreSources\SQL\Result\DefaultRowModificationStatementResult;
 use NoreSources\SQL\Syntax\Statement\ParameterData;
 use NoreSources\SQL\Syntax\Statement\ParameterDataProviderInterface;
 use NoreSources\SQL\Syntax\Statement\Statement;
+use NoreSources\Type\TypeDescription;
 
 class PostgreSQLConnection implements ConnectionInterface,
 	TransactionInterface, StringSerializerInterface,

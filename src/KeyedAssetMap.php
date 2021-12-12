@@ -8,12 +8,17 @@
  */
 namespace NoreSources\SQL;
 
-use NoreSources\CaseInsensitiveKeyMapTrait;
-use NoreSources\Container;
+use NoreSources\Container\ArrayAccessContainerInterfaceTrait;
+use NoreSources\Container\CaseInsensitiveKeyMapTrait;
+use NoreSources\Container\Container;
 
+/**
+ * Map of elements with case-insensitive keys
+ */
 class KeyedAssetMap implements AssetMapInterface, \ArrayAccess
 {
 	use CaseInsensitiveKeyMapTrait;
+	use ArrayAccessContainerInterfaceTrait;
 
 	public function __construct($map = array())
 	{
@@ -37,7 +42,7 @@ class KeyedAssetMap implements AssetMapInterface, \ArrayAccess
 		if (\is_integer($id))
 		{
 			if ($id >= 0 && $id < $this->count())
-				return Container::nthValue($this->map, $id);
+				return Container::nthValue($this, $id);
 
 			$this->onKeyNotFound($id);
 		}

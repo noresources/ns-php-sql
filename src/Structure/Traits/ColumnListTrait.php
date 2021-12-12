@@ -8,7 +8,7 @@
  */
 namespace NoreSources\SQL\Structure\Traits;
 
-use NoreSources\Container;
+use NoreSources\Container\Container;
 use NoreSources\SQL\Structure\Identifier;
 
 trait ColumnListTrait

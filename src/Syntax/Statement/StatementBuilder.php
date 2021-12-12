@@ -7,15 +7,14 @@
  */
 namespace NoreSources\SQL\Syntax\Statement;
 
-use NoreSources\Container;
 use NoreSources\SingletonTrait;
+use NoreSources\Container\Container;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Syntax\TokenStream;
 use NoreSources\SQL\Syntax\TokenStreamContextInterface;
 use NoreSources\SQL\Syntax\TokenStreamExporterInterface;
 use NoreSources\SQL\Syntax\TokenizableExpressionInterface;
 use NoreSources\SQL\Syntax\Tokenizer;
-use phpDocumentor\Reflection\Types\Expression;
 
 /**
  * This should be used as base class for all DBMS-specific statement builders.

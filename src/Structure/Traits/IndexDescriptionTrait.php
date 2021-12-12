@@ -8,10 +8,10 @@
  */
 namespace NoreSources\SQL\Structure\Traits;
 
-use NoreSources\TypeConversion;
-use NoreSources\TypeDescription;
 use NoreSources\Expression\ExpressionInterface;
 use NoreSources\SQL\Syntax\Statement\Traits\WhereConstraintTrait;
+use NoreSources\Type\TypeConversion;
+use NoreSources\Type\TypeDescription;
 
 /**
  * Implementation of interface IndexDescriptionInterface

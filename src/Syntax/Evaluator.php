@@ -2,8 +2,6 @@
 /**
  * Copyright © 2012 - 2021 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
- */
-/**
  *
  * @package SQL
  */
@@ -14,15 +12,15 @@ use Ferno\Loco\EmptyParser;
 use Ferno\Loco\LazyAltParser;
 use Ferno\Loco\StringParser;
 use NoreSources\Bitset;
-use NoreSources\BooleanRepresentation;
-use NoreSources\Container;
-use NoreSources\FloatRepresentation;
-use NoreSources\IntegerRepresentation;
 use NoreSources\SingletonTrait;
-use NoreSources\TypeDescription;
+use NoreSources\Container\Container;
 use NoreSources\Expression\ExpressionInterface;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DataTypeProviderInterface;
+use NoreSources\Type\BooleanRepresentation;
+use NoreSources\Type\FloatRepresentation;
+use NoreSources\Type\IntegerRepresentation;
+use NoreSources\Type\TypeDescription;
 
 /**
  * Exception raised when an expression failed to be evaluated

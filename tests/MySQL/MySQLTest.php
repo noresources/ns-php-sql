@@ -1,7 +1,7 @@
 <?php
 namespace NoreSources\SQL;
 
-use NoreSources\Container;
+use NoreSources\Container\Container;
 use NoreSources\SQL\DBMS\ConnectionException;
 use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\MySQL\MySQLConnection;

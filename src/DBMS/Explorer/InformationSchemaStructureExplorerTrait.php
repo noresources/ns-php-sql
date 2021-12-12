@@ -8,8 +8,8 @@
  */
 namespace NoreSources\SQL\DBMS\Explorer;
 
-use NoreSources\Container;
-use NoreSources\KeyNotFoundException;
+use NoreSources\Container\Container;
+use NoreSources\Container\KeyNotFoundException;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\Structure\ArrayColumnDescription;

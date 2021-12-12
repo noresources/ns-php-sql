@@ -11,7 +11,6 @@
 //
 namespace NoreSources\SQL\DBMS\SQLite;
 
-use NoreSources\TypeDescription;
 use NoreSources\SQL\DBMS\Filesystem\StructureFilenameFactoryInterface;
 use NoreSources\SQL\DBMS\Filesystem\StructureFilenameFactoryProviderInterface;
 use NoreSources\SQL\DBMS\SQLite\SQLiteConstants as K;
@@ -20,6 +19,7 @@ use NoreSources\SQL\Syntax\Data;
 use NoreSources\SQL\Syntax\TokenStream;
 use NoreSources\SQL\Syntax\TokenStreamContextInterface;
 use NoreSources\SQL\Syntax\Statement\Structure\CreateNamespaceQuery;
+use NoreSources\Type\TypeDescription;
 
 /**
  * ATTACH DATABASE

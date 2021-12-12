@@ -8,8 +8,8 @@
  */
 namespace NoreSources\SQL;
 
-use NoreSources\KeyNotFoundException;
-use NoreSources\TypeDescription;
+use NoreSources\Container\KeyNotFoundException;
+use NoreSources\Type\TypeDescription;
 
 class IndexedAssetMap extends \ArrayObject implements AssetMapInterface
 {

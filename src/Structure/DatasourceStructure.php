@@ -7,9 +7,9 @@
  */
 namespace NoreSources\SQL\Structure;
 
-use NoreSources\TypeDescription;
 use NoreSources\SQL\Structure\Traits\StructureElementContainerTrait;
 use NoreSources\SQL\Structure\Traits\StructureElementTrait;
+use NoreSources\Type\TypeDescription;
 
 /**
  * Top-level structure container definition

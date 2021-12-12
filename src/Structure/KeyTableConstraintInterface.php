@@ -7,7 +7,7 @@
  */
 namespace NoreSources\SQL\Structure;
 
-interface KeyTableConstraintInterface extends
-	TableConstraintInterface, IndexDescriptionInterface
+interface KeyTableConstraintInterface extends TableConstraintInterface,
+	IndexDescriptionInterface
 {
 }

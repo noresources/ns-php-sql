@@ -9,13 +9,13 @@
  */
 namespace NoreSources\SQL\DBMS\Traits;
 
-use NoreSources\Container;
-use NoreSources\StructuredText;
-use NoreSources\TypeConversion;
-use NoreSources\TypeConversionException;
+use NoreSources\Container\Container;
 use NoreSources\MediaType\MediaType;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DataTypeProviderInterface;
+use NoreSources\Text\StructuredText;
+use NoreSources\Type\TypeConversion;
+use NoreSources\Type\TypeConversionException;
 
 /**
  * Implements DataUnserializerInterface

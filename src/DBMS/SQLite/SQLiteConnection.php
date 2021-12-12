@@ -9,8 +9,7 @@
  */
 namespace NoreSources\SQL\DBMS\SQLite;
 
-use NoreSources\Container;
-use NoreSources\TypeDescription;
+use NoreSources\Container\Container;
 use NoreSources\Http\ParameterMapProviderInterface;
 use NoreSources\SQL\DataTypeProviderInterface;
 use NoreSources\SQL\DBMS\ConnectionInterface;
@@ -27,6 +26,7 @@ use NoreSources\SQL\Syntax\Evaluator;
 use NoreSources\SQL\Syntax\Statement\ParameterData;
 use NoreSources\SQL\Syntax\Statement\ParameterDataProviderInterface;
 use NoreSources\SQL\Syntax\Statement\Statement;
+use NoreSources\Type\TypeDescription;
 
 /**
  * SQLite connection

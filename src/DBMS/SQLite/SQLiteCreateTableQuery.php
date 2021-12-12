@@ -9,7 +9,7 @@
  */
 namespace NoreSources\SQL\DBMS\SQLite;
 
-use NoreSources\Container;
+use NoreSources\Container\Container;
 use NoreSources\SQL\DBMS\SQLite\SQLiteConstants as K;
 use NoreSources\SQL\Structure\PrimaryKeyTableConstraint;
 use NoreSources\SQL\Structure\TableConstraintInterface;

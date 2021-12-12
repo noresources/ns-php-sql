@@ -7,7 +7,7 @@
  */
 namespace NoreSources\SQL\Syntax\Statement;
 
-use NoreSources\TypeDescription;
+use NoreSources\Type\TypeDescription;
 
 /**
  * Parameter iterator

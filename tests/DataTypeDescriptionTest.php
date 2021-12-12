@@ -1,10 +1,10 @@
 <?php
 namespace NoreSources\SQL;
 
-use NoreSources\Container;
+use NoreSources\Container\Container;
 use NoreSources\SQL\Constants as K;
 
-final class TextDataTypeDescription extends \PHPUnit\Framework\TestCase
+final class DataTypeDescriptionTest extends \PHPUnit\Framework\TestCase
 {
 
 	public function testAfinity()

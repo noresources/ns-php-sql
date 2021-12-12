@@ -10,10 +10,8 @@ namespace NoreSources\SQL\Structure\Comparer;
 
 use NoreSources\Bitset;
 use NoreSources\ComparableInterface;
-use NoreSources\Container;
 use NoreSources\SingletonTrait;
-use NoreSources\TypeConversion;
-use NoreSources\TypeDescription;
+use NoreSources\Container\Container;
 use NoreSources\Expression\ExpressionInterface;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DataTypeDescription;
@@ -34,6 +32,8 @@ use NoreSources\SQL\Structure\ViewStructure;
 use NoreSources\SQL\Syntax\Evaluable;
 use NoreSources\SQL\Syntax\Evaluator;
 use NoreSources\SQL\Syntax\Statement\StatementBuilder;
+use NoreSources\Type\TypeConversion;
+use NoreSources\Type\TypeDescription;
 
 class StructureComparer
 {

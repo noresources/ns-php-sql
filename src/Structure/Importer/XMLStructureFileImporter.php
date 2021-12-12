@@ -7,8 +7,8 @@
  */
 namespace NoreSources\SQL\Structure\Importer;
 
-use NoreSources\Container;
 use NoreSources\SemanticVersion;
+use NoreSources\Container\Container;
 use NoreSources\Expression\ExpressionInterface;
 use NoreSources\SQL\Structure\ColumnStructure;
 use NoreSources\SQL\Structure\DatasourceStructure;

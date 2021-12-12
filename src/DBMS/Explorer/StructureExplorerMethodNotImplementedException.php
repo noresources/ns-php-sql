@@ -8,8 +8,8 @@
  */
 namespace NoreSources\SQL\DBMS\Explorer;
 
-use NoreSources\TypeDescription;
 use NoreSources\SQL\DBMS\ConnectionProviderInterface;
+use NoreSources\Type\TypeDescription;
 
 class StructureExplorerMethodNotImplementedException extends StructureExplorerException
 {

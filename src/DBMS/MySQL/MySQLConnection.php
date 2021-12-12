@@ -9,9 +9,7 @@
  */
 namespace NoreSources\SQL\DBMS\MySQL;
 
-use NoreSources\Container;
-use NoreSources\TypeConversion;
-use NoreSources\TypeDescription;
+use NoreSources\Container\Container;
 use NoreSources\SQL\DBMS\BinaryDataSerializerInterface;
 use NoreSources\SQL\DBMS\ConnectionException;
 use NoreSources\SQL\DBMS\ConnectionInterface;
@@ -28,6 +26,8 @@ use NoreSources\SQL\Syntax\Evaluator;
 use NoreSources\SQL\Syntax\Statement\ParameterData;
 use NoreSources\SQL\Syntax\Statement\ParameterDataProviderInterface;
 use NoreSources\SQL\Syntax\Statement\Statement;
+use NoreSources\Type\TypeConversion;
+use NoreSources\Type\TypeDescription;
 
 class MySQLConnection implements ConnectionInterface,
 	StringSerializerInterface, BinaryDataSerializerInterface,

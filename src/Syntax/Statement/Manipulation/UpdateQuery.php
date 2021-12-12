@@ -7,7 +7,7 @@
  */
 namespace NoreSources\SQL\Syntax\Statement\Manipulation;
 
-use NoreSources\Container;
+use NoreSources\Container\Container;
 use NoreSources\Expression\ExpressionInterface;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Structure\ColumnStructure;

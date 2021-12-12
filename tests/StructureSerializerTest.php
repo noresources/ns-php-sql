@@ -7,7 +7,7 @@
  */
 namespace NoreSources\SQL;
 
-use NoreSources\Container;
+use NoreSources\Container\Container;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Structure\ColumnStructure;
 use NoreSources\SQL\Structure\DatasourceStructure;

@@ -116,7 +116,7 @@ class SQLite3TypeRegistry extends TypeRegistry
 					[
 						K::TYPE_NAME => 'JSON',
 						K::TYPE_DATA_TYPE => K::DATATYPE_STRING,
-						K::TYPE_MEDIA_TYPE => MediaType::fromString(
+						K::TYPE_MEDIA_TYPE => MediaType::createFromString(
 							'application/json')
 					])
 			], [

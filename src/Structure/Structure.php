@@ -8,8 +8,8 @@
  */
 namespace NoreSources\SQL\Structure;
 
-use NoreSources\Container;
-use NoreSources\TypeDescription;
+use NoreSources\Container\Container;
+use NoreSources\Type\TypeDescription;
 
 /**
  * Structure-related helper methods

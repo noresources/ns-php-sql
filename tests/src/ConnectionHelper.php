@@ -9,10 +9,8 @@
  */
 namespace NoreSources\Test;
 
-use NoreSources\Container;
 use NoreSources\Path;
-use NoreSources\TypeConversion;
-use NoreSources\TypeDescription;
+use NoreSources\Container\Container;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\ConnectionException;
 use NoreSources\SQL\DBMS\ConnectionFactoryInterface;
@@ -33,6 +31,8 @@ use NoreSources\SQL\Syntax\Statement\StatementTokenStreamContext;
 use NoreSources\SQL\Syntax\Statement\TokenizableStatementInterface;
 use NoreSources\SQL\Syntax\Statement\Structure\CreateNamespaceQuery;
 use NoreSources\SQL\Syntax\Statement\Structure\CreateTableQuery;
+use NoreSources\Type\TypeConversion;
+use NoreSources\Type\TypeDescription;
 
 /**
  * Helper method for creation of Connection, statement and prepared statement

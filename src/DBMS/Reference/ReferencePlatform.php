@@ -1,7 +1,7 @@
 <?php
 namespace NoreSources\SQL\DBMS\Reference;
 
-use NoreSources\Container;
+use NoreSources\Container\Container;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\AbstractPlatform;
 use NoreSources\SQL\DBMS\ConnectionInterface;

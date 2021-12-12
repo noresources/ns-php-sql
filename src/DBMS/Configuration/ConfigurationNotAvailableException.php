@@ -8,8 +8,8 @@
  */
 namespace NoreSources\SQL\DBMS\Configuration;
 
-use NoreSources\TypeDescription;
 use NoreSources\SQL\DBMS\PlatformInterface;
+use NoreSources\Type\TypeDescription;
 use Psr\Container\NotFoundExceptionInterface;
 
 class ConfigurationNotAvailableException extends \Exception implements

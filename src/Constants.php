@@ -8,7 +8,7 @@
 namespace NoreSources\SQL;
 
 use NoreSources\Bitset;
-use NoreSources\Container;
+use NoreSources\Container\Container;
 
 /**
  * Constant definition class.

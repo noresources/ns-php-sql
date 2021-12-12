@@ -7,7 +7,7 @@
  */
 namespace NoreSources\SQL\Syntax\Statement;
 
-use NoreSources\Container;
+use NoreSources\Container\Container;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\IndexedAssetMap;
 use NoreSources\SQL\Structure\ArrayColumnDescription;

@@ -1,7 +1,7 @@
 <?php
 namespace NoreSources\SQL\Syntax;
 
-use NoreSources\Container;
+use NoreSources\Container\Container;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\TypeInterface;
 use NoreSources\SQL\Structure\ColumnStructure;

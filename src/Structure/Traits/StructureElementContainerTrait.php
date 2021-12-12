@@ -1,18 +1,16 @@
 <?php
-
 /**
  * Copyright © 2012 - 2021 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
- */
-/**
  *
  * @package SQL
  */
 namespace NoreSources\SQL\Structure\Traits;
 
-use NoreSources\CaseInsensitiveKeyMapTrait;
-use NoreSources\Container;
-use NoreSources\KeyNotFoundException;
+use NoreSources\Container\ArrayAccessContainerInterfaceTrait;
+use NoreSources\Container\CaseInsensitiveKeyMapTrait;
+use NoreSources\Container\Container;
+use NoreSources\Container\KeyNotFoundException;
 use NoreSources\SQL\NameProviderInterface;
 use NoreSources\SQL\Structure\StructureElementInterface;
 
@@ -20,22 +18,23 @@ trait StructureElementContainerTrait
 {
 
 	use CaseInsensitiveKeyMapTrait;
+	use ArrayAccessContainerInterfaceTrait;
 
 	public function getChildElements($typeFilter = null)
 	{
 		if ($typeFilter)
-			return Container::filter($this->map,
+			return Container::filter($this,
 				function ($n, $e) use ($typeFilter) {
 					return (is_a($e, $typeFilter));
 				});
-		return $this->map->getArrayCopy();
+		return $this->getArrayCopy();
 	}
 
 	public function appendElement(StructureElementInterface $child)
 	{
 		$key = $child->getElementKey();
 		$child->setParentElement($this);
-		$this->map->offsetSet($key, $child);
+		$this->caselessOffsetSet($key, $child);
 
 		return $child;
 	}
@@ -48,9 +47,9 @@ trait StructureElementContainerTrait
 		$e = $this;
 		foreach ($tree as $key)
 		{
+			if (!$e->offsetExists($key))
+				return null;
 			$e = $e->offsetGet($key);
-			if (!$e)
-				break;
 		}
 
 		return $e;
@@ -66,44 +65,39 @@ trait StructureElementContainerTrait
 		if (!$this->offsetExists($key))
 			throw new KeyNotFoundException($key);
 
+		/** @var StructureElementInterface */
 		$e = $this->offsetGet($key);
 
-		if ($e instanceof StructureElementInterface &&
-			($e->getParentElement() == $this))
+		if (($e->getParentElement() == $this))
 			$e->detachElement();
 		else
-			$this->map->offsetUnset($key);
+			$this->caselessOffsetUnset($key);
 	}
 
 	public function offsetSet($key, $value)
 	{
-		if (\is_string($key))
-			throw new \InvalidArgumentException(
-				'Invalid key argument. string expected');
-
 		if (!($value instanceof StructureElementInterface))
 			throw new \InvalidArgumentException(
-				'Invalid value argument. ' . StructureElement::class .
-				' expected.');
+				'Invalid value argument. ' .
+				StructureElementInterface::class . ' expected.');
 
-		if (\strcasecmp($key, $value->getElementKey()))
-			throw new \InvalidArgumentException(
-				'Key & value mismatch. Key must be the element name');
+		if ($key !== null)
+			throw new \BadMethodCallException('Key sould be NULL');
 
-		$value->setParentElement($this);
-		$this->map->offsetSet($key, $value);
+		$this->appendElement($value);
 	}
 
 	protected function cloneStructureElementContainer()
 	{
-		$map = $this->map;
-		$this->initializeCaseInsensitiveKeyMapTrait();
+		$map = $this->getArrayCopy();
+		$this->initializeCaseInsensitiveKeyMapTrait(new \ArrayObject(),
+			false);
 		foreach ($map as $key => $value)
 			$this->appendElement(clone $value);
 	}
 
 	protected function initializeStructureElementContainer()
 	{
-		$this->map = new \ArrayObject([]);
+		$this->initializeCaseInsensitiveKeyMapTrait();
 	}
 }

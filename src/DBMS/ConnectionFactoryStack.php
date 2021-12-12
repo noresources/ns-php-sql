@@ -9,9 +9,9 @@
  */
 namespace NoreSources\SQL\DBMS;
 
-use NoreSources\Container;
-use NoreSources\Stack;
-use NoreSources\TypeDescription;
+use NoreSources\Container\Container;
+use NoreSources\Container\Stack;
+use NoreSources\Type\TypeDescription;
 
 /**
  * ConnectionFactory composed of a stack of sub Connection factories.

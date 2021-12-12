@@ -9,10 +9,10 @@
  */
 namespace NoreSources\SQL\Syntax;
 
-use NoreSources\TypeDescription;
 use NoreSources\SQL\DBMS\TypeInterface;
 use NoreSources\SQL\Structure\ColumnDescriptionInterface;
 use NoreSources\SQL\Structure\ColumnStructure;
+use NoreSources\Type\TypeDescription;
 
 /**
  * Type name identifier

@@ -1,21 +1,23 @@
 <?php
 namespace NoreSources\Test;
 
-use NoreSources\Container;
-use NoreSources\DataTree;
-use NoreSources\TypeDescription;
+use NoreSources\Container\Container;
+use NoreSources\Container\DataTree;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\Result\InsertionStatementResultInterface;
 use NoreSources\SQL\Result\Recordset;
 use NoreSources\SQL\Result\RowModificationStatementResultInterface;
 use NoreSources\SQL\Syntax\Statement\StatementDataInterface;
+use NoreSources\Type\TypeDescription;
 
 class TestConnection extends \PHPUnit\Framework\TestCase
 {
 
-	public function __construct()
+	public function __construct($name = null, array $data = [],
+		$dataName = '')
 	{
+		parent::__construct($name, $data, $dataName);
 		$this->connections = new \ArrayObject();
 		$this->files = new \ArrayObject();
 
@@ -36,6 +38,11 @@ class TestConnection extends \PHPUnit\Framework\TestCase
 			}
 			closedir($iterator);
 		}
+	}
+
+	public function testNothing()
+	{
+		$this->assertTrue(true, 'Temporary workaround');
 	}
 
 	public function getAvailableConnectionNames()

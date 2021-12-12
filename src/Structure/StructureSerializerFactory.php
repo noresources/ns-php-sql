@@ -7,9 +7,8 @@
  */
 namespace NoreSources\SQL\Structure;
 
-use NoreSources\Container;
 use NoreSources\SingletonTrait;
-use NoreSources\TypeDescription;
+use NoreSources\Container\Container;
 use NoreSources\MediaType\MediaType;
 use NoreSources\MediaType\MediaTypeFactory;
 use NoreSources\MediaType\MediaTypeInterface;
@@ -17,6 +16,7 @@ use NoreSources\SQL\Structure\Exporter\StructureFileExporterInterface;
 use NoreSources\SQL\Structure\Exporter\XMLStructureFileExporter;
 use NoreSources\SQL\Structure\Importer\StructureFileImporterInterface;
 use NoreSources\SQL\Structure\Importer\XMLStructureFileImporter;
+use NoreSources\Type\TypeDescription;
 
 /**
  * Provide serialization and deserialization of StructureElement
@@ -42,7 +42,7 @@ class StructureSerializerFactory
 		if (!isset($this))
 			return self::getInstance()->structureFromFile($filename);
 
-		$mediaType = MediaTypeFactory::fromMedia($filename);
+		$mediaType = MediaTypeFactory::createFromMedia($filename);
 		$importer = Container::keyValue($this->fileImporters,
 			\strval($mediaType));
 		if (!\is_subclass_of($importer,
@@ -78,10 +78,10 @@ class StructureSerializerFactory
 		$mediaType = null)
 	{
 		if (\is_string($mediaType))
-			$mediaType = MediaTypeFactory::fromString($mediaType);
+			$mediaType = MediaTypeFactory::createFromString($mediaType);
 
 		if (!($mediaType instanceof MediaType))
-			$mediaType = MediaTypeFactory::fromMedia($filename);
+			$mediaType = MediaTypeFactory::createFromMedia($filename);
 
 		$exporter = Container::keyValue($this->fileExporters,
 			\strval($mediaType));

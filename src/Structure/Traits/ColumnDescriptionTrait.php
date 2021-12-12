@@ -9,13 +9,13 @@
  */
 namespace NoreSources\SQL\Structure\Traits;
 
-use NoreSources\Container;
-use NoreSources\TypeConversion;
-use NoreSources\TypeDescription;
+use NoreSources\Container\Container;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DataTypeProviderInterface;
 use NoreSources\SQL\NameProviderInterface;
 use NoreSources\SQL\Structure\ColumnPropertyHelper;
+use NoreSources\Type\TypeConversion;
+use NoreSources\Type\TypeDescription;
 
 /**
  * Reference implementation of ColumnDescriptionInterface

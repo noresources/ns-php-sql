@@ -2,8 +2,9 @@
 namespace NoreSources\SQL;
 
 use NoreSources\SQL\Structure\ColumnStructure;
+use PHPUnit\Framework\TestCase;
 
-final class AssetMapTest extends \PHPUnit\Framework\TestCase
+final class AssetMapTest extends TestCase
 {
 
 	public function testIndexed()

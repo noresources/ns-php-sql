@@ -9,9 +9,9 @@
  */
 namespace NoreSources\SQL\DBMS;
 
-use NoreSources\ArrayRepresentation;
-use NoreSources\StringRepresentation;
 use NoreSources\Expression\Value;
+use NoreSources\Type\ArrayRepresentation;
+use NoreSources\Type\StringRepresentation;
 use Psr\Container\ContainerInterface;
 
 /**

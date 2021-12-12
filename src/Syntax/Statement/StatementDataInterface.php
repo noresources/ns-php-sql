@@ -7,7 +7,7 @@
  */
 namespace NoreSources\SQL\Syntax\Statement;
 
-use NoreSources\StringRepresentation;
+use NoreSources\Type\StringRepresentation;
 
 /**
  * Aggregate interface

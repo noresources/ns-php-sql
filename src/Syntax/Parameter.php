@@ -31,7 +31,8 @@ class Parameter implements TokenizableExpressionInterface
 		$this->name = $name;
 	}
 
-	public function tokenize(TokenStream $stream, TokenStreamContextInterface $context)
+	public function tokenize(TokenStream $stream,
+		TokenStreamContextInterface $context)
 	{
 		return $stream->parameter($this->name);
 	}

@@ -1,4 +1,10 @@
 <?php
+/**
+ * Copyright © 2020 - 2021 by Renaud Guillard (dev@nore.fr)
+ * Distributed under the terms of the MIT License, see LICENSE
+ *
+ * @package SQL
+ */
 namespace NoreSources\SQL\Syntax;
 
 /**
@@ -21,12 +27,14 @@ class AlternativeList implements TokenizableExpressionInterface
 		$this->alternatives[] = $alternative;
 	}
 
-	public function setOtherwise(TokenizableExpressionInterface $else = null)
+	public function setOtherwise(
+		TokenizableExpressionInterface $else = null)
 	{
 		$this->otherwise = $else;
 	}
 
-	public function tokenize(TokenStream $stream, TokenStreamContextInterface $context)
+	public function tokenize(TokenStream $stream,
+		TokenStreamContextInterface $context)
 	{
 		$stream->keyword('case')
 			->space()

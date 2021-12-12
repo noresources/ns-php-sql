@@ -7,12 +7,12 @@
  */
 namespace NoreSources\SQL\Structure;
 
-use NoreSources\TypeConversion;
-use NoreSources\TypeDescription;
 use NoreSources\MediaType\MediaType;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\ItemNotFoundException;
 use NoreSources\SQL\DBMS\DataUnserializerInterface;
+use NoreSources\Type\TypeConversion;
+use NoreSources\Type\TypeDescription;
 
 class ColumnPropertyHelper
 {
@@ -31,7 +31,7 @@ class ColumnPropertyHelper
 			break;
 			case K::COLUMN_MEDIA_TYPE:
 				if (!($value instanceof MediaType))
-					$value = MediaType::fromString($value);
+					$value = MediaType::createFromString($value);
 			break;
 			case K::COLUMN_UNSERIALIZER:
 				if (!($value instanceof DataUnserializerInterface))

@@ -7,10 +7,10 @@
  */
 namespace NoreSources\SQL\Syntax\Statement\Traits;
 
-use NoreSources\TypeDescription;
 use NoreSources\SQL\Structure\Identifier;
 use NoreSources\SQL\Structure\TableStructure;
 use NoreSources\SQL\Syntax\TableReference;
+use NoreSources\Type\TypeDescription;
 
 /**
  * Generic method to set the table to which the statement applies.

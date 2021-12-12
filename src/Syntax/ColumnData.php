@@ -9,11 +9,11 @@
  */
 namespace NoreSources\SQL\Syntax;
 
-use NoreSources\StringRepresentation;
 use NoreSources\Expression\Value;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DataTypeProviderInterface;
 use NoreSources\SQL\Structure\ColumnDescriptionInterface;
+use NoreSources\Type\StringRepresentation;
 
 /**
  * A literal value related to a given table column

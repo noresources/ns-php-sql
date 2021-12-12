@@ -7,11 +7,11 @@
  */
 namespace NoreSources\SQL\Structure;
 
-use NoreSources\ArrayRepresentation;
-use NoreSources\Container;
-use NoreSources\StringRepresentation;
-use NoreSources\TypeConversion;
+use NoreSources\Container\Container;
 use NoreSources\SQL\NameProviderInterface;
+use NoreSources\Type\ArrayRepresentation;
+use NoreSources\Type\StringRepresentation;
+use NoreSources\Type\TypeConversion;
 
 /**
  * Structure element path or alias

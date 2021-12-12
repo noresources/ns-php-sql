@@ -7,8 +7,8 @@
  */
 namespace NoreSources\SQL\Syntax\Statement;
 
-use NoreSources\Container;
-use NoreSources\Stack;
+use NoreSources\Container\Container;
+use NoreSources\Container\Stack;
 use NoreSources\SQL\DBMS\PlatformInterface;
 use NoreSources\SQL\DBMS\PlatformProviderInterface;
 use NoreSources\SQL\Structure\StructureElementInterface;

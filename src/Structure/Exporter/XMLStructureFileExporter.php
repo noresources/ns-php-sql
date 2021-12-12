@@ -7,10 +7,8 @@
  */
 namespace NoreSources\SQL\Structure\Exporter;
 
-use NoreSources\Container;
 use NoreSources\SemanticVersion;
-use NoreSources\TypeConversion;
-use NoreSources\TypeDescription;
+use NoreSources\Container\Container;
 use NoreSources\Expression\Value;
 use NoreSources\SQL\DataTypeProviderInterface;
 use NoreSources\SQL\DBMS\Reference\ReferencePlatform;
@@ -28,6 +26,8 @@ use NoreSources\SQL\Structure\XMLStructureFileConstants as K;
 use NoreSources\SQL\Structure\Traits\XMLStructureFileTrait;
 use NoreSources\SQL\Syntax\Evaluator;
 use NoreSources\SQL\Syntax\Keyword;
+use NoreSources\Type\TypeConversion;
+use NoreSources\Type\TypeDescription;
 
 /**
  * Export Structure to a XML file following ns-xml SQL schema definition

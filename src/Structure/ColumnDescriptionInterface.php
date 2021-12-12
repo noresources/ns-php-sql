@@ -7,9 +7,9 @@
  */
 namespace NoreSources\SQL\Structure;
 
-use NoreSources\ArrayRepresentation;
 use NoreSources\SQL\DataTypeProviderInterface;
 use NoreSources\SQL\NameProviderInterface;
+use NoreSources\Type\ArrayRepresentation;
 use Psr\Container\ContainerInterface;
 
 /**

@@ -9,7 +9,7 @@
  */
 namespace NoreSources\SQL\DBMS\Reference;
 
-use NoreSources\ChainElementTrait;
+use NoreSources\Container\ChainElementTrait;
 use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\ConnectionProviderInterface;
 use NoreSources\SQL\DBMS\TransactionBlockException;

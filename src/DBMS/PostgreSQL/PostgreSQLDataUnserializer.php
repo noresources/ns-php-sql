@@ -10,9 +10,9 @@
 namespace NoreSources\SQL\DBMS\PostgreSQL;
 
 use NoreSources\SingletonTrait;
-use NoreSources\TypeConversion;
 use NoreSources\SQL\DBMS\DataUnserializerInterface;
 use NoreSources\SQL\DBMS\Traits\DefaultDataUnserializerTrait;
+use NoreSources\Type\TypeConversion;
 
 class PostgreSQLDataUnserializer implements DataUnserializerInterface
 {

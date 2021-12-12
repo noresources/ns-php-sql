@@ -1,13 +1,19 @@
 <?php
+/**
+ * Copyright © 2020 - 2021 by Renaud Guillard (dev@nore.fr)
+ * Distributed under the terms of the MIT License, see LICENSE
+ *
+ * @package SQL
+ */
 namespace NoreSources\SQL\Syntax;
 
-use NoreSources\Container;
+use NoreSources\Container\Container;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Structure\CheckTableConstraint;
 use NoreSources\SQL\Structure\ForeignKeyTableConstraint;
+use NoreSources\SQL\Structure\Identifier;
 use NoreSources\SQL\Structure\KeyTableConstraintInterface;
 use NoreSources\SQL\Structure\PrimaryKeyTableConstraint;
-use NoreSources\SQL\Structure\Identifier;
 use NoreSources\SQL\Structure\TableConstraint;
 use NoreSources\SQL\Structure\TableConstraintInterface;
 use NoreSources\SQL\Structure\TableStructure;

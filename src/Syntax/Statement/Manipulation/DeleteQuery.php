@@ -7,7 +7,7 @@
  */
 namespace NoreSources\SQL\Syntax\Statement\Manipulation;
 
-use NoreSources\Container;
+use NoreSources\Container\Container;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Structure\TableStructure;
 use NoreSources\SQL\Syntax\TokenStream;

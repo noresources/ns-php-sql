@@ -1,12 +1,10 @@
 <?php
 namespace NoreSources\SQL;
 
-use NoreSources\Container;
 use NoreSources\DateTime;
 use NoreSources\SemanticVersion;
 use NoreSources\SingletonTrait;
-use NoreSources\TypeConversion;
-use NoreSources\TypeDescription;
+use NoreSources\Container\Container;
 use NoreSources\MediaType\MediaType;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\ConnectionException;
@@ -62,6 +60,8 @@ use NoreSources\Test\DatasourceManager;
 use NoreSources\Test\DerivedFileManager;
 use NoreSources\Test\Generator;
 use NoreSources\Test\TestConnection;
+use NoreSources\Type\TypeConversion;
+use NoreSources\Type\TypeDescription;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LoggerTrait;
@@ -2030,7 +2030,7 @@ final class DBMSCommonTest extends TestCase
 			$jsonColumn->setColumnProperty(K::COLUMN_DATA_TYPE,
 				K::DATATYPE_STRING);
 			$jsonColumn->setColumnProperty(K::COLUMN_MEDIA_TYPE,
-				MediaType::fromString('application/json'));
+				MediaType::createFromString('application/json'));
 
 			$jsonType = $platform->getColumnType($jsonColumn);
 

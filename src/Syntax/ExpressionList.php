@@ -1,7 +1,13 @@
 <?php
+/**
+ * Copyright © 2020 - 2021 by Renaud Guillard (dev@nore.fr)
+ * Distributed under the terms of the MIT License, see LICENSE
+ *
+ * @package SQL
+ */
 namespace NoreSources\SQL\Syntax;
 
-use NoreSources\Container;
+use NoreSources\Container\Container;
 use NoreSources\Expression\Set;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DataTypeProviderInterface;
@@ -85,8 +91,8 @@ class ExpressionList extends Set implements
 	public function tokenize(TokenStream $stream,
 		TokenStreamContextInterface $context)
 	{
-		return Tokenizer::getInstance()->tokenizeSet($this,
-			$stream, $context);
+		return Tokenizer::getInstance()->tokenizeSet($this, $stream,
+			$context);
 	}
 
 	private $separator;

@@ -8,9 +8,8 @@
  */
 namespace NoreSources\SQL\DBMS\SQLite;
 
-use NoreSources\ArrayAccessContainerInterfaceTrait;
-use NoreSources\Container;
-use NoreSources\TypeConversion;
+use NoreSources\Container\ArrayAccessContainerInterfaceTrait;
+use NoreSources\Container\Container;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\PlatformInterface;
@@ -19,6 +18,7 @@ use NoreSources\SQL\DBMS\Configuration\ConfiguratorInterface;
 use NoreSources\SQL\DBMS\Traits\ConnectionProviderTrait;
 use NoreSources\SQL\DBMS\Traits\PlatformProviderTrait;
 use NoreSources\SQL\Result\Recordset;
+use NoreSources\Type\TypeConversion;
 
 class SQLiteConfigurator implements ConfiguratorInterface
 {
