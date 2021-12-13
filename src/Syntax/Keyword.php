@@ -10,6 +10,7 @@
 namespace NoreSources\SQL\Syntax;
 
 use NoreSources\ComparableInterface;
+use NoreSources\NotComparableException;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DataTypeProviderInterface;
 use NoreSources\SQL\DBMS\Reference\ReferencePlatform;
@@ -20,14 +21,6 @@ use NoreSources\SQL\DBMS\Reference\ReferencePlatform;
 class Keyword implements TokenizableExpressionInterface,
 	DataTypeProviderInterface, ComparableInterface
 {
-
-	/**
-	 * Keyword constant.
-	 * One of Constants\KEYWORD_*.
-	 *
-	 * @var integer
-	 */
-	public $keyword;
 
 	/**
 	 *
@@ -71,7 +64,29 @@ class Keyword implements TokenizableExpressionInterface,
 		if ($this->keyword == K::KEYWORD_NULL && \is_null($b))
 			return 0;
 
-		return K::NOT_COMPARABLE;
+		throw new NotComparableException($this, $b);
+	}
+
+	/**
+	 *
+	 * @throws \RuntimeException
+	 * @return mixed Literal representation of keyword if available.
+	 */
+	public function getValue()
+	{
+		switch ($this->keyword)
+		{
+			case K::KEYWORD_TRUE:
+				return true;
+			case K::KEYWORD_FALSE:
+				return false;
+			case K::KEYWORD_NULL:
+				return null;
+			case K::KEYWORD_CURRENT_TIMESTAMP:
+				return new \DateTime('now');
+		}
+
+		throw new \RuntimeException('No value conversion for keyword');
 	}
 
 	public function getDataType()
@@ -89,4 +104,12 @@ class Keyword implements TokenizableExpressionInterface,
 
 		return K::DATATYPE_UNDEFINED;
 	}
+
+	/**
+	 * Keyword constant.
+	 * One of Constants\KEYWORD_*.
+	 *
+	 * @var integer
+	 */
+	private $keyword;
 }
