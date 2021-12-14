@@ -30,7 +30,8 @@ trait InformationSchemaStructureExplorerTrait
 {
 
 	public function getInformationSchemaTableNames(
-		ConnectionInterface $connection, Identifier $namespace)
+		ConnectionInterface $connection, Identifier $namespace,
+		$tableType = 'BASE TABLE')
 	{
 		$platform = $connection->getPlatform();
 		/**
@@ -43,9 +44,9 @@ trait InformationSchemaStructureExplorerTrait
 			->where([
 			'table_schema' => new Data($namespace)
 		], [
-			'<>' => [
+			'=' => [
 				'table_type',
-				new Data('VIEW')
+				new Data($tableType)
 			]
 		]);
 

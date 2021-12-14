@@ -534,15 +534,12 @@ final class SQLiteTest extends \PHPUnit\Framework\TestCase
 			'keyvalue'
 		], $keyvalueTables, 'keyvalue table names');
 
-		if (false)
-		{
-			$employeesIndexes = $explorer->getTableIndexNames(
-				'acme.Employees');
+		$employeesIndexes = $explorer->getTableIndexNames(
+			'acme.Employees');
 
-			$this->assertEquals([
-				'index_employees_name'
-			], $employeesIndexes, 'Employees table indexes');
-		}
+		$this->assertEquals([
+			'index_employees_name'
+		], $employeesIndexes, 'Employees table indexes');
 
 		$employeesColumn = $explorer->getTableColumnNames(
 			[

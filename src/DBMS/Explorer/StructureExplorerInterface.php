@@ -21,10 +21,22 @@ interface StructureExplorerInterface extends StructureProviderInterface
 	function getNamespaceNames();
 
 	/**
+	 * Get name of tables in a given namespace
 	 *
 	 * @param Identifier $parentIdentifier
+	 *        	Parent namespace
+	 * @return string[]
 	 */
 	function getTableNames($parentIdentifier = null);
+
+	/**
+	 * Get names of temporary tables in a given namespace
+	 *
+	 * @param Identifier $parentIdentifier
+	 *        	Parent namespace
+	 * @return string[]
+	 */
+	function getTemporaryTableNames($parentIdentifier = null);
 
 	/**
 	 * Get table primary key constraint if any

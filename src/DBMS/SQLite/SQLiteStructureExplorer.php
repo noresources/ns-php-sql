@@ -41,7 +41,11 @@ class SQLiteStructureExplorer extends AbstractStructureExplorer implements
 	{
 		$recordset = $this->getConnection()->executeStatement(
 			'PRAGMA database_list');
-		return self::recordsetToList($recordset);
+		return Container::filterValues(
+			self::recordsetToList($recordset),
+			function ($name) {
+				return \strcasecmp($name, 'temp') != 0;
+			});
 	}
 
 	public function getTableNames($parentIdentifier = null)
@@ -52,16 +56,25 @@ class SQLiteStructureExplorer extends AbstractStructureExplorer implements
 
 		$platform = $this->getConnection()->getPlatform();
 
-		$sql = \sprintf(
-			"SELECT name FROM %s WHERE type = 'table'" .
+		$fmt = "SELECT name FROM %s WHERE type = 'table'" .
 			" AND name != 'sqlite_sequence'" .
 			" AND name != 'geometry_columns'" .
-			" AND name != 'spatial_ref_sys'";
-		if ($parentIdentifier->isEmpty())
-			$fmt .= ' UNION ALL SELECT name FROM sqlite_temp_master' .
-				" WHERE type = 'table' ";
-		$fmt .= " ORDER BY name";
+			" AND name != 'spatial_ref_sys' ORDER BY name";
 		$sql = \sprintf($fmt, $platform->quoteIdentifierPath($master));
+
+		$recordset = $this->getConnection()->executeStatement($sql);
+		return self::recordsetToList($recordset);
+	}
+
+	public function getTemporaryTableNames($parentIdentifier = null)
+	{
+		$parentIdentifier = Identifier::make($parentIdentifier);
+		if (!$parentIdentifier->isEmpty())
+			return [];
+		$platform = $this->getConnection()->getPlatform();
+
+		$sql = 'SELECT name FROM sqlite_temp_master' .
+			" WHERE type = 'table' " . " ORDER BY name";
 
 		$recordset = $this->getConnection()->executeStatement($sql);
 		return self::recordsetToList($recordset);

@@ -62,6 +62,17 @@ class PostgreSQLStructureExplorer extends AbstractStructureExplorer implements
 		return self::recordsetToList($recordset);
 	}
 
+	public function getTemporaryTableNames($parentIdentifier = null)
+	{
+		$parentIdentifier = Identifier::make($parentIdentifier);
+
+		if (!$parentIdentifier->isEmpty())
+			return [];
+
+		return $this->getInformationSchemaTableNames(
+			$this->getConnection(), null, 'LOCAL TEMPORARY');
+	}
+
 	public function getTableColumnNames($tableIdentifier)
 	{
 		$tableIdentifier = Identifier::make($tableIdentifier);

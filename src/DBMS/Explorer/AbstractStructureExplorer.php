@@ -129,6 +129,11 @@ abstract class AbstractStructureExplorer implements
 		$this->notImplemented(__METHOD__);
 	}
 
+	public function getTemporaryTableNames($parentIdentifier = null)
+	{
+		$this->notImplemented(__METHOD__);
+	}
+
 	public function getTablePrimaryKeyConstraint($tableIdentifier)
 	{
 		$this->notImplemented(__METHOD__);
