@@ -44,6 +44,13 @@ class Identifier implements StringRepresentation, ArrayRepresentation,
 		return new Identifier(TypeConversion::toString($path));
 	}
 
+	/**
+	 * Generate a unique identifier
+	 *
+	 * @param number $length
+	 *        	Identifier string length
+	 * @return string Unique identifier
+	 */
 	public static function generate($length = 32)
 	{
 		$id = '';
@@ -71,13 +78,12 @@ class Identifier implements StringRepresentation, ArrayRepresentation,
 	}
 
 	/**
-	 * Indicates if the Identifier is valid
 	 *
-	 * @return boolean TRUE if the identifier path is a string of at least 1 character
+	 * @return boolean TRUE if identifier path is empty
 	 */
-	public function isValid()
+	public function isEmpty()
 	{
-		return isset($this->path) && (\strlen($this->path) > 0);
+		return empty($this->path);
 	}
 
 	/**

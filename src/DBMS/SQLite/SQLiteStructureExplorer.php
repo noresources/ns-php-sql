@@ -26,7 +26,6 @@ use NoreSources\SQL\Structure\PrimaryKeyTableConstraint;
 use NoreSources\SQL\Structure\UniqueTableConstraint;
 use NoreSources\SQL\Syntax\Data;
 use NoreSources\SQL\Syntax\Keyword;
-use SQLite3TypeRegistry;
 
 class SQLiteStructureExplorer extends AbstractStructureExplorer implements
 	ConnectionProviderInterface
@@ -57,10 +56,12 @@ class SQLiteStructureExplorer extends AbstractStructureExplorer implements
 			"SELECT name FROM %s WHERE type = 'table'" .
 			" AND name != 'sqlite_sequence'" .
 			" AND name != 'geometry_columns'" .
-			" AND name != 'spatial_ref_sys'" .
-			' UNION ALL SELECT name FROM sqlite_temp_master' .
-			" WHERE type = 'table' ORDER BY name",
-			$platform->quoteIdentifierPath($master));
+			" AND name != 'spatial_ref_sys'";
+		if ($parentIdentifier->isEmpty())
+			$fmt .= ' UNION ALL SELECT name FROM sqlite_temp_master' .
+				" WHERE type = 'table' ";
+		$fmt .= " ORDER BY name";
+		$sql = \sprintf($fmt, $platform->quoteIdentifierPath($master));
 
 		$recordset = $this->getConnection()->executeStatement($sql);
 		return self::recordsetToList($recordset);

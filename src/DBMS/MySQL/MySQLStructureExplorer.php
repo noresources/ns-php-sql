@@ -53,7 +53,7 @@ class MySQLStructureExplorer extends AbstractStructureExplorer implements
 	{
 		$parentIdentifier = Identifier::make($parentIdentifier);
 
-		if (empty($parentIdentifier->getPath()))
+		if ($parentIdentifier->isEmpty())
 			throw new StructureExplorerException(
 				'Table namespace is mandatory');
 
@@ -66,7 +66,7 @@ class MySQLStructureExplorer extends AbstractStructureExplorer implements
 		$tableIdentifier = Identifier::make($tableIdentifier);
 		$tableName = $tableIdentifier->getLocalName();
 		$namespace = $tableIdentifier->getParentIdentifier();
-		if (empty($namespace->getPath()))
+		if ($namespace->isEmpty())
 			throw new StructureExplorerException(
 				'Table namespace is mandatory');
 
@@ -83,7 +83,7 @@ class MySQLStructureExplorer extends AbstractStructureExplorer implements
 		$tableIdentifier = Identifier::make($tableIdentifier);
 		$tableName = $tableIdentifier->getLocalName();
 		$namespace = $tableIdentifier->getParentIdentifier();
-		if (empty($namespace->getPath()))
+		if ($namespace->isEmpty())
 			throw new StructureExplorerException(
 				'Table namespace is mandatory');
 
@@ -124,7 +124,7 @@ class MySQLStructureExplorer extends AbstractStructureExplorer implements
 		$tableIdentifier = Identifier::make($tableIdentifier);
 		$tableName = $tableIdentifier->getLocalName();
 		$namespace = $tableIdentifier->getParentIdentifier();
-		if (empty($namespace->getPath()))
+		if ($namespace->isEmpty())
 			$namespace = 'public';
 
 		return $this->getInformationSchemaTableKeyConstraints(
@@ -140,7 +140,7 @@ class MySQLStructureExplorer extends AbstractStructureExplorer implements
 		$tableIdentifier = Identifier::make($tableIdentifier);
 		$tableName = $tableIdentifier->getLocalName();
 		$namespace = $tableIdentifier->getParentIdentifier();
-		if (empty($namespace->getPath()))
+		if ($namespace->isEmpty())
 			throw new StructureExplorerException(
 				'Table namespace is mandatory');
 
@@ -312,7 +312,7 @@ class MySQLStructureExplorer extends AbstractStructureExplorer implements
 	{
 		$parentIdentifier = Identifier::make($parentIdentifier);
 
-		if (empty($parentIdentifier->getPath()))
+		if ($parentIdentifier->isEmpty())
 			throw new StructureExplorerException(
 				'Table namespace is mandatory');
 		$namespace = $parentIdentifier->getPath();

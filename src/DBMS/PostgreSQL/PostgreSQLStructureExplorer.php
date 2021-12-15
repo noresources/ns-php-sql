@@ -67,7 +67,7 @@ class PostgreSQLStructureExplorer extends AbstractStructureExplorer implements
 		$tableIdentifier = Identifier::make($tableIdentifier);
 		$tableName = $tableIdentifier->getLocalName();
 		$namespace = $tableIdentifier->getParentIdentifier();
-		if (empty($namespace->getPath()))
+		if ($namespace->isEmpty())
 			$namespace = 'public';
 		$platform = $this->getConnection()->getPlatform();
 
@@ -85,7 +85,7 @@ class PostgreSQLStructureExplorer extends AbstractStructureExplorer implements
 		$tableIdentifier = Identifier::make($tableIdentifier);
 		$tableName = $tableIdentifier->getLocalName();
 		$namespace = $tableIdentifier->getParentIdentifier();
-		if (empty($namespace->getPath()))
+		if ($namespace->isEmpty())
 			$namespace = 'public';
 
 		return $this->getInformationSchemaTableColumn(
@@ -101,7 +101,7 @@ class PostgreSQLStructureExplorer extends AbstractStructureExplorer implements
 		$tableIdentifier = Identifier::make($tableIdentifier);
 		$tableName = $tableIdentifier->getLocalName();
 		$namespace = $tableIdentifier->getParentIdentifier();
-		if (empty($namespace->getPath()))
+		if ($namespace->isEmpty())
 			$namespace = 'public';
 
 		return Container::firstValue(
@@ -118,7 +118,7 @@ class PostgreSQLStructureExplorer extends AbstractStructureExplorer implements
 		$tableIdentifier = Identifier::make($tableIdentifier);
 		$tableName = $tableIdentifier->getLocalName();
 		$namespace = $tableIdentifier->getParentIdentifier();
-		if (empty($namespace->getPath()))
+		if ($namespace->isEmpty())
 			$namespace = 'public';
 		$platform = $this->getConnection()->getPlatform();
 
@@ -245,7 +245,7 @@ class PostgreSQLStructureExplorer extends AbstractStructureExplorer implements
 		$tableIdentifier = Identifier::make($tableIdentifier);
 		$tableName = $tableIdentifier->getLocalName();
 		$namespace = $tableIdentifier->getParentIdentifier();
-		if (empty($namespace->getPath()))
+		if ($namespace->isEmpty())
 			$namespace = 'public';
 
 		return $this->getInformationSchemaTableKeyConstraints(
@@ -259,7 +259,7 @@ class PostgreSQLStructureExplorer extends AbstractStructureExplorer implements
 	public function getViewNames($parentIdentifier = null)
 	{
 		$namespace = Identifier::make($parentIdentifier);
-		if (empty($namespace->getPath()))
+		if ($namespace->isEmpty())
 			$namespace = Identifier::make('public');
 
 		return $this->getInformationSchemaViewNames(
