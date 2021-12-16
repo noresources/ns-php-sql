@@ -632,6 +632,33 @@ class XMLStructureFileImporter implements
 						'Invalid foreign key column "' .
 						$foreignColumnName . '"', $foreignTable);
 
+				/** @var ColumnStructure $column */
+				$column = $structure->getColumns()->get($name);
+				/** @var ColumnStructure $foreignColumn */
+				$foreignColumn = $foreignTable->getColumns()->get(
+					$foreignColumnName);
+
+				$exclude = [
+					K::COLUMN_NAME,
+					K::COLUMN_DEFAULT_VALUE
+				];
+				foreach ($foreignColumn as $key => $value)
+				{
+					if (\in_array($key, $exclude))
+						continue;
+					if ($key == K::COLUMN_DATA_TYPE)
+					{
+						$currentValue = Container::keyValue($column,
+							K::COLUMN_DATA_TYPE, K::DATATYPE_NULL);
+						$value = ($currentValue & K::DATATYPE_NULL) |
+							($value & ~K::DATATYPE_NULL);
+					}
+					elseif ($key == K::COLUMN_FLAGS)
+						$value &= ~K::COLUMN_FLAG_AUTO_INCREMENT;
+
+					$column->setColumnProperty($key, $value);
+				}
+
 				$fk->addColumn($name, $foreignColumnName);
 			}
 

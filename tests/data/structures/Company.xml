@@ -1,16 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <sql:datasource xmlns:sql="http://xsd.nore.fr/sql/2.0" xmlns:xi="http://www.w3.org/2001/XInclude">
 	<sql:namespace name="ns_unittests">
-		
+
 		<sql:table name="Hierarchy">
 			<sql:column name="managerId">
 				<sql:datatype nullable="no">
-					<sql:numeric />
 				</sql:datatype>
 			</sql:column>
 			<sql:column name="manageeId">
 				<sql:datatype nullable="no">
-					<sql:numeric />
 				</sql:datatype>
 			</sql:column>
 
@@ -26,7 +24,7 @@
 					<sql:column name="id" />
 				</sql:reference>
 				<sql:actions>
-				<sql:onupdate action="cascade" />
+					<sql:onupdate action="cascade" />
 					<sql:ondelete action="cascade" />
 				</sql:actions>
 			</sql:foreignkey>
@@ -37,12 +35,12 @@
 					<sql:column name="id" />
 				</sql:reference>
 				<sql:actions>
-				<sql:onupdate action="cascade" />
+					<sql:onupdate action="cascade" />
 					<sql:ondelete action="cascade" />
 				</sql:actions>
 			</sql:foreignkey>
 		</sql:table>
-		
+
 		<sql:table name="Employees" id="nsut.tables.Employees">
 			<sql:comment>Company employees</sql:comment>
 			<sql:column name="id">
@@ -111,9 +109,6 @@
 				</sql:datatype>
 			</sql:column>
 			<sql:column name="creator">
-				<sql:datatype>
-					<sql:numeric />
-				</sql:datatype>
 				<sql:default>
 					<sql:null />
 				</sql:default>
@@ -121,9 +116,6 @@
 
 
 			<sql:column name="assignedTo">
-				<sql:datatype>
-					<sql:numeric />
-				</sql:datatype>
 				<sql:default>
 					<sql:null />
 				</sql:default>
@@ -152,7 +144,7 @@
 					<sql:column name="id" />
 				</sql:reference>
 				<sql:actions>
-				
+
 					<sql:ondelete action="cascade" />
 					<sql:onupdate action="cascade" />
 				</sql:actions>
