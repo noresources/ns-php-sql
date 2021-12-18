@@ -10,6 +10,7 @@ namespace NoreSources\SQL;
 
 use NoreSources\Bitset;
 use NoreSources\SingletonTrait;
+use NoreSources\SQL\Constants as K;
 
 class DataTypeDescription
 {
@@ -77,6 +78,25 @@ class DataTypeDescription
 		return \array_unique($affinities);
 	}
 
+	/**
+	 * Get the data type integer value from the data type name
+	 *
+	 * @param string $dataTypeName
+	 *        	Data type name
+	 * @return integer
+	 */
+	public function getDataTypeNameDataType($dataTypeName)
+	{
+		$descriptions = $this->getDescriptions();
+		foreach ($descriptions as $description)
+		{
+			if (\strcasecmp($description[2], $dataTypeName) == 0)
+				return $description[1];
+		}
+
+		return K::DATATYPE_UNDEFINED;
+	}
+
 	public function getNames($dataType)
 	{
 		$descriptions = $this->getDescriptions();
@@ -87,6 +107,15 @@ class DataTypeDescription
 				$description[self::TYPE])
 				$names[] = $description[self::NAME];
 		}
+		return $names;
+	}
+
+	public function getAvailableDataTypeNames()
+	{
+		$descriptions = $this->getDescriptions();
+		$names = [];
+		foreach ($descriptions as $d)
+			$names[] = $d[2];
 		return $names;
 	}
 
