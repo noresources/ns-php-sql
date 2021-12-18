@@ -9,10 +9,14 @@
  */
 namespace NoreSources\SQL\Syntax;
 
+use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\DataTypeProviderInterface;
+
 /**
  * Statement named parameter
  */
-class Parameter implements TokenizableExpressionInterface
+class Parameter implements TokenizableExpressionInterface,
+	DataTypeProviderInterface
 {
 
 	/**
@@ -26,14 +30,28 @@ class Parameter implements TokenizableExpressionInterface
 	 * @param string $name
 	 *        	Parameter name
 	 */
-	public function __construct($name)
+	public function __construct($name,
+		$valueDataType = K::DATATYPE_UNDEFINED)
 	{
 		$this->name = $name;
+		$this->valueDataType = $valueDataType;
+	}
+
+	public function getDataType()
+	{
+		return $this->valueDataType;
 	}
 
 	public function tokenize(TokenStream $stream,
 		TokenStreamContextInterface $context)
 	{
-		return $stream->parameter($this->name);
+		return $stream->parameter($this->name, $this->getDataType());
 	}
+
+	/**
+	 * Parameter value preferred data type
+	 *
+	 * @var integer
+	 */
+	private $valueDataType;
 }

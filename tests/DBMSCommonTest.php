@@ -59,6 +59,7 @@ use NoreSources\Test\ConnectionHelper;
 use NoreSources\Test\DatasourceManager;
 use NoreSources\Test\DerivedFileManager;
 use NoreSources\Test\Generator;
+use NoreSources\Test\SqlFormatter;
 use NoreSources\Test\TestConnection;
 use NoreSources\Type\TypeConversion;
 use NoreSources\Type\TypeDescription;
@@ -864,12 +865,12 @@ final class DBMSCommonTest extends TestCase
 		}
 	}
 
-	public function testParameters2()
+	public function testWildParameter()
 	{
 		$this->runConnectionTest(__METHOD__);
 	}
 
-	private function dbmsParameters2(ConnectionInterface $connection,
+	private function dbmsWildParameter(ConnectionInterface $connection,
 		$dbmsName, $method)
 	{
 		$platform = $connection->getPlatform();
@@ -882,9 +883,14 @@ final class DBMSCommonTest extends TestCase
 		 * @var SelectQuery
 		 */
 		$select = $platform->newStatement(SelectQuery::class);
-		$select->columns(':one', ':two', ':one');
+		$select->columns(':one[string]', ':two[string]', ':one[string]');
 		$prepared = ConnectionHelper::prepareStatement($connection,
 			$select);
+
+		$sql = SqlFormatter::format(\strval($prepared), false);
+
+		$this->derivedFileManager->assertDerivedFile($sql, $method,
+			$dbmsName . '_query', 'sql');
 
 		$expected = [
 			'foo',

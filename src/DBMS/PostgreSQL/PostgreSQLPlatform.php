@@ -192,7 +192,9 @@ class PostgreSQLPlatform extends AbstractPlatform implements
 		return PostgreSQLTypeRegistry::getInstance();
 	}
 
-	public function getParameter($name, ParameterData $parameters = null)
+	public function getParameter($name,
+		$valueDataType = K::DATATYPE_UNDEFINED,
+		ParameterData $parameters = null)
 	{
 		$key = strval($name);
 
@@ -209,7 +211,20 @@ class PostgreSQLPlatform extends AbstractPlatform implements
 			return '$' . ($parameters->getDistinctParameterCount() + 1);
 		}
 
-		return '$' . ($parameters->count() + 1);
+		$dbmsName = '$' . ($parameters->count() + 1);
+
+		if ($valueDataType)
+		{
+			$registry = $this->getTypeRegistry();
+			$types = $registry->matchDescription(
+				[
+					K::COLUMN_DATA_TYPE => $valueDataType
+				]);
+			$type = Container::firstValue($types);
+			$dbmsName .= '::' . $type->get(K::TYPE_NAME);
+		}
+
+		return $dbmsName;
 	}
 
 	public function getKeyword($keyword)

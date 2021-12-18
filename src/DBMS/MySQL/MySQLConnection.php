@@ -229,7 +229,7 @@ class MySQLConnection implements ConnectionInterface,
 			$values = [];
 			$isIndexed = Container::isIndexed($parameters);
 
-			foreach ($indexIterator as $index => $data)
+			foreach ($indexIterator as $index => $parameterData)
 			{
 				$entry = null;
 				if ($isIndexed)
@@ -239,13 +239,18 @@ class MySQLConnection implements ConnectionInterface,
 				}
 				else
 				{
-					$key = $data[ParameterData::KEY];
+					$key = $parameterData[ParameterData::KEY];
 					$entry = Container::keyValue($parameters, $key, null);
 				}
+
+				$dataType = Container::keyValue($parameterData,
+					ParameterData::DATATYPE,
+					Evaluator::getInstance()->getDataType($entry));
+
 				$bindArguments[0] .= self::getParameterValueTypeKey(
-					$entry);
+					$dataType);
 				$values[$index] = $this->getPlatform()->literalize(
-					$entry);
+					$entry, $dataType);
 
 				$bindArguments[] = &$values[$index];
 			}
@@ -349,10 +354,8 @@ class MySQLConnection implements ConnectionInterface,
 		return $this->link;
 	}
 
-	private static function getParameterValueTypeKey($p)
+	private static function getParameterValueTypeKey($dataType)
 	{
-		$dataType = Evaluator::getInstance()->getDataType($p);
-
 		if (($dataType & K::DATATYPE_NUMBER) == K::DATATYPE_INTEGER)
 			return 'i';
 		elseif (($dataType & K::DATATYPE_FLOAT) == K::DATATYPE_FLOAT)

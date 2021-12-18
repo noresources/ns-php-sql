@@ -416,19 +416,18 @@ class PDOConnection implements ConnectionInterface, TransactionInterface,
 				{
 					$c = $map->count();
 					for ($i = 0; $i < $c; $i++)
-					{
-
 						$pdo->bindValue($i + 1, NULL, \PDO::PARAM_NULL);
-					}
 				}
 
 				foreach ($parameters as $key => $entry)
 				{
-					$value = $platform->literalize($entry);
-					$pdoType = self::getPDOTypeFromDataType(
-						Evaluator::getDataType($entry));
-
 					$parameterData = $map->get($key);
+					$dataType = Container::keyValue($parameterData,
+						ParameterData::DATATYPE,
+						Evaluator::getInstance()->getDataType($entry));
+
+					$pdoType = self::getPDOTypeFromDataType($dataType);
+					$value = $platform->literalize($entry, $dataType);
 
 					if ($indexedValues)
 					{
@@ -471,7 +470,9 @@ class PDOConnection implements ConnectionInterface, TransactionInterface,
 			{
 				foreach ($parameters as $key => $entry)
 				{
-					$pdo->bindValue($platform->getParameter($key),
+					$pdo->bindValue(
+						$platform->getParameter($key,
+							Evaluator::getDataType($entry)),
 						$platform->literalize($entry),
 						self::getPDOTypeFromDataType(
 							Evaluator::getDataType($entry)));

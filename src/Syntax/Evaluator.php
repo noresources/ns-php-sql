@@ -16,6 +16,7 @@ use NoreSources\SingletonTrait;
 use NoreSources\Container\Container;
 use NoreSources\Expression\ExpressionInterface;
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\DataTypeDescription;
 use NoreSources\SQL\DataTypeProviderInterface;
 use NoreSources\Type\BooleanRepresentation;
 use NoreSources\Type\FloatRepresentation;
@@ -499,11 +500,17 @@ class Evaluator
 				return '';
 			});
 
+		$dataTypeNames = DataTypeDescription::getInstance()->getAvailableDataTypeNames();
+
 		$parameterName = new Loco\RegexParser(
 			chr(1) . '^:(' . $rx[self::PATTERN_PARAMETER_NAME] . ')' .
-			chr(1),
-			function ($full, $name) {
-				return new Parameter($name);
+			'(?:\[(' . \implode('|', $dataTypeNames) . ')\])?' . chr(1),
+			function ($full, $name, $dataTypeName = null) {
+				$valueDataType = K::DATATYPE_UNDEFINED;
+				if (!empty($dataTypeName))
+					$valueDataType = DataTypeDescription::getInstance()->getDataTypeNameDataType(
+						$dataTypeName);
+				return new Parameter($name, $valueDataType);
 			});
 		$functionName = new Loco\RegexParser(
 			chr(1) . '^(' . $rx[self::PATTERN_FUNCTION_NAME] . ')' .

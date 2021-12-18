@@ -90,7 +90,9 @@ class PDOPlatform implements PlatformInterface,
 		return $this->basePlatform->serializeData($data, $dataType);
 	}
 
-	public function getParameter($name, ParameterData $parameters = null)
+	public function getParameter($name,
+		$valueDataType = K::DATATYPE_UNDEFINED,
+		ParameterData $parameters = null)
 	{
 		if ($this->queryFeature(K::FEATURE_NAMED_PARAMETERS, false))
 			return (':' . $name);

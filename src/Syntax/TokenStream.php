@@ -108,13 +108,19 @@ class TokenStream implements \IteratorAggregate, \Countable,
 	/**
 	 * Add Logical parameter key to stream
 	 *
-	 * @param string $value
+	 * @param string $name
 	 *        	parameter key
+	 * @param integer $valueDataType
+	 *        	Expected parameter value data dype
 	 * @return $this
 	 */
-	public function parameter($value)
+	public function parameter($name,
+		$valueDataType = K::DATATYPE_UNDEFINED)
 	{
-		return $this->append($value, K::TOKEN_PARAMETER);
+		return $this->append([
+			$name,
+			$valueDataType
+		], K::TOKEN_PARAMETER);
 	}
 
 	/**

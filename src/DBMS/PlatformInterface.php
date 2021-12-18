@@ -83,7 +83,8 @@ interface PlatformInterface extends LoggerAwareInterface,
 	 *        	NULL may be passed when the builder does not require the
 	 *        	previou
 	 */
-	function getParameter($name, ParameterData $parameters = null);
+	function getParameter($name, $valueDataType = K::DATATYPE_UNDEFINED,
+		ParameterData $parameters = null);
 
 	/**
 	 * Get syntax keyword.

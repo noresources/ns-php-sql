@@ -153,7 +153,9 @@ class MySQLPlatform extends AbstractPlatform implements
 		return MySQLTypeRegistry::getInstance();
 	}
 
-	public function getParameter($name, ParameterData $parameters = null)
+	public function getParameter($name,
+		$valueDataType = K::DATATYPE_UNDEFINED,
+		ParameterData $parameters = null)
 	{
 		return '?';
 	}

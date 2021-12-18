@@ -11,7 +11,6 @@ namespace NoreSources\SQL\DBMS\PostgreSQL;
 
 use NoreSources\SemanticVersion;
 use NoreSources\Container\Container;
-use NoreSources\Expression\Value;
 use NoreSources\SQL\DBMS\ConnectionException;
 use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\IdentifierSerializerInterface;
@@ -25,6 +24,7 @@ use NoreSources\SQL\DBMS\Traits\PlatformProviderTrait;
 use NoreSources\SQL\DBMS\Traits\TransactionStackTrait;
 use NoreSources\SQL\Result\DefaultInsertionStatementResult;
 use NoreSources\SQL\Result\DefaultRowModificationStatementResult;
+use NoreSources\SQL\Syntax\Evaluator;
 use NoreSources\SQL\Syntax\Statement\ParameterData;
 use NoreSources\SQL\Syntax\Statement\ParameterDataProviderInterface;
 use NoreSources\SQL\Syntax\Statement\Statement;
@@ -341,10 +341,14 @@ class PostgreSQLConnection implements ConnectionInterface,
 			{
 				foreach ($data[ParameterData::POSITIONS] as $index)
 				{
-					$p = $map->get($index);
-					$dbmsName = $p[ParameterData::DBMSNAME];
+					$parameterData = $map->get($index);
+					$dbmsName = $parameterData[ParameterData::DBMSNAME];
 					$entry = Container::keyValue($parameters, $key, null);
-					$value = ($entry instanceof Value) ? $entry->getValue() : $entry;
+					$dataType = Container::keyValue($parameterData,
+						ParameterData::DATATYPE,
+						Evaluator::getInstance()->getDataType($entry));
+					$value = $this->getPlatform()->literalize($entry,
+						$dataType);
 					$a[$index] = $value;
 				}
 			}

@@ -11,7 +11,6 @@ namespace NoreSources\SQL\DBMS\SQLite;
 
 use NoreSources\Container\Container;
 use NoreSources\Http\ParameterMapProviderInterface;
-use NoreSources\SQL\DataTypeProviderInterface;
 use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\TransactionInterface;
 use NoreSources\SQL\DBMS\Configuration\ConfiguratorProviderInterface;
@@ -367,16 +366,14 @@ class SQLiteConnection implements ConnectionInterface,
 					if (!$map->has($key))
 						continue;
 
-					$dbmsName = $map->get($key)[ParameterData::DBMSNAME];
+					$parameterData = $map->get($key);
+					$dbmsName = $parameterData[ParameterData::DBMSNAME];
 
-					$value = $this->getPlatform()->literalize($entry);
-					$type = K::DATATYPE_UNDEFINED;
-					if ($entry instanceof DataTypeProviderInterface)
-						$type = $entry->getDataType();
-
-					if ($type == K::DATATYPE_UNDEFINED)
-						$type = Evaluator::getInstance()->getDataType(
-							$value);
+					$dataType = Container::keyValue($parameterData,
+						ParameterData::DATATYPE,
+						Evaluator::getInstance()->getDataType($entry));
+					$value = $this->getPlatform()->literalize($entry,
+						$dataType);
 
 					/**
 					 * SQLite does not have type for DateTIme etc.
@@ -386,16 +383,16 @@ class SQLiteConnection implements ConnectionInterface,
 					 * Workaround: format DateTIme to string with the correct format before
 					 */
 
-					if ($type & K::DATATYPE_TIMESTAMP)
+					if ($dataType & K::DATATYPE_TIMESTAMP)
 					{
 						if ($value instanceof \DateTimeInterface)
 							$value = $value->format(
 								$this->getPlatform()
 									->getTimestampTypeStringFormat(
-									$type));
+									$dataType));
 					}
 
-					$type = self::sqliteDataTypeFromDataType($type);
+					$type = self::sqliteDataTypeFromDataType($dataType);
 					$bindResult = $stmt->bindValue($dbmsName, $value,
 						$type);
 					if (!$bindResult)

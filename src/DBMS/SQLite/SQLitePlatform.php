@@ -119,7 +119,9 @@ class SQLitePlatform extends AbstractPlatform implements
 		return $type;
 	}
 
-	public function getParameter($name, ParameterData $parameters = null)
+	public function getParameter($name,
+		$valueDataType = K::DATATYPE_UNDEFINED,
+		ParameterData $parameters = null)
 	{
 		return ':' . $name;
 	}

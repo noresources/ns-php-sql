@@ -15,6 +15,7 @@ use NoreSources\SQL\Syntax\TokenStreamContextInterface;
 use NoreSources\SQL\Syntax\TokenStreamExporterInterface;
 use NoreSources\SQL\Syntax\TokenizableExpressionInterface;
 use NoreSources\SQL\Syntax\Tokenizer;
+use phpDocumentor\Reflection\Types\Expression;
 
 /**
  * This should be used as base class for all DBMS-specific statement builders.
@@ -92,9 +93,17 @@ class StatementBuilder implements TokenStreamExporterInterface
 			}
 			elseif ($type == K::TOKEN_PARAMETER)
 			{
-				$name = \strval($value);
+				$p = $value;
+				$valueDataType = K::DATATYPE_UNDEFINED;
+				if (Container::isArray($p))
+				{
+					$name = Container::keyValue($p, 0);
+					$valueDataType = Container::keyValue($p, 1);
+				}
+				else
+					$name = \strval($value);
 				$dbmsName = $context->getPlatform()->getParameter($name,
-					$data->getParameters());
+					$valueDataType, $data->getParameters());
 				$position = $data->getParameters()->appendParameter(
 					$name, $dbmsName);
 				$value = $dbmsName;

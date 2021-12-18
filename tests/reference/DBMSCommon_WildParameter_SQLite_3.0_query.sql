@@ -1,0 +1,4 @@
+SELECT 
+  :one, 
+  :two, 
+  :one

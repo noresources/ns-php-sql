@@ -9,6 +9,7 @@ namespace NoreSources\SQL\Syntax\Statement;
 
 use NoreSources\Container\Container;
 use NoreSources\SQL\AssetMapInterface;
+use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\ItemNotFoundException;
 use NoreSources\Type\ArrayRepresentation;
 
@@ -55,19 +56,17 @@ class ParameterData implements AssetMapInterface, ArrayRepresentation
 	 * @param string $dbmsName
 	 * @return number Parameter index
 	 */
-	public function appendParameter($key, $dbmsName)
+	public function appendParameter($key, $dbmsName,
+		$valueDataType = K::DATATYPE_UNDEFINED)
 	{
 		$c = $this->count();
-
 		$this->entries[$c] = [
 			self::KEY => $key,
 			self::DBMSNAME => $dbmsName
 		];
 
 		if ($this->entries->offsetExists($key))
-		{
 			$this->entries[$key][self::POSITIONS][] = $c;
-		}
 		else
 		{
 			$this->entries[$key] = [
@@ -77,6 +76,9 @@ class ParameterData implements AssetMapInterface, ArrayRepresentation
 				]
 			];
 		}
+
+		if ($valueDataType != self::DATATYPE)
+			$this->entries[$key][self::DATATYPE] = $valueDataType;
 
 		return $c;
 	}
@@ -90,7 +92,8 @@ class ParameterData implements AssetMapInterface, ArrayRepresentation
 	 * @param string $dbmsName
 	 *        	Parameter DBMS name
 	 */
-	public function setParameter($index, $key, $dbmsName)
+	public function setParameter($index, $key, $dbmsName,
+		$valueDataType = K::DATATYPE_UNDEFINED)
 	{
 		$index = \intval($index);
 		if ($key === null)
@@ -125,6 +128,9 @@ class ParameterData implements AssetMapInterface, ArrayRepresentation
 				]
 			];
 		}
+
+		if ($valueDataType != self::DATATYPE)
+			$this->entries[$key][self::DATATYPE] = $valueDataType;
 	}
 
 	/**
@@ -208,6 +214,15 @@ class ParameterData implements AssetMapInterface, ArrayRepresentation
 	 * @var string
 	 */
 	const KEY = 'key';
+
+	/**
+	 * Parameter information key..
+	 *
+	 * Value data type
+	 *
+	 * @var string
+	 */
+	const DATATYPE = 'datatype';
 
 	/**
 	 *

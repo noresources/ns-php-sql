@@ -71,7 +71,9 @@ class ReferencePlatform extends AbstractPlatform
 		return StandardTypeRegistry::getInstance();
 	}
 
-	public function getParameter($name, ParameterData $parameters = null)
+	public function getParameter($name,
+		$valueDataType = K::DATATYPE_UNDEFINED,
+		ParameterData $parameters = null)
 	{
 		return ('$' . preg_replace('/[^a-zA-Z0-9_]/', '_', $name));
 	}
