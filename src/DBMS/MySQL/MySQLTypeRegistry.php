@@ -196,9 +196,57 @@ class MySQLTypeRegistry extends TypeRegistry
 				'json' => [
 					K::TYPE_DATA_TYPE => K::DATATYPE_STRING,
 					K::TYPE_MEDIA_TYPE => 'application/json'
+				],
+				// MYSQLI identifiers
+				MYSQLI_TYPE_GEOMETRY => [
+					K::TYPE_NAME => 'geometry',
+					K::TYPE_DATA_TYPE => K::DATATYPE_UNDEFINED
+				],
+				MYSQLI_TYPE_INTERVAL => [
+					K::TYPE_NAME => 'interval',
+					K::TYPE_DATA_TYPE => K::DATATYPE_UNDEFINED
+				],
+				MYSQLI_TYPE_NULL => [
+					K::TYPE_NAME => 'null',
+					K::TYPE_DATA_TYPE => K::DATATYPE_NULL
+				],
+				MYSQLI_TYPE_SET => [
+					K::TYPE_NAME => 'set',
+					K::TYPE_DATA_TYPE => K::DATATYPE_UNDEFINED
+				],
+				MYSQLI_TYPE_YEAR => [
+					K::TYPE_NAME => 'year',
+					K::TYPE_DATA_TYPE => K::DATATYPE_INTEGER,
+					K::TYPE_SIZE => 14
 				]
 			],
+
+			// Aliases
 			[
+				MYSQLI_TYPE_BIT => 'bit',
+				MYSQLI_TYPE_BLOB => 'blob',
+				MYSQLI_TYPE_CHAR => 'char',
+				MYSQLI_TYPE_DATE => 'date',
+				MYSQLI_TYPE_DATETIME => 'datetime',
+				MYSQLI_TYPE_DECIMAL => 'decimal',
+				MYSQLI_TYPE_DOUBLE => 'double',
+				MYSQLI_TYPE_ENUM => 'enum',
+				MYSQLI_TYPE_FLOAT => 'float',
+				MYSQLI_TYPE_INT24 => 'mediumint',
+				MYSQLI_TYPE_JSON => 'json',
+				MYSQLI_TYPE_LONG => 'mediumint',
+				MYSQLI_TYPE_LONG_BLOB => 'longblob',
+				MYSQLI_TYPE_LONGLONG => 'bigint',
+				MYSQLI_TYPE_MEDIUM_BLOB => 'mediumblob',
+				MYSQLI_TYPE_NEWDATE => 'date',
+				MYSQLI_TYPE_NEWDECIMAL => 'decimal',
+				MYSQLI_TYPE_SHORT => 'smallint',
+				MYSQLI_TYPE_STRING => 'text',
+				MYSQLI_TYPE_TIME => 'time',
+				MYSQLI_TYPE_TIMESTAMP => 'timestamp',
+				MYSQLI_TYPE_TINY => 'tinyint',
+				MYSQLI_TYPE_TINY_BLOB => 'tinyblob',
+				MYSQLI_TYPE_VAR_STRING => 'varchar',
 				'integer' => 'int',
 				'dec' => 'decimal',
 				'numeric' => 'decimal',

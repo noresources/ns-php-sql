@@ -8,9 +8,9 @@ use NoreSources\SQL\DBMS\AbstractPlatform;
 use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\ConnectionProviderInterface;
 use NoreSources\SQL\DBMS\TypeInterface;
+use NoreSources\SQL\DBMS\Configuration\ConfiguratorProviderInterface;
 use NoreSources\SQL\DBMS\MySQL\MySQLConstants as K;
 use NoreSources\SQL\DBMS\Traits\ConnectionProviderTrait;
-use NoreSources\SQL\DBMS\Traits\PlatformProviderTrait;
 use NoreSources\SQL\DBMS\Types\ArrayObjectType;
 use NoreSources\SQL\Syntax\FunctionCall;
 use NoreSources\SQL\Syntax\MetaFunctionCall;
@@ -20,11 +20,10 @@ use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
 
 class MySQLPlatform extends AbstractPlatform implements
-	ConnectionProviderInterface
+	ConnectionProviderInterface, ConfiguratorProviderInterface
 {
 	use LoggerAwareTrait;
 	use ConnectionProviderTrait;
-	use PlatformProviderTrait;
 
 	const DEFAULT_VERSION = '4.0.0';
 
@@ -62,6 +61,13 @@ class MySQLPlatform extends AbstractPlatform implements
 			],
 			(K::FEATURE_COLUMN_ENUM |
 			K::FEATURE_COLUMN_KEY_MANDATORY_LENGTH));
+	}
+
+	public function getConfigurator()
+	{
+		$c = $this->getConnection();
+		if ($c instanceof ConfiguratorProviderInterface)
+			return $c->getConfigurator();
 	}
 
 	public function newConfigurator(ConnectionInterface $connection)

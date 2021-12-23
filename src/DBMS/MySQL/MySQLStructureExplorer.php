@@ -268,7 +268,32 @@ class MySQLStructureExplorer extends AbstractStructureExplorer implements
 		$length = Container::keyValue($properties, K::COLUMN_LENGTH, INF);
 		Container::removeKey($properties, K::COLUMN_LENGTH);
 
-		if (\preg_match(
+		if (\strcasecmp($info['data_type'], 'enum') == 0)
+		{
+			$properties[K::COLUMN_DATA_TYPE] &= (K::DATATYPE_NULL |
+				K::DATATYPE_STRING);
+			$properties[K::COLUMN_DATA_TYPE] |= K::DATATYPE_STRING;
+			$sql = 'SELECT ' .
+				\preg_replace(
+					chr(1) . '^\s*enum\s*\((.*)\)\s*$' . chr(1) . 'i',
+					'$1', $typeDeclaration);
+
+			$recordset = $this->getConnection()->executeStatement($sql);
+			if ($recordset instanceof Recordset)
+			{
+				$recordset->setFlags(K::RECORDSET_FETCH_INDEXED);
+				$properties[K::COLUMN_ENUMERATION] = Container::map(
+					$recordset->current(),
+					function ($k, $v) {
+						return new Data($v);
+					});
+			}
+
+			$length = \intval($info['character_maximum_length']);
+			if ($length)
+				$properties[K::COLUMN_LENGTH] = $length;
+		}
+		elseif (\preg_match(
 			chr(1) . self::COLUMN_TYPE_DECLARATION_PATTERN . chr(1) . 'i',
 			$typeDeclaration, $m))
 		{

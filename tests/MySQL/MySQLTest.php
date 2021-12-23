@@ -6,6 +6,7 @@ use NoreSources\SQL\DBMS\ConnectionException;
 use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\MySQL\MySQLConnection;
 use NoreSources\SQL\DBMS\MySQL\MySQLStructureExplorer;
+use NoreSources\SQL\DBMS\MySQL\MySQLTypeRegistry;
 use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLConstants as K;
 use NoreSources\SQL\Structure\Identifier;
 use NoreSources\SQL\Syntax\Statement\Structure\CreateTableQuery;
@@ -14,6 +15,34 @@ use NoreSources\Test\DatasourceManager;
 
 final class MySQLTest extends \PHPUnit\Framework\TestCase
 {
+
+	public function testMySQLiType()
+	{
+		$registry = new MySQLTypeRegistry();
+
+		$tests = [
+			'timestamp' => 'timestamp',
+			MYSQLI_TYPE_TIMESTAMP => 'timestamp'
+		];
+
+		$mysqliTypeConstants = Container::filter(
+			get_defined_constants(),
+			function ($k, $v) use ($registry) {
+				if (\strpos($k, 'MYSQLI_TYPE_') !== 0)
+					return false;
+				$this->assertTrue($registry->has($v),
+					'Type ID ' . $k . ' exists');
+			});
+
+		foreach ($tests as $id => $name)
+		{
+			$this->assertTrue($registry->has($id),
+				'Type ID ' . $id . ' exists');
+			$type = $registry->get($id);
+			$this->assertEquals($name, $type->getTypeName(),
+				'Type ' . $id . ' name');
+		}
+	}
 
 	public function __construct($name = null, array $data = [],
 		$dataName = '')
