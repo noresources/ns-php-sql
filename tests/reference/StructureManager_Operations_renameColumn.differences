@@ -1,0 +1,2 @@
+renamed:ColumnStructure<ns_unittests.Employees.name>ns_unittests.Employees.fullName
+altered:IndexStructure[column]<ns_unittests.Employees.index_employees_name>ns_unittests.Employees.index_employees_name

@@ -16,7 +16,7 @@ use NoreSources\SQL\DBMS\Traits\TransactionStackTrait;
 use NoreSources\SQL\Syntax\Statement\Traits\ClassMapStatementFactoryTrait;
 
 /**
- * SQLite connection
+ * Dummy connection
  */
 class ReferenceConnection implements ConnectionInterface,
 	TransactionInterface

@@ -86,8 +86,16 @@ final class StructureSerializerTest extends TestCase
 
 		$derivedFilePath = $this->getDerivedFilename(__METHOD__,
 			'Company', 'xml');
-
 		$serializer->structureToFile($structure, $derivedFilePath);
+
+		$cloneDerivedFilePath = $this->getDerivedFilename(__METHOD__,
+			'CompanyClone', 'xml');
+		$structureClone = clone $structure;
+		$serializer->structureToFile($structureClone,
+			$cloneDerivedFilePath);
+
+		$this->assertFileEquals($derivedFilePath, $cloneDerivedFilePath,
+			'Structure clone');
 
 		/**
 		 *

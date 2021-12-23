@@ -11,6 +11,7 @@ use NoreSources\Container\Container;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\PreparedStatementInterface;
 use NoreSources\SQL\Structure\ArrayColumnDescription;
+use NoreSources\SQL\Syntax\Statement\Statement;
 use NoreSources\SQL\Syntax\Statement\Traits\StatementInputDataTrait;
 use NoreSources\SQL\Syntax\Statement\Traits\StatementOutputDataTrait;
 use NoreSources\SQL\Syntax\Statement\Traits\StatementSerializationTrait;
@@ -35,7 +36,7 @@ class PDOPreparedStatement implements PreparedStatementInterface
 		$this->pdoStatement = $statement;
 
 		if ($this->getStatementType() == 0)
-			$this->statementType = SQL\Syntax\Statement::statementTypeFromData(
+			$this->statementType = Statement::statementTypeFromData(
 				$data);
 
 		if ($this->getStatementType() == K::QUERY_SELECT)

@@ -1,0 +1,32 @@
+altered:ColumnStructure[enum]<ns_unittests.Employees.gender>ns_unittests.Employees.gender
+	enum M,F -> M,F,N
+altered:ColumnStructure[length]<ns_unittests.Tasks.name>ns_unittests.Tasks.name
+	length 32 -> 64
+altered:IndexStructure[column]<ns_unittests.Employees.index_employees_name>ns_unittests.Employees.index_employees_name
+	column ns_unittests.Employees.name -> ns_unittests.Employees.fullName
+created:ColumnStructure<?>ns_unittests.Employees.age
+created:TableStructure<?>ns_unittests.Products
+dropped:ColumnStructure<ns_unittests.Tasks.priority>?
+dropped:TableStructure<ns_unittests.types>?
+identical:ColumnStructure<ns_unittests.Employees.id>ns_unittests.Employees.id
+identical:ColumnStructure<ns_unittests.Employees.salary>ns_unittests.Employees.salary
+identical:ColumnStructure<ns_unittests.Hierarchy.manageeId>ns_unittests.Hierarchy.manageeId
+identical:ColumnStructure<ns_unittests.Hierarchy.managerId>ns_unittests.Hierarchy.managerId
+identical:ColumnStructure<ns_unittests.Tasks.assignedTo>ns_unittests.Tasks.assignedTo
+identical:ColumnStructure<ns_unittests.Tasks.category>ns_unittests.Tasks.category
+identical:ColumnStructure<ns_unittests.Tasks.creationDateTime>ns_unittests.Tasks.creationDateTime
+identical:ColumnStructure<ns_unittests.Tasks.creator>ns_unittests.Tasks.creator
+identical:ColumnStructure<ns_unittests.Tasks.id>ns_unittests.Tasks.id
+identical:DatasourceStructure<>
+identical:ForeignKeyTableConstraint<>
+identical:ForeignKeyTableConstraint<>
+identical:ForeignKeyTableConstraint<ns_unittests.Hierarchy.hierarchy_managerId_foreignkey>ns_unittests.Hierarchy.hierarchy_managerId_foreignkey
+identical:ForeignKeyTableConstraint<ns_unittests.Tasks.fk_creator>ns_unittests.Tasks.fk_creator
+identical:NamespaceStructure<ns_unittests>ns_unittests
+identical:PrimaryKeyTableConstraint<>
+identical:PrimaryKeyTableConstraint<ns_unittests.Tasks.pk_tid>ns_unittests.Tasks.pk_tid
+identical:TableStructure<ns_unittests.Employees>ns_unittests.Employees
+identical:TableStructure<ns_unittests.Hierarchy>ns_unittests.Hierarchy
+identical:TableStructure<ns_unittests.Tasks>ns_unittests.Tasks
+renamed:ColumnStructure<ns_unittests.Employees.name>ns_unittests.Employees.fullName
+renamed:PrimaryKeyTableConstraint<ns_unittests.Employees.pk_id>

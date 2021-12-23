@@ -12,7 +12,7 @@ use NoreSources\SQL\Syntax\Statement\Traits\StatementDataTrait;
 use NoreSources\SQL\Syntax\Statement\Traits\StatementSerializationTrait;
 
 /**
- * SQLite3 implementation of NoreSources\SQL\ReferencePreparedStatement
+ * Reference (dummy) implementation of PreparedStatement
  */
 class ReferencePreparedStatement implements PreparedStatementInterface
 {

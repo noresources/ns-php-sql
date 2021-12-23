@@ -9,16 +9,11 @@ namespace NoreSources\SQL\Syntax\Statement\Structure;
 
 use NoreSources\Container\Container;
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\DBMS\PlatformInterface;
 use NoreSources\SQL\Structure\Identifier;
 use NoreSources\SQL\Structure\IndexStructure;
 use NoreSources\SQL\Syntax\TokenStream;
 use NoreSources\SQL\Syntax\TokenStreamContextInterface;
-use NoreSources\SQL\Syntax\Statement\TokenizableStatementInterface;
-use NoreSources\SQL\Syntax\Statement\Structure\Traits\DropFlagsTrait;
-use NoreSources\SQL\Syntax\Statement\Structure\Traits\ForIdentifierTrait;
-use NoreSources\SQL\Syntax\Statement\Structure\Traits\IdentifierPropertyTrait;
-use NoreSources\SQL\Syntax\Statement\Structure\Traits\IdentifierSelectionTrait;
-use NoreSources\SQL\Syntax\Statement\Traits\IdenitifierTokenizationTrait;
 
 /**
  * DROP INDEX statement
@@ -33,15 +28,14 @@ use NoreSources\SQL\Syntax\Statement\Traits\IdenitifierTokenizationTrait;
  * <dd></dd>
  * </dl>
  */
-class DropIndexQuery implements TokenizableStatementInterface,
-	StructureOperationQueryInterface
+class DropIndexQuery extends DropStructureElementQuery
 {
 
-	use DropFlagsTrait;
-	use IdenitifierTokenizationTrait;
-	use IdentifierPropertyTrait;
-	use ForIdentifierTrait;
-	use IdentifierSelectionTrait;
+	public function getStructureTypeName(
+		PlatformInterface $platform = null)
+	{
+		return K::STRUCTURE_INDEX;
+	}
 
 	public function __construct($identifier = null)
 	{
@@ -66,13 +60,13 @@ class DropIndexQuery implements TokenizableStatementInterface,
 		$platformDropFlags = $platform->queryFeature(
 			[
 				K::FEATURE_DROP,
-				K::FEATURE_ELEMENT_INDEX,
+				$this->getStructureTypeName(),
 				K::FEATURE_DROP_FLAGS
 			], 0);
 
 		$stream->keyword('drop')
 			->space()
-			->keyword('index');
+			->keyword($this->getStructureTypeName($platform));
 		if (($this->getDropFlags() & K::DROP_EXISTS_CONDITION) &&
 			($platformDropFlags & K::FEATURE_DROP_EXISTS_CONDITION))
 		{

@@ -17,7 +17,6 @@ use NoreSources\Expression\UnaryOperation;
 use NoreSources\Expression\Value;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DataDescription;
-use NoreSources\SQL\DataTypeProviderInterface;
 use NoreSources\SQL\Structure\ArrayColumnDescription;
 use NoreSources\Type\TypeDescription;
 

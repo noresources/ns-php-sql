@@ -23,6 +23,7 @@ class SQLiteDropNamespaceQuery extends DropNamespaceQuery
 			->keyword('database')
 			->space();
 
-		return $this->tokenizeNamespaceIdentifier($stream, $context);
+		return $stream->identifier(
+			$platform->quoteIdentifier($this->getIdentifier()));
 	}
 }

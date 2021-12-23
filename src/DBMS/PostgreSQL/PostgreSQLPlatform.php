@@ -205,7 +205,7 @@ class PostgreSQLPlatform extends AbstractPlatform implements
 	{
 		$key = strval($name);
 
-		if (false)
+		if (FALSE)
 		{
 			/**
 			 * Cannot re-use the same parameter number because it may

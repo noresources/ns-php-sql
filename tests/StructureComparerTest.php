@@ -11,10 +11,10 @@ use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\Reference\ReferencePlatform;
 use NoreSources\SQL\Structure\CheckTableConstraint;
 use NoreSources\SQL\Structure\ColumnStructure;
-use NoreSources\SQL\Structure\DatasourceStructure;
 use NoreSources\SQL\Structure\PrimaryKeyTableConstraint;
 use NoreSources\SQL\Structure\TableStructure;
 use NoreSources\SQL\Structure\Comparer\StructureComparer;
+use NoreSources\SQL\Structure\Comparer\StructureComparison;
 use NoreSources\SQL\Syntax\Data;
 use NoreSources\SQL\Syntax\Evaluator;
 use NoreSources\SQL\Syntax\TokenizableExpressionInterface;
@@ -117,19 +117,35 @@ final class StructureComparerTest extends TestCase
 
 	public function testCompanyVersions()
 	{
-		$v1 = $this->datasources->get('Company');
-		$v2 = $this->datasources->get('Company.v2');
-
-		$this->assertInstanceOf(DatasourceStructure::class, $v1, 'v1');
-		$this->assertInstanceOf(DatasourceStructure::class, $v2, 'v2');
-
-		$comparer = new StructureComparer();
-		$differences = $comparer->compare($v1, $v2);
-		$s = $this->stringifyStructureComparison($differences, true);
-		$this->assertDerivedFile($s, __METHOD__, '', 'differences');
-
-		$hierarchy = $v2['ns_unittests']['Hierarchy'];
-		$products = $v2['ns_unittests']['Products'];
+		foreach ([
+			'v1-v2' => [
+				'reference' => 'Company',
+				'target' => 'Company.v2'
+			],
+			'v1-renameColumn' => [
+				'reference' => 'Company',
+				'target' => 'Company.renameColumn'
+			]
+		] as $label => $test)
+		{
+			$r = $test['reference'];
+			$t = $test['target'];
+			$reference = $this->datasources->get($r);
+			$target = $this->datasources->get($t);
+			foreach ([
+				'comparison' => StructureComparison::ALL_TYPES,
+				'differences' => StructureComparison::DIFFERENCE_TYPES
+			] as $extension => $flags)
+			{
+				$comparer = new StructureComparer();
+				$comparison = $comparer->compare($reference, $target,
+					$flags);
+				$s = $this->stringifyStructureComparison($comparison,
+					true);
+				$this->assertDerivedFile($s, __METHOD__, $label,
+					$extension);
+			}
+		}
 	}
 
 	public function testDifferenceExtra()
@@ -159,43 +175,38 @@ final class StructureComparerTest extends TestCase
 			'id'
 		], 'pk'));
 
-		if (false)
+		$ac = new CheckTableConstraint();
+		$ac->where([
+			'=' => [
+				[
+					'%' => [
+						'id',
+						2
+					]
+				],
+				0
+			]
+		]);
+		$a->appendElement($ac);
+
 		{
-			$ac = new CheckTableConstraint();
-			$ac->where([
-				'=' => [
-					[
-						'%' => [
-							'id',
-							2
-						]
-					],
-					0
-				]
-			]);
-			$a->appendElement($ac);
-
-			{
-				$e = $evaluator($ac->getConstraintExpression());
-				$this->assertInstanceOf(
-					TokenizableExpressionInterface::class, $e);
-				$se = $builder($e, $platform);
-				$this->assertEquals('[id] % 2 = 0', \strval($se));
-			}
-
-			$b = clone $a;
-			$diffs = $comparer->compare($a, $b);
-			$this->assertCount(0, $diffs, 'No difference (clone)');
-
-			$ac->where(true);
-			$diffs = $comparer->compare($a, $b);
-			$sdiffs = \array_map('strval', $diffs);
-
-			$this->assertCount(1, $diffs,
-				'Detect one alteration of CHECK constraint');
+			$e = $evaluator($ac->getConstraintExpression());
+			$this->assertInstanceOf(
+				TokenizableExpressionInterface::class, $e);
+			$se = $builder($e, $platform);
+			$this->assertEquals('[id] % 2 = 0', \strval($se));
 		}
-		else
-			$this->assertTrue(true);
+
+		$b = clone $a;
+		$diffs = $comparer->compare($a, $b);
+		$this->assertCount(0, $diffs, 'No difference (clone)');
+
+		$ac->where(true);
+		$diffs = $comparer->compare($a, $b);
+		$sdiffs = \array_map('strval', $diffs);
+
+		$this->assertCount(1, $diffs,
+			'Detect one alteration of CHECK constraint');
 	}
 
 	/**

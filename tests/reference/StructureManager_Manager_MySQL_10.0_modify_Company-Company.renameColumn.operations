@@ -1,0 +1,5 @@
+backup:TableStructure:Employees->Employees_backup
+drop:IndexStructure:index_employees_name
+drop:TableStructure:Employees
+restore:TableStructure:Employees_backup->Employees
+create:IndexStructure:->index_employees_name
