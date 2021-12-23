@@ -258,13 +258,9 @@ class ColumnDeclaration implements TokenizableExpressionInterface
 		$dataType = $this->columnStructure->get(K::COLUMN_DATA_TYPE);
 		$nullable = ($dataType & K::DATATYPE_NULL);
 		$dataType &= ~K::DATATYPE_NULL;
-
-		if ($this->columnStructure->has(K::COLUMN_DEFAULT_VALUE))
-		{
-			if ($stream->count())
-				$stream->space();
-			$this->tokenizeColumnDefaultValue($stream, $context);
-		}
+		$constraintFlags = $this->columnStructure->getConstraintFlags();
+		$nullSpecification = ($nullable == false ||
+			(($constraintFlags & K::CONSTRAINT_COLUMN_KEY) == 0));
 
 		if (($typeFlags & K::TYPE_FLAG_SIGNNESS) &&
 			($columnFlags & K::COLUMN_FLAG_UNSIGNED) &&
@@ -276,13 +272,20 @@ class ColumnDeclaration implements TokenizableExpressionInterface
 			$stream->keyword('unsigned');
 		}
 
-		if (!$nullable)
+		if ($nullSpecification)
 		{
 			if ($stream->count())
 				$stream->space();
-			$stream->keyword('not')
-				->space()
-				->keyword('null');
+			if (!$nullable)
+				$stream->keyword('not')->space();
+			$stream->keyword('null');
+		}
+
+		if ($this->columnStructure->has(K::COLUMN_DEFAULT_VALUE))
+		{
+			if ($stream->count())
+				$stream->space();
+			$this->tokenizeColumnDefaultValue($stream, $context);
 		}
 
 		if ($columnFlags & K::COLUMN_FLAG_AUTO_INCREMENT)
@@ -304,11 +307,11 @@ class ColumnDeclaration implements TokenizableExpressionInterface
 	public function tokenizeColumnDefaultValue(TokenStream $stream,
 		TokenStreamContextInterface $context)
 	{
-		$v = Evaluator::evaluate(
-			$this->columnStructure->get(K::COLUMN_DEFAULT_VALUE));
 		$stream->keyword('DEFAULT')
 			->space()
-			->expression($v, $context);
+			->expression(
+			$this->columnStructure->get(K::COLUMN_DEFAULT_VALUE),
+			$context);
 	}
 
 	/**
