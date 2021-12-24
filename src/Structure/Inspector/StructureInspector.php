@@ -10,9 +10,12 @@ namespace NoreSources\SQL\Structure\Inspector;
 
 use NoreSources\SingletonTrait;
 use NoreSources\Container\Container;
+use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Structure\ColumnStructure;
 use NoreSources\SQL\Structure\ForeignKeyTableConstraint;
 use NoreSources\SQL\Structure\IndexDescriptionInterface;
+use NoreSources\SQL\Structure\IndexStructure;
+use NoreSources\SQL\Structure\KeyTableConstraintInterface;
 use NoreSources\SQL\Structure\NamespaceStructure;
 use NoreSources\SQL\Structure\StructureElementContainerInterface;
 use NoreSources\SQL\Structure\StructureElementInterface;
@@ -161,6 +164,24 @@ class StructureInspector
 					$this->getReferences($k));
 			}
 		}
+		elseif ($element instanceof ColumnStructure)
+		{
+			/** @var TableStructure $table */
+			$table = $element->getParentElement();
+			foreach ($table->getConstraints() as $c)
+			{
+				if (($c instanceof ForeignKeyTableConstraint) &&
+					$c->getColumns()->offsetExists($element->getName()))
+				{
+					$foreignColumnName = $c->getColumns()[$element->getName()];
+					$resolver = new StructureResolver(
+						$table->getParentElement());
+					$foreignTable = $resolver->findTable(
+						$c->getForeignTable());
+					$references[] = $foreignTable[$foreignColumnName];
+				}
+			}
+		}
 
 		return $references;
 	}
@@ -197,6 +218,51 @@ class StructureInspector
 			$list[$path] = \array_unique($a, SORT_REGULAR);
 
 		return $list;
+	}
+
+	public function getTableColumnConstraintFlags(
+		ColumnStructure $column)
+	{
+		/** @var TableStructure $table */
+		$table = $column->getParentElement();
+		if (!($table instanceof TableStructure))
+			return 0;
+
+		$columnName = $column->getName();
+
+		$flags = 0;
+		foreach ($table->getConstraints() as $constraint)
+		{
+			if ($constraint instanceof KeyTableConstraintInterface)
+			{
+				if (Container::valueExists($constraint->getColumns(),
+					$columnName))
+					$flags |= $constraint->getConstraintFlags();
+			}
+			elseif ($constraint instanceof ForeignKeyTableConstraint)
+			{
+				if (Container::keyExists($constraint->getColumns(),
+					$columnName))
+					$flags |= $constraint->getConstraintFlags();
+			}
+		}
+
+		$indexes = $table->getChildElements(IndexStructure::class);
+		foreach ($indexes as $index)
+		{
+			/**
+			 *
+			 * @var IndexStructure $index
+			 */
+			if (Container::valueExists($index->getColumns(), $columnName))
+				$flags |= K::CONSTRAINT_COLUMN_KEY;
+		}
+
+		$foreignReferences = $this->getReferences($column);
+		if (\count($foreignReferences))
+			$flags |= K::CONSTRAINT_COLUMN_FOREIGN_KEY;
+
+		return $flags;
 	}
 
 	// /////////////////////////////////////////////////////////////

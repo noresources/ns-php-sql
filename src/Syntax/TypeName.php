@@ -12,6 +12,7 @@ namespace NoreSources\SQL\Syntax;
 use NoreSources\SQL\DBMS\TypeInterface;
 use NoreSources\SQL\Structure\ColumnDescriptionInterface;
 use NoreSources\SQL\Structure\ColumnStructure;
+use NoreSources\SQL\Structure\Inspector\StructureInspector;
 use NoreSources\Type\TypeDescription;
 
 /**
@@ -54,7 +55,9 @@ class TypeName implements TokenizableExpressionInterface
 		$constraintFlags = 0;
 		if ($type instanceof ColumnStructure)
 		{
-			$constraintFlags = $type->getConstraintFlags();
+			$inspector = StructureInspector::getInstance();
+			$constraintFlags = $inspector->getTableColumnConstraintFlags(
+				$type);
 		}
 
 		if ($type instanceof ColumnDescriptionInterface)

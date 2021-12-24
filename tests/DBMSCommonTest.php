@@ -32,6 +32,7 @@ use NoreSources\SQL\Structure\PrimaryKeyTableConstraint;
 use NoreSources\SQL\Structure\StructureElementInterface;
 use NoreSources\SQL\Structure\TableStructure;
 use NoreSources\SQL\Structure\VirtualStructureResolver;
+use NoreSources\SQL\Structure\Inspector\StructureInspector;
 use NoreSources\SQL\Syntax\CastFunction;
 use NoreSources\SQL\Syntax\ColumnDeclaration;
 use NoreSources\SQL\Syntax\Data;
@@ -366,7 +367,8 @@ final class DBMSCommonTest extends TestCase
 				$pkc->append($column);
 			}
 
-			$flags = $column->getConstraintFlags();
+			$inspector = StructureInspector::getInstance();
+			$flags = $inspector->getTableColumnConstraintFlags($column);
 			$this->assertEquals(
 				($primary ? K::CONSTRAINT_COLUMN_PRIMARY_KEY : 0),
 				($flags & K::CONSTRAINT_COLUMN_PRIMARY_KEY),

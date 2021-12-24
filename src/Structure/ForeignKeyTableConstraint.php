@@ -7,6 +7,7 @@
  */
 namespace NoreSources\SQL\Structure;
 
+use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\EventMap;
 use NoreSources\SQL\Structure\Traits\StructureElementTrait;
 
@@ -22,7 +23,7 @@ class ForeignKeyTableConstraint implements \IteratorAggregate,
 
 	public function getConstraintFlags()
 	{
-		return 0;
+		return K::CONSTRAINT_COLUMN_FOREIGN_KEY;
 	}
 
 	public function __construct($foreignTable, $columnMapping = array(),

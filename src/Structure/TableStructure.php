@@ -8,12 +8,11 @@
  */
 namespace NoreSources\SQL\Structure;
 
-use NoreSources\Container\Container;
-use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\KeyedAssetMap;
-use NoreSources\SQL\NameProviderInterface;
+use NoreSources\SQL\Structure\Inspector\StructureInspector;
 use NoreSources\SQL\Structure\Traits\StructureElementContainerTrait;
 use NoreSources\SQL\Structure\Traits\StructureElementTrait;
+use NoreSources\Type\TypeDescription;
 
 class TableStructure implements StructureElementInterface,
 	StructureElementContainerInterface
@@ -60,40 +59,27 @@ class TableStructure implements StructureElementInterface,
 			$this->getChildElements(TableConstraintInterface::class));
 	}
 
+	/**
+	 * Get constraint flags for a given column
+	 *
+	 * @param string|ColumnStructure $column
+	 *        	Column or column name
+	 * @throws \InvalidArgumentException
+	 * @return number Column constraint flags
+	 * @deprecated Use StructureInspector directly
+	 */
 	public function getColumnConstraintFlags($column)
 	{
-		if ($column instanceof NameProviderInterface)
-			$column = $column->getName();
+		$inspector = StructureInspector::getInstance();
+		if (\is_string($column))
+			$column = $this->getColumns()[$column];
 
-		$flags = 0;
-		foreach ($this->getConstraints() as $constraint)
-		{
-			if ($constraint instanceof KeyTableConstraintInterface)
-			{
-				if (Container::valueExists($constraint->getColumns(),
-					$column))
-					$flags |= $constraint->getConstraintFlags();
-			}
-			elseif ($constraint instanceof ForeignKeyTableConstraint)
-			{
-				if (Container::keyExists($constraint->getColumns(),
-					$column))
-					$flags |= $constraint->getConstraintFlags();
-			}
-		}
+		if (!($column instanceof ColumnStructure))
+			throw new \InvalidArgumentException(
+				ColumnStructure::class . ' expected. Got ' .
+				TypeDescription::getName($column));
 
-		$indexes = $this->getChildElements(IndexStructure::class);
-		foreach ($indexes as $index)
-		{
-			/**
-			 *
-			 * @var IndexStructure $index
-			 */
-			if (Container::valueExists($index->getColumns(), $column))
-				$flags |= K::CONSTRAINT_COLUMN_KEY;
-		}
-
-		return $flags;
+		return $inspector->getTableColumnConstraintFlags($column);
 	}
 
 	/**

@@ -373,6 +373,15 @@ class Constants
 	const CONSTRAINT_COLUMN_PARTIAL = Bitset::BIT_04;
 
 	/**
+	 * Table column uniqueness constraint.
+	 *
+	 * Column is referenced in a foreign key constrain.t
+	 *
+	 * @var integer
+	 */
+	const CONSTRAINT_COLUMN_FOREIGN_KEY = Bitset::BIT_05;
+
+	/**
 	 * DBMS type data type affinity
 	 *
 	 * Property value is expected to be an integer, combination of

@@ -5,6 +5,7 @@ use NoreSources\Container\Container;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\TypeInterface;
 use NoreSources\SQL\Structure\ColumnStructure;
+use NoreSources\SQL\Structure\Inspector\StructureInspector;
 use NoreSources\SQL\Syntax\Statement\StatementException;
 use Psr\Log\LoggerInterface;
 
@@ -122,6 +123,7 @@ class ColumnDeclaration implements TokenizableExpressionInterface
 		TokenStreamContextInterface $context)
 	{
 		$platform = $context->getPlatform();
+		$inspector = StructureInspector::getInstance();
 		$columnFlags = $this->columnStructure->get(K::COLUMN_FLAGS);
 		$columnDeclaration = $platform->queryFeature(
 			[
@@ -130,8 +132,10 @@ class ColumnDeclaration implements TokenizableExpressionInterface
 				K::FEATURE_COLUMN_DECLARATION_FLAGS
 			], 0);
 
-		$isKey = (($this->columnStructure->getConstraintFlags() &
-			K::CONSTRAINT_COLUMN_KEY) == K::CONSTRAINT_COLUMN_KEY);
+		$keyConstraintFlags = K::CONSTRAINT_COLUMN_KEY |
+			K::CONSTRAINT_COLUMN_FOREIGN_KEY;
+		$isKey = (($inspector->getTableColumnConstraintFlags(
+			$this->columnStructure) & $keyConstraintFlags) != 0);
 		$typeFlags = Container::keyValue($this->dbmsType, K::TYPE_FLAGS,
 			0);
 
@@ -247,6 +251,7 @@ class ColumnDeclaration implements TokenizableExpressionInterface
 		TokenStreamContextInterface $context)
 	{
 		$platform = $context->getPlatform();
+		$inspector = StructureInspector::getInstance();
 		$columnDeclaration = $platform->queryFeature(
 			[
 				K::FEATURE_CREATE,
@@ -260,7 +265,8 @@ class ColumnDeclaration implements TokenizableExpressionInterface
 		$dataType = $this->columnStructure->get(K::COLUMN_DATA_TYPE);
 		$nullable = ($dataType & K::DATATYPE_NULL);
 		$dataType &= ~K::DATATYPE_NULL;
-		$constraintFlags = $this->columnStructure->getConstraintFlags();
+		$constraintFlags = $inspector->getTableColumnConstraintFlags(
+			$this->columnStructure);
 		$nullSpecification = ($nullable == false ||
 			(($constraintFlags & K::CONSTRAINT_COLUMN_KEY) == 0));
 

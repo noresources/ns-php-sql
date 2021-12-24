@@ -8,6 +8,7 @@
 namespace NoreSources\SQL\Structure;
 
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\Structure\Inspector\StructureInspector;
 use NoreSources\SQL\Structure\Traits\ColumnDescriptionTrait;
 use NoreSources\SQL\Structure\Traits\StructureElementTrait;
 
@@ -24,19 +25,12 @@ class ColumnStructure implements StructureElementInterface,
 	/**
 	 *
 	 * @return number
-	 * @deprecated Move this to TableStructure
+	 * @deprecated Use StructureInspector
 	 */
 	public function getConstraintFlags()
 	{
-		/**
-		 *
-		 * @var TableStructure
-		 */
-		$table = $this->getParentElement();
-		if (!($table instanceof TableStructure))
-			return 0;
-
-		return $table->getColumnConstraintFlags($this->getName());
+		$inspector = StructureInspector::getInstance();
+		return $inspector->getTableColumnConstraintFlags($this);
 	}
 
 	/**

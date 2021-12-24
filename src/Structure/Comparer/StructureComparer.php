@@ -32,6 +32,7 @@ use NoreSources\SQL\Structure\TableConstraintInterface;
 use NoreSources\SQL\Structure\TableStructure;
 use NoreSources\SQL\Structure\UniqueTableConstraint;
 use NoreSources\SQL\Structure\ViewStructure;
+use NoreSources\SQL\Structure\Inspector\StructureInspector;
 use NoreSources\SQL\Syntax\Evaluable;
 use NoreSources\SQL\Syntax\Evaluator;
 use NoreSources\SQL\Syntax\Statement\StatementBuilder;
@@ -459,6 +460,7 @@ class StructureComparer
 		StructureElementInterface $b, $strict = true)
 	{
 		$description = DataTypeDescription::getInstance();
+		$inspector = StructureInspector::getInstance();
 
 		$aDataType = Container::keyValue($a, K::COLUMN_DATA_TYPE,
 			K::DATATYPE_UNDEFINED);
@@ -475,7 +477,8 @@ class StructureComparer
 		{
 			if (($bDataType & K::DATATYPE_NULL) == 0)
 			{
-				$flags = ($a instanceof ColumnStructure) ? $a->getConstraintFlags() : 0;
+				$flags = ($a instanceof ColumnStructure) ? $inspector->getTableColumnConstraintFlags(
+					$a) : 0;
 				if (($flags & K::CONSTRAINT_COLUMN_PRIMARY_KEY) !=
 					K::CONSTRAINT_COLUMN_PRIMARY_KEY)
 					return 1;
@@ -483,7 +486,8 @@ class StructureComparer
 		}
 		elseif ($bDataType & K::DATATYPE_NULL)
 		{
-			$flags = ($b instanceof ColumnStructure) ? $b->getConstraintFlags() : 0;
+			$flags = ($b instanceof ColumnStructure) ? $inspector->getTableColumnConstraintFlags(
+				$b) : 0;
 			if (($flags & K::CONSTRAINT_COLUMN_PRIMARY_KEY) !=
 				K::CONSTRAINT_COLUMN_PRIMARY_KEY)
 				return -1;
@@ -919,8 +923,10 @@ class StructureComparer
 
 	protected static function isKeyMandatoryLength(ColumnStructure $a)
 	{
-		$flags = $a->getConstraintFlags();
-		if (!($flags & K::CONSTRAINT_COLUMN_KEY))
+		$inspector = StructureInspector::getInstance();
+		$flags = $inspector->getTableColumnConstraintFlags($a);
+		if (!($flags &
+			(K::CONSTRAINT_COLUMN_KEY | K::CONSTRAINT_COLUMN_FOREIGN_KEY)))
 			return false;
 
 		/** @var DatasourceStructure $r */
