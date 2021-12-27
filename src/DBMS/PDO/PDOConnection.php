@@ -492,7 +492,7 @@ class PDOConnection implements ConnectionInterface, TransactionInterface,
 		$type = Statement::statementTypeFromData($statement);
 
 		if ($type == K::QUERY_SELECT || ($pdo->columnCount()))
-			$result = (new PDORecordset($pdo, $statement));
+			$result = (new PDORecordset($pdo, $this, $statement));
 		elseif ($type == K::QUERY_INSERT)
 			$result = new DefaultInsertionStatementResult(
 				$this->connection->lastInsertId());

@@ -11,6 +11,7 @@ namespace NoreSources\SQL\Result;
 
 use NoreSources\Container\Container;
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\DataUnserializerInterface;
 use NoreSources\SQL\DBMS\DefaultDataUnserializer;
 use NoreSources\SQL\Syntax\Statement\ResultColumnMap;
@@ -260,7 +261,8 @@ abstract class Recordset implements \Iterator, StatementResultInterface,
 			$data);
 	}
 
-	protected function __construct($data = null)
+	protected function __construct(ConnectionInterface $connection,
+		$data = null)
 	{
 		$this->initializeResultColumnData($data);
 
@@ -268,7 +270,7 @@ abstract class Recordset implements \Iterator, StatementResultInterface,
 		$this->record = [];
 		$this->internalRecord = false;
 		$this->setIteratorPosition(-1, self::POSITION_BEGIN);
-		$this->unserializer = null;
+		$this->unserializer = $connection->getPlatform();
 	}
 
 	// Internal flags

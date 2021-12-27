@@ -282,7 +282,7 @@ class MySQLConnection implements ConnectionInterface,
 
 		if ($result instanceof \mysqli_result)
 		{
-			return new MySQLRecordset($result, $statement);
+			return new MySQLRecordset($result, $this, $this, $statement);
 		}
 		elseif ($statementType & K::QUERY_FAMILY_ROWMODIFICATION)
 		{

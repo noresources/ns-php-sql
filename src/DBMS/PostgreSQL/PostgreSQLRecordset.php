@@ -10,6 +10,7 @@
 namespace NoreSources\SQL\DBMS\PostgreSQL;
 
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\Result\Recordset;
 use NoreSources\SQL\Result\Traits\SeekableRecordsetTrait;
 use NoreSources\SQL\Structure\ArrayColumnDescription;
@@ -25,9 +26,10 @@ class PostgreSQLRecordset extends Recordset implements
 	 * @param resource $resource
 	 * @param PostgreSQLPreparedStatement|null $data
 	 */
-	public function __construct($resource, $data = null)
+	public function __construct($resource,
+		ConnectionInterface $connection, $data = null)
 	{
-		parent::__construct($data);
+		parent::__construct($connection, $data);
 		$this->resource = $resource;
 		$map = $this->getResultColumns();
 		for ($i = 0; $i < \pg_num_fields($this->resource); $i++)
@@ -44,10 +46,16 @@ class PostgreSQLRecordset extends Recordset implements
 			if ($column->getDataType() == K::DATATYPE_UNDEFINED)
 			{
 				$typename = \pg_field_type($this->resource, $i);
-				$column->setColumnProperty(K::COLUMN_DATA_TYPE,
-					PostgreSQLTypeRegistry::getInstance()->get(
-						$typename)
-						->get(K::TYPE_DATA_TYPE));
+				$registry = PostgreSQLTypeRegistry::getInstance();
+				if ($typename && $registry->has($typename))
+				{
+					$type = $registry->get($typename);
+					if (($dataType = $type->getDataType()))
+						$column->setColumnProperty(K::COLUMN_DATA_TYPE,
+							$dataType);
+					$column->setColumnProperty(K::COLUMN_TYPE_NAME,
+						$type->getTypeName());
+				}
 			}
 
 			if ($i >= $map->count())

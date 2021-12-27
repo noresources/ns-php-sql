@@ -9,6 +9,7 @@
  */
 namespace NoreSources\SQL\DBMS\SQLite;
 
+use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\SQLite\SQLiteConstants as K;
 use NoreSources\SQL\Result\Recordset;
 use NoreSources\SQL\Structure\ArrayColumnDescription;
@@ -16,9 +17,10 @@ use NoreSources\SQL\Structure\ArrayColumnDescription;
 class SQLiteRecordset extends Recordset
 {
 
-	public function __construct(\SQLite3Result $result, $data = null)
+	public function __construct(\SQLite3Result $result,
+		ConnectionInterface $connection, $data = null)
 	{
-		parent::__construct($data);
+		parent::__construct($connection, $data);
 		$this->result = $result;
 		$map = $this->getResultColumns();
 		for ($i = 0; $i < $result->numColumns(); $i++)

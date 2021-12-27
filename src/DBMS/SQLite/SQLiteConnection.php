@@ -433,7 +433,7 @@ class SQLiteConnection implements ConnectionInterface,
 			($result instanceof \SQLite3Result &&
 			($result->numColumns() || ($result->columnType(0) !== false))))
 		{
-			return new SQLiteRecordset($result, $statement);
+			return new SQLiteRecordset($result, $this, $statement);
 		}
 		else
 			return (($result instanceof \SQLite3Result) || $result);

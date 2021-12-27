@@ -10,6 +10,7 @@
 namespace NoreSources\SQL\DBMS\MySQL;
 
 use NoreSources\Container\Container;
+use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\MySQL\MySQLConstants as K;
 use NoreSources\SQL\Result\Recordset;
 use NoreSources\SQL\Result\Traits\SeekableRecordsetTrait;
@@ -26,9 +27,13 @@ class MySQLRecordset extends Recordset implements \Countable,
 
 	use SeekableRecordsetTrait;
 
-	public function __construct(\mysqli_result $result, $data = null)
+	public function __construct(\mysqli_result $result,
+		ConnectionInterface $connection, $data = null)
 	{
-		parent::__construct($data);
+		parent::__construct($connection, $data);
+
+		$types = $connection->getPlatform()->getTypeRegistry();
+
 		$this->mysqlResult = $result;
 
 		/**
@@ -50,6 +55,18 @@ class MySQLRecordset extends Recordset implements \Countable,
 			{
 				$created = true;
 				$column = new ArrayColumnDescription();
+			}
+
+			if ($types->has($field->type))
+			{
+				/** @var \NoreSources\SQL\DBMS\TypeInterface $type */
+				$type = $types->get($field->type);
+				$dataType = $type->getDataType();
+				$column->setColumnProperty(K::COLUMN_TYPE_NAME,
+					$type->getTypeName());
+				if (($dataType & ~K::DATATYPE_NULL) > 0)
+					$column->setColumnProperty(K::COLUMN_DATA_TYPE,
+						$dataType);
 			}
 
 			if (!$column->has(K::COLUMN_NAME) ||

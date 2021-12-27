@@ -341,6 +341,13 @@ class Constants
 	const COLUMN_MEDIA_TYPE = 'mediatype';
 
 	/**
+	 * DBMS type mapping
+	 *
+	 * @var string
+	 */
+	const COLUMN_TYPE_NAME = self::TYPE_NAME;
+
+	/**
 	 * Table column is part of a key constraint (index, primary key)
 	 *
 	 * @var integer

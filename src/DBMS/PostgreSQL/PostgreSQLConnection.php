@@ -248,7 +248,8 @@ class PostgreSQLConnection implements ConnectionInterface,
 		switch ($status)
 		{
 			case PGSQL_TUPLES_OK:
-				$recordset = new PostgreSQLRecordset($result, $statement);
+				$recordset = new PostgreSQLRecordset($result, $this,
+					$statement);
 				$recordset->setDataUnserializer(
 					PostgreSQLDataUnserializer::getInstance());
 				return $recordset;

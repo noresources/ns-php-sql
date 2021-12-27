@@ -10,6 +10,7 @@
 namespace NoreSources\SQL\DBMS\PDO;
 
 use NoreSources\Container\Container;
+use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\MySQL\MySQLConstants as K;
 use NoreSources\SQL\Result\Recordset;
 use NoreSources\SQL\Result\RecordsetException;
@@ -24,9 +25,10 @@ class PDORecordset extends Recordset
 	 *
 	 * @param \PDOStatement $pdo
 	 */
-	public function __construct(\PDOStatement $pdo, $data = null)
+	public function __construct(\PDOStatement $pdo,
+		ConnectionInterface $connection, $data = null)
 	{
-		parent::__construct($data);
+		parent::__construct($connection, $data);
 		$this->pdoStatement = $pdo;
 		$this->cache = new \ArrayObject();
 		$this->pdoFlags = 0;
@@ -56,19 +58,36 @@ class PDORecordset extends Recordset
 				else
 					$column = new ArrayColumnDescription();
 
-				if ($column->getDataType() == K::DATATYPE_UNDEFINED)
+				if ($meta)
 				{
-					$pdoType = Container::keyValue($meta, 'pdo_type');
-					$dataType = PDOConnection::getDataTypeFromPDOType(
-						$pdoType);
-					$column->setColumnProperty(K::COLUMN_DATA_TYPE,
-						$dataType);
+					if ($column->getDataType() == K::DATATYPE_UNDEFINED)
+					{
+						$pdoType = Container::keyValue($meta, 'pdo_type');
+						$dataType = PDOConnection::getDataTypeFromPDOType(
+							$pdoType);
+						$column->setColumnProperty(K::COLUMN_DATA_TYPE,
+							$dataType);
+					}
+
+					if (!$column->has(K::COLUMN_NAME))
+						$column->setColumnProperty(K::COLUMN_NAME,
+							Container::keyValue($meta, 'name',
+								'column' . $i));
+
+					if (($len = Container::keyValue($meta, 'len', -1)) >
+						0)
+						$column->setColumnProperty(K::COLUMN_LENGTH,
+							$len);
+					if (($precision = Container::keyValue($meta,
+						'precision', -1)) > 0)
+						$column->setColumnProperty(K::COLUMN_LENGTH,
+							$precision);
+
+					if (($typeName = Container::keyValue($meta,
+						'driver:decl_type')))
+						$column->setColumnProperty(K::COLUMN_TYPE_NAME,
+							$typeName);
 				}
-
-				if (!$column->has(K::COLUMN_NAME))
-					$column->setColumnProperty(K::COLUMN_NAME,
-						Container::keyValue($meta, 'name', 'column' . $i));
-
 				if ($i >= $map->count())
 					$map->setColumn($i, $column);
 			}
