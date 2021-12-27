@@ -8,6 +8,13 @@ use NoreSources\SQL\DBMS\TypeInterface;
 abstract class AbstractType implements TypeInterface
 {
 
+	public function getDataType()
+	{
+		if ($this->has(K::TYPE_DATA_TYPE))
+			return $this->get(K::TYPE_DATA_TYPE);
+		return K::DATATYPE_UNDEFINED;
+	}
+
 	public function getTypeFlags()
 	{
 		if ($this->has(K::TYPE_FLAGS))
@@ -67,14 +74,10 @@ abstract class AbstractType implements TypeInterface
 		if ($size == INF || $size == 0)
 			return INF;
 		$maxValue = \pow(2, $size) - 1;
-
-		$max = 1;
-		while ($maxValue > 10)
-		{
-			$maxValue /= 10;
-			$max++;
-		}
-
-		return $max;
+		$m = \strval($maxValue);
+		if (($p = \strpos($maxValue, 'E+')) != false)
+			return \intval(\substr($maxValue, $p + 2)) +
+				\strpos($maxValue, '.');
+		return \strlen($maxValue);
 	}
 }

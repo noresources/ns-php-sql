@@ -10,6 +10,7 @@
 namespace NoreSources\SQL\DBMS;
 
 use NoreSources\Expression\Value;
+use NoreSources\SQL\DataTypeProviderInterface;
 use NoreSources\Type\ArrayRepresentation;
 use NoreSources\Type\StringRepresentation;
 use Psr\Container\ContainerInterface;
@@ -18,7 +19,7 @@ use Psr\Container\ContainerInterface;
  * DBMS type description interface
  */
 interface TypeInterface extends ContainerInterface, StringRepresentation,
-	ArrayRepresentation
+	DataTypeProviderInterface, ArrayRepresentation
 {
 
 	/**
