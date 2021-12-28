@@ -8,6 +8,10 @@
  */
 namespace NoreSources\SQL\DBMS\Configuration;
 
+/**
+ * Default implementation of ConfiguratorProviderInterface
+ * for ConnectionInterface.
+ */
 trait ConfiguratorProviderTrait
 {
 

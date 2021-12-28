@@ -8,7 +8,7 @@
  */
 namespace NoreSources\SQL\DBMS\Reference;
 
-use NoreSources\ArrayAccessContainerInterfaceTrait;
+use NoreSources\Container\ArrayAccessContainerInterfaceTrait;
 use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\PlatformInterface;
 use NoreSources\SQL\DBMS\Configuration\ConfigurationNotAvailableException;
@@ -16,6 +16,10 @@ use NoreSources\SQL\DBMS\Configuration\ConfiguratorInterface;
 use NoreSources\SQL\DBMS\Traits\ConnectionProviderTrait;
 use NoreSources\SQL\DBMS\Traits\PlatformProviderTrait;
 
+/**
+ * Reference connection configurator.
+ * Does not provide any configuration variable.
+ */
 class ReferenceConfigurator implements ConfiguratorInterface
 {
 	use ArrayAccessContainerInterfaceTrait;
@@ -35,7 +39,7 @@ class ReferenceConfigurator implements ConfiguratorInterface
 			$this->getPlatform(), $key);
 	}
 
-	public function offsetExists($key)
+	public function canSet($key)
 	{
 		return false;
 	}
@@ -45,7 +49,8 @@ class ReferenceConfigurator implements ConfiguratorInterface
 
 	public function offsetSet($key, $value)
 	{
-		throw new ConfigurationNotAvailableException(
-			$this->getPlatform(), $key);
+		if (!$this->canSet($key))
+			throw new ConfigurationNotAvailableException(
+				$this->getPlatform(), $key);
 	}
 }

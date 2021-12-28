@@ -81,9 +81,8 @@ abstract class AbstractPlatform implements PlatformInterface
 					{
 						$value = clone $value;
 						$value->setTimezone(
-							new \DateTimeZone(
-								$configurator->get(
-									K::CONFIGURATION_TIMEZONE)));
+							$configurator->get(
+								K::CONFIGURATION_TIMEZONE));
 					}
 
 					return $value->format(

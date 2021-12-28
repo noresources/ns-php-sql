@@ -14,6 +14,7 @@ use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\PlatformInterface;
 use NoreSources\SQL\DBMS\Configuration\ConfigurationNotAvailableException;
 use NoreSources\SQL\DBMS\Configuration\ConfiguratorInterface;
+use NoreSources\SQL\DBMS\Configuration\ConfiguratorTrait;
 use NoreSources\SQL\DBMS\Traits\ConnectionProviderTrait;
 use NoreSources\SQL\DBMS\Traits\PlatformProviderTrait;
 use NoreSources\SQL\Result\Recordset;
@@ -24,6 +25,7 @@ class SQLiteConfigurator implements ConfiguratorInterface
 	use ArrayAccessContainerInterfaceTrait;
 	use ConnectionProviderTrait;
 	use PlatformProviderTrait;
+	use ConfiguratorTrait;
 
 	public function __construct(PlatformInterface $platform,
 		ConnectionInterface $connection)
@@ -34,27 +36,44 @@ class SQLiteConfigurator implements ConfiguratorInterface
 
 	public function offsetGet($key)
 	{
+		if (($value = $this->getCachedValue($key)) !== null)
+			return $value;
+
 		if ($key == K::CONFIGURATION_TIMEZONE)
-			return 'UTC';
+			return $this->setCachedValue($key,
+				$this->normalizeValue($key, 'UTC'));
 		elseif ($key == K::CONFIGURATION_KEY_CONSTRAINTS)
 		{
 			$fk = TypeConversion::toInteger(
 				$this->getPragma('foreign_keys'));
 			$ic = TypeConversion::toInteger(
 				$this->getPragma('ignore_check_constraints'));
-			return ($fk != 0) && ($ic == 0);
+			return $this->setCachedValue($key, ($fk != 0) && ($ic == 0));
 		}
 		elseif ($key == K::CONFIGURATION_SUBMIT_TIMEOUT)
 		{
-			return TypeConversion::toInteger(
-				$this->getPragma('busy_timeout'));
+			return $this->setCachedValue($key,
+				$this->normalizeValue($key,
+					$this->getPragma('busy_timeout')));
 		}
 
 		throw new ConfigurationNotAvailableException(
 			$this->getPlatform(), $key);
 	}
 
-	public function offsetExists($key)
+	public function canSet($key)
+	{
+		switch ($key)
+		{
+			case K::CONFIGURATION_KEY_CONSTRAINTS:
+			case K::CONFIGURATION_SUBMIT_TIMEOUT:
+				return true;
+		}
+
+		return false;
+	}
+
+	public function canGet($key)
 	{
 		switch ($key)
 		{
@@ -63,11 +82,13 @@ class SQLiteConfigurator implements ConfiguratorInterface
 			case K::CONFIGURATION_TIMEZONE:
 				return true;
 		}
+
 		return false;
 	}
 
 	public function offsetUnset($key)
 	{
+		$this->unsetCachedValue($key);
 		if ($key == K::CONFIGURATION_KEY_CONSTRAINTS)
 		{
 			$this->setPragma('foreign_keys',
@@ -83,22 +104,24 @@ class SQLiteConfigurator implements ConfiguratorInterface
 
 	public function offsetSet($key, $value)
 	{
+		if (!$this->canSet($key))
+			throw new ConfigurationNotAvailableException(
+				$this->getPlatform(), $key);
+		$this->unsetCachedValue($key);
+
+		$value = $this->normalizeValue($key, $value);
+		$this->setCachedValue($key, $value);
+
 		if ($key == K::CONFIGURATION_KEY_CONSTRAINTS)
 		{
 			$value = ($value ? 1 : 0);
 			$this->setPragma('foreign_keys', $value);
 			$this->setPragma('ignore_check_constraints', $value ^ 1);
-			return;
 		}
 		elseif ($key == K::CONFIGURATION_SUBMIT_TIMEOUT)
 		{
-			$value = TypeConversion::toInteger($value);
 			$this->setPragma('busy_timeout', $value);
-			return;
 		}
-
-		throw new ConfigurationNotAvailableException(
-			$this->getPlatform(), $key);
 	}
 
 	public function getPragma($key)

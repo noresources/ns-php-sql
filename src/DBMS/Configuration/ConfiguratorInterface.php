@@ -12,14 +12,16 @@ use NoreSources\SQL\DBMS\ConnectionProviderInterface;
 use Psr\Container\ContainerInterface;
 
 /**
- * Runtime connection configurator
+ * Runtime connection configurator.
  *
- * - offsetExists($key) Returns TRUE if the configuration variable is available on the given
- * platform, FALSE otherwise.
- * - offsetGet($key) Returns the current configuration variable value or throw a
+ * - A single Configurator instance should be used per application.
+ * - Configurator implementation may use a caching system.
+ *
+ * - offsetExists($key), has($key) should be an alias of canGet($key)
+ * - offsetGet($key), get($key) Returns the current configuration variable value or throw a
  * ConfigurationNotAvailableException if the configuration variable is not supported.
  * - offsetSet($key, $value) Set the configuration variable to the given value or throw
- * ConfigurationNotAvailableException if the configuration variable is not supported.
+ * if the configuration variable is not supported.
  * - offsetUnset ($key) Reset the configuration variable to its default value. Unsupported variables
  * are ignored.
  * - ArrayAccess::offsetGet() and ContainerInterface::get() MUST have the same behavior
@@ -28,4 +30,22 @@ use Psr\Container\ContainerInterface;
 interface ConfiguratorInterface extends \ArrayAccess, ContainerInterface,
 	ConnectionProviderInterface
 {
+
+	/**
+	 * Indicates if the given setting can be read.
+	 *
+	 * @param string $key
+	 *        	Configuration setting
+	 * @return boolean
+	 */
+	function canGet($key);
+
+	/**
+	 * Indicates if the given setting can be modified.
+	 *
+	 * @param string $key
+	 *        	Configuration setting
+	 * @return boolean
+	 */
+	function canSet($key);
 }

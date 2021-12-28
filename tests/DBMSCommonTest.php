@@ -1923,12 +1923,26 @@ final class DBMSCommonTest extends TestCase
 			]
 		];
 
+		$expectedTypes = [
+			K::CONFIGURATION_KEY_CONSTRAINTS => 'boolean',
+			K::CONFIGURATION_SUBMIT_TIMEOUT => 'integer',
+			K::CONFIGURATION_TIMEZONE => \DateTimeZone::class
+		];
+
 		foreach ($tests as $key => $values)
 		{
 			if (!$configurator->has($key))
 				continue;
 
 			$current = $configurator->get($key);
+
+			if (($expectedType = Container::keyValue($expectedTypes,
+				$key)))
+			{
+				$this->assertEquals($expectedType,
+					TypeDescription::getName($current),
+					$dbmsName . ' ' . $key . ' expected value type');
+			}
 
 			foreach ($values as $label => $value)
 			{
