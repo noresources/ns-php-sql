@@ -16,6 +16,7 @@ use NoreSources\SQL\DBMS\Types\BasicType;
 use NoreSources\SQL\Syntax\FunctionCall;
 use NoreSources\SQL\Syntax\MetaFunctionCall;
 use NoreSources\SQL\Syntax\Statement\ParameterData;
+use NoreSources\Type\TypeConversion;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
 
@@ -314,6 +315,23 @@ class PostgreSQLPlatform extends AbstractPlatform implements
 		}
 
 		return parent::translateFunction($metaFunction);
+	}
+
+	/**
+	 * <todo Polyfill of pg_unescape_bytea()
+	 */
+	protected function unserializeBinaryColumnData($column, $data)
+	{
+		if (\is_resource($data) && \get_resource_type($data))
+			return \stream_get_contents($data);
+		return \pg_unescape_bytea($data);
+	}
+
+	protected function unserializeBooleanColumnData($column, $data)
+	{
+		if (\is_string($data))
+			return ($data == 't');
+		return TypeConversion::toBoolean($data);
 	}
 
 	private function translateTimestampFunction(

@@ -5,7 +5,7 @@
  */
 namespace NoreSources\SQL\DBMS\PostgreSQL;
 
-use NoreSources\Container;
+use NoreSources\Container\Container;
 use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLConstants as K;
 require (__DIR__ . '/../vendor/autoload.php');
 
@@ -27,28 +27,41 @@ WHERE (t.typrelid = 0 OR (SELECT c.relkind = 'c' FROM pg_catalog.pg_class c WHER
 ORDER BY 2
 EOF;
 
-$typeFlags = [
-	K::TYPE_FLAG_FRACTION_SCALE => 'K::TYPE_FLAG_FRACTION_SCALE',
-	K::TYPE_FLAG_LENGTH => 'K::TYPE_FLAG_LENGTH',
-	K::TYPE_FLAG_MANDATORY_LENGTH => 'K::TYPE_FLAG_MANDATORY_LENGTH',
-	K::TYPE_FLAG_SIGNNESS => 'K::TYPE_FLAG_SIGNNESS'
-];
+$constantsClass = new \ReflectionClass(K::class);
 
-$dataTypes = [
-	K::DATATYPE_BINARY => 'K::DATATYPE_BINARY',
-	K::DATATYPE_BOOLEAN => 'K::DATATYPE_BOOLEAN',
-	K::DATATYPE_DATE => 'K::DATATYPE_DATE',
-	K::DATATYPE_DATETIME => 'K::DATATYPE_DATETIME',
-	K::DATATYPE_FLOAT => 'K::DATATYPE_FLOAT',
-	K::DATATYPE_INTEGER => 'K::DATATYPE_INTEGER',
-	K::DATATYPE_NULL => 'K::DATATYPE_NULL',
-	K::DATATYPE_NUMBER => 'K::DATATYPE_NUMBER',
-	K::DATATYPE_STRING => 'K::DATATYPE_STRING',
-	K::DATATYPE_TIME => 'K::DATATYPE_TIME',
-	K::DATATYPE_TIMESTAMP => 'K::DATATYPE_TIMESTAMP',
-	K::DATATYPE_TIMEZONE => 'K::DATATYPE_TIMEZONE',
-	K::DATATYPE_UNDEFINED => 'K::DATATYPE_UNDEFINED'
-];
+$constants = $constantsClass->getConstants();
+
+function reverseConstantMapFromPrefix($constants, $prefix)
+{
+	$a = [];
+	$s = \strlen($prefix);
+	foreach ($constants as $name => $value)
+	{
+		if (\substr($name, 0, $s) != $prefix)
+			continue;
+		$a[$value] = 'K::' . $name;
+	}
+	return $a;
+}
+
+$typeFlagConstants = reverseConstantMapFromPrefix($constants,
+	'TYPE_FLAG_');
+$typePaddingDirectionConstants = reverseConstantMapFromPrefix(
+	$constants, 'TYPE_PADDING_DIRECTION_');
+
+$mediaTypeConstants = reverseConstantMapFromPrefix($constants,
+	'MEDIA_TYPE_');
+
+$dataTypeConstants = reverseConstantMapFromPrefix($constants,
+	'DATATYPE_');
+
+$typePropertyConstants = Container::filter(
+	reverseConstantMapFromPrefix($constants, 'TYPE_'),
+	function ($k, $v) use ($typeFlagConstants,
+	$typePaddingDirectionConstants) {
+		return !(Container::valueExists($typeFlagConstants, $v) ||
+		Container::valueExists($typePaddingDirectionConstants, $v));
+	});
 
 $typePropertiesMap = [
 	// Range tool limited
@@ -64,7 +77,7 @@ $typePropertiesMap = [
 	'bit varying' => [
 		K::TYPE_DATA_TYPE => K::DATATYPE_STRING,
 		K::TYPE_FLAGS => K::TYPE_FLAG_LENGTH,
-		K::TYPE_MEDIA_TYPE => '	K::MEDIA_TYPE_BIT_STRING'
+		K::TYPE_MEDIA_TYPE => K::MEDIA_TYPE_BIT_STRING
 	],
 	// Require a strict glyph count property / auto pad
 	// 'bit'
@@ -73,13 +86,21 @@ $typePropertiesMap = [
 	],
 	'"char"' => [
 		K::TYPE_DATA_TYPE => K::DATATYPE_STRING,
-		K::TYPE_MAX_LENGTH => 1
+		K::TYPE_MAX_LENGTH => 10485760,
+		K::TYPE_FLAGS => K::TYPE_FLAG_LENGTH,
+		K::TYPE_PADDING_DIRECTION => K::TYPE_PADDING_DIRECTION_RIGHT,
+		K::TYPE_PADDING_GLYPH => ' '
 	],
-	// Require strict glyph count / autopad
-	// 'character'
-	'character varying' => [
+	/*'character' => [
 		K::TYPE_DATA_TYPE => K::DATATYPE_STRING,
-		K::TYPE_FLAGS => K::TYPE_FLAG_LENGTH
+		K::TYPE_FLAGS => K::TYPE_FLAG_LENGTH,
+		K::TYPE_PADDING_DIRECTION => K::TYPE_PADDING_DIRECTION_RIGHT,
+		K::TYPE_PADDING_GLYPH => ' '
+	], */
+	 'character varying' => [
+		K::TYPE_DATA_TYPE => K::DATATYPE_STRING,
+		K::TYPE_FLAGS => K::TYPE_FLAG_LENGTH,
+		K::TYPE_MAX_LENGTH => 10485760
 	],
 	// 'cstring' => [
 	// K::TYPE_DATA_TYPE => K::DATATYPE_STRING
@@ -97,11 +118,11 @@ $typePropertiesMap = [
 	],
 	'json' => [
 		K::TYPE_DATA_TYPE => K::DATATYPE_STRING,
-		K::TYPE_MEDIA_TYPE => '\'application/json\''
+		K::TYPE_MEDIA_TYPE => 'application/json'
 	],
 	'jsonb' => [
 		K::TYPE_DATA_TYPE => K::DATATYPE_BINARY,
-		K::TYPE_MEDIA_TYPE => '\'application/json\''
+		K::TYPE_MEDIA_TYPE => 'application/json'
 	],
 	// 'money' => [
 	// K::TYPE_DATA_TYPE => K::DATATYPE_NUMBER,
@@ -145,7 +166,7 @@ $typePropertiesMap = [
 	// ],
 	'xml' => [
 		K::TYPE_DATA_TYPE => K::DATATYPE_STRING,
-		K::TYPE_MEDIA_TYPE => '\'text/xml\''
+		K::TYPE_MEDIA_TYPE => 'text/xml'
 	]
 ];
 
@@ -191,28 +212,27 @@ $file = file_get_contents($filename);
 $typePropertiesMapContent = Container::implode($typePropertiesMap,
 	',' . PHP_EOL,
 	function ($name, $properties) use ($typeNameOidMap, $oidDescriptions,
-	$typeFlags, $dataTypes) {
+	$mediaTypeConstants, $typePaddingDirectionConstants,
+	$typeFlagConstants, $dataTypeConstants, $typePropertyConstants) {
 		$cleanName = \str_replace('"', '', $name);
-		if (!\array_key_exists($name, $typeNameOidMap))
-			throw new \InvalidArgumentException(
-				'"' . $cleanName . '" oid not found');
-		$oid = $typeNameOidMap[$name];
+
 		$s = '';
 		$s .= "'" . $cleanName . "'" . ' => new ArrayObjectType([ ' .
 		PHP_EOL;
 		// name
-		$s .= "'" . K::TYPE_NAME . "' => '" . $cleanName . "'," . PHP_EOL;
+		$s .= $typePropertyConstants[K::TYPE_NAME] . " => '" . $cleanName .
+		"'," . PHP_EOL;
 		foreach ($properties as $k => $v)
 		{
+			$propertyName = $typePropertyConstants[$k];
 			if ($k == K::TYPE_DATA_TYPE)
 			{
-				$k = 'K::TYPE_DATA_TYPE';
-				if (Container::keyExists($dataTypes, $v))
-					$v = Container::keyValue($dataTypes, $v, $v);
+				if (Container::keyExists($dataTypeConstants, $v))
+					$v = Container::keyValue($dataTypeConstants, $v, $v);
 				else
 				{
 					$a = [];
-					foreach ($dataTypes as $flag => $constant)
+					foreach ($dataTypeConstants as $flag => $constant)
 					{
 						if (($v & $flag) == $flag)
 							$a[] = $constant;
@@ -221,11 +241,12 @@ $typePropertiesMapContent = Container::implode($typePropertiesMap,
 					$v = '(' . \implode(' | ', $a) . ')';
 				}
 			}
+			elseif ($k == K::TYPE_PADDING_DIRECTION)
+				$v = $typePaddingDirectionConstants[$v];
 			elseif ($k == K::TYPE_FLAGS)
 			{
-				$k = 'K::TYPE_FLAGS';
 				$a = [];
-				foreach ($typeFlags as $flag => $constant)
+				foreach ($typeFlagConstants as $flag => $constant)
 				{
 					if (($v & $flag) == $flag)
 						$a[] = $constant;
@@ -235,9 +256,18 @@ $typePropertiesMapContent = Container::implode($typePropertiesMap,
 
 				$v = '(' . \implode(' | ', $a) . ')';
 			}
+			elseif ($k == K::TYPE_MEDIA_TYPE)
+			{
+				$v = Container::keyValue($mediaTypeConstants, $v,
+					escapeshellarg($v));
+			}
 			else
-				$k = "'" . $k . "'";
-			$s .= $k . " => " . $v . ', ' . PHP_EOL;
+			{
+				if (\is_string($v) && !\preg_match('/K::[A-Z]/', $v))
+					$v = escapeshellarg($v);
+			}
+
+			$s .= $propertyName . " => " . $v . ', ' . PHP_EOL;
 		}
 		$s .= '])';
 		return $s;
@@ -248,11 +278,6 @@ $typeNameOidMapContent = Container::implode($typeNameOidMap,
 	function ($name, $oid) {
 		return "'" . $name . '\' => ' . $oid;
 	});
-
-$file = preg_replace(
-	',(--<typeNameOidMap>--).*?(--</typeNameOidMap>--),sm',
-	'\1 */' . PHP_EOL . $typeNameOidMapContent . PHP_EOL . '/* \2',
-	$file);
 
 $file = preg_replace(
 	',(--<typeProperties>--).*?(--</typeProperties>--),sm',
