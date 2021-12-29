@@ -90,6 +90,12 @@ class PDOPlatform implements PlatformInterface,
 		return $this->basePlatform->serializeData($data, $dataType);
 	}
 
+	public function unserializeColumnData($columnDescription, $data)
+	{
+		return $this->basePlatform->unserializeColumnData(
+			$columnDescription, $data);
+	}
+
 	public function getParameter($name,
 		$valueDataType = K::DATATYPE_UNDEFINED,
 		ParameterData $parameters = null)

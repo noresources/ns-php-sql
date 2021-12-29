@@ -15,6 +15,7 @@ use NoreSources\Expression\ExpressionInterface;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DataTypeProviderInterface;
 use NoreSources\SQL\MediaTypeUtility;
+use NoreSources\SQL\DBMS\Traits\DefaultDataUnserializerTrait;
 use NoreSources\SQL\Structure\Identifier;
 use NoreSources\SQL\Syntax\Evaluator;
 use NoreSources\SQL\Syntax\FunctionCall;
@@ -30,6 +31,7 @@ abstract class AbstractPlatform implements PlatformInterface
 {
 
 	use ClassMapStatementFactoryTrait;
+	use DefaultDataUnserializerTrait;
 
 	const DEFAULT_VERSION = '0.0.0';
 

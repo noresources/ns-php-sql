@@ -25,8 +25,8 @@ use Psr\Log\LoggerAwareInterface;
  */
 interface PlatformInterface extends LoggerAwareInterface,
 	DataSerializerInterface, StringSerializerInterface,
-	BinaryDataSerializerInterface, IdentifierSerializerInterface,
-	StatementFactoryInterface
+	DataUnserializerInterface, BinaryDataSerializerInterface,
+	IdentifierSerializerInterface, StatementFactoryInterface
 {
 
 	/**
@@ -40,7 +40,9 @@ interface PlatformInterface extends LoggerAwareInterface,
 	function queryFeature($query, $dflt = null);
 
 	/**
-	 * Create a runtime connection configurator object
+	 * Create a runtime connection configurator object.
+	 *
+	 * This interface should only be used internally.
 	 *
 	 * @param ConnectionInterface $connection
 	 *        	A DBMS connection compatible with the platform

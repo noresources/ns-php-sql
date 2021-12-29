@@ -52,7 +52,8 @@ trait DefaultDataUnserializerTrait
 			$data = $this->unserializeBooleanColumnData(
 				$columnDescription, $data);
 		elseif ($dataType & K::DATATYPE_TIMESTAMP)
-			$data = TypeConversion::toDateTime($data);
+			$data = $this->unserializeTimestampData($columnDescription,
+				$data);
 		elseif ($dataType & K::DATATYPE_NUMBER)
 		{
 			if ($dataType & K::DATATYPE_FLOAT)
@@ -72,6 +73,12 @@ trait DefaultDataUnserializerTrait
 		}
 
 		return $data;
+	}
+
+	protected function unserializeTimestampData($columnDescription,
+		$data)
+	{
+		return TypeConversion::toDateTime($data);
 	}
 
 	/**
