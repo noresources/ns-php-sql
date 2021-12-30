@@ -13,6 +13,7 @@ use NoreSources\SQL\Syntax\Statement\StatementBuilder;
 use NoreSources\SQL\Syntax\Statement\StatementTokenStreamContext;
 use NoreSources\SQL\Syntax\Statement\Query\SelectQuery;
 use NoreSources\Test\DerivedFileManager;
+use NoreSources\Test\SqlFormatter;
 
 final class VirtualStructureTest extends \PHPUnit\Framework\TestCase
 {
@@ -167,7 +168,7 @@ final class VirtualStructureTest extends \PHPUnit\Framework\TestCase
 			$stream = new TokenStream();
 			$select->tokenize($stream, $context);
 			$data = StatementBuilder::getInstance()($select, $context);
-			$sql = \SqlFormatter::format(\strval($data), false);
+			$sql = SqlFormatter::format(\strval($data), false);
 
 			$this->derivedFileManager->assertDerivedFile($sql,
 				__METHOD__, 'select', 'sql');

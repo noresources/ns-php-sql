@@ -13,6 +13,7 @@ use NoreSources\SQL\Syntax\Statement\StatementTokenStreamContext;
 use NoreSources\SQL\Syntax\Statement\Query\SelectQuery;
 use NoreSources\Test\DatasourceManager;
 use NoreSources\Test\DerivedFileManager;
+use NoreSources\Test\SqlFormatter;
 
 final class SelectTest extends \PHPUnit\Framework\TestCase
 {
@@ -61,7 +62,7 @@ final class SelectTest extends \PHPUnit\Framework\TestCase
 		$this->assertEquals(K::QUERY_SELECT, $result->getStatementType(),
 			'Statement type');
 
-		$sql = \SqlFormatter::format(strval($result), false);
+		$sql = SqlFormatter::format(strval($result), false);
 
 		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__,
 			null, 'sql');
@@ -147,7 +148,7 @@ final class SelectTest extends \PHPUnit\Framework\TestCase
 		$this->assertCount(4, $result->getResultColumns(),
 			'Number of result columns');
 
-		$sql = \SqlFormatter::format(strval($result), false);
+		$sql = SqlFormatter::format(strval($result), false);
 
 		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__,
 			null, 'sql');
@@ -191,7 +192,7 @@ final class SelectTest extends \PHPUnit\Framework\TestCase
 
 		$result =  StatementBuilder::getInstance() ($q, $platform, $namespaceStructure);
 
-		$sql = \SqlFormatter::format(strval($result), false);
+		$sql = SqlFormatter::format(strval($result), false);
 		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__,
 			null, 'sql');
 	}
@@ -223,7 +224,7 @@ final class SelectTest extends \PHPUnit\Framework\TestCase
 			]);
 
 		$data = $env->prepareStatement($select, $structure);
-		$sql = \SqlFormatter::format(strval($data), false);
+		$sql = SqlFormatter::format(strval($data), false);
 		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__,
 			'not in', 'sql');
 	}
@@ -256,7 +257,7 @@ final class SelectTest extends \PHPUnit\Framework\TestCase
 
 		$env = new Environment();
 		$data = $env->prepareStatement($a, $tableStructure);
-		$sql = \SqlFormatter::format(strval($data), false);
+		$sql = SqlFormatter::format(strval($data), false);
 		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__,
 			null, 'sql');
 	}
@@ -318,7 +319,7 @@ final class SelectTest extends \PHPUnit\Framework\TestCase
 		$this->assertCount(1, $data->getParameters(),
 			'Outer parameter count');
 
-		$sql = \SqlFormatter::format(strval($data), false);
+		$sql = SqlFormatter::format(strval($data), false);
 		//
 		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__,
 			null, 'sql');

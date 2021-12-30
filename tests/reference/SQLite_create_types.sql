@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS "ns_unittests"."types" (
   "base" TEXT, 
-  "binary" BLOB DEFAULT X '616263', 
+  "binary" BLOB DEFAULT X'616263', 
   "boolean" BOOLEAN DEFAULT 1, 
   "int" INTEGER PRIMARY KEY AUTOINCREMENT, 
   "large_int" INTEGER(12) DEFAULT 123456789012, 

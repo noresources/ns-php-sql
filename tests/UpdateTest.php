@@ -9,6 +9,7 @@ use NoreSources\SQL\Syntax\Statement\Query\SelectQuery;
 use NoreSources\Test\ConnectionHelper;
 use NoreSources\Test\DatasourceManager;
 use NoreSources\Test\DerivedFileManager;
+use NoreSources\Test\SqlFormatter;
 
 final class UpdateTest extends \PHPUnit\Framework\TestCase
 {
@@ -96,7 +97,7 @@ final class UpdateTest extends \PHPUnit\Framework\TestCase
 
 			$result =  StatementBuilder::getInstance()($q, $platform,  $tableStructure);
 
-			$sql = \SqlFormatter::format(strval($result), false);
+			$sql = SqlFormatter::format(strval($result), false);
 			$this->derivedFileManager->assertDerivedFile($sql,
 				__METHOD__, $set, 'sql');
 		}
@@ -133,7 +134,7 @@ final class UpdateTest extends \PHPUnit\Framework\TestCase
 
 		$result =  StatementBuilder::getInstance() ($q, $platform, $tableStructure);
 
-		$sql = \SqlFormatter::format(\strval($result), false);
+		$sql = SqlFormatter::format(\strval($result), false);
 
 		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__,
 			null, 'sql');
@@ -165,7 +166,7 @@ final class UpdateTest extends \PHPUnit\Framework\TestCase
 		StatementBuilder::getInstance(); // IDO workaround
 		$result =  StatementBuilder::getInstance()($q, $platform, $tableStructure);
 
-		$sql = \SqlFormatter::format(\strval($result), false);
+		$sql = SqlFormatter::format(\strval($result), false);
 
 		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__,
 			null, 'sql');

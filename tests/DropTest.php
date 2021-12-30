@@ -11,10 +11,13 @@ use NoreSources\SQL\Syntax\Statement\Structure\DropNamespaceQuery;
 use NoreSources\SQL\Syntax\Statement\Structure\DropTableQuery;
 use NoreSources\SQL\Syntax\Statement\Structure\DropViewQuery;
 use NoreSources\Test\DatasourceManager;
+use NoreSources\Test\DatasourceManagerTrait;
 use NoreSources\Test\DerivedFileManager;
+use NoreSources\Test\SqlFormatter;
 
 final class DropTest extends \PHPUnit\Framework\TestCase
 {
+	use DatasourceManagerTrait;
 
 	public function __construct($name = null, array $data = [],
 		$dataName = '')
@@ -36,7 +39,7 @@ final class DropTest extends \PHPUnit\Framework\TestCase
 
 		$result = $structurelessEnvironment->prepareStatement(
 			$structureless);
-		$sql = \SqlFormatter::format(strval($result), false);
+		$sql = SqlFormatter::format(strval($result), false);
 		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__,
 			'structureless', 'sql', 'Structureless SQL');
 
@@ -49,7 +52,7 @@ final class DropTest extends \PHPUnit\Framework\TestCase
 		$structured->identifier('structureless');
 
 		$result = $structuredEnvironment->prepareStatement($structured);
-		$sql = \SqlFormatter::format(strval($result), false);
+		$sql = SqlFormatter::format(strval($result), false);
 		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__,
 			'structured', 'sql', 'Drop index SQL');
 	}
@@ -61,7 +64,7 @@ final class DropTest extends \PHPUnit\Framework\TestCase
 		$query = new DropViewQuery();
 		$query->identifier('Males');
 		$result =  StatementBuilder::getInstance()($query, $platform);
-		$sql = \SqlFormatter::format(strval($result), false);
+		$sql = SqlFormatter::format(strval($result), false);
 		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__,
 			'structureless', 'sql');
 
@@ -84,12 +87,12 @@ final class DropTest extends \PHPUnit\Framework\TestCase
 			\strval($view->getIdentifier()), 'Temporary view identifier');
 
 		$result =  StatementBuilder::getInstance()($query, $platform, $view);
-		$sql = \SqlFormatter::format(strval($result), false);
+		$sql = SqlFormatter::format(strval($result), false);
 		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__,
 			'structure', 'sql');
 
 		$result =  StatementBuilder::getInstance()($query, $platform, $structure);
-		$sql = \SqlFormatter::format(strval($result), false);
+		$sql = SqlFormatter::format(strval($result), false);
 		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__,
 			'parentstructure', 'sql');
 	}
@@ -108,13 +111,13 @@ final class DropTest extends \PHPUnit\Framework\TestCase
 		$q = $platform->newStatement(DropNamespaceQuery::class);
 		$q->identifier('ns_unittests');
 		$data = $environment->prepareStatement($q);
-		$sql = \SqlFormatter::format(strval($data), false);
+		$sql = SqlFormatter::format(strval($data), false);
 		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__,
 			'using-structure', 'sql');
 
 		$q->identifier('ns');
 		$data = $environment->prepareStatement($q);
-		$sql = \SqlFormatter::format(strval($data), false);
+		$sql = SqlFormatter::format(strval($data), false);
 		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__,
 			'using-identifier', 'sql');
 	}
@@ -144,13 +147,11 @@ final class DropTest extends \PHPUnit\Framework\TestCase
 			$q->dropFlags($q->getDropFlags() | K::DROP_CASCADE);
 
 			$result =  StatementBuilder::getInstance()($q, $platform, $tableName);
-			$sql = \SqlFormatter::format(strval($result), false);
+			$sql = SqlFormatter::format(strval($result), false);
 			$this->derivedFileManager->assertDerivedFile($sql,
 				__METHOD__, $tableName, 'sql', $tableName . ' SQL');
 		}
 	}
-
-	private $datasources;
 
 	/**
 	 * /**

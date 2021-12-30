@@ -14,6 +14,7 @@ use NoreSources\SQL\Syntax\Statement\Manipulation\InsertQuery;
 use NoreSources\SQL\Syntax\Statement\Query\SelectQuery;
 use NoreSources\Test\DatasourceManager;
 use NoreSources\Test\DerivedFileManager;
+use NoreSources\Test\SqlFormatter;
 
 final class InsertTest extends \PHPUnit\Framework\TestCase
 {
@@ -198,7 +199,7 @@ final class InsertTest extends \PHPUnit\Framework\TestCase
 		$insert->select($select);
 
 		$data = $builder($insert, $platform, $structure);
-		$sql = \SqlFormatter::format(\strval($data), false);
+		$sql = SqlFormatter::format(\strval($data), false);
 
 		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__,
 			'', 'sql');

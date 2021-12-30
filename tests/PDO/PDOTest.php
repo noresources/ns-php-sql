@@ -16,16 +16,10 @@ use NoreSources\Test\DatasourceManager;
 use NoreSources\Test\DerivedFileManager;
 use NoreSources\Test\SqlFormatter;
 use NoreSources\Type\TypeDescription;
+use PHPUnit\Framework\TestCase;
 
 // Globals
-$sqliteConnectionParameters = [
-	K::CONNECTION_SOURCE => [
-		'sqlite',
-		realpath(__DIR__ . '/../data/Company.sqlite')
-	]
-];
-
-final class PDOTest extends \PHPUnit\Framework\TestCase
+final class PDOTest extends TestCase
 {
 
 	public function __construct($name = null, array $data = [],
@@ -83,16 +77,15 @@ final class PDOTest extends \PHPUnit\Framework\TestCase
 
 	private function subtestSQLiteBase()
 	{
-		global $sqliteConnectionParameters;
-
 		if (!PDOConnection::acceptConnection(
-			$sqliteConnectionParameters))
+			$this->getSQLiteConnectionParameters()))
 		{
 			$this->assertFalse(false);
 			return;
 		}
 
-		$connection = new PDOConnection($sqliteConnectionParameters);
+		$connection = new PDOConnection(
+			$this->getSQLiteConnectionParameters());
 
 		$recordset = $connection->executeStatement(
 			'select * from employees');
@@ -173,7 +166,7 @@ final class PDOTest extends \PHPUnit\Framework\TestCase
 		$this->assertInstanceOf(PDOPreparedStatement::class, $prepared);
 		$sql = strval($prepared);
 		$this->derivedFileManager->assertDerivedFile(
-			\SqlFormatter::format($sql, false), __METHOD__, 'insert',
+			SqlFormatter::format($sql, false), __METHOD__, 'insert',
 			'sql');
 
 		$employees = [
@@ -286,6 +279,16 @@ final class PDOTest extends \PHPUnit\Framework\TestCase
 		$prepared->bindValue(':n', 'now');
 
 		$result = $prepared->execute();
+	}
+
+	protected function getSQLiteConnectionParameters()
+	{
+		return [
+			K::CONNECTION_SOURCE => [
+				'sqlite',
+				realpath(__DIR__ . '/../data/Company.sqlite')
+			]
+		];
 	}
 
 	/**

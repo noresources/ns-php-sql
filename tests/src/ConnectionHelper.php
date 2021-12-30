@@ -37,7 +37,7 @@ use NoreSources\Type\TypeDescription;
 /**
  * Helper method for creation of Connection, statement and prepared statement
  */
-class ConnectionHelper
+final class ConnectionHelper
 {
 
 	public static function sqliteDatabaseFilenameFactory($identifier,

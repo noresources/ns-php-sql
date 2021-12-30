@@ -41,6 +41,7 @@ use NoreSources\SQL\Syntax\Statement\Structure\CreateTableQuery;
 use NoreSources\Test\ConnectionHelper;
 use NoreSources\Test\DatasourceManager;
 use NoreSources\Test\DerivedFileManager;
+use NoreSources\Test\SqlFormatter;
 use NoreSources\Type\TypeDescription;
 
 final class SQLiteTest extends \PHPUnit\Framework\TestCase
@@ -176,7 +177,7 @@ final class SQLiteTest extends \PHPUnit\Framework\TestCase
 		$prepared = ConnectionHelper::prepareStatement(
 			$this->connection, $statement, $tableStructure);
 
-		$sql = \SqlFormatter::format(strval(strval($prepared)), false);
+		$sql = SqlFormatter::format(strval(strval($prepared)), false);
 		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__,
 			'insert', 'sql');
 
@@ -236,11 +237,11 @@ final class SQLiteTest extends \PHPUnit\Framework\TestCase
 			->count(), 'Number of parameters in prepared statement');
 
 		$sql = strval($prepared);
-		$sql = \SqlFormatter::format(strval($sql), false);
+		$rawPrepared = $this->connection->prepareStatement($sql);
+
+		$sql = SqlFormatter::format(strval($sql), false);
 		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__,
 			'insert', 'sql');
-
-		$rawPrepared = $this->connection->prepareStatement($sql);
 
 		$this->assertEquals(2, $rawPrepared->getParameters()
 			->count(),
@@ -691,7 +692,7 @@ final class SQLiteTest extends \PHPUnit\Framework\TestCase
 			$prepared);
 
 		$sql = strval($prepared);
-		$sql = \SqlFormatter::format(strval($sql), false);
+		$sql = SqlFormatter::format(strval($sql), false);
 		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__,
 			'create_' . $tableStructure->getName(), 'sql');
 

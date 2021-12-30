@@ -19,6 +19,7 @@ use NoreSources\SQL\Syntax\Statement\Structure\CreateTableQuery;
 use NoreSources\SQL\Syntax\Statement\Structure\CreateViewQuery;
 use NoreSources\Test\DatasourceManager;
 use NoreSources\Test\DerivedFileManager;
+use NoreSources\Test\SqlFormatter;
 
 final class CreateTest extends \PHPUnit\Framework\TestCase
 {
@@ -45,7 +46,7 @@ final class CreateTest extends \PHPUnit\Framework\TestCase
 
 		$data = StatementBuilder::getInstance()($index, $platform, $tableStructure);
 
-		$sql = \SqlFormatter::format(strval($data), false);
+		$sql = SqlFormatter::format(strval($data), false);
 		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__,
 			null, 'sql');
 	}
@@ -77,7 +78,7 @@ final class CreateTest extends \PHPUnit\Framework\TestCase
 
 		$data =  StatementBuilder::getInstance()($view, $platform, $tableStructure);
 
-		$sql = \SqlFormatter::format(strval($data), false);
+		$sql = SqlFormatter::format(strval($data), false);
 		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__,
 			null, 'sql');
 	}
@@ -121,7 +122,7 @@ final class CreateTest extends \PHPUnit\Framework\TestCase
 			$result = StatementBuilder::getInstance()->build($q,
 				$platform, $employees);
 
-			$sql = \SqlFormatter::format(strval($result), false);
+			$sql = SqlFormatter::format(strval($result), false);
 			$this->derivedFileManager->assertDerivedFile($sql,
 				__METHOD__, null, 'sql');
 		}
@@ -200,7 +201,7 @@ final class CreateTest extends \PHPUnit\Framework\TestCase
 		{
 			$createTable->table($table);
 			$data = $environment->prepareStatement($createTable);
-			$sql = \SqlFormatter::format(\strval($data), false);
+			$sql = SqlFormatter::format(\strval($data), false);
 			$this->derivedFileManager->assertDerivedFile($sql,
 				__METHOD__, $table->getName(), 'sql');
 		}
@@ -234,7 +235,7 @@ final class CreateTest extends \PHPUnit\Framework\TestCase
 			$q->flags(CreateTableQuery::REPLACE);
 			$result =  StatementBuilder::getInstance()($q, $platform, $tableStructure);
 
-			$sql = \SqlFormatter::format(strval($result), false);
+			$sql = SqlFormatter::format(strval($result), false);
 			$this->derivedFileManager->assertDerivedFile($sql,
 				__METHOD__, $tableName, 'sql', $tableName . ' SQL');
 		}
