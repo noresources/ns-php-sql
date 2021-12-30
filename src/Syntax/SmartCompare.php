@@ -12,6 +12,7 @@ use NoreSources\Expression\ExpressionInterface;
 use NoreSources\Expression\Set;
 use NoreSources\Expression\Value;
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\DataDescription;
 use NoreSources\SQL\Syntax\Traits\ToggleableTrait;
 
 class SmartCompare implements TokenizableExpressionInterface,
@@ -45,7 +46,7 @@ class SmartCompare implements TokenizableExpressionInterface,
 
 		if ($r instanceof Value)
 		{
-			$dataType = Evaluator::getDataType($r);
+			$dataType = DataDescription::getInstance()->getDataType($r);
 			if ($dataType == K::DATATYPE_NULL)
 			{
 				$stream->expression($this->leftOperand, $context)

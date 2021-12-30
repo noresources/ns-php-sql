@@ -17,10 +17,6 @@ use NoreSources\Container\Container;
 use NoreSources\Expression\ExpressionInterface;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DataTypeDescription;
-use NoreSources\SQL\DataTypeProviderInterface;
-use NoreSources\Type\BooleanRepresentation;
-use NoreSources\Type\FloatRepresentation;
-use NoreSources\Type\IntegerRepresentation;
 use NoreSources\Type\TypeDescription;
 
 /**
@@ -173,45 +169,6 @@ class Evaluator
 
 		throw new \BadMethodCallException(
 			$name . ' is not a valid method name');
-	}
-
-	/**
-	 *
-	 * @param mixed $expression
-	 *        	Any object
-	 * @return integer Data type identifier
-	 */
-	public static function getDataType($expression)
-	{
-		if ($expression instanceof DataTypeProviderInterface)
-			return $expression->getDataType();
-		elseif (\is_object($expression))
-		{
-			if ($expression instanceof \DateTimeInterface)
-				return K::DATATYPE_TIMESTAMP;
-			elseif (TypeDescription::hasStringRepresentation(
-				$expression))
-				return K::DATATYPE_STRING;
-			elseif ($expression instanceof FloatRepresentation)
-				return K::DATATYPE_REAL;
-			elseif ($expression instanceof IntegerRepresentation)
-				return K::DATATYPE_INTEGER;
-			elseif ($expression instanceof BooleanRepresentation)
-				return K::DATATYPE_BOOLEAN;
-		}
-
-		if (\is_integer($expression))
-			return K::DATATYPE_INTEGER;
-		elseif (\is_float($expression))
-			return K::DATATYPE_REAL;
-		elseif (\is_bool($expression))
-			return K::DATATYPE_BOOLEAN;
-		elseif (\is_null($expression))
-			return K::DATATYPE_NULL;
-		elseif (\is_string($expression))
-			return K::DATATYPE_STRING;
-
-		return K::DATATYPE_UNDEFINED;
 	}
 
 	// bm3

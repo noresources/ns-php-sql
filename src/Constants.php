@@ -58,7 +58,7 @@ class Constants
 	 * @c DATATYPE_INTEGER and @c DATATYPE_REAL
 	 * @var integer
 	 */
-	const DATATYPE_NUMBER = self::DATATYPE_INTEGER | self::DATATYPE_REAL;
+	const DATATYPE_NUMBER = (self::DATATYPE_INTEGER | self::DATATYPE_REAL);
 
 	/**
 	 * Date part of a timestamp type
@@ -438,8 +438,8 @@ class Constants
 	 *
 	 * @var integer
 	 */
-	const TYPE_FLAG_FRACTION_SCALE = self::TYPE_FLAG_LENGTH |
-		Bitset::BIT_04;
+	const TYPE_FLAG_FRACTION_SCALE = (self::TYPE_FLAG_LENGTH |
+		Bitset::BIT_04);
 
 	/**
 	 * Length specification in table column declaration

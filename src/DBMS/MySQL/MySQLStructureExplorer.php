@@ -153,7 +153,7 @@ class MySQLStructureExplorer extends AbstractStructureExplorer implements
 				referenced_table_schema as reference_namespace,
 				referenced_table_name as reference_table,
 				referenced_column_name as reference_column
-			FROM information_schema.key_column_USAGE
+			FROM information_schema.key_column_usage
 			WHERE table_schema=%s
 				AND table_name=%s
 				AND constraint_name <> %s
@@ -170,6 +170,10 @@ class MySQLStructureExplorer extends AbstractStructureExplorer implements
 			K::RECORDSET_FETCH_ASSOCIATIVE |
 			K::RECORDSET_FETCH_UNSERIALIZE);
 		$keyed = [];
+
+		$automaticConstraintNamePattern = '^' . $tableName .
+			'_ibfk_[0-9]+$';
+
 		foreach ($recordset as $row)
 		{
 			$name = $row['constraint_name'];
@@ -185,7 +189,11 @@ class MySQLStructureExplorer extends AbstractStructureExplorer implements
 					]);
 				$keyed[$name] = new ForeignKeyTableConstraint(
 					$referenceTable);
-				$keyed[$name]->setName($name);
+
+				if (!\preg_match(
+					chr(1) . $automaticConstraintNamePattern . chr(1),
+					$name))
+					$keyed[$name]->setName($name);
 
 				$this->populateInformationSchemaForeignKeyActions(
 					$keyed[$name], $this->getConnection(), $namespace);
@@ -204,13 +212,15 @@ class MySQLStructureExplorer extends AbstractStructureExplorer implements
 
 		$platform = $this->getConnection()->getPlatform();
 
+		$namespace = $tableIdentifier->getParentIdentifier();
+		$tableName = $tableIdentifier->getLocalName();
+
 		$columnNames = $this->getInformationSchemaTableColumnNames(
 			$this->getConnection(),
-			Identifier::make(
-				[
-					$tableIdentifier->getParentIdentifier(),
-					$tableIdentifier->getLocalName()
-				]));
+			Identifier::make([
+				$namespace,
+				$tableName
+			]));
 
 		$columnListSQL = Container::implodeValues($columnNames, ', ',
 			[
@@ -218,13 +228,25 @@ class MySQLStructureExplorer extends AbstractStructureExplorer implements
 				'quoteStringValue'
 			]);
 
+		$keyConstraintsSQL = sprintf(
+			'SELECT
+				constraint_name
+			FROM information_schema.key_column_usage
+			WHERE table_schema=%s
+				AND table_name=%s
+			', $platform->quoteStringValue($namespace),
+			$platform->quoteStringValue($tableName));
+
 		$sql = sprintf(
 			"SHOW KEYS
 			FROM %s
 			WHERE Key_name <> 'PRIMARY'
 			AND Non_unique=1
 			AND Key_name NOT IN (%s)
-", $platform->quoteIdentifierPath($tableIdentifier), $columnListSQL);
+			AND Key_name NOT IN (%s)
+", $platform->quoteIdentifierPath($tableIdentifier), $columnListSQL,
+			$keyConstraintsSQL);
+
 		$recordset = $this->getConnection()->executeStatement($sql);
 
 		$recordset->setFlags(K::RECORDSET_FETCH_ASSOCIATIVE);
@@ -266,10 +288,34 @@ class MySQLStructureExplorer extends AbstractStructureExplorer implements
 		 * instead of column length.
 		 */
 		$length = Container::keyValue($properties, K::COLUMN_LENGTH, INF);
+		$reportLength = false;
 		Container::removeKey($properties, K::COLUMN_LENGTH);
+
+		$type = null;
+		$typeFlags = 0;
+		$maxLength = 0;
+		try
+		{
+			$type = $this->getConnection()
+				->getPlatform()
+				->getTypeRegistry()
+				->get($info['data_type']);
+			$typeFlags = Container::keyValue($type, K::TYPE_FLAGS);
+
+			if ($type->has(K::TYPE_DEFAULT_LENGTH) &&
+				$type->get(K::TYPE_DEFAULT_LENGTH) < $length)
+			{
+				$reportLength = true;
+			}
+
+			$maxLength = $type->getTypeMaxLength();
+		}
+		catch (\Exception $e)
+		{}
 
 		if (\strcasecmp($info['data_type'], 'enum') == 0)
 		{
+			$length = 0;
 			$properties[K::COLUMN_DATA_TYPE] &= (K::DATATYPE_NULL |
 				K::DATATYPE_STRING);
 			$properties[K::COLUMN_DATA_TYPE] |= K::DATATYPE_STRING;
@@ -289,34 +335,46 @@ class MySQLStructureExplorer extends AbstractStructureExplorer implements
 					});
 			}
 
+			/**
+			 * Reminder
+			 */
 			$length = \intval($info['character_maximum_length']);
-			if ($length)
-				$properties[K::COLUMN_LENGTH] = $length;
 		}
 		elseif (\preg_match(
 			chr(1) . self::COLUMN_TYPE_DECLARATION_PATTERN . chr(1) . 'i',
 			$typeDeclaration, $m))
 		{
+
+			$length = 0;
 			if (($precision = \intval(
 				Container::keyValue($m, 'precision', 0))) > 0)
 			{
-				$properties[K::COLUMN_LENGTH] = \intval($precision);
+				$length = \intval($precision);
 			}
 
 			if (($scale = \intval(Container::keyValue($m, 'scale', 0))) >
 				0)
 			{
+
+				$reportLength = true;
 				$properties[K::COLUMN_FRACTION_SCALE] = $scale;
 			}
 
 			if (($modifiers = Container::keyValue($m, 'modifiers')))
 			{
 				if (\preg_match('/(^|\s)unsigned(\s|$)/i', $modifiers))
-				{
 					$flags |= K::COLUMN_FLAG_UNSIGNED;
-				}
 			}
 		}
+
+		if ($maxLength && !\is_infinite($maxLength) &&
+			$length < $maxLength)
+		{
+			$reportLength = true;
+		}
+
+		if ($length && $reportLength)
+			$properties[K::COLUMN_LENGTH] = $length;
 
 		if ($flags)
 			$properties[K::COLUMN_FLAGS] = $flags;
@@ -398,6 +456,10 @@ class MySQLStructureExplorer extends AbstractStructureExplorer implements
 
 		$dataType = Container::keyValue($properties, K::COLUMN_DATA_TYPE,
 			K::DATATYPE_UNDEFINED);
+
+		$columnValue = $platform->unserializeColumnData($properties,
+			$columnValue);
+
 		$properties[K::COLUMN_DEFAULT_VALUE] = new Data($columnValue,
 			$dataType);
 	}

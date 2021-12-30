@@ -11,6 +11,7 @@ namespace NoreSources\SQL\DBMS\PDO;
 
 use NoreSources\SemanticVersion;
 use NoreSources\Container\Container;
+use NoreSources\SQL\DataDescription;
 use NoreSources\SQL\DBMS\BinaryDataSerializerInterface;
 use NoreSources\SQL\DBMS\ConnectionException;
 use NoreSources\SQL\DBMS\ConnectionInterface;
@@ -31,7 +32,6 @@ use NoreSources\SQL\DBMS\Traits\PlatformProviderTrait;
 use NoreSources\SQL\DBMS\Traits\TransactionStackTrait;
 use NoreSources\SQL\Result\DefaultInsertionStatementResult;
 use NoreSources\SQL\Result\DefaultRowModificationStatementResult;
-use NoreSources\SQL\Syntax\Evaluator;
 use NoreSources\SQL\Syntax\Statement\ParameterData;
 use NoreSources\SQL\Syntax\Statement\ParameterDataProviderInterface;
 use NoreSources\SQL\Syntax\Statement\Statement;
@@ -423,7 +423,8 @@ class PDOConnection implements ConnectionInterface, TransactionInterface,
 					$parameterData = $map->get($key);
 					$dataType = Container::keyValue($parameterData,
 						ParameterData::DATATYPE,
-						Evaluator::getInstance()->getDataType($entry));
+						DataDescription::getInstance()->getDataType(
+							$entry));
 
 					$pdoType = self::getPDOTypeFromDataType($dataType);
 					$value = $platform->literalize($entry, $dataType);
@@ -462,7 +463,8 @@ class PDOConnection implements ConnectionInterface, TransactionInterface,
 					$pdo->bindValue($index + 1,
 						$platform->literalize($entry),
 						self::getPDOTypeFromDataType(
-							Evaluator::getDataType($entry)));
+							DataDescription::getInstance()->getDataType(
+								$entry)));
 				}
 			}
 			else // Key-value
@@ -471,10 +473,11 @@ class PDOConnection implements ConnectionInterface, TransactionInterface,
 				{
 					$pdo->bindValue(
 						$platform->getParameter($key,
-							Evaluator::getDataType($entry)),
-						$platform->literalize($entry),
+							DataDescription::getInstance()->getDataType(
+								$entry)), $platform->literalize($entry),
 						self::getPDOTypeFromDataType(
-							Evaluator::getDataType($entry)));
+							DataDescription::getInstance()->getDataType(
+								$entry)));
 				}
 			}
 		}

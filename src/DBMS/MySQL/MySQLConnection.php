@@ -10,6 +10,7 @@
 namespace NoreSources\SQL\DBMS\MySQL;
 
 use NoreSources\Container\Container;
+use NoreSources\SQL\DataDescription;
 use NoreSources\SQL\DBMS\BinaryDataSerializerInterface;
 use NoreSources\SQL\DBMS\ConnectionException;
 use NoreSources\SQL\DBMS\ConnectionInterface;
@@ -21,7 +22,6 @@ use NoreSources\SQL\DBMS\MySQL\MySQLConstants as K;
 use NoreSources\SQL\DBMS\Traits\TransactionStackTrait;
 use NoreSources\SQL\Result\DefaultInsertionStatementResult;
 use NoreSources\SQL\Result\DefaultRowModificationStatementResult;
-use NoreSources\SQL\Syntax\Evaluator;
 use NoreSources\SQL\Syntax\Statement\ParameterData;
 use NoreSources\SQL\Syntax\Statement\ParameterDataProviderInterface;
 use NoreSources\SQL\Syntax\Statement\Statement;
@@ -244,7 +244,7 @@ class MySQLConnection implements ConnectionInterface,
 
 				$dataType = Container::keyValue($parameterData,
 					ParameterData::DATATYPE,
-					Evaluator::getInstance()->getDataType($entry));
+					DataDescription::getInstance()->getDataType($entry));
 
 				$bindArguments[0] .= self::getParameterValueTypeKey(
 					$dataType);
@@ -303,7 +303,7 @@ class MySQLConnection implements ConnectionInterface,
 		{
 			case MYSQLI_TYPE_DECIMAL:
 			case MYSQLI_TYPE_NEWDECIMAL:
-			case MYSQLI_TYPE_FLOAT:
+			case MYSQLI_TYPE_REAL:
 			case MYSQLI_TYPE_DOUBLE:
 				return K::DATATYPE_REAL;
 

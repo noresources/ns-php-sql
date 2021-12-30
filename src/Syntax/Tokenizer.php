@@ -10,6 +10,7 @@ use NoreSources\Expression\Set;
 use NoreSources\Expression\UnaryOperation;
 use NoreSources\Expression\Value;
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\DataDescription;
 use NoreSources\SQL\DataTypeProviderInterface;
 use NoreSources\SQL\Structure\ArrayColumnDescription;
 use NoreSources\Type\TypeDescription;
@@ -134,7 +135,7 @@ class Tokenizer
 		if ($expression instanceof DataTypeProviderInterface)
 			$type = $expression->getDataType();
 		else
-			$type = Evaluator::getInstance()->getDataType(
+			$type = DataDescription::getInstance()->getDataType(
 				$expression->getValue());
 		return $stream->literal(
 			$context->getPlatform()

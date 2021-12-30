@@ -9,6 +9,7 @@ namespace NoreSources\SQL\Syntax;
 
 use NoreSources\Expression as xpr;
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\DataDescription;
 use NoreSources\SQL\DataTypeProviderInterface;
 
 /**
@@ -36,7 +37,7 @@ class UnaryOperation extends xpr\UnaryOperation implements
 		switch ($this->getOperator())
 		{
 			case self::MINUS:
-				return Evaluator::getInstance()->getDataType(
+				return DataDescription::getInstance()->getDataType(
 					$this->getOperand());
 			case self::BITWISE_NOT:
 				return K::DATATYPE_INTEGER;

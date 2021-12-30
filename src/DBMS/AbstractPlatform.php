@@ -13,11 +13,11 @@ use NoreSources\Container\CascadedValueTree;
 use NoreSources\Container\Container;
 use NoreSources\Expression\ExpressionInterface;
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\DataDescription;
 use NoreSources\SQL\DataTypeProviderInterface;
 use NoreSources\SQL\MediaTypeUtility;
 use NoreSources\SQL\DBMS\Traits\DefaultDataUnserializerTrait;
 use NoreSources\SQL\Structure\Identifier;
-use NoreSources\SQL\Syntax\Evaluator;
 use NoreSources\SQL\Syntax\FunctionCall;
 use NoreSources\SQL\Syntax\MetaFunctionCall;
 use NoreSources\SQL\Syntax\Statement\Traits\ClassMapStatementFactoryTrait;
@@ -38,7 +38,8 @@ abstract class AbstractPlatform implements PlatformInterface
 	public function literalize($value, $dataType = null)
 	{
 		if ($dataType === null)
-			$dataType = Evaluator::getInstance()->getDataType($value);
+			$dataType = DataDescription::getInstance()->getDataType(
+				$value);
 
 		if ($dataType == K::DATATYPE_NULL)
 			return null;

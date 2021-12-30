@@ -11,6 +11,7 @@ namespace NoreSources\SQL\DBMS\SQLite;
 
 use NoreSources\Container\Container;
 use NoreSources\Http\ParameterMapProviderInterface;
+use NoreSources\SQL\DataDescription;
 use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\TransactionInterface;
 use NoreSources\SQL\DBMS\Configuration\ConfiguratorProviderTrait;
@@ -20,7 +21,6 @@ use NoreSources\SQL\DBMS\Traits\PlatformProviderTrait;
 use NoreSources\SQL\DBMS\Traits\TransactionStackTrait;
 use NoreSources\SQL\Result\DefaultInsertionStatementResult;
 use NoreSources\SQL\Result\DefaultRowModificationStatementResult;
-use NoreSources\SQL\Syntax\Evaluator;
 use NoreSources\SQL\Syntax\Statement\ParameterData;
 use NoreSources\SQL\Syntax\Statement\ParameterDataProviderInterface;
 use NoreSources\SQL\Syntax\Statement\Statement;
@@ -369,7 +369,8 @@ class SQLiteConnection implements ConnectionInterface,
 
 					$dataType = Container::keyValue($parameterData,
 						ParameterData::DATATYPE,
-						Evaluator::getInstance()->getDataType($entry));
+						DataDescription::getInstance()->getDataType(
+							$entry));
 					$value = $this->getPlatform()->literalize($entry,
 						$dataType);
 

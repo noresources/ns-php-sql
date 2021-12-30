@@ -11,6 +11,7 @@ namespace NoreSources\SQL\Syntax;
 
 use NoreSources\Container\Container;
 use NoreSources\Expression\ExpressionInterface;
+use NoreSources\SQL\DataDescription;
 use NoreSources\SQL\DataTypeProviderInterface;
 
 class Group implements TokenizableExpressionInterface,
@@ -78,7 +79,8 @@ class Group implements TokenizableExpressionInterface,
 
 	public function getDataType()
 	{
-		return Evaluator::getInstance()->getDataType($this->expression);
+		return DataDescription::getInstance()->getDataType(
+			$this->expression);
 	}
 
 	/**

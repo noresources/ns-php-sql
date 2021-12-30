@@ -7,6 +7,7 @@
  */
 namespace NoreSources\SQL\Syntax;
 
+use NoreSources\SQL\DataDescription;
 use NoreSources\SQL\DataTypeProviderInterface;
 
 /**
@@ -25,7 +26,7 @@ class Alternative implements TokenizableExpressionInterface,
 
 	public function getDataType()
 	{
-		return Evaluator::getInstance()->getDataType($this->then);
+		return DataDescription::getInstance()->getDataType($this->then);
 	}
 
 	public function getCondition()

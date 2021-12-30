@@ -10,6 +10,7 @@ namespace NoreSources\SQL\Structure\Exporter;
 use NoreSources\SemanticVersion;
 use NoreSources\Container\Container;
 use NoreSources\Expression\Value;
+use NoreSources\SQL\DataDescription;
 use NoreSources\SQL\DataTypeProviderInterface;
 use NoreSources\SQL\DBMS\Reference\ReferencePlatform;
 use NoreSources\SQL\Structure\ColumnStructure;
@@ -24,7 +25,6 @@ use NoreSources\SQL\Structure\StructureResolver;
 use NoreSources\SQL\Structure\TableStructure;
 use NoreSources\SQL\Structure\XMLStructureFileConstants as K;
 use NoreSources\SQL\Structure\Traits\XMLStructureFileTrait;
-use NoreSources\SQL\Syntax\Evaluator;
 use NoreSources\SQL\Syntax\Keyword;
 use NoreSources\Type\TypeConversion;
 use NoreSources\Type\TypeDescription;
@@ -366,7 +366,7 @@ class XMLStructureFileExporter implements
 			if ($value instanceof DataTypeProviderInterface)
 				$valueType = $value->getDataType();
 			elseif ($value instanceof Value)
-				$valueType = Evaluator::getInstance()->getDataType(
+				$valueType = DataDescription::getInstance()->getDataType(
 					$value->getValue());
 
 			$defaultNodeValueNodeName = self::getDefaultNodeValueNodeName(

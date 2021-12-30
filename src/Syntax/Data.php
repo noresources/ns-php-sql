@@ -10,6 +10,7 @@ namespace NoreSources\SQL\Syntax;
 use NoreSources\ComparableInterface;
 use NoreSources\Expression\Value;
 use NoreSources\SQL\Constants;
+use NoreSources\SQL\DataDescription;
 use NoreSources\SQL\DataTypeDescription;
 use NoreSources\SQL\DataTypeProviderInterface;
 use NoreSources\Type\TypeComparison;
@@ -20,6 +21,20 @@ use NoreSources\Type\TypeDescription;
 class Data extends Value implements TokenizableExpressionInterface,
 	DataTypeProviderInterface, ComparableInterface
 {
+
+	/**
+	 * Check if the given data is NULL or a representation of NULL
+	 *
+	 * @param mixed $value
+	 * @return boolean
+	 *
+	 * @deprecated Use DataDescription class directly
+	 */
+	public static function isNull($value)
+	{
+		$d = DataDescription::getInstance();
+		return $d->isNull($value);
+	}
 
 	/**
 	 *
@@ -102,7 +117,7 @@ class Data extends Value implements TokenizableExpressionInterface,
 		if ($dataType instanceof DataTypeProviderInterface)
 			$dataType = $dataType->getDataType();
 		if ($dataType === null)
-			$dataType = Evaluator::getInstance()->getDataType(
+			$dataType = DataDescription::getInstance()->getDataType(
 				$this->getValue());
 		$this->dataType = $dataType;
 	}

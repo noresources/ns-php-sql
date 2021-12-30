@@ -130,7 +130,8 @@ trait InformationSchemaStructureExplorerTrait
 			'table_name' => new Data($tableName)
 		], [
 			'column_name' => new Data($columnName)
-		]);
+		])
+			->orderBy('ordinal_position');
 
 		$query = StatementBuilder::getInstance()->build($query,
 			$platform);
@@ -213,19 +214,6 @@ trait InformationSchemaStructureExplorerTrait
 					K::COLUMN_FRACTION_SCALE);
 
 			if (($typeFlags & K::TYPE_FLAG_LENGTH) != K::TYPE_FLAG_LENGTH)
-				Container::removeKey($properties, K::COLUMN_LENGTH);
-
-			/**
-			 * When the type require a length and when column length
-			 * is the max type length.
-			 * We can consider the column does
-			 * not really define a length
-			 */
-			if (($typeFlags & K::TYPE_FLAG_MANDATORY_LENGTH) ==
-				K::TYPE_FLAG_MANDATORY_LENGTH &&
-				Container::keyExists($dbmsType, K::TYPE_MAX_LENGTH) &&
-				Container::keyValue($properties, K::COLUMN_LENGTH, 0) ==
-				Container::keyValue($dbmsType, K::TYPE_MAX_LENGTH))
 				Container::removeKey($properties, K::COLUMN_LENGTH);
 		}
 

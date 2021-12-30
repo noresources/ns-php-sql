@@ -12,6 +12,7 @@ namespace NoreSources\SQL\Syntax;
 use NoreSources\Expression as xpr;
 use NoreSources\Expression\ExpressionInterface;
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\DataDescription;
 use NoreSources\SQL\DataTypeProviderInterface;
 
 /**
@@ -46,10 +47,10 @@ class BinaryOperation extends xpr\BinaryOperation implements
 		$type = K::DATATYPE_UNDEFINED;
 		if ($this->isArithmetic())
 		{
-			$type = Evaluator::getInstance()->getDataType(
+			$type = DataDescription::getInstance()->getDataType(
 				$this->getLeftOperand());
 			if ($type == K::DATATYPE_UNDEFINED)
-				return Evaluator::getInstance()->getDataType(
+				return DataDescription::getInstance()->getDataType(
 					$this->getRightOperand());
 		}
 

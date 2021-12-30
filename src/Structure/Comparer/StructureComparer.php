@@ -8,12 +8,13 @@
  */
 namespace NoreSources\SQL\Structure\Comparer;
 
-use NoreSources\Bitset;
 use NoreSources\ComparisonException;
 use NoreSources\SingletonTrait;
 use NoreSources\Container\Container;
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\DataDescription;
 use NoreSources\SQL\DataTypeDescription;
+use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\Reference\ReferencePlatform;
 use NoreSources\SQL\Structure\CheckTableConstraint;
 use NoreSources\SQL\Structure\ColumnStructure;
@@ -38,33 +39,17 @@ use NoreSources\Type\TypeComparison;
 use NoreSources\Type\TypeConversion;
 use NoreSources\Type\TypeDescription;
 
+/**
+ * Compare two structure and report differences
+ */
 class StructureComparer
 {
 	use SingletonTrait;
 
 	/**
-	 * Ignore differences occuring when an element name
-	 * changed from "something" to "nothing".
-	 *
-	 * Some DBMS does not accept a name for several structure elements.
-	 * (ex: Primary keys are always anonymous in MySQL)
-	 */
-	const IGNORE_RENAME_EMPTY = Bitset::BIT_01;
-
-	public function __construct()
-	{
-		$this->comparerFlags = 0;
-	}
-
-	public function setFlags($flags)
-	{
-		$this->comparerFlags = $flags;
-	}
-
-	/**
 	 * Invoke the compare() method
 	 *
-	 * @return StructureDifference[]
+	 * @return StructureComparison[]
 	 */
 	public function __invoke()
 	{
@@ -80,10 +65,11 @@ class StructureComparer
 	 * @param StructureElementInterface $reference
 	 * @param StructureElementInterface $target
 	 * @throws StructureComparerException
-	 * @return StructureDifference[]
+	 * @return StructureComparison[]
 	 */
 	public function compare(StructureElementInterface $reference,
-		StructureElementInterface $target)
+		StructureElementInterface $target,
+		$typeFlags = StructureComparison::DIFFERENCE_TYPES)
 	{
 		$referenceClass = TypeDescription::getName($reference);
 		$targetClass = TypeDescription::getName($target);
@@ -98,34 +84,40 @@ class StructureComparer
 		$method = 'compare' . TypeDescription::getLocalName($reference);
 		if (\method_exists($this, $method))
 		{
-			$d = \call_user_func([
+			$differences = \call_user_func([
 				$this,
 				$method
 			], $reference, $target);
-			if (!\is_array($d))
+			if (!\is_array($differences))
 				throw new \RuntimeException($method);
-			if (\count($d))
-				$differences = \array_merge($differences, $d);
+		}
+
+		if ((\count($differences) == 0) &&
+			(($typeFlags & StructureComparison::IDENTICAL) ==
+			StructureComparison::IDENTICAL))
+		{
+			$differences[] = new StructureComparison(
+				StructureComparison::IDENTICAL, $reference, $target);
 		}
 
 		if ($reference instanceof StructureElementContainerInterface)
 			return \array_merge($differences,
 				$this->compareStructureElementContainers($reference,
-					$target));
+					$target, $typeFlags));
 
 		return $differences;
 	}
 
 	public function compareStructureElementContainers(
 		StructureElementContainerInterface $reference,
-		StructureElementContainerInterface $target)
+		StructureElementContainerInterface $target,
+		$typeFlags = StructureComparison::DIFFERENCE_TYPES)
 	{
 		$differences = [];
 		$referenceTypeChildren = self::perElementTypeMap($reference);
 		$targetTypeChildren = self::perElementTypeMap($target);
 
 		$referenceTypes = Container::keys($referenceTypeChildren);
-
 		$targetTypes = Container::keys($targetTypeChildren);
 
 		foreach ($referenceTypeChildren as $type => $referenceChildren)
@@ -138,15 +130,15 @@ class StructureComparer
 
 			foreach ($result[self::PAIRING_RENAMED] as $entry)
 			{
-				$differences[] = new StructureDifference(
-					StructureDifference::RENAMED, $entry[0], $entry[1]);
+				$differences[] = new StructureComparison(
+					StructureComparison::RENAMED, $entry[0], $entry[1]);
 			}
 
 			foreach ($result[self::PAIRING_CREATED] as $k => $entry)
 			{
 
-				$differences[] = new StructureDifference(
-					StructureDifference::CREATED, null, $entry);
+				$differences[] = new StructureComparison(
+					StructureComparison::CREATED, null, $entry);
 			}
 
 			foreach ($result[self::PAIRING_DROPPED] as $k => $entry)
@@ -162,14 +154,14 @@ class StructureComparer
 
 				foreach ($drops as $drop)
 				{
-					$differences[] = new StructureDifference(
-						StructureDifference::DROPPED, $drop);
+					$differences[] = new StructureComparison(
+						StructureComparison::DROPPED, $drop);
 				}
 			}
 
 			foreach ($result[self::PAIRING_MATCH] as $entry)
 			{
-				$d = $this->compare($entry[0], $entry[1]);
+				$d = $this->compare($entry[0], $entry[1], $typeFlags);
 				$differences = \array_merge($differences, $d);
 			}
 		}
@@ -183,16 +175,21 @@ class StructureComparer
 		{
 			foreach ($children as $child)
 			{
-				$differences[] = new StructureDifference(
-					StructureDifference::CREATED, null, $child);
+				$differences[] = new StructureComparison(
+					StructureComparison::CREATED, null, $child);
 			}
 		}
 
 		return $differences;
 	}
 
-	public function pairElements($references = array(),
-		$targets = array())
+	/**
+	 *
+	 * @param array $references
+	 * @param array $targets
+	 * @return array[]|mixed[]|unknown[]|unknown[][]|\Iterator[][]|mixed[][]|NULL[][]|array[][]|\ArrayAccess[][]|\Psr\Container\ContainerInterface[][]|\Traversable[][]
+	 */
+	public function pairElements($references, $targets)
 	{
 		$result = [
 			self::PAIRING_MATCH => [],
@@ -259,26 +256,29 @@ class StructureComparer
 					continue;
 
 				$t = $result[self::PAIRING_CREATED][$ck];
-				$d = $this->compare($r, $t, 1);
+				$d = $this->compare($r, $t);
 				if (\count($d) == 0)
 				{
 
-					/**
-					 *
-					 * @todo Shall we ignore this here or later
-					 *       or with config flag (IGNORE EMPTY_RENAME)
-					 */
 					$category = self::PAIRING_RENAMED;
-					if ((empty($r->getName()) && empty($t->getName())))
-						$category = self::PAIRING_MATCH;
+					if (empty($r->getName()))
+					{
+						if (empty($t->getName()))
+							$category = self::PAIRING_MATCH;
+						elseif (self::isFromConnection($r))
+							$category = self::PAIRING_MATCH;
+					}
 					elseif (empty($t->getName()) &&
-						($this->comparerFlags & self::IGNORE_RENAME_EMPTY))
+						self::isFromConnection($t))
+					{
 						$category = self::PAIRING_MATCH;
+					}
 
 					$result[$category][$dk] = [
 						$r,
 						$t
 					];
+
 					unset($result[self::PAIRING_DROPPED][$dk]);
 					unset($result[self::PAIRING_CREATED][$ck]);
 					break;
@@ -297,32 +297,46 @@ class StructureComparer
 		$strict = $this->canStrictCompare($a, $b);
 
 		// Length and scale
-		$scaleWithoutLengthMismatch = false;
-		if (!$strict &&
-			($da = Container::keyValue($a, K::COLUMN_DATA_TYPE)) &&
-			($db = Container::keyValue($b, K::COLUMN_DATA_TYPE)) &&
-			($da & K::DATATYPE_REAL) && ($db & K::DATATYPE_REAL) &&
-			($sa = Container::keyValue($a, K::COLUMN_FRACTION_SCALE)) &&
-			($sb = Container::keyValue($b, K::COLUMN_FRACTION_SCALE)) &&
-			($sa == $sb))
-		{
-			$scaleWithoutLengthMismatch = $a->has(K::COLUMN_LENGTH) !=
-				$b->has(K::COLUMN_LENGTH);
-		}
+		$excludes = [
+			K::COLUMN_NAME
+		];
+
+		static $customComparer = [
+			K::COLUMN_DEFAULT_VALUE => 'compareDefaultValues',
+			K::COLUMN_DATA_TYPE => 'compareDataType',
+			K::COLUMN_LENGTH => 'compareLength',
+			K::COLUMN_FLAGS => 'compareColumnFlags'
+		];
 
 		foreach ($a as $key => $pa)
 		{
-			if ($key == K::COLUMN_NAME)
+			if (Container::valueExists($excludes, $key))
 				continue;
-			elseif ($scaleWithoutLengthMismatch &&
-				($key == K::COLUMN_LENGTH ||
-				$key == K::COLUMN_FRACTION_SCALE))
+			elseif (($cf = Container::keyValue($customComparer, $key)))
+			{
+				$c = \call_user_func([
+					$this,
+					$cf
+				], $a, $b, $strict);
+				if ($c != 0)
+				{
+					$diff = [
+						DifferenceExtra::KEY_TYPE => $key,
+						DifferenceExtra::KEY_PREVIOUS => $pa
+					];
+					if ($b->has($key))
+						$diff[DifferenceExtra::KEY_NEW] = $b->get($key);
+					$d = self::alterDifference($d, $a, $b, $diff);
+				}
 				continue;
-
-			// default
+			}
 
 			if (!$b->has($key))
 			{
+				if (!$strict &&
+					$this->canIgnoreMissingColumnProperty($a, $b, $key))
+					continue;
+
 				$d = self::alterDifference($d, $a, $b,
 					[
 						DifferenceExtra::KEY_TYPE => $key,
@@ -330,32 +344,11 @@ class StructureComparer
 					]);
 				continue;
 			}
+
+			// default
+
 			$pb = $b->get($key);
-
-			if ($key == K::COLUMN_DATA_TYPE)
-			{
-				$c = $this->compareDataType($pa, $pb);
-				if ($c != 0)
-				{
-					$d = self::alterDifference($d, $a, $b,
-						[
-							DifferenceExtra::KEY_TYPE => $key,
-							DifferenceExtra::KEY_PREVIOUS => $pa,
-							DifferenceExtra::KEY_NEW => $pb
-						]);
-				}
-				continue;
-			}
-
-			$pd = 0;
-			try
-			{
-				$pd = TypeComparison::compare($pa, $pb);
-			}
-			catch (ComparisonException $e)
-			{
-				$pd = ($pa != $pb) ? -1 : 0;
-			}
+			$pd = $this->compareValues($pa, $pb);
 
 			if ($pd != 0)
 			{
@@ -370,8 +363,29 @@ class StructureComparer
 
 		foreach ($b as $key => $pb)
 		{
-			if ($a->has($key))
+			if (Container::valueExists($excludes, $key) || $a->has($key))
 				continue;
+			elseif (($cf = Container::keyValue($customComparer, $key)))
+			{
+				$c = \call_user_func([
+					$this,
+					$cf
+				], $b, $a, $strict);
+				if ($c != 0)
+				{
+					$d = self::alterDifference($d, $a, $b,
+						[
+							DifferenceExtra::KEY_TYPE => $key,
+							DifferenceExtra::KEY_NEW => $b->get($key)
+						]);
+				}
+				continue;
+			}
+
+			if (!$strict &&
+				$this->canIgnoreMissingColumnProperty($b, $a, $key))
+				continue;
+
 			$d = self::alterDifference($d, $a, $b,
 				[
 					DifferenceExtra::KEY_TYPE => $key,
@@ -384,20 +398,96 @@ class StructureComparer
 		] : [];
 	}
 
-	public function compareDataType($a, $b)
+	public function compareValues($a, $b, $strict = true)
 	{
-		$description = DataTypeDescription::getInstance();
-		$va = $description->getAffinities($a);
-		$vb = $description->getAffinities($b);
-
-		if (Container::valueExists($va, K::DATATYPE_NULL))
+		$d = 0;
+		if ($strict)
 		{
-			if (!Container::valueExists($vb, K::DATATYPE_NULL))
-				return 1;
+			try
+			{
+				$d = TypeComparison::compare($a, $b);
+			}
+			catch (ComparisonException $e)
+			{
+				$d = ($a != $b) ? -1 : 0;
+			}
 		}
 		else
-			if (Container::valueExists($vb, K::DATATYPE_NULL))
+		{
+			$dd = DataDescription::getInstance();
+			$d = $dd->isSimilar($a, $b) ? 0 : 1;
+		}
+
+		return $d;
+	}
+
+	public function compareDefaultValues(ColumnStructure $a,
+		ColumnStructure $b, $strict = true)
+	{
+		$aDataType = Container::keyValue($a, K::COLUMN_DATA_TYPE);
+		$bDataType = Container::keyValue($b, K::COLUMN_DATA_TYPE);
+
+		$dd = DataDescription::getInstance();
+
+		if ($a->has(K::COLUMN_DEFAULT_VALUE))
+		{
+			$pa = $a->get(K::COLUMN_DEFAULT_VALUE);
+			if ($b->has(K::COLUMN_DEFAULT_VALUE))
+			{
+				return $this->compareValues($pa,
+					$b->get(K::COLUMN_DEFAULT_VALUE), $strict);
+			}
+
+			if (($bDataType & K::DATATYPE_NULL) && $dd->isNull($pa))
+				return 0;
+
+			return 1;
+		}
+		elseif ($b->has(K::COLUMN_DEFAULT_VALUE))
+		{
+			if (($aDataType & K::DATATYPE_NULL) &&
+				$dd->isNull($b->get(K::COLUMN_DEFAULT_VALUE)))
+				return 0;
+
+			return -1;
+		}
+
+		return 0;
+	}
+
+	public function compareDataType(StructureElementInterface $a,
+		StructureElementInterface $b, $strict = true)
+	{
+		$description = DataTypeDescription::getInstance();
+
+		$aDataType = Container::keyValue($a, K::COLUMN_DATA_TYPE,
+			K::DATATYPE_UNDEFINED);
+		$bDataType = Container::keyValue($b, K::COLUMN_DATA_TYPE,
+			K::DATATYPE_UNDEFINED);
+
+		if ($aDataType == $bDataType)
+			return 0;
+
+		$va = $description->getAffinities($aDataType);
+		$vb = $description->getAffinities($bDataType);
+
+		if ($aDataType & K::DATATYPE_NULL)
+		{
+			if (($bDataType & K::DATATYPE_NULL) == 0)
+			{
+				$flags = ($a instanceof ColumnStructure) ? $a->getConstraintFlags() : 0;
+				if (($flags & K::CONSTRAINT_COLUMN_PRIMARY_KEY) !=
+					K::CONSTRAINT_COLUMN_PRIMARY_KEY)
+					return 1;
+			}
+		}
+		elseif ($bDataType & K::DATATYPE_NULL)
+		{
+			$flags = ($b instanceof ColumnStructure) ? $b->getConstraintFlags() : 0;
+			if (($flags & K::CONSTRAINT_COLUMN_PRIMARY_KEY) !=
+				K::CONSTRAINT_COLUMN_PRIMARY_KEY)
 				return -1;
+		}
 
 		$va = \array_diff($va, [
 			K::DATATYPE_NULL
@@ -405,9 +495,119 @@ class StructureComparer
 		$vb = \array_diff($vb, [
 			K::DATATYPE_NULL
 		]);
+
+		$aDataType &= ~K::DATATYPE_NULL;
+		$bDataType &= ~K::DATATYPE_NULL;
+
+		// integer(1) -=> bool
+		if (!$strict)
+		{
+			if (($aDataType == K::DATATYPE_BOOLEAN &&
+				$this->isBooleanCompatibleType($b)) ||
+				($bDataType == K::DATATYPE_BOOLEAN &&
+				$this->isBooleanCompatibleType($a)))
+				return 0;
+		}
+
 		$intersection = \array_intersect($va, $vb);
 
 		return \count($intersection) ? 0 : (\count($va) - \count($vb));
+	}
+
+	public function compareColumnFlags(StructureElementInterface $a,
+		StructureElementInterface $b, $strict = true)
+	{
+		$fa = Container::keyValue($a, K::COLUMN_FLAGS, 0);
+		$fb = Container::keyValue($b, K::COLUMN_FLAGS, 0);
+
+		$v = $fa - $fb;
+		if ($v == 0 || $strict)
+			return $v;
+
+		$a = Structure::getRootElement($a);
+		$b = Structure::getRootElement($b);
+		$ma = ($a instanceof DatasourceStructure) ? $a->getMetadata() : null;
+		$mb = ($b instanceof DatasourceStructure) ? $b->getMetadata() : null;
+		$ca = null;
+		if ($ma && $ma->has(K::STRUCTURE_METADATA_CONNECTION))
+			$ca = $ma->get(K::STRUCTURE_METADATA_CONNECTION);
+		$cb = null;
+		if ($mb && $mb->has(K::STRUCTURE_METADATA_CONNECTION))
+			$cb = $mb->get(K::STRUCTURE_METADATA_CONNECTION);
+
+		if ($ca)
+			$fa &= ~(K::COLUMN_FLAG_UNSIGNED);
+		if ($cb)
+			$fa &= ~(K::COLUMN_FLAG_UNSIGNED);
+
+		return ($fa - $fb);
+	}
+
+	public function compareLength(StructureElementInterface $a,
+		StructureElementInterface $b, $strict = true)
+	{
+		$aIsEnum = Container::keyExists($a, K::COLUMN_ENUMERATION);
+		$bIsEnum = Container::keyExists($b, K::COLUMN_ENUMERATION);
+
+		if ($aIsEnum || $bIsEnum)
+			return 0;
+
+		if ($a->has(K::COLUMN_LENGTH))
+		{
+			$pa = $a->get(K::COLUMN_LENGTH);
+			if ($b->has(K::COLUMN_LENGTH))
+				return $this->compareValues($pa,
+					$b->get(K::COLUMN_LENGTH));
+
+			if (!$strict)
+			{
+				/**
+				 * (1) In DBMS, scale requires a length
+				 * whereas noresource SQL schema may only specify scale.
+				 */
+				if ($a->has(K::COLUMN_FRACTION_SCALE) &&
+					$b->has(K::COLUMN_FRACTION_SCALE))
+					return 0;
+
+				/**
+				 * (2) integer(1) <=> boolean
+				 */
+				if (Container::keyValue($b, K::COLUMN_DATA_TYPE) &
+					K::DATATYPE_BOOLEAN &&
+					$this->isBooleanCompatibleType($a))
+					return 0;
+
+				/**
+				 * (3) DBMS may require a length for key columns
+				 */
+				if (self::isKeyMandatoryLength($a))
+					return 0;
+			}
+			return 1;
+		}
+		elseif ($b->has(K::COLUMN_LENGTH))
+		{
+			$pb = $b->get(K::COLUMN_LENGTH);
+			if ($pb <= 0)
+				return 0;
+			if (!$strict)
+			{
+				// See (1) above
+				if ($a->has(K::COLUMN_FRACTION_SCALE) &&
+					$b->has(K::COLUMN_FRACTION_SCALE))
+					return 0;
+
+				if (Container::keyValue($a, K::COLUMN_DATA_TYPE) &
+					K::DATATYPE_BOOLEAN &&
+					$this->isBooleanCompatibleType($b))
+					return 0;
+
+				if (self::isKeyMandatoryLength($b))
+					return 0;
+			}
+		}
+
+		return 0;
 	}
 
 	public function compareUniqueTableConstraint(
@@ -557,7 +757,7 @@ class StructureComparer
 
 	public function populateTableConstraintInterfaceDifferences(
 		TableConstraintInterface $a, TableConstraintInterface $b,
-		StructureDifference &$existing = null)
+		StructureComparison &$existing = null)
 	{
 		if ($a->getConstraintFlags() != $b->getConstraintFlags())
 			$existing = self::alterDifference($d, $a, $b,
@@ -570,9 +770,55 @@ class StructureComparer
 	}
 
 	/**
+	 * integer(1) <=> boolean
 	 *
-	 * @param StructureDifference $existing
-	 *        	Main StructureDifference
+	 * @param ColumnStructure $c
+	 * @return boolean
+	 */
+	public function isBooleanCompatibleType(ColumnStructure $c)
+	{
+		return ((($dataType = Container::keyValue($c,
+			K::COLUMN_DATA_TYPE)) & K::DATATYPE_BOOLEAN) ||
+			(($dataType & K::DATATYPE_INTEGER) &&
+			(Container::keyValue($c, K::COLUMN_LENGTH, 0) == 1) &&
+			(Container::keyValue($c, K::COLUMN_FRACTION_SCALE, 0) == 0)));
+	}
+
+	/**
+	 * Indicates if missing column property can be ignored on non-strict comparison
+	 *
+	 * @param ColumnStructure $a
+	 *        	Column that have the property
+	 * @param ColumnStructure $b
+	 *        	Column that does not have the property
+	 * @param string $key
+	 *        	Property key
+	 * @return boolean
+	 */
+	public function canIgnoreMissingColumnProperty(ColumnStructure $a,
+		ColumnStructure $b, $key)
+	{
+		switch ($key)
+		{
+			case K::COLUMN_ENUMERATION:
+				{
+
+					$aType = Container::keyValue($a, K::COLUMN_DATA_TYPE,
+						0);
+					$aType &= ~K::DATATYPE_NULL;
+
+					return ($aType == K::DATATYPE_INTEGER ||
+						$aType == K::DATATYPE_STRING);
+				}
+			break;
+		}
+		return false;
+	}
+
+	/**
+	 *
+	 * @param StructureComparison $existing
+	 *        	Main StructureComparison
 	 * @param StructureElementInterface $a
 	 *        	Reference
 	 * @param TableStructure $ta
@@ -585,12 +831,12 @@ class StructureComparer
 	 *        	Target table
 	 * @param unknown $cb
 	 *        	Target table column name list
-	 * @return \NoreSources\SQL\Structure\Comparer\StructureDifference A reference to $existing
+	 * @return \NoreSources\SQL\Structure\Comparer\StructureComparison A reference to $existing
 	 */
 	protected function populateColumnNameListDifferences(
 		StructureElementInterface $a, TableStructure $ta, $ca,
 		StructureElementInterface $b, TableStructure $tb, $cb,
-		StructureDifference &$existing = null,
+		StructureComparison &$existing = null,
 		$type = DifferenceExtra::TYPE_COLUMN)
 	{
 		foreach ($ca as $c)
@@ -663,6 +909,41 @@ class StructureComparer
 		return $perTypes;
 	}
 
+	protected static function isFromConnection(
+		StructureElementInterface $a)
+	{
+		return (($r = Structure::getRootElement($a)) &&
+			($r instanceof DatasourceStructure) &&
+			$r->getMetadata()->has(K::STRUCTURE_METADATA_CONNECTION));
+	}
+
+	protected static function isKeyMandatoryLength(ColumnStructure $a)
+	{
+		$flags = $a->getConstraintFlags();
+		if (!($flags & K::CONSTRAINT_COLUMN_KEY))
+			return false;
+
+		/** @var DatasourceStructure $r */
+		$r = Structure::getRootElement($a);
+		if (!($r instanceof DatasourceStructure &&
+			$r->getMetadata()->has(K::STRUCTURE_METADATA_CONNECTION)))
+			return false;
+
+		/** @var ConnectionInterface $c */
+		$c = $r->getMetadata()->get(K::STRUCTURE_METADATA_CONNECTION);
+
+		$platform = $c->getPlatform();
+		$columnDeclaration = $platform->queryFeature(
+			[
+				K::FEATURE_CREATE,
+				K::FEATURE_ELEMENT_TABLE,
+				K::FEATURE_COLUMN_DECLARATION_FLAGS
+			], 0);
+		return ($columnDeclaration &
+			K::FEATURE_COLUMN_KEY_MANDATORY_LENGTH) ==
+			K::FEATURE_COLUMN_KEY_MANDATORY_LENGTH;
+	}
+
 	protected static function canStrictCompare(
 		StructureElementInterface $a, StructureElementInterface $b)
 	{
@@ -697,13 +978,13 @@ class StructureComparer
 	}
 
 	protected static function alterDifference(
-		StructureDifference $existing = null,
+		StructureComparison $existing = null,
 		StructureElementInterface $a = null,
 		StructureElementInterface $b = null, $extra = null)
 	{
 		if (!isset($existing))
-			$existing = new StructureDifference(
-				StructureDifference::ALTERED, $a, $b);
+			$existing = new StructureComparison(
+				StructureComparison::ALTERED, $a, $b);
 		if (\is_array($extra))
 			$extra = new DifferenceExtra($extra);
 		if ($extra instanceof DifferenceExtra)
@@ -737,13 +1018,11 @@ class StructureComparer
 		return $list;
 	}
 
-	private $comparerFlags;
-
 	const PAIRING_MATCH = 'matching';
 
-	const PAIRING_RENAMED = StructureDifference::RENAMED;
+	const PAIRING_RENAMED = 'renamed';
 
-	const PAIRING_CREATED = StructureDifference::CREATED;
+	const PAIRING_CREATED = 'created';
 
-	const PAIRING_DROPPED = StructureDifference::DROPPED;
+	const PAIRING_DROPPED = 'dropped';
 }

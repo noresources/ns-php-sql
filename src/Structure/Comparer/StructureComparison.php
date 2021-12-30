@@ -8,40 +8,57 @@
  */
 namespace NoreSources\SQL\Structure\Comparer;
 
+use NoreSources\Bitset;
 use NoreSources\Container\Container;
 use NoreSources\SQL\Structure\StructureElementInterface;
+use NoreSources\Type\StringRepresentation;
 use NoreSources\Type\TypeDescription;
 
-class StructureDifference
+/**
+ * Represents a difference of structure asset
+ */
+class StructureComparison implements StringRepresentation
 {
+
+	/**
+	 * Difference type
+	 *
+	 * No differences
+	 */
+	const IDENTICAL = Bitset::BIT_01;
 
 	/**
 	 * Difference type.
 	 *
 	 * Element was renamed
 	 */
-	const RENAMED = 'renamed';
+	const RENAMED = Bitset::BIT_02;
 
 	/**
 	 * Difference type.
 	 *
 	 * Element was created.
 	 */
-	const CREATED = 'created';
+	const CREATED = Bitset::BIT_03;
 
 	/**
 	 * Difference type.
 	 *
 	 * Element was removed.
 	 */
-	const DROPPED = 'dropped';
+	const DROPPED = Bitset::BIT_04;
 
 	/**
 	 * Difference type.
 	 *
 	 * Element was modified.
 	 */
-	const ALTERED = 'altered';
+	const ALTERED = Bitset::BIT_05;
+
+	const DIFFERENCE_TYPES = (self::ALTERED | self::CREATED |
+		self::DROPPED | self::RENAMED);
+
+	const ALL_TYPES = (self::IDENTICAL | self::DIFFERENCE_TYPES);
 
 	/**
 	 * A short hint about the difference nature
@@ -52,7 +69,7 @@ class StructureDifference
 
 	public function __toString()
 	{
-		$s = $this->getType() . ':' .
+		$s = self::getComparisonTypename($this->getType()) . ':' .
 			TypeDescription::getLocalName($this->getStructure());
 		if (\strlen($this->hint))
 			$s .= '[' . $this->hint . ']';
@@ -84,7 +101,7 @@ class StructureDifference
 
 	/**
 	 *
-	 * @return \NoreSources\SQL\Structure\StructureElementInterface
+	 * @return StructureElementInterface
 	 */
 	public function getReference()
 	{
@@ -93,7 +110,7 @@ class StructureDifference
 
 	/**
 	 *
-	 * @return \NoreSources\SQL\Structure\StructureElementInterface
+	 * @return StructureElementInterface
 	 */
 	public function getTarget()
 	{
@@ -102,7 +119,7 @@ class StructureDifference
 
 	/**
 	 *
-	 * @return \NoreSources\SQL\Structure\StructureElementInterface
+	 * @return StructureElementInterface
 	 */
 	public function getStructure()
 	{
@@ -166,12 +183,31 @@ class StructureDifference
 						return false;
 				break;
 				case self::FILTER_TYPE:
-					if ($this->getType() != $v)
+					if (($this->getType() & $v) == 0)
 						return false;
 				break;
 			}
 		}
 		return true;
+	}
+
+	public static function getComparisonTypename($type)
+	{
+		switch ($type)
+		{
+			case self::IDENTICAL:
+				return 'identical';
+			case self::ALTERED:
+				return 'altered';
+			case self::CREATED:
+				return 'created';
+			case self::DROPPED:
+				return 'dropped';
+			case self::RENAMED:
+				return 'renamed';
+		}
+
+		return ($type) ? 'mixed' : 'none';
 	}
 
 	/**

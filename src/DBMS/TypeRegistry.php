@@ -14,8 +14,8 @@ use NoreSources\Container\Container;
 use NoreSources\MediaType\MediaTypeInterface;
 use NoreSources\SQL\AssetMapInterface;
 use NoreSources\SQL\Constants as K;
+use NoreSources\SQL\DataDescription;
 use NoreSources\SQL\DBMS\Types\ArrayObjectType;
-use NoreSources\SQL\Syntax\Evaluator;
 use NoreSources\Type\TypeConversion;
 
 /**
@@ -77,27 +77,17 @@ class TypeRegistry implements \ArrayAccess, AssetMapInterface
 				}
 			}
 
-			$scores[$typeKey] += ($targetDataTypeScore *
-				self::SCORE_MULTIPLIER_DATA_TYPE);
-
-			if (Container::keyExists($columnDescription,
-				K::COLUMN_DEFAULT_VALUE))
+			if ($targetDataTypeScore &&
+				Container::keyExists($columnDescription,
+					K::COLUMN_LENGTH))
 			{
-				$defaultValue = Container::keyValue($columnDescription,
-					K::COLUMN_DEFAULT_VALUE);
-				$defaultValueDataType = Evaluator::getInstance()->getDataType(
-					$defaultValue);
-
-				if (!$type->acceptDefaultValue($defaultValueDataType))
+				// Reduce score if type does not accept length
+				if (($typeFlags & K::TYPE_FLAG_LENGTH) !=
+					K::TYPE_FLAG_LENGTH)
 				{
-					$scores[$typeKey] = -1000;
-					continue;
+					$targetDataTypeScore = max(1,
+						$targetDataTypeScore - 2);
 				}
-			}
-
-			if (Container::keyExists($columnDescription,
-				K::COLUMN_LENGTH))
-			{
 
 				$length = TypeConversion::toInteger(
 					Container::keyValue($columnDescription,
@@ -158,6 +148,26 @@ class TypeRegistry implements \ArrayAccess, AssetMapInterface
 					}
 				}
 			}
+
+			$scores[$typeKey] += ($targetDataTypeScore *
+				self::SCORE_MULTIPLIER_DATA_TYPE);
+
+			// Default value
+			if (Container::keyExists($columnDescription,
+				K::COLUMN_DEFAULT_VALUE))
+			{
+				$defaultValue = Container::keyValue($columnDescription,
+					K::COLUMN_DEFAULT_VALUE);
+				$defaultValueDataType = DataDescription::getInstance()->getDataType(
+					$defaultValue);
+
+				if (!$type->acceptDefaultValue($defaultValueDataType))
+				{
+					$scores[$typeKey] = -1000;
+					continue;
+				}
+			}
+			// Padding
 
 			$paddingScore = 0;
 			if (Container::keyExists($columnDescription,
