@@ -1,5 +1,0 @@
-drop:IndexStructure:index_employees_name
-drop:TableStructure:Hierarchy
-drop:TableStructure:Tasks
-drop:TableStructure:Employees
-drop:TableStructure:types

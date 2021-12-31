@@ -56,5 +56,12 @@ class UniqueTableConstraint implements KeyTableConstraintInterface
 		$this->columnNameList = $columns;
 		$this->constraintName = $name;
 	}
+
+	public function __clone()
+	{
+		$this->cloneStructureElement();
+		if (isset($this->whereConstraints))
+			$this->whereConstraints = clone $this->whereConstraints;
+	}
 }
 

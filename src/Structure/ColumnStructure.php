@@ -67,16 +67,15 @@ class ColumnStructure implements StructureElementInterface,
 		;
 	}
 
-	/**
-	 * Clone default value if any.
-	 */
 	public function __clone()
 	{
 		$this->cloneStructureElement();
-		if ($this->has(K::COLUMN_DEFAULT_VALUE))
+
+		foreach ($this as $property => $value)
 		{
-			$this->setColumnProperty(K::COLUMN_DEFAULT_VALUE,
-				clone $this->get(K::COLUMN_DEFAULT_VALUE));
+
+			if (\is_object($value))
+				$this->setColumnProperty($property, clone $value);
 		}
 	}
 }

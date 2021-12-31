@@ -14,8 +14,7 @@ use NoreSources\SQL\Structure\Traits\StructureElementTrait;
 /**
  * Primary key table column constraint
  */
-class PrimaryKeyTableConstraint implements
-	KeyTableConstraintInterface
+class PrimaryKeyTableConstraint implements KeyTableConstraintInterface
 {
 
 	use StructureElementTrait;
@@ -45,6 +44,11 @@ class PrimaryKeyTableConstraint implements
 	{
 		$this->initializeStructureElement($name);
 		$this->columnNameList = $columns;
+	}
+
+	public function __clone()
+	{
+		$this->cloneStructureElement();
 	}
 }
 

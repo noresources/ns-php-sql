@@ -28,5 +28,7 @@ class IndexStructure implements StructureElementInterface,
 	public function __clone()
 	{
 		$this->cloneStructureElement();
+		if (isset($this->whereConstraints))
+			$this->whereConstraints = clone $this->whereConstraints;
 	}
 }

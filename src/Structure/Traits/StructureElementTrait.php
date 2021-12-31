@@ -1,10 +1,7 @@
 <?php
-
 /**
  * Copyright © 2012 - 2021 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
- */
-/**
  *
  * @package SQL
  */
@@ -55,6 +52,10 @@ trait StructureElementTrait
 		$this->parentElement = $parent;
 	}
 
+	/**
+	 *
+	 * @param string $name
+	 */
 	public function setName($name)
 	{
 		$p = $this->getParentElement();
@@ -79,7 +80,10 @@ trait StructureElementTrait
 	}
 
 	protected function cloneStructureElement()
-	{}
+	{
+		$this->parentElement = null;
+		$this->elementKey = Identifier::generate();
+	}
 
 	/**
 	 *
@@ -89,7 +93,7 @@ trait StructureElementTrait
 
 	/**
 	 *
-	 * @var StructureElement
+	 * @var StructureElementInterface
 	 */
 	protected $parentElement;
 

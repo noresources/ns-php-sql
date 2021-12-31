@@ -30,4 +30,11 @@ class CheckTableConstraint implements TableConstraintInterface
 	{
 		$this->initializeStructureElement($name);
 	}
+
+	public function __clone()
+	{
+		$this->cloneStructureElement();
+		if (isset($this->whereConstraints))
+			$this->whereConstraints = clone $this->whereConstraints;
+	}
 }

@@ -29,5 +29,10 @@ abstract class TableConstraint implements TableConstraintInterface
 	{
 		$this->initializeStructureElement($name);
 	}
+
+	public function __clone()
+	{
+		$this->cloneStructureElement();
+	}
 }
 

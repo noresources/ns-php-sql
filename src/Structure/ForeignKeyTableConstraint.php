@@ -70,6 +70,17 @@ class ForeignKeyTableConstraint implements \IteratorAggregate,
 		$this->columns->offsetSet($columnName, $foreignColumnName);
 	}
 
+	public function __clone()
+	{
+		$this->cloneStructureElement();
+		if (isset($this->foreignTable))
+			$this->foreignTable = clone $this->foreignTable;
+		if (isset($this->columns))
+			$this->columns = clone $this->columns;
+		if (isset($this->events))
+			$this->events = clone $this->events;
+	}
+
 	/**
 	 *
 	 * @var Identifier

@@ -1,5 +1,0 @@
-dropped:IndexStructure<ns_unittests.Employees.index_employees_name>?
-dropped:TableStructure<ns_unittests.Employees>?
-dropped:TableStructure<ns_unittests.Hierarchy>?
-dropped:TableStructure<ns_unittests.Tasks>?
-dropped:TableStructure<ns_unittests.types>?

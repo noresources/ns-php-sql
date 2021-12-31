@@ -34,6 +34,12 @@ class TableStructure implements StructureElementInterface,
 		$this->initializeStructureElementContainer();
 	}
 
+	public function __clone()
+	{
+		$this->cloneStructureElement();
+		$this->cloneStructureElementContainer();
+	}
+
 	/**
 	 *
 	 * @return \NoreSources\SQL\KeyedAssetMap
