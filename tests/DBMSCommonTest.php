@@ -1,7 +1,6 @@
 <?php
 namespace NoreSources\SQL;
 
-use NoreSources\DateTime;
 use NoreSources\SingletonTrait;
 use NoreSources\Container\Container;
 use NoreSources\MediaType\MediaType;
@@ -24,7 +23,6 @@ use NoreSources\SQL\DBMS\SQLite\SQLitePlatform;
 use NoreSources\SQL\DBMS\Types\ArrayObjectType;
 use NoreSources\SQL\Result\InsertionStatementResultInterface;
 use NoreSources\SQL\Result\Recordset;
-use NoreSources\SQL\Structure\ArrayColumnDescription;
 use NoreSources\SQL\Structure\ColumnDescriptionInterface;
 use NoreSources\SQL\Structure\ColumnStructure;
 use NoreSources\SQL\Structure\ForeignKeyTableConstraint;
@@ -33,11 +31,8 @@ use NoreSources\SQL\Structure\StructureElementInterface;
 use NoreSources\SQL\Structure\TableStructure;
 use NoreSources\SQL\Structure\VirtualStructureResolver;
 use NoreSources\SQL\Structure\Inspector\StructureInspector;
-use NoreSources\SQL\Syntax\CastFunction;
 use NoreSources\SQL\Syntax\ColumnDeclaration;
 use NoreSources\SQL\Syntax\Data;
-use NoreSources\SQL\Syntax\Parameter;
-use NoreSources\SQL\Syntax\TimestampFormatFunction;
 use NoreSources\SQL\Syntax\Statement\ParameterData;
 use NoreSources\SQL\Syntax\Statement\ParameterDataProviderInterface;
 use NoreSources\SQL\Syntax\Statement\Statement;
@@ -51,7 +46,6 @@ use NoreSources\SQL\Syntax\Statement\Structure\DropNamespaceQuery;
 use NoreSources\Test\ConnectionHelper;
 use NoreSources\Test\DatasourceManager;
 use NoreSources\Test\DerivedFileTestTrait;
-use NoreSources\Test\Generator;
 use NoreSources\Test\SqlFormatter;
 use NoreSources\Test\UnittestConnectionManagerTrait;
 use NoreSources\Type\TypeConversion;
@@ -165,7 +159,7 @@ final class DBMSCommonTest extends TestCase
 				$platform->getPlatformVersion(
 					PlatformInterface::VERSION_COMPATIBILITY), 1);
 
-			$configurator = $platform->newConfigurator($connection);
+			$configurator = $connection->getConfigurator();
 			foreach ([
 				K::CONFIGURATION_KEY_CONSTRAINTS => 'Key constraints',
 				K::CONFIGURATION_SUBMIT_TIMEOUT => 'Submit timeout',
@@ -402,6 +396,8 @@ final class DBMSCommonTest extends TestCase
 	public function dbmsTypeSerialization(
 		ConnectionInterface $connection, $dbmsName, $method)
 	{
+		$this->setTimezone($connection, 'Europe/Paris');
+
 		$structure = $this->structures->get('types');
 		$this->assertInstanceOf(StructureElementInterface::class,
 			$structure);
@@ -409,7 +405,7 @@ final class DBMSCommonTest extends TestCase
 		$this->assertInstanceOf(TableStructure::class, $tableStructure);
 
 		$result = $this->recreateTable($connection, $tableStructure,
-			$method);
+			$method, false);
 		$this->assertTrue($result, TypeDescription::getName($connection));
 
 		$rows = [
@@ -614,143 +610,6 @@ final class DBMSCommonTest extends TestCase
 
 			$this->assertEquals($content, $row['binary'],
 				$dbmsName . ' ' . $fileName . ' content from db');
-		}
-	}
-
-	public function testTimestampFormats()
-	{
-		$this->runConnectionTest(__METHOD__,
-			function ($c) {
-				return !($c instanceof PDOConnection);
-			});
-	}
-
-	private function dbmsTimestampFormats(
-		ConnectionInterface $connection, $dbmsName, $method)
-	{
-		$structure = $this->structures->get('types');
-		$this->assertInstanceOf(StructureElementInterface::class,
-			$structure);
-		$tableStructure = $structure['ns_unittests']['types'];
-		$this->assertInstanceOf(TableStructure::class, $tableStructure);
-
-		$this->recreateTable($connection, $tableStructure, $method);
-
-		$timestamps = [];
-		for ($i = 0; $i < 10; $i++)
-		{
-			$timestamps[] = Generator::randomDateTime(
-				[
-					'yearRange' => [
-						1789,
-						2049
-					],
-
-					'timezone' => DateTime::getUTCTimezone()
-				]);
-		}
-
-		// Some static timestamps
-		$timestamps['UNIX epoch'] = new DateTIme('@0',
-			DateTIme::getUTCTimezone());
-
-		$timestamps['A year where "Y" (1806) and "o" (1807) differ'] = new DateTime(
-			'1806-12-29T23:02:01+0000');
-
-		$formats = DateTime::getFormatTokenDescriptions();
-
-		$delete = ConnectionHelper::prepareStatement($connection,
-			new DeleteQuery($tableStructure), $tableStructure);
-
-		$columnType = new ArrayColumnDescription(
-			[
-				K::COLUMN_DATA_TYPE => K::DATATYPE_DATETIME
-			]);
-
-		foreach ($formats as $format => $desc)
-		{
-			$label = $desc;
-			if (Container::isArray($desc))
-			{
-				$label = Container::keyValue($desc,
-					DateTime::FORMAT_DESCRIPTION_LABEL, $format);
-				if (Container::keyExists($desc,
-					DateTime::FORMAT_DESCRIPTION_DETAILS))
-					$label .= ' (' .
-						$desc[DateTime::FORMAT_DESCRIPTION_DETAILS] . ')';
-				if (Container::keyExists($desc,
-					DateTime::FORMAT_DESCRIPTION_RANGE))
-					$label .= ' [' .
-						implode('-',
-							$desc[DateTime::FORMAT_DESCRIPTION_RANGE]) .
-						']';
-			}
-
-			$select = $connection->getPlatform()->newStatement(
-				SelectQuery::class);
-
-			$select->columns(
-				[
-					new TimestampFormatFunction($format,
-						new CastFunction(new Parameter('timestamp'),
-							$columnType)),
-					'format'
-				], new Data($label . ' [' . $format . ']'));
-
-			$validate = true;
-			$translation = $connection->getPlatform()->getTimestampFormatTokenTranslation(
-				$format);
-
-			if (\is_array($translation)) // Fallback support
-			{
-				$validate = false;
-				$translation = $translation[0];
-			}
-
-			if (!\is_string($translation))
-				continue;
-
-			$select = ConnectionHelper::prepareStatement($connection,
-				$select);
-
-			$this->assertInstanceOf(PreparedStatementInterface::class,
-				$select, $dbmsName . ' ' . $method . ' SELECT');
-
-			$this->assertCount(1, $select->getParameters(),
-				'Number of parameters of SELECT');
-
-			if (!($connection instanceof PDOConnection))
-			{
-				// Fix case-insensitive filesystem issue
-				$formatName = \preg_replace('/([A-Z])/', 'uppercase_$1',
-					$format);
-				$derivedFilename = $dbmsName . '_' . $formatName;
-				$this->assertDerivedFile(\strval($select) . PHP_EOL,
-					$method, $derivedFilename, 'sql', $label);
-			}
-
-			foreach ($timestamps as $test => $dateTime)
-			{
-				if (!($dateTime instanceof \DateTimeInterface))
-					$dateTime = new DateTime($dateTime,
-						DateTIme::getUTCTimezone());
-				$expected = $dateTime->format($format);
-
-				$this->queryTest($connection, [
-					'format' => $expected
-				],
-					[
-						'select' => [
-							$select,
-							[
-								'timestamp' => $dateTime
-							]
-						],
-						'label' => $dateTime->format(\DateTime::ISO8601) .
-						': ' . $dbmsName . ' [' . $format . '] ' . $label,
-						'assertValue' => $validate
-					]);
-			}
 		}
 	}
 
@@ -966,6 +825,7 @@ final class DBMSCommonTest extends TestCase
 	private function dbmsParametersTypes(
 		ConnectionInterface $connection, $dbmsName, $method)
 	{
+		$this->setTimezone($connection, 'Europe/Paris');
 		$structure = $this->structures->get('types');
 		$this->assertInstanceOf(StructureElementInterface::class,
 			$structure);
@@ -1747,6 +1607,7 @@ final class DBMSCommonTest extends TestCase
 	private function dbmsExplorer(ConnectionInterface $connection,
 		$dbmsName, $method)
 	{
+		$this->setTimezone($connection, 'Europe/Paris');
 		if (!($connection instanceof StructureExplorerProviderInterface))
 			return;
 
@@ -1799,7 +1660,8 @@ final class DBMSCommonTest extends TestCase
 		 *
 		 * @note MySQL primary key name is always PIRMARY
 		 */
-		if (false)
+		if (!$this->isPlatform($connection->getPlatform(),
+			MySQLPlatform::class))
 		{
 			$this->assertEquals('pk_id', $employeesPrimaryKey->getName(),
 				$dbmsName . ' Employees primary key name');

@@ -188,6 +188,11 @@ class MySQLPlatform extends AbstractPlatform implements
 		return parent::getTimestampTypeStringFormat($type);
 	}
 
+	public function hasTimestampTypeStringFormat($dataType)
+	{
+		return (($dataType & K::DATATYPE_TIMEZONE) == 0);
+	}
+
 	public function getTimestampFormatTokenTranslation($formatToken)
 	{
 		if (!Container::isArray(self::$timestampFormatTranslations))

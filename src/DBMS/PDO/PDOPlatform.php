@@ -171,6 +171,12 @@ class PDOPlatform implements PlatformInterface,
 		return $this->basePlatform->getTimestampTypeStringFormat($type);
 	}
 
+	public function hasTimestampTypeStringFormat($dataType)
+	{
+		return $this->basePlatform->hasTimestampTypeStringFormat(
+			$dataType);
+	}
+
 	public function getForeignKeyAction($action)
 	{
 		return $this->basePlatform->getForeignKeyAction($action);

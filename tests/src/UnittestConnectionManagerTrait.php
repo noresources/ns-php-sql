@@ -1,6 +1,8 @@
 <?php
 namespace NoreSources\Test;
 
+use NoreSources\DateTime;
+use NoreSources\DateTimeZone;
 use NoreSources\SemanticVersion;
 use NoreSources\Container\Container;
 use NoreSources\Container\DataTree;
@@ -8,10 +10,7 @@ use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\ConnectionException;
 use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\PlatformInterface;
-use NoreSources\SQL\DBMS\PlatformProviderInterface;
 use NoreSources\SQL\DBMS\Configuration\ConfiguratorInterface;
-use NoreSources\SQL\DBMS\Configuration\ConfiguratorProviderInterface;
-use NoreSources\SQL\DBMS\PDO\PDOConnection;
 use NoreSources\SQL\DBMS\PDO\PDOPlatform;
 use NoreSources\SQL\Result\InsertionStatementResultInterface;
 use NoreSources\SQL\Result\Recordset;
@@ -24,6 +23,7 @@ use NoreSources\SQL\Syntax\Statement\Structure\CreateNamespaceQuery;
 use NoreSources\SQL\Syntax\Statement\Structure\CreateTableQuery;
 use NoreSources\SQL\Syntax\Statement\Structure\DropIndexQuery;
 use NoreSources\SQL\Syntax\Statement\Structure\DropTableQuery;
+use NoreSources\Type\TypeConversion;
 use NoreSources\Type\TypeDescription;
 use PHPUnit\Framework\TestCase;
 
@@ -59,18 +59,8 @@ trait UnittestConnectionManagerTrait
 				K::CONNECTION_TYPE => $name
 			];
 
-		$c = ConnectionHelper::createConnection($parameters);
-		$configurator = null;
-		if ($c instanceof ConfiguratorProviderInterface)
-			$configurator = $c->getConfigurator();
-		elseif ($c instanceof PlatformProviderInterface)
-		{
-			$p = $c->getPlatform();
-			$configurator = $p->newConfigurator($c);
-		}
-
-		$this->connections[$name] = $c;
-
+		$this->connections[$name] = ConnectionHelper::createConnection(
+			$parameters);
 		return $this->connections[$name];
 	}
 
@@ -129,20 +119,55 @@ trait UnittestConnectionManagerTrait
 	}
 
 	protected function setTimezone(ConnectionInterface $connection,
-		$timezone)
+		$timezone, $verbose = false)
 	{
-		/** @var ConfiguratorInterface $cfg */
-		$cfg = null;
-		$platform = $connection->getPlatform();
-		if ($connection instanceof ConfiguratorProviderInterface)
-			$cfg = $connection->getConfigurator();
-		elseif ($platform instanceof ConfiguratorProviderInterface)
-			$cfg = $platform->getConfigurator();
-		else
-			$cfg = $platform->newConfigurator($connection);
+		$now = new DateTime('now', DateTime::getUTCTimezone());
+		if (!($timezone instanceof \DateTimeZone))
+			$timezone = DateTimeZone::createFromDescription($timezone);
 
-		if ($cfg->canSet(K::CONFIGURATION_TIMEZONE))
-			$cfg->offsetSet(K::CONFIGURATION_TIMEZONE, $timezone);
+		$offset = $timezone->getOffset($now);
+
+		/** @var ConfiguratorInterface $configurator */
+		$configurator = $connection->getConfigurator();
+		$platform = $connection->getPlatform();
+		if ($verbose)
+			echo ('Set ' . $this->getDBMSName($connection) .
+				' time zone ' . TypeConversion::toString($timezone) .
+				' (' . $offset . ')' . PHP_EOL);
+
+		if ($configurator->canSet(K::CONFIGURATION_TIMEZONE))
+		{
+			$configurator->offsetSet(K::CONFIGURATION_TIMEZONE,
+				$timezone);
+
+			if ($configurator->canGet(K::CONFIGURATION_TIMEZONE))
+			{
+				$postSetTimezone = $configurator->get(
+					K::CONFIGURATION_TIMEZONE);
+				if (!($postSetTimezone instanceof \DateTimeZone))
+					throw new \Exception(
+						'Failed to get timezone from connection');
+				$postSetOffset = $postSetTimezone->getOffset($now);
+
+				if ($verbose)
+					echo ('New ' . $this->getDBMSName($connection) .
+						' time zone ' .
+						TypeConversion::toString($postSetTimezone) . ' (' .
+						$postSetOffset . ')' . PHP_EOL);
+
+				if ($postSetOffset != $offset)
+					throw new \Exception(
+						'Failed to set correct time zone offset. Expect ' .
+						TypeConversion::toString($timezone) . ' (' .
+						$offset . '), got ' .
+						TypeConversion::toString($postSetTimezone) . ' (' .
+						$postSetOffset . ')');
+			}
+			else
+				\trigger_error(
+					'Unable to get ' . $this->getDBMSName($connection) .
+					' time zone', E_USER_NOTICE);
+		}
 	}
 
 	protected function queryTest(ConnectionInterface $connection,
@@ -242,7 +267,6 @@ trait UnittestConnectionManagerTrait
 
 		$dbmsName = $this->getDBMSName($connection);
 		$method = ($method ? $method : $this->getMethodName(2));
-		$save = ($save == !($connection instanceof PDOConnection));
 
 		$platform = $connection->getPlatform();
 		$factory = $connection->getPlatform();
@@ -275,8 +299,8 @@ trait UnittestConnectionManagerTrait
 		}
 
 		// Drop indexes
-		$constraunts = $tableStructure->getConstraints();
-		foreach ($constraunts as $id => $constraint)
+		$constraints = $tableStructure->getConstraints();
+		foreach ($constraints as $id => $constraint)
 		{
 			if (!($constraint instanceof IndexTableConstraint))
 				continue;
@@ -383,8 +407,8 @@ trait UnittestConnectionManagerTrait
 		 */
 		if (false)
 		{
-			$constraunts = $tableStructure->getConstraints();
-			foreach ($constraunts as $id => $constraint)
+			$constraints = $tableStructure->getConstraints();
+			foreach ($constraints as $id => $constraint)
 			{
 				if (!($constraint instanceof IndexTableConstraint))
 					continue;

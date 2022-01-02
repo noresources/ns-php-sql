@@ -7,7 +7,6 @@
  */
 namespace NoreSources\SQL\DBMS;
 
-use NoreSources\DateTime;
 use NoreSources\SemanticVersion;
 use NoreSources\Container\CascadedValueTree;
 use NoreSources\Container\Container;
@@ -62,35 +61,17 @@ abstract class AbstractPlatform implements PlatformInterface
 			case K::DATATYPE_TIMEZONE:
 			case K::DATATYPE_TIMESTAMP:
 
-				if (!($value instanceof \DateTimeInterface))
-				{
-					try
-					{
-						$value = new DateTime($value);
-					}
-					catch (\Exception $e)
-					{}
-				}
+				$timezone = null;
+				$adjustTimezone = (!$this->hasTimestampTypeStringFormat(
+					$dataType)) ||
+					(($dataType & K::DATATYPE_TIMEZONE) == 0);
+				if ($adjustTimezone)
+					$this->tryGetConfiguration($timezone,
+						K::CONFIGURATION_TIMEZONE);
+				$value = TypeConversion::toDateTime($value, $timezone);
 
-				if ($value instanceof \DateTimeInterface)
-				{
-
-					if ((($dataType & K::DATATYPE_TIMEZONE) == 0) &&
-						($this instanceof ConnectionProviderInterface) &&
-						($connection = $this->getConnection()) &&
-						($configurator = $this->newConfigurator(
-							$connection)) &&
-						$configurator->has(K::CONFIGURATION_TIMEZONE))
-					{
-						$value = clone $value;
-						$value->setTimezone(
-							$configurator->get(
-								K::CONFIGURATION_TIMEZONE));
-					}
-
-					return $value->format(
-						$this->getTimestampTypeStringFormat($dataType));
-				}
+				return $value->format(
+					$this->getTimestampTypeStringFormat($dataType));
 		}
 
 		return TypeConversion::toString($value);
@@ -114,6 +95,12 @@ abstract class AbstractPlatform implements PlatformInterface
 			case K::DATATYPE_REAL:
 			case K::DATATYPE_NUMBER:
 				return TypeCOnversion::toFloat($data);
+			case K::DATATYPE_DATE:
+			case K::DATATYPE_TIME:
+			case K::DATATYPE_DATETIME:
+			case K::DATATYPE_TIMEZONE:
+			case K::DATATYPE_TIMESTAMP:
+				return $this->serializeTimestamp($data, $dataType);
 		}
 
 		return $this->quoteStringValue(
@@ -202,20 +189,40 @@ abstract class AbstractPlatform implements PlatformInterface
 			});
 	}
 
+	/**
+	 * Transform value to a string representation of a timestamp
+	 * (in the server time zone when possible)
+	 *
+	 * @param mixed $value
+	 *        	Value to serialize
+	 * @param integer $dataType
+	 *        	Timestamp parts
+	 * @return string A Quoted string literal representation of the timestamp
+	 */
 	public function serializeTimestamp($value, $dataType)
 	{
-		if (\is_int($value) || \is_float($value) || \is_string($value))
-			$value = new DateTime($value);
-		elseif (DateTime::isDateTimeStateArray($value))
-			$value = DateTime::createFromArray($value);
+		$timezone = null;
+		$adjustTimezone = (!$this->hasTimestampTypeStringFormat(
+			$dataType)) || (($dataType & K::DATATYPE_TIMEZONE) == 0);
+		if ($adjustTimezone)
+			$this->tryGetConfiguration($timezone,
+				K::CONFIGURATION_TIMEZONE);
+		$value = TypeConversion::toDateTime($value, $timezone);
 
-		if ($value instanceof \DateTimeInterface)
-			$value = $value->format(
-				$this->getTimestampTypeStringFormat($dataType));
-		else
-			$value = TypeConversion::toString($value);
+		return $this->quoteStringValue(
+			$value->format(
+				$this->getTimestampTypeStringFormat($dataType)));
+	}
 
-		return $this->quoteStringValue($value);
+	protected function unserializeTimestampData($columnDescription,
+		$data)
+	{
+		$timezone = null;
+		$this->tryGetConfiguration($timezone, K::CONFIGURATION_TIMEZONE);
+		$value = TypeConversion::toDateTime($data, $timezone);
+		$value->setTimeZone(
+			new \DateTimeZone(\date_default_timezone_get()));
+		return $value;
 	}
 
 	public function getPlatformVersion($kind = self::VERSION_CURRENT)
@@ -313,6 +320,11 @@ abstract class AbstractPlatform implements PlatformInterface
 		return \implode('\T', $format);
 	}
 
+	public function hasTimestampTypeStringFormat($dataType)
+	{
+		return true;
+	}
+
 	public function getTimestampFormatTokenTranslation($formatToken)
 	{
 		return false;
@@ -379,6 +391,28 @@ abstract class AbstractPlatform implements PlatformInterface
 
 		$this->features[K::FEATURE_JOINS] = 0xFFFF;
 		$this->features[K::FEATURE_EVENT_ACTIONS] = 0xFFFF;
+	}
+
+	/**
+	 * Attept to get a configuration setting from DBMS connection
+	 *
+	 * @param
+	 *        	mixed wn $value Result container
+	 * @param string $key
+	 *        	Configuration setting identifier
+	 * @return boolean TRUE if setting was successfully read and put to $value
+	 */
+	protected function tryGetConfiguration(&$value, $key)
+	{
+		if (!($this instanceof ConnectionProviderInterface))
+			return false;
+		/** @var ConnectionInterface $connection */
+		$connection = $this->getConnection();
+		$configurator = $connection->getConfigurator();
+		if (!$configurator->canGet($key))
+			return false;
+		$value = $configurator->get($key);
+		return true;
 	}
 
 	protected function setPlatformVersion($kind, $version)

@@ -22,8 +22,8 @@ final class MySQLTest extends TestCase
 		$registry = new MySQLTypeRegistry();
 
 		$tests = [
-			'timestamp' => 'timestamp',
-			MYSQLI_TYPE_TIMESTAMP => 'timestamp'
+			'timestamp' => 'datetime',
+			MYSQLI_TYPE_TIMESTAMP => 'datetime'
 		];
 
 		$mysqliTypeConstants = Container::filter(

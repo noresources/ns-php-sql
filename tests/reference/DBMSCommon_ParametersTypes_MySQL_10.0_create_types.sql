@@ -9,6 +9,6 @@ OR REPLACE TABLE `ns_unittests`.`types` (
   `float` double NULL DEFAULT 1.23456, 
   `fixed_precision` double(18, 2) NULL DEFAULT 1.23, 
   `timestamp` datetime NULL DEFAULT '2010-11-12 13:14:15', 
-  `timestamp_tz` timestamp NULL DEFAULT '2010-11-12 13:14:15', 
+  `timestamp_tz` datetime NULL DEFAULT '2010-11-12 13:14:15', 
   CONSTRAINT `pk_types` PRIMARY KEY (`int`)
 )

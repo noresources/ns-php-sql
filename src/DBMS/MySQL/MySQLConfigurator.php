@@ -75,7 +75,8 @@ class MySQLConfigurator implements ConfiguratorInterface
 		if ($setting === false)
 			return;
 		$this->getConnection()->executeStatement(
-			'SET ' . $setting . '=(SELECT @@GLOBAL.' . $setting . ')');
+			'SET @@SESSION.' . $setting . '=(SELECT @@GLOBAL.' . $setting .
+			')');
 		$this->unsetCachedValue($key);
 	}
 
@@ -89,18 +90,23 @@ class MySQLConfigurator implements ConfiguratorInterface
 		$this->unsetCachedValue($key);
 		$value = $this->normalizeValue($key, $value);
 		$settingValue = $value;
+		$settingDataType = K::DATATYPE_STRING;
 		if ($key == K::CONFIGURATION_KEY_CONSTRAINTS)
+		{
 			$settingValue = ($value ? 1 : 0);
+			$settingDataType = K::DATATYPE_INTEGER;
+		}
 		elseif ($key == K::CONFIGURATION_TIMEZONE)
 		{
 			$now = new DateTime('now', $value);
-
-			$settingValue = $this->getPlatform()->quoteStringValue(
-				$now->format('P'));
+			$settingValue = $now->format('P');
 		}
 
 		$this->getConnection()->executeStatement(
-			'SET ' . $setting . '=' . $settingValue);
+			'SET @@SESSION.' . $setting . '=' .
+			$this->getPlatform()
+				->serializeData($settingValue, $settingDataType));
+		$this->setCachedValue($key, $value);
 	}
 
 	public function getMySQLServerSettingName($key)

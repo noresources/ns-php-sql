@@ -28,6 +28,7 @@ use NoreSources\SQL\Syntax\Statement\Structure\CreateNamespaceQuery;
 use NoreSources\SQL\Syntax\Statement\Structure\CreateTableQuery;
 use NoreSources\SQL\Syntax\Statement\Structure\DropNamespaceQuery;
 use NoreSources\Text\Text;
+use NoreSources\Type\TypeConversion;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
 
@@ -107,6 +108,16 @@ class SQLitePlatform extends AbstractPlatform implements
 		}
 	}
 
+	public function serializeTimestamp($value, $dataType)
+	{
+		$value = TypeConversion::toDateTime($value);
+		if (($dataType & K::DATATYPE_TIMEZONE) != K::DATATYPE_TIMEZONE)
+			$value->setTimezone(DateTime::getUTCTimezone());
+		return $this->quoteStringValue(
+			$value->format(
+				$this->getTimestampTypeStringFormat($dataType)));
+	}
+
 	public function getColumnType($columnDescription,
 		$constraintFlags = 0)
 	{
@@ -151,10 +162,12 @@ class SQLitePlatform extends AbstractPlatform implements
 	 */
 	public function getTimestampTypeStringFormat($type = 0)
 	{
+		$timezoneFormat = (version_compare(PHP_VERSION, '8.0.0') >= 0) ? 'p' : 'P';
+
 		if ($type == K::DATATYPE_TIMESTAMP)
-			return 'Y-m-d H:i:sP';
+			return 'Y-m-d H:i:s' . $timezoneFormat;
 		elseif ($type == (K::DATATYPE_TIME | K::DATATYPE_TIMEZONE))
-			return 'H:i:sP';
+			return 'H:i:s' . $timezoneFormat;
 		return parent::getTimestampTypeStringFormat($type);
 	}
 
@@ -207,7 +220,7 @@ class SQLitePlatform extends AbstractPlatform implements
 					DateTime::FORMAT_SECOND_DIGIT_2 => '%S',
 					DateTime::FORMAT_EPOCH_OFFSET => '%s',
 					DateTime::FORMAT_TIMESTAMP_ISO8601 => [
-						'%Y-%m-%dT%H:%M:%S+00:00',
+						'%Y-%m-%dT%H:%M:%SZ',
 						'Not the ISO 8601 week numbering year. No timezone'
 					]
 				]);

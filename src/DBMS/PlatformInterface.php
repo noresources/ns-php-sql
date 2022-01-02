@@ -129,6 +129,16 @@ interface PlatformInterface extends LoggerAwareInterface,
 	function getTimestampTypeStringFormat($dataType = 0);
 
 	/**
+	 * Indicates if the platform fully supports the given timestamp data type
+	 *
+	 * @param integer $dataType
+	 *        	Timestamp data type flags
+	 * @return boolean TRUE if all parts of the given data type flags
+	 *         can be represented.
+	 */
+	function hasTimestampTypeStringFormat($dataType);
+
+	/**
 	 *
 	 * @param string $formatToken
 	 *        	One of the PHP date format string token. @see

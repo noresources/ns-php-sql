@@ -1,5 +1,4 @@
-CREATE 
-OR REPLACE TABLE `ns_unittests`.`types` (
+CREATE TABLE `ns_unittests`.`types` (
   `base` longtext NULL, 
   `binary` varbinary(255) NULL DEFAULT 'abc', 
   `boolean` boolean NULL DEFAULT TRUE, 
@@ -8,7 +7,7 @@ OR REPLACE TABLE `ns_unittests`.`types` (
   `small_int` smallint(3) UNSIGNED NULL, 
   `float` double NULL DEFAULT 1.23456, 
   `fixed_precision` double(18, 2) NULL DEFAULT 1.23, 
-  `timestamp` datetime NULL DEFAULT '2010-11-12 13:14:15', 
-  `timestamp_tz` datetime NULL DEFAULT '2010-11-12 13:14:15', 
+  `timestamp` datetime NULL DEFAULT '2010-11-12 21:14:15', 
+  `timestamp_tz` datetime NULL DEFAULT '2010-11-12 21:14:15', 
   CONSTRAINT `pk_types` PRIMARY KEY (`int`)
 )
