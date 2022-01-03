@@ -1,9 +1,7 @@
 <?php
 /**
- * Copyright © 2012 - 2021 by Renaud Guillard (dev@nore.fr)
+ * Copyright © 2021 - 2022 by Renaud Guillard (dev@nore.fr)
  * Distributed under the terms of the MIT License, see LICENSE
- */
-/**
  *
  * @package SQL
  */
@@ -24,7 +22,8 @@ class RecordsetException extends \ErrorException
 	 * @param string $message
 	 * @param integer $code
 	 */
-	public function __construct(Recordset $recordset, $message, $code = null)
+	public function __construct(Recordset $recordset, $message,
+		$code = null)
 	{
 		parent::__construct($message, $code);
 		$this->recordset = $recordset;

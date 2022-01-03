@@ -1,6 +1,6 @@
 The MIT License (MIT)
 
-Copyright (c) 2012-2013 by Renaud Guillard (dev@nore.fr)
+Copyright (c) 2012 - 2022 by Renaud Guillard (dev@nore.fr)
 
 Permission is hereby granted, free of charge, 
 to any person obtaining a copy of this software and associated documentation files (the "Software"), 
