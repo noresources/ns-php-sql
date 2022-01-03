@@ -12,18 +12,20 @@ use NoreSources\SQL\Syntax\Statement\StatementBuilder;
 use NoreSources\SQL\Syntax\Statement\StatementTokenStreamContext;
 use NoreSources\SQL\Syntax\Statement\Query\SelectQuery;
 use NoreSources\Test\DatasourceManager;
-use NoreSources\Test\DerivedFileManager;
+use NoreSources\Test\DerivedFileTestTrait;
 use NoreSources\Test\SqlFormatter;
 use PHPUnit\Framework\TestCase;
 
 final class SelectTest extends TestCase
 {
 
+	use DerivedFileTestTrait;
+
 	public function __construct($name = null, array $data = [],
 		$dataName = '')
 	{
 		parent::__construct($name, $data, $dataName);
-		$this->derivedFileManager = new DerivedFileManager(__DIR__);
+		$this->initializeDerivedFileTest(__DIR__);
 		$this->datasources = new DatasourceManager();
 	}
 
@@ -65,8 +67,7 @@ final class SelectTest extends TestCase
 
 		$sql = SqlFormatter::format(strval($result), false);
 
-		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__,
-			null, 'sql');
+		$this->assertDerivedFile($sql, __METHOD__, null, 'sql');
 	}
 
 	public function testStructurelessSelect()
@@ -85,8 +86,8 @@ final class SelectTest extends TestCase
 		$this->assertEquals(K::QUERY_SELECT, $result->getStatementType(),
 			'Statement type');
 
-		$this->derivedFileManager->assertDerivedFile(\strval($result),
-			__METHOD__, 'true', 'sql');
+		$this->assertDerivedFile(\strval($result), __METHOD__, 'true',
+			'sql');
 	}
 
 	public function testSelectCompanyTasks()
@@ -151,8 +152,7 @@ final class SelectTest extends TestCase
 
 		$sql = SqlFormatter::format(strval($result), false);
 
-		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__,
-			null, 'sql');
+		$this->assertDerivedFile($sql, __METHOD__, null, 'sql');
 	}
 
 	public function testSubQueriesAndAliases()
@@ -194,8 +194,7 @@ final class SelectTest extends TestCase
 		$result =  StatementBuilder::getInstance() ($q, $platform, $namespaceStructure);
 
 		$sql = SqlFormatter::format(strval($result), false);
-		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__,
-			null, 'sql');
+		$this->assertDerivedFile($sql, __METHOD__, null, 'sql');
 	}
 
 	public function testPolishNotation()
@@ -226,8 +225,7 @@ final class SelectTest extends TestCase
 
 		$data = $env->prepareStatement($select, $structure);
 		$sql = SqlFormatter::format(strval($data), false);
-		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__,
-			'not in', 'sql');
+		$this->assertDerivedFile($sql, __METHOD__, 'not in', 'sql');
 	}
 
 	public function testUnion()
@@ -259,8 +257,7 @@ final class SelectTest extends TestCase
 		$env = new Environment();
 		$data = $env->prepareStatement($a, $tableStructure);
 		$sql = SqlFormatter::format(strval($data), false);
-		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__,
-			null, 'sql');
+		$this->assertDerivedFile($sql, __METHOD__, null, 'sql');
 	}
 
 	/**
@@ -322,8 +319,7 @@ final class SelectTest extends TestCase
 
 		$sql = SqlFormatter::format(strval($data), false);
 		//
-		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__,
-			null, 'sql');
+		$this->assertDerivedFile($sql, __METHOD__, null, 'sql');
 	}
 
 	/**
@@ -331,10 +327,4 @@ final class SelectTest extends TestCase
 	 * @var DatasourceManager
 	 */
 	private $datasources;
-
-	/**
-	 *
-	 * @var DerivedFileManager
-	 */
-	private $derivedFileManager;
 }

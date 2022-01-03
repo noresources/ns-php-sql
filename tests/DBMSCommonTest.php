@@ -49,7 +49,7 @@ use NoreSources\SQL\Syntax\Statement\Query\SelectQuery;
 use NoreSources\SQL\Syntax\Statement\Structure\DropNamespaceQuery;
 use NoreSources\Test\ConnectionHelper;
 use NoreSources\Test\DatasourceManager;
-use NoreSources\Test\DerivedFileManager;
+use NoreSources\Test\DerivedFileTestTrait;
 use NoreSources\Test\Generator;
 use NoreSources\Test\SqlFormatter;
 use NoreSources\Test\UnittestConnectionManagerTrait;
@@ -98,12 +98,13 @@ final class DBMSCommonTest extends TestCase
 {
 
 	use UnittestConnectionManagerTrait;
+	use DerivedFileTestTrait;
 
 	public function __construct($name = null, array $data = [],
 		$dataName = '')
 	{
 		parent::__construct($name, $data, $dataName);
-		$this->derivedFileManager = new DerivedFileManager(__DIR__);
+		$this->initializeDerivedFileTest(__DIR__);
 		$this->structures = new DatasourceManager();
 	}
 
@@ -206,8 +207,8 @@ final class DBMSCommonTest extends TestCase
 			$data = $builder($drop, $connection->getPlatform(),
 				$resolver);
 			$sql = \SqlFormatter::format(\strval($data), false);
-			$this->derivedFileManager->assertDerivedFile($sql,
-				__METHOD__, $dbmsName . '_dropnamespace', 'sql');
+			$this->assertDerivedFile($sql, __METHOD__,
+				$dbmsName . '_dropnamespace', 'sql');
 			try
 			{
 				$e->executeStatement($data);
@@ -385,8 +386,7 @@ final class DBMSCommonTest extends TestCase
 			$content .= $this->textKeyValue($label, \strval($data));
 		}
 
-		$this->derivedFileManager->assertDerivedFile($content, $method,
-			$dbmsName, 'sql');
+		$this->assertDerivedFile($content, $method, $dbmsName, 'sql');
 	}
 
 	public function testTypeSerialization()
@@ -723,9 +723,8 @@ final class DBMSCommonTest extends TestCase
 				$formatName = \preg_replace('/([A-Z])/', 'uppercase_$1',
 					$format);
 				$derivedFilename = $dbmsName . '_' . $formatName;
-				$this->derivedFileManager->assertDerivedFile(
-					\strval($select) . PHP_EOL, $method,
-					$derivedFilename, 'sql', $label);
+				$this->assertDerivedFile(\strval($select) . PHP_EOL,
+					$method, $derivedFilename, 'sql', $label);
 			}
 
 			foreach ($timestamps as $test => $dateTime)
@@ -781,7 +780,7 @@ final class DBMSCommonTest extends TestCase
 			$subSelect);
 		$subSQL = \strval($subData);
 
-		$this->derivedFileManager->assertDerivedFile($subSQL, $method,
+		$this->assertDerivedFile($subSQL, $method,
 			$dbmsName . '_subquery', 'sql');
 
 		/**
@@ -844,7 +843,7 @@ final class DBMSCommonTest extends TestCase
 
 			$sql = \SqlFormatter::format(\strval($data), false);
 
-			$this->derivedFileManager->assertDerivedFile($sql, $method,
+			$this->assertDerivedFile($sql, $method,
 				$dbmsName . '_mainquery', 'sql');
 		}
 	}
@@ -873,8 +872,8 @@ final class DBMSCommonTest extends TestCase
 
 		$sql = SqlFormatter::format(\strval($prepared), false);
 
-		$this->derivedFileManager->assertDerivedFile($sql, $method,
-			$dbmsName . '_query', 'sql');
+		$this->assertDerivedFile($sql, $method, $dbmsName . '_query',
+			'sql');
 
 		$expected = [
 			'foo',
@@ -971,7 +970,8 @@ final class DBMSCommonTest extends TestCase
 		$tableStructure = $structure['ns_unittests']['types'];
 		$this->assertInstanceOf(TableStructure::class, $tableStructure);
 
-		$this->recreateTable($connection, $tableStructure, $method);
+		$this->recreateTable($connection, $tableStructure, $method,
+			!($connection instanceof PDOConnection));
 
 		$platform = $connection->getPlatform();
 
@@ -1012,8 +1012,8 @@ final class DBMSCommonTest extends TestCase
 			$parameterDesc);
 
 		$sql = \SqlFormatter::format(\strval($insert), false);
-		$this->derivedFileManager->assertDerivedFile($sql, $method,
-			$dbmsName . '_insert', 'sql');
+		$this->assertDerivedFile($sql, $method, $dbmsName . '_insert',
+			'sql');
 
 		// Test parameter binding with raw SQL
 		{
@@ -1378,7 +1378,8 @@ final class DBMSCommonTest extends TestCase
 	{
 		$structure = $this->structures->get('Company');
 		$tableStructure = $structure['ns_unittests']['Employees'];
-		$this->recreateTable($connection, $tableStructure, $method);
+		$this->recreateTable($connection, $tableStructure, $method,
+			!($connection instanceof PDOConnection));
 
 		// Insert QUery
 		$insertQuery = new InsertQuery($tableStructure);
@@ -1401,7 +1402,7 @@ final class DBMSCommonTest extends TestCase
 
 		$sql = \SqlFormatter::format(strval($sql), false);
 		if (!($connection instanceof PDOConnection))
-			$this->derivedFileManager->assertDerivedFile($sql, $method,
+			$this->assertDerivedFile($sql, $method,
 				$dbmsName . '_insert', 'sql');
 
 		$p = [
@@ -1761,7 +1762,8 @@ final class DBMSCommonTest extends TestCase
 			false);
 
 		$tableStructure = $structure[$nsName]['types'];
-		$this->recreateTable($connection, $tableStructure, $method);
+		$this->recreateTable($connection, $tableStructure, $method,
+			!($connection instanceof PDOConnection));
 
 		$explorer = $connection->getStructureExplorer();
 
@@ -2084,16 +2086,4 @@ final class DBMSCommonTest extends TestCase
 	 * @var DatasourceManager
 	 */
 	private $structures;
-
-	/**
-	 *
-	 * @var TestConnection
-	 */
-	private $connections;
-
-	/**
-	 *
-	 * @var DerivedFileManager
-	 */
-	private $derivedFileManager;
 }

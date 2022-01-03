@@ -5,17 +5,19 @@ use NoreSources\SQL\DBMS\Reference\ReferencePlatform;
 use NoreSources\SQL\Syntax\Statement\StatementBuilder;
 use NoreSources\SQL\Syntax\Statement\Manipulation\DeleteQuery;
 use NoreSources\Test\DatasourceManager;
-use NoreSources\Test\DerivedFileManager;
+use NoreSources\Test\DerivedFileTestTrait;
 use PHPUnit\Framework\TestCase;
 
 final class DeleteTest extends TestCase
 {
 
+	use DerivedFileTestTrait;
+
 	public function __construct($name = null, array $data = [],
 		$dataName = '')
 	{
 		parent::__construct($name, $data, $dataName);
-		$this->derivedFileManager = new DerivedFileManager(__DIR__);
+		$this->initializeDerivedFileTest(__DIR__);
 		$this->datasources = new DatasourceManager();
 	}
 
@@ -38,8 +40,7 @@ final class DeleteTest extends TestCase
 
 		$sql = \SqlFormatter::format(strval($result), false);
 
-		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__,
-			null, 'sql');
+		$this->assertDerivedFile($sql, __METHOD__, null, 'sql');
 	}
 
 	/**
@@ -47,10 +48,4 @@ final class DeleteTest extends TestCase
 	 * @var DatasourceManager
 	 */
 	private $datasources;
-
-	/**
-	 *
-	 * @var DerivedFileManager
-	 */
-	private $derivedFileManager;
 }

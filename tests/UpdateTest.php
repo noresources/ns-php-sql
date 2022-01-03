@@ -8,18 +8,19 @@ use NoreSources\SQL\Syntax\Statement\Manipulation\UpdateQuery;
 use NoreSources\SQL\Syntax\Statement\Query\SelectQuery;
 use NoreSources\Test\ConnectionHelper;
 use NoreSources\Test\DatasourceManager;
-use NoreSources\Test\DerivedFileManager;
+use NoreSources\Test\DerivedFileTestTrait;
 use NoreSources\Test\SqlFormatter;
 use PHPUnit\Framework\TestCase;
 
 final class UpdateTest extends TestCase
 {
+	use DerivedFileTestTrait;
 
 	public function __construct($name = null, array $data = [],
 		$dataName = '')
 	{
 		parent::__construct($name, $data, $dataName);
-		$this->derivedFileManager = new DerivedFileManager(__DIR__);
+		$this->initializeDerivedFileTest(__DIR__);
 		$this->datasources = new DatasourceManager();
 	}
 
@@ -111,8 +112,7 @@ final class UpdateTest extends TestCase
 			$result =  StatementBuilder::getInstance()($q, $platform,  $tableStructure);
 
 			$sql = SqlFormatter::format(strval($result), false);
-			$this->derivedFileManager->assertDerivedFile($sql,
-				__METHOD__, $set, 'sql');
+			$this->assertDerivedFile($sql, __METHOD__, $set, 'sql');
 		}
 	}
 
@@ -149,8 +149,7 @@ final class UpdateTest extends TestCase
 
 		$sql = SqlFormatter::format(\strval($result), false);
 
-		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__,
-			null, 'sql');
+		$this->assertDerivedFile($sql, __METHOD__, null, 'sql');
 	}
 
 	public function testUpdateCompanyEmployees2()
@@ -181,8 +180,7 @@ final class UpdateTest extends TestCase
 
 		$sql = SqlFormatter::format(\strval($result), false);
 
-		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__,
-			null, 'sql');
+		$this->assertDerivedFile($sql, __METHOD__, null, 'sql');
 	}
 
 	/**
@@ -190,10 +188,4 @@ final class UpdateTest extends TestCase
 	 * @var DatasourceManager
 	 */
 	private $datasources;
-
-	/**
-	 *
-	 * @var DerivedFileManager
-	 */
-	private $derivedFileManager;
 }

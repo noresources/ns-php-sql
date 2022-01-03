@@ -13,19 +13,21 @@ use NoreSources\SQL\Syntax\Statement\StatementTypeProviderInterface;
 use NoreSources\SQL\Syntax\Statement\Manipulation\InsertQuery;
 use NoreSources\SQL\Syntax\Statement\Query\SelectQuery;
 use NoreSources\Test\DatasourceManager;
-use NoreSources\Test\DerivedFileManager;
+use NoreSources\Test\DerivedFileTestTrait;
 use NoreSources\Test\SqlFormatter;
 use PHPUnit\Framework\TestCase;
 
 final class InsertTest extends TestCase
 {
 
+	use DerivedFileTestTrait;
+
 	public function __construct($name = null, array $data = [],
 		$dataName = '')
 	{
 		parent::__construct($name, $data, $dataName);
 		$this->datasources = new DatasourceManager();
-		$this->derivedFileManager = new DerivedFileManager(__DIR__);
+		$this->initializeDerivedFileTest(__DIR__);
 	}
 
 	public function testInsertBasic()
@@ -83,8 +85,8 @@ final class InsertTest extends TestCase
 					'Result is (at least) a ' . $classname);
 			}
 
-			$this->derivedFileManager->assertDerivedFile(
-				strval($result), __METHOD__, $key, 'sql');
+			$this->assertDerivedFile(strval($result), __METHOD__, $key,
+				'sql');
 		}
 	}
 
@@ -154,8 +156,8 @@ final class InsertTest extends TestCase
 
 			$result =  StatementBuilder::getInstance() ($q, $context);
 
-			$this->derivedFileManager->assertDerivedFile(
-				strval($result), __METHOD__, $key, 'sql');
+			$this->assertDerivedFile(strval($result), __METHOD__, $key,
+				'sql');
 		}
 	}
 
@@ -202,8 +204,7 @@ final class InsertTest extends TestCase
 		$data = $builder($insert, $platform, $structure);
 		$sql = SqlFormatter::format(\strval($data), false);
 
-		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__,
-			'', 'sql');
+		$this->assertDerivedFile($sql, __METHOD__, '', 'sql');
 	}
 
 	/**
@@ -211,10 +212,4 @@ final class InsertTest extends TestCase
 	 * @var DatasourceManager
 	 */
 	private $datasources;
-
-	/**
-	 *
-	 * @var DerivedFileManager
-	 */
-	private $derivedFileManager;
 }

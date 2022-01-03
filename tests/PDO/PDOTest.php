@@ -13,7 +13,7 @@ use NoreSources\SQL\Syntax\Statement\Query\SelectQuery;
 use NoreSources\SQL\Syntax\Statement\Structure\CreateTableQuery;
 use NoreSources\Test\ConnectionHelper;
 use NoreSources\Test\DatasourceManager;
-use NoreSources\Test\DerivedFileManager;
+use NoreSources\Test\DerivedFileTestTrait;
 use NoreSources\Test\SqlFormatter;
 use NoreSources\Type\TypeDescription;
 use PHPUnit\Framework\TestCase;
@@ -22,12 +22,13 @@ use PHPUnit\Framework\TestCase;
 final class PDOTest extends TestCase
 {
 
+	use DerivedFileTestTrait;
+
 	public function __construct($name = null, array $data = [],
 		$dataName = '')
 	{
 		parent::__construct($name, $data, $dataName);
-		$this->derivedFileManager = new DerivedFileManager(
-			__DIR__ . '/..');
+		$this->initializeDerivedFileTest(__DIR__ . '/..');
 		$this->datasources = new DatasourceManager();
 	}
 
@@ -145,9 +146,8 @@ final class PDOTest extends TestCase
 		$sql = ConnectionHelper::buildStatement($connection, $create);
 		$sql = \strval($sql);
 
-		$this->derivedFileManager->assertDerivedFile(
-			SqlFormatter::format($sql, false), __METHOD__, 'create',
-			'sql');
+		$this->assertDerivedFile(SqlFormatter::format($sql, false),
+			__METHOD__, 'create', 'sql');
 		$connection->executeStatement($sql);
 
 		/**
@@ -165,9 +165,8 @@ final class PDOTest extends TestCase
 			$insert, $detachedTable);
 		$this->assertInstanceOf(PDOPreparedStatement::class, $prepared);
 		$sql = strval($prepared);
-		$this->derivedFileManager->assertDerivedFile(
-			SqlFormatter::format($sql, false), __METHOD__, 'insert',
-			'sql');
+		$this->assertDerivedFile(SqlFormatter::format($sql, false),
+			__METHOD__, 'insert', 'sql');
 
 		$employees = [
 			[
@@ -211,9 +210,8 @@ final class PDOTest extends TestCase
 		$this->assertInstanceOf(PDOPreparedStatement::class,
 			$preparedSelect);
 		$sql = strval($preparedSelect);
-		$this->derivedFileManager->assertDerivedFile(
-			SqlFormatter::format($sql, false), __METHOD__, 'select',
-			'sql');
+		$this->assertDerivedFile(SqlFormatter::format($sql, false),
+			__METHOD__, 'select', 'sql');
 
 		$result = $connection->executeStatement($preparedSelect);
 		$this->assertInstanceOf(PDORecordset::class, $result);
@@ -241,9 +239,8 @@ final class PDOTest extends TestCase
 			$update, $detachedTable);
 		$this->assertInstanceOf(PDOPreparedStatement::class, $prepared);
 		$sql = strval($prepared);
-		$this->derivedFileManager->assertDerivedFile(
-			SqlFormatter::format($sql, false), __METHOD__, 'update',
-			'sql');
+		$this->assertDerivedFile(SqlFormatter::format($sql, false),
+			__METHOD__, 'update', 'sql');
 
 		$result = $connection->executeStatement($prepared);
 		$this->assertInstanceOf(
@@ -296,10 +293,4 @@ final class PDOTest extends TestCase
 	 * @var DatasourceManager
 	 */
 	private $datasources;
-
-	/**
-	 *
-	 * @var DerivedFileManager
-	 */
-	private $derivedFileManager;
 }

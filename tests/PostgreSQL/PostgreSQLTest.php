@@ -18,20 +18,21 @@ use NoreSources\SQL\Syntax\Statement\Structure\CreateTableQuery;
 use NoreSources\SQL\Syntax\Statement\Structure\DropTableQuery;
 use NoreSources\Test\ConnectionHelper;
 use NoreSources\Test\DatasourceManager;
-use NoreSources\Test\DerivedFileManager;
+use NoreSources\Test\DerivedFileTestTrait;
 use NoreSources\Test\SqlFormatter;
 use PHPUnit\Framework\TestCase;
 
 final class PostgreSQLTest extends TestCase
 {
 
+	use DerivedFileTestTrait;
+
 	public function __construct($name = null, array $data = [],
 		$dataName = '')
 	{
 		parent::__construct($name, $data, $dataName);
 		$this->connection = null;
-		$this->derivedFileManager = new DerivedFileManager(
-			__dir__ . '/..');
+		$this->initializeDerivedFileTest(__dir__ . '/..');
 		$this->datasources = new DatasourceManager();
 		$this->createdTables = new \ArrayObject();
 	}
@@ -108,8 +109,8 @@ final class PostgreSQLTest extends TestCase
 
 			$sql = SqlFormatter::format($sql, false);
 			$suffix = 'create_' . $name . '_' . $versionString;
-			$file = $this->derivedFileManager->assertDerivedFile($sql,
-				__METHOD__, $suffix, 'sql');
+			$file = $this->assertDerivedFile($sql, __METHOD__, $suffix,
+				'sql');
 
 			$drop = null;
 			if ($elementStructure instanceof TableStructure)
@@ -120,8 +121,7 @@ final class PostgreSQLTest extends TestCase
 				$elementStructure);
 			$sql = SqlFormatter::format(\strval($data), false);
 			$suffix = 'drop_' . $name . '_' . $versionString;
-			$this->derivedFileManager->assertDerivedFile($sql,
-				__METHOD__, $suffix, 'sql');
+			$this->assertDerivedFile($sql, __METHOD__, $suffix, 'sql');
 		}
 	}
 
@@ -289,12 +289,6 @@ final class PostgreSQLTest extends TestCase
 	 * @var DatasourceManager
 	 */
 	private $datasources;
-
-	/**
-	 *
-	 * @var DerivedFileManager
-	 */
-	private $derivedFileManager;
 
 	/**
 	 *

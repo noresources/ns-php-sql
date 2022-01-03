@@ -17,17 +17,19 @@ use NoreSources\SQL\Structure\Structure;
 use NoreSources\SQL\Structure\StructureElementInterface;
 use NoreSources\SQL\Structure\StructureSerializerFactory;
 use NoreSources\SQL\Structure\TableStructure;
-use NoreSources\Test\DerivedFileManager;
+use NoreSources\Test\DerivedFileTestTrait;
 use PHPUnit\Framework\TestCase;
 
 final class StructureSerializerTest extends TestCase
 {
 
+	use DerivedFileTestTrait;
+
 	public function __construct($name = null, array $data = [],
 		$dataName = '')
 	{
 		parent::__construct($name, $data, $dataName);
-		$this->derivedFileManager = new DerivedFileManager(__DIR__);
+		$this->initializeDerivedFileTest(__DIR__);
 	}
 
 	public function testXMLSerializer()
@@ -82,8 +84,8 @@ final class StructureSerializerTest extends TestCase
 		$this->assertEquals(1, $genderStringLength,
 			'Gender column length');
 
-		$derivedFilePath = $this->derivedFileManager->getDerivedFilename(
-			__METHOD__, 'Company', 'xml');
+		$derivedFilePath = $this->getDerivedFilename(__METHOD__,
+			'Company', 'xml');
 
 		$serializer->structureToFile($structure, $derivedFilePath);
 
@@ -137,10 +139,4 @@ final class StructureSerializerTest extends TestCase
 	}
 
 	private $dataPath;
-
-	/**
-	 *
-	 * @var DerivedFileManager
-	 */
-	private $derivedFileManager;
 }

@@ -1,6 +1,7 @@
 <?php
 namespace NoreSources\SQL;
 
+use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\DBMS\Reference\ReferencePlatform;
 use NoreSources\SQL\Structure\CheckTableConstraint;
 use NoreSources\SQL\Structure\ColumnStructure;
@@ -8,22 +9,102 @@ use NoreSources\SQL\Structure\DatasourceStructure;
 use NoreSources\SQL\Structure\PrimaryKeyTableConstraint;
 use NoreSources\SQL\Structure\TableStructure;
 use NoreSources\SQL\Structure\Comparer\StructureComparer;
+use NoreSources\SQL\Syntax\Data;
 use NoreSources\SQL\Syntax\Evaluator;
 use NoreSources\SQL\Syntax\TokenizableExpressionInterface;
 use NoreSources\SQL\Syntax\Statement\StatementBuilder;
 use NoreSources\Test\DatasourceManager;
-use NoreSources\Test\DerivedFileManager;
+use NoreSources\Test\DerivedFileTestTrait;
+use NoreSources\Type\TypeConversion;
 use PHPUnit\Framework\TestCase;
 
 final class StructureComparerTest extends TestCase
 {
+
+	use DerivedFileTestTrait;
 
 	public function __construct($name = null, array $data = [],
 		$dataName = '')
 	{
 		parent::__construct($name, $data, $dataName);
 		$this->datasources = new DatasourceManager();
-		$this->derivedFileManager = new DerivedFileManager(__DIR__);
+		$this->initializeDerivedFileTest(__DIR__);
+	}
+
+	public function testDefaultValues()
+	{
+		$utc = new \DateTimeZone('UTC');
+		$paris = new \DateTimeZone('Europe/Paris');
+		$newYork = new \DateTimeZone('America/New_York');
+
+		$now = new \DateTime('now', $utc);
+		$nowAtParis = clone $now;
+		$nowAtParis->setTimezone($paris);
+		$nowatNewYork = clone $now;
+		$nowatNewYork->setTimezone($paris);
+
+		$utcData = new Data($now);
+		$parisData = new Data($nowAtParis);
+		$newYorkData = new Data($nowatNewYork);
+
+		$utcColumn = new ColumnStructure("UTC");
+		$utcColumn->setColumnProperty(K::COLUMN_DATA_TYPE,
+			K::DATATYPE_TIMESTAMP);
+		$utcColumn->setColumnProperty(K::COLUMN_DEFAULT_VALUE, $utcData);
+
+		$parisColumn = new ColumnStructure('Paris');
+		$parisColumn->setColumnProperty(K::COLUMN_NAME, 'Paris');
+		$parisColumn->setColumnProperty(K::COLUMN_DEFAULT_VALUE,
+			$parisData);
+
+		$newYorkColumn = new ColumnStructure('New York');
+		$newYorkColumn->setColumnProperty(K::COLUMN_NAME, 'New York');
+		$newYorkColumn->setColumnProperty(K::COLUMN_DEFAULT_VALUE,
+			$newYorkData);
+
+		$comparer = new StructureComparer();
+
+		foreach ([
+			[
+				$utcColumn,
+				$parisColumn
+			],
+			[
+				$utcColumn,
+				$newYorkColumn
+			],
+			[
+				$parisColumn,
+				$newYorkColumn
+			]
+		] as $pair)
+		{
+			$a = $pair[0];
+			$b = $pair[1];
+
+			$differences = \array_map(
+				[
+					TypeConversion::class,
+					'toString'
+				], $comparer->compare($a, $b));
+			$this->assertEquals([], $differences,
+				$a->getName() . ' vs ' . $b->getName());
+
+			$a2 = clone $a;
+			$a2Default = $a2->get(K::COLUMN_DEFAULT_VALUE);
+			$a2->setColumnProperty(K::COLUMN_DEFAULT_VALUE,
+				new Data(
+					TypeConversion::toString($a2Default->getValue()),
+					$a2Default->getDataType()));
+
+			$differences = \array_map(
+				[
+					TypeConversion::class,
+					'toString'
+				], $comparer->compare($a2, $b));
+			$this->assertEquals([], $differences,
+				$a2->getName() . ' (string) vs ' . $b->getName());
+		}
 	}
 
 	public function testCompanyVersions()
@@ -37,8 +118,7 @@ final class StructureComparerTest extends TestCase
 		$comparer = new StructureComparer();
 		$differences = $comparer->compare($v1, $v2);
 		$s = \implode(PHP_EOL, $differences);
-		$this->derivedFileManager->assertDerivedFile($s, __METHOD__, '',
-			'differences');
+		$this->assertDerivedFile($s, __METHOD__, '', 'differences');
 
 		$hierarchy = $v2['ns_unittests']['Hierarchy'];
 		$products = $v2['ns_unittests']['Products'];
@@ -104,11 +184,4 @@ final class StructureComparerTest extends TestCase
 	 * @var DatasourceManager
 	 */
 	private $datasources;
-
-	/**
-	 * /**
-	 *
-	 * @var DerivedFileManager
-	 */
-	private $derivedFileManager;
 }

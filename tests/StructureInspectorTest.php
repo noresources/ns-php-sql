@@ -4,7 +4,6 @@ namespace NoreSources\SQL;
 use NoreSources\Container\Container;
 use NoreSources\SQL\Structure\Inspector\StructureInspector;
 use NoreSources\Test\DatasourceManager;
-use NoreSources\Test\DerivedFileManager;
 use PHPUnit\Framework\TestCase;
 
 final class StructureInspectorTest extends TestCase
@@ -15,7 +14,6 @@ final class StructureInspectorTest extends TestCase
 	{
 		parent::__construct($name, $data, $dataName);
 		$this->datasources = new DatasourceManager();
-		$this->derivedFileManager = new DerivedFileManager(__DIR__);
 	}
 
 	public function testDependency()
@@ -53,11 +51,4 @@ final class StructureInspectorTest extends TestCase
 	 * @var DatasourceManager
 	 */
 	private $datasources;
-
-	/**
-	 * /**
-	 *
-	 * @var DerivedFileManager
-	 */
-	private $derivedFileManager;
 }

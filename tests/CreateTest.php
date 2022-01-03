@@ -18,19 +18,21 @@ use NoreSources\SQL\Syntax\Statement\Structure\CreateIndexQuery;
 use NoreSources\SQL\Syntax\Statement\Structure\CreateTableQuery;
 use NoreSources\SQL\Syntax\Statement\Structure\CreateViewQuery;
 use NoreSources\Test\DatasourceManager;
-use NoreSources\Test\DerivedFileManager;
+use NoreSources\Test\DerivedFileTestTrait;
 use NoreSources\Test\SqlFormatter;
 use PHPUnit\Framework\TestCase;
 
 final class CreateTest extends TestCase
 {
 
+	use DerivedFileTestTrait;
+
 	public function __construct($name = null, array $data = [],
 		$dataName = '')
 	{
 		parent::__construct($name, $data, $dataName);
 		$this->datasources = new DatasourceManager();
-		$this->derivedFileManager = new DerivedFileManager(__DIR__);
+		$this->initializeDerivedFileTest(__DIR__);
 	}
 
 	public function testCreateIndex()
@@ -48,8 +50,7 @@ final class CreateTest extends TestCase
 		$data = StatementBuilder::getInstance()($index, $platform, $tableStructure);
 
 		$sql = SqlFormatter::format(strval($data), false);
-		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__,
-			null, 'sql');
+		$this->assertDerivedFile($sql, __METHOD__, null, 'sql');
 	}
 
 	public function testCreateView()
@@ -80,8 +81,7 @@ final class CreateTest extends TestCase
 		$data =  StatementBuilder::getInstance()($view, $platform, $tableStructure);
 
 		$sql = SqlFormatter::format(strval($data), false);
-		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__,
-			null, 'sql');
+		$this->assertDerivedFile($sql, __METHOD__, null, 'sql');
 	}
 
 	public function testCreateIndexFromStructure()
@@ -124,8 +124,7 @@ final class CreateTest extends TestCase
 				$platform, $employees);
 
 			$sql = SqlFormatter::format(strval($result), false);
-			$this->derivedFileManager->assertDerivedFile($sql,
-				__METHOD__, null, 'sql');
+			$this->assertDerivedFile($sql, __METHOD__, null, 'sql');
 		}
 	}
 
@@ -203,8 +202,8 @@ final class CreateTest extends TestCase
 			$createTable->table($table);
 			$data = $environment->prepareStatement($createTable);
 			$sql = SqlFormatter::format(\strval($data), false);
-			$this->derivedFileManager->assertDerivedFile($sql,
-				__METHOD__, $table->getName(), 'sql');
+			$this->assertDerivedFile($sql, __METHOD__, $table->getName(),
+				'sql');
 		}
 	}
 
@@ -237,17 +236,10 @@ final class CreateTest extends TestCase
 			$result =  StatementBuilder::getInstance()($q, $platform, $tableStructure);
 
 			$sql = SqlFormatter::format(strval($result), false);
-			$this->derivedFileManager->assertDerivedFile($sql,
-				__METHOD__, $tableName, 'sql', $tableName . ' SQL');
+			$this->assertDerivedFile($sql, __METHOD__, $tableName, 'sql',
+				$tableName . ' SQL');
 		}
 	}
 
 	private $datasources;
-
-	/**
-	 * /**
-	 *
-	 * @var DerivedFileManager
-	 */
-	private $derivedFileManager;
 }

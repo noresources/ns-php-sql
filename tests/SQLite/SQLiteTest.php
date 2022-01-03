@@ -40,7 +40,7 @@ use NoreSources\SQL\Syntax\Statement\Query\SelectQuery;
 use NoreSources\SQL\Syntax\Statement\Structure\CreateTableQuery;
 use NoreSources\Test\ConnectionHelper;
 use NoreSources\Test\DatasourceManager;
-use NoreSources\Test\DerivedFileManager;
+use NoreSources\Test\DerivedFileTestTrait;
 use NoreSources\Test\SqlFormatter;
 use NoreSources\Type\TypeDescription;
 use PHPUnit\Framework\TestCase;
@@ -48,13 +48,14 @@ use PHPUnit\Framework\TestCase;
 final class SQLiteTest extends TestCase
 {
 
+	use DerivedFileTestTrait;
+
 	public function __construct($name = null, array $data = [],
 		$dataName = '')
 	{
 		parent::__construct($name, $data, $dataName);
 		$this->connection = null;
-		$this->derivedFileManager = new DerivedFileManager(
-			__DIR__ . '/..');
+		$this->initializeDerivedFileTest(__DIR__ . '/..');
 		$this->datasources = new DatasourceManager();
 		$this->createdTables = new \ArrayObject();
 	}
@@ -179,8 +180,7 @@ final class SQLiteTest extends TestCase
 			$this->connection, $statement, $tableStructure);
 
 		$sql = SqlFormatter::format(strval(strval($prepared)), false);
-		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__,
-			'insert', 'sql');
+		$this->assertDerivedFile($sql, __METHOD__, 'insert', 'sql');
 
 		$result = $this->connection->executeStatement($prepared);
 		$this->assertInstanceOf(
@@ -241,8 +241,7 @@ final class SQLiteTest extends TestCase
 		$rawPrepared = $this->connection->prepareStatement($sql);
 
 		$sql = SqlFormatter::format(strval($sql), false);
-		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__,
-			'insert', 'sql');
+		$this->assertDerivedFile($sql, __METHOD__, 'insert', 'sql');
 
 		$this->assertEquals(2, $rawPrepared->getParameters()
 			->count(),
@@ -694,7 +693,7 @@ final class SQLiteTest extends TestCase
 
 		$sql = strval($prepared);
 		$sql = SqlFormatter::format(strval($sql), false);
-		$this->derivedFileManager->assertDerivedFile($sql, __METHOD__,
+		$this->assertDerivedFile($sql, __METHOD__,
 			'create_' . $tableStructure->getName(), 'sql');
 
 		$this->connection->executeStatement($prepared);
@@ -707,8 +706,8 @@ final class SQLiteTest extends TestCase
 		if ($this->connection instanceof DBMS\ConnectionInterface)
 			return true;
 
-		$sqliteFile = $this->derivedFileManager->registerDerivedFile(
-			'SQLite', __METHOD__, 'db', 'sqlite');
+		$sqliteFile = $this->registerDerivedFile('SQLite', __METHOD__,
+			'db', 'sqlite');
 
 		if (\file_exists($sqliteFile))
 			unlink($sqliteFile);
@@ -725,7 +724,7 @@ final class SQLiteTest extends TestCase
 		$this->assertInstanceOf(SQLiteConnection::class,
 			$this->connection, 'Create connection');
 
-		$this->derivedFileManager->setPersistent($sqliteFile, true);
+		$this->setPersistent($sqliteFile, true);
 
 		return true;
 	}
@@ -735,12 +734,6 @@ final class SQLiteTest extends TestCase
 	 * @var DatasourceManager
 	 */
 	private $datasources;
-
-	/**
-	 *
-	 * @var DerivedFileManager
-	 */
-	private $derivedFileManager;
 
 	/**
 	 *

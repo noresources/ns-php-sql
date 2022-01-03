@@ -12,18 +12,20 @@ use NoreSources\SQL\Syntax\TokenStream;
 use NoreSources\SQL\Syntax\Statement\StatementBuilder;
 use NoreSources\SQL\Syntax\Statement\StatementTokenStreamContext;
 use NoreSources\SQL\Syntax\Statement\Query\SelectQuery;
-use NoreSources\Test\DerivedFileManager;
+use NoreSources\Test\DerivedFileTestTrait;
 use NoreSources\Test\SqlFormatter;
 use PHPUnit\Framework\TestCase;
 
 final class VirtualStructureTest extends TestCase
 {
 
+	use DerivedFileTestTrait;
+
 	public function __construct($name = null, array $data = [],
 		$dataName = '')
 	{
 		parent::__construct($name, $data, $dataName);
-		$this->derivedFileManager = new DerivedFileManager(__DIR__);
+		$this->initializeDerivedFileTest(__DIR__);
 	}
 
 	public function testNamespace()
@@ -171,15 +173,7 @@ final class VirtualStructureTest extends TestCase
 			$data = StatementBuilder::getInstance()($select, $context);
 			$sql = SqlFormatter::format(\strval($data), false);
 
-			$this->derivedFileManager->assertDerivedFile($sql,
-				__METHOD__, 'select', 'sql');
+			$this->assertDerivedFile($sql, __METHOD__, 'select', 'sql');
 		}
 	}
-
-	/**
-	 * /**
-	 *
-	 * @var DerivedFileManager
-	 */
-	private $derivedFileManager;
 }
