@@ -13,7 +13,6 @@ use NoreSources\Container\Container;
 use NoreSources\Http\ParameterMapProviderInterface;
 use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\TransactionInterface;
-use NoreSources\SQL\DBMS\Configuration\ConfiguratorProviderInterface;
 use NoreSources\SQL\DBMS\Configuration\ConfiguratorProviderTrait;
 use NoreSources\SQL\DBMS\Explorer\StructureExplorerProviderInterface;
 use NoreSources\SQL\DBMS\SQLite\SQLiteConstants as K;
@@ -31,8 +30,7 @@ use NoreSources\Type\TypeDescription;
  * SQLite connection
  */
 class SQLiteConnection implements ConnectionInterface,
-	TransactionInterface, StructureExplorerProviderInterface,
-	ConfiguratorProviderInterface
+	TransactionInterface, StructureExplorerProviderInterface
 {
 	use TransactionStackTrait;
 	use PlatformProviderTrait;

@@ -15,7 +15,6 @@ use NoreSources\SQL\DBMS\ConnectionException;
 use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\StringSerializerInterface;
 use NoreSources\SQL\DBMS\TransactionInterface;
-use NoreSources\SQL\DBMS\Configuration\ConfiguratorProviderInterface;
 use NoreSources\SQL\DBMS\Configuration\ConfiguratorProviderTrait;
 use NoreSources\SQL\DBMS\Explorer\StructureExplorerProviderInterface;
 use NoreSources\SQL\DBMS\MySQL\MySQLConstants as K;
@@ -31,8 +30,8 @@ use NoreSources\Type\TypeDescription;
 
 class MySQLConnection implements ConnectionInterface,
 	StringSerializerInterface, BinaryDataSerializerInterface,
-	TransactionInterface, StructureExplorerProviderInterface,
-	ConfiguratorProviderInterface
+	TransactionInterface, StructureExplorerProviderInterface
+
 {
 
 	use TransactionStackTrait;

@@ -16,7 +16,6 @@ use NoreSources\SQL\DBMS\ConnectionException;
 use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\StringSerializerInterface;
 use NoreSources\SQL\DBMS\TransactionInterface;
-use NoreSources\SQL\DBMS\Configuration\ConfiguratorProviderInterface;
 use NoreSources\SQL\DBMS\Configuration\ConfiguratorProviderTrait;
 use NoreSources\SQL\DBMS\Explorer\StructureExplorerProviderInterface;
 use NoreSources\SQL\DBMS\MySQL\MySQLPlatform;
@@ -45,7 +44,7 @@ use PDO;
  */
 class PDOConnection implements ConnectionInterface, TransactionInterface,
 	StringSerializerInterface, BinaryDataSerializerInterface,
-	StructureExplorerProviderInterface, ConfiguratorProviderInterface
+	StructureExplorerProviderInterface
 {
 	use TransactionStackTrait;
 	use PlatformProviderTrait;

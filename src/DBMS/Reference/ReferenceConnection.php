@@ -12,7 +12,6 @@ namespace NoreSources\SQL\DBMS\Reference;
 use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\PlatformInterface;
 use NoreSources\SQL\DBMS\TransactionInterface;
-use NoreSources\SQL\DBMS\Configuration\ConfiguratorProviderInterface;
 use NoreSources\SQL\DBMS\Configuration\ConfiguratorProviderTrait;
 use NoreSources\SQL\DBMS\Traits\PlatformProviderTrait;
 use NoreSources\SQL\DBMS\Traits\TransactionStackTrait;
@@ -22,7 +21,7 @@ use NoreSources\SQL\Syntax\Statement\Traits\ClassMapStatementFactoryTrait;
  * SQLite connection
  */
 class ReferenceConnection implements ConnectionInterface,
-	TransactionInterface, ConfiguratorProviderInterface
+	TransactionInterface
 {
 	use TransactionStackTrait;
 	use PlatformProviderTrait;

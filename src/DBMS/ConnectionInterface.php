@@ -9,12 +9,14 @@
  */
 namespace NoreSources\SQL\DBMS;
 
+use NoreSources\SQL\DBMS\Configuration\ConfiguratorProviderInterface;
 use NoreSources\SQL\Result\Recordset;
 
 /**
  * DMBS connection
  */
-interface ConnectionInterface extends PlatformProviderInterface
+interface ConnectionInterface extends PlatformProviderInterface,
+	ConfiguratorProviderInterface
 {
 
 	/**

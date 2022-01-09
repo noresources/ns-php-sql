@@ -16,7 +16,6 @@ use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\IdentifierSerializerInterface;
 use NoreSources\SQL\DBMS\StringSerializerInterface;
 use NoreSources\SQL\DBMS\TransactionInterface;
-use NoreSources\SQL\DBMS\Configuration\ConfiguratorProviderInterface;
 use NoreSources\SQL\DBMS\Configuration\ConfiguratorProviderTrait;
 use NoreSources\SQL\DBMS\Explorer\StructureExplorerProviderInterface;
 use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLConstants as K;
@@ -32,8 +31,8 @@ use NoreSources\Type\TypeDescription;
 
 class PostgreSQLConnection implements ConnectionInterface,
 	TransactionInterface, StringSerializerInterface,
-	IdentifierSerializerInterface, StructureExplorerProviderInterface,
-	ConfiguratorProviderInterface
+	IdentifierSerializerInterface, StructureExplorerProviderInterface
+
 {
 
 	use TransactionStackTrait;
