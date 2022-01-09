@@ -910,7 +910,7 @@ final class DBMSCommonTest extends TestCase
 			$row = ConnectionHelper::queryFirstRow($connection,
 				$prepared,
 				K::RECORDSET_FETCH_INDEXED |
-				K::RECORDSET_FETCH_UBSERIALIZE, $namedParameters);
+				K::RECORDSET_FETCH_UNSERIALIZE, $namedParameters);
 		}
 		catch (\Exception $e)
 		{
@@ -928,7 +928,7 @@ final class DBMSCommonTest extends TestCase
 		];
 
 		$row = ConnectionHelper::queryFirstRow($connection, $prepared,
-			K::RECORDSET_FETCH_INDEXED | K::RECORDSET_FETCH_UBSERIALIZE,
+			K::RECORDSET_FETCH_INDEXED | K::RECORDSET_FETCH_UNSERIALIZE,
 			$indexedParameters);
 
 		$this->assertEquals($expected, $row,
@@ -945,7 +945,7 @@ final class DBMSCommonTest extends TestCase
 
 			$row = ConnectionHelper::queryFirstRow($connection, $sql,
 				K::RECORDSET_FETCH_INDEXED |
-				K::RECORDSET_FETCH_UBSERIALIZE, $indexedParameters);
+				K::RECORDSET_FETCH_UNSERIALIZE, $indexedParameters);
 
 			$this->assertEquals($expected, $row, $testName);
 		}
@@ -965,7 +965,7 @@ final class DBMSCommonTest extends TestCase
 		{
 			$row = ConnectionHelper::queryFirstRow($connection, $sql,
 				K::RECORDSET_FETCH_INDEXED |
-				K::RECORDSET_FETCH_UBSERIALIZE, $namedParameters);
+				K::RECORDSET_FETCH_UNSERIALIZE, $namedParameters);
 
 			$this->assertEquals($expected, $row,
 				$dbmsName . ' Query raw SQL with named parameters' .
@@ -1608,7 +1608,7 @@ final class DBMSCommonTest extends TestCase
 			$result->rewind();
 			$result->setFlags(
 				K::RECORDSET_FETCH_ASSOCIATIVE |
-				K::RECORDSET_FETCH_UBSERIALIZE);
+				K::RECORDSET_FETCH_UNSERIALIZE);
 
 			while ($result->valid())
 			{
@@ -1642,7 +1642,7 @@ final class DBMSCommonTest extends TestCase
 			{
 				$results[$i]->setFlags(
 					K::RECORDSET_FETCH_ASSOCIATIVE |
-					K::RECORDSET_FETCH_UBSERIALIZE);
+					K::RECORDSET_FETCH_UNSERIALIZE);
 				$results[$i]->rewind();
 				if ($results[$i] instanceof \Countable)
 					$this->assertCount($expectedRowCount, $results[$i]);

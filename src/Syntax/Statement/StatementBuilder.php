@@ -105,7 +105,7 @@ class StatementBuilder implements TokenStreamExporterInterface
 				$dbmsName = $context->getPlatform()->getParameter($name,
 					$valueDataType, $data->getParameters());
 				$position = $data->getParameters()->appendParameter(
-					$name, $dbmsName);
+					$name, $dbmsName, $valueDataType);
 				$value = $dbmsName;
 			}
 

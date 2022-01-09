@@ -329,7 +329,7 @@ trait InformationSchemaStructureExplorerTrait
 
 		$recordset->setFlags(
 			K::RECORDSET_FETCH_ASSOCIATIVE |
-			K::RECORDSET_FETCH_UBSERIALIZE);
+			K::RECORDSET_FETCH_UNSERIALIZE);
 
 		/**  @var KeyTableConstraintInterface */
 

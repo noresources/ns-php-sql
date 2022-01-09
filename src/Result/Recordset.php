@@ -78,7 +78,7 @@ abstract class Recordset implements \Iterator, StatementResultInterface,
 	 *
 	 * @var integer
 	 */
-	const FETCH_UNSERIALIZE = K::RECORDSET_FETCH_UBSERIALIZE;
+	const FETCH_UNSERIALIZE = K::RECORDSET_FETCH_UNSERIALIZE;
 
 	/**
 	 * Set the default Recordset flags for all future Recordset instances

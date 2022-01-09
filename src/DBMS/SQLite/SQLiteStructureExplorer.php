@@ -93,7 +93,7 @@ class SQLiteStructureExplorer extends AbstractStructureExplorer implements
 		$columns = [];
 		$recordset->setFlags(
 			K::RECORDSET_FETCH_ASSOCIATIVE |
-			K::RECORDSET_FETCH_UBSERIALIZE);
+			K::RECORDSET_FETCH_UNSERIALIZE);
 		foreach ($recordset as $index => $row)
 		{
 
@@ -118,7 +118,7 @@ class SQLiteStructureExplorer extends AbstractStructureExplorer implements
 			$tableIdentifier);
 		$list->setFlags(
 			K::RECORDSET_FETCH_ASSOCIATIVE |
-			K::RECORDSET_FETCH_UBSERIALIZE);
+			K::RECORDSET_FETCH_UNSERIALIZE);
 		$id = -1;
 		$foreignKeys = [];
 		$current = null;
@@ -162,7 +162,7 @@ class SQLiteStructureExplorer extends AbstractStructureExplorer implements
 		$list = $this->scopedAssetPragma('index_list', $tableIdentifier);
 		$list->setFlags(
 			K::RECORDSET_FETCH_ASSOCIATIVE |
-			K::RECORDSET_FETCH_UBSERIALIZE);
+			K::RECORDSET_FETCH_UNSERIALIZE);
 
 		foreach ($list as $info)
 		{
@@ -199,7 +199,7 @@ class SQLiteStructureExplorer extends AbstractStructureExplorer implements
 		$list = $this->scopedAssetPragma('index_list', $tableIdentifier);
 		$list->setFlags(
 			K::RECORDSET_FETCH_ASSOCIATIVE |
-			K::RECORDSET_FETCH_UBSERIALIZE);
+			K::RECORDSET_FETCH_UNSERIALIZE);
 
 		return Container::map(
 			Container::filter($list,
@@ -252,7 +252,7 @@ class SQLiteStructureExplorer extends AbstractStructureExplorer implements
 			$tableIdentifier);
 		$recordset->setFlags(
 			K::RECORDSET_FETCH_ASSOCIATIVE |
-			K::RECORDSET_FETCH_UBSERIALIZE);
+			K::RECORDSET_FETCH_UNSERIALIZE);
 
 		$primaryKeyCount = 0;
 		$info = Container::filter($recordset,
@@ -393,7 +393,7 @@ class SQLiteStructureExplorer extends AbstractStructureExplorer implements
 
 					$recordset->setFlags(
 						$recordset->getFlags() |
-						K::RECORDSET_FETCH_UBSERIALIZE);
+						K::RECORDSET_FETCH_UNSERIALIZE);
 					$defaultValue = self::recordsetToValue($recordset,
 						'value');
 				}
@@ -450,7 +450,7 @@ class SQLiteStructureExplorer extends AbstractStructureExplorer implements
 				$result = $this->getConnection()->executeStatement($sql);
 				$result->setFlags(
 					K::RECORDSET_FETCH_INDEXED |
-					K::RECORDSET_FETCH_UBSERIALIZE);
+					K::RECORDSET_FETCH_UNSERIALIZE);
 				if ($result->current()[0] > 0)
 					return true;
 			}

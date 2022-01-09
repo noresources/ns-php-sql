@@ -240,7 +240,7 @@ class ConnectionHelper
 	public static function queryFirstRow(
 		ConnectionInterface $connection, $statement,
 		$flags = K::RECORDSET_FETCH_ASSOCIATIVE |
-		K::RECORDSET_FETCH_UBSERIALIZE, $parameters = array(),
+		K::RECORDSET_FETCH_UNSERIALIZE, $parameters = array(),
 		$column = null)
 	{
 		$recordset = $connection->executeStatement($statement,

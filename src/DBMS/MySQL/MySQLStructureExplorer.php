@@ -168,7 +168,7 @@ class MySQLStructureExplorer extends AbstractStructureExplorer implements
 		$recordset = $this->getConnection()->executeStatement($sql);
 		$recordset->setFlags(
 			K::RECORDSET_FETCH_ASSOCIATIVE |
-			K::RECORDSET_FETCH_UBSERIALIZE);
+			K::RECORDSET_FETCH_UNSERIALIZE);
 		$keyed = [];
 		foreach ($recordset as $row)
 		{

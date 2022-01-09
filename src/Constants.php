@@ -58,7 +58,7 @@ class Constants
 	 * @c DATATYPE_INTEGER and @c DATATYPE_FLOAT
 	 * @var integer
 	 */
-	const DATATYPE_NUMBER = self::DATATYPE_INTEGER + self::DATATYPE_FLOAT;
+	const DATATYPE_NUMBER = self::DATATYPE_INTEGER | self::DATATYPE_FLOAT;
 
 	/**
 	 * Date part of a timestamp type
@@ -80,7 +80,7 @@ class Constants
 	 * @var integer
 	 *
 	 */
-	const DATATYPE_DATETIME = self::DATATYPE_DATE + self::DATATYPE_TIME;
+	const DATATYPE_DATETIME = (self::DATATYPE_DATE | self::DATATYPE_TIME);
 
 	/**
 	 *
@@ -95,8 +95,8 @@ class Constants
 	 *
 	 * @var integer
 	 */
-	const DATATYPE_TIMESTAMP = self::DATATYPE_DATETIME +
-		self::DATATYPE_TIMEZONE;
+	const DATATYPE_TIMESTAMP = (self::DATATYPE_DATETIME |
+		self::DATATYPE_TIMEZONE);
 
 	/**
 	 * Boolean value type
@@ -431,7 +431,7 @@ class Constants
 	 *
 	 * @var integer
 	 */
-	const TYPE_FLAG_FRACTION_SCALE = self::TYPE_FLAG_LENGTH +
+	const TYPE_FLAG_FRACTION_SCALE = self::TYPE_FLAG_LENGTH |
 		Bitset::BIT_04;
 
 	/**
@@ -668,8 +668,8 @@ class Constants
 	 *
 	 * @deprecated
 	 */
-	const QUERY_FAMILY_ROWMODIFICATION = self::QUERY_UPDATE +
-		self::QUERY_DELETE;
+	const QUERY_FAMILY_ROWMODIFICATION = (self::QUERY_UPDATE |
+		self::QUERY_DELETE);
 
 	/**
 	 *
@@ -699,8 +699,8 @@ class Constants
 	 *
 	 * @deprecated
 	 */
-	const QUERY_FAMILY_CREATE = self::QUERY_CREATE_INDEX +
-		self::QUERY_CREATE_NAMESPACE + self::QUERY_CREATE_TABLE +
+	const QUERY_FAMILY_CREATE = self::QUERY_CREATE_INDEX |
+		self::QUERY_CREATE_NAMESPACE | self::QUERY_CREATE_TABLE |
 		self::QUERY_CREATE_VIEW;
 
 	/**
@@ -731,15 +731,15 @@ class Constants
 	 *
 	 * @deprecated
 	 */
-	const QUERY_FAMILY_DROP = self::QUERY_DROP_INDEX +
-		self::QUERY_DROP_NAMESPACE + self::QUERY_DROP_TABLE +
+	const QUERY_FAMILY_DROP = self::QUERY_DROP_INDEX |
+		self::QUERY_DROP_NAMESPACE | self::QUERY_DROP_TABLE |
 		self::QUERY_DROP_VIEW;
 
 	/**
 	 *
 	 * @deprecated
 	 */
-	const QUERY_FAMILY_STRUCTURE = self::QUERY_FAMILY_CREATE +
+	const QUERY_FAMILY_STRUCTURE = self::QUERY_FAMILY_CREATE |
 		self::QUERY_FAMILY_DROP;
 
 	// SELECT query flags
@@ -814,7 +814,7 @@ class Constants
 	 *
 	 * @var integer
 	 */
-	const RECORDSET_FETCH_BOTH = self::RECORDSET_FETCH_ASSOCIATIVE +
+	const RECORDSET_FETCH_BOTH = self::RECORDSET_FETCH_ASSOCIATIVE |
 		self::RECORDSET_FETCH_INDEXED;
 
 	/**
@@ -823,15 +823,15 @@ class Constants
 	 *
 	 * @var integer
 	 */
-	const RECORDSET_FETCH_UBSERIALIZE = Bitset::BIT_03;
+	const RECORDSET_FETCH_UNSERIALIZE = Bitset::BIT_03;
 
 	/**
-	 * RECORDSET_FETCH_UBSERIALIZE + RECORDSET_FETCH_BOTH
+	 * RECORDSET_FETCH_UNSERIALIZE | RECORDSET_FETCH_BOTH
 	 *
 	 * @var number
 	 */
-	const RECORDSET_PUBLIC_FLAGS = self::RECORDSET_FETCH_BOTH +
-		self::RECORDSET_FETCH_UBSERIALIZE;
+	const RECORDSET_PUBLIC_FLAGS = self::RECORDSET_FETCH_BOTH |
+		self::RECORDSET_FETCH_UNSERIALIZE;
 
 	/**
 	 * Transaction block state.

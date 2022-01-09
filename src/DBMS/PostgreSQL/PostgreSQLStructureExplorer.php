@@ -353,7 +353,7 @@ class PostgreSQLStructureExplorer extends AbstractStructureExplorer implements
 
 			$recordset->setFlags(
 				K::RECORDSET_FETCH_INDEXED |
-				K::RECORDSET_FETCH_UBSERIALIZE);
+				K::RECORDSET_FETCH_UNSERIALIZE);
 
 			$record = $recordset->current();
 			$defaultValue = $record[0];
@@ -381,7 +381,7 @@ class PostgreSQLStructureExplorer extends AbstractStructureExplorer implements
 		$recordset = $this->getConnection()->executeStatement($sql);
 		$recordset->setFlags(
 			K::RECORDSET_FETCH_ASSOCIATIVE |
-			K::RECORDSET_FETCH_UBSERIALIZE);
+			K::RECORDSET_FETCH_UNSERIALIZE);
 		return self::recordsetToValue($recordset, 'oid');
 	}
 
