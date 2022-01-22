@@ -24,18 +24,41 @@ class Identifier implements StringRepresentation, ArrayRepresentation,
 	/**
 	 * Transform input to a Identifier
 	 *
-	 * @param mixed $path
+	 * @param StructureElementInterface|NameProviderInterface|string|null|array $path
+	 *        	Path to transform to identifier
+	 * @param boolean $strict
+	 *        	If FALSE, the method will use StructureElementInterface element key to ensure a
+	 *        	non-empty identifier.
 	 * @return Identifier. If $path is already a Identifier, $path
 	 *         is returned unchanged.
 	 */
-	public static function make($path)
+	public static function make($path, $strict = true)
 	{
-		if (empty($path))
-			return new Identifier('');
-		if ($path instanceof StructureElementInterface)
-			return $path->getIdentifier();
 		if ($path instanceof Identifier)
 			return $path;
+		if ($path instanceof StructureElementInterface)
+		{
+			$parent = $path;
+			$names = [];
+			while ($parent && !($parent instanceof DatasourceStructure))
+			{
+				if ($strict)
+				{
+					$name = $parent->getName();
+					if (empty($name))
+						return new Identifier('');
+				}
+				else
+					$name = $parent->getElementKey();
+				\array_unshift($names, $name);
+
+				$parent = $parent->getParentElement();
+			}
+
+			return new Identifier(\implode('.', $names));
+		}
+		if (empty($path))
+			return new Identifier('');
 		if ($path instanceof NameProviderInterface)
 			return new Identifier($path->getName());
 		if (Container::isTraversable($path))

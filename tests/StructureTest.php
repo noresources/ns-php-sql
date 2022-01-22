@@ -76,11 +76,11 @@ final class StructureTest extends TestCase
 				]));
 		$ns->appendElement($otherTable);
 
-		$col_aName = Structure::makeIdentifier($col_a);
-		$col_aKey = Structure::makeCanonicalKey($col_a);
+		$col_aName = Identifier::make($col_a);
+		$col_aKey = Identifier::make($col_a, false);
 
-		$pkName = Structure::makeIdentifier($pk);
-		$pkKey = Structure::makeCanonicalKey($pk);
+		$pkName = Identifier::make($pk);
+		$pkKey = Identifier::make($pk, false);
 
 		$this->assertEquals($col_aName, $col_aKey,
 			'Fully qualified element has key = identifier');

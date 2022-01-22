@@ -18,54 +18,6 @@ class Structure
 
 	/**
 	 *
-	 * @param StructureElementInterface $e
-	 * @return \NoreSources\SQL\Structure\Identifier. Canonical identifier or empty identifier if
-	 *         one of the element hierarchy does not have a name
-	 */
-	public static function makeIdentifier(StructureElementInterface $e)
-	{
-		$parent = $e;
-		$names = [];
-		while ($parent && !($parent instanceof DatasourceStructure))
-		{
-			$name = $parent->getName();
-			if (empty($name))
-				return Identifier::make(null);
-			\array_unshift($names, $name);
-
-			$parent = $parent->getParentElement();
-		}
-
-		return Identifier::make($names);
-	}
-
-	/**
-	 * Get the element canonical key.
-	 *
-	 * The returned Identifier is guaranted to be unique and represent the complete hierarchy.
-	 * It SHOULD NOT be used for persistent operations.
-	 *
-	 * @param StructureElementInterface $e
-	 * @return \NoreSources\SQL\Structure\Identifier. Element canonical key composed
-	 *         by hierarchy element names or key
-	 *
-	 */
-	public static function makeCanonicalKey(
-		StructureElementInterface $e)
-	{
-		$parent = $e;
-		$keys = [];
-		while ($parent && !($parent instanceof DatasourceStructure))
-		{
-			\array_unshift($keys, $parent->getElementKey());
-			$parent = $parent->getParentElement();
-		}
-
-		return Identifier::make($keys);
-	}
-
-	/**
-	 *
 	 * @param StructureElementInterface $structure
 	 * @param string $newName
 	 * @throws \RuntimeException

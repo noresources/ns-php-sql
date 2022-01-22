@@ -8,7 +8,6 @@
 namespace NoreSources\SQL\Structure\Traits;
 
 use NoreSources\SQL\Structure\Identifier;
-use NoreSources\SQL\Structure\Structure;
 use NoreSources\SQL\Structure\StructureElementContainerInterface;
 use NoreSources\SQL\Structure\StructureElementInterface;
 use ArrayAccess;
@@ -23,7 +22,7 @@ trait StructureElementTrait
 
 	public function getIdentifier()
 	{
-		return Structure::makeIdentifier($this);
+		return Identifier::make($this);
 	}
 
 	public function getParentElement($depth = 1)
