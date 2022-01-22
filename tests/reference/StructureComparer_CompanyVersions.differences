@@ -1,9 +1,12 @@
+altered:ColumnStructure[enum]<ns_unittests.Employees.gender>ns_unittests.Employees.gender
+	enum M,F -> M,F,N
+altered:ColumnStructure[length]<ns_unittests.Tasks.name>ns_unittests.Tasks.name
+	length 32 -> 64
+altered:IndexStructure[column]<ns_unittests.Employees.index_employees_name>ns_unittests.Employees.index_employees_name
+	column ns_unittests.Employees.name -> ns_unittests.Employees.fullName
+created:ColumnStructure<?>ns_unittests.Employees.age
 created:TableStructure<?>ns_unittests.Products
+dropped:ColumnStructure<ns_unittests.Tasks.priority>?
 dropped:TableStructure<ns_unittests.types>?
 renamed:ColumnStructure<ns_unittests.Employees.name>ns_unittests.Employees.fullName
-created:ColumnStructure<?>ns_unittests.Employees.age
-altered:ColumnStructure[enum]<ns_unittests.Employees.gender>ns_unittests.Employees.gender
 renamed:PrimaryKeyTableConstraint<ns_unittests.Employees.pk_id>
-altered:IndexStructure[column]<ns_unittests.Employees.index_employees_name>ns_unittests.Employees.index_employees_name
-dropped:ColumnStructure<ns_unittests.Tasks.priority>?
-altered:ColumnStructure[length]<ns_unittests.Tasks.name>ns_unittests.Tasks.name

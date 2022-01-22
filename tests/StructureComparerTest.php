@@ -21,6 +21,7 @@ use NoreSources\SQL\Syntax\TokenizableExpressionInterface;
 use NoreSources\SQL\Syntax\Statement\StatementBuilder;
 use NoreSources\Test\DatasourceManager;
 use NoreSources\Test\DerivedFileTestTrait;
+use NoreSources\Test\UnittestStructureComparerTrait;
 use NoreSources\Type\TypeConversion;
 use PHPUnit\Framework\TestCase;
 
@@ -28,6 +29,7 @@ final class StructureComparerTest extends TestCase
 {
 
 	use DerivedFileTestTrait;
+	use UnittestStructureComparerTrait;
 
 	public function __construct($name = null, array $data = [],
 		$dataName = '')
@@ -123,11 +125,22 @@ final class StructureComparerTest extends TestCase
 
 		$comparer = new StructureComparer();
 		$differences = $comparer->compare($v1, $v2);
-		$s = \implode(PHP_EOL, $differences);
+		$s = $this->stringifyStructureComparison($differences, true);
 		$this->assertDerivedFile($s, __METHOD__, '', 'differences');
 
 		$hierarchy = $v2['ns_unittests']['Hierarchy'];
 		$products = $v2['ns_unittests']['Products'];
+	}
+
+	public function testDifferenceExtra()
+	{
+		$a = $this->datasources->get('Company');
+		$b = $this->datasources->get('Company.renameColumn');
+
+		$comparer = new StructureComparer();
+		$differences = $comparer->compare($a, $b);
+		$s = $this->stringifyStructureComparison($differences, true);
+		$this->assertDerivedFile($s, __METHOD__, '', 'differences');
 	}
 
 	public function testConstraints()

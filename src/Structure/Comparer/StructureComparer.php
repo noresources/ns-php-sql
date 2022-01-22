@@ -19,6 +19,7 @@ use NoreSources\SQL\Structure\CheckTableConstraint;
 use NoreSources\SQL\Structure\ColumnStructure;
 use NoreSources\SQL\Structure\DatasourceStructure;
 use NoreSources\SQL\Structure\ForeignKeyTableConstraint;
+use NoreSources\SQL\Structure\Identifier;
 use NoreSources\SQL\Structure\IndexStructure;
 use NoreSources\SQL\Structure\KeyTableConstraintInterface;
 use NoreSources\SQL\Structure\NamespaceStructure;
@@ -71,41 +72,10 @@ class StructureComparer
 		StructureElementInterface $target,
 		$typeFlags = StructureComparison::DIFFERENCE_TYPES)
 	{
-		$referenceClass = TypeDescription::getName($reference);
-		$targetClass = TypeDescription::getName($target);
-
-		if ($referenceClass != $targetClass)
-			throw new StructureComparerException(
-				'Cannot compare object of different class (' .
-				$referenceClass . ' and ' . $targetClass . ')');
-
-		$differences = [];
-
-		$method = 'compare' . TypeDescription::getLocalName($reference);
-		if (\method_exists($this, $method))
-		{
-			$differences = \call_user_func([
-				$this,
-				$method
-			], $reference, $target);
-			if (!\is_array($differences))
-				throw new \RuntimeException($method);
-		}
-
-		if ((\count($differences) == 0) &&
-			(($typeFlags & StructureComparison::IDENTICAL) ==
-			StructureComparison::IDENTICAL))
-		{
-			$differences[] = new StructureComparison(
-				StructureComparison::IDENTICAL, $reference, $target);
-		}
-
-		if ($reference instanceof StructureElementContainerInterface)
-			return \array_merge($differences,
-				$this->compareStructureElementContainers($reference,
-					$target, $typeFlags));
-
-		return $differences;
+		$comparisons = $this->mainCompare($reference, $target,
+			$typeFlags);
+		return $this->pairDifferenceExtras($comparisons, $reference,
+			$target);
 	}
 
 	public function compareStructureElementContainers(
@@ -161,7 +131,7 @@ class StructureComparer
 
 			foreach ($result[self::PAIRING_MATCH] as $entry)
 			{
-				$d = $this->compare($entry[0], $entry[1], $typeFlags);
+				$d = $this->mainCompare($entry[0], $entry[1], $typeFlags);
 				$differences = \array_merge($differences, $d);
 			}
 		}
@@ -256,10 +226,9 @@ class StructureComparer
 					continue;
 
 				$t = $result[self::PAIRING_CREATED][$ck];
-				$d = $this->compare($r, $t);
+				$d = $this->mainCompare($r, $t);
 				if (\count($d) == 0)
 				{
-
 					$category = self::PAIRING_RENAMED;
 					if (empty($r->getName()))
 					{
@@ -816,6 +785,133 @@ class StructureComparer
 			break;
 		}
 		return false;
+	}
+
+	protected function mainCompare(StructureElementInterface $reference,
+		StructureElementInterface $target,
+		$typeFlags = StructureComparison::DIFFERENCE_TYPES)
+	{
+		$referenceClass = TypeDescription::getName($reference);
+		$targetClass = TypeDescription::getName($target);
+
+		if ($referenceClass != $targetClass)
+			throw new StructureComparerException(
+				'Cannot compare object of different class (' .
+				$referenceClass . ' and ' . $targetClass . ')');
+
+		$differences = [];
+
+		$method = 'compare' . TypeDescription::getLocalName($reference);
+		if (\method_exists($this, $method))
+		{
+			$differences = \call_user_func([
+				$this,
+				$method
+			], $reference, $target);
+			if (!\is_array($differences))
+				throw new \RuntimeException($method);
+		}
+
+		if ((\count($differences) == 0) &&
+			(($typeFlags & StructureComparison::IDENTICAL) ==
+			StructureComparison::IDENTICAL))
+		{
+			$differences[] = new StructureComparison(
+				StructureComparison::IDENTICAL, $reference, $target);
+		}
+
+		if ($reference instanceof StructureElementContainerInterface)
+			return \array_merge($differences,
+				$this->compareStructureElementContainers($reference,
+					$target, $typeFlags));
+
+		return $differences;
+	}
+
+	/**
+	 *
+	 * @param StructureComparison[] $comparisons
+	 * @return StructureComparison[]
+	 */
+	protected function pairDifferenceExtras(&$comparisons,
+		StructureElementInterface $reference,
+		StructureElementInterface $target)
+	{
+		$inspector = StructureInspector::getInstance();
+
+		$renames = [];
+		foreach ($comparisons as $comparison)
+		{
+			/** @var StructureComparison $comparison */
+			if (!($comparison->getType() == StructureComparison::RENAMED))
+				continue;
+
+			$r = $comparison->getReference();
+			$r = Identifier::make($r, false);
+			$renames[\strval($r)] = $comparison->getTarget();
+		}
+
+		static $extraTypeFilter = [
+			DifferenceExtra::TYPE_COLUMN,
+			DifferenceExtra::TYPE_FOREIGN_COLUMN,
+			DifferenceExtra::TYPE_FOREIGN_TABLE,
+			DifferenceExtra::TYPE_TABLE
+		];
+
+		foreach ($comparisons as $comparison)
+		{
+			/** @var StructureComparison $comparison */
+			if (!($comparison->getType() == StructureComparison::ALTERED))
+				continue;
+			$extras = $comparison->getExtras();
+			$extraRenames = [];
+			foreach ($extras as $extra)
+			{
+				/** @var DifferenceExtra $extra */
+				if ($extra->has(DifferenceExtra::KEY_TYPE) &&
+					($type = $extra->get(DifferenceExtra::KEY_TYPE)) &&
+					Container::valueExists($extraTypeFilter, $type) &&
+					$extra->has(DifferenceExtra::KEY_PREVIOUS) &&
+					!$extra->has(DifferenceExtra::KEY_NEW) &&
+					($previous = $extra->get(
+						DifferenceExtra::KEY_PREVIOUS)) &&
+					($previousKey = \strval(
+						Identifier::make($previous, false))) &&
+					($target = Container::keyValue($renames,
+						$previousKey)))
+				{
+					$extra[DifferenceExtra::KEY_NEW] = $target;
+					$targetKey = \strval(
+						Identifier::make($target, false));
+					$extraRenames[$targetKey] = $targetKey;
+				}
+			}
+
+			if (\count($extraRenames) == 0)
+				continue;
+
+			$newExtras = [];
+			foreach ($extras as $extra)
+			{
+				/** @var DifferenceExtra $extra */
+				if ($extra->has(DifferenceExtra::KEY_TYPE) &&
+					($type = $extra->get(DifferenceExtra::KEY_TYPE)) &&
+					Container::valueExists($extraTypeFilter, $type) &&
+					$extra->has(DifferenceExtra::KEY_NEW) &&
+					!$extra->has(DifferenceExtra::KEY_PREVIOUS) &&
+					($n = $extra->get(DifferenceExtra::KEY_NEW)) &&
+					($nKey = \strval(Identifier::make($n, false))) &&
+					Container::keyExists($extraRenames, $nKey))
+				{
+					continue;
+				}
+				$newExtras[] = $extra;
+			}
+
+			$comparison->exchangeExtras($newExtras);
+		}
+
+		return $comparisons;
 	}
 
 	/**

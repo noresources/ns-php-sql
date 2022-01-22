@@ -145,6 +145,18 @@ class StructureComparison implements StringRepresentation
 		$this->extras[] = $extra;
 	}
 
+	/**
+	 * Replace extra informations by the given array
+	 *
+	 * @param DifferenceExtra[] $extras
+	 */
+	public function exchangeExtras($extras)
+	{
+		$this->extras = [];
+		foreach ($extras as $extra)
+			$this->appendExtra($extra);
+	}
+
 	public function __construct($type,
 		StructureElementInterface $reference = null,
 		StructureElementInterface $target = null, $hint = '')

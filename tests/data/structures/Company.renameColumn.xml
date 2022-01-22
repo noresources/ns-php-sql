@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sql:datasource xmlns:sql="http://xsd.nore.fr/sql/2.1" xmlns:xi="http://www.w3.org/2001/XInclude">
+	<sql:namespace name="ns_unittests">
+
+		<sql:table name="Hierarchy">
+			<sql:column name="managerId">
+				<sql:datatype nullable="no">
+					<sql:integer />
+				</sql:datatype>
+			</sql:column>
+			<sql:column name="manageeId">
+				<sql:datatype nullable="no">
+					<sql:integer />
+				</sql:datatype>
+			</sql:column>
+
+			<sql:primarykey>
+				<sql:column name="managerId" />
+				<sql:column name="manageeId" />
+			</sql:primarykey>
+
+			<sql:foreignkey name="hierarchy_managerId_foreignkey">
+				<sql:column name="managerId" />
+				<sql:reference>
+					<sql:tableref id="nsut.tables.Employees" />
+					<sql:column name="id" />
+				</sql:reference>
+				<sql:actions>
+					<sql:onupdate action="cascade" />
+					<sql:ondelete action="cascade" />
+				</sql:actions>
+			</sql:foreignkey>
+			<sql:foreignkey>
+				<sql:column name="manageeId" />
+				<sql:reference>
+					<sql:tableref name="Employees" />
+					<sql:column name="id" />
+				</sql:reference>
+				<sql:actions>
+					<sql:onupdate action="cascade" />
+					<sql:ondelete action="cascade" />
+				</sql:actions>
+			</sql:foreignkey>
+		</sql:table>
+
+		<sql:table name="Employees" id="nsut.tables.Employees">
+			<sql:comment>Company employees</sql:comment>
+			<sql:column name="id">
+				<sql:datatype nullable="no">
+					<sql:integer />
+				</sql:datatype>
+			</sql:column>
+			<sql:column name="fullName">
+				<sql:datatype>
+					<sql:string />
+				</sql:datatype>
+			</sql:column>
+			<sql:column name="gender">
+				<sql:datatype>
+					<sql:string length="1">
+						<sql:enumeration>
+							<sql:value>M</sql:value>
+							<sql:value>F</sql:value>
+						</sql:enumeration>
+					</sql:string>
+				</sql:datatype>
+			</sql:column>
+			<sql:column name="salary">
+				<sql:datatype>
+					<sql:numeric length="7" scale="2" />
+				</sql:datatype>
+			</sql:column>
+			<sql:primarykey name="pk_id">
+				<sql:column name="id" />
+			</sql:primarykey>
+		</sql:table>
+
+		<sql:index name="index_employees_name">
+			<sql:tableref name="Employees" />
+			<sql:column name="fullName" />
+		</sql:index>
+
+		<sql:table name="Tasks">
+			<sql:column name="id">
+				<sql:datatype>
+					<sql:integer autoincrement="yes" />
+				</sql:datatype>
+			</sql:column>
+			<sql:column name="name">
+				<sql:datatype>
+					<sql:string length="32" />
+				</sql:datatype>
+			</sql:column>
+			<sql:column name="creationDateTime">
+				<sql:comment>Creation timestamp</sql:comment>
+				<sql:datatype>
+					<sql:timestamp />
+				</sql:datatype>
+				<sql:default>
+					<sql:timestamp />
+				</sql:default>
+			</sql:column>
+			<sql:column name="priority">
+				<sql:datatype>
+					<sql:integer />
+				</sql:datatype>
+			</sql:column>
+			<sql:column name="category">
+				<sql:datatype>
+					<sql:integer />
+				</sql:datatype>
+			</sql:column>
+			<sql:column name="creator">
+				<sql:datatype>
+					<sql:integer />
+				</sql:datatype>
+				<sql:default>
+					<sql:null />
+				</sql:default>
+			</sql:column>
+
+
+			<sql:column name="assignedTo">
+				<sql:datatype>
+					<sql:integer />
+				</sql:datatype>
+				<sql:default>
+					<sql:null />
+				</sql:default>
+			</sql:column>
+
+			<sql:primarykey name="pk_tid">
+				<sql:column name="id" />
+			</sql:primarykey>
+
+			<sql:foreignkey name="fk_creator">
+				<sql:column name="creator" />
+				<sql:reference>
+					<sql:tableref id="nsut.tables.Employees" />
+					<sql:column name="id" />
+				</sql:reference>
+				<sql:actions>
+					<sql:onupdate action="cascade" />
+					<sql:ondelete action="cascade" />
+				</sql:actions>
+			</sql:foreignkey>
+
+			<sql:foreignkey>
+				<sql:column name="assignedTo" />
+				<sql:reference>
+					<sql:tableref name="Employees" />
+					<sql:column name="id" />
+				</sql:reference>
+				<sql:actions>
+
+					<sql:ondelete action="cascade" />
+					<sql:onupdate action="cascade" />
+				</sql:actions>
+			</sql:foreignkey>
+		</sql:table>
+
+		<xi:include href="./types.xml" xpointer="xmlns(sql=http://xsd.nore.fr/sql/2.1) xpointer(//sql:table)" />
+
+	</sql:namespace>
+</sql:datasource>
