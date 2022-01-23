@@ -9,15 +9,18 @@ namespace NoreSources\SQL;
 
 use NoreSources\SemanticVersion;
 use NoreSources\Container\Container;
+use NoreSources\SQL\DBMS\ConnectionException;
 use NoreSources\SQL\DBMS\ConnectionInterface;
 use NoreSources\SQL\DBMS\TypeInterface;
 use NoreSources\SQL\DBMS\TypeRegistry;
+use NoreSources\SQL\DBMS\Explorer\StructureExplorerInterface;
 use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLConnection;
 use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLConstants as K;
 use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLPreparedStatement;
 use NoreSources\SQL\DBMS\PostgreSQL\PostgreSQLTypeRegistry;
 use NoreSources\SQL\Structure\ArrayColumnDescription;
 use NoreSources\SQL\Structure\TableStructure;
+use NoreSources\SQL\Structure\Comparer\StructureComparer;
 use NoreSources\SQL\Syntax\Statement\TokenizableStatementInterface;
 use NoreSources\SQL\Syntax\Statement\Manipulation\InsertQuery;
 use NoreSources\SQL\Syntax\Statement\Structure\CreateTableQuery;
@@ -26,12 +29,18 @@ use NoreSources\Test\ConnectionHelper;
 use NoreSources\Test\DatasourceManager;
 use NoreSources\Test\DerivedFileTestTrait;
 use NoreSources\Test\SqlFormatter;
+use NoreSources\Test\UnittestConnectionManagerTrait;
+use NoreSources\Test\UnittestStructureComparerTrait;
 use PHPUnit\Framework\TestCase;
 
 final class PostgreSQLTest extends TestCase
 {
 
 	use DerivedFileTestTrait;
+	use UnittestConnectionManagerTrait;
+	use UnittestStructureComparerTrait;
+
+	const TEST_NAMESPACE = 'ns_unittests';
 
 	public function __construct($name = null, array $data = [],
 		$dataName = '')
@@ -91,7 +100,7 @@ final class PostgreSQLTest extends TestCase
 		$versionString = $version->slice(SemanticVersion::MAJOR,
 			SemanticVersion::MINOR);
 
-		foreach ($structure['ns_unittests'] as $name => $elementStructure)
+		foreach ($structure[self::TEST_NAMESPACE] as $name => $elementStructure)
 		{
 			$s = null;
 			if ($elementStructure instanceof TableStructure)
@@ -196,17 +205,14 @@ final class PostgreSQLTest extends TestCase
 
 		$environment = new Environment($connection, $structure);
 
-		$tableStructure = $structure['ns_unittests']['Employees'];
+		$tableStructure = $structure[self::TEST_NAMESPACE]['Employees'];
 		$this->assertInstanceOf(Structure\TableStructure::class,
 			$tableStructure);
 
 		$this->datasources->createTable($this, $connection,
 			$tableStructure);
 
-		/**
-		 *
-		 * @var \NoreSources\SQL\Syntax\Statement\Manipulation\InsertQuery $query
-		 */
+		/** @var InsertQuery $query */
 		$query = $environment->getPlatform()->newStatement(
 			InsertQuery::class);
 		$query->table($tableStructure);
@@ -222,22 +228,58 @@ final class PostgreSQLTest extends TestCase
 	public function testExplorer()
 	{
 		if (!$this->prerequisites())
-			return;
-		$this->assertTrue(true);
+			return $this->assertTrue(true, 'Prerequisites');
 
-		$connection = self::createConnection();
-		if ($connection === NULL)
-			return;
+		$connection = null;
+		try
+		{
+			$connection = $this->getConnection('PostgreSQL');
+		}
+		catch (ConnectionException $e)
+		{
+			return $this->assertTrue(true, 'Connection not available');
+		}
 
+		$comparer = StructureComparer::getInstance();
+		$structure = $this->datasources->get('Company');
+		$ns = $structure[self::TEST_NAMESPACE];
+
+		$this->recreateTable($connection, $ns['Employees'], __METHOD__);
+		$this->recreateTable($connection, $ns['Hierarchy'], __METHOD__);
+
+		/** @var StructureExplorerInterface $explorer */
 		$explorer = $connection->getStructureExplorer();
 
 		$namespaces = $explorer->getNamespaceNames();
 
 		$this->assertContains('public', $namespaces, 'Namespace names');
-		$this->assertContains('ns_unittests', $namespaces,
+		$this->assertContains(self::TEST_NAMESPACE, $namespaces,
 			'Namespace names');
 
-		$utTables = $explorer->getTableNames('ns_unittests');
+		$tableNames = $explorer->getTableNames(self::TEST_NAMESPACE);
+
+		$exploredStructure = $explorer->getStructure();
+		foreach ([
+			'Employees',
+			'Hierarchy'
+		] as $name)
+		{
+			$this->assertContains($name, $tableNames,
+				'Table ' . $name . ' exists');
+
+			$referenceTable = $ns[$name];
+			/** @var TableStructure $exploredTable */
+			$exploredTable = $exploredStructure[self::TEST_NAMESPACE][$name];
+
+			$comparison = $comparer->compare($referenceTable,
+				$exploredTable);
+
+			$txt = $this->stringifyStructureComparison($comparison, true);
+
+			$this->assertCount(0, $comparison,
+				'Created table ' . $name . ' is matching the reference' .
+				PHP_EOL . $txt);
+		}
 	}
 
 	public function _testSelect()
