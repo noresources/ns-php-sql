@@ -21,6 +21,7 @@ use NoreSources\SQL\DBMS\PDO\PDOPlatform;
 use NoreSources\SQL\Result\InsertionStatementResultInterface;
 use NoreSources\SQL\Result\Recordset;
 use NoreSources\SQL\Result\RowModificationStatementResultInterface;
+use NoreSources\SQL\Structure\IndexStructure;
 use NoreSources\SQL\Structure\NamespaceStructure;
 use NoreSources\SQL\Structure\TableStructure;
 use NoreSources\SQL\Syntax\Statement\StatementDataInterface;
@@ -46,7 +47,7 @@ trait UnittestConnectionManagerTrait
 	/*
 	 *
 	 * @param unknown $name
-	 * @return \NoreSources\SQL\DBMS\ConnectionInterface
+	 * @return ConnectionInterface
 	 */
 	protected function getConnection($name)
 	{
@@ -305,24 +306,18 @@ trait UnittestConnectionManagerTrait
 		}
 
 		// Drop indexes
-		$constraints = $tableStructure->getConstraints();
-		foreach ($constraints as $id => $constraint)
+		$indexes = $tableStructure->getChildElements(
+			IndexStructure::class);
+		foreach ($indexes as $id => $index)
 		{
-			if (!($constraint instanceof IndexTableConstraint))
-				continue;
-
-			/**
-			 *
-			 * @var IndexTableConstraint $constraint
-			 */
-
-			$name = ($constraint->getName() ? $constraint->getName() : $id);
+			/** @var IndexStructure $index */
+			$name = ($index->getName() ? $index->getName() : $id);
 
 			$dropIndex = $platform->newStatement(DropIndexQuery::class);
 			if ($dropIndex instanceof DropIndexQuery)
 			{
 				$dropIndex->dropFlags(K::DROP_EXISTS_CONDITION);
-				$dropIndex->identifier($constraint->getName());
+				$dropIndex->forStructure($index);
 				$data = ConnectionHelper::buildStatement($connection,
 					$dropIndex, $tableStructure);
 				$sql = \SqlFormatter::format(strval($data), false) .
@@ -411,26 +406,20 @@ trait UnittestConnectionManagerTrait
 		 *
 		 * @todo Find IndexStructure instead
 		 */
-		if (false)
+		if (true)
 		{
-			$constraints = $tableStructure->getConstraints();
-			foreach ($constraints as $id => $constraint)
+			$indexes = $tableStructure->getChildElements(
+				IndexStructure::class);
+			foreach ($indexes as $id => $index)
 			{
-				if (!($constraint instanceof IndexTableConstraint))
-					continue;
-				/**
-				 *
-				 * @var IndexTableConstraint $constraint
-				 */
-
-				$name = ($constraint->getName() ? $constraint->getName() : $id);
+				/**  @var IndexStructure $index */
+				$name = ($index->getName() ? $index->getName() : $id);
 
 				$createIndex = $platform->newStatement(
 					CreateIndexQuery::class);
 				if ($createIndex instanceof CreateIndexQuery)
 				{
-					$createIndex->setFromTable($tableStructure,
-						$constraint->getName());
+					$createIndex->forStructure($index);
 					$data = ConnectionHelper::buildStatement(
 						$connection, $createIndex, $tableStructure);
 					$sql = \SqlFormatter::format(strval($data), false) .
