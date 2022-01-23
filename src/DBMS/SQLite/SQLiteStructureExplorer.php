@@ -110,18 +110,59 @@ class SQLiteStructureExplorer extends AbstractStructureExplorer implements
 
 	public function getTableForeignKeyConstraints($tableIdentifier)
 	{
-		$names = $this->getTableConstraintNames($tableIdentifier,
-			'foreign key');
+		$fromSQL = [];
+		{
+			$tableSQL = $this->getTableSQL($tableIdentifier);
+
+			$pattern = chr(1) . 'constraint(?<constraintname>.+?)' .
+				'foreign key\s*\((?<columns>[^)]+)\)\s+' .
+				'references(?<foreigntable>.*?)\((?<foreigncolumns>[^)]+)\)' .
+				chr(1) . 'i';
+
+			$matches = [];
+			preg_match_all($pattern, $tableSQL, $matches, PREG_SET_ORDER);
+
+			if (\count($matches))
+			{
+				Container::walk($matches,
+					function ($k, $m) use (&$fromSQL) {
+						$name = \trim($m['constraintname']);
+						$name = Container::firstValue(
+							self::parseNameList($name));
+						$columns = self::parseNameList($m['columns']);
+						$foreignTable = Container::firstValue(
+							self::parseNameList($m['foreigntable']));
+						$foreignColumns = self::parseNameList(
+							$m['foreigncolumns']);
+
+						$fromSQL[$name] = [
+							'columns' => $columns,
+							'foreignTable' => $foreignTable,
+							'foreignColumns' => $foreignColumns
+						];
+					});
+			}
+		}
 
 		$list = $this->scopedAssetPragma('foreign_key_list',
 			$tableIdentifier);
 		$list->setFlags(
 			K::RECORDSET_FETCH_ASSOCIATIVE |
 			K::RECORDSET_FETCH_UNSERIALIZE);
+
+		$list = $list->getArrayCopy();
+		uasort($list,
+			function ($a, $b) {
+				$c = $a['id'] - $b['id'];
+				if ($c != 0)
+					return $c;
+				return $a['seq'] - $b['seq'];
+			});
+
 		$id = -1;
 		$foreignKeys = [];
 		$current = null;
-		$actionMap = [
+		static $actionMap = [
 			'CASCADE' => K::FOREIGN_KEY_ACTION_CASCADE,
 			'RESTRICT' => K::FOREIGN_KEY_ACTION_RESTRICT,
 			'SET DEFAULT' => K::FOREIGN_KEY_ACTION_SET_DEFAULT,
@@ -130,10 +171,10 @@ class SQLiteStructureExplorer extends AbstractStructureExplorer implements
 
 		foreach ($list as $row)
 		{
-			$id = \intval($row['id']);
+			$id = $row['id'];
 			if (!Container::keyExists($foreignKeys, $id))
 				$foreignKeys[$id] = new ForeignKeyTableConstraint(
-					$row['table'], [], Container::keyValue($names, $id));
+					$row['table'], []);
 
 			if ($row['seq'] == 0)
 			{
@@ -144,6 +185,33 @@ class SQLiteStructureExplorer extends AbstractStructureExplorer implements
 			}
 
 			$foreignKeys[$id]->addColumn($row['from'], $row['to']);
+		}
+
+		foreach ($foreignKeys as $fk)
+		{
+
+			/** @var ForeignKeyTableConstraint $fk */
+			foreach ($fromSQL as $name => $info)
+			{
+				if ($info['foreignTable'] != $fk->getForeignTable())
+					continue;
+				$count = Container::count($fk->getColumns());
+
+				$matching = 0;
+				foreach ($fk->getColumns() as $from => $to)
+				{
+					if (!Container::valueExists($info['columns'], $from))
+						break;
+					if (!Container::valueExists($info['foreignColumns'],
+						$to))
+						break;
+					$matching++;
+				}
+
+				if ($matching != $count)
+					continue;
+				$fk->setName($name);
+			}
 		}
 
 		return $foreignKeys;
@@ -572,4 +640,37 @@ class SQLiteStructureExplorer extends AbstractStructureExplorer implements
 		$list = self::recordsetToList($recordset, $columnName);
 		return Container::firstValue($list);
 	}
+
+	protected static function parseNameList($text)
+	{
+		$list = [];
+		do
+		{
+			$text = \trim($text);
+			$m = [];
+			if (\preg_match(
+				chr(1) . '^' . self::PATTERN_IDENTIFIER_QUOTED . chr(1),
+				$text, $m))
+			{
+				$list[] = $m['id'];
+			}
+			elseif (\preg_match(
+				chr(1) . '^' . self::PATTERN_IDENTIFIER . chr(1), $text,
+				$m))
+			{
+				$list[] = $m[0];
+			}
+			else
+				break;
+			$text = \substr($text, \strlen($m[0]));
+		}
+		while (true);
+
+		return $list;
+	}
+
+	const PATTERN_IDENTIFIER = '[a-zA-Z][^."\'`\[\]\{\}\(\)\\\\]*';
+
+	const PATTERN_IDENTIFIER_QUOTED = '(?<idopenquote>(?<quote>["`])|\[)(?<id>' .
+		self::PATTERN_IDENTIFIER . ')(?<idclosequote>\k<quote>|\])';
 }
