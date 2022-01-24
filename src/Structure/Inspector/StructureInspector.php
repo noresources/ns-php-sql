@@ -12,6 +12,7 @@ use NoreSources\Container\Container;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Structure\ColumnStructure;
 use NoreSources\SQL\Structure\ForeignKeyTableConstraint;
+use NoreSources\SQL\Structure\Identifier;
 use NoreSources\SQL\Structure\IndexDescriptionInterface;
 use NoreSources\SQL\Structure\IndexStructure;
 use NoreSources\SQL\Structure\KeyTableConstraintInterface;
@@ -23,6 +24,9 @@ use NoreSources\SQL\Structure\TableConstraintInterface;
 use NoreSources\SQL\Structure\TableStructure;
 use NoreSources\Type\TypeDescription;
 
+/**
+ * Provide information on an abstract datasource structure description
+ */
 class StructureInspector
 {
 	use SingletonTrait;
@@ -186,6 +190,15 @@ class StructureInspector
 		return $references;
 	}
 
+	/**
+	 *
+	 * @param StructureElementInterface $root
+	 * @return StructureElementInterface[] List of reverse dependencies for each element
+	 *         <ul>
+	 *         <li>Key is the unique element identifier</li>
+	 *         <li>Value is an array of elements that depends on the key element</li>
+	 *         </ul>
+	 */
 	public function getReverseReferenceMap(
 		StructureElementInterface $root)
 	{
@@ -193,7 +206,7 @@ class StructureInspector
 		$references = $this->getReferences($root);
 		foreach ($references as $reference)
 		{
-			$path = $reference->getIdentifier()->getPath();
+			$path = Identifier::make($reference, true)->getPath();
 			if (!Container::keyExists($list, $path))
 				$list[$path] = [];
 			$list[$path][] = $root;
@@ -220,6 +233,13 @@ class StructureInspector
 		return $list;
 	}
 
+	/**
+	 *
+	 * @param ColumnStructure $column
+	 *        	Column to analyse
+	 * @return number Combination of constraint flags of all constraints that are related to the
+	 *         given column
+	 */
 	public function getTableColumnConstraintFlags(
 		ColumnStructure $column)
 	{
