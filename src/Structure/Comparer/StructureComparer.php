@@ -24,7 +24,6 @@ use NoreSources\SQL\Structure\IndexStructure;
 use NoreSources\SQL\Structure\KeyTableConstraintInterface;
 use NoreSources\SQL\Structure\NamespaceStructure;
 use NoreSources\SQL\Structure\PrimaryKeyTableConstraint;
-use NoreSources\SQL\Structure\Structure;
 use NoreSources\SQL\Structure\StructureElementContainerInterface;
 use NoreSources\SQL\Structure\StructureElementInterface;
 use NoreSources\SQL\Structure\StructureResolver;
@@ -496,8 +495,8 @@ class StructureComparer
 		if ($v == 0 || $strict)
 			return $v;
 
-		$a = Structure::getRootElement($a);
-		$b = Structure::getRootElement($b);
+		$a = StructureInspector::getInstance()->getRootElement($a);
+		$b = StructureInspector::getInstance()->getRootElement($b);
 		$ma = ($a instanceof DatasourceStructure) ? $a->getMetadata() : null;
 		$mb = ($b instanceof DatasourceStructure) ? $b->getMetadata() : null;
 		$ca = null;
@@ -1011,8 +1010,8 @@ class StructureComparer
 	protected static function isFromConnection(
 		StructureElementInterface $a)
 	{
-		return (($r = Structure::getRootElement($a)) &&
-			($r instanceof DatasourceStructure) &&
+		return (($r = StructureInspector::getInstance()->getRootElement(
+			$a)) && ($r instanceof DatasourceStructure) &&
 			$r->getMetadata()->has(K::STRUCTURE_METADATA_CONNECTION));
 	}
 
@@ -1025,7 +1024,7 @@ class StructureComparer
 			return false;
 
 		/** @var DatasourceStructure $r */
-		$r = Structure::getRootElement($a);
+		$r = StructureInspector::getInstance()->getRootElement($a);
 		if (!($r instanceof DatasourceStructure &&
 			$r->getMetadata()->has(K::STRUCTURE_METADATA_CONNECTION)))
 			return false;
@@ -1048,8 +1047,8 @@ class StructureComparer
 	protected static function canStrictCompare(
 		StructureElementInterface $a, StructureElementInterface $b)
 	{
-		$ra = Structure::getRootElement($a);
-		$rb = Structure::getRootElement($b);
+		$ra = StructureInspector::getInstance()->getRootElement($a);
+		$rb = StructureInspector::getInstance()->getRootElement($b);
 
 		$ca = null;
 		if ($ra instanceof DatasourceStructure &&

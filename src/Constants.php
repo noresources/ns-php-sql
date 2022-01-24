@@ -357,7 +357,7 @@ class Constants
 	/**
 	 * Table column uniqueness constraint.
 	 *
-	 * Returned by ColumnStructure::getConstraintFlags ()
+	 * Returned by ColumnStructureInspector::getInstance()->getConstraintFlags ()
 	 */
 	const CONSTRAINT_COLUMN_UNIQUE = Bitset::BIT_02 |
 		self::CONSTRAINT_COLUMN_KEY;
@@ -365,7 +365,7 @@ class Constants
 	/**
 	 * Table column primary key constraint.
 	 *
-	 * Returned by ColumnStructure::getConstraintFlags ()
+	 * Returned by ColumnStructureInspector::getInstance()->getConstraintFlags ()
 	 */
 	const CONSTRAINT_COLUMN_PRIMARY_KEY = Bitset::BIT_03 |
 		self::CONSTRAINT_COLUMN_UNIQUE;

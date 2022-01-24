@@ -15,9 +15,9 @@ use NoreSources\SQL\Structure\Identifier;
 use NoreSources\SQL\Structure\IndexStructure;
 use NoreSources\SQL\Structure\NamespaceStructure;
 use NoreSources\SQL\Structure\PrimaryKeyTableConstraint;
-use NoreSources\SQL\Structure\Structure;
 use NoreSources\SQL\Structure\TableStructure;
 use NoreSources\SQL\Structure\UniqueTableConstraint;
+use NoreSources\SQL\Structure\Inspector\StructureInspector;
 use PHPUnit\Framework\TestCase;
 
 final class StructureTest extends TestCase
@@ -58,10 +58,14 @@ final class StructureTest extends TestCase
 		$table->appendElement($index = new IndexStructure('index'));
 		$index->columns('c');
 
-		$this->assertTrue(Structure::dependsOn($index, $table),
+		$this->assertTrue(
+			StructureInspector::getInstance()->dependsOn($index, $table),
 			'Index depends on parent table');
-		$this->assertTrue(Structure::hasData($table), 'Table has data');
-		$this->assertFalse(Structure::hasData($index),
+		$this->assertTrue(
+			StructureInspector::getInstance()->hasData($table),
+			'Table has data');
+		$this->assertFalse(
+			StructureInspector::getInstance()->hasData($index),
 			'Index does not have data');
 
 		$otherTable = new TableStructure('other');
@@ -89,11 +93,13 @@ final class StructureTest extends TestCase
 			'Non fully qualified element has key != identifier');
 
 		$this->assertEquals($ns,
-			Structure::commonAncestor($table, $otherTable),
+			StructureInspector::getInstance()->getCommonAncestor($table,
+				$otherTable),
 			'Common ancestor of tables is the namespace');
 
 		$this->assertEquals($ns,
-			Structure::commonAncestor($table, $col_a_ref),
+			StructureInspector::getInstance()->getCommonAncestor($table,
+				$col_a_ref),
 			'Common ancestor of table and a column is the namespace');
 
 		$expectedTree = [
@@ -101,7 +107,7 @@ final class StructureTest extends TestCase
 			$ns,
 			$table
 		];
-		$tree = Structure::ancestorTree($pk);
+		$tree = StructureInspector::getInstance()->getAncestorTree($pk);
 
 		$this->assertCount(\count($expectedTree), $tree,
 			'Primary key ancestor tree element count');
@@ -109,23 +115,30 @@ final class StructureTest extends TestCase
 		$this->assertEquals($expectedTree, $tree,
 			'Primary key ancestors');
 
-		$this->assertFalse(Structure::dependsOn($col_a, $col_b),
+		$this->assertFalse(
+			StructureInspector::getInstance()->dependsOn($col_a, $col_b),
 			'Columns of table does not depends on themselve (1)');
-		$this->assertFalse(Structure::dependsOn($col_b, $col_a),
+		$this->assertFalse(
+			StructureInspector::getInstance()->dependsOn($col_b, $col_a),
 			'Columns of table does not depends on themselve (2)');
 
-		$this->assertFalse(Structure::dependsOn($table, $otherTable),
-			'table does not depends on otherTable');
-		$this->assertTrue(Structure::dependsOn($otherTable, $table),
-			'OtherTable depends on table (foreign key)');
+		$this->assertFalse(
+			StructureInspector::getInstance()->dependsOn($table,
+				$otherTable), 'table does not depends on otherTable');
+		$this->assertTrue(
+			StructureInspector::getInstance()->dependsOn($otherTable,
+				$table), 'OtherTable depends on table (foreign key)');
 
-		$this->assertFalse(Structure::dependsOn($col_b, $otherTable),
-			'Column B does not depends on otherTable');
-		$this->assertTrue(Structure::dependsOn($col_a_ref, $table),
-			'Column A ref. depends on table (foreign key)');
+		$this->assertFalse(
+			StructureInspector::getInstance()->dependsOn($col_b,
+				$otherTable), 'Column B does not depends on otherTable');
+		$this->assertTrue(
+			StructureInspector::getInstance()->dependsOn($col_a_ref,
+				$table), 'Column A ref. depends on table (foreign key)');
 
-		$this->assertTrue(Structure::dependsOn($fk_table_a, $table),
-			'Foreign key to table depends on table');
+		$this->assertTrue(
+			StructureInspector::getInstance()->dependsOn($fk_table_a,
+				$table), 'Foreign key to table depends on table');
 	}
 
 	public function testIdentifier()

@@ -19,6 +19,7 @@ use NoreSources\SQL\Structure\NamespaceStructure;
 use NoreSources\SQL\Structure\StructureElementContainerInterface;
 use NoreSources\SQL\Structure\StructureElementInterface;
 use NoreSources\SQL\Structure\StructureResolver;
+use NoreSources\SQL\Structure\TableConstraintInterface;
 use NoreSources\SQL\Structure\TableStructure;
 use NoreSources\Type\TypeDescription;
 
@@ -284,6 +285,22 @@ class StructureInspector
 				TableStructure::class,
 				NamespaceStructure::class
 			]);
+	}
+
+	/**
+	 * Indicates if the element is part of a table
+	 *
+	 * @param StructureElementInterface $element
+	 *        	Element to check
+	 * @return boolean TRUE if $element is a column or a table constraint. Note that IndexStructure
+	 *         is not considered as a table component even if it is generally a parent of a table.
+	 *
+	 *
+	 */
+	public function isTableComponent(StructureElementInterface $element)
+	{
+		return ($element instanceof ColumnStructure) ||
+			($element instanceof TableConstraintInterface);
 	}
 
 	/**

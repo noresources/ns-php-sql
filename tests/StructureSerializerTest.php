@@ -13,10 +13,10 @@ use NoreSources\SQL\Structure\ColumnStructure;
 use NoreSources\SQL\Structure\DatasourceStructure;
 use NoreSources\SQL\Structure\IndexStructure;
 use NoreSources\SQL\Structure\NamespaceStructure;
-use NoreSources\SQL\Structure\Structure;
 use NoreSources\SQL\Structure\StructureElementInterface;
 use NoreSources\SQL\Structure\StructureSerializerFactory;
 use NoreSources\SQL\Structure\TableStructure;
+use NoreSources\SQL\Structure\Inspector\StructureInspector;
 use NoreSources\Test\DerivedFileTestTrait;
 use PHPUnit\Framework\TestCase;
 
@@ -98,10 +98,11 @@ final class StructureSerializerTest extends TestCase
 
 		$children = $ns->getChildElements();
 		$unsortedKeys = Container::keys($children);
-		uasort($children, [
-			Structure::class,
-			'dependencyCompare'
-		]);
+		uasort($children,
+			[
+				StructureInspector::getInstance(),
+				'dependencyCompare'
+			]);
 		$expectedKeys = [
 			'Employees',
 			'Hierarchy',
