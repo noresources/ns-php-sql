@@ -1,5 +1,11 @@
 backup:TableStructure:Employees->Employees_backup
+backup:TableStructure:Hierarchy->Hierarchy_backup
+backup:TableStructure:Tasks->Tasks_backup
 drop:IndexStructure:index_employees_name
+drop:TableStructure:Hierarchy
+drop:TableStructure:Tasks
 drop:TableStructure:Employees
 restore:TableStructure:Employees_backup->Employees
+restore:TableStructure:Hierarchy_backup->Hierarchy
+restore:TableStructure:Tasks_backup->Tasks
 create:IndexStructure:->index_employees_name

@@ -366,6 +366,7 @@ class StructureManager implements ConnectionProviderInterface
 		StructureElementInterface $reference,
 		StructureElementInterface $target)
 	{
+		$inspector = new StructureInspector();
 		$comparer = StructureComparer::getInstance();
 		$comparisons = $comparer->compare($reference, $target,
 			StructureComparison::ALL_TYPES);
@@ -467,14 +468,16 @@ class StructureManager implements ConnectionProviderInterface
 		}
 		while (Container::count($differences));
 
-		/**
-		 *
-		 * @var StructureOperation[] $operations
-		 */
+		/**  @var StructureOperation[] $operations */
 		$operations = \array_unique($operations);
 
-		$inspector = new StructureInspector();
+		// /////////////////////
+		// Cascade operations
+
+		$reverseReferences = $inspector->getReverseReferenceMap(
+			$inspector->getRootElement($reference));
 		$changes = 0;
+
 		do
 		{
 			$changes = 0;
@@ -482,25 +485,78 @@ class StructureManager implements ConnectionProviderInterface
 			foreach ($operations as $operation)
 			{
 				$newOperations[] = $operation;
-				if (!$operation->getType() != StructureOperation::DROP)
+				if (!$this->isDropOperation($operation))
 					continue;
 
-				$reverseReferences = $inspector->getReverseReferenceMap(
-					$operation->getReference());
-				foreach ($reverseReferences as $rr)
+				$canonicalKey = Identifier::make(
+					$operation->getReference()->getIdentifier(), true)->getPath();
+
+				if (!Container::keyExists($reverseReferences,
+					$canonicalKey))
+					continue;
+
+				foreach ($reverseReferences[$canonicalKey] as $rr)
 				{
 					if ($this->isDropped($operations, $rr))
 						continue;
 
-					$target = $this->findTarget($comparison, $rr);
-					$this->createBackupRestore($newOperations, $rr,
-						$target);
+					$moveUp = false;
+					$operationReference = $rr;
+					do
+					{
+						$moveUp = false;
+						$dropOperationClassname = self::getOperationStatementClassname(
+							'Drop', $operationReference);
+						$createOperationClassname = self::getOperationStatementClassname(
+							'Create', $operationReference);
+
+						$hasDropStatement = $platform->hasStatement(
+							$dropOperationClassname);
+						$hasCreateStatement = $platform->hasStatement(
+							$createOperationClassname);
+
+						if ($hasDropStatement && $hasCreateStatement)
+							break;
+
+						/**
+						 *
+						 * @todo A better check based on structure kind "level"
+						 * @todo do not move up to table level
+						 * @todo Improve message
+						 */
+						if (!$inspector->isTableComponent(
+							$operationReference))
+							throw new \Exception(
+								'Cannot backup/restore ' .
+								TypeDescription::getLocalName($rr) . ' ' .
+								$rr->getName() . ' nor ancestor ' .
+								TypeDescription::getLocalName(
+									$operationReference) . ' ' .
+								$operationReference->getName() .
+								' reverse dependency');
+
+						$operationReference = $operationReference->getParentElement();
+						$moveUp = true;
+					}
+					while ($moveUp);
+
+					if ($rr !== $operationReference &&
+						$this->isDropped($operations,
+							$operationReference))
+						continue;
+
+					$target = $this->findTarget($comparisons,
+						$operationReference);
+					$this->createBackupRestore($newOperations,
+						$operationReference, $target);
 				}
 			}
 
-			$operations = $newOperations;
+			$operations = \array_unique($newOperations);
 		}
 		while ($changes);
+
+		$operations = \array_unique($operations);
 
 		usort($operations,
 			function ($a, $b) {
@@ -543,7 +599,8 @@ class StructureManager implements ConnectionProviderInterface
 		StructureElementInterface $element,
 		StructureElementInterface $target = null)
 	{
-		$hasData = StructureInspector::getInstance()->hasData($element);
+		$inspector = StructureInspector::getInstance();
+		$hasData = $inspector->hasData($element);
 		$name = $element->getName();
 		$backup = null;
 		$backupStructure = null;
@@ -562,6 +619,7 @@ class StructureManager implements ConnectionProviderInterface
 			$operations[] = $backup = new StructureOperation(
 				StructureOPeration::BACKUP, $element, $backupStructure);
 		}
+
 		$operations[] = $drop = new StructureOperation(
 			StructureOperation::DROP, $element);
 		if ($hasData)
@@ -575,7 +633,7 @@ class StructureManager implements ConnectionProviderInterface
 		else
 		{
 			$operations[] = new StructureOperation(
-				StructureOperation::CREATE, $target);
+				StructureOperation::CREATE, null, $target);
 		}
 	}
 
@@ -593,7 +651,21 @@ class StructureManager implements ConnectionProviderInterface
 				return $c->getTarget();
 		}
 
-		return null;
+		throw new \RuntimeException(
+			'Failed to find target of ' .
+			TypeDescription::getLocalName($reference) . ' ' .
+			(Identifier::make($reference, true)->getPath()));
+	}
+
+	protected function isDropOperation(StructureOperation $operation)
+	{
+		static $dropOperations = [
+			StructureOperation::DROP,
+			StructureOperation::BACKUP
+		];
+
+		return Container::valueExists($dropOperations,
+			$operation->getType());
 	}
 
 	/**
@@ -607,7 +679,7 @@ class StructureManager implements ConnectionProviderInterface
 	{
 		foreach ($operations as $operation)
 		{
-			if ($operation->getType() == StructureOperation::DROP &&
+			if ($this->isDropOperation($operation) &&
 				$operation->getReference() === $element)
 				return true;
 		}

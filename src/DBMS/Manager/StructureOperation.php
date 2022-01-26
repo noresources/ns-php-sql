@@ -107,7 +107,8 @@ class StructureOperation implements ComparableInterface,
 						return -1;
 				break;
 				case self::DROP:
-					if (StructureInspector::getInstance()->conflictsWith($sta, $srb))
+					if (StructureInspector::getInstance()->conflictsWith(
+						$sta, $srb))
 						return 1;
 					if (!$rb || ($rb->getType() == self::BACKUP))
 						return 1;
@@ -139,7 +140,13 @@ class StructureOperation implements ComparableInterface,
 				case self::ALTER:
 				break;
 				case self::CREATE:
-					if (StructureInspector::getInstance()->conflictsWith($sra, $stb))
+					var_dump(
+						[
+							$ta => TypeDescription::getLocalName($sra),
+							$tb => TypeDescription::getLocalName($stb)
+						]);
+					if (StructureInspector::getInstance()->conflictsWith(
+						$sra, $stb))
 						return -1;
 				break;
 				case self::DROP:
@@ -171,11 +178,12 @@ class StructureOperation implements ComparableInterface,
 				case self::RENAME:
 				break;
 				case self::RESTORE:
-					if (StructureInspector::getInstance()->conflictsWith($stb, $sra))
+					if (StructureInspector::getInstance()->conflictsWith(
+						$stb, $sra))
 						return -1;
 					$backup = $b->getOriginalOperation();
-					if (Structure::dependencyCompare($sra,
-						$backup->getReference()))
+					if (StructureInspector::getInstance()->dependencyCompare(
+						$sra, $backup->getReference()))
 						return -1;
 				break;
 			}
@@ -207,7 +215,8 @@ class StructureOperation implements ComparableInterface,
 						return -1;
 				break;
 				case self::DROP:
-					if (StructureInspector::getInstance()->conflictsWith($sta, $srb))
+					if (StructureInspector::getInstance()->conflictsWith(
+						$sta, $srb))
 						return 1;
 					if ($rb && $rb->getType() == self::BACKUP)
 						return 1;
@@ -305,9 +314,14 @@ class StructureOperation implements ComparableInterface,
 		$this->operationType = $type;
 		$this->reference = $reference;
 		$this->target = $target;
+
+		// DEBUG
+		if ($this->operationType == self::CREATE && !$this->target)
+			throw new \Exception();
 	}
 
-	private static function dependsOn(&$var, $a, $b)
+	private static function dependsOn(&$var,
+		StructureElementInterface $a, StructureElementInterface $b)
 	{
 		if (\is_bool($var))
 			return $var;

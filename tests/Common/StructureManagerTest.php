@@ -120,11 +120,11 @@ final class StructureManagerTest extends TestCase
 
 		// TEST
 		{
-			/**
-			 * This part is not testable yet
-			 */
+		/**
+		 * This part is not testable yet
+		 */
 
-			return false;
+			// return false;
 		}
 
 		$this->dbmsManagerModify($dbmsName, $method, $manager, $from,
