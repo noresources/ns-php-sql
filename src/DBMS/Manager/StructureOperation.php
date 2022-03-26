@@ -12,7 +12,6 @@ use NoreSources\ComparableInterface;
 use NoreSources\Container\ChainElementInterface;
 use NoreSources\Container\ChainElementTrait;
 use NoreSources\Container\Container;
-use NoreSources\SQL\Structure\Structure;
 use NoreSources\SQL\Structure\StructureElementInterface;
 use NoreSources\SQL\Structure\Comparer\StructureComparison;
 use NoreSources\SQL\Structure\Inspector\StructureInspector;
@@ -225,8 +224,8 @@ class StructureOperation implements ComparableInterface,
 						return 1;
 					$backup = $a->getOriginalOperation();
 
-					if (Structure::dependencyCompare($srb,
-						$backup->getReference()))
+					if (StructureInspector::getInstance()->dependencyCompare(
+						$srb, $backup->getReference()))
 						return 1;
 				break;
 				case self::RENAME:
