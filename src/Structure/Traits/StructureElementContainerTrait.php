@@ -12,6 +12,8 @@ use NoreSources\Container\CaseInsensitiveKeyMapTrait;
 use NoreSources\Container\Container;
 use NoreSources\Container\KeyNotFoundException;
 use NoreSources\SQL\NameProviderInterface;
+use NoreSources\SQL\Structure\Identifier;
+use NoreSources\SQL\Structure\StructureElementContainerInterface;
 use NoreSources\SQL\Structure\StructureElementInterface;
 
 trait StructureElementContainerTrait
@@ -39,20 +41,24 @@ trait StructureElementContainerTrait
 		return $child;
 	}
 
-	public function findDescendant($tree)
+	public function findDescendant($identifier)
 	{
-		if (is_string($tree))
-			return $this->offsetGet($tree);
+		$element = $this;
+		$identifier = Identifier::make($identifier);
+		$parts = $identifier->getPathParts();
 
-		$e = $this;
-		foreach ($tree as $key)
+		while ($element instanceof StructureElementContainerInterface &&
+			Container::count($parts))
 		{
-			if (!$e->offsetExists($key))
+			$id = \array_shift($parts);
+			if (!$element->has($id))
 				return null;
-			$e = $e->offsetGet($key);
+			$element = $element[$id];
 		}
 
-		return $e;
+		if (Container::count($parts))
+			return null;
+		return $element;
 	}
 
 	public function offsetUnset($key)

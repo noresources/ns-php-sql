@@ -7,6 +7,7 @@
  */
 namespace NoreSources\SQL;
 
+use NoreSources\Container\Container;
 use NoreSources\SQL\Constants as K;
 use NoreSources\SQL\Structure\ColumnStructure;
 use NoreSources\SQL\Structure\DatasourceStructure;
@@ -15,13 +16,16 @@ use NoreSources\SQL\Structure\Identifier;
 use NoreSources\SQL\Structure\IndexStructure;
 use NoreSources\SQL\Structure\NamespaceStructure;
 use NoreSources\SQL\Structure\PrimaryKeyTableConstraint;
+use NoreSources\SQL\Structure\StructureElementContainerInterface;
 use NoreSources\SQL\Structure\TableStructure;
 use NoreSources\SQL\Structure\UniqueTableConstraint;
 use NoreSources\SQL\Structure\Inspector\StructureInspector;
+use NoreSources\Test\DatasourceManagerTrait;
 use PHPUnit\Framework\TestCase;
 
 final class StructureTest extends TestCase
 {
+	use DatasourceManagerTrait;
 
 	public function testNameProperty()
 	{
@@ -175,5 +179,61 @@ final class StructureTest extends TestCase
 		$this->assertEquals(0, $a->compare($b), 'a == b');
 		$this->assertEquals(0, $b->compare($a), 'b == a');
 		$this->assertNotEquals(0, $a->compare($c), 'a != c');
+	}
+
+	public function testDescendant()
+	{
+		$structure = $this->getDatasource('Company');
+
+		$tests = [
+			[
+				'identifier' => '',
+				'expected' => DatasourceStructure::class
+			],
+			[
+				'identifier' => 'ns_unittests',
+				'expected' => NamespaceStructure::class
+			],
+			[
+				'identifier' => 'ns_unittests.Employees',
+				'expected' => TableStructure::class
+			],
+			[
+				'identifier' => 'ns_unittests.Employees.name',
+				'expected' => ColumnStructure::class
+			],
+			[
+				'identifier' => 'ns_unittests.Employees.pk_id',
+				'expected' => PrimaryKeyTableConstraint::class
+			],
+			[
+				'identifier' => 'ns_unittests.Employees.index_employees_name',
+				'expected' => IndexStructure::class
+			]
+		];
+
+		foreach ($tests as $test)
+		{
+			$identifier = $test['identifier'];
+			$element = false;
+			if ($structure instanceof StructureElementContainerInterface)
+				$element = $structure->findDescendant($identifier);
+			if (($expected = Container::keyValue($test, 'expected')))
+			{
+				$this->assertInstanceOf($expected, $element,
+					'Element found');
+			}
+			else
+				$this->assertEquals(null, $element,
+					'Element "' . $identifier . '" does not exists');
+		}
+	}
+
+	public function __construct($name = null, array $data = [],
+		$dataName = '')
+	{
+		parent::__construct($name, $data, $dataName);
+
+		$this->initializeDatasourceManager(__DIR__);
 	}
 }

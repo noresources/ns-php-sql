@@ -30,8 +30,8 @@ interface StructureElementContainerInterface extends AssetMapInterface,
 
 	/**
 	 *
-	 * @param StructureElementInterface $tree
+	 * @param Identifier $identifier
 	 * @return StructureElementInterface
 	 */
-	function findDescendant($tree);
+	function findDescendant($identifier);
 }
