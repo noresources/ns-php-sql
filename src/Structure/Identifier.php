@@ -131,7 +131,8 @@ class Identifier implements StringRepresentation, ArrayRepresentation,
 	 */
 	public function getPathParts()
 	{
-		return \explode('.', $this->path);
+		$parts = \explode('.', $this->path);
+		return Container::filterValues($parts, '\strlen');
 	}
 
 	/**
