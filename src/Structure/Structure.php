@@ -21,6 +21,7 @@ class Structure
 	 * @param string $newName
 	 * @throws \RuntimeException
 	 * @return StructureElementInterface
+	 * @deprecated Use Manipulator
 	 */
 	public static function duplicate(
 		StructureElementInterface $structure, $newName)
